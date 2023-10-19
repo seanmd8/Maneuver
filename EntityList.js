@@ -57,5 +57,3 @@ class EntityList{
         }
     }
 }
-
-module.exports = EntityList;

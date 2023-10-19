@@ -1,5 +1,3 @@
-const tileset = require("./Utils.js");
-const EntityList = require("./EntityList.js")
 
 class GameMap{
     #x_max;
@@ -19,7 +17,7 @@ class GameMap{
         for(var i = 0; i < this.#x_max; ++i){
             this.#grid.push([]);
             for(var j = 0; j < this.#y_max; ++j){
-                this.#grid[i].push(tileset.empty_tile());
+                this.#grid[i].push(empty_tile());
             }
         }
         this.set_exit(Math.floor(Math.random() * this.#y_max), 0)
@@ -64,14 +62,14 @@ class GameMap{
     set_exit(exit_x, exit_y){
         this.check_bounds(exit_x, exit_y);
         this.check_empty(exit_x, exit_y);
-        this.#grid[exit_x][exit_y] = tileset.exit_tile();
+        this.#grid[exit_x][exit_y] = exit_tile();
         ++this.#entity_list.count;
     }
     set_player(player_x, player_y){
         this.check_bounds(player_x, player_y);
         this.check_empty(player_x, player_y);
         this.#entity_list.set_player(player_x, player_y);
-        this.#grid[player_x][player_y] = tileset.player_tile();
+        this.#grid[player_x][player_y] = player_tile();
         ++this.#entity_list.count;
     }
     add_enemy(enemy, x = -1, y = -1){
@@ -124,7 +122,7 @@ class GameMap{
         }
         this.#entity_list.move_any(x2, y2, start);
         this.#grid[x2][y2] = start;
-        this.#grid[x1][y1] = tileset.empty_tile();
+        this.#grid[x1][y1] = empty_tile();
         return true;
     }
     player_move(x_dif, y_dif){
@@ -137,7 +135,7 @@ class GameMap{
         if(target.type === "enemy" && (hits === "enemy" || hits === "all)")){
             target.health -= 1;
             if(target.health === 0){
-                this.#grid[x][y] = tileset.empty_tile()
+                this.#grid[x][y] = empty_tile()
                 this.#entity_list.remove_enemy(target.id)
             }
         }
@@ -153,5 +151,3 @@ class GameMap{
         this.attack(pos.x + x_dif, pos.y + y_dif, "enemy");
     }
 }
-
-module.exports = GameMap;

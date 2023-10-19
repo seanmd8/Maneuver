@@ -30,5 +30,3 @@ function spider_tile(){
         difficulty: 1
     }
 }
-
-module.exports = { player_tile, spider_tile, exit_tile, empty_tile };
