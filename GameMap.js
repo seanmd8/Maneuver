@@ -1,4 +1,6 @@
 
+const GRID_SIZE = 30;
+
 class GameMap{
     #x_max;
     #y_max;
@@ -100,14 +102,26 @@ class GameMap{
 				cell.id = x + ' ' + y;
                 var image = document.createElement('img');
                 image.src = "images/" + this.#grid[x][y].pic;
-                image.height = 20;
-                image.width = 20;
+                image.height = GRID_SIZE;
+                image.width = GRID_SIZE;
 				cell.append(image);
 				row.append(cell);
 			}
 			visual_map.append(row);
-
 		}
+        var row = document.createElement('tr');
+        row.id = "health";
+        for(var i = 0; i < this.player_health(); ++i){
+            var cell = document.createElement('td');
+			cell.id = "health " + i;
+            var image = document.createElement('img');
+            image.src = "images/heart.png";
+            image.height = GRID_SIZE;
+            image.width = GRID_SIZE;
+			cell.append(image);
+			row.append(cell);
+        }
+        visual_map.append(row);
 	}
     move(x1, y1, x2, y2){
         this.check_bounds(x1, y1);
@@ -129,8 +143,17 @@ class GameMap{
         var pos = this.#entity_list.get_player_pos();
         this.move(pos.x, pos.y, pos.x + x_dif, pos.y + y_dif)
     }
+    player_health(){
+        var pos = this.#entity_list.get_player_pos();
+        return this.#grid[pos.x][pos.y].health;
+    }
     attack(x, y, hits = "all"){
-        this.check_bounds(x, y);
+        try{
+            this.check_bounds(x, y);
+        }
+        catch(error){
+            return;
+        }
         var target = this.#grid[x][y];
         if(target.type === "enemy" && (hits === "enemy" || hits === "all)")){
             target.health -= 1;
