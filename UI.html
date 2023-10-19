@@ -33,6 +33,8 @@
             }
         }
         mapData.display();
+        mapData.enemy_turn();
+        mapData.display();
     }
 
     function spin_attack(){
@@ -44,6 +46,8 @@
         attack(-1, 0);
         attack(-1, -1);
         attack(0, -1);
+        mapData.display();
+        mapData.enemy_turn();
         mapData.display();
     }
 

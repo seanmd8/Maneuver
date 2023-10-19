@@ -9,7 +9,6 @@ class EntityList{
         this.#player = 0;
         this.#enemy_list = [];
     }
-
     next_id(){
         return ++this.#id_count;
     }
@@ -54,6 +53,13 @@ class EntityList{
         }
         else{
             throw new Error("moving invalid type");
+        }
+    }
+    enemy_turn(map){
+        // How to avoid multi turns via friendly fire shrinking the list?
+        for(var i = 0; i < this.#enemy_list.length; ++i){
+            var e = this.#enemy_list[i]
+            e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map);
         }
     }
 }

@@ -150,7 +150,11 @@ class GameMap{
         var pos = this.#entity_list.get_player_pos();
         this.attack(pos.x + x_dif, pos.y + y_dif, "enemy");
     }
+    enemy_turn(){
+        this.#entity_list.enemy_turn(this);
+    }
 }
+
 
 class EntityList{
     count
@@ -163,7 +167,6 @@ class EntityList{
         this.#player = 0;
         this.#enemy_list = [];
     }
-
     next_id(){
         return ++this.#id_count;
     }
@@ -210,6 +213,13 @@ class EntityList{
             throw new Error("moving invalid type");
         }
     }
+    enemy_turn(map){
+        // How to avoid multi turns via friendly fire shrinking the list?
+        for(var i = 0; i < this.#enemy_list.length; ++i){
+            var e = this.#enemy_list[i]
+            e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map);
+        }
+    }
 }
 
 function empty_tile(){
@@ -239,8 +249,29 @@ function spider_tile(){
         type: "enemy",
         enemy_type: "spider",
         pic: "spider.png",
-        uuid: "",
+        id: "",
         health: 1,
-        difficulty: 1
+        difficulty: 1,
+        behavior: spider_ai
+    }
+}
+function spider_ai(x, y, x_dif, y_dif, map){
+    if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
+        map.attack(x + x_dif, y + y_dif, "player");
+    }
+    else{
+        if(x_dif > 0){
+            x_dif = 1;
+        }
+        if(x_dif < 0){
+            x_dif = -1;
+        }
+        if(y_dif > 0){
+            y_dif = 1;
+        }
+        if(y_dif < 0){
+            y_dif = -1;
+        }
+        map.move(x, y, x + x_dif, y + y_dif);
     }
 }

@@ -150,4 +150,7 @@ class GameMap{
         var pos = this.#entity_list.get_player_pos();
         this.attack(pos.x + x_dif, pos.y + y_dif, "enemy");
     }
+    enemy_turn(){
+        this.#entity_list.enemy_turn(this);
+    }
 }
