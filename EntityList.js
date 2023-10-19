@@ -35,7 +35,7 @@ class EntityList{
         if(index === -1){
             throw new Error("id not found");
         }
-        this.#enemy_list = this.#enemy_list.slice(0, index) + this.#enemy_list.slice(index + 1, this.#enemy_list.length);
+        this.#enemy_list = this.#enemy_list.slice(0, index).concat(this.#enemy_list.slice(index + 1, this.#enemy_list.length));
     }
     #find_by_id(id){
         for(var i = 0; i < this.#enemy_list.length; ++i){

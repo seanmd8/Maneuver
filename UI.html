@@ -2,10 +2,7 @@
 <h2 id= "header2">Floor 1</h2>
 
 <body onload="setup()"></body>
-<script src="Utils.js"></script>
-<script src="EntityList.js"></script>
-<script src="GameMap.js"></script>
-
+<script src="Mishmash.js"></script>
 
 <script>
     function setup(){
@@ -55,7 +52,6 @@
             mapData.player_attack(x, y);
         }
         catch(error){
-            console.log(error);
             var m = error.message;
             if(m === "x out of bounds" || m === "y out of bounds"){
                 // Do nothing
