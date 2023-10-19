@@ -13,7 +13,7 @@ class GameMap{
         this.#floor = 0;
         this.erase()
     }
-    erase(){
+    erase(player_health = -1){
         this.#entity_list = new EntityList();
         this.#grid = [];
         for(var i = 0; i < this.#x_max; ++i){
@@ -23,7 +23,7 @@ class GameMap{
             }
         }
         this.set_exit(Math.floor(Math.random() * this.#y_max), 0)
-        this.set_player(Math.floor(Math.random() * this.#y_max), this.#x_max - 1)
+        this.set_player(Math.floor(Math.random() * this.#y_max), this.#x_max - 1, player_health)
         return ++this.#floor;
     }
     random_space(){
@@ -67,11 +67,15 @@ class GameMap{
         this.#grid[exit_x][exit_y] = exit_tile();
         ++this.#entity_list.count;
     }
-    set_player(player_x, player_y){
+    set_player(player_x, player_y, player_health = -1){
         this.check_bounds(player_x, player_y);
         this.check_empty(player_x, player_y);
         this.#entity_list.set_player(player_x, player_y);
-        this.#grid[player_x][player_y] = player_tile();
+        var player = player_tile();
+        if(player_health > 0){
+            player.health = player_health;
+        }
+        this.#grid[player_x][player_y] = player;
         ++this.#entity_list.count;
     }
     add_enemy(enemy, x = -1, y = -1){

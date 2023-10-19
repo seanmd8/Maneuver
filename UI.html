@@ -21,7 +21,7 @@
         catch (error){
             var m = error.message;
             if(m === 'floor complete'){
-                var floor = mapData.erase();
+                var floor = mapData.erase(mapData.player_health());
                 var spawner = [spider_tile, turret_tile, scythe_tile, knight_tile];
                 for(var i = 0; i < floor;){
                     var choice = Math.floor(Math.random() * spawner.length);
