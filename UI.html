@@ -11,6 +11,10 @@
         mapData.display();
     }
 
+    function describe(description){
+        document.getElementById("header3").innerText = description;
+    }
+
     function move(x, y){
         try{
             mapData.player_move(x, y);
@@ -77,3 +81,4 @@
 <input type= "button" value= "Right" name="Right" onClick="move(1, 0)"><br>
 <input type= "button" value= "Down" name="Down" onClick="move(0, 1)"><br>
 <input type= "button" value= "Spin Attack" name="Spin" onClick="spin_attack()"><br>
+<h3 id= "header3">Welcome to the dungeon</h3>

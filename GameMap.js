@@ -108,6 +108,7 @@ class GameMap{
                 image.src = "images/" + this.#grid[x][y].pic;
                 image.height = GRID_SIZE;
                 image.width = GRID_SIZE;
+                image.setAttribute("onClick", "describe('" + this.#grid[x][y].description + "')");
 				cell.append(image);
 				row.append(cell);
 			}
