@@ -130,7 +130,12 @@ class GameMap{
 	}
     move(x1, y1, x2, y2){
         this.check_bounds(x1, y1);
-        this.check_bounds(x2, y2);
+        try{
+            this.check_bounds(x2, y2);
+        }
+        catch{
+            return false;
+        }
         var start = this.#grid[x1][y1];
         var end = this.#grid[x2][y2];
         if(start.type === "player" && end.type === "exit"){
@@ -146,7 +151,7 @@ class GameMap{
     }
     player_move(x_dif, y_dif){
         var pos = this.#entity_list.get_player_pos();
-        this.move(pos.x, pos.y, pos.x + x_dif, pos.y + y_dif)
+        return this.move(pos.x, pos.y, pos.x + x_dif, pos.y + y_dif)
     }
     player_health(){
         var pos = this.#entity_list.get_player_pos();
@@ -157,7 +162,7 @@ class GameMap{
             this.check_bounds(x, y);
         }
         catch(error){
-            return;
+            return false;
         }
         var target = this.#grid[x][y];
         if(target.type === "enemy" && (hits === "enemy" || hits === "all)")){
@@ -166,13 +171,16 @@ class GameMap{
                 this.#grid[x][y] = empty_tile()
                 this.#entity_list.remove_enemy(target.id)
             }
+            return true;
         }
-        else if(target.type === "player" && (hits === "player" || hits === "all")){
+        if(target.type === "player" && (hits === "player" || hits === "all")){
             target.health -= 1;
             if(target.health === 0){
                 throw new Error("game over")
             }
+            return true;
         }
+        return false;
     }
     player_attack(x_dif, y_dif){
         var pos = this.#entity_list.get_player_pos();
@@ -182,6 +190,7 @@ class GameMap{
         this.#entity_list.enemy_turn(this);
     }
 }
+
 class EntityList{
     count
     #player
@@ -247,6 +256,8 @@ class EntityList{
         }
     }
 }
+
+
 function empty_tile(){
     return {
         type: "empty",
@@ -254,7 +265,6 @@ function empty_tile(){
         description: empty_description
     }
 }
-
 function exit_tile(){
     return {
         type: "exit",
@@ -262,7 +272,6 @@ function exit_tile(){
         description: exit_description
     }
 }
-
 function player_tile(){
     return {
         type: "player",
@@ -271,7 +280,6 @@ function player_tile(){
         description: player_description
     }
 }
-
 function spider_tile(){
     return {
         type: "enemy",
@@ -284,20 +292,30 @@ function spider_tile(){
         description: spider_description
     }
 }
-
-function turret_tile(){
+function turret_h_tile(){
     return {
         type: "enemy",
         enemy_type: "turret",
-        pic: "four_turret.png",
+        pic: "turret_h.png",
         id: "",
         health: 1,
         difficulty: 2,
-        behavior: turret_ai,
-        description: turret_description
+        behavior: turret_h_ai,
+        description: turret_h_description
     }
 }
-
+function turret_d_tile(){
+    return {
+        type: "enemy",
+        enemy_type: "turret",
+        pic: "turret_d.png",
+        id: "",
+        health: 1,
+        difficulty: 2,
+        behavior: turret_d_ai,
+        description: turret_d_description
+    }
+}
 function scythe_tile(){
     return{
         type: "enemy",
@@ -310,7 +328,6 @@ function scythe_tile(){
         description: scythe_description
     }
 }
-
 function knight_tile(){
     return{
         type: "enemy",
@@ -327,10 +344,15 @@ function knight_tile(){
 const empty_description = "There is nothing here.";
 const exit_description = "Stairs to the next floor.";
 const player_description = "You.";
-const spider_description = "Spider: Will attack if next to the player. Otherwise it will move closer to them.";
-const turret_description = "Turret: Does not move. Can attack orthoganally at a range.";
+const spider_description = "Spider: Will attack the player if it is next to them. Otherwise it will move closer.";
+const turret_h_description = "Turret: Does not move. Fires beams orthogonally hurting anything in their path.";
+const turret_d_description = "Turret: Does not move. Fires beams diagonally hurting anything in their path.";
 const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them.";
-const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move away again.";
+const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
+
+const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile];
+
+
 function spider_ai(x, y, x_dif, y_dif, map){
     if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
         map.attack(x + x_dif, y + y_dif, "player");
@@ -351,24 +373,14 @@ function spider_ai(x, y, x_dif, y_dif, map){
         map.move(x, y, x + x_dif, y + y_dif);
     }
 }
-function turret_ai(x, y, x_dif, y_dif, map){
+function turret_h_ai(x, y, x_dif, y_dif, map){
     if(x_dif === 0){
         var direction = 1
         if(y_dif < 0){
             direction = -1;
         }
-        try{
-            for(var i = 1; i < 11; ++i){ 
-                map.attack(x, y + i * direction);
-            } 
-        }
-        catch(error){
-            if(error.message === "y out of bounds"){
-                // Do nothing
-            }
-            else{
-                throw error;
-            }
+        for(var i = 1; i < 11; ++i){ 
+            map.attack(x, y + i * direction);
         }
     }
     if(y_dif === 0){
@@ -376,22 +388,27 @@ function turret_ai(x, y, x_dif, y_dif, map){
         if(x_dif < 0){
             direction = -1;
         }
-        try{
-            for(var i = 1; i < 11; ++i){ 
-                map.attack(x + i * direction, y);
-            } 
-        }
-        catch(error){
-            if(error.message === "x out of bounds"){
-                // Do nothing
-            }
-            else{
-                throw error;
-            }
+        for(var i = 1; i < 11; ++i){ 
+            map.attack(x + i * direction, y);
         }
     }
 }
-
+function turret_d_ai(x, y, x_dif, y_dif, map){
+    if(!(Math.abs(x_dif) === Math.abs(y_dif))){
+        return;
+    }
+    var x_direction = 1
+    if(x_dif < 0){
+        x_direction = -1;
+    }
+    var y_direction = 1
+    if(y_dif < 0){
+        y_direction = -1;
+    }
+    for(var i = 1; i < 11; ++i){ 
+        map.attack(x + i * x_direction, y + i * y_direction);
+    }
+}
 function scythe_ai(x, y, x_dif, y_dif, map){
     var direction = Math.floor(Math.random() * 4);
     if(x_dif < 0 && y_dif < 0){
@@ -406,64 +423,53 @@ function scythe_ai(x, y, x_dif, y_dif, map){
     if(x_dif > 0 && y_dif > 0){
         direction = 3;
     }
-    try{
-        switch(direction){
-            case 0:
-                for(var i = 0; i < 3; ++i){
-                    if(!map.move(x, y, x - 1, y - 1)){
-                        break;
-                    }
-                    x -= 1;
-                    y -= 1;
-                    map.attack(x + 1, y, "player");
-                    map.attack(x, y + 1, "player");
+    switch(direction){
+        case 0:
+            for(var i = 0; i < 3; ++i){
+                if(!map.move(x, y, x - 1, y - 1)){
+                    break;
                 }
-                break;
-            case 1:
-                for(var i = 0; i < 3; ++i){
-                    if(!map.move(x, y, x - 1, y + 1)){
-                        break;
-                    }
-                    x -= 1;
-                    y += 1;
-                    map.attack(x + 1, y, "player");
-                    map.attack(x, y - 1, "player");
+                x -= 1;
+                y -= 1;
+                map.attack(x + 1, y, "player");
+                map.attack(x, y + 1, "player");
+            }
+            break;
+        case 1:
+            for(var i = 0; i < 3; ++i){
+                if(!map.move(x, y, x - 1, y + 1)){
+                    break;
                 }
-                break;
-            case 2:
-                for(var i = 0; i < 3; ++i){
-                    if(!map.move(x, y, x + 1, y - 1)){
-                        break;
-                    }
-                    x += 1;
-                    y -= 1;
-                    map.attack(x - 1, y, "player");
-                    map.attack(x, y + 1, "player");
+                x -= 1;
+                y += 1;
+                map.attack(x + 1, y, "player");
+                map.attack(x, y - 1, "player");
+            }
+            break;
+        case 2:
+            for(var i = 0; i < 3; ++i){
+                if(!map.move(x, y, x + 1, y - 1)){
+                    break;
                 }
-                break;
-            case 3:
-                for(var i = 0; i < 3; ++i){
-                    if(!map.move(x, y, x + 1, y + 1)){
-                        break;
-                    }
-                    x += 1;
-                    y += 1;
-                    map.attack(x - 1, y, "player");
-                    map.attack(x, y - 1, "player");
+                x += 1;
+                y -= 1;
+                map.attack(x - 1, y, "player");
+                map.attack(x, y + 1, "player");
+            }
+            break;
+        case 3:
+            for(var i = 0; i < 3; ++i){
+                if(!map.move(x, y, x + 1, y + 1)){
+                    break;
                 }
-                break;
-        }
-    }
-    catch(error){
-        if(error.message === "x out of bounds" || error.message === "y out of bounds"){
-            // Do nothing
-        }
-        else{
-            throw error;
-        }
+                x += 1;
+                y += 1;
+                map.attack(x - 1, y, "player");
+                map.attack(x, y - 1, "player");
+            }
+            break;
     }
 }
-
 function knight_ai(x, y, x_dif, y_dif, map){
     // Needs buff
     if(Math.abs(x_dif) + Math.abs(y_dif) === 3){

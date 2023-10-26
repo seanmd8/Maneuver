@@ -26,10 +26,10 @@
             var m = error.message;
             if(m === 'floor complete'){
                 var floor = mapData.erase(mapData.player_health());
-                var spawner = [spider_tile, turret_tile, scythe_tile, knight_tile];
+                enemy_list;
                 for(var i = 0; i < floor;){
-                    var choice = Math.floor(Math.random() * spawner.length);
-                    var new_enemy = spawner[choice]();
+                    var choice = Math.floor(Math.random() * enemy_list.length);
+                    var new_enemy = enemy_list[choice]();
                     mapData.add_enemy(new_enemy);
                     i += new_enemy.difficulty;
                 }

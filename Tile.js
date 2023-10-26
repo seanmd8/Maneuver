@@ -5,7 +5,6 @@ function empty_tile(){
         description: empty_description
     }
 }
-
 function exit_tile(){
     return {
         type: "exit",
@@ -13,7 +12,6 @@ function exit_tile(){
         description: exit_description
     }
 }
-
 function player_tile(){
     return {
         type: "player",
@@ -22,7 +20,6 @@ function player_tile(){
         description: player_description
     }
 }
-
 function spider_tile(){
     return {
         type: "enemy",
@@ -35,20 +32,30 @@ function spider_tile(){
         description: spider_description
     }
 }
-
-function turret_tile(){
+function turret_h_tile(){
     return {
         type: "enemy",
         enemy_type: "turret",
-        pic: "four_turret.png",
+        pic: "turret_h.png",
         id: "",
         health: 1,
         difficulty: 2,
-        behavior: turret_ai,
-        description: turret_description
+        behavior: turret_h_ai,
+        description: turret_h_description
     }
 }
-
+function turret_d_tile(){
+    return {
+        type: "enemy",
+        enemy_type: "turret",
+        pic: "turret_d.png",
+        id: "",
+        health: 1,
+        difficulty: 2,
+        behavior: turret_d_ai,
+        description: turret_d_description
+    }
+}
 function scythe_tile(){
     return{
         type: "enemy",
@@ -61,7 +68,6 @@ function scythe_tile(){
         description: scythe_description
     }
 }
-
 function knight_tile(){
     return{
         type: "enemy",
@@ -78,7 +84,10 @@ function knight_tile(){
 const empty_description = "There is nothing here.";
 const exit_description = "Stairs to the next floor.";
 const player_description = "You.";
-const spider_description = "Spider: Will attack if next to the player. Otherwise it will move closer to them.";
-const turret_description = "Turret: Does not move. Can attack orthoganally at a range.";
+const spider_description = "Spider: Will attack the player if it is next to them. Otherwise it will move closer.";
+const turret_h_description = "Turret: Does not move. Fires beams orthogonally hurting anything in it's path.";
+const turret_d_description = "Turret: Does not move. Fires beams diagonally hurting anything in it's path.";
 const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them.";
-const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move away again.";
+const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
+
+const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile];

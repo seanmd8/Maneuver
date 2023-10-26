@@ -130,7 +130,12 @@ class GameMap{
 	}
     move(x1, y1, x2, y2){
         this.check_bounds(x1, y1);
-        this.check_bounds(x2, y2);
+        try{
+            this.check_bounds(x2, y2);
+        }
+        catch{
+            return false;
+        }
         var start = this.#grid[x1][y1];
         var end = this.#grid[x2][y2];
         if(start.type === "player" && end.type === "exit"){
@@ -146,7 +151,7 @@ class GameMap{
     }
     player_move(x_dif, y_dif){
         var pos = this.#entity_list.get_player_pos();
-        this.move(pos.x, pos.y, pos.x + x_dif, pos.y + y_dif)
+        return this.move(pos.x, pos.y, pos.x + x_dif, pos.y + y_dif)
     }
     player_health(){
         var pos = this.#entity_list.get_player_pos();
@@ -157,7 +162,7 @@ class GameMap{
             this.check_bounds(x, y);
         }
         catch(error){
-            return;
+            return false;
         }
         var target = this.#grid[x][y];
         if(target.type === "enemy" && (hits === "enemy" || hits === "all)")){
@@ -166,13 +171,16 @@ class GameMap{
                 this.#grid[x][y] = empty_tile()
                 this.#entity_list.remove_enemy(target.id)
             }
+            return true;
         }
-        else if(target.type === "player" && (hits === "player" || hits === "all")){
+        if(target.type === "player" && (hits === "player" || hits === "all")){
             target.health -= 1;
             if(target.health === 0){
                 throw new Error("game over")
             }
+            return true;
         }
+        return false;
     }
     player_attack(x_dif, y_dif){
         var pos = this.#entity_list.get_player_pos();
