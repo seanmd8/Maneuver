@@ -140,3 +140,8 @@ function knight_ai(x, y, x_dif, y_dif, map){
     }
     map.move(x, y, x + new_x, y + new_y);
 }
+
+
+function velociphile_ai(x, y, x_dif, y_dif, map){
+    
+}

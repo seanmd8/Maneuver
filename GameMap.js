@@ -1,5 +1,5 @@
 
-const GRID_SIZE = 30;
+const GRID_SCALE = 30;
 
 class GameMap{
     #x_max;
@@ -105,9 +105,9 @@ class GameMap{
 				var cell = document.createElement('td');
 				cell.id = x + ' ' + y;
                 var image = document.createElement('img');
-                image.src = "images/" + this.#grid[x][y].pic;
-                image.height = GRID_SIZE;
-                image.width = GRID_SIZE;
+                image.src = "images/tiles/" + this.#grid[x][y].pic;
+                image.height = GRID_SCALE;
+                image.width = GRID_SCALE;
                 image.setAttribute("onClick", "describe('" + this.#grid[x][y].description + "')");
 				cell.append(image);
 				row.append(cell);
@@ -120,9 +120,9 @@ class GameMap{
             var cell = document.createElement('td');
 			cell.id = "health " + i;
             var image = document.createElement('img');
-            image.src = "images/heart.png";
-            image.height = GRID_SIZE;
-            image.width = GRID_SIZE;
+            image.src = "images/other/heart.png";
+            image.height = GRID_SCALE;
+            image.width = GRID_SCALE;
 			cell.append(image);
 			row.append(cell);
         }
@@ -165,7 +165,7 @@ class GameMap{
             return false;
         }
         var target = this.#grid[x][y];
-        if(target.type === "enemy" && (hits === "enemy" || hits === "all)")){
+        if(target.type === "enemy" && (hits === "enemy" || hits === "all")){
             target.health -= 1;
             if(target.health === 0){
                 this.#grid[x][y] = empty_tile()

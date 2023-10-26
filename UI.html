@@ -9,15 +9,51 @@
         mapData = new GameMap(8, 8);  
         mapData.add_enemy(spider_tile());
         mapData.display();
+        deck = make_starting_deck();
+        deck.display_hand(document.getElementById("handDisplay"));
     }
 
     function describe(description){
         document.getElementById("header3").innerText = description;
     }
 
-    function move(x, y){
+    function prep_move(move, hand_pos){
+        var table = document.getElementById("moveButtons")
+        while(table.rows.length > 0){
+            table.deleteRow(0);
+        }
+        var row = document.createElement('tr');
+        row.id = "buttons";
+        for(var i = 0; i < move.descriptions.length; ++i){
+            var cell = document.createElement('input');
+            cell.type = 'button'
+			cell.name = move.descriptions[i];
+            cell.value = move.descriptions[i];
+            var act = function(behavior, hand_pos){return function(){action(behavior, hand_pos)}};
+            cell.onclick = act(move.behavior[i], hand_pos);
+			row.append(cell);
+        }
+        table.append(row);
+    }
+
+    function action(behavior, hand_pos){
         try{
-            mapData.player_move(x, y);
+            for(var i = 0; i < behavior.length; ++i){
+                if(behavior[i][0] === "attack"){
+                    mapData.player_attack(behavior[i][1], behavior[i][2]);
+                }
+                else if(behavior[i][0] === "move"){
+                    mapData.player_move(behavior[i][1], behavior[i][2]);
+                }
+                else{
+                    throw new Error("Invalid Action Type");
+                }
+            }
+            deck.discard(hand_pos);
+            while(document.getElementById("moveButtons").rows.length > 0){
+                document.getElementById("moveButtons").deleteRow(0);
+            }
+            deck.display_hand(document.getElementById("handDisplay"));
             mapData.display();
             mapData.enemy_turn();
             mapData.display();
@@ -36,49 +72,17 @@
                 document.getElementById('header2').innerText = 'Floor ' + floor;
                 mapData.display();
             }
-            else if (m === 'x out of bounds' || m === 'y out of bounds'){
-                // Do nothing
+            if(m === 'game over'){
+                describe("Game Over");
             }
             else{
-                console.log(m);
-            }
-        }
-    }
-
-    function spin_attack(){
-        attack(1, 1);
-        attack(1, 0);
-        attack(1, -1);
-        attack(0, 1);
-        attack(-1, 1);
-        attack(-1, 0);
-        attack(-1, -1);
-        attack(0, -1);
-        mapData.display();
-        mapData.enemy_turn();
-        mapData.display();
-    }
-
-    function attack(x, y){
-        try{
-            mapData.player_attack(x, y);
-        }
-        catch(error){
-            var m = error.message;
-            if(m === "x out of bounds" || m === "y out of bounds"){
-                // Do nothing
-            }
-            else{
-                console.log(error);
+                console.log(m)
             }
         }
     }
 </script>
 
 <table id="mapDisplay"></table>
-<input type= "button" value= "Up" name="Up" onClick="move(0, -1)"><br>
-<input type= "button" value= "Left" name="Left" onClick="move(-1, 0)">
-<input type= "button" value= "Right" name="Right" onClick="move(1, 0)"><br>
-<input type= "button" value= "Down" name="Down" onClick="move(0, 1)"><br>
-<input type= "button" value= "Spin Attack" name="Spin" onClick="spin_attack()"><br>
+<table id="handDisplay"></table>
+<table id="moveButtons"></table>
 <h3 id= "header3">Welcome to the dungeon</h3>

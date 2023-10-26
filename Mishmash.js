@@ -1,5 +1,84 @@
+const HAND_SIZE = 3;
+const HAND_SCALE = 100;
 
-const GRID_SIZE = 30;
+class MoveDeck{
+    #list;
+    #library;
+    #hand;
+    #discard_pile;
+    constructor(){
+        this.#list = [];
+        this.#library = [];
+        this.#hand = [];
+        this.#discard_pile = [];
+    }
+    #shuffle(arr){
+        var new_arr = [];
+        while(arr.length != 0){
+            var ran = Math.floor(Math.random() * arr.length);
+            new_arr.push(arr[ran]);
+            arr[ran] = arr[arr.length - 1];
+            arr.pop();
+        }
+        return new_arr;
+    }
+    deal(){
+        this.#library = [];
+        this.#hand = [];
+        this.#discard_pile = [];
+        for(var i = 0; i < this.#list.length; ++i){
+            this.#library.push(this.#list[i]);
+        }
+        this.#library = this.#shuffle(this.#library);
+        for(var i = 0; i < HAND_SIZE; ++i){
+            this.#hand.push(this.#library.pop());
+        }
+    }
+    discard(x){
+        if(x >= this.#hand.length){
+            throw new Error('hand out of bounds');
+        }
+        if(this.#library.length === 0){
+            while(this.#discard_pile.length != 0){
+                this.#library.push(this.#discard_pile.pop());
+            }
+            this.#library = this.#shuffle(this.#library);
+        }
+        this.#discard_pile.push(this.#hand[x]);
+        this.#hand[x] = this.#library.pop();
+    }
+    add(card){
+        this.#list.push(card);
+    }
+    add_temp(card){
+        this.#library.push(card);
+        this.#library = this.#shuffle(this.#library);
+    }
+    display_hand(table){
+        while(table.rows.length > 0){
+            table.deleteRow(0);
+        }
+        var row = document.createElement('tr');
+        row.id = "hand";
+        for(var i = 0; i < this.#hand.length; ++i){
+            var cell = document.createElement('td');
+			cell.id = "card " + i;
+            var image = document.createElement('img');
+            image.src = "images/cards/" + this.#hand[i].pic;
+            image.height = HAND_SCALE;
+            image.width = HAND_SCALE;
+            var prep = function(move, hand_pos){return function(){prep_move(move, hand_pos)}};
+            image.onclick = prep(this.#hand[i], i);
+			cell.append(image);
+			row.append(cell);
+        }
+        table.append(row);
+    }
+}
+
+
+
+const GRID_SCALE = 30;
 
 class GameMap{
     #x_max;
@@ -105,9 +184,9 @@ class GameMap{
 				var cell = document.createElement('td');
 				cell.id = x + ' ' + y;
                 var image = document.createElement('img');
-                image.src = "images/" + this.#grid[x][y].pic;
-                image.height = GRID_SIZE;
-                image.width = GRID_SIZE;
+                image.src = "images/tiles/" + this.#grid[x][y].pic;
+                image.height = GRID_SCALE;
+                image.width = GRID_SCALE;
                 image.setAttribute("onClick", "describe('" + this.#grid[x][y].description + "')");
 				cell.append(image);
 				row.append(cell);
@@ -120,9 +199,9 @@ class GameMap{
             var cell = document.createElement('td');
 			cell.id = "health " + i;
             var image = document.createElement('img');
-            image.src = "images/heart.png";
-            image.height = GRID_SIZE;
-            image.width = GRID_SIZE;
+            image.src = "images/other/heart.png";
+            image.height = GRID_SCALE;
+            image.width = GRID_SCALE;
 			cell.append(image);
 			row.append(cell);
         }
@@ -165,7 +244,7 @@ class GameMap{
             return false;
         }
         var target = this.#grid[x][y];
-        if(target.type === "enemy" && (hits === "enemy" || hits === "all)")){
+        if(target.type === "enemy" && (hits === "enemy" || hits === "all")){
             target.health -= 1;
             if(target.health === 0){
                 this.#grid[x][y] = empty_tile()
@@ -190,6 +269,7 @@ class GameMap{
         this.#entity_list.enemy_turn(this);
     }
 }
+
 
 class EntityList{
     count
@@ -257,6 +337,9 @@ class EntityList{
     }
 }
 
+
+
+const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile];
 
 function empty_tile(){
     return {
@@ -341,16 +424,30 @@ function knight_tile(){
     }
 }
 
+
+function velociphile_tile(){
+    return{
+        type: "enemy",
+        enemy_type: "velociphile",
+        pic: "velociphile.png",
+        id: "",
+        health: 3,
+        difficulty: "boss",
+        behavior: velociphile_ai,
+        description: velociphile_description
+    }
+}
+
 const empty_description = "There is nothing here.";
 const exit_description = "Stairs to the next floor.";
 const player_description = "You.";
 const spider_description = "Spider: Will attack the player if it is next to them. Otherwise it will move closer.";
-const turret_h_description = "Turret: Does not move. Fires beams orthogonally hurting anything in their path.";
-const turret_d_description = "Turret: Does not move. Fires beams diagonally hurting anything in their path.";
+const turret_h_description = "Turret: Does not move. Fires beams orthogonally hurting anything in it's path.";
+const turret_d_description = "Turret: Does not move. Fires beams diagonally hurting anything in it's path.";
 const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them.";
 const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
+const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves and attacks in straight lines.";
 
-const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile];
 
 
 function spider_ai(x, y, x_dif, y_dif, map){
@@ -495,3 +592,129 @@ function knight_ai(x, y, x_dif, y_dif, map){
     }
     map.move(x, y, x + new_x, y + new_y);
 }
+
+
+function velociphile_ai(x, y, x_dif, y_dif, map){
+    
+}
+
+
+function make_starting_deck(){
+    deck = new MoveDeck();
+    deck.add(basic_horizontal());
+    deck.add(basic_horizontal());
+    deck.add(basic_diagonal());
+    deck.add(basic_diagonal());
+    deck.add(jump());
+    deck.add(spin_attack());
+    deck.add(spin_attack());
+    deck.add(short_charge());
+    deck.deal();
+    return deck;
+}
+
+function basic_horizontal(){
+    return{
+        name: "basic_horizontal",
+        pic: "basic_horizontal.png",
+        descriptions: [
+            "N",
+            "E",
+            "S",
+            "W"
+        ],
+        behavior: [
+            [["move", 0, -1]],
+            [["move", 1, 0]],
+            [["move", 0, 1]],
+            [["move", -1, 0]]
+            
+        ]
+    }
+}
+function basic_diagonal(){
+    return{
+        name: "basic_diagonal",
+        pic: "basic_diagonal.png",
+        descriptions: [
+            "NE",
+            "SE",
+            "SW",
+            "NW"
+        ],
+        behavior: [
+            [["move", 1, -1]],
+            [["move", 1, 1]],
+            [["move", -1, 1]],
+            [["move", -1, -1]]
+            
+        ]
+    }
+}
+function spin_attack(){
+    return{
+        name: "spin_attack",
+        pic: "spin_attack.png",
+        descriptions: ["spin"],
+        behavior: [
+            [["attack", 1, 1],
+            ["attack", 1, 0],
+            ["attack", 1, -1],
+            ["attack", 0, 1],
+            ["attack", 0, -1],
+            ["attack", -1, 1],
+            ["attack", -1, 0],
+            ["attack", -1, -1]]
+        ]
+    }
+}
+function short_charge(){
+    return{
+        name: "short_charge",
+        pic: "short_charge.png",
+        descriptions: [
+            "N",
+            "E",
+            "S",
+            "W"
+        ],
+        behavior: [
+            [["move", 0, -1],
+            ["move", 0, -1],
+            ["attack", 0, -1]],
+
+            [["move", 1, 0],
+            ["move", 1, 0],
+            ["attack", 1, 0]],
+
+            [["move", 0, 1],
+            ["move", 0, 1],
+            ["attack", 0, 1]],
+
+            [["move", -1, 0],
+            ["move", -1, 0],
+            ["attack", -1, 0]]
+        ]
+    }
+}
+
+function jump(){
+    return{
+        name: "jump",
+        pic: "jump.png",
+        descriptions: [
+            "N",
+            "E",
+            "S",
+            "W"
+        ],
+        behavior: [
+            [["move", 0, -2]],
+            [["move", 2, 0]],
+            [["move", 0, 2]],
+            [["move", -2, 0]]
+            
+        ]
+    }
+}
+
