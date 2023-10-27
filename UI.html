@@ -1,4 +1,4 @@
-<h1>nameTBD</h1>
+<h1>Maneuver</h1>
 <h2 id= "header2">Floor 1</h2>
 
 <body onload="setup()"></body>
@@ -17,11 +17,14 @@
         document.getElementById("header3").innerText = description;
     }
 
-    function prep_move(move, hand_pos){
-        var table = document.getElementById("moveButtons")
-        while(table.rows.length > 0){
-            table.deleteRow(0);
+    function clear_tb(element_id){
+        while(document.getElementById(element_id).rows.length > 0){
+            document.getElementById(element_id).deleteRow(0);
         }
+    }
+
+    function prep_move(move, hand_pos){
+        clear_tb("moveButtons");
         var row = document.createElement('tr');
         row.id = "buttons";
         for(var i = 0; i < move.descriptions.length; ++i){
@@ -33,7 +36,7 @@
             cell.onclick = act(move.behavior[i], hand_pos);
 			row.append(cell);
         }
-        table.append(row);
+        document.getElementById("moveButtons").append(row);
     }
 
     function action(behavior, hand_pos){
@@ -50,9 +53,7 @@
                 }
             }
             deck.discard(hand_pos);
-            while(document.getElementById("moveButtons").rows.length > 0){
-                document.getElementById("moveButtons").deleteRow(0);
-            }
+            clear_tb("moveButtons");
             deck.display_hand(document.getElementById("handDisplay"));
             mapData.display();
             mapData.enemy_turn();
@@ -62,17 +63,20 @@
             var m = error.message;
             if(m === 'floor complete'){
                 var floor = mapData.erase(mapData.player_health());
-                enemy_list;
-                for(var i = 0; i < floor;){
+                for(var i = 0; i < floor * 2;){
                     var choice = Math.floor(Math.random() * enemy_list.length);
                     var new_enemy = enemy_list[choice]();
                     mapData.add_enemy(new_enemy);
                     i += new_enemy.difficulty;
                 }
                 document.getElementById('header2').innerText = 'Floor ' + floor;
+                deck.deal();
                 mapData.display();
+                deck.display_hand(document.getElementById("handDisplay"));
             }
-            if(m === 'game over'){
+            else if(m === 'game over'){
+                mapData.display();
+                clear_tb("handDisplay");
                 describe("Game Over");
             }
             else{
