@@ -69,16 +69,9 @@ class MoveDeck{
         }
         var row = document.createElement('tr');
         row.id = "hand";
+        var prep = function(move, hand_pos){return function(){prep_move(move, hand_pos)}};
         for(var i = 0; i < this.#hand.length; ++i){
-            var cell = document.createElement('td');
-			cell.id = "card " + i;
-            var image = document.createElement('img');
-            image.src = "images/cards/" + this.#hand[i].pic;
-            image.height = HAND_SCALE;
-            image.width = HAND_SCALE;
-            var prep = function(move, hand_pos){return function(){prep_move(move, hand_pos)}};
-            image.onclick = prep(this.#hand[i], i);
-			cell.append(image);
+            var cell =  make_cell("card " + i, "images/cards/" + this.#hand[i].pic, HAND_SCALE, prep, this.#hand[i], i);
 			row.append(cell);
         }
         table.append(row);

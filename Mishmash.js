@@ -69,16 +69,9 @@ class MoveDeck{
         }
         var row = document.createElement('tr');
         row.id = "hand";
+        var prep = function(move, hand_pos){return function(){prep_move(move, hand_pos)}};
         for(var i = 0; i < this.#hand.length; ++i){
-            var cell = document.createElement('td');
-			cell.id = "card " + i;
-            var image = document.createElement('img');
-            image.src = "images/cards/" + this.#hand[i].pic;
-            image.height = HAND_SCALE;
-            image.width = HAND_SCALE;
-            var prep = function(move, hand_pos){return function(){prep_move(move, hand_pos)}};
-            image.onclick = prep(this.#hand[i], i);
-			cell.append(image);
+            var cell =  make_cell("card " + i, "images/cards/" + this.#hand[i].pic, HAND_SCALE, prep, this.#hand[i], i);
 			row.append(cell);
         }
         table.append(row);
@@ -100,6 +93,7 @@ class MoveDeck{
         return false;
     }
 }
+
 
 
 const GRID_SCALE = 30;
@@ -204,15 +198,11 @@ class GameMap{
 		for (var y = 0; y < this.#y_max; y++){
 			var row = document.createElement('tr');
             row.id = 'row ' + y;
+            var desc = function(str){return function(){
+                describe(str);
+            }};
 			for (var x = 0; x < this.#x_max; x++){
-				var cell = document.createElement('td');
-				cell.id = x + ' ' + y;
-                var image = document.createElement('img');
-                image.src = "images/tiles/" + this.#grid[x][y].pic;
-                image.height = GRID_SCALE;
-                image.width = GRID_SCALE;
-                image.setAttribute("onClick", "describe('" + this.#grid[x][y].description + "')");
-				cell.append(image);
+                var cell = make_cell(x + ' ' + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, this.#grid[x][y].description);
 				row.append(cell);
 			}
 			visual_map.append(row);
@@ -220,13 +210,7 @@ class GameMap{
         var row = document.createElement('tr');
         row.id = "health";
         for(var i = 0; i < this.player_health(); ++i){
-            var cell = document.createElement('td');
-			cell.id = "health " + i;
-            var image = document.createElement('img');
-            image.src = "images/other/heart.png";
-            image.height = GRID_SCALE;
-            image.width = GRID_SCALE;
-			cell.append(image);
+            var cell = make_cell("health " + i, "images/other/heart.png", GRID_SCALE);
 			row.append(cell);
         }
         visual_map.append(row);
@@ -294,6 +278,7 @@ class GameMap{
     }
 }
 
+
 class EntityList{
     count
     #player
@@ -359,7 +344,6 @@ class EntityList{
         }
     }
 }
-
 
 const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile];
 
@@ -469,8 +453,6 @@ const turret_d_description = "Turret: Does not move. Fires beams diagonally hurt
 const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them.";
 const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
 const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves and attacks in straight lines.";
-
-
 
 function spider_ai(x, y, x_dif, y_dif, map){
     if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
@@ -620,18 +602,35 @@ function velociphile_ai(x, y, x_dif, y_dif, map){
     
 }
 
-const CARD_CHOICES = [spin_attack, short_charge, jump, step_left, step_right];
+const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_left, 
+    step_right, trample, horsemanship, lunge_left, lunge_right, 
+    sprint, trident, whack, spin_attack, butterfly, 
+    retreat, force, side_attack, clear_behind, spear_slice, 
+    jab, overcome];
 
 function make_starting_deck(){
     deck = new MoveDeck();
+
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
     deck.add(basic_diagonal());
     deck.add(basic_diagonal());
-    deck.add(jump());
-    deck.add(spin_attack());
-    deck.add(spin_attack());
+    deck.add(slice());
+    deck.add(slice());
     deck.add(short_charge());
+    deck.add(jump());
+
+    deck.deal();
+    return deck;
+}
+function make_test_deck(){
+    deck = new MoveDeck();
+    var start = 20;
+    for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
+        deck.add(CARD_CHOICES[i]());
+    }
+    deck.add(basic_horizontal());
+    deck.add(basic_horizontal());
     deck.deal();
     return deck;
 }
@@ -676,21 +675,33 @@ function basic_diagonal(){
         ]
     }
 }
-function spin_attack(){
+function slice(){
     return{
-        name: "spin_attack",
-        pic: "spin_attack.png",
+        name: "slice",
+        pic: "slice.png",
         id: "",
-        descriptions: ["spin"],
+        descriptions: [
+            "N",
+            "E",
+            "S",
+            "W"
+        ],
         behavior: [
+            [["attack", 1, -1],
+            ["attack", 0, -1],
+            ["attack", -1, -1]],
+
             [["attack", 1, 1],
             ["attack", 1, 0],
-            ["attack", 1, -1],
+            ["attack", 1, -1]],
+
+            [["attack", 1, 1],
             ["attack", 0, 1],
-            ["attack", 0, -1],
-            ["attack", -1, 1],
+            ["attack", -1, 1]],
+
+            [["attack", -1, 1],
             ["attack", -1, 0],
-            ["attack", -1, -1]]
+            ["attack", -1, -1]]  
         ]
     }
 }
@@ -707,24 +718,19 @@ function short_charge(){
         ],
         behavior: [
             [["move", 0, -1],
-            ["move", 0, -1],
             ["attack", 0, -1]],
 
             [["move", 1, 0],
-            ["move", 1, 0],
             ["attack", 1, 0]],
 
             [["move", 0, 1],
-            ["move", 0, 1],
             ["attack", 0, 1]],
 
             [["move", -1, 0],
-            ["move", -1, 0],
             ["attack", -1, 0]]
         ]
     }
 }
-
 function jump(){
     return{
         name: "jump",
@@ -741,6 +747,47 @@ function jump(){
             [["move", 2, 0]],
             [["move", 0, 2]],
             [["move", -2, 0]]
+        ]
+    }
+}
+
+function straight_charge(){
+    return{
+        name: "straight_charge",
+        pic: "straight_charge.png",
+        id: "",
+        descriptions: [
+            "N",
+            "S",
+        ],
+        behavior: [
+            [["move", 0, -1],
+            ["move", 0, -1],
+            ["attack", 0, -1]],
+
+            [["move", 0, 1],
+            ["move", 0, 1],
+            ["attack", 0, 1]],
+        ]
+    }
+}
+function side_charge(){
+    return{
+        name: "side_charge",
+        pic: "side_charge.png",
+        id: "",
+        descriptions: [
+            "E",
+            "W"
+        ],
+        behavior: [
+            [["move", 1, 0],
+            ["move", 1, 0],
+            ["attack", 1, 0]],
+
+            [["move", -1, 0],
+            ["move", -1, 0],
+            ["attack", -1, 0]]
         ]
     }
 }
@@ -780,4 +827,319 @@ function step_right(){
         ]
     }
 }
+function trample(){
+    return{
+        name: "trample",
+        pic: "trample.png",
+        id: "",
+        descriptions: [
+            "NE",
+            "NW"
+        ],
+        behavior: [
+            [["attack", 1, -2],
+            ["move", 1, -2]],
 
+            [["attack", -1, -2],
+            ["move", -1, -2]]
+        ]
+    }
+}
+function horsemanship(){
+    return{
+        name: "horsemanship",
+        pic: "horsemanship.png",
+        id: "",
+        descriptions: [
+            "NE",
+            "SE",
+            "SW",
+            "NW"
+        ],
+        behavior: [
+            [["move", 2, -1]],
+            [["move", 2, 1]],
+            [["move", -2, 1]],
+            [["move", -2, -1]]
+            
+        ]
+    }
+}
+function lunge_left(){
+    return{
+        name: "lunge_left",
+        pic: "lunge_left.png",
+        id: "",
+        descriptions: [
+            "SE",
+            "NW"
+        ],
+        behavior: [
+            [["move", 1, 1]],
+
+            [["move", -1, -1],
+            ["move", -1, -1],
+            ["attack", -1, -1]]
+            
+        ]
+    }
+}
+function lunge_right(){
+    return{
+        name: "lunge_right",
+        pic: "lunge_right.png",
+        id: "",
+        descriptions: [
+            "SW",
+            "NE"
+        ],
+        behavior: [
+            [["move", -1, 1]],
+
+            [["move", 1, -1],
+            ["move", 1, -1],
+            ["attack", 1, -1]]
+            
+        ]
+    }
+}
+function sprint(){
+    return{
+        name: "sprint",
+        pic: "sprint.png",
+        id: "",
+        descriptions: [
+            "N"
+        ],
+        behavior: [
+            [["move", 0, -1],
+            ["move", 0, -1],
+            ["move", 0, -1]]
+        ]
+    }
+}
+function trident(){
+    return{
+        name: "trident",
+        pic: "trident.png",
+        id: "",
+        descriptions: [
+            "N",
+            "E",
+            "W"
+        ],
+        behavior: [
+            [["attack", 1, -2],
+            ["attack", 0, -2],
+            ["attack", -1, -2]],
+
+            [["attack", 2, 1],
+            ["attack", 2, 0],
+            ["attack", 2, -1]],
+
+            [["attack", -2, 1],
+            ["attack", -2, 0],
+            ["attack", -2, -1]]
+            
+        ]
+    }
+}
+function whack(){
+    return{
+        name: "whack",
+        pic: "whack.png",
+        id: "",
+        descriptions: [
+            "N",
+            "E",
+            "S",
+            "W"
+        ],
+        behavior: [
+            [["attack", 0, -1],
+            ["attack", 0, -1]],
+
+            [["attack", 1, 0],
+            ["attack", 1, 0]],
+
+            [["attack", 0, 1],
+            ["attack", 0, 1]],
+
+            [["attack", -1, 0],
+            ["attack", -1, 0]]
+            
+        ]
+    }
+}
+function spin_attack(){
+    return{
+        name: "spin_attack",
+        pic: "spin_attack.png",
+        id: "",
+        descriptions: ["spin"],
+        behavior: [
+            [["attack", 1, 1],
+            ["attack", 1, 0],
+            ["attack", 1, -1],
+            ["attack", 0, 1],
+            ["attack", 0, -1],
+            ["attack", -1, 1],
+            ["attack", -1, 0],
+            ["attack", -1, -1]]
+        ]
+    }
+}
+function butterfly(){
+    return{
+        name: "butterfly",
+        pic: "butterfly.png",
+        id: "",
+        descriptions: [
+            "NE",
+            "SE",
+            "SW",
+            "NW"
+   
+        ],
+        behavior: [
+            [["move", 2, -2]],
+            [["move", 1, 1]],
+            [["move", -1, 1]],
+            [["move", -2, -2]]
+        ]
+    }
+}
+function retreat(){
+    return{
+        name: "retreat",
+        pic: "retreat.png",
+        id: "",
+        descriptions: [
+            "SE", 
+            "S",
+            "SW"
+        ],
+        behavior: [
+            [["move", 1, 1]],
+
+            [["move", 0, 1],
+            ["move", 0, 1],
+            ["move", 0, 1]],
+
+            [["move", -1, 1]]
+        ]
+    }
+}
+function force(){
+    return{
+        name: "force",
+        pic: "force.png",
+        id: "",
+        descriptions: [
+            "N",
+        ],
+        behavior: [
+            [["attack", 0, -1],
+            ["move", 0, -1],
+            ["attack", 0, -1],
+            ["move", 0, -1]]
+        ]
+    }
+}
+function side_attack(){
+    return{
+        name: "side_attack",
+        pic: "side_attack.png",
+        id: "",
+        descriptions: [
+            "E",
+            "W"
+        ],
+        behavior: [
+            [["attack", 1, 0],
+            ["attack", 2, 0]],
+
+            [["attack", -2, 0],
+            ["attack", -1, 0]]
+        ]
+    }
+}
+function clear_behind(){
+    return{
+        name: "clear_behind",
+        pic: "clear_behind.png",
+        id: "",
+        descriptions: [
+            "S", 
+            "SS"
+        ],
+        behavior: [
+            [["attack", 1, 1],
+            ["attack", 0, 1],
+            ["attack", -1, 1]],
+
+            [["attack", 1, 2],
+            ["attack", 0, 2],
+            ["attack", -1, 2]]
+        ]
+    }
+}
+function spear_slice(){
+    return{
+        name: "spear_slice",
+        pic: "spear_slice.png",
+        id: "",
+        descriptions: [
+            "N", 
+        ],
+        behavior: [
+            [["attack", 1, -2],
+            ["attack", 1, -1],
+            ["attack", 0, -2],
+            ["attack", -1, -2],
+            ["attack", -1, -1]]
+        ]
+    }
+}
+function jab(){
+    return{
+        name: "jab",
+        pic: "jab.png",
+        id: "",
+        descriptions: [
+            "N",
+            "E",
+            "S",
+            "W"
+        ],
+        behavior: [
+            [["attack", 0, -2]],
+            [["attack", 2, 0]],
+            [["attack", 0, 2]],
+            [["attack", -2, 0]]
+        ]
+    }
+}
+function overcome(){
+    return{
+        name: "overcome",
+        pic: "overcome.png",
+        id: "",
+        descriptions: [
+            "N",
+            "S"
+        ],
+        behavior: [
+            [
+            ["attack", 1, -1],
+            ["attack", 0, -1],
+            ["attack", -1, -1],
+            ["move", 0, -2]],
+
+            [["attack", 1, 1],
+            ["attack", 0, 1],
+            ["attack", -1, 1],
+            ["move", 0, 2]]
+        ]
+    }
+}

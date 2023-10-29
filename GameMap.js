@@ -101,15 +101,11 @@ class GameMap{
 		for (var y = 0; y < this.#y_max; y++){
 			var row = document.createElement('tr');
             row.id = 'row ' + y;
+            var desc = function(str){return function(){
+                describe(str);
+            }};
 			for (var x = 0; x < this.#x_max; x++){
-				var cell = document.createElement('td');
-				cell.id = x + ' ' + y;
-                var image = document.createElement('img');
-                image.src = "images/tiles/" + this.#grid[x][y].pic;
-                image.height = GRID_SCALE;
-                image.width = GRID_SCALE;
-                image.setAttribute("onClick", "describe('" + this.#grid[x][y].description + "')");
-				cell.append(image);
+                var cell = make_cell(x + ' ' + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, this.#grid[x][y].description);
 				row.append(cell);
 			}
 			visual_map.append(row);
@@ -117,13 +113,7 @@ class GameMap{
         var row = document.createElement('tr');
         row.id = "health";
         for(var i = 0; i < this.player_health(); ++i){
-            var cell = document.createElement('td');
-			cell.id = "health " + i;
-            var image = document.createElement('img');
-            image.src = "images/other/heart.png";
-            image.height = GRID_SCALE;
-            image.width = GRID_SCALE;
-			cell.append(image);
+            var cell = make_cell("health " + i, "images/other/heart.png", GRID_SCALE);
 			row.append(cell);
         }
         visual_map.append(row);

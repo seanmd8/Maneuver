@@ -144,7 +144,7 @@
         table.append(remove_row);
     }
 
-    function make_cell(id, pic, size, click = 0, param = 0){
+    function make_cell(id, pic, size, click = 0, param1 = 0, param2 = 0){
         var cell = document.createElement('td');
         cell.id = id;
         var image = document.createElement('img');
@@ -152,7 +152,12 @@
         image.height = size;
         image.width = size;
         if(click != 0){
-            image.onclick = click(param);
+            if(param2 === 0){
+                image.onclick = click(param1);
+            }
+            else{
+                image.onclick = click(param1, param2);
+            }
         }
 		cell.append(image);
         return cell;
@@ -162,5 +167,5 @@
 <table id="mapDisplay"></table>
 <table id="handDisplay"></table>
 <table id="moveButtons"></table>
-<h3 id= "header3">Welcome to the dungeon</h3>
+<h3 id= "header3"><img src="images/other/compass.png" alt="compass" width="80" height="80"/>Welcome to the dungeon</h3>
 <table id="modifyDeck"></table>
