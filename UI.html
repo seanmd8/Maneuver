@@ -55,24 +55,13 @@
             deck.discard(hand_pos);
             clear_tb("moveButtons");
             deck.display_hand(document.getElementById("handDisplay"));
-            mapData.display();
             mapData.enemy_turn();
             mapData.display();
         }
         catch (error){
             var m = error.message;
             if(m === 'floor complete'){
-                var floor = mapData.erase(mapData.player_health());
-                for(var i = 0; i < floor * 2;){
-                    var choice = Math.floor(Math.random() * enemy_list.length);
-                    var new_enemy = enemy_list[choice]();
-                    mapData.add_enemy(new_enemy);
-                    i += new_enemy.difficulty;
-                }
-                document.getElementById('header2').innerText = 'Floor ' + floor;
-                deck.deal();
-                mapData.display();
-                deck.display_hand(document.getElementById("handDisplay"));
+                modify_deck();
             }
             else if(m === 'game over'){
                 mapData.display();
@@ -84,9 +73,94 @@
             }
         }
     }
+
+    function new_floor(){
+        clear_tb("modifyDeck");
+        var floor = mapData.erase(mapData.player_health());
+        for(var i = 0; i < floor * 2;){
+            var choice = Math.floor(Math.random() * enemy_list.length);
+            var new_enemy = enemy_list[choice]();
+            mapData.add_enemy(new_enemy);
+            i += new_enemy.difficulty;
+        }
+        describe("");
+        document.getElementById('header2').innerText = 'Floor ' + floor;
+        deck.deal();
+        mapData.display();
+        deck.display_hand(document.getElementById("handDisplay"));
+    }
+
+    function modify_deck(){
+        var add_list = [];
+        var remove_list = [];
+        var table = document.getElementById("modifyDeck");
+        for(var i = 0; i < ADD_CHOICES; ++i){
+            add_list.push(CARD_CHOICES[Math.floor(Math.random() * CARD_CHOICES.length)]());
+        }
+        try{
+            for(var i = 0; i < REMOVE_CHOICES; ++i){
+                remove_list.push(deck.get_rand());
+            }
+        }
+        catch{}
+        clear_tb("mapDisplay");
+        clear_tb("handDisplay");
+        clear_tb("moveButtons");
+        describe("Choose one card to add or remove");
+        
+        var add = function(card){return function(){
+            deck.add(card);
+            new_floor();
+        }};
+        var add_row = document.createElement('tr');
+        add_row.id = "add_row";
+        var plus = make_cell("plus", "images/other/plus.png", HAND_SCALE);
+		add_row.append(plus);
+
+        var remove = function(card){return function(){
+            deck.remove(card.id);
+            new_floor();
+        }};
+        var remove_row = document.createElement('tr');
+        remove_row.id = "remove_row";
+        var minus = make_cell("plus", "images/other/minus.png", HAND_SCALE);
+        if(remove_row.length === 0){
+            minus = make_cell("x", "images/other/x.png", HAND_SCALE);
+        }
+		remove_row.append(minus);
+
+        for(var i = 0; i < add_list.length; ++i){
+            var cell = make_cell("card " + i, "images/cards/" + add_list[i].pic, HAND_SCALE, add, add_list[i]);
+			add_row.append(cell);
+        }
+        
+        
+        for(var i = 0; i < remove_list.length; ++i){
+            var cell = make_cell("card " + i, "images/cards/" + remove_list[i].pic, HAND_SCALE, remove, remove_list[i]);
+			remove_row.append(cell);
+        }
+
+        table.append(add_row);
+        table.append(remove_row);
+    }
+
+    function make_cell(id, pic, size, click = 0, param = 0){
+        var cell = document.createElement('td');
+        cell.id = id;
+        var image = document.createElement('img');
+        image.src = pic;
+        image.height = size;
+        image.width = size;
+        if(click != 0){
+            image.onclick = click(param);
+        }
+		cell.append(image);
+        return cell;
+    }
 </script>
 
 <table id="mapDisplay"></table>
 <table id="handDisplay"></table>
 <table id="moveButtons"></table>
 <h3 id= "header3">Welcome to the dungeon</h3>
+<table id="modifyDeck"></table>

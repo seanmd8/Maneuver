@@ -1,16 +1,21 @@
 const HAND_SIZE = 3;
 const HAND_SCALE = 100;
+const ADD_CHOICES = 3;
+const REMOVE_CHOICES = 3;
+const DECK_MINIMUM = 5;
 
 class MoveDeck{
     #list;
     #library;
     #hand;
     #discard_pile;
+    #id_count;
     constructor(){
         this.#list = [];
         this.#library = [];
         this.#hand = [];
         this.#discard_pile = [];
+        this.#id_count = 0;
     }
     #shuffle(arr){
         var new_arr = [];
@@ -48,9 +53,13 @@ class MoveDeck{
         this.#hand[x] = this.#library.pop();
     }
     add(card){
+        card.id = this.#id_count;
+        this.#id_count++;
         this.#list.push(card);
     }
     add_temp(card){
+        card.id = this.#id_count;
+        this.#id_count++;
         this.#library.push(card);
         this.#library = this.#shuffle(this.#library);
     }
@@ -73,5 +82,21 @@ class MoveDeck{
 			row.append(cell);
         }
         table.append(row);
+    }
+    get_rand(){
+        if(this.#list.length <= DECK_MINIMUM){
+            throw new Error("deck minimum reached");
+        }
+        return this.#list[Math.floor(Math.random() * this.#list.length)];
+    }
+    remove(id){
+        for(var i = 0; i < this.#list.length; ++i){
+            if(this.#list[i].id === id){
+                this.#list[i] = this.#list[this.#list.length - 1];
+                this.#list.pop();
+                return true;
+            }
+        }
+        return false;
     }
 }
