@@ -3,6 +3,7 @@ const HAND_SCALE = 100;
 const ADD_CHOICES = 3;
 const REMOVE_CHOICES = 3;
 const DECK_MINIMUM = 5;
+const DECK_DISPLAY_WIDTH = 5;
 
 class MoveDeck{
     #list;
@@ -76,6 +77,17 @@ class MoveDeck{
         }
         table.append(row);
     }
+    display_all(table){
+        document.getElementById("header4").innerText = "Current Deck:";
+        for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
+            var row = document.createElement('tr');
+            for(var j = 0; j < DECK_DISPLAY_WIDTH && j + i * DECK_DISPLAY_WIDTH < this.#list.length; ++j){
+                var cell =  make_cell("card " + (i * DECK_DISPLAY_WIDTH + j), "images/cards/" + this.#list[i * DECK_DISPLAY_WIDTH + j].pic, HAND_SCALE);
+			    row.append(cell);
+            }
+            table.append(row);
+        }
+    }
     get_rand(){
         if(this.#list.length <= DECK_MINIMUM){
             throw new Error("deck minimum reached");
@@ -93,7 +105,6 @@ class MoveDeck{
         return false;
     }
 }
-
 
 const GRID_SCALE = 30;
 

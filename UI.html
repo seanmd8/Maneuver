@@ -76,6 +76,8 @@
 
     function new_floor(){
         clear_tb("modifyDeck");
+        document.getElementById("header4").innerText = "";
+        clear_tb("displayDeck");
         var floor = mapData.erase(mapData.player_health());
         for(var i = 0; i < floor * 2;){
             var choice = Math.floor(Math.random() * enemy_list.length);
@@ -94,6 +96,7 @@
         var add_list = [];
         var remove_list = [];
         var table = document.getElementById("modifyDeck");
+        deck.display_all(document.getElementById("displayDeck"));
         for(var i = 0; i < ADD_CHOICES; ++i){
             add_list.push(CARD_CHOICES[Math.floor(Math.random() * CARD_CHOICES.length)]());
         }
@@ -169,3 +172,5 @@
 <table id="moveButtons"></table>
 <h3 id= "header3"><img src="images/other/compass.png" alt="compass" width="80" height="80"/><span id="descriptionText">Welcome to the dungeon</span></h3>
 <table id="modifyDeck"></table>
+<h4 id= "header4"></h4>
+<table id="displayDeck"></table>
