@@ -453,10 +453,12 @@ function side_attack(){
         ],
         behavior: [
             [["attack", 1, 0],
-            ["attack", 2, 0]],
+            ["attack", 2, 0],
+            ["attack", 3, 0],],
 
-            [["attack", -2, 0],
-            ["attack", -1, 0]]
+            [["attack", -1, 0],
+            ["attack", -2, 0]
+            ["attack", -3, 0]]
         ]
     }
 }
