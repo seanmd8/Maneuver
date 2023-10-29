@@ -95,7 +95,6 @@ class MoveDeck{
 }
 
 
-
 const GRID_SCALE = 30;
 
 class GameMap{
@@ -202,7 +201,11 @@ class GameMap{
                 describe(str);
             }};
 			for (var x = 0; x < this.#x_max; x++){
-                var cell = make_cell(x + ' ' + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, this.#grid[x][y].description);
+                var tile_description = this.#grid[x][y].description;
+                if(this.#grid[x][y].type === "player" || this.#grid[x][y].type === "enemy"){
+                    tile_description = "(" + this.#grid[x][y].health + " hp) " + tile_description;
+                }
+                var cell = make_cell(x + ' ' + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, tile_description);
 				row.append(cell);
 			}
 			visual_map.append(row);
@@ -277,7 +280,6 @@ class GameMap{
         this.#entity_list.enemy_turn(this);
     }
 }
-
 
 class EntityList{
     count
@@ -450,7 +452,7 @@ const player_description = "You.";
 const spider_description = "Spider: Will attack the player if it is next to them. Otherwise it will move closer.";
 const turret_h_description = "Turret: Does not move. Fires beams orthogonally hurting anything in it's path.";
 const turret_d_description = "Turret: Does not move. Fires beams diagonally hurting anything in it's path.";
-const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them.";
+const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
 const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
 const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves and attacks in straight lines.";
 
@@ -1057,10 +1059,12 @@ function side_attack(){
         ],
         behavior: [
             [["attack", 1, 0],
-            ["attack", 2, 0]],
+            ["attack", 2, 0],
+            ["attack", 3, 0],],
 
-            [["attack", -2, 0],
-            ["attack", -1, 0]]
+            [["attack", -1, 0],
+            ["attack", -2, 0],
+            ["attack", -3, 0]]
         ]
     }
 }
@@ -1113,10 +1117,17 @@ function jab(){
             "W"
         ],
         behavior: [
-            [["attack", 0, -2]],
-            [["attack", 2, 0]],
-            [["attack", 0, 2]],
-            [["attack", -2, 0]]
+            [["attack", 0, -1],
+            ["attack", 0, -2]],
+
+            [["attack", 1, 0],
+            ["attack", 2, 0]],
+
+            [["attack", 0, 1],
+            ["attack", 0, 2]],
+
+            [["attack", -1, 0],
+            ["attack", -2, 0]]
         ]
     }
 }

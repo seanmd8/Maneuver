@@ -105,7 +105,11 @@ class GameMap{
                 describe(str);
             }};
 			for (var x = 0; x < this.#x_max; x++){
-                var cell = make_cell(x + ' ' + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, this.#grid[x][y].description);
+                var tile_description = this.#grid[x][y].description;
+                if(this.#grid[x][y].type === "player" || this.#grid[x][y].type === "enemy"){
+                    tile_description = "(" + this.#grid[x][y].health + " hp) " + tile_description;
+                }
+                var cell = make_cell(x + ' ' + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, tile_description);
 				row.append(cell);
 			}
 			visual_map.append(row);
