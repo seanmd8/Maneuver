@@ -103,7 +103,7 @@ const player_description = "You.";
 const spider_description = "Spider: Will attack the player if it is next to them. Otherwise it will move closer.";
 const turret_h_description = "Turret: Does not move. Fires beams orthogonally hurting anything in it's path.";
 const turret_d_description = "Turret: Does not move. Fires beams diagonally hurting anything in it's path.";
-const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them.";
+const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
 const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
 const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves and attacks in straight lines.";
 

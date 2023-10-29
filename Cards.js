@@ -509,10 +509,17 @@ function jab(){
             "W"
         ],
         behavior: [
-            [["attack", 0, -2]],
-            [["attack", 2, 0]],
-            [["attack", 0, 2]],
-            [["attack", -2, 0]]
+            [["attack", 0, -1],
+            ["attack", 0, -2]],
+
+            [["attack", 1, 0],
+            ["attack", 2, 0]],
+
+            [["attack", 0, 1],
+            ["attack", 0, 2]],
+
+            [["attack", -1, 0],
+            ["attack", -2, 0]]
         ]
     }
 }
