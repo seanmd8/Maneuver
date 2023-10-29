@@ -144,15 +144,15 @@
         table.append(remove_row);
     }
 
-    function make_cell(id, pic, size, click = 0, param1 = 0, param2 = 0){
+    function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
         var cell = document.createElement('td');
         cell.id = id;
         var image = document.createElement('img');
         image.src = pic;
         image.height = size;
         image.width = size;
-        if(click != 0){
-            if(param2 === 0){
+        if(click != undefined){
+            if(param2 === undefined){
                 image.onclick = click(param1);
             }
             else{
