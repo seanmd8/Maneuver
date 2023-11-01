@@ -55,7 +55,7 @@ function action(behavior, hand_pos){
         else if(m === 'game over'){
             mapData.display();
             clear_tb("handDisplay");
-            describe("Game Over");
+            describe("Game Over. You were killed by a " + error.cause + ".");
         }
         else{
             console.log(m)
@@ -520,7 +520,12 @@ class EntityList{
         for(var i = 0; i < turn.length; ++i){
             var e = turn[i];
             if(!(this.#find_by_id(e.enemy.id) === -1)){
-                e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+                try{
+                    e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+                }
+                catch{
+                    throw new Error("game over", {cause: e.enemy.enemy_type});
+                }
             } 
         }
     }
@@ -872,7 +877,6 @@ function random_nearby(){
     }
     return ran_cords;
 }
-
 
 const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 

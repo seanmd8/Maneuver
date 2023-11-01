@@ -64,7 +64,12 @@ class EntityList{
         for(var i = 0; i < turn.length; ++i){
             var e = turn[i];
             if(!(this.#find_by_id(e.enemy.id) === -1)){
-                e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+                try{
+                    e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+                }
+                catch{
+                    throw new Error("game over", {cause: e.enemy.enemy_type});
+                }
             } 
         }
     }
