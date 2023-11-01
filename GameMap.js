@@ -79,18 +79,23 @@ class GameMap{
         ++this.#entity_list.count;
     }
     add_enemy(enemy, x = -1, y = -1){
-        if(x === -1 || y === -1){
-            var position = this.random_empty();
-            x = position.x;
-            y = position.y;
+        try{
+            if(x === -1 || y === -1){
+                var position = this.random_empty();
+                x = position.x;
+                y = position.y;
+            }
+            this.check_bounds(x, y);
+            this.check_empty(x, y);
         }
-        this.check_bounds(x, y);
-        this.check_empty(x, y);
+        catch{
+            return false;
+        }
         enemy.id = this.#entity_list.next_id();
         this.#grid[x][y] = enemy;
         this.#entity_list.add_enemy(x, y, enemy)
         ++this.#entity_list.count;
-        return {x, y}
+        return true;
     }
     display(){
 		var visual_map = document.getElementById('mapDisplay');

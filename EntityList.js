@@ -57,9 +57,15 @@ class EntityList{
     }
     enemy_turn(map){
         // How to avoid multi turns via friendly fire shrinking the list?
+        var turn = []
         for(var i = 0; i < this.#enemy_list.length; ++i){
-            var e = this.#enemy_list[i]
-            e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map);
+            turn.push(this.#enemy_list[i]);
+        }
+        for(var i = 0; i < turn.length; ++i){
+            var e = turn[i];
+            if(!(this.#find_by_id(e.enemy.id) === -1)){
+                e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+            } 
         }
     }
 }

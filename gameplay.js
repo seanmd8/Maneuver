@@ -5,17 +5,14 @@ function setup(){
     deck = make_starting_deck();
     deck.display_hand(document.getElementById("handDisplay"));
 }
-
 function describe(description){
     document.getElementById("descriptionText").innerText = description;
 }
-
 function clear_tb(element_id){
     while(document.getElementById(element_id).rows.length > 0){
         document.getElementById(element_id).deleteRow(0);
     }
 }
-
 function prep_move(move, hand_pos){
     clear_tb("moveButtons");
     var row = document.createElement('tr');
@@ -31,7 +28,6 @@ function prep_move(move, hand_pos){
     }
     document.getElementById("moveButtons").append(row);
 }
-
 function action(behavior, hand_pos){
     try{
         for(var i = 0; i < behavior.length; ++i){
@@ -66,7 +62,6 @@ function action(behavior, hand_pos){
         }
     }
 }
-
 function new_floor(){
     clear_tb("modifyDeck");
     document.getElementById("header4").innerText = "";
@@ -75,6 +70,9 @@ function new_floor(){
     for(var i = 0; i < floor * 2;){
         var choice = Math.floor(Math.random() * enemy_list.length);
         var new_enemy = enemy_list[choice]();
+        if(new_enemy.difficulty > i){
+            var new_enemy = spider_tile();
+        }
         mapData.add_enemy(new_enemy);
         i += new_enemy.difficulty;
     }
@@ -84,7 +82,6 @@ function new_floor(){
     mapData.display();
     deck.display_hand(document.getElementById("handDisplay"));
 }
-
 function modify_deck(){
     var add_list = [];
     var remove_list = [];
@@ -139,7 +136,6 @@ function modify_deck(){
     table.append(add_row);
     table.append(remove_row);
 }
-
 function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
     var cell = document.createElement('td');
     cell.id = id;

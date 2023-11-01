@@ -5,17 +5,14 @@ function setup(){
     deck = make_starting_deck();
     deck.display_hand(document.getElementById("handDisplay"));
 }
-
 function describe(description){
     document.getElementById("descriptionText").innerText = description;
 }
-
 function clear_tb(element_id){
     while(document.getElementById(element_id).rows.length > 0){
         document.getElementById(element_id).deleteRow(0);
     }
 }
-
 function prep_move(move, hand_pos){
     clear_tb("moveButtons");
     var row = document.createElement('tr');
@@ -31,7 +28,6 @@ function prep_move(move, hand_pos){
     }
     document.getElementById("moveButtons").append(row);
 }
-
 function action(behavior, hand_pos){
     try{
         for(var i = 0; i < behavior.length; ++i){
@@ -66,7 +62,6 @@ function action(behavior, hand_pos){
         }
     }
 }
-
 function new_floor(){
     clear_tb("modifyDeck");
     document.getElementById("header4").innerText = "";
@@ -75,6 +70,9 @@ function new_floor(){
     for(var i = 0; i < floor * 2;){
         var choice = Math.floor(Math.random() * enemy_list.length);
         var new_enemy = enemy_list[choice]();
+        if(new_enemy.difficulty > i){
+            var new_enemy = spider_tile();
+        }
         mapData.add_enemy(new_enemy);
         i += new_enemy.difficulty;
     }
@@ -84,7 +82,6 @@ function new_floor(){
     mapData.display();
     deck.display_hand(document.getElementById("handDisplay"));
 }
-
 function modify_deck(){
     var add_list = [];
     var remove_list = [];
@@ -139,7 +136,6 @@ function modify_deck(){
     table.append(add_row);
     table.append(remove_row);
 }
-
 function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
     var cell = document.createElement('td');
     cell.id = id;
@@ -347,18 +343,23 @@ class GameMap{
         ++this.#entity_list.count;
     }
     add_enemy(enemy, x = -1, y = -1){
-        if(x === -1 || y === -1){
-            var position = this.random_empty();
-            x = position.x;
-            y = position.y;
+        try{
+            if(x === -1 || y === -1){
+                var position = this.random_empty();
+                x = position.x;
+                y = position.y;
+            }
+            this.check_bounds(x, y);
+            this.check_empty(x, y);
         }
-        this.check_bounds(x, y);
-        this.check_empty(x, y);
+        catch{
+            return false;
+        }
         enemy.id = this.#entity_list.next_id();
         this.#grid[x][y] = enemy;
         this.#entity_list.add_enemy(x, y, enemy)
         ++this.#entity_list.count;
-        return {x, y}
+        return true;
     }
     display(){
 		var visual_map = document.getElementById('mapDisplay');
@@ -512,14 +513,20 @@ class EntityList{
     }
     enemy_turn(map){
         // How to avoid multi turns via friendly fire shrinking the list?
+        var turn = []
         for(var i = 0; i < this.#enemy_list.length; ++i){
-            var e = this.#enemy_list[i]
-            e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map);
+            turn.push(this.#enemy_list[i]);
+        }
+        for(var i = 0; i < turn.length; ++i){
+            var e = turn[i];
+            if(!(this.#find_by_id(e.enemy.id) === -1)){
+                e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+            } 
         }
     }
 }
 
-const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile];
+const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, spider_egg_tile, ram_tile];
 
 function empty_tile(){
     return {
@@ -603,6 +610,35 @@ function knight_tile(){
         description: knight_description
     }
 }
+function spider_egg_tile(){
+    spawn_timer = 2
+    return{
+        type: "enemy",
+        enemy_type: "spider egg",
+        pic: "spider_egg.png",
+        cycle: 0,
+        spawn_timer,
+        id: "",
+        health: 2,
+        difficulty: 4,
+        behavior: spider_egg_ai,
+        description: spider_egg_description[0] + (spawn_timer + 1) + spider_egg_description[1]
+    }
+}
+function ram_tile(){
+    return{
+        type: "enemy",
+        enemy_type: "ram",
+        pic: "ram.png",
+        cycle: 0,
+        id: "",
+        health: 2,
+        difficulty: 5,
+        behavior: ram_ai,
+        description: ram_description
+    }
+}
+
 
 
 function velociphile_tile(){
@@ -626,65 +662,47 @@ const turret_h_description = "Turret: Does not move. Fires beams orthogonally hu
 const turret_d_description = "Turret: Does not move. Fires beams diagonally hurting anything in it's path.";
 const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
 const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
-const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves and attacks in straight lines.";
+const spider_egg_description = ["Spider egg: Spawns a spider every ", " turns."];
+const ram_description = "Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.";
 
-function spider_ai(x, y, x_dif, y_dif, map){
+
+
+const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves and attacks in straight lines.";
+function spider_ai(x, y, x_dif, y_dif, map, enemy){
     if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
         map.attack(x + x_dif, y + y_dif, "player");
     }
     else{
-        if(x_dif > 0){
-            x_dif = 1;
-        }
-        if(x_dif < 0){
-            x_dif = -1;
-        }
-        if(y_dif > 0){
-            y_dif = 1;
-        }
-        if(y_dif < 0){
-            y_dif = -1;
-        }
+        x_dif = sign(x_dif);
+        y_dif = sign(y_dif);
         map.move(x, y, x + x_dif, y + y_dif);
     }
 }
-function turret_h_ai(x, y, x_dif, y_dif, map){
+function turret_h_ai(x, y, x_dif, y_dif, map, enemy){
     if(x_dif === 0){
-        var direction = 1
-        if(y_dif < 0){
-            direction = -1;
-        }
+        var direction = sign(y_dif);
         for(var i = 1; i < 11; ++i){ 
             map.attack(x, y + i * direction);
         }
     }
     if(y_dif === 0){
-        var direction = 1
-        if(x_dif < 0){
-            direction = -1;
-        }
+        var direction = sign(x_dif);
         for(var i = 1; i < 11; ++i){ 
             map.attack(x + i * direction, y);
         }
     }
 }
-function turret_d_ai(x, y, x_dif, y_dif, map){
+function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
     if(!(Math.abs(x_dif) === Math.abs(y_dif))){
         return;
     }
-    var x_direction = 1
-    if(x_dif < 0){
-        x_direction = -1;
-    }
-    var y_direction = 1
-    if(y_dif < 0){
-        y_direction = -1;
-    }
+    var x_direction = sign(x_dif);
+    var y_direction = sign(y_dif);
     for(var i = 1; i < 11; ++i){ 
         map.attack(x + i * x_direction, y + i * y_direction);
     }
 }
-function scythe_ai(x, y, x_dif, y_dif, map){
+function scythe_ai(x, y, x_dif, y_dif, map, enemy){
     var direction = Math.floor(Math.random() * 4);
     if(x_dif < 0 && y_dif < 0){
         direction = 0;
@@ -745,7 +763,7 @@ function scythe_ai(x, y, x_dif, y_dif, map){
             break;
     }
 }
-function knight_ai(x, y, x_dif, y_dif, map){
+function knight_ai(x, y, x_dif, y_dif, map, enemy){
     // Needs buff
     if(Math.abs(x_dif) + Math.abs(y_dif) === 3){
         if(x_dif === 1 || x_dif === -1 || y_dif === 1 || y_dif === -1){
@@ -770,11 +788,91 @@ function knight_ai(x, y, x_dif, y_dif, map){
     }
     map.move(x, y, x + new_x, y + new_y);
 }
+function spider_egg_ai(x, y, x_dif, y_dif, map, enemy){
+    if(enemy.cycle < enemy.spawn_timer){
+        ++enemy.cycle;
+    }
+    else{
+        var spawnpoints = random_nearby();
+        var i;
+        for(i = 0; i < spawnpoints.length && !map.add_enemy(spider_tile(),x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        enemy.cycle = 0;
+    }
+}
+function ram_ai(x, y, x_dif, y_dif, map, enemy){
+    var x_direction = sign(x_dif);
+    var y_direction = sign(y_dif);
+    var wander_speed = 2;
+    if(enemy.cycle === 0){
+        var moved = true;
+        if(Math.abs(x_dif) <= Math.abs(y_dif)){
+            for(var i = 0; i < wander_speed && i < Math.abs(x_dif) && moved; ++i){
+                moved = map.move(x, y, x + x_direction, y);
+                x += x_direction;
+            }
+        }
+        else{
+            for(var i = 0; i < wander_speed && i < Math.abs(y_dif) && moved; ++i){
+                moved = map.move(x, y, x, y + y_direction);
+                y += y_direction;
+            }
+        }
+        if(moved = true && (Math.abs(x_dif) < 3 || Math.abs(y_dif) < 3)){
+            enemy.cycle = 1;
+            enemy.pic = "ram_charge.png";
+        }
+    }
+    else{
+        var moved = true;
+        if(Math.abs(x_dif) > Math.abs(y_dif)){
+            while(moved){
+                moved = map.move(x, y, x + x_direction, y);
+                x += x_direction;
+            }
+            map.attack(x, y);
+        }
+        else{
+            while(moved){
+                moved = map.move(x, y, x, y + y_direction);
+                y += y_direction;
+            }
+            map.attack(x, y);
+        }
+        enemy.cycle = 0;
+        enemy.pic = "ram.png";
+    }
+}
 
 
-function velociphile_ai(x, y, x_dif, y_dif, map){
+
+
+function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     
 }
+
+
+
+function sign(x){
+    if(x > 0){
+        return 1;
+    }
+    if(x < 0){
+        return -1;
+    }
+    return 0;
+}
+function random_nearby(){
+    var cords = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+    var ran_cords = [];
+    while(cords.length > 0){
+        var index = Math.floor(Math.random() * cords.length);
+        ran_cords.push(cords[index]);
+        cords[index] = cords[cords.length - 1];
+        cords.pop();
+    }
+    return ran_cords;
+}
+
 
 const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
@@ -783,546 +881,546 @@ const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_lef
     jab, overcome];
 
 function make_starting_deck(){
-    deck = new MoveDeck();
+deck = new MoveDeck();
 
-    deck.add(basic_horizontal());
-    deck.add(basic_horizontal());
-    deck.add(basic_diagonal());
-    deck.add(basic_diagonal());
-    deck.add(slice());
-    deck.add(slice());
-    deck.add(short_charge());
-    deck.add(jump());
+deck.add(basic_horizontal());
+deck.add(basic_horizontal());
+deck.add(basic_diagonal());
+deck.add(basic_diagonal());
+deck.add(slice());
+deck.add(slice());
+deck.add(short_charge());
+deck.add(jump());
 
-    deck.deal();
-    return deck;
+deck.deal();
+return deck;
 }
 function make_test_deck(){
-    deck = new MoveDeck();
-    var start = 20;
-    for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
-        deck.add(CARD_CHOICES[i]());
-    }
-    deck.add(basic_horizontal());
-    deck.add(basic_horizontal());
-    deck.deal();
-    return deck;
+deck = new MoveDeck();
+var start = 20;
+for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
+deck.add(CARD_CHOICES[i]());
+}
+deck.add(basic_horizontal());
+deck.add(basic_horizontal());
+deck.deal();
+return deck;
 }
 
 function basic_horizontal(){
-    return{
-        name: "basic_horizontal",
-        pic: "basic_horizontal.png",
-        id: "",
-        descriptions: [
-            "N",
-            "E",
-            "S",
-            "W"
-        ],
-        behavior: [
-            [["move", 0, -1]],
-            [["move", 1, 0]],
-            [["move", 0, 1]],
-            [["move", -1, 0]]
-            
-        ]
-    }
+return{
+name: "basic_horizontal",
+pic: "basic_horizontal.png",
+id: "",
+descriptions: [
+"N",
+"E",
+"S",
+"W"
+],
+behavior: [
+[["move", 0, -1]],
+[["move", 1, 0]],
+[["move", 0, 1]],
+[["move", -1, 0]]
+
+]
+}
 }
 function basic_diagonal(){
-    return{
-        name: "basic_diagonal",
-        pic: "basic_diagonal.png",
-        id: "",
-        descriptions: [
-            "NE",
-            "SE",
-            "SW",
-            "NW"
-        ],
-        behavior: [
-            [["move", 1, -1]],
-            [["move", 1, 1]],
-            [["move", -1, 1]],
-            [["move", -1, -1]]
-            
-        ]
-    }
+return{
+name: "basic_diagonal",
+pic: "basic_diagonal.png",
+id: "",
+descriptions: [
+"NE",
+"SE",
+"SW",
+"NW"
+],
+behavior: [
+[["move", 1, -1]],
+[["move", 1, 1]],
+[["move", -1, 1]],
+[["move", -1, -1]]
+
+]
+}
 }
 function slice(){
-    return{
-        name: "slice",
-        pic: "slice.png",
-        id: "",
-        descriptions: [
-            "N",
-            "E",
-            "S",
-            "W"
-        ],
-        behavior: [
-            [["attack", 1, -1],
-            ["attack", 0, -1],
-            ["attack", -1, -1]],
+return{
+name: "slice",
+pic: "slice.png",
+id: "",
+descriptions: [
+"N",
+"E",
+"S",
+"W"
+],
+behavior: [
+[["attack", 1, -1],
+["attack", 0, -1],
+["attack", -1, -1]],
 
-            [["attack", 1, 1],
-            ["attack", 1, 0],
-            ["attack", 1, -1]],
+[["attack", 1, 1],
+["attack", 1, 0],
+["attack", 1, -1]],
 
-            [["attack", 1, 1],
-            ["attack", 0, 1],
-            ["attack", -1, 1]],
+[["attack", 1, 1],
+["attack", 0, 1],
+["attack", -1, 1]],
 
-            [["attack", -1, 1],
-            ["attack", -1, 0],
-            ["attack", -1, -1]]  
-        ]
-    }
+[["attack", -1, 1],
+["attack", -1, 0],
+["attack", -1, -1]]  
+]
+}
 }
 function short_charge(){
-    return{
-        name: "short_charge",
-        pic: "short_charge.png",
-        id: "",
-        descriptions: [
-            "N",
-            "E",
-            "S",
-            "W"
-        ],
-        behavior: [
-            [["move", 0, -1],
-            ["attack", 0, -1]],
+return{
+name: "short_charge",
+pic: "short_charge.png",
+id: "",
+descriptions: [
+"N",
+"E",
+"S",
+"W"
+],
+behavior: [
+[["move", 0, -1],
+["attack", 0, -1]],
 
-            [["move", 1, 0],
-            ["attack", 1, 0]],
+[["move", 1, 0],
+["attack", 1, 0]],
 
-            [["move", 0, 1],
-            ["attack", 0, 1]],
+[["move", 0, 1],
+["attack", 0, 1]],
 
-            [["move", -1, 0],
-            ["attack", -1, 0]]
-        ]
-    }
+[["move", -1, 0],
+["attack", -1, 0]]
+]
+}
 }
 function jump(){
-    return{
-        name: "jump",
-        pic: "jump.png",
-        id: "",
-        descriptions: [
-            "N",
-            "E",
-            "S",
-            "W"
-        ],
-        behavior: [
-            [["move", 0, -2]],
-            [["move", 2, 0]],
-            [["move", 0, 2]],
-            [["move", -2, 0]]
-        ]
-    }
+return{
+name: "jump",
+pic: "jump.png",
+id: "",
+descriptions: [
+"N",
+"E",
+"S",
+"W"
+],
+behavior: [
+[["move", 0, -2]],
+[["move", 2, 0]],
+[["move", 0, 2]],
+[["move", -2, 0]]
+]
+}
 }
 
 function straight_charge(){
-    return{
-        name: "straight_charge",
-        pic: "straight_charge.png",
-        id: "",
-        descriptions: [
-            "N",
-            "S",
-        ],
-        behavior: [
-            [["move", 0, -1],
-            ["move", 0, -1],
-            ["attack", 0, -1]],
+return{
+name: "straight_charge",
+pic: "straight_charge.png",
+id: "",
+descriptions: [
+"N",
+"S",
+],
+behavior: [
+[["move", 0, -1],
+["move", 0, -1],
+["attack", 0, -1]],
 
-            [["move", 0, 1],
-            ["move", 0, 1],
-            ["attack", 0, 1]],
-        ]
-    }
+[["move", 0, 1],
+["move", 0, 1],
+["attack", 0, 1]],
+]
+}
 }
 function side_charge(){
-    return{
-        name: "side_charge",
-        pic: "side_charge.png",
-        id: "",
-        descriptions: [
-            "E",
-            "W"
-        ],
-        behavior: [
-            [["move", 1, 0],
-            ["move", 1, 0],
-            ["attack", 1, 0]],
+return{
+name: "side_charge",
+pic: "side_charge.png",
+id: "",
+descriptions: [
+"E",
+"W"
+],
+behavior: [
+[["move", 1, 0],
+["move", 1, 0],
+["attack", 1, 0]],
 
-            [["move", -1, 0],
-            ["move", -1, 0],
-            ["attack", -1, 0]]
-        ]
-    }
+[["move", -1, 0],
+["move", -1, 0],
+["attack", -1, 0]]
+]
+}
 }
 function step_left(){
-    return{
-        name: "step_left",
-        pic: "step_left.png",
-        id: "",
-        descriptions: [
-            "NW",
-            "W",
-            "SW"
-        ],
-        behavior: [
-            [["move", -1, -1]],
-            [["move", -1, 0],
-            ["move", -1, 0]],
-            [["move", -1, 1]]
-        ]
-    }
+return{
+name: "step_left",
+pic: "step_left.png",
+id: "",
+descriptions: [
+"NW",
+"W",
+"SW"
+],
+behavior: [
+[["move", -1, -1]],
+[["move", -1, 0],
+["move", -1, 0]],
+[["move", -1, 1]]
+]
+}
 }
 function step_right(){
-    return{
-        name: "step_right",
-        pic: "step_right.png",
-        id: "",
-        descriptions: [
-            "NE",
-            "E",
-            "SE"
-        ],
-        behavior: [
-            [["move", 1, -1]],
-            [["move", 1, 0],
-            ["move", 1, 0]],
-            [["move", 1, 1]]
-        ]
-    }
+return{
+name: "step_right",
+pic: "step_right.png",
+id: "",
+descriptions: [
+"NE",
+"E",
+"SE"
+],
+behavior: [
+[["move", 1, -1]],
+[["move", 1, 0],
+["move", 1, 0]],
+[["move", 1, 1]]
+]
+}
 }
 function trample(){
-    return{
-        name: "trample",
-        pic: "trample.png",
-        id: "",
-        descriptions: [
-            "NE",
-            "NW"
-        ],
-        behavior: [
-            [["attack", 1, -2],
-            ["move", 1, -2]],
+return{
+name: "trample",
+pic: "trample.png",
+id: "",
+descriptions: [
+"NE",
+"NW"
+],
+behavior: [
+[["attack", 1, -2],
+["move", 1, -2]],
 
-            [["attack", -1, -2],
-            ["move", -1, -2]]
-        ]
-    }
+[["attack", -1, -2],
+["move", -1, -2]]
+]
+}
 }
 function horsemanship(){
-    return{
-        name: "horsemanship",
-        pic: "horsemanship.png",
-        id: "",
-        descriptions: [
-            "NE",
-            "SE",
-            "SW",
-            "NW"
-        ],
-        behavior: [
-            [["move", 2, -1]],
-            [["move", 2, 1]],
-            [["move", -2, 1]],
-            [["move", -2, -1]]
-            
-        ]
-    }
+return{
+name: "horsemanship",
+pic: "horsemanship.png",
+id: "",
+descriptions: [
+"NE",
+"SE",
+"SW",
+"NW"
+],
+behavior: [
+[["move", 2, -1]],
+[["move", 2, 1]],
+[["move", -2, 1]],
+[["move", -2, -1]]
+
+]
+}
 }
 function lunge_left(){
-    return{
-        name: "lunge_left",
-        pic: "lunge_left.png",
-        id: "",
-        descriptions: [
-            "SE",
-            "NW"
-        ],
-        behavior: [
-            [["move", 1, 1]],
+return{
+name: "lunge_left",
+pic: "lunge_left.png",
+id: "",
+descriptions: [
+"SE",
+"NW"
+],
+behavior: [
+[["move", 1, 1]],
 
-            [["move", -1, -1],
-            ["move", -1, -1],
-            ["attack", -1, -1]]
-            
-        ]
-    }
+[["move", -1, -1],
+["move", -1, -1],
+["attack", -1, -1]]
+
+]
+}
 }
 function lunge_right(){
-    return{
-        name: "lunge_right",
-        pic: "lunge_right.png",
-        id: "",
-        descriptions: [
-            "SW",
-            "NE"
-        ],
-        behavior: [
-            [["move", -1, 1]],
+return{
+name: "lunge_right",
+pic: "lunge_right.png",
+id: "",
+descriptions: [
+"SW",
+"NE"
+],
+behavior: [
+[["move", -1, 1]],
 
-            [["move", 1, -1],
-            ["move", 1, -1],
-            ["attack", 1, -1]]
-            
-        ]
-    }
+[["move", 1, -1],
+["move", 1, -1],
+["attack", 1, -1]]
+
+]
+}
 }
 function sprint(){
-    return{
-        name: "sprint",
-        pic: "sprint.png",
-        id: "",
-        descriptions: [
-            "N"
-        ],
-        behavior: [
-            [["move", 0, -1],
-            ["move", 0, -1],
-            ["move", 0, -1]]
-        ]
-    }
+return{
+name: "sprint",
+pic: "sprint.png",
+id: "",
+descriptions: [
+"N"
+],
+behavior: [
+[["move", 0, -1],
+["move", 0, -1],
+["move", 0, -1]]
+]
+}
 }
 function trident(){
-    return{
-        name: "trident",
-        pic: "trident.png",
-        id: "",
-        descriptions: [
-            "N",
-            "E",
-            "W"
-        ],
-        behavior: [
-            [["attack", 1, -2],
-            ["attack", 0, -2],
-            ["attack", -1, -2]],
+return{
+name: "trident",
+pic: "trident.png",
+id: "",
+descriptions: [
+"N",
+"E",
+"W"
+],
+behavior: [
+[["attack", 1, -2],
+["attack", 0, -2],
+["attack", -1, -2]],
 
-            [["attack", 2, 1],
-            ["attack", 2, 0],
-            ["attack", 2, -1]],
+[["attack", 2, 1],
+["attack", 2, 0],
+["attack", 2, -1]],
 
-            [["attack", -2, 1],
-            ["attack", -2, 0],
-            ["attack", -2, -1]]
-            
-        ]
-    }
+[["attack", -2, 1],
+["attack", -2, 0],
+["attack", -2, -1]]
+
+]
+}
 }
 function whack(){
-    return{
-        name: "whack",
-        pic: "whack.png",
-        id: "",
-        descriptions: [
-            "N",
-            "E",
-            "S",
-            "W"
-        ],
-        behavior: [
-            [["attack", 0, -1],
-            ["attack", 0, -1]],
+return{
+name: "whack",
+pic: "whack.png",
+id: "",
+descriptions: [
+"N",
+"E",
+"S",
+"W"
+],
+behavior: [
+[["attack", 0, -1],
+["attack", 0, -1]],
 
-            [["attack", 1, 0],
-            ["attack", 1, 0]],
+[["attack", 1, 0],
+["attack", 1, 0]],
 
-            [["attack", 0, 1],
-            ["attack", 0, 1]],
+[["attack", 0, 1],
+["attack", 0, 1]],
 
-            [["attack", -1, 0],
-            ["attack", -1, 0]]
-            
-        ]
-    }
+[["attack", -1, 0],
+["attack", -1, 0]]
+
+]
+}
 }
 function spin_attack(){
-    return{
-        name: "spin_attack",
-        pic: "spin_attack.png",
-        id: "",
-        descriptions: ["spin"],
-        behavior: [
-            [["attack", 1, 1],
-            ["attack", 1, 0],
-            ["attack", 1, -1],
-            ["attack", 0, 1],
-            ["attack", 0, -1],
-            ["attack", -1, 1],
-            ["attack", -1, 0],
-            ["attack", -1, -1]]
-        ]
-    }
+return{
+name: "spin_attack",
+pic: "spin_attack.png",
+id: "",
+descriptions: ["spin"],
+behavior: [
+[["attack", 1, 1],
+["attack", 1, 0],
+["attack", 1, -1],
+["attack", 0, 1],
+["attack", 0, -1],
+["attack", -1, 1],
+["attack", -1, 0],
+["attack", -1, -1]]
+]
+}
 }
 function butterfly(){
-    return{
-        name: "butterfly",
-        pic: "butterfly.png",
-        id: "",
-        descriptions: [
-            "NE",
-            "SE",
-            "SW",
-            "NW"
-   
-        ],
-        behavior: [
-            [["move", 2, -2]],
-            [["move", 1, 1]],
-            [["move", -1, 1]],
-            [["move", -2, -2]]
-        ]
-    }
+return{
+name: "butterfly",
+pic: "butterfly.png",
+id: "",
+descriptions: [
+"NE",
+"SE",
+"SW",
+"NW"
+
+],
+behavior: [
+[["move", 2, -2]],
+[["move", 1, 1]],
+[["move", -1, 1]],
+[["move", -2, -2]]
+]
+}
 }
 function retreat(){
-    return{
-        name: "retreat",
-        pic: "retreat.png",
-        id: "",
-        descriptions: [
-            "SE", 
-            "S",
-            "SW"
-        ],
-        behavior: [
-            [["move", 1, 1]],
+return{
+name: "retreat",
+pic: "retreat.png",
+id: "",
+descriptions: [
+"SE", 
+"S",
+"SW"
+],
+behavior: [
+[["move", 1, 1]],
 
-            [["move", 0, 1],
-            ["move", 0, 1],
-            ["move", 0, 1]],
+[["move", 0, 1],
+["move", 0, 1],
+["move", 0, 1]],
 
-            [["move", -1, 1]]
-        ]
-    }
+[["move", -1, 1]]
+]
+}
 }
 function force(){
-    return{
-        name: "force",
-        pic: "force.png",
-        id: "",
-        descriptions: [
-            "N",
-        ],
-        behavior: [
-            [["attack", 0, -1],
-            ["move", 0, -1],
-            ["attack", 0, -1],
-            ["move", 0, -1]]
-        ]
-    }
+return{
+name: "force",
+pic: "force.png",
+id: "",
+descriptions: [
+"N",
+],
+behavior: [
+[["attack", 0, -1],
+["move", 0, -1],
+["attack", 0, -1],
+["move", 0, -1]]
+]
+}
 }
 function side_attack(){
-    return{
-        name: "side_attack",
-        pic: "side_attack.png",
-        id: "",
-        descriptions: [
-            "E",
-            "W"
-        ],
-        behavior: [
-            [["attack", 1, 0],
-            ["attack", 2, 0],
-            ["attack", 3, 0],],
+return{
+name: "side_attack",
+pic: "side_attack.png",
+id: "",
+descriptions: [
+"E",
+"W"
+],
+behavior: [
+[["attack", 1, 0],
+["attack", 2, 0],
+["attack", 3, 0],],
 
-            [["attack", -1, 0],
-            ["attack", -2, 0],
-            ["attack", -3, 0]]
-        ]
-    }
+[["attack", -1, 0],
+["attack", -2, 0],
+["attack", -3, 0]]
+]
+}
 }
 function clear_behind(){
-    return{
-        name: "clear_behind",
-        pic: "clear_behind.png",
-        id: "",
-        descriptions: [
-            "S", 
-            "SS"
-        ],
-        behavior: [
-            [["attack", 1, 1],
-            ["attack", 0, 1],
-            ["attack", -1, 1]],
+return{
+name: "clear_behind",
+pic: "clear_behind.png",
+id: "",
+descriptions: [
+"S", 
+"SS"
+],
+behavior: [
+[["attack", 1, 1],
+["attack", 0, 1],
+["attack", -1, 1]],
 
-            [["attack", 1, 2],
-            ["attack", 0, 2],
-            ["attack", -1, 2]]
-        ]
-    }
+[["attack", 1, 2],
+["attack", 0, 2],
+["attack", -1, 2]]
+]
+}
 }
 function spear_slice(){
-    return{
-        name: "spear_slice",
-        pic: "spear_slice.png",
-        id: "",
-        descriptions: [
-            "N", 
-        ],
-        behavior: [
-            [["attack", 1, -2],
-            ["attack", 1, -1],
-            ["attack", 0, -2],
-            ["attack", -1, -2],
-            ["attack", -1, -1]]
-        ]
-    }
+return{
+name: "spear_slice",
+pic: "spear_slice.png",
+id: "",
+descriptions: [
+"N", 
+],
+behavior: [
+[["attack", 1, -2],
+["attack", 1, -1],
+["attack", 0, -2],
+["attack", -1, -2],
+["attack", -1, -1]]
+]
+}
 }
 function jab(){
-    return{
-        name: "jab",
-        pic: "jab.png",
-        id: "",
-        descriptions: [
-            "N",
-            "E",
-            "S",
-            "W"
-        ],
-        behavior: [
-            [["attack", 0, -1],
-            ["attack", 0, -2]],
+return{
+name: "jab",
+pic: "jab.png",
+id: "",
+descriptions: [
+"N",
+"E",
+"S",
+"W"
+],
+behavior: [
+[["attack", 0, -1],
+["attack", 0, -2]],
 
-            [["attack", 1, 0],
-            ["attack", 2, 0]],
+[["attack", 1, 0],
+["attack", 2, 0]],
 
-            [["attack", 0, 1],
-            ["attack", 0, 2]],
+[["attack", 0, 1],
+["attack", 0, 2]],
 
-            [["attack", -1, 0],
-            ["attack", -2, 0]]
-        ]
-    }
+[["attack", -1, 0],
+["attack", -2, 0]]
+]
+}
 }
 function overcome(){
-    return{
-        name: "overcome",
-        pic: "overcome.png",
-        id: "",
-        descriptions: [
-            "N",
-            "S"
-        ],
-        behavior: [
-            [
-            ["attack", 1, -1],
-            ["attack", 0, -1],
-            ["attack", -1, -1],
-            ["move", 0, -2]],
+return{
+name: "overcome",
+pic: "overcome.png",
+id: "",
+descriptions: [
+"N",
+"S"
+],
+behavior: [
+[
+["attack", 1, -1],
+["attack", 0, -1],
+["attack", -1, -1],
+["move", 0, -2]],
 
-            [["attack", 1, 1],
-            ["attack", 0, 1],
-            ["attack", -1, 1],
-            ["move", 0, 2]]
-        ]
-    }
+[["attack", 1, 1],
+["attack", 0, 1],
+["attack", -1, 1],
+["move", 0, 2]]
+]
+}
 }

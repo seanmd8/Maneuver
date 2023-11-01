@@ -1,8 +1,8 @@
 const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_left, 
-    step_right, trample, horsemanship, lunge_left, lunge_right, 
-    sprint, trident, whack, spin_attack, butterfly, 
-    retreat, force, side_attack, clear_behind, spear_slice, 
-    jab, overcome];
+                    step_right, trample, horsemanship, lunge_left, lunge_right, 
+                    sprint, trident, whack, spin_attack, butterfly, 
+                    retreat, force, side_attack, clear_behind, spear_slice, 
+                    jab, overcome];
 
 function make_starting_deck(){
     deck = new MoveDeck();

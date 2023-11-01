@@ -1,4 +1,4 @@
-const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile];
+const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, spider_egg_tile, ram_tile];
 
 function empty_tile(){
     return {
@@ -82,6 +82,35 @@ function knight_tile(){
         description: knight_description
     }
 }
+function spider_egg_tile(){
+    spawn_timer = 2
+    return{
+        type: "enemy",
+        enemy_type: "spider egg",
+        pic: "spider_egg.png",
+        cycle: 0,
+        spawn_timer,
+        id: "",
+        health: 2,
+        difficulty: 4,
+        behavior: spider_egg_ai,
+        description: spider_egg_description[0] + (spawn_timer + 1) + spider_egg_description[1]
+    }
+}
+function ram_tile(){
+    return{
+        type: "enemy",
+        enemy_type: "ram",
+        pic: "ram.png",
+        cycle: 0,
+        id: "",
+        health: 2,
+        difficulty: 5,
+        behavior: ram_ai,
+        description: ram_description
+    }
+}
+
 
 
 function velociphile_tile(){
@@ -105,5 +134,10 @@ const turret_h_description = "Turret: Does not move. Fires beams orthogonally hu
 const turret_d_description = "Turret: Does not move. Fires beams diagonally hurting anything in it's path.";
 const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
 const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
+const spider_egg_description = ["Spider egg: Spawns a spider every ", " turns."];
+const ram_description = "Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.";
+
+
+
 const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves and attacks in straight lines.";
 
