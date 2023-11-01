@@ -1,5 +1,5 @@
 function setup(){
-    mapData = new GameMap(8, 8);  
+    mapData = new GameMap(8, 8); 
     mapData.add_enemy(spider_tile());
     mapData.display();
     deck = make_starting_deck();
@@ -67,14 +67,13 @@ function new_floor(){
     document.getElementById("header4").innerText = "";
     clear_tb("displayDeck");
     var floor = mapData.erase(mapData.player_health());
-    for(var i = 0; i < floor * 2;){
+    for(var i = floor * 2; i > 0;){
         var choice = Math.floor(Math.random() * enemy_list.length);
         var new_enemy = enemy_list[choice]();
-        if(new_enemy.difficulty > i){
-            var new_enemy = spider_tile();
+        if(new_enemy.difficulty <= i){
+            mapData.add_enemy(new_enemy);
+            i -= new_enemy.difficulty;
         }
-        mapData.add_enemy(new_enemy);
-        i += new_enemy.difficulty;
     }
     describe("");
     document.getElementById('header2').innerText = 'Floor ' + floor;
@@ -663,11 +662,11 @@ const empty_description = "There is nothing here.";
 const exit_description = "Stairs to the next floor.";
 const player_description = "You.";
 const spider_description = "Spider: Will attack the player if it is next to them. Otherwise it will move closer.";
-const turret_h_description = "Turret: Does not move. Fires beams orthogonally hurting anything in it's path.";
-const turret_d_description = "Turret: Does not move. Fires beams diagonally hurting anything in it's path.";
+const turret_h_description = "Turret: Does not move. Fires beams orthogonally that hit the first thing in their path.";
+const turret_d_description = "Turret: Does not move. Fires beams diagonally that hit the first thing in their path.";
 const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
 const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
-const spider_egg_description = ["Spider egg: Spawns a spider every ", " turns."];
+const spider_egg_description = ["Spider egg: Does not move. Spawns a spider every ", " turns."];
 const ram_description = "Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.";
 
 
@@ -684,18 +683,21 @@ function spider_ai(x, y, x_dif, y_dif, map, enemy){
     }
 }
 function turret_h_ai(x, y, x_dif, y_dif, map, enemy){
-    if(x_dif === 0){
-        var direction = sign(y_dif);
-        for(var i = 1; i < 11; ++i){ 
-            map.attack(x, y + i * direction);
+    try{
+        if(x_dif === 0){
+            var direction = sign(y_dif);
+            for(var i = 1; !map.attack(x, y + i * direction); ++i){
+                map.check_bounds(x, y + i * direction)
+            }
+        }
+        else if(y_dif === 0){
+            var direction = sign(x_dif);
+            for(var i = 1; !map.attack(x + i * direction, y); ++i){
+                map.check_bounds(x + i * direction, y)
+            }
         }
     }
-    if(y_dif === 0){
-        var direction = sign(x_dif);
-        for(var i = 1; i < 11; ++i){ 
-            map.attack(x + i * direction, y);
-        }
-    }
+    catch{}
 }
 function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
     if(!(Math.abs(x_dif) === Math.abs(y_dif))){
@@ -703,9 +705,12 @@ function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
     }
     var x_direction = sign(x_dif);
     var y_direction = sign(y_dif);
-    for(var i = 1; i < 11; ++i){ 
-        map.attack(x + i * x_direction, y + i * y_direction);
+    try{
+        for(var i = 1; !map.attack(x + i * x_direction, y + i * y_direction); ++i){ 
+            map.check_bounds(x + i * x_direction, y + i * y_direction);
+        }
     }
+    catch{}
 }
 function scythe_ai(x, y, x_dif, y_dif, map, enemy){
     var direction = Math.floor(Math.random() * 4);
@@ -769,7 +774,12 @@ function scythe_ai(x, y, x_dif, y_dif, map, enemy){
     }
 }
 function knight_ai(x, y, x_dif, y_dif, map, enemy){
-    // Needs buff
+    if(Math.abs(x_dif) === 1 && Math.abs(y_dif) === 1){
+        if(!map.move(x, y, x + (2 * sign(x_dif)), y + (-1 * sign(y_dif)))){
+            map.move(x, y, x + (-1 * sign(x_dif)), y + (2 * sign(y_dif)));
+        }
+        return;
+    }
     if(Math.abs(x_dif) + Math.abs(y_dif) === 3){
         if(x_dif === 1 || x_dif === -1 || y_dif === 1 || y_dif === -1){
             map.attack(x + x_dif, y + y_dif, "player");
@@ -1343,24 +1353,22 @@ behavior: [
 }
 }
 function clear_behind(){
-return{
-name: "clear_behind",
-pic: "clear_behind.png",
-id: "",
-descriptions: [
-"S", 
-"SS"
-],
-behavior: [
-[["attack", 1, 1],
-["attack", 0, 1],
-["attack", -1, 1]],
-
-[["attack", 1, 2],
-["attack", 0, 2],
-["attack", -1, 2]]
-]
-}
+    return{
+        name: "clear_behind",
+        pic: "clear_behind.png",
+        id: "",
+        descriptions: [
+            "S"
+        ],
+        behavior: [
+            [["attack", 1, 1],
+            ["attack", 0, 1],
+            ["attack", -1, 1],
+            ["attack", 1, 2],
+            ["attack", 0, 2],
+            ["attack", -1, 2]]
+        ]
+    }
 }
 function spear_slice(){
 return{

@@ -67,14 +67,13 @@ function new_floor(){
     document.getElementById("header4").innerText = "";
     clear_tb("displayDeck");
     var floor = mapData.erase(mapData.player_health());
-    for(var i = 0; i < floor * 2;){
+    for(var i = floor * 2; i > 0;){
         var choice = Math.floor(Math.random() * enemy_list.length);
         var new_enemy = enemy_list[choice]();
-        if(new_enemy.difficulty > i){
-            var new_enemy = spider_tile();
+        if(new_enemy.difficulty <= i){
+            mapData.add_enemy(new_enemy);
+            i -= new_enemy.difficulty;
         }
-        mapData.add_enemy(new_enemy);
-        i += new_enemy.difficulty;
     }
     describe("");
     document.getElementById('header2').innerText = 'Floor ' + floor;

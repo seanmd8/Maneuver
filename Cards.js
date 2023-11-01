@@ -468,15 +468,13 @@ function clear_behind(){
         pic: "clear_behind.png",
         id: "",
         descriptions: [
-            "S", 
-            "SS"
+            "S"
         ],
         behavior: [
             [["attack", 1, 1],
             ["attack", 0, 1],
-            ["attack", -1, 1]],
-
-            [["attack", 1, 2],
+            ["attack", -1, 1],
+            ["attack", 1, 2],
             ["attack", 0, 2],
             ["attack", -1, 2]]
         ]

@@ -9,18 +9,21 @@ function spider_ai(x, y, x_dif, y_dif, map, enemy){
     }
 }
 function turret_h_ai(x, y, x_dif, y_dif, map, enemy){
-    if(x_dif === 0){
-        var direction = sign(y_dif);
-        for(var i = 1; i < 11; ++i){ 
-            map.attack(x, y + i * direction);
+    try{
+        if(x_dif === 0){
+            var direction = sign(y_dif);
+            for(var i = 1; !map.attack(x, y + i * direction); ++i){
+                map.check_bounds(x, y + i * direction)
+            }
+        }
+        else if(y_dif === 0){
+            var direction = sign(x_dif);
+            for(var i = 1; !map.attack(x + i * direction, y); ++i){
+                map.check_bounds(x + i * direction, y)
+            }
         }
     }
-    if(y_dif === 0){
-        var direction = sign(x_dif);
-        for(var i = 1; i < 11; ++i){ 
-            map.attack(x + i * direction, y);
-        }
-    }
+    catch{}
 }
 function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
     if(!(Math.abs(x_dif) === Math.abs(y_dif))){
@@ -28,9 +31,12 @@ function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
     }
     var x_direction = sign(x_dif);
     var y_direction = sign(y_dif);
-    for(var i = 1; i < 11; ++i){ 
-        map.attack(x + i * x_direction, y + i * y_direction);
+    try{
+        for(var i = 1; !map.attack(x + i * x_direction, y + i * y_direction); ++i){ 
+            map.check_bounds(x + i * x_direction, y + i * y_direction);
+        }
     }
+    catch{}
 }
 function scythe_ai(x, y, x_dif, y_dif, map, enemy){
     var direction = Math.floor(Math.random() * 4);
@@ -94,7 +100,12 @@ function scythe_ai(x, y, x_dif, y_dif, map, enemy){
     }
 }
 function knight_ai(x, y, x_dif, y_dif, map, enemy){
-    // Needs buff
+    if(Math.abs(x_dif) === 1 && Math.abs(y_dif) === 1){
+        if(!map.move(x, y, x + (2 * sign(x_dif)), y + (-1 * sign(y_dif)))){
+            map.move(x, y, x + (-1 * sign(x_dif)), y + (2 * sign(y_dif)));
+        }
+        return;
+    }
     if(Math.abs(x_dif) + Math.abs(y_dif) === 3){
         if(x_dif === 1 || x_dif === -1 || y_dif === 1 || y_dif === -1){
             map.attack(x + x_dif, y + y_dif, "player");
