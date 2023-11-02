@@ -3,7 +3,7 @@ const HAND_SCALE = 100;
 const ADD_CHOICES = 3;
 const REMOVE_CHOICES = 3;
 const DECK_MINIMUM = 5;
-const DECK_DISPLAY_WIDTH = 5;
+const DECK_DISPLAY_WIDTH = 4;
 
 class MoveDeck{
     #list;

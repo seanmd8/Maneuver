@@ -59,6 +59,7 @@ async function action(behavior, hand_pos){
         else if(m === "game over"){
             mapData.display();
             clear_tb("handDisplay");
+            clear_tb("moveButtons");
             describe("Game Over. You were killed by a " + error.cause + ".");
         }
         else{
@@ -168,7 +169,7 @@ const HAND_SCALE = 100;
 const ADD_CHOICES = 3;
 const REMOVE_CHOICES = 3;
 const DECK_MINIMUM = 5;
-const DECK_DISPLAY_WIDTH = 5;
+const DECK_DISPLAY_WIDTH = 4;
 
 class MoveDeck{
     #list;
@@ -463,7 +464,12 @@ class GameMap{
     }
     player_attack(x_dif, y_dif){
         var pos = this.#entity_list.get_player_pos();
-        this.attack(pos.x + x_dif, pos.y + y_dif, "enemy");
+        try{
+            this.attack(pos.x + x_dif, pos.y + y_dif, "all");
+        }
+        catch{
+            throw new Error("game over", {cause: "player"});
+        }
     }
     async enemy_turn(){
         await this.#entity_list.enemy_turn(this);
@@ -917,12 +923,12 @@ function random_nearby(){
     }
     return ran_cords;
 }
-
 const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
     sprint, trident, whack, spin_attack, butterfly, 
     retreat, force, side_attack, clear_behind, spear_slice, 
-    jab, overcome];
+    jab, overcome, hit_and_run, v, push_back,
+    fork, explosion, breakthrough];
 
 function make_starting_deck(){
 deck = new MoveDeck();
@@ -941,7 +947,7 @@ return deck;
 }
 function make_test_deck(){
 deck = new MoveDeck();
-var start = 20;
+var start = 25;
 for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
 deck.add(CARD_CHOICES[i]());
 }
@@ -1074,7 +1080,7 @@ pic: "straight_charge.png",
 id: "",
 descriptions: [
 "N",
-"S",
+"S"
 ],
 behavior: [
 [["move", 0, -1],
@@ -1463,6 +1469,128 @@ behavior: [
 ["attack", 0, 1],
 ["attack", -1, 1],
 ["move", 0, 2]]
+]
+}
+}
+function hit_and_run(){
+return{
+name: "hit and run",
+pic: "hit_and_run.png",
+id: "",
+descriptions: [
+"S"
+],
+behavior: [
+[["attack", 1, -1],
+["attack", 0, -1],
+["attack", -1, -1],
+["move", 0, 1]]
+]
+}
+}
+function v(){
+return{
+name: "v",
+pic: "v.png",
+id: "",
+descriptions: [
+"NE",
+"NW"
+],
+behavior: [
+[["attack", 1, -1],
+["move", 1, -1]],
+
+[["attack", -1, -1],
+["move", -1, -1]]
+]
+}
+}
+function push_back(){
+return{
+name: "push back",
+pic: "push_back.png",
+id: "",
+descriptions: [
+"SE",
+"SW",
+],
+behavior: [
+[["attack", -1, -1],
+["move", 1, 1]],
+
+[["attack", 1, -1],
+["move", -1, 1]],
+]
+}
+}
+function fork(){
+return{
+name: "fork",
+pic: "fork.png",
+id: "",
+descriptions: [
+"N",
+"E",
+"S",
+"W"
+],
+behavior: [
+[["attack", 1, -1],
+["attack", -1, -1],
+["attack", 1, -2],
+["attack", -1, -2]],
+
+[["attack", 1, 1],
+["attack", 1, -1],
+["attack", 2, 1],
+["attack", 2, -1]],
+
+[["attack", 1, 1],
+["attack", -1, 1],
+["attack", 1, 2],
+["attack", -1, 2]],
+
+[["attack", -1, 1],
+["attack", -1, -1],
+["attack", -2, 1],
+["attack", -2, -1]]
+]
+}
+}
+function explosion(){
+var area = [];
+var radius = 2;
+for(var i = -1 * radius; i <= radius; ++i){
+for(var j = -1 * radius; j <= radius; ++j){
+area.push(["attack", i, j]);
+}
+}
+return{
+name: "explosion",
+pic: "explosion.png",
+id: "",
+descriptions: [
+"Explode"
+],
+behavior: [
+area
+]
+}
+}
+function breakthrough(){
+return{
+name: "breakthrough",
+pic: "breakthrough.png",
+id: "",
+descriptions: [
+"N"
+],
+behavior: [
+[["move", 0, -1],
+["attack", 0, -1],
+["attack", 1, 0],
+["attack", -1, 0]],
 ]
 }
 }

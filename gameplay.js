@@ -59,6 +59,7 @@ async function action(behavior, hand_pos){
         else if(m === "game over"){
             mapData.display();
             clear_tb("handDisplay");
+            clear_tb("moveButtons");
             describe("Game Over. You were killed by a " + error.cause + ".");
         }
         else{

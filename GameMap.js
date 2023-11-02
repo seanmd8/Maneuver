@@ -190,7 +190,12 @@ class GameMap{
     }
     player_attack(x_dif, y_dif){
         var pos = this.#entity_list.get_player_pos();
-        this.attack(pos.x + x_dif, pos.y + y_dif, "enemy");
+        try{
+            this.attack(pos.x + x_dif, pos.y + y_dif, "all");
+        }
+        catch{
+            throw new Error("game over", {cause: "player"});
+        }
     }
     async enemy_turn(){
         await this.#entity_list.enemy_turn(this);
