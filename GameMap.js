@@ -173,6 +173,10 @@ class GameMap{
                 this.#grid[x][y] = empty_tile()
                 this.#grid[x][y].pic = "hit.png";
                 this.#entity_list.remove_enemy(target.id)
+                if(target.hasOwnProperty("on_death")){
+                    var player_pos = this.#entity_list.get_player_pos();
+                    target.on_death(x, y, player_pos[0] - x, player_pos[1] - y, this, target);
+                }
             }
             return true;
         }

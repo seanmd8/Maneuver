@@ -143,8 +143,7 @@ function spider_egg_ai(x, y, x_dif, y_dif, map, enemy){
     }
     else{
         var spawnpoints = random_nearby();
-        var i;
-        for(i = 0; i < spawnpoints.length && !map.add_enemy(spider_tile(),x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        for(var i = 0; i < spawnpoints.length && !map.add_enemy(spider_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
         enemy.cycle = 0;
     }
 }
@@ -168,7 +167,7 @@ function ram_ai(x, y, x_dif, y_dif, map, enemy){
         }
         if(moved === true && (Math.abs(x_dif) < 3 || Math.abs(y_dif) < 3)){
             enemy.cycle = 1;
-            enemy.pic = "ram_charge.png";
+            enemy.pic = enemy.pic_arr[enemy.cycle];
         }
     }
     else{
@@ -188,11 +187,117 @@ function ram_ai(x, y, x_dif, y_dif, map, enemy){
             map.attack(x, y);
         }
         enemy.cycle = 0;
-        enemy.pic = "ram.png";
+        enemy.pic = enemy.pic_arr[enemy.cycle];
     }
 }
-
-
+function large_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
+    if(enemy.health === 2){
+        map.attack(x, y);
+        map.attack(x, y);
+        if(!map.add_enemy(medium_porcuslime_tile(), x, y)){
+            var spawnpoints = random_nearby();
+            for(var i = 0; i < spawnpoints.length && !map.add_enemy(medium_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        }
+        return;
+    }
+    if(enemy.health === 1){
+        map.attack(x, y);
+        var spawnpoints = random_nearby();
+        for(var i = 0; i < spawnpoints.length && !map.add_enemy(small_h_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        spawnpoints = random_nearby();
+        for(var i = 0; i < spawnpoints.length && !map.add_enemy(small_d_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        return;
+    }
+    if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
+        map.attack(x + x_dif, y + y_dif, "player");
+    }
+    else{
+        x_dif = sign(x_dif);
+        y_dif = sign(y_dif);
+        var moved = map.move(x, y, x + x_dif, y + y_dif);
+        if(moved){
+            map.attack(x + (2 * x_dif), y + (2 * y_dif), "player");
+        }
+    }
+}
+function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
+    if(enemy.health === 1){
+        map.attack(x, y);
+        var spawnpoints = random_nearby();
+        for(var i = 0; i < spawnpoints.length && !map.add_enemy(small_h_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        spawnpoints = random_nearby();
+        for(var i = 0; i < spawnpoints.length && !map.add_enemy(small_d_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        return;
+    }
+    if(enemy.cycle === 0){
+        if(Math.abs(x_dif) > Math.abs(y_dif)){
+            var dir = [sign(x_dif), 0];
+        }
+        else{
+            var dir = [0, sign(y_dif)];
+        }
+    }
+    else{
+        var dir = [sign(x_dif), sign(y_dif)];
+        for(var i = 0; i < dir.length; ++i){
+            if(dir[i] === 0){
+                dir[i] = -1 + (2 * Math.floor(Math.random(2)));
+            }
+        }
+    }
+    var moved = map.move(x, y, x + dir[0], y + dir[1]);
+    if(moved){
+        map.attack(x + (2 * dir[0]), y + (2 * dir[1]), "player");
+    }
+    else{
+        map.attack(x + dir[0], y + dir[1], "player");
+    }
+    enemy.cycle = 1 - enemy.cycle;
+    enemy.pic = enemy.pic_arr[enemy.cycle];
+}
+function small_h_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
+    if(Math.abs(x_dif) > Math.abs(y_dif)){
+        var dir = [sign(x_dif), 0];
+    }
+    else{
+        var dir = [0, sign(y_dif)];
+    }
+    var moved = map.move(x, y, x + dir[0], y + dir[1]);
+    if(moved){
+        map.attack(x + (2 * dir[0]), y + (2 * dir[1]), "player");
+    }
+    else{
+        map.attack(x + dir[0], y + dir[1], "player");
+    }
+    enemy.cycle = 1 - enemy.cycle;
+}
+function small_d_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
+    var dir = [sign(x_dif), sign(y_dif)];
+    for(var i = 0; i < dir.length; ++i){
+        if(dir[i] === 0){
+            dir[i] = -1 + (2 * Math.floor(Math.random(2)));
+        }
+    }
+    var moved = map.move(x, y, x + dir[0], y + dir[1]);
+    if(moved){
+        map.attack(x + (2 * dir[0]), y + (2 * dir[1]), "player");
+    }
+    else{
+        map.attack(x + dir[0], y + dir[1], "player");
+    }
+    enemy.cycle = 1 - enemy.cycle;
+}
+function acid_elemental_ai(x, y, x_dif, y_dif, map, enemy){
+    x_dif = sign(x_dif);
+    y_dif = sign(y_dif);
+    map.move(x, y, x + x_dif, y + y_dif);
+}
+function acid_elemental_death(x, y, x_dif, y_dif, map, enemy){
+    var attacks = random_nearby();
+    for(var i = 0; i < attacks.length; ++i){
+        map.attack(x + attacks[i][0], y + attacks[i][1]);
+    }
+}
 
 
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
