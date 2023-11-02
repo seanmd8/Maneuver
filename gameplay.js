@@ -1,3 +1,5 @@
+const ANIMATION_DELAY = 300;
+
 function setup(){
     mapData = new GameMap(8, 8);  
     mapData.add_enemy(spider_tile());
@@ -28,7 +30,7 @@ function prep_move(move, hand_pos){
     }
     document.getElementById("moveButtons").append(row);
 }
-function action(behavior, hand_pos){
+async function action(behavior, hand_pos){
     try{
         for(var i = 0; i < behavior.length; ++i){
             if(behavior[i][0] === "attack"){
@@ -38,13 +40,15 @@ function action(behavior, hand_pos){
                 mapData.player_move(behavior[i][1], behavior[i][2]);
             }
             else{
-                throw new Error("Invalid Action Type");
+                throw new Error("invalid action type");
             }
         }
         deck.discard(hand_pos);
         clear_tb("moveButtons");
         deck.display_hand(document.getElementById("handDisplay"));
-        mapData.enemy_turn();
+        mapData.display();
+        await delay(ANIMATION_DELAY);
+        await mapData.enemy_turn();
         mapData.display();
     }
     catch (error){
@@ -152,4 +156,9 @@ function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 
     }
     cell.append(image);
     return cell;
+}
+function delay(ms){
+    return new Promise(resolve =>{
+        setTimeout(resolve, ms);
+    })
 }

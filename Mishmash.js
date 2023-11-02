@@ -1,5 +1,7 @@
+const ANIMATION_DELAY = 300;
+
 function setup(){
-    mapData = new GameMap(8, 8); 
+    mapData = new GameMap(8, 8);  
     mapData.add_enemy(spider_tile());
     mapData.display();
     deck = make_starting_deck();
@@ -28,7 +30,7 @@ function prep_move(move, hand_pos){
     }
     document.getElementById("moveButtons").append(row);
 }
-function action(behavior, hand_pos){
+async function action(behavior, hand_pos){
     try{
         for(var i = 0; i < behavior.length; ++i){
             if(behavior[i][0] === "attack"){
@@ -38,13 +40,15 @@ function action(behavior, hand_pos){
                 mapData.player_move(behavior[i][1], behavior[i][2]);
             }
             else{
-                throw new Error("Invalid Action Type");
+                throw new Error("invalid action type");
             }
         }
         deck.discard(hand_pos);
         clear_tb("moveButtons");
         deck.display_hand(document.getElementById("handDisplay"));
-        mapData.enemy_turn();
+        mapData.display();
+        await delay(ANIMATION_DELAY);
+        await mapData.enemy_turn();
         mapData.display();
     }
     catch (error){
@@ -152,6 +156,11 @@ function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 
     }
     cell.append(image);
     return cell;
+}
+function delay(ms){
+    return new Promise(resolve =>{
+        setTimeout(resolve, ms);
+    })
 }
 
 const HAND_SIZE = 3;
@@ -261,6 +270,7 @@ class MoveDeck{
         return false;
     }
 }
+
 
 const GRID_SCALE = 30;
 
@@ -378,6 +388,9 @@ class GameMap{
                     tile_description = "(" + this.#grid[x][y].health + " hp) " + tile_description;
                 }
                 var cell = make_cell(x + ' ' + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, tile_description);
+                if(this.#grid[x][y].type === "empty"){
+                    this.#grid[x][y].pic = "empty.png";
+                }
 				row.append(cell);
 			}
 			visual_map.append(row);
@@ -431,6 +444,7 @@ class GameMap{
             target.health -= 1;
             if(target.health === 0){
                 this.#grid[x][y] = empty_tile()
+                this.#grid[x][y].pic = "hit.png";
                 this.#entity_list.remove_enemy(target.id)
             }
             return true;
@@ -442,14 +456,17 @@ class GameMap{
             }
             return true;
         }
+        if(target.type === "empty"){
+            target.pic = "hit.png";
+        }
         return false;
     }
     player_attack(x_dif, y_dif){
         var pos = this.#entity_list.get_player_pos();
         this.attack(pos.x + x_dif, pos.y + y_dif, "enemy");
     }
-    enemy_turn(){
-        this.#entity_list.enemy_turn(this);
+    async enemy_turn(){
+        await this.#entity_list.enemy_turn(this);
     }
 }
 
@@ -510,7 +527,7 @@ class EntityList{
             throw new Error("moving invalid type");
         }
     }
-    enemy_turn(map){
+    async enemy_turn(map){
         // How to avoid multi turns via friendly fire shrinking the list?
         var turn = []
         for(var i = 0; i < this.#enemy_list.length; ++i){
@@ -521,6 +538,8 @@ class EntityList{
             if(!(this.#find_by_id(e.enemy.id) === -1)){
                 try{
                     e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+                    map.display();
+                    await delay(ANIMATION_DELAY);
                 }
                 catch{
                     throw new Error("game over", {cause: e.enemy.enemy_type});
@@ -529,6 +548,7 @@ class EntityList{
         }
     }
 }
+
 
 const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, spider_egg_tile, ram_tile];
 
@@ -672,6 +692,8 @@ const ram_description = "Ram: Moves orthogonally. When it sees the player, it wi
 
 
 const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves and attacks in straight lines.";
+
+
 function spider_ai(x, y, x_dif, y_dif, map, enemy){
     if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
         map.attack(x + x_dif, y + y_dif, "player");
@@ -697,7 +719,11 @@ function turret_h_ai(x, y, x_dif, y_dif, map, enemy){
             }
         }
     }
-    catch{}
+    catch(error){
+        if(!(error.message === "x out of bounds" || error.message === "y out of bounds")){
+            throw error;
+        }
+    }
 }
 function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
     if(!(Math.abs(x_dif) === Math.abs(y_dif))){
@@ -710,7 +736,11 @@ function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
             map.check_bounds(x + i * x_direction, y + i * y_direction);
         }
     }
-    catch{}
+    catch(error){
+        if(!(error.message === "x out of bounds" || error.message === "y out of bounds")){
+            throw error;
+        }
+    }
 }
 function scythe_ai(x, y, x_dif, y_dif, map, enemy){
     var direction = Math.floor(Math.random() * 4);
@@ -923,7 +953,7 @@ return deck;
 
 function basic_horizontal(){
 return{
-name: "basic_horizontal",
+name: "basic horizontal",
 pic: "basic_horizontal.png",
 id: "",
 descriptions: [
@@ -943,7 +973,7 @@ behavior: [
 }
 function basic_diagonal(){
 return{
-name: "basic_diagonal",
+name: "basic diagonal",
 pic: "basic_diagonal.png",
 id: "",
 descriptions: [
@@ -993,7 +1023,7 @@ behavior: [
 }
 function short_charge(){
 return{
-name: "short_charge",
+name: "short charge",
 pic: "short_charge.png",
 id: "",
 descriptions: [
@@ -1039,7 +1069,7 @@ behavior: [
 
 function straight_charge(){
 return{
-name: "straight_charge",
+name: "straight charge",
 pic: "straight_charge.png",
 id: "",
 descriptions: [
@@ -1059,7 +1089,7 @@ behavior: [
 }
 function side_charge(){
 return{
-name: "side_charge",
+name: "side charge",
 pic: "side_charge.png",
 id: "",
 descriptions: [
@@ -1079,7 +1109,7 @@ behavior: [
 }
 function step_left(){
 return{
-name: "step_left",
+name: "step left",
 pic: "step_left.png",
 id: "",
 descriptions: [
@@ -1097,7 +1127,7 @@ behavior: [
 }
 function step_right(){
 return{
-name: "step_right",
+name: "step right",
 pic: "step_right.png",
 id: "",
 descriptions: [
@@ -1153,7 +1183,7 @@ behavior: [
 }
 function lunge_left(){
 return{
-name: "lunge_left",
+name: "lunge left",
 pic: "lunge_left.png",
 id: "",
 descriptions: [
@@ -1172,7 +1202,7 @@ behavior: [
 }
 function lunge_right(){
 return{
-name: "lunge_right",
+name: "lunge right",
 pic: "lunge_right.png",
 id: "",
 descriptions: [
@@ -1259,7 +1289,7 @@ behavior: [
 }
 function spin_attack(){
 return{
-name: "spin_attack",
+name: "spin attack",
 pic: "spin_attack.png",
 id: "",
 descriptions: ["spin"],
@@ -1334,7 +1364,7 @@ behavior: [
 }
 function side_attack(){
 return{
-name: "side_attack",
+name: "side attack",
 pic: "side_attack.png",
 id: "",
 descriptions: [
@@ -1353,26 +1383,26 @@ behavior: [
 }
 }
 function clear_behind(){
-    return{
-        name: "clear_behind",
-        pic: "clear_behind.png",
-        id: "",
-        descriptions: [
-            "S"
-        ],
-        behavior: [
-            [["attack", 1, 1],
-            ["attack", 0, 1],
-            ["attack", -1, 1],
-            ["attack", 1, 2],
-            ["attack", 0, 2],
-            ["attack", -1, 2]]
-        ]
-    }
+return{
+name: "clear behind",
+pic: "clear_behind.png",
+id: "",
+descriptions: [
+"S"
+],
+behavior: [
+[["attack", 1, 1],
+["attack", 0, 1],
+["attack", -1, 1],
+["attack", 1, 2],
+["attack", 0, 2],
+["attack", -1, 2]]
+]
+}
 }
 function spear_slice(){
 return{
-name: "spear_slice",
+name: "spear slice",
 pic: "spear_slice.png",
 id: "",
 descriptions: [

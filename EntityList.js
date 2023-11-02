@@ -55,7 +55,7 @@ class EntityList{
             throw new Error("moving invalid type");
         }
     }
-    enemy_turn(map){
+    async enemy_turn(map){
         // How to avoid multi turns via friendly fire shrinking the list?
         var turn = []
         for(var i = 0; i < this.#enemy_list.length; ++i){
@@ -66,6 +66,8 @@ class EntityList{
             if(!(this.#find_by_id(e.enemy.id) === -1)){
                 try{
                     e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+                    map.display();
+                    await delay(ANIMATION_DELAY);
                 }
                 catch{
                     throw new Error("game over", {cause: e.enemy.enemy_type});

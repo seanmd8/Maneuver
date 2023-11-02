@@ -33,7 +33,7 @@ function make_test_deck(){
 
 function basic_horizontal(){
     return{
-        name: "basic_horizontal",
+        name: "basic horizontal",
         pic: "basic_horizontal.png",
         id: "",
         descriptions: [
@@ -53,7 +53,7 @@ function basic_horizontal(){
 }
 function basic_diagonal(){
     return{
-        name: "basic_diagonal",
+        name: "basic diagonal",
         pic: "basic_diagonal.png",
         id: "",
         descriptions: [
@@ -103,7 +103,7 @@ function slice(){
 }
 function short_charge(){
     return{
-        name: "short_charge",
+        name: "short charge",
         pic: "short_charge.png",
         id: "",
         descriptions: [
@@ -149,7 +149,7 @@ function jump(){
 
 function straight_charge(){
     return{
-        name: "straight_charge",
+        name: "straight charge",
         pic: "straight_charge.png",
         id: "",
         descriptions: [
@@ -169,7 +169,7 @@ function straight_charge(){
 }
 function side_charge(){
     return{
-        name: "side_charge",
+        name: "side charge",
         pic: "side_charge.png",
         id: "",
         descriptions: [
@@ -189,7 +189,7 @@ function side_charge(){
 }
 function step_left(){
     return{
-        name: "step_left",
+        name: "step left",
         pic: "step_left.png",
         id: "",
         descriptions: [
@@ -207,7 +207,7 @@ function step_left(){
 }
 function step_right(){
     return{
-        name: "step_right",
+        name: "step right",
         pic: "step_right.png",
         id: "",
         descriptions: [
@@ -263,7 +263,7 @@ function horsemanship(){
 }
 function lunge_left(){
     return{
-        name: "lunge_left",
+        name: "lunge left",
         pic: "lunge_left.png",
         id: "",
         descriptions: [
@@ -282,7 +282,7 @@ function lunge_left(){
 }
 function lunge_right(){
     return{
-        name: "lunge_right",
+        name: "lunge right",
         pic: "lunge_right.png",
         id: "",
         descriptions: [
@@ -369,7 +369,7 @@ function whack(){
 }
 function spin_attack(){
     return{
-        name: "spin_attack",
+        name: "spin attack",
         pic: "spin_attack.png",
         id: "",
         descriptions: ["spin"],
@@ -444,7 +444,7 @@ function force(){
 }
 function side_attack(){
     return{
-        name: "side_attack",
+        name: "side attack",
         pic: "side_attack.png",
         id: "",
         descriptions: [
@@ -464,7 +464,7 @@ function side_attack(){
 }
 function clear_behind(){
     return{
-        name: "clear_behind",
+        name: "clear behind",
         pic: "clear_behind.png",
         id: "",
         descriptions: [
@@ -482,7 +482,7 @@ function clear_behind(){
 }
 function spear_slice(){
     return{
-        name: "spear_slice",
+        name: "spear slice",
         pic: "spear_slice.png",
         id: "",
         descriptions: [

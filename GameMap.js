@@ -115,6 +115,9 @@ class GameMap{
                     tile_description = "(" + this.#grid[x][y].health + " hp) " + tile_description;
                 }
                 var cell = make_cell(x + ' ' + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, tile_description);
+                if(this.#grid[x][y].type === "empty"){
+                    this.#grid[x][y].pic = "empty.png";
+                }
 				row.append(cell);
 			}
 			visual_map.append(row);
@@ -168,6 +171,7 @@ class GameMap{
             target.health -= 1;
             if(target.health === 0){
                 this.#grid[x][y] = empty_tile()
+                this.#grid[x][y].pic = "hit.png";
                 this.#entity_list.remove_enemy(target.id)
             }
             return true;
@@ -179,13 +183,16 @@ class GameMap{
             }
             return true;
         }
+        if(target.type === "empty"){
+            target.pic = "hit.png";
+        }
         return false;
     }
     player_attack(x_dif, y_dif){
         var pos = this.#entity_list.get_player_pos();
         this.attack(pos.x + x_dif, pos.y + y_dif, "enemy");
     }
-    enemy_turn(){
-        this.#entity_list.enemy_turn(this);
+    async enemy_turn(){
+        await this.#entity_list.enemy_turn(this);
     }
 }

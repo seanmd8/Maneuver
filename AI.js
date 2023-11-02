@@ -23,7 +23,11 @@ function turret_h_ai(x, y, x_dif, y_dif, map, enemy){
             }
         }
     }
-    catch{}
+    catch(error){
+        if(!(error.message === "x out of bounds" || error.message === "y out of bounds")){
+            throw error;
+        }
+    }
 }
 function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
     if(!(Math.abs(x_dif) === Math.abs(y_dif))){
@@ -36,7 +40,11 @@ function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
             map.check_bounds(x + i * x_direction, y + i * y_direction);
         }
     }
-    catch{}
+    catch(error){
+        if(!(error.message === "x out of bounds" || error.message === "y out of bounds")){
+            throw error;
+        }
+    }
 }
 function scythe_ai(x, y, x_dif, y_dif, map, enemy){
     var direction = Math.floor(Math.random() * 4);
