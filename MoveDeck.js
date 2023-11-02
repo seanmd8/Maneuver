@@ -42,7 +42,7 @@ class MoveDeck{
     }
     discard(x){
         if(x >= this.#hand.length){
-            throw new Error('hand out of bounds');
+            throw new Error("hand out of bounds");
         }
         if(this.#library.length === 0){
             while(this.#discard_pile.length != 0){
@@ -68,7 +68,7 @@ class MoveDeck{
         while(table.rows.length > 0){
             table.deleteRow(0);
         }
-        var row = document.createElement('tr');
+        var row = document.createElement("tr");
         row.id = "hand";
         var prep = function(move, hand_pos){return function(){prep_move(move, hand_pos)}};
         for(var i = 0; i < this.#hand.length; ++i){
@@ -78,9 +78,9 @@ class MoveDeck{
         table.append(row);
     }
     display_all(table){
-        document.getElementById("header4").innerText = "Current Deck:";
+        document.getElementById("currentDeck").innerText = "Current Deck:";
         for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
-            var row = document.createElement('tr');
+            var row = document.createElement("tr");
             for(var j = 0; j < DECK_DISPLAY_WIDTH && j + i * DECK_DISPLAY_WIDTH < this.#list.length; ++j){
                 var cell =  make_cell("card " + (i * DECK_DISPLAY_WIDTH + j), "images/cards/" + this.#list[i * DECK_DISPLAY_WIDTH + j].pic, HAND_SCALE);
 			    row.append(cell);

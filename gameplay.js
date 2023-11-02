@@ -8,7 +8,7 @@ function setup(){
     deck.display_hand(document.getElementById("handDisplay"));
 }
 function describe(description){
-    document.getElementById("descriptionText").innerText = description;
+    document.getElementById("displayMessage").innerText = description;
 }
 function clear_tb(element_id){
     while(document.getElementById(element_id).rows.length > 0){
@@ -17,11 +17,11 @@ function clear_tb(element_id){
 }
 function prep_move(move, hand_pos){
     clear_tb("moveButtons");
-    var row = document.createElement('tr');
+    var row = document.createElement("tr");
     row.id = "buttons";
     for(var i = 0; i < move.descriptions.length; ++i){
-        var cell = document.createElement('input');
-        cell.type = 'button'
+        var cell = document.createElement("input");
+        cell.type = "button"
         cell.name = move.descriptions[i];
         cell.value = move.descriptions[i];
         var act = function(behavior, hand_pos){return function(){action(behavior, hand_pos)}};
@@ -53,10 +53,10 @@ async function action(behavior, hand_pos){
     }
     catch (error){
         var m = error.message;
-        if(m === 'floor complete'){
+        if(m === "floor complete"){
             modify_deck();
         }
-        else if(m === 'game over'){
+        else if(m === "game over"){
             mapData.display();
             clear_tb("handDisplay");
             describe("Game Over. You were killed by a " + error.cause + ".");
@@ -68,7 +68,7 @@ async function action(behavior, hand_pos){
 }
 function new_floor(){
     clear_tb("modifyDeck");
-    document.getElementById("header4").innerText = "";
+    document.getElementById("currentDeck").innerText = "";
     clear_tb("displayDeck");
     var floor = mapData.erase(mapData.player_health());
     for(var i = floor * 2; i > 0;){
@@ -80,7 +80,7 @@ function new_floor(){
         }
     }
     describe("");
-    document.getElementById('header2').innerText = 'Floor ' + floor;
+    document.getElementById("floorNumber").innerText = "Floor " + floor;
     deck.deal();
     mapData.display();
     deck.display_hand(document.getElementById("handDisplay"));
@@ -108,7 +108,7 @@ function modify_deck(){
         deck.add(card);
         new_floor();
     }};
-    var add_row = document.createElement('tr');
+    var add_row = document.createElement("tr");
     add_row.id = "add_row";
     var plus = make_cell("plus", "images/other/plus.png", HAND_SCALE);
     add_row.append(plus);
@@ -117,7 +117,7 @@ function modify_deck(){
         deck.remove(card.id);
         new_floor();
     }};
-    var remove_row = document.createElement('tr');
+    var remove_row = document.createElement("tr");
     remove_row.id = "remove_row";
     var minus = make_cell("plus", "images/other/minus.png", HAND_SCALE);
     if(remove_row.length === 0){
@@ -140,9 +140,9 @@ function modify_deck(){
     table.append(remove_row);
 }
 function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
-    var cell = document.createElement('td');
+    var cell = document.createElement("td");
     cell.id = id;
-    var image = document.createElement('img');
+    var image = document.createElement("img");
     image.src = pic;
     image.height = size;
     image.width = size;

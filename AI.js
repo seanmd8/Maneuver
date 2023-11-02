@@ -166,7 +166,7 @@ function ram_ai(x, y, x_dif, y_dif, map, enemy){
                 y += y_direction;
             }
         }
-        if(moved = true && (Math.abs(x_dif) < 3 || Math.abs(y_dif) < 3)){
+        if(moved === true && (Math.abs(x_dif) < 3 || Math.abs(y_dif) < 3)){
             enemy.cycle = 1;
             enemy.pic = "ram_charge.png";
         }

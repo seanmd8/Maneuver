@@ -8,7 +8,7 @@ function setup(){
     deck.display_hand(document.getElementById("handDisplay"));
 }
 function describe(description){
-    document.getElementById("descriptionText").innerText = description;
+    document.getElementById("displayMessage").innerText = description;
 }
 function clear_tb(element_id){
     while(document.getElementById(element_id).rows.length > 0){
@@ -17,11 +17,11 @@ function clear_tb(element_id){
 }
 function prep_move(move, hand_pos){
     clear_tb("moveButtons");
-    var row = document.createElement('tr');
+    var row = document.createElement("tr");
     row.id = "buttons";
     for(var i = 0; i < move.descriptions.length; ++i){
-        var cell = document.createElement('input');
-        cell.type = 'button'
+        var cell = document.createElement("input");
+        cell.type = "button"
         cell.name = move.descriptions[i];
         cell.value = move.descriptions[i];
         var act = function(behavior, hand_pos){return function(){action(behavior, hand_pos)}};
@@ -53,10 +53,10 @@ async function action(behavior, hand_pos){
     }
     catch (error){
         var m = error.message;
-        if(m === 'floor complete'){
+        if(m === "floor complete"){
             modify_deck();
         }
-        else if(m === 'game over'){
+        else if(m === "game over"){
             mapData.display();
             clear_tb("handDisplay");
             describe("Game Over. You were killed by a " + error.cause + ".");
@@ -68,7 +68,7 @@ async function action(behavior, hand_pos){
 }
 function new_floor(){
     clear_tb("modifyDeck");
-    document.getElementById("header4").innerText = "";
+    document.getElementById("currentDeck").innerText = "";
     clear_tb("displayDeck");
     var floor = mapData.erase(mapData.player_health());
     for(var i = floor * 2; i > 0;){
@@ -80,7 +80,7 @@ function new_floor(){
         }
     }
     describe("");
-    document.getElementById('header2').innerText = 'Floor ' + floor;
+    document.getElementById("floorNumber").innerText = "Floor " + floor;
     deck.deal();
     mapData.display();
     deck.display_hand(document.getElementById("handDisplay"));
@@ -108,7 +108,7 @@ function modify_deck(){
         deck.add(card);
         new_floor();
     }};
-    var add_row = document.createElement('tr');
+    var add_row = document.createElement("tr");
     add_row.id = "add_row";
     var plus = make_cell("plus", "images/other/plus.png", HAND_SCALE);
     add_row.append(plus);
@@ -117,7 +117,7 @@ function modify_deck(){
         deck.remove(card.id);
         new_floor();
     }};
-    var remove_row = document.createElement('tr');
+    var remove_row = document.createElement("tr");
     remove_row.id = "remove_row";
     var minus = make_cell("plus", "images/other/minus.png", HAND_SCALE);
     if(remove_row.length === 0){
@@ -140,9 +140,9 @@ function modify_deck(){
     table.append(remove_row);
 }
 function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
-    var cell = document.createElement('td');
+    var cell = document.createElement("td");
     cell.id = id;
-    var image = document.createElement('img');
+    var image = document.createElement("img");
     image.src = pic;
     image.height = size;
     image.width = size;
@@ -207,7 +207,7 @@ class MoveDeck{
     }
     discard(x){
         if(x >= this.#hand.length){
-            throw new Error('hand out of bounds');
+            throw new Error("hand out of bounds");
         }
         if(this.#library.length === 0){
             while(this.#discard_pile.length != 0){
@@ -233,7 +233,7 @@ class MoveDeck{
         while(table.rows.length > 0){
             table.deleteRow(0);
         }
-        var row = document.createElement('tr');
+        var row = document.createElement("tr");
         row.id = "hand";
         var prep = function(move, hand_pos){return function(){prep_move(move, hand_pos)}};
         for(var i = 0; i < this.#hand.length; ++i){
@@ -243,9 +243,9 @@ class MoveDeck{
         table.append(row);
     }
     display_all(table){
-        document.getElementById("header4").innerText = "Current Deck:";
+        document.getElementById("currentDeck").innerText = "Current Deck:";
         for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
-            var row = document.createElement('tr');
+            var row = document.createElement("tr");
             for(var j = 0; j < DECK_DISPLAY_WIDTH && j + i * DECK_DISPLAY_WIDTH < this.#list.length; ++j){
                 var cell =  make_cell("card " + (i * DECK_DISPLAY_WIDTH + j), "images/cards/" + this.#list[i * DECK_DISPLAY_WIDTH + j].pic, HAND_SCALE);
 			    row.append(cell);
@@ -308,11 +308,11 @@ class GameMap{
         var num_empty = this.#x_max * this.#y_max - this.#entity_list.count;
         var rand = Math.floor(Math.random() * num_empty);
         if(num_empty === 0){
-            throw new Error('map full');
+            throw new Error("map full");
         }
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
-                if(this.#grid[x][y].type === 'empty'){
+                if(this.#grid[x][y].type === "empty"){
                     if(rand === 0){
                         return {x, y};
                     }
@@ -323,15 +323,15 @@ class GameMap{
     }
     check_bounds(x, y){
         if(x < 0 || x >= this.#x_max){
-            throw new Error('x out of bounds');
+            throw new Error("x out of bounds");
         }
         if(y < 0 || y >= this.#y_max){
-            throw new Error('y out of bounds');
+            throw new Error("y out of bounds");
         }
     }
     check_empty(x, y){
         if(!(this.#grid[x][y].type === "empty")){
-            throw new Error('space not empty');
+            throw new Error("space not empty");
         }
     }
     set_exit(exit_x, exit_y){
@@ -371,14 +371,14 @@ class GameMap{
         return true;
     }
     display(){
-		var visual_map = document.getElementById('mapDisplay');
+		var visual_map = document.getElementById("mapDisplay");
         
         while(visual_map.rows.length > 0){
             visual_map.deleteRow(0);
         }
 		for (var y = 0; y < this.#y_max; y++){
-			var row = document.createElement('tr');
-            row.id = 'row ' + y;
+			var row = document.createElement("tr");
+            row.id = "row " + y;
             var desc = function(str){return function(){
                 describe(str);
             }};
@@ -387,7 +387,7 @@ class GameMap{
                 if(this.#grid[x][y].type === "player" || this.#grid[x][y].type === "enemy"){
                     tile_description = "(" + this.#grid[x][y].health + " hp) " + tile_description;
                 }
-                var cell = make_cell(x + ' ' + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, tile_description);
+                var cell = make_cell(x + " " + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, tile_description);
                 if(this.#grid[x][y].type === "empty"){
                     this.#grid[x][y].pic = "empty.png";
                 }
@@ -395,7 +395,7 @@ class GameMap{
 			}
 			visual_map.append(row);
 		}
-        var row = document.createElement('tr');
+        var row = document.createElement("tr");
         row.id = "health";
         for(var i = 0; i < this.player_health(); ++i){
             var cell = make_cell("health " + i, "images/other/heart.png", GRID_SCALE);
@@ -862,7 +862,7 @@ function ram_ai(x, y, x_dif, y_dif, map, enemy){
                 y += y_direction;
             }
         }
-        if(moved = true && (Math.abs(x_dif) < 3 || Math.abs(y_dif) < 3)){
+        if(moved === true && (Math.abs(x_dif) < 3 || Math.abs(y_dif) < 3)){
             enemy.cycle = 1;
             enemy.pic = "ram_charge.png";
         }

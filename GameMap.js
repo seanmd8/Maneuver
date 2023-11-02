@@ -35,11 +35,11 @@ class GameMap{
         var num_empty = this.#x_max * this.#y_max - this.#entity_list.count;
         var rand = Math.floor(Math.random() * num_empty);
         if(num_empty === 0){
-            throw new Error('map full');
+            throw new Error("map full");
         }
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
-                if(this.#grid[x][y].type === 'empty'){
+                if(this.#grid[x][y].type === "empty"){
                     if(rand === 0){
                         return {x, y};
                     }
@@ -50,15 +50,15 @@ class GameMap{
     }
     check_bounds(x, y){
         if(x < 0 || x >= this.#x_max){
-            throw new Error('x out of bounds');
+            throw new Error("x out of bounds");
         }
         if(y < 0 || y >= this.#y_max){
-            throw new Error('y out of bounds');
+            throw new Error("y out of bounds");
         }
     }
     check_empty(x, y){
         if(!(this.#grid[x][y].type === "empty")){
-            throw new Error('space not empty');
+            throw new Error("space not empty");
         }
     }
     set_exit(exit_x, exit_y){
@@ -98,14 +98,14 @@ class GameMap{
         return true;
     }
     display(){
-		var visual_map = document.getElementById('mapDisplay');
+		var visual_map = document.getElementById("mapDisplay");
         
         while(visual_map.rows.length > 0){
             visual_map.deleteRow(0);
         }
 		for (var y = 0; y < this.#y_max; y++){
-			var row = document.createElement('tr');
-            row.id = 'row ' + y;
+			var row = document.createElement("tr");
+            row.id = "row " + y;
             var desc = function(str){return function(){
                 describe(str);
             }};
@@ -114,7 +114,7 @@ class GameMap{
                 if(this.#grid[x][y].type === "player" || this.#grid[x][y].type === "enemy"){
                     tile_description = "(" + this.#grid[x][y].health + " hp) " + tile_description;
                 }
-                var cell = make_cell(x + ' ' + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, tile_description);
+                var cell = make_cell(x + " " + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, tile_description);
                 if(this.#grid[x][y].type === "empty"){
                     this.#grid[x][y].pic = "empty.png";
                 }
@@ -122,7 +122,7 @@ class GameMap{
 			}
 			visual_map.append(row);
 		}
-        var row = document.createElement('tr');
+        var row = document.createElement("tr");
         row.id = "health";
         for(var i = 0; i < this.player_health(); ++i){
             var cell = make_cell("health " + i, "images/other/heart.png", GRID_SCALE);
