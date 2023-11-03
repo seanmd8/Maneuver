@@ -121,7 +121,7 @@ function large_porcuslime_tile(){
         pic: "large_porcuslime.png",
         id: "",
         health: 3,
-        difficulty: 7,
+        difficulty: 8,
         behavior: large_porcuslime_ai,
         description: large_porcuslime_description
     }
