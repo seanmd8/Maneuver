@@ -3,7 +3,8 @@ const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_lef
                     sprint, trident, whack, spin_attack, butterfly, 
                     retreat, force, side_attack, clear_behind, spear_slice, 
                     jab, overcome, hit_and_run, v, push_back,
-                    fork, explosion, breakthrough];
+                    fork, explosion, breakthrough, flanking_diagonal, flanking_sideways,
+                    flanking_straight, pike];
 
 function make_starting_deck(){
     deck = new MoveDeck();
@@ -22,7 +23,7 @@ function make_starting_deck(){
 }
 function make_test_deck(){
     deck = new MoveDeck();
-    var start = 25;
+    var start = 30;
     for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
         deck.add(CARD_CHOICES[i]());
     }
@@ -164,7 +165,7 @@ function straight_charge(){
 
             [["move", 0, 1],
             ["move", 0, 1],
-            ["attack", 0, 1]],
+            ["attack", 0, 1]]
         ]
     }
 }
@@ -666,6 +667,113 @@ function breakthrough(){
             ["attack", 0, -1],
             ["attack", 1, 0],
             ["attack", -1, 0]],
+        ]
+    }
+}
+function flanking_diagonal(){
+    return{
+        name: "flanking diagonal",
+        pic: "flanking_diagonal.png",
+        id: "",
+        descriptions: [
+            "NE",
+            "NW"
+        ],
+        behavior: [
+            [["move", 1, -1],
+            ["attack", 0, 1],
+            ["attack", -1, 0],
+            ["move", 1, -1],
+            ["attack", 0, 1],
+            ["attack", -1, 0],],
+
+            [["move", -1, -1],
+            ["attack", 0, 1],
+            ["attack", 1, 0],
+            ["move", -1, -1],
+            ["attack", 0, 1],
+            ["attack", 1, 0],]
+        ]
+    }
+}
+function flanking_sideways(){
+    return{
+        name: "flanking sideways",
+        pic: "flanking_sideways.png",
+        id: "",
+        descriptions: [
+            "E",
+            "W"
+        ],
+        behavior: [
+            [["move", 1, 0],
+            ["attack", 0, 1],
+            ["attack", 0, -1],
+            ["move", 1, 0],
+            ["attack", 0, 1],
+            ["attack", 0, -1]],
+
+            [["move", -1, 0],
+            ["attack", 0, 1],
+            ["attack", 0, -1],
+            ["move", -1, 0],
+            ["attack", 0, 1],
+            ["attack", 0, -1]]
+        ]
+    }
+}
+function flanking_straight(){
+    return{
+        name: "flanking straight",
+        pic: "flanking_straight.png",
+        id: "",
+        descriptions: [
+            "N",
+            "S"
+        ],
+        behavior: [
+            [["move", 0, -1],
+            ["attack", 1, 0],
+            ["attack", -1, 0],
+            ["move", 0, -1],
+            ["attack", 1, 0],
+            ["attack", -1, 0]],
+
+            [["move", 0, 1],
+            ["attack", 1, 0],
+            ["attack", -1, 0],
+            ["move", 0, 1],
+            ["attack", 1, 0],
+            ["attack", -1, 0]]
+        ]
+    }
+}
+function pike(){
+    return{
+        name: "pike",
+        pic: "pike.png",
+        id: "",
+        descriptions: [
+            "N",
+            "E",
+            "W"
+        ],
+        behavior: [
+            [["attack", 0, -2],
+            ["attack", 1, -3],
+            ["attack", 0, -3],
+            ["attack", -1, -3]],
+
+            [["attack", 2, 0],
+            ["attack", 3, 1],
+            ["attack", 3, 0],
+            ["attack", 3, -1]],
+
+            [["attack", -2, 0],
+            ["attack", -3, 1],
+            ["attack", -3, 0],
+            ["attack", -3, -1]]
+            
         ]
     }
 }
