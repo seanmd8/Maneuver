@@ -137,7 +137,7 @@ function knight_ai(x, y, x_dif, y_dif, map, enemy){
     }
     map.move(x, y, x + new_x, y + new_y);
 }
-function spider_egg_ai(x, y, x_dif, y_dif, map, enemy){
+function spider_web_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.cycle < enemy.spawn_timer){
         ++enemy.cycle;
     }

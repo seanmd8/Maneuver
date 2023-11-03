@@ -1,5 +1,5 @@
 const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
-    spider_egg_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_elemental_tile];
+    spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_elemental_tile];
 
 function empty_tile(){
     return {
@@ -83,19 +83,19 @@ function knight_tile(){
         description: knight_description
     }
 }
-function spider_egg_tile(){
+function spider_web_tile(){
     spawn_timer = 2
     return{
         type: "enemy",
         enemy_type: "spider egg",
-        pic: "spider_egg.png",
+        pic: "spider_web.png",
         cycle: 0,
         spawn_timer,
         id: "",
         health: 2,
         difficulty: 4,
-        behavior: spider_egg_ai,
-        description: spider_egg_description[0] + (spawn_timer + 1) + spider_egg_description[1]
+        behavior: spider_web_ai,
+        description: spider_web_description[0] + (spawn_timer + 1) + spider_web_description[1]
     }
 }
 function ram_tile(){
@@ -203,7 +203,7 @@ const turret_h_description = "Turret: Does not move. Fires beams orthogonally th
 const turret_d_description = "Turret: Does not move. Fires beams diagonally that hit the first thing in their path.";
 const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
 const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
-const spider_egg_description = ["Spider egg: Does not move. Spawns a spider every ", " turns."];
+const spider_web_description = ["Spider egg: Does not move. Spawns a spider every ", " turns."];
 const ram_description = "Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.";
 const large_porcuslime_description = "Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when hit."
 const medium_porcuslime_description = "Medium Porcuslime: Moves towards the player 1 space and attacks in that direction. Alternates between orthoganal and diagonal movement. Splits when hit."
