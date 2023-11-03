@@ -242,12 +242,12 @@ function small_d_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     }
     enemy.cycle = 1 - enemy.cycle;
 }
-function acid_elemental_ai(x, y, x_dif, y_dif, map, enemy){
+function acid_bug_ai(x, y, x_dif, y_dif, map, enemy){
     x_dif = sign(x_dif);
     y_dif = sign(y_dif);
     map.move(x, y, x + x_dif, y + y_dif);
 }
-function acid_elemental_death(x, y, x_dif, y_dif, map, enemy){
+function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
     var attacks = random_nearby();
     for(var i = 0; i < attacks.length; ++i){
         map.attack(x + attacks[i][0], y + attacks[i][1]);

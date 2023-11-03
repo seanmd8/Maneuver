@@ -564,7 +564,7 @@ class EntityList{
 
 
 const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
-    spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_elemental_tile];
+    spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile];
 
 function empty_tile(){
     return {
@@ -731,17 +731,17 @@ function small_d_porcuslime_tile(){
         description: small_d_porcuslime_description
     }
 }
-function acid_elemental_tile(){
+function acid_bug_tile(){
     return {
         type: "enemy",
-        enemy_type: "acid elemental",
-        pic: "acid_elemental.png",
+        enemy_type: "acid bug",
+        pic: "acid_bug.png",
         id: "",
         health: 1,
         difficulty: 3,
-        behavior: acid_elemental_ai,
-        on_death: acid_elemental_death,
-        description: acid_elemental_description
+        behavior: acid_bug_ai,
+        on_death: acid_bug_death,
+        description: acid_bug_description
     }
 }
 
@@ -774,7 +774,7 @@ const large_porcuslime_description = "Large Porcuslime: Moves towards the player
 const medium_porcuslime_description = "Medium Porcuslime: Moves towards the player 1 space and attacks in that direction. Alternates between orthoganal and diagonal movement. Splits when hit."
 const small_h_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction."
 const small_d_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction."
-const acid_elemental_description = "Acid Elemental: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it."
+const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it."
 
 
 
@@ -1023,12 +1023,12 @@ function small_d_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     }
     enemy.cycle = 1 - enemy.cycle;
 }
-function acid_elemental_ai(x, y, x_dif, y_dif, map, enemy){
+function acid_bug_ai(x, y, x_dif, y_dif, map, enemy){
     x_dif = sign(x_dif);
     y_dif = sign(y_dif);
     map.move(x, y, x + x_dif, y + y_dif);
 }
-function acid_elemental_death(x, y, x_dif, y_dif, map, enemy){
+function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
     var attacks = random_nearby();
     for(var i = 0; i < attacks.length; ++i){
         map.attack(x + attacks[i][0], y + attacks[i][1]);
