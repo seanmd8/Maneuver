@@ -69,8 +69,11 @@ class EntityList{
                     map.display();
                     await delay(ANIMATION_DELAY);
                 }
-                catch{
-                    throw new Error("game over", {cause: e.enemy.enemy_type});
+                catch(error){
+                    if(error.message === "game over"){
+                        throw new Error("game over", {cause: e.enemy.enemy_type});
+                    }
+                    throw error;
                 }
             } 
         }

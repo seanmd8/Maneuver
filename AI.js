@@ -47,64 +47,19 @@ function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
     }
 }
 function scythe_ai(x, y, x_dif, y_dif, map, enemy){
-    var direction = Math.floor(Math.random() * 4);
-    if(x_dif < 0 && y_dif < 0){
-        direction = 0;
+    var direction = [sign(x_dif), sign(y_dif)];
+    if(direction[0] === 0 || direction[1] === 0){
+        direction = [random_sign(), random_sign()];
     }
-    if(x_dif < 0 && y_dif > 0){
-        direction = 1;
-    }
-    if(x_dif > 0 && y_dif < 0){
-        direction = 2;
-    }
-    if(x_dif > 0 && y_dif > 0){
-        direction = 3;
-    }
-    switch(direction){
-        case 0:
-            for(var i = 0; i < 3; ++i){
-                if(!map.move(x, y, x - 1, y - 1)){
-                    break;
-                }
-                x -= 1;
-                y -= 1;
-                map.attack(x + 1, y, "player");
-                map.attack(x, y + 1, "player");
-            }
+    enemy.pic = "scythe_" + convert_direction(direction[0], direction[1]) + ".png";
+    for(var i = 0; i < 3; ++i){
+        if(!map.move(x, y, x + direction[0], y + direction[1])){
             break;
-        case 1:
-            for(var i = 0; i < 3; ++i){
-                if(!map.move(x, y, x - 1, y + 1)){
-                    break;
-                }
-                x -= 1;
-                y += 1;
-                map.attack(x + 1, y, "player");
-                map.attack(x, y - 1, "player");
-            }
-            break;
-        case 2:
-            for(var i = 0; i < 3; ++i){
-                if(!map.move(x, y, x + 1, y - 1)){
-                    break;
-                }
-                x += 1;
-                y -= 1;
-                map.attack(x - 1, y, "player");
-                map.attack(x, y + 1, "player");
-            }
-            break;
-        case 3:
-            for(var i = 0; i < 3; ++i){
-                if(!map.move(x, y, x + 1, y + 1)){
-                    break;
-                }
-                x += 1;
-                y += 1;
-                map.attack(x - 1, y, "player");
-                map.attack(x, y - 1, "player");
-            }
-            break;
+        }
+        x += direction[0];
+        y += direction[1];
+        map.attack(x - direction[0], y, "player");
+        map.attack(x, y - direction[1], "player"); 
     }
 }
 function knight_ai(x, y, x_dif, y_dif, map, enemy){
@@ -275,7 +230,7 @@ function small_d_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     var dir = [sign(x_dif), sign(y_dif)];
     for(var i = 0; i < dir.length; ++i){
         if(dir[i] === 0){
-            dir[i] = -1 + (2 * Math.floor(Math.random(2)));
+            dir[i] = random_sign();
         }
     }
     var moved = map.move(x, y, x + dir[0], y + dir[1]);
@@ -325,4 +280,23 @@ function random_nearby(){
         cords.pop();
     }
     return ran_cords;
+}
+function random_sign(){
+    return Math.floor(1 - (2 * Math.floor(Math.random() * 2)));
+}
+function convert_direction(x, y){
+    var str = "";
+    if(y > 0){
+        str += "s";
+    }
+    if(y < 0){
+        str += "n";
+    }
+    if(x > 0){
+        str += "e";
+    }
+    if(x < 0){
+        str += "w";
+    }
+    return str;
 }

@@ -63,7 +63,7 @@ function scythe_tile(){
     return{
         type: "enemy",
         enemy_type: "scythe",
-        pic: "scythe.png",
+        pic: "scythe_se.png",
         id: "",
         health: 1,
         difficulty: 3,
