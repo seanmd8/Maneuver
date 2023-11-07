@@ -4,6 +4,7 @@ function setup(){
     mapData = new GameMap(8, 8);  
     mapData.add_enemy(spider_tile());
     mapData.display();
+    mapData.display_stats(document.getElementById("floorNumber"));
     deck = make_starting_deck();
     deck.display_hand(document.getElementById("handDisplay"));
 }
@@ -50,10 +51,12 @@ async function action(behavior, hand_pos){
         await delay(ANIMATION_DELAY);
         await mapData.enemy_turn();
         mapData.display();
+        mapData.display_stats(document.getElementById("floorNumber"))
     }
     catch (error){
         var m = error.message;
         if(m === "floor complete"){
+            mapData.display_stats(document.getElementById("floorNumber"))
             modify_deck();
         }
         else if(m === "game over"){
@@ -81,7 +84,7 @@ function new_floor(){
         }
     }
     describe("");
-    document.getElementById("floorNumber").innerText = "Floor " + floor;
+    mapData.display_stats(document.getElementById("floorNumber"));
     deck.deal();
     mapData.display();
     deck.display_hand(document.getElementById("handDisplay"));
@@ -281,10 +284,12 @@ class GameMap{
     #entity_list;
     #grid;
     #floor;
+    #turn_count;
     constructor(x_max, y_max){
         this.#x_max = x_max;
         this.#y_max = y_max;
         this.#floor = 0;
+        this.#turn_count = 1;
         this.erase()
     }
     erase(player_health = -1){
@@ -415,6 +420,7 @@ class GameMap{
         var start = this.#grid[x1][y1];
         var end = this.#grid[x2][y2];
         if(start.type === "player" && end.type === "exit"){
+            this.#turn_count++;
             throw new Error("floor complete");
         }
         if(!(end.type === "empty")){
@@ -476,7 +482,11 @@ class GameMap{
         }
     }
     async enemy_turn(){
+        this.#turn_count++;
         await this.#entity_list.enemy_turn(this);
+    }
+    display_stats(element){
+        element.innerText = "Floor " + this.#floor + " Turn: " + this.#turn_count;
     }
 }
 

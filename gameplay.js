@@ -4,6 +4,7 @@ function setup(){
     mapData = new GameMap(8, 8);  
     mapData.add_enemy(spider_tile());
     mapData.display();
+    mapData.display_stats(document.getElementById("floorNumber"));
     deck = make_starting_deck();
     deck.display_hand(document.getElementById("handDisplay"));
 }
@@ -50,10 +51,12 @@ async function action(behavior, hand_pos){
         await delay(ANIMATION_DELAY);
         await mapData.enemy_turn();
         mapData.display();
+        mapData.display_stats(document.getElementById("floorNumber"))
     }
     catch (error){
         var m = error.message;
         if(m === "floor complete"){
+            mapData.display_stats(document.getElementById("floorNumber"))
             modify_deck();
         }
         else if(m === "game over"){
@@ -81,7 +84,7 @@ function new_floor(){
         }
     }
     describe("");
-    document.getElementById("floorNumber").innerText = "Floor " + floor;
+    mapData.display_stats(document.getElementById("floorNumber"));
     deck.deal();
     mapData.display();
     deck.display_hand(document.getElementById("handDisplay"));

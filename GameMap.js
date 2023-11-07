@@ -7,10 +7,12 @@ class GameMap{
     #entity_list;
     #grid;
     #floor;
+    #turn_count;
     constructor(x_max, y_max){
         this.#x_max = x_max;
         this.#y_max = y_max;
-        this.#floor = 0;
+        this.#floor = 1;
+        this.#turn_count = 0;
         this.erase()
     }
     erase(player_health = -1){
@@ -141,6 +143,7 @@ class GameMap{
         var start = this.#grid[x1][y1];
         var end = this.#grid[x2][y2];
         if(start.type === "player" && end.type === "exit"){
+            this.#turn_count++;
             throw new Error("floor complete");
         }
         if(!(end.type === "empty")){
@@ -202,6 +205,10 @@ class GameMap{
         }
     }
     async enemy_turn(){
+        this.#turn_count++;
         await this.#entity_list.enemy_turn(this);
+    }
+    display_stats(element){
+        element.innerText = "Floor " + this.#floor + " Turn: " + this.#turn_count;
     }
 }
