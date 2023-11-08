@@ -2,9 +2,9 @@ const ANIMATION_DELAY = 300;
 
 function setup(){
     mapData = new GameMap(8, 8);  
-    mapData.add_enemy(spider_tile());
+    mapData.add_tile(spider_tile());
     mapData.display();
-    mapData.display_stats(document.getElementById("floorNumber"));
+    mapData.display_stats(document.getElementById("stats"));
     deck = make_starting_deck();
     deck.display_hand(document.getElementById("handDisplay"));
 }
@@ -51,12 +51,12 @@ async function action(behavior, hand_pos){
         await delay(ANIMATION_DELAY);
         await mapData.enemy_turn();
         mapData.display();
-        mapData.display_stats(document.getElementById("floorNumber"))
+        mapData.display_stats(document.getElementById("stats"))
     }
     catch (error){
         var m = error.message;
         if(m === "floor complete"){
-            mapData.display_stats(document.getElementById("floorNumber"))
+            mapData.display_stats(document.getElementById("stats"))
             modify_deck();
         }
         else if(m === "game over"){
@@ -79,12 +79,12 @@ function new_floor(){
         var choice = Math.floor(Math.random() * enemy_list.length);
         var new_enemy = enemy_list[choice]();
         if(new_enemy.difficulty <= i){
-            mapData.add_enemy(new_enemy);
+            mapData.add_tile(new_enemy);
             i -= new_enemy.difficulty;
         }
     }
     describe("");
-    mapData.display_stats(document.getElementById("floorNumber"));
+    mapData.display_stats(document.getElementById("stats"));
     deck.deal();
     mapData.display();
     deck.display_hand(document.getElementById("handDisplay"));
@@ -357,7 +357,7 @@ class GameMap{
         this.#grid[player_x][player_y] = player;
         ++this.#entity_list.count;
     }
-    add_enemy(enemy, x = -1, y = -1){
+    add_tile(tile, x = -1, y = -1){
         try{
             if(x === -1 || y === -1){
                 var position = this.random_empty();
@@ -370,10 +370,11 @@ class GameMap{
         catch{
             return false;
         }
-        enemy.id = this.#entity_list.next_id();
-        this.#grid[x][y] = enemy;
-        this.#entity_list.add_enemy(x, y, enemy)
-        ++this.#entity_list.count;
+        this.#grid[x][y] = tile;
+        if(tile.type === "enemy"){
+            tile.id = this.#entity_list.next_id();
+            this.#entity_list.add_enemy(x, y, tile);
+        }
         return true;
     }
     display(){
@@ -422,6 +423,9 @@ class GameMap{
         if(start.type === "player" && end.type === "exit"){
             this.#turn_count++;
             throw new Error("floor complete");
+        }
+        if(end.hasOwnProperty("on_enter")){
+            end.on_enter(x1, y1, this);
         }
         if(!(end.type === "empty")){
             return false;
@@ -754,6 +758,14 @@ function acid_bug_tile(){
         description: acid_bug_description
     }
 }
+function lava_pool_tile(){
+    return {
+        type: "lava_pool",
+        pic: "lava_pool.png",
+        description: lava_pool_description,
+        on_enter: lava_pool_enter
+    }
+}
 
 
 
@@ -785,7 +797,7 @@ const medium_porcuslime_description = "Medium Porcuslime: Moves towards the play
 const small_h_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction."
 const small_d_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction."
 const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it."
-
+const lava_pool_description = "Lava Pool: Attempting to move through this will hurt,"
 
 
 const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves and attacks in straight lines.";
@@ -889,7 +901,7 @@ function spider_web_ai(x, y, x_dif, y_dif, map, enemy){
     }
     else{
         var spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_enemy(spider_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        for(var i = 0; i < spawnpoints.length && !map.add_tile(spider_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
         enemy.cycle = 0;
     }
 }
@@ -940,18 +952,18 @@ function large_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.health === 2){
         map.attack(x, y);
         map.attack(x, y);
-        if(!map.add_enemy(medium_porcuslime_tile(), x, y)){
+        if(!map.add_tile(medium_porcuslime_tile(), x, y)){
             var spawnpoints = random_nearby();
-            for(var i = 0; i < spawnpoints.length && !map.add_enemy(medium_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+            for(var i = 0; i < spawnpoints.length && !map.add_tile(medium_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
         }
         return;
     }
     if(enemy.health === 1){
         map.attack(x, y);
         var spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_enemy(small_h_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        for(var i = 0; i < spawnpoints.length && !map.add_tile(small_h_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
         spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_enemy(small_d_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        for(var i = 0; i < spawnpoints.length && !map.add_tile(small_d_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
         return;
     }
     if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
@@ -970,9 +982,9 @@ function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.health === 1){
         map.attack(x, y);
         var spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_enemy(small_h_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        for(var i = 0; i < spawnpoints.length && !map.add_tile(small_h_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
         spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_enemy(small_d_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        for(var i = 0; i < spawnpoints.length && !map.add_tile(small_d_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
         return;
     }
     if(enemy.cycle === 0){
@@ -1043,6 +1055,9 @@ function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
     for(var i = 0; i < attacks.length; ++i){
         map.attack(x + attacks[i][0], y + attacks[i][1]);
     }
+}
+function lava_pool_enter(x, y, map){
+    map.attack(x, y);
 }
 
 

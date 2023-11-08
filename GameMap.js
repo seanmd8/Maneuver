@@ -80,7 +80,7 @@ class GameMap{
         this.#grid[player_x][player_y] = player;
         ++this.#entity_list.count;
     }
-    add_enemy(enemy, x = -1, y = -1){
+    add_tile(tile, x = -1, y = -1){
         try{
             if(x === -1 || y === -1){
                 var position = this.random_empty();
@@ -93,10 +93,11 @@ class GameMap{
         catch{
             return false;
         }
-        enemy.id = this.#entity_list.next_id();
-        this.#grid[x][y] = enemy;
-        this.#entity_list.add_enemy(x, y, enemy)
-        ++this.#entity_list.count;
+        this.#grid[x][y] = tile;
+        if(tile.type === "enemy"){
+            tile.id = this.#entity_list.next_id();
+            this.#entity_list.add_enemy(x, y, tile);
+        }
         return true;
     }
     display(){
@@ -145,6 +146,9 @@ class GameMap{
         if(start.type === "player" && end.type === "exit"){
             this.#turn_count++;
             throw new Error("floor complete");
+        }
+        if(end.hasOwnProperty("on_enter")){
+            end.on_enter(x1, y1, this);
         }
         if(!(end.type === "empty")){
             return false;

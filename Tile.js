@@ -179,6 +179,14 @@ function acid_bug_tile(){
         description: acid_bug_description
     }
 }
+function lava_pool_tile(){
+    return {
+        type: "lava_pool",
+        pic: "lava_pool.png",
+        description: lava_pool_description,
+        on_enter: lava_pool_enter
+    }
+}
 
 
 
@@ -210,7 +218,7 @@ const medium_porcuslime_description = "Medium Porcuslime: Moves towards the play
 const small_h_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction."
 const small_d_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction."
 const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it."
-
+const lava_pool_description = "Lava Pool: Attempting to move through this will hurt,"
 
 
 const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves and attacks in straight lines.";

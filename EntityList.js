@@ -23,6 +23,7 @@ class EntityList{
     }
     add_enemy(x, y, enemy){
         this.#enemy_list.push({x, y, enemy})
+        ++this.count
     }
     move_enemy(x, y, id){
         var index = this.#find_by_id(id);

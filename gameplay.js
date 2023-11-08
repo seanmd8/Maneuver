@@ -2,9 +2,9 @@ const ANIMATION_DELAY = 300;
 
 function setup(){
     mapData = new GameMap(8, 8);  
-    mapData.add_enemy(spider_tile());
+    mapData.add_tile(spider_tile());
     mapData.display();
-    mapData.display_stats(document.getElementById("floorNumber"));
+    mapData.display_stats(document.getElementById("stats"));
     deck = make_starting_deck();
     deck.display_hand(document.getElementById("handDisplay"));
 }
@@ -51,12 +51,12 @@ async function action(behavior, hand_pos){
         await delay(ANIMATION_DELAY);
         await mapData.enemy_turn();
         mapData.display();
-        mapData.display_stats(document.getElementById("floorNumber"))
+        mapData.display_stats(document.getElementById("stats"))
     }
     catch (error){
         var m = error.message;
         if(m === "floor complete"){
-            mapData.display_stats(document.getElementById("floorNumber"))
+            mapData.display_stats(document.getElementById("stats"))
             modify_deck();
         }
         else if(m === "game over"){
@@ -79,12 +79,12 @@ function new_floor(){
         var choice = Math.floor(Math.random() * enemy_list.length);
         var new_enemy = enemy_list[choice]();
         if(new_enemy.difficulty <= i){
-            mapData.add_enemy(new_enemy);
+            mapData.add_tile(new_enemy);
             i -= new_enemy.difficulty;
         }
     }
     describe("");
-    mapData.display_stats(document.getElementById("floorNumber"));
+    mapData.display_stats(document.getElementById("stats"));
     deck.deal();
     mapData.display();
     deck.display_hand(document.getElementById("handDisplay"));
