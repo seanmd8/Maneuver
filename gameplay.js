@@ -1,6 +1,8 @@
 const ANIMATION_DELAY = 300;
+const WELCOME_MESSAGE = "Welcome to the dungeon";
 
 function setup(){
+    describe(WELCOME_MESSAGE);
     mapData = new GameMap(8, 8);  
     mapData.add_tile(spider_tile());
     mapData.display();
@@ -60,10 +62,8 @@ async function action(behavior, hand_pos){
             modify_deck();
         }
         else if(m === "game over"){
-            mapData.display();
-            clear_tb("handDisplay");
-            clear_tb("moveButtons");
-            describe("Game Over. You were killed by a " + error.cause + ".");
+            game_over(error.cause);
+            
         }
         else{
             console.log(m)
@@ -165,4 +165,24 @@ function delay(ms){
     return new Promise(resolve =>{
         setTimeout(resolve, ms);
     })
+}
+function game_over(cause){
+    mapData.display();
+    clear_tb("handDisplay");
+    clear_tb("moveButtons");
+    describe("Game Over. You were killed by a " + cause + ".");
+    clear_tb("moveButtons");
+    var row = document.createElement("tr");
+    row.id = "buttons";
+    var cell = document.createElement("input");
+    cell.type = "button"
+    cell.name = "retry";
+    cell.value = "retry";
+    var restart = function(){
+        clear_tb("moveButtons");
+        setup();
+    };
+    cell.onclick = restart;
+    row.append(cell);
+    document.getElementById("moveButtons").append(row);
 }
