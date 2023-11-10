@@ -1,6 +1,6 @@
 const ANIMATION_DELAY = 300;
 const WELCOME_MESSAGE = "Welcome to the dungeon";
-const STARTING_ENEMY = spider_tile;
+const STARTING_ENEMY = velociphile_tile;
 
 function setup(){
     describe(WELCOME_MESSAGE);
@@ -301,6 +301,7 @@ class MoveDeck{
 }
 
 
+
 const GRID_SCALE = 30;
 
 class GameMap{
@@ -313,8 +314,8 @@ class GameMap{
     constructor(x_max, y_max){
         this.#x_max = x_max;
         this.#y_max = y_max;
-        this.#floor = 0;
-        this.#turn_count = 1;
+        this.#floor = 1;
+        this.#turn_count = 0;
         this.erase()
     }
     erase(player_health = -1){
@@ -361,19 +362,27 @@ class GameMap{
         }
     }
     check_empty(x, y){
-        if(!(this.#grid[x][y].type === "empty")){
-            throw new Error("space not empty");
+        try{
+            this.check_bounds(x, y);
         }
+        catch{
+            return false;
+        }
+        return this.#grid[x][y].type === "empty";
     }
     set_exit(exit_x, exit_y){
         this.check_bounds(exit_x, exit_y);
-        this.check_empty(exit_x, exit_y);
+        if(!this.check_empty(exit_x, exit_y)){
+            throw new Error("space not empty");
+        }
         this.#grid[exit_x][exit_y] = exit_tile();
         ++this.#entity_list.count;
     }
     set_player(player_x, player_y, player_health = -1){
         this.check_bounds(player_x, player_y);
-        this.check_empty(player_x, player_y);
+        if(!this.check_empty(player_x, player_y)){
+            throw new Error("space not empty");
+        }
         this.#entity_list.set_player(player_x, player_y);
         var player = player_tile();
         if(player_health > 0){
@@ -390,7 +399,9 @@ class GameMap{
                 y = position.y;
             }
             this.check_bounds(x, y);
-            this.check_empty(x, y);
+            if(!this.check_empty(x, y)){
+                throw new Error("space not empty");
+            }
         }
         catch{
             return false;
@@ -1128,7 +1139,19 @@ function brightling_ai(x, y, x_dif, y_dif, map, enemy){
 
 
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
-    
+    var directions = random_nearby();
+    var direction = directions[0];
+    if(Math.abs(x_dif) === Math.abs(y_dif) || x_dif === 0 || y_dif === 0){
+        direction = [sign(x_dif), sign(y_dif)];
+    }
+    for(var i = 1; !map.check_empty(x + direction[0], y + direction[1]) && i < directions.length; ++i){
+        direction = directions[i];
+    }
+    while(map.move(x, y, x + direction[0], y + direction[1])){
+        x += direction[0];
+        y += direction[1];
+    }
+    map.attack(x + direction[0], y + direction[1]);
 }
 
 

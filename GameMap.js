@@ -59,19 +59,27 @@ class GameMap{
         }
     }
     check_empty(x, y){
-        if(!(this.#grid[x][y].type === "empty")){
-            throw new Error("space not empty");
+        try{
+            this.check_bounds(x, y);
         }
+        catch{
+            return false;
+        }
+        return this.#grid[x][y].type === "empty";
     }
     set_exit(exit_x, exit_y){
         this.check_bounds(exit_x, exit_y);
-        this.check_empty(exit_x, exit_y);
+        if(!this.check_empty(exit_x, exit_y)){
+            throw new Error("space not empty");
+        }
         this.#grid[exit_x][exit_y] = exit_tile();
         ++this.#entity_list.count;
     }
     set_player(player_x, player_y, player_health = -1){
         this.check_bounds(player_x, player_y);
-        this.check_empty(player_x, player_y);
+        if(!this.check_empty(player_x, player_y)){
+            throw new Error("space not empty");
+        }
         this.#entity_list.set_player(player_x, player_y);
         var player = player_tile();
         if(player_health > 0){
@@ -88,7 +96,9 @@ class GameMap{
                 y = position.y;
             }
             this.check_bounds(x, y);
-            this.check_empty(x, y);
+            if(!this.check_empty(x, y)){
+                throw new Error("space not empty");
+            }
         }
         catch{
             return false;

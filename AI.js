@@ -284,7 +284,19 @@ function brightling_ai(x, y, x_dif, y_dif, map, enemy){
 
 
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
-    
+    var directions = random_nearby();
+    var direction = directions[0];
+    if(Math.abs(x_dif) === Math.abs(y_dif) || x_dif === 0 || y_dif === 0){
+        direction = [sign(x_dif), sign(y_dif)];
+    }
+    for(var i = 1; !map.check_empty(x + direction[0], y + direction[1]) && i < directions.length; ++i){
+        direction = directions[i];
+    }
+    while(map.move(x, y, x + direction[0], y + direction[1])){
+        x += direction[0];
+        y += direction[1];
+    }
+    map.attack(x + direction[0], y + direction[1]);
 }
 
 
