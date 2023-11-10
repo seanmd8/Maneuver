@@ -1,10 +1,11 @@
 const ANIMATION_DELAY = 300;
 const WELCOME_MESSAGE = "Welcome to the dungeon";
+const STARTING_ENEMY = spider_tile;
 
 function setup(){
     describe(WELCOME_MESSAGE);
     mapData = new GameMap(8, 8);  
-    mapData.add_tile(spider_tile());
+    mapData.add_tile(STARTING_ENEMY());
     mapData.display();
     mapData.display_stats(document.getElementById("stats"));
     deck = make_starting_deck();
@@ -64,6 +65,10 @@ async function action(behavior, hand_pos){
         else if(m === "game over"){
             game_over(error.cause);
             
+        }
+        else if(m === "pass to player"){
+            mapData.display();
+            mapData.display_stats(document.getElementById("stats"))
         }
         else{
             console.log(m)
@@ -596,9 +601,8 @@ class EntityList{
     }
 }
 
-
 const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
-    spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile];
+    spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile, brightling_tile];
 
 function empty_tile(){
     return {
@@ -662,7 +666,7 @@ function scythe_tile(){
     return{
         type: "enemy",
         enemy_type: "scythe",
-        pic: "scythe.png",
+        pic: "scythe_se.png",
         id: "",
         health: 1,
         difficulty: 3,
@@ -720,7 +724,7 @@ function large_porcuslime_tile(){
         pic: "large_porcuslime.png",
         id: "",
         health: 3,
-        difficulty: 7,
+        difficulty: 8,
         behavior: large_porcuslime_ai,
         description: large_porcuslime_description
     }
@@ -786,6 +790,20 @@ function lava_pool_tile(){
         on_enter: lava_pool_enter
     }
 }
+function brightling_tile(){
+    var starting_cycle = 0;
+    return{
+        type: "enemy",
+        enemy_type: "brightling",
+        pic: "brightling.png",
+        cycle: starting_cycle,
+        id: "",
+        health: 1,
+        difficulty: 4,
+        behavior: brightling_ai,
+        description: brightling_description
+    }
+}
 
 
 
@@ -809,7 +827,7 @@ const spider_description = "Spider: Will attack the player if it is next to them
 const turret_h_description = "Turret: Does not move. Fires beams orthogonally that hit the first thing in their path.";
 const turret_d_description = "Turret: Does not move. Fires beams diagonally that hit the first thing in their path.";
 const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
-const knight_description = "Knight: Attacks and moves in an L shape. If it tramples the player, it will move away again.";
+const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
 const spider_web_description = ["Spider egg: Does not move. Spawns a spider every ", " turns."];
 const ram_description = "Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.";
 const large_porcuslime_description = "Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when hit."
@@ -817,10 +835,12 @@ const medium_porcuslime_description = "Medium Porcuslime: Moves towards the play
 const small_h_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction."
 const small_d_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction."
 const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it."
-const lava_pool_description = "Lava Pool: Attempting to move through this will hurt,"
+const lava_pool_description = "Lava Pool: Attempting to move through this will hurt."
+const brightling_description = "Brightling: Will occasionally teleport the player close to it before teleoprting away the next turn."
 
 
 const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves and attacks in straight lines.";
+
 function spider_ai(x, y, x_dif, y_dif, map, enemy){
     if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
         map.attack(x + x_dif, y + y_dif, "player");
@@ -1079,6 +1099,32 @@ function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
 function lava_pool_enter(x, y, map){
     map.attack(x, y);
 }
+function brightling_ai(x, y, x_dif, y_dif, map, enemy){
+    var ran = Math.floor(Math.random() * 4);
+    if(enemy.cycle === -1){
+        var space = map.random_empty();
+        map.move(x, y, space.x, space.y);
+        ++enemy.cycle;
+    }
+    else if(ran < enemy.cycle){
+        var near_points = random_nearby();
+        for(var i = 0; i < near_points.length && !map.move(x + x_dif, y + y_dif, x + near_points[i][0], y + near_points[i][1]); ++i){}
+        enemy.cycle = -1;
+        throw new Error("pass to player");
+    }
+    else{
+        var near_points = random_nearby();
+        for(var i = 0; i < 2; ++i){
+            var moved = map.move(x, y, x + near_points[i][0], y + near_points[i][1]);
+            if(moved){
+                x = x + near_points[i][0];
+                y = y + near_points[i][1];
+            }
+        }
+        ++enemy.cycle;
+    }
+}
+
 
 
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
@@ -1126,7 +1172,6 @@ function convert_direction(x, y){
     }
     return str;
 }
-
 const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
     sprint, trident, whack, spin_attack, butterfly, 

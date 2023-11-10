@@ -1,10 +1,11 @@
 const ANIMATION_DELAY = 300;
 const WELCOME_MESSAGE = "Welcome to the dungeon";
+const STARTING_ENEMY = spider_tile;
 
 function setup(){
     describe(WELCOME_MESSAGE);
     mapData = new GameMap(8, 8);  
-    mapData.add_tile(spider_tile());
+    mapData.add_tile(STARTING_ENEMY());
     mapData.display();
     mapData.display_stats(document.getElementById("stats"));
     deck = make_starting_deck();
@@ -64,6 +65,10 @@ async function action(behavior, hand_pos){
         else if(m === "game over"){
             game_over(error.cause);
             
+        }
+        else if(m === "pass to player"){
+            mapData.display();
+            mapData.display_stats(document.getElementById("stats"))
         }
         else{
             console.log(m)

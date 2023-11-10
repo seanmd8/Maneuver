@@ -1,5 +1,5 @@
 const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
-    spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile];
+    spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile, brightling_tile];
 
 function empty_tile(){
     return {
@@ -187,6 +187,20 @@ function lava_pool_tile(){
         on_enter: lava_pool_enter
     }
 }
+function brightling_tile(){
+    var starting_cycle = 0;
+    return{
+        type: "enemy",
+        enemy_type: "brightling",
+        pic: "brightling.png",
+        cycle: starting_cycle,
+        id: "",
+        health: 1,
+        difficulty: 4,
+        behavior: brightling_ai,
+        description: brightling_description
+    }
+}
 
 
 
@@ -218,7 +232,8 @@ const medium_porcuslime_description = "Medium Porcuslime: Moves towards the play
 const small_h_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction."
 const small_d_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction."
 const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it."
-const lava_pool_description = "Lava Pool: Attempting to move through this will hurt,"
+const lava_pool_description = "Lava Pool: Attempting to move through this will hurt."
+const brightling_description = "Brightling: Will occasionally teleport the player close to it before teleoprting away the next turn."
 
 
 const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves and attacks in straight lines.";

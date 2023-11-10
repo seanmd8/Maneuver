@@ -256,6 +256,31 @@ function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
 function lava_pool_enter(x, y, map){
     map.attack(x, y);
 }
+function brightling_ai(x, y, x_dif, y_dif, map, enemy){
+    var ran = Math.floor(Math.random() * 4);
+    if(enemy.cycle === -1){
+        var space = map.random_empty();
+        map.move(x, y, space.x, space.y);
+        ++enemy.cycle;
+    }
+    else if(ran < enemy.cycle){
+        var near_points = random_nearby();
+        for(var i = 0; i < near_points.length && !map.move(x + x_dif, y + y_dif, x + near_points[i][0], y + near_points[i][1]); ++i){}
+        enemy.cycle = -1;
+        throw new Error("pass to player");
+    }
+    else{
+        var near_points = random_nearby();
+        for(var i = 0; i < 2; ++i){
+            var moved = map.move(x, y, x + near_points[i][0], y + near_points[i][1]);
+            if(moved){
+                x = x + near_points[i][0];
+                y = y + near_points[i][1];
+            }
+        }
+        ++enemy.cycle;
+    }
+}
 
 
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
