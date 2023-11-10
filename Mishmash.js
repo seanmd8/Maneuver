@@ -1,6 +1,6 @@
 const ANIMATION_DELAY = 300;
 const WELCOME_MESSAGE = "Welcome to the dungeon";
-const STARTING_ENEMY = velociphile_tile;
+const STARTING_ENEMY = spider_tile;
 
 function setup(){
     describe(WELCOME_MESSAGE);
