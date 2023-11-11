@@ -2,6 +2,7 @@ const ANIMATION_DELAY = 300;
 const WELCOME_MESSAGE = "Welcome to the dungeon";
 const STARTING_ENEMY = spider_tile;
 
+
 function setup(){
     describe(WELCOME_MESSAGE);
     mapData = new GameMap(8, 8);  
@@ -80,13 +81,11 @@ function new_floor(){
     document.getElementById("currentDeck").innerText = "";
     clear_tb("displayDeck");
     var floor = mapData.erase(mapData.player_health());
-    for(var i = floor * 2; i > 0;){
-        var choice = Math.floor(Math.random() * enemy_list.length);
-        var new_enemy = enemy_list[choice]();
-        if(new_enemy.difficulty <= i){
-            mapData.add_tile(new_enemy);
-            i -= new_enemy.difficulty;
-        }
+    if(true){//!(floor % 5 === 0)){
+        generate_floor(floor, mapData, ENEMY_LIST)
+    }
+    else{
+        BOSS_FLOOR[Math.floor(floor / 5)](mapData);
     }
     describe("");
     mapData.display_stats(document.getElementById("stats"));

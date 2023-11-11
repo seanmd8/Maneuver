@@ -1,4 +1,4 @@
-const enemy_list = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
+const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
     spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile, brightling_tile];
 
 function empty_tile(){
@@ -236,5 +236,5 @@ const lava_pool_description = "Lava Pool: Attempting to move through this will h
 const brightling_description = "Brightling: Will occasionally teleport the player close to it before teleoprting away the next turn."
 
 
-const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves and attacks in straight lines.";
+const velociphile_description = "Velociphile (Boss): A rolling ball o mouths and hate. Moves in straight lines attacking when it hits things.";
 
