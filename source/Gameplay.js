@@ -1,9 +1,14 @@
-const ANIMATION_DELAY = 300;
-const WELCOME_MESSAGE = "Welcome to the dungeon";
-const STARTING_ENEMY = spider_tile;
+// ----------------Gameplay.js----------------
+// File contains functions that control the main gameplay.
+
+const ANIMATION_DELAY = 300; // Controls the length of time the map is displayed before moving onto the next entitie's turn in ms.
+const WELCOME_MESSAGE = "Welcome to the dungeon. Use cards to move (blue) and attack (red). " 
+                        + "Click on things to learn more about them."; // Message displayed at the start of the dungeon.
+const STARTING_ENEMY = spider_tile; // Controls the single enemy on the first floor.
 
 
 function setup(){
+    // Function ran on page load or on restart to set up the game.
     describe(WELCOME_MESSAGE);
     mapData = new GameMap(8, 8);  
     mapData.add_tile(STARTING_ENEMY());
@@ -13,14 +18,18 @@ function setup(){
     deck.display_hand(document.getElementById("handDisplay"));
 }
 function describe(description){
+    // Used to display text to the "displayMessage" element
     document.getElementById("displayMessage").innerText = description;
 }
 function clear_tb(element_id){
+    // Deletes all rows from the given html table.
     while(document.getElementById(element_id).rows.length > 0){
         document.getElementById(element_id).deleteRow(0);
     }
 }
 function prep_move(move, hand_pos){
+    // When the user clicks a card in their hand, this creates buttons they can use to pick their move
+    // from the options for that card.
     clear_tb("moveButtons");
     var row = document.createElement("tr");
     row.id = "buttons";
@@ -36,8 +45,10 @@ function prep_move(move, hand_pos){
     document.getElementById("moveButtons").append(row);
 }
 async function action(behavior, hand_pos){
+    // Function to execute the outcome of the player's turn.
     try{
         for(var i = 0; i < behavior.length; ++i){
+            // Does each valid command in the behavior list.
             if(behavior[i][0] === "attack"){
                 mapData.player_attack(behavior[i][1], behavior[i][2]);
             }
@@ -48,26 +59,31 @@ async function action(behavior, hand_pos){
                 throw new Error("invalid action type");
             }
         }
+        // Discards the card the user used.
         deck.discard(hand_pos);
         clear_tb("moveButtons");
         deck.display_hand(document.getElementById("handDisplay"));
         mapData.display();
         await delay(ANIMATION_DELAY);
+        // Does the enemies' turn.
         await mapData.enemy_turn();
         mapData.display();
+        // Update turn number.
         mapData.display_stats(document.getElementById("stats"))
     }
     catch (error){
         var m = error.message;
         if(m === "floor complete"){
+            // If the player has reached the end of the floor.
             mapData.display_stats(document.getElementById("stats"))
             modify_deck();
         }
         else if(m === "game over"){
+            // If the player's health reached 0
             game_over(error.cause);
-            
         }
         else if(m === "pass to player"){
+            // If the enemies' turn was interrupted.
             mapData.display();
             mapData.display_stats(document.getElementById("stats"))
         }
@@ -77,23 +93,21 @@ async function action(behavior, hand_pos){
     }
 }
 function new_floor(){
+    // Creates the next floor.
     clear_tb("modifyDeck");
     document.getElementById("currentDeck").innerText = "";
     clear_tb("displayDeck");
     var floor = mapData.erase(mapData.player_health());
-    if(true){//!(floor % 5 === 0)){
-        generate_floor(floor, mapData, ENEMY_LIST)
-    }
-    else{
-        BOSS_FLOOR[Math.floor(floor / 5)](mapData);
-    }
-    describe("");
+    floor_generator(floor, mapData);
     mapData.display_stats(document.getElementById("stats"));
     deck.deal();
     mapData.display();
     deck.display_hand(document.getElementById("handDisplay"));
 }
 function modify_deck(){
+    // Gives the player the option to add or remove a card from their deck.
+    // Their deck contents are also displayed.
+    // Options to remove cards will not be displayed if the deck is at the minimum size already.
     var add_list = [];
     var remove_list = [];
     var table = document.getElementById("modifyDeck");
@@ -106,12 +120,16 @@ function modify_deck(){
             remove_list.push(deck.get_rand());
         }
     }
-    catch{}
+    catch{
+        // deck.get_rand throws an error if the deck is at the minimum size, in which case they should not
+        // be able to remove more cards.
+    }
     clear_tb("mapDisplay");
     clear_tb("handDisplay");
     clear_tb("moveButtons");
     describe("Choose one card to add or remove");
-    
+
+    // Options to add.
     var add = function(card){return function(){
         deck.add(card);
         new_floor();
@@ -120,7 +138,12 @@ function modify_deck(){
     add_row.id = "add_row";
     var plus = make_cell("plus", "images/other/plus.png", HAND_SCALE);
     add_row.append(plus);
+    for(var i = 0; i < add_list.length; ++i){
+        var cell = make_cell("card " + i, "images/cards/" + add_list[i].pic, HAND_SCALE, add, add_list[i]);
+        add_row.append(cell);
+    }
 
+    // Options to Remove.
     var remove = function(card){return function(){
         deck.remove(card.id);
         new_floor();
@@ -132,13 +155,6 @@ function modify_deck(){
         minus = make_cell("x", "images/other/x.png", HAND_SCALE);
     }
     remove_row.append(minus);
-
-    for(var i = 0; i < add_list.length; ++i){
-        var cell = make_cell("card " + i, "images/cards/" + add_list[i].pic, HAND_SCALE, add, add_list[i]);
-        add_row.append(cell);
-    }
-    
-    
     for(var i = 0; i < remove_list.length; ++i){
         var cell = make_cell("card " + i, "images/cards/" + remove_list[i].pic, HAND_SCALE, remove, remove_list[i]);
         remove_row.append(cell);
@@ -148,6 +164,13 @@ function modify_deck(){
     table.append(remove_row);
 }
 function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
+    // Function to make a cell for a table.
+    //  id is the id the cell should get.
+    //  pic is the image source the cell should have.
+    //  size is the width and height of the image.
+    //  click is the onclick function.
+    //  param1 and param2 are the parameter that should be given to the onclick if they are provided.
+    // Returns the cell
     var cell = document.createElement("td");
     cell.id = id;
     var image = document.createElement("img");
@@ -166,11 +189,14 @@ function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 
     return cell;
 }
 function delay(ms){
+    // Function to wait the given number of milliseconds.
     return new Promise(resolve =>{
         setTimeout(resolve, ms);
     })
 }
 function game_over(cause){
+    // Tells the user the game is over, prevents them fro m continuing, tells them the cause
+    // and gives them the chance to retry.
     mapData.display();
     clear_tb("handDisplay");
     clear_tb("moveButtons");

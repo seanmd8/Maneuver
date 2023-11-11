@@ -1,8 +1,11 @@
+// ----------------EntityList.js----------------
+// EntityList class is used by the GameMap class to keep track of entities without having to search through the map each time.
+
 class EntityList{
-    count
-    #player
-    #enemy_list
-    #id_count
+    count // Keeps track of the number of entities currently in the class.
+    #player // Keeps track of the player postion.
+    #enemy_list // A list of each enemy currently on the board and their locations.
+    #id_count // Used to give each enemy a unique id as it is added.
     constructor(){
         this.count = 0;
         this.#id_count = 0;
@@ -22,11 +25,15 @@ class EntityList{
         return {x: this.#player.x, y: this.#player.y};
     }
     add_enemy(x, y, enemy){
-        this.#enemy_list.push({x, y, enemy})
-        ++this.count
+        enemy.id = this.next_id();
+        this.#enemy_list.push({x, y, enemy});
+        ++this.count;
     }
     move_enemy(x, y, id){
         var index = this.#find_by_id(id);
+        if(index === -1){
+            throw new Error("id not found");
+        }
         this.#enemy_list[index].x = x;
         this.#enemy_list[index].y = y;
     }
@@ -36,6 +43,7 @@ class EntityList{
             throw new Error("id not found");
         }
         this.#enemy_list = this.#enemy_list.slice(0, index).concat(this.#enemy_list.slice(index + 1, this.#enemy_list.length));
+        --this.count;
     }
     #find_by_id(id){
         for(var i = 0; i < this.#enemy_list.length; ++i){
@@ -57,7 +65,8 @@ class EntityList{
         }
     }
     async enemy_turn(map){
-        // How to avoid multi turns via friendly fire shrinking the list?
+        // Triggers each enemy's behavior.
+        // Displays the game map between each.
         var turn = []
         for(var i = 0; i < this.#enemy_list.length; ++i){
             turn.push(this.#enemy_list[i]);
@@ -72,7 +81,7 @@ class EntityList{
                 }
                 catch(error){
                     if(error.message === "game over"){
-                        throw new Error("game over", {cause: e.enemy.enemy_type});
+                        throw new Error("game over", {cause: e.enemy.name});
                     }
                     throw error;
                 }

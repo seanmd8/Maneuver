@@ -1,3 +1,16 @@
+// ----------------Tiles.js----------------
+// This file contains the functions to generate tiles representing things on the game_map.
+
+// Fields (not all are used by each tile):
+//  type: the category this tile falls under (empty, exit, player, enemy, terrain)
+//  name: necessary if it can deal damage or the type has multiple tiles.
+//  pic: the picture representing this tile. May be an array if the picture changes.
+//  health: how many hits it takes to kill this tile.
+//  difficulty: how much it costs the floor generator to spawn this.
+//  behavior: the logic for what this tile does on it's turn.
+//  description: info that will be displayed when the user clicks on the tile.
+
+// This is a list of all the enemies that can be spawned on a normal floor.
 const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
     spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile, brightling_tile];
 
@@ -18,6 +31,7 @@ function exit_tile(){
 function player_tile(){
     return {
         type: "player",
+        name: "player",
         pic: "helmet.png",
         health: 3,
         description: player_description
@@ -26,9 +40,8 @@ function player_tile(){
 function spider_tile(){
     return {
         type: "enemy",
-        enemy_type: "spider",
+        name: "spider",
         pic: "spider.png",
-        id: "",
         health: 1,
         difficulty: 1,
         behavior: spider_ai,
@@ -38,9 +51,8 @@ function spider_tile(){
 function turret_h_tile(){
     return {
         type: "enemy",
-        enemy_type: "turret",
+        name: "turret",
         pic: "turret_h.png",
-        id: "",
         health: 1,
         difficulty: 2,
         behavior: turret_h_ai,
@@ -50,9 +62,8 @@ function turret_h_tile(){
 function turret_d_tile(){
     return {
         type: "enemy",
-        enemy_type: "turret",
+        name: "turret",
         pic: "turret_d.png",
-        id: "",
         health: 1,
         difficulty: 2,
         behavior: turret_d_ai,
@@ -62,9 +73,8 @@ function turret_d_tile(){
 function scythe_tile(){
     return{
         type: "enemy",
-        enemy_type: "scythe",
+        name: "scythe",
         pic: "scythe_se.png",
-        id: "",
         health: 1,
         difficulty: 3,
         behavior: scythe_ai,
@@ -74,9 +84,8 @@ function scythe_tile(){
 function knight_tile(){
     return{
         type: "enemy",
-        enemy_type: "knight",
+        name: "knight",
         pic: "knight.png",
-        id: "",
         health: 2,
         difficulty: 4,
         behavior: knight_ai,
@@ -87,11 +96,10 @@ function spider_web_tile(){
     spawn_timer = 2
     return{
         type: "enemy",
-        enemy_type: "spider egg",
+        name: "spider egg",
         pic: "spider_web.png",
         cycle: 0,
         spawn_timer,
-        id: "",
         health: 2,
         difficulty: 4,
         behavior: spider_web_ai,
@@ -103,11 +111,10 @@ function ram_tile(){
     var starting_cycle = 0;
     return{
         type: "enemy",
-        enemy_type: "ram",
+        name: "ram",
         pic: pic_arr[starting_cycle],
         pic_arr,
         cycle: starting_cycle,
-        id: "",
         health: 2,
         difficulty: 5,
         behavior: ram_ai,
@@ -117,9 +124,8 @@ function ram_tile(){
 function large_porcuslime_tile(){
     return {
         type: "enemy",
-        enemy_type: "porcuslime",
+        name: "porcuslime",
         pic: "large_porcuslime.png",
-        id: "",
         health: 3,
         difficulty: 8,
         behavior: large_porcuslime_ai,
@@ -131,11 +137,10 @@ function medium_porcuslime_tile(){
     var pic_arr = ["medium_h_porcuslime.png", "medium_d_porcuslime.png"];
     return {
         type: "enemy",
-        enemy_type: "medium porcuslime",
+        name: "medium porcuslime",
         pic: pic_arr[ran],
         pic_arr,
         cycle: ran,
-        id: "",
         health: 2,
         difficulty: 5,
         behavior: medium_porcuslime_ai,
@@ -145,9 +150,8 @@ function medium_porcuslime_tile(){
 function small_h_porcuslime_tile(){
     return {
         type: "enemy",
-        enemy_type: "small porcuslime",
+        name: "small porcuslime",
         pic: "small_h_porcuslime.png",
-        id: "",
         health: 1,
         difficulty: 3,
         behavior: small_h_porcuslime_ai,
@@ -157,9 +161,8 @@ function small_h_porcuslime_tile(){
 function small_d_porcuslime_tile(){
     return {
         type: "enemy",
-        enemy_type: "small porcuslime",
+        name: "small porcuslime",
         pic: "small_d_porcuslime.png",
-        id: "",
         health: 1,
         difficulty: 3,
         behavior: small_d_porcuslime_ai,
@@ -169,9 +172,8 @@ function small_d_porcuslime_tile(){
 function acid_bug_tile(){
     return {
         type: "enemy",
-        enemy_type: "acid bug",
+        name: "acid bug",
         pic: "acid_bug.png",
-        id: "",
         health: 1,
         difficulty: 3,
         behavior: acid_bug_ai,
@@ -181,20 +183,20 @@ function acid_bug_tile(){
 }
 function lava_pool_tile(){
     return {
-        type: "lava_pool",
+        type: "terrain",
+        name: "lava pool",
         pic: "lava_pool.png",
         description: lava_pool_description,
-        on_enter: lava_pool_enter
+        on_enter: hazard
     }
 }
 function brightling_tile(){
     var starting_cycle = 0;
     return{
         type: "enemy",
-        enemy_type: "brightling",
+        name: "brightling",
         pic: "brightling.png",
         cycle: starting_cycle,
-        id: "",
         health: 1,
         difficulty: 4,
         behavior: brightling_ai,
@@ -202,14 +204,11 @@ function brightling_tile(){
     }
 }
 
-
-
 function velociphile_tile(){
     return{
         type: "enemy",
-        enemy_type: "velociphile",
+        name: "velociphile",
         pic: "velociphile.png",
-        id: "",
         health: 3,
         difficulty: "boss",
         behavior: velociphile_ai,
@@ -217,6 +216,7 @@ function velociphile_tile(){
     }
 }
 
+// Descriptions
 const empty_description = "There is nothing here.";
 const exit_description = "Stairs to the next floor.";
 const player_description = "You.";
@@ -235,6 +235,4 @@ const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no
 const lava_pool_description = "Lava Pool: Attempting to move through this will hurt."
 const brightling_description = "Brightling: Will occasionally teleport the player close to it before teleoprting away the next turn."
 
-
 const velociphile_description = "Velociphile (Boss): A rolling ball o mouths and hate. Moves in straight lines attacking when it hits things.";
-

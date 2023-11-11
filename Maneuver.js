@@ -1,15 +1,32 @@
+// ----------------AI.js----------------
+// File containing the logic for attacks, movements and other effects of non-player entities.
+
+// Parameters:
+//  x: the x location of this entity on the game map.
+//  y: the y location of this entity on the game map.
+//  x_dif: the difference between the x value of this and the player.
+//  y_dif: the difference between the y value of this and the player.
+//  map: the game map.
+//  enemy: the tile representing this entity.
+
+
+
 function spider_ai(x, y, x_dif, y_dif, map, enemy){
     if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
+        // If the player is next to it, attack.
         map.attack(x + x_dif, y + y_dif, "player");
     }
     else{
+        // Otherwise attempt to move closer.
         x_dif = sign(x_dif);
         y_dif = sign(y_dif);
         map.move(x, y, x + x_dif, y + y_dif);
     }
 }
 function turret_h_ai(x, y, x_dif, y_dif, map, enemy){
+    // Turret version that shoots orthogonally.
     try{
+        // If it sees the player, fires until it hits something or reaches the bounds of the map.
         if(x_dif === 0){
             var direction = sign(y_dif);
             for(var i = 1; !map.attack(x, y + i * direction); ++i){
@@ -30,9 +47,11 @@ function turret_h_ai(x, y, x_dif, y_dif, map, enemy){
     }
 }
 function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
+    // Turret version that shoots diagonally.
     if(!(Math.abs(x_dif) === Math.abs(y_dif))){
         return;
     }
+    // If it sees the player, fires until it hits something or the bounds of the map.
     var x_direction = sign(x_dif);
     var y_direction = sign(y_dif);
     try{
@@ -47,12 +66,15 @@ function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
     }
 }
 function scythe_ai(x, y, x_dif, y_dif, map, enemy){
+    var distance = 3;
     var direction = [sign(x_dif), sign(y_dif)];
     if(direction[0] === 0 || direction[1] === 0){
+        // If the player is orthogonal, moves randomly.
         direction = [random_sign(), random_sign()];
     }
     enemy.pic = "scythe_" + convert_direction(direction[0], direction[1]) + ".png";
-    for(var i = 0; i < 3; ++i){
+    for(var i = 0; i < distance; ++i){
+        // moves <distance> spaces attacking each space it passes next to.
         if(!map.move(x, y, x + direction[0], y + direction[1])){
             break;
         }
@@ -63,7 +85,9 @@ function scythe_ai(x, y, x_dif, y_dif, map, enemy){
     }
 }
 function knight_ai(x, y, x_dif, y_dif, map, enemy){
+    // Moves in an L.
     if(Math.abs(x_dif) === 1 && Math.abs(y_dif) === 1){
+        // If the player is next to it diagonally, attempty to reposition to attack them next turn.
         if(!map.move(x, y, x + (2 * sign(x_dif)), y + (-1 * sign(y_dif)))){
             map.move(x, y, x + (-1 * sign(x_dif)), y + (2 * sign(y_dif)));
         }
@@ -71,11 +95,13 @@ function knight_ai(x, y, x_dif, y_dif, map, enemy){
     }
     if(Math.abs(x_dif) + Math.abs(y_dif) === 3){
         if(x_dif === 1 || x_dif === -1 || y_dif === 1 || y_dif === -1){
+            // If the player is a L away, attak them then try to move past them.
             map.attack(x + x_dif, y + y_dif, "player");
             map.move(x, y, x + x_dif * 2, y + y_dif * 2);
             return;
         }
     }
+    // Otherwise, attempt to move closer
     if(Math.abs(x_dif) >= Math.abs(y_dif)){
         var new_x = 2;
         var new_y = 1;
@@ -94,9 +120,11 @@ function knight_ai(x, y, x_dif, y_dif, map, enemy){
 }
 function spider_web_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.cycle < enemy.spawn_timer){
+        // If the cycle hasn't reached the spawn timer, increments it.
         ++enemy.cycle;
     }
     else{
+        // Attempts to spawn a spider nearby and resets cycle.
         var spawnpoints = random_nearby();
         for(var i = 0; i < spawnpoints.length && !map.add_tile(spider_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
         enemy.cycle = 0;
@@ -107,6 +135,7 @@ function ram_ai(x, y, x_dif, y_dif, map, enemy){
     var y_direction = sign(y_dif);
     var wander_speed = 2;
     if(enemy.cycle === 0){
+        // moves <wander_speed> closer to a row or column that the player is in.
         var moved = true;
         if(Math.abs(x_dif) <= Math.abs(y_dif)){
             for(var i = 0; i < wander_speed && i < Math.abs(x_dif) && moved; ++i){
@@ -121,11 +150,14 @@ function ram_ai(x, y, x_dif, y_dif, map, enemy){
             }
         }
         if(moved === true && (Math.abs(x_dif) < 3 || Math.abs(y_dif) < 3)){
+            // If it sees them, prepares to charge.
             enemy.cycle = 1;
             enemy.pic = enemy.pic_arr[enemy.cycle];
         }
     }
     else{
+        // Charges orthogonally until it hits something and rams it.
+        // Reverts to wandering after.
         var moved = true;
         if(Math.abs(x_dif) > Math.abs(y_dif)){
             while(moved){
@@ -147,6 +179,7 @@ function ram_ai(x, y, x_dif, y_dif, map, enemy){
 }
 function large_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.health === 2){
+        // If health is 2, turns into the medium version.
         map.attack(x, y);
         map.attack(x, y);
         if(!map.add_tile(medium_porcuslime_tile(), x, y)){
@@ -156,6 +189,7 @@ function large_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
         return;
     }
     if(enemy.health === 1){
+        // If health is 1, splits into one of each small version which spawn next to it.
         map.attack(x, y);
         var spawnpoints = random_nearby();
         for(var i = 0; i < spawnpoints.length && !map.add_tile(small_h_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
@@ -164,9 +198,11 @@ function large_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
         return;
     }
     if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
+        // If the player is next to it, attacks.
         map.attack(x + x_dif, y + y_dif, "player");
     }
     else{
+        // Otherwise moves closer and attacks in that direction.
         x_dif = sign(x_dif);
         y_dif = sign(y_dif);
         var moved = map.move(x, y, x + x_dif, y + y_dif);
@@ -177,6 +213,7 @@ function large_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
 }
 function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.health === 1){
+        // If health is 1, splits into one of each small version which spawn next to it.
         map.attack(x, y);
         var spawnpoints = random_nearby();
         for(var i = 0; i < spawnpoints.length && !map.add_tile(small_h_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
@@ -185,6 +222,7 @@ function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
         return;
     }
     if(enemy.cycle === 0){
+        // If cycle is at 0, direction will be orthogonally towards the player.
         if(Math.abs(x_dif) > Math.abs(y_dif)){
             var dir = [sign(x_dif), 0];
         }
@@ -193,6 +231,7 @@ function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
         }
     }
     else{
+        // If cycle is at 1, direction will be diagonally towards the player.
         var dir = [sign(x_dif), sign(y_dif)];
         for(var i = 0; i < dir.length; ++i){
             if(dir[i] === 0){
@@ -200,6 +239,7 @@ function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
             }
         }
     }
+    // Moves then attacks in that direction.
     var moved = map.move(x, y, x + dir[0], y + dir[1]);
     if(moved){
         map.attack(x + (2 * dir[0]), y + (2 * dir[1]), "player");
@@ -207,10 +247,12 @@ function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     else{
         map.attack(x + dir[0], y + dir[1], "player");
     }
+    // Swaps cycle and picture between the two.
     enemy.cycle = 1 - enemy.cycle;
     enemy.pic = enemy.pic_arr[enemy.cycle];
 }
 function small_h_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
+    // Small version which moves  then attacks orthogonally.
     if(Math.abs(x_dif) > Math.abs(y_dif)){
         var dir = [sign(x_dif), 0];
     }
@@ -224,9 +266,9 @@ function small_h_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     else{
         map.attack(x + dir[0], y + dir[1], "player");
     }
-    enemy.cycle = 1 - enemy.cycle;
 }
 function small_d_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
+    // Small version which moves  then attacks diagonally.
     var dir = [sign(x_dif), sign(y_dif)];
     for(var i = 0; i < dir.length; ++i){
         if(dir[i] === 0){
@@ -240,36 +282,41 @@ function small_d_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     else{
         map.attack(x + dir[0], y + dir[1], "player");
     }
-    enemy.cycle = 1 - enemy.cycle;
 }
 function acid_bug_ai(x, y, x_dif, y_dif, map, enemy){
+    // Moves 1 space towards the player.
     x_dif = sign(x_dif);
     y_dif = sign(y_dif);
     map.move(x, y, x + x_dif, y + y_dif);
 }
 function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
+    // On death, attacks each space next to it.
     var attacks = random_nearby();
     for(var i = 0; i < attacks.length; ++i){
         map.attack(x + attacks[i][0], y + attacks[i][1]);
     }
 }
-function lava_pool_enter(x, y, map){
-    map.attack(x, y);
+function hazard(x, y, x_dif, y_dif, map, enemy){
+    // hazard function to retaliate if something moves onto it.
+    map.attack(x + x_dif, y + y_dif);
 }
 function brightling_ai(x, y, x_dif, y_dif, map, enemy){
-    var ran = Math.floor(Math.random() * 4);
     if(enemy.cycle === -1){
+        // teleports to a random empty space, then cycle goes to 1.
         var space = map.random_empty();
         map.move(x, y, space.x, space.y);
         ++enemy.cycle;
     }
-    else if(ran < enemy.cycle){
+    else if(Math.floor(Math.random() * 4) < enemy.cycle){
+        // Teleports the player next to it then cycle goes to 0 to prepare to teleport.
         var near_points = random_nearby();
         for(var i = 0; i < near_points.length && !map.move(x + x_dif, y + y_dif, x + near_points[i][0], y + near_points[i][1]); ++i){}
         enemy.cycle = -1;
+        // Since player has been moved, it returns to their turn.
         throw new Error("pass to player");
     }
     else{
+        // Moves 2 spaces randomly.
         var near_points = random_nearby();
         for(var i = 0; i < 2; ++i){
             var moved = map.move(x, y, x + near_points[i][0], y + near_points[i][1]);
@@ -286,12 +333,15 @@ function brightling_ai(x, y, x_dif, y_dif, map, enemy){
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     var directions = random_nearby();
     var direction = directions[0];
+    // If the player is in a straight line, attempts to aim at them.
     if(Math.abs(x_dif) === Math.abs(y_dif) || x_dif === 0 || y_dif === 0){
         direction = [sign(x_dif), sign(y_dif)];
     }
+    // Reselects direction at random until it finds one that is unobstructed.
     for(var i = 1; !map.check_empty(x + direction[0], y + direction[1]) && i < directions.length; ++i){
         direction = directions[i];
     }
+    // Moves in the chosen direction until it hits something which it then attacks.
     while(map.move(x, y, x + direction[0], y + direction[1])){
         x += direction[0];
         y += direction[1];
@@ -300,8 +350,9 @@ function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
 }
 
 
-
+// -----Utility functions used mainly by this file-----
 function sign(x){
+    // Returns whether x is positive, negative, or 0
     if(x > 0){
         return 1;
     }
@@ -311,6 +362,7 @@ function sign(x){
     return 0;
 }
 function random_nearby(){
+    // Returns an array of each point next to [0, 0] with it's order randomized.
     var cords = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
     var ran_cords = [];
     while(cords.length > 0){
@@ -322,9 +374,11 @@ function random_nearby(){
     return ran_cords;
 }
 function random_sign(){
+    // Randomly returns 1 or -1.
     return Math.floor(1 - (2 * Math.floor(Math.random() * 2)));
 }
 function convert_direction(x, y){
+    // Converts cords to a cardinal direction.
     var str = "";
     if(y > 0){
         str += "s";
@@ -339,7 +393,23 @@ function convert_direction(x, y){
         str += "w";
     }
     return str;
-}const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_left, 
+}// ----------------Cards.js----------------
+// File containing the logic for each card.
+
+// Keys:
+//  name: the name of the card.
+//  pic: the picture used to represent the card in game.
+//  descriptions: list of descriptions put on the buttons the user uses for their decisions.
+//  behavior: list of command groups which will be performed when the user clicks on the corresponding button
+
+// The relative order of descriptions and behavior should match.
+// The current commands are:
+//  ["move", x, y]: moves the player relative to their position.
+//  ["attack", x, y]: attacks relative to the player's position.
+
+
+// List of the options that can be given on level up.
+const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_left, 
                     step_right, trample, horsemanship, lunge_left, lunge_right, 
                     sprint, trident, whack, spin_attack, butterfly, 
                     retreat, force, side_attack, clear_behind, spear_slice, 
@@ -347,6 +417,7 @@ function convert_direction(x, y){
                     fork, explosion, breakthrough, flanking_diagonal, flanking_sideways,
                     flanking_straight, pike];
 
+// Makes the starting deck
 function make_starting_deck(){
     deck = new MoveDeck();
 
@@ -362,6 +433,7 @@ function make_starting_deck(){
     deck.deal();
     return deck;
 }
+// Makes a deck for testing new cards.
 function make_test_deck(){
     deck = new MoveDeck();
     var start = 30;
@@ -374,11 +446,11 @@ function make_test_deck(){
     return deck;
 }
 
+// basic_horizontal and basic_diagonal are unique to the starting deck.
 function basic_horizontal(){
     return{
         name: "basic horizontal",
         pic: "basic_horizontal.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -398,7 +470,6 @@ function basic_diagonal(){
     return{
         name: "basic diagonal",
         pic: "basic_diagonal.png",
-        id: "",
         descriptions: [
             "NE",
             "SE",
@@ -418,7 +489,6 @@ function slice(){
     return{
         name: "slice",
         pic: "slice.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -448,7 +518,6 @@ function short_charge(){
     return{
         name: "short charge",
         pic: "short_charge.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -474,7 +543,6 @@ function jump(){
     return{
         name: "jump",
         pic: "jump.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -494,7 +562,6 @@ function straight_charge(){
     return{
         name: "straight charge",
         pic: "straight_charge.png",
-        id: "",
         descriptions: [
             "N",
             "S"
@@ -514,7 +581,6 @@ function side_charge(){
     return{
         name: "side charge",
         pic: "side_charge.png",
-        id: "",
         descriptions: [
             "E",
             "W"
@@ -534,7 +600,6 @@ function step_left(){
     return{
         name: "step left",
         pic: "step_left.png",
-        id: "",
         descriptions: [
             "NW",
             "W",
@@ -552,7 +617,6 @@ function step_right(){
     return{
         name: "step right",
         pic: "step_right.png",
-        id: "",
         descriptions: [
             "NE",
             "E",
@@ -570,7 +634,6 @@ function trample(){
     return{
         name: "trample",
         pic: "trample.png",
-        id: "",
         descriptions: [
             "NE",
             "NW"
@@ -588,7 +651,6 @@ function horsemanship(){
     return{
         name: "horsemanship",
         pic: "horsemanship.png",
-        id: "",
         descriptions: [
             "NE",
             "SE",
@@ -608,7 +670,6 @@ function lunge_left(){
     return{
         name: "lunge left",
         pic: "lunge_left.png",
-        id: "",
         descriptions: [
             "SE",
             "NW"
@@ -627,7 +688,6 @@ function lunge_right(){
     return{
         name: "lunge right",
         pic: "lunge_right.png",
-        id: "",
         descriptions: [
             "SW",
             "NE"
@@ -646,7 +706,6 @@ function sprint(){
     return{
         name: "sprint",
         pic: "sprint.png",
-        id: "",
         descriptions: [
             "N"
         ],
@@ -661,7 +720,6 @@ function trident(){
     return{
         name: "trident",
         pic: "trident.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -687,7 +745,6 @@ function whack(){
     return{
         name: "whack",
         pic: "whack.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -714,7 +771,6 @@ function spin_attack(){
     return{
         name: "spin attack",
         pic: "spin_attack.png",
-        id: "",
         descriptions: ["spin"],
         behavior: [
             [["attack", 1, 1],
@@ -732,7 +788,6 @@ function butterfly(){
     return{
         name: "butterfly",
         pic: "butterfly.png",
-        id: "",
         descriptions: [
             "NE",
             "SE",
@@ -752,7 +807,6 @@ function retreat(){
     return{
         name: "retreat",
         pic: "retreat.png",
-        id: "",
         descriptions: [
             "SE", 
             "S",
@@ -773,7 +827,6 @@ function force(){
     return{
         name: "force",
         pic: "force.png",
-        id: "",
         descriptions: [
             "N",
         ],
@@ -789,7 +842,6 @@ function side_attack(){
     return{
         name: "side attack",
         pic: "side_attack.png",
-        id: "",
         descriptions: [
             "E",
             "W"
@@ -809,7 +861,6 @@ function clear_behind(){
     return{
         name: "clear behind",
         pic: "clear_behind.png",
-        id: "",
         descriptions: [
             "S"
         ],
@@ -827,7 +878,6 @@ function spear_slice(){
     return{
         name: "spear slice",
         pic: "spear_slice.png",
-        id: "",
         descriptions: [
             "N", 
         ],
@@ -844,7 +894,6 @@ function jab(){
     return{
         name: "jab",
         pic: "jab.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -870,7 +919,6 @@ function overcome(){
     return{
         name: "overcome",
         pic: "overcome.png",
-        id: "",
         descriptions: [
             "N",
             "S"
@@ -893,7 +941,6 @@ function hit_and_run(){
     return{
         name: "hit and run",
         pic: "hit_and_run.png",
-        id: "",
         descriptions: [
             "S"
         ],
@@ -909,7 +956,6 @@ function v(){
     return{
         name: "v",
         pic: "v.png",
-        id: "",
         descriptions: [
             "NE",
             "NW"
@@ -927,7 +973,6 @@ function push_back(){
     return{
         name: "push back",
         pic: "push_back.png",
-        id: "",
         descriptions: [
             "SE",
             "SW",
@@ -945,7 +990,6 @@ function fork(){
     return{
         name: "fork",
         pic: "fork.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -986,7 +1030,6 @@ function explosion(){
     return{
         name: "explosion",
         pic: "explosion.png",
-        id: "",
         descriptions: [
             "Explode"
         ],
@@ -999,7 +1042,6 @@ function breakthrough(){
     return{
         name: "breakthrough",
         pic: "breakthrough.png",
-        id: "",
         descriptions: [
             "N"
         ],
@@ -1015,7 +1057,6 @@ function flanking_diagonal(){
     return{
         name: "flanking diagonal",
         pic: "flanking_diagonal.png",
-        id: "",
         descriptions: [
             "NE",
             "NW"
@@ -1041,7 +1082,6 @@ function flanking_sideways(){
     return{
         name: "flanking sideways",
         pic: "flanking_sideways.png",
-        id: "",
         descriptions: [
             "E",
             "W"
@@ -1067,7 +1107,6 @@ function flanking_straight(){
     return{
         name: "flanking straight",
         pic: "flanking_straight.png",
-        id: "",
         descriptions: [
             "N",
             "S"
@@ -1093,7 +1132,6 @@ function pike(){
     return{
         name: "pike",
         pic: "pike.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -1117,11 +1155,14 @@ function pike(){
             
         ]
     }
-}class EntityList{
-    count
-    #player
-    #enemy_list
-    #id_count
+}// ----------------EntityList.js----------------
+// EntityList class is used by the GameMap class to keep track of entities without having to search through the map each time.
+
+class EntityList{
+    count // Keeps track of the number of entities currently in the class.
+    #player // Keeps track of the player postion.
+    #enemy_list // A list of each enemy currently on the board and their locations.
+    #id_count // Used to give each enemy a unique id as it is added.
     constructor(){
         this.count = 0;
         this.#id_count = 0;
@@ -1141,11 +1182,15 @@ function pike(){
         return {x: this.#player.x, y: this.#player.y};
     }
     add_enemy(x, y, enemy){
-        this.#enemy_list.push({x, y, enemy})
-        ++this.count
+        enemy.id = this.next_id();
+        this.#enemy_list.push({x, y, enemy});
+        ++this.count;
     }
     move_enemy(x, y, id){
         var index = this.#find_by_id(id);
+        if(index === -1){
+            throw new Error("id not found");
+        }
         this.#enemy_list[index].x = x;
         this.#enemy_list[index].y = y;
     }
@@ -1155,6 +1200,7 @@ function pike(){
             throw new Error("id not found");
         }
         this.#enemy_list = this.#enemy_list.slice(0, index).concat(this.#enemy_list.slice(index + 1, this.#enemy_list.length));
+        --this.count;
     }
     #find_by_id(id){
         for(var i = 0; i < this.#enemy_list.length; ++i){
@@ -1176,7 +1222,8 @@ function pike(){
         }
     }
     async enemy_turn(map){
-        // How to avoid multi turns via friendly fire shrinking the list?
+        // Triggers each enemy's behavior.
+        // Displays the game map between each.
         var turn = []
         for(var i = 0; i < this.#enemy_list.length; ++i){
             turn.push(this.#enemy_list[i]);
@@ -1191,7 +1238,7 @@ function pike(){
                 }
                 catch(error){
                     if(error.message === "game over"){
-                        throw new Error("game over", {cause: e.enemy.enemy_type});
+                        throw new Error("game over", {cause: e.enemy.name});
                     }
                     throw error;
                 }
@@ -1199,9 +1246,21 @@ function pike(){
         }
     }
 }
+// ----------------Floors.js----------------
+// File containing the functions for generating new floors.
+
 const BOSS_FLOOR = [velociphile_floor];
 
-function generate_floor(floor, map, enemies){
+function floor_generator(floor, map){
+    if(!(floor % 5 === 0)){
+        generate_normal_floor(floor, map, ENEMY_LIST);
+    }
+    else{
+        BOSS_FLOOR[Math.floor(floor / 5)](map);
+    }
+}
+
+function generate_normal_floor(floor, map, enemies){
     for(var i = floor * 2; i > 0;){
         var choice = Math.floor(Math.random() * enemies.length);
         var new_enemy = enemies[choice]();
@@ -1210,19 +1269,22 @@ function generate_floor(floor, map, enemies){
             i -= new_enemy.difficulty;
         }
     }
+    describe("Welcome to floor " + floor);
 }
 
 function velociphile_floor(map){
-}
-const GRID_SCALE = 30;
+}// ----------------GameMap.js----------------
+// GameMap class holds the information on the current floor and everything on it.
+
+const GRID_SCALE = 30; // Controls the size of tiles when the map is displayed.
 
 class GameMap{
-    #x_max;
-    #y_max;
-    #entity_list;
-    #grid;
-    #floor;
-    #turn_count;
+    #x_max; // Size of the grid's x axis.
+    #y_max; // Size of the grid's y axis.
+    #entity_list; // entity_list class makes keeping track of entity locations easier.
+    #grid; // Grid is a 2d list of tiles representing the entity in each location.
+    #floor; // The current floor number.
+    #turn_count; // How many turns the player has taken.
     constructor(x_max, y_max){
         this.#x_max = x_max;
         this.#y_max = y_max;
@@ -1231,6 +1293,8 @@ class GameMap{
         this.erase()
     }
     erase(player_health = -1){
+        // Function to start a new floor by erasing the board and adding only the player and the exit.
+        // Returns the floor number.
         this.#entity_list = new EntityList();
         this.#grid = [];
         for(var i = 0; i < this.#x_max; ++i){
@@ -1244,11 +1308,14 @@ class GameMap{
         return ++this.#floor;
     }
     random_space(){
+        // Returns a randome space in the grid.
         x = Math.floor(Math.random() * this.#x_max);
         y = Math.floor(Math.random() * this.#y_max);
         return {x, y};
     }
     random_empty(){
+        // Returns a random empty space in the grid.
+        // Throws an erro if the map is full.
         var num_empty = this.#x_max * this.#y_max - this.#entity_list.count;
         var rand = Math.floor(Math.random() * num_empty);
         if(num_empty === 0){
@@ -1266,6 +1333,7 @@ class GameMap{
         }
     }
     check_bounds(x, y){
+        // Throws an error if x or y is out of bounds.
         if(x < 0 || x >= this.#x_max){
             throw new Error("x out of bounds");
         }
@@ -1274,6 +1342,8 @@ class GameMap{
         }
     }
     check_empty(x, y){
+        // returns true if the space at grid[x, y] is empty.
+        // throws an error if the space is out of bounds.
         try{
             this.check_bounds(x, y);
         }
@@ -1283,6 +1353,8 @@ class GameMap{
         return this.#grid[x][y].type === "empty";
     }
     set_exit(exit_x, exit_y){
+        // Places the exit.
+        // Throws an error if the space is occupied or out of bounds..
         this.check_bounds(exit_x, exit_y);
         if(!this.check_empty(exit_x, exit_y)){
             throw new Error("space not empty");
@@ -1291,6 +1363,8 @@ class GameMap{
         ++this.#entity_list.count;
     }
     set_player(player_x, player_y, player_health = -1){
+        // Places the player. If a non-negative value is given for the player's health, it will be set to that.
+        // Throws an error is the space is occupied or out of bounds.
         this.check_bounds(player_x, player_y);
         if(!this.check_empty(player_x, player_y)){
             throw new Error("space not empty");
@@ -1304,6 +1378,8 @@ class GameMap{
         ++this.#entity_list.count;
     }
     add_tile(tile, x = -1, y = -1){
+        // Adds a new tile to a space.
+        // Returns true if it was added successfuly.
         try{
             if(x === -1 || y === -1){
                 var position = this.random_empty();
@@ -1320,14 +1396,15 @@ class GameMap{
         }
         this.#grid[x][y] = tile;
         if(tile.type === "enemy"){
-            tile.id = this.#entity_list.next_id();
             this.#entity_list.add_enemy(x, y, tile);
         }
         return true;
     }
     display(){
+        // Diplays the gamemap. Each element shows it's description and hp (if applicable) when clicked.
+        // If any empty tiles have been marked as hit, it resets the pic to empty.
+        // Shows the player's remaining health below.
 		var visual_map = document.getElementById("mapDisplay");
-        
         while(visual_map.rows.length > 0){
             visual_map.deleteRow(0);
         }
@@ -1359,6 +1436,11 @@ class GameMap{
         visual_map.append(row);
 	}
     move(x1, y1, x2, y2){
+        // Moves the tile at [x1, y1] to [x2, y2] if it is empty. 
+        // Triggers the attempted destination's on_move if applicable.
+        // Throws an error if the starting location is out of bounds.
+        // Returns true if the move was successful.
+        // Also throws errors if the player reaches the end of the floor or dies.
         this.check_bounds(x1, y1);
         try{
             this.check_bounds(x2, y2);
@@ -1373,7 +1455,18 @@ class GameMap{
             throw new Error("floor complete");
         }
         if(end.hasOwnProperty("on_enter")){
-            end.on_enter(x1, y1, this);
+            // If the destination does something if moved onto, call it.
+            try{
+                end.on_enter(x2, y2, x1 - x2, y1 - y2, this, end);
+            }
+            catch(error){
+                if(error.message === "game over"){
+                    throw new Error("game over", {cause: end.name});
+                }
+                else{
+                    throw error;
+                }
+            }
         }
         if(!(end.type === "empty")){
             return false;
@@ -1384,14 +1477,21 @@ class GameMap{
         return true;
     }
     player_move(x_dif, y_dif){
+        // Moves the player the given relative distance.
         var pos = this.#entity_list.get_player_pos();
         return this.move(pos.x, pos.y, pos.x + x_dif, pos.y + y_dif)
     }
     player_health(){
+        // Returns the player's health.
         var pos = this.#entity_list.get_player_pos();
         return this.#grid[pos.x][pos.y].health;
     }
     attack(x, y, hits = "all"){
+        // Attacks the specified square.
+        // hits specifes if the attacks only hits enemy, player or all tiles.
+        // If an enemy dies, it's on_death effect will be triggered if applicable.
+        // Throws an error if the location is out of bounds.
+        // Returns true if damage was dealt.
         try{
             this.check_bounds(x, y);
         }
@@ -1425,6 +1525,7 @@ class GameMap{
         return false;
     }
     player_attack(x_dif, y_dif){
+        // Attacks the given square relative to the player's current positon.
         var pos = this.#entity_list.get_player_pos();
         try{
             this.attack(pos.x + x_dif, pos.y + y_dif, "all");
@@ -1434,18 +1535,25 @@ class GameMap{
         }
     }
     async enemy_turn(){
+        // Causes each enemy to execute their behavior.
         this.#turn_count++;
         await this.#entity_list.enemy_turn(this);
     }
     display_stats(element){
+        // Shows the current floor and turn number.
         element.innerText = "Floor " + this.#floor + " Turn: " + this.#turn_count;
     }
-}const ANIMATION_DELAY = 300;
-const WELCOME_MESSAGE = "Welcome to the dungeon";
-const STARTING_ENEMY = ram_tile;
+}// ----------------Gameplay.js----------------
+// File contains functions that control the main gameplay.
+
+const ANIMATION_DELAY = 300; // Controls the length of time the map is displayed before moving onto the next entitie's turn in ms.
+const WELCOME_MESSAGE = "Welcome to the dungeon. Use cards to move (blue) and attack (red). " 
+                        + "Click on things to learn more about them."; // Message displayed at the start of the dungeon.
+const STARTING_ENEMY = spider_tile; // Controls the single enemy on the first floor.
 
 
 function setup(){
+    // Function ran on page load or on restart to set up the game.
     describe(WELCOME_MESSAGE);
     mapData = new GameMap(8, 8);  
     mapData.add_tile(STARTING_ENEMY());
@@ -1455,14 +1563,18 @@ function setup(){
     deck.display_hand(document.getElementById("handDisplay"));
 }
 function describe(description){
+    // Used to display text to the "displayMessage" element
     document.getElementById("displayMessage").innerText = description;
 }
 function clear_tb(element_id){
+    // Deletes all rows from the given html table.
     while(document.getElementById(element_id).rows.length > 0){
         document.getElementById(element_id).deleteRow(0);
     }
 }
 function prep_move(move, hand_pos){
+    // When the user clicks a card in their hand, this creates buttons they can use to pick their move
+    // from the options for that card.
     clear_tb("moveButtons");
     var row = document.createElement("tr");
     row.id = "buttons";
@@ -1478,8 +1590,10 @@ function prep_move(move, hand_pos){
     document.getElementById("moveButtons").append(row);
 }
 async function action(behavior, hand_pos){
+    // Function to execute the outcome of the player's turn.
     try{
         for(var i = 0; i < behavior.length; ++i){
+            // Does each valid command in the behavior list.
             if(behavior[i][0] === "attack"){
                 mapData.player_attack(behavior[i][1], behavior[i][2]);
             }
@@ -1490,26 +1604,31 @@ async function action(behavior, hand_pos){
                 throw new Error("invalid action type");
             }
         }
+        // Discards the card the user used.
         deck.discard(hand_pos);
         clear_tb("moveButtons");
         deck.display_hand(document.getElementById("handDisplay"));
         mapData.display();
         await delay(ANIMATION_DELAY);
+        // Does the enemies' turn.
         await mapData.enemy_turn();
         mapData.display();
+        // Update turn number.
         mapData.display_stats(document.getElementById("stats"))
     }
     catch (error){
         var m = error.message;
         if(m === "floor complete"){
+            // If the player has reached the end of the floor.
             mapData.display_stats(document.getElementById("stats"))
             modify_deck();
         }
         else if(m === "game over"){
+            // If the player's health reached 0
             game_over(error.cause);
-            
         }
         else if(m === "pass to player"){
+            // If the enemies' turn was interrupted.
             mapData.display();
             mapData.display_stats(document.getElementById("stats"))
         }
@@ -1519,23 +1638,21 @@ async function action(behavior, hand_pos){
     }
 }
 function new_floor(){
+    // Creates the next floor.
     clear_tb("modifyDeck");
     document.getElementById("currentDeck").innerText = "";
     clear_tb("displayDeck");
     var floor = mapData.erase(mapData.player_health());
-    if(true){//!(floor % 5 === 0)){
-        generate_floor(floor, mapData, ENEMY_LIST)
-    }
-    else{
-        BOSS_FLOOR[Math.floor(floor / 5)](mapData);
-    }
-    describe("");
+    floor_generator(floor, mapData);
     mapData.display_stats(document.getElementById("stats"));
     deck.deal();
     mapData.display();
     deck.display_hand(document.getElementById("handDisplay"));
 }
 function modify_deck(){
+    // Gives the player the option to add or remove a card from their deck.
+    // Their deck contents are also displayed.
+    // Options to remove cards will not be displayed if the deck is at the minimum size already.
     var add_list = [];
     var remove_list = [];
     var table = document.getElementById("modifyDeck");
@@ -1548,12 +1665,16 @@ function modify_deck(){
             remove_list.push(deck.get_rand());
         }
     }
-    catch{}
+    catch{
+        // deck.get_rand throws an error if the deck is at the minimum size, in which case they should not
+        // be able to remove more cards.
+    }
     clear_tb("mapDisplay");
     clear_tb("handDisplay");
     clear_tb("moveButtons");
     describe("Choose one card to add or remove");
-    
+
+    // Options to add.
     var add = function(card){return function(){
         deck.add(card);
         new_floor();
@@ -1562,7 +1683,12 @@ function modify_deck(){
     add_row.id = "add_row";
     var plus = make_cell("plus", "images/other/plus.png", HAND_SCALE);
     add_row.append(plus);
+    for(var i = 0; i < add_list.length; ++i){
+        var cell = make_cell("card " + i, "images/cards/" + add_list[i].pic, HAND_SCALE, add, add_list[i]);
+        add_row.append(cell);
+    }
 
+    // Options to Remove.
     var remove = function(card){return function(){
         deck.remove(card.id);
         new_floor();
@@ -1574,13 +1700,6 @@ function modify_deck(){
         minus = make_cell("x", "images/other/x.png", HAND_SCALE);
     }
     remove_row.append(minus);
-
-    for(var i = 0; i < add_list.length; ++i){
-        var cell = make_cell("card " + i, "images/cards/" + add_list[i].pic, HAND_SCALE, add, add_list[i]);
-        add_row.append(cell);
-    }
-    
-    
     for(var i = 0; i < remove_list.length; ++i){
         var cell = make_cell("card " + i, "images/cards/" + remove_list[i].pic, HAND_SCALE, remove, remove_list[i]);
         remove_row.append(cell);
@@ -1590,6 +1709,13 @@ function modify_deck(){
     table.append(remove_row);
 }
 function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
+    // Function to make a cell for a table.
+    //  id is the id the cell should get.
+    //  pic is the image source the cell should have.
+    //  size is the width and height of the image.
+    //  click is the onclick function.
+    //  param1 and param2 are the parameter that should be given to the onclick if they are provided.
+    // Returns the cell
     var cell = document.createElement("td");
     cell.id = id;
     var image = document.createElement("img");
@@ -1608,11 +1734,14 @@ function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 
     return cell;
 }
 function delay(ms){
+    // Function to wait the given number of milliseconds.
     return new Promise(resolve =>{
         setTimeout(resolve, ms);
     })
 }
 function game_over(cause){
+    // Tells the user the game is over, prevents them fro m continuing, tells them the cause
+    // and gives them the chance to retry.
     mapData.display();
     clear_tb("handDisplay");
     clear_tb("moveButtons");
@@ -1631,19 +1760,22 @@ function game_over(cause){
     cell.onclick = restart;
     row.append(cell);
     document.getElementById("moveButtons").append(row);
-}const HAND_SIZE = 3;
-const HAND_SCALE = 100;
-const ADD_CHOICES = 3;
-const REMOVE_CHOICES = 3;
-const DECK_MINIMUM = 5;
-const DECK_DISPLAY_WIDTH = 4;
+}// ----------------MoveDeck.js----------------
+// The MoveDeck class contains the player's current deck of move cards.
+
+const HAND_SIZE = 3; // The number of options available each turn.
+const HAND_SCALE = 100; // The size of the cards when they are displayed.
+const ADD_CHOICES = 3; // How many card options they get when adding cards.
+const REMOVE_CHOICES = 3; // How many card options they get when removing cards.
+const DECK_MINIMUM = 5; // The minimum number of cards they can have in their deck.
+const DECK_DISPLAY_WIDTH = 4; // How many cards shown per line when the deck is displayed.
 
 class MoveDeck{
-    #list;
-    #library;
-    #hand;
-    #discard_pile;
-    #id_count;
+    #list; // The list of all cards they have.
+    #library; // The list of cards in their draw pile.
+    #hand; // The list of cards curently usable.
+    #discard_pile; // The list of cards they have used since they reshuffled.
+    #id_count; // Used to give each card a unique id.
     constructor(){
         this.#list = [];
         this.#library = [];
@@ -1652,6 +1784,7 @@ class MoveDeck{
         this.#id_count = 0;
     }
     #shuffle(arr){
+        // returns a new array which is a randomly ordered version of the previous one.
         var new_arr = [];
         while(arr.length != 0){
             var ran = Math.floor(Math.random() * arr.length);
@@ -1662,6 +1795,7 @@ class MoveDeck{
         return new_arr;
     }
     deal(){
+        // Shuffles all cards together then deals a new hand.
         this.#library = [];
         this.#hand = [];
         this.#discard_pile = [];
@@ -1674,7 +1808,10 @@ class MoveDeck{
         }
     }
     discard(x){
-        if(x >= this.#hand.length){
+        // Makes player discard the card at position x from their hand and draw a new one. 
+        // If the library is empty, it will first shuffle in the discard. 
+        // Throws an error if x doens't correspond to a card in hand.
+        if(x >= this.#hand.length || x < 0){
             throw new Error("hand out of bounds");
         }
         if(this.#library.length === 0){
@@ -1687,17 +1824,20 @@ class MoveDeck{
         this.#hand[x] = this.#library.pop();
     }
     add(card){
+        // Adds a new card to the list.
         card.id = this.#id_count;
         this.#id_count++;
         this.#list.push(card);
     }
     add_temp(card){
+        // Adds a temp card which will be removed at the end of the floor by only adding it to the library, not the list
         card.id = this.#id_count;
         this.#id_count++;
         this.#library.push(card);
         this.#library = this.#shuffle(this.#library);
     }
     display_hand(table){
+        // Displays the hand to the given table.
         while(table.rows.length > 0){
             table.deleteRow(0);
         }
@@ -1711,7 +1851,8 @@ class MoveDeck{
         table.append(row);
     }
     display_all(table){
-        document.getElementById("currentDeck").innerText = "Current Deck:";
+        // Displays the deck list to the given table.
+        document.getElementById("currentDeck").innerText = "Current Deck (minimum " + DECK_MINIMUM + "):";
         for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
             var row = document.createElement("tr");
             for(var j = 0; j < DECK_DISPLAY_WIDTH && j + i * DECK_DISPLAY_WIDTH < this.#list.length; ++j){
@@ -1722,12 +1863,16 @@ class MoveDeck{
         }
     }
     get_rand(){
+        // gets a random card in the deck.
+        // Throws an error if the deck is at it's minimum size.
         if(this.#list.length <= DECK_MINIMUM){
             throw new Error("deck minimum reached");
         }
         return this.#list[Math.floor(Math.random() * this.#list.length)];
     }
     remove(id){
+        // Removes the card with the given id from the deck.
+        // Returns false if it could not be found.
         for(var i = 0; i < this.#list.length; ++i){
             if(this.#list[i].id === id){
                 this.#list[i] = this.#list[this.#list.length - 1];
@@ -1737,7 +1882,20 @@ class MoveDeck{
         }
         return false;
     }
-}const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
+}// ----------------Tiles.js----------------
+// This file contains the functions to generate tiles representing things on the game_map.
+
+// Fields (not all are used by each tile):
+//  type: the category this tile falls under (empty, exit, player, enemy, terrain)
+//  name: necessary if it can deal damage or the type has multiple tiles.
+//  pic: the picture representing this tile. May be an array if the picture changes.
+//  health: how many hits it takes to kill this tile.
+//  difficulty: how much it costs the floor generator to spawn this.
+//  behavior: the logic for what this tile does on it's turn.
+//  description: info that will be displayed when the user clicks on the tile.
+
+// This is a list of all the enemies that can be spawned on a normal floor.
+const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
     spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile, brightling_tile];
 
 function empty_tile(){
@@ -1757,6 +1915,7 @@ function exit_tile(){
 function player_tile(){
     return {
         type: "player",
+        name: "player",
         pic: "helmet.png",
         health: 3,
         description: player_description
@@ -1765,9 +1924,8 @@ function player_tile(){
 function spider_tile(){
     return {
         type: "enemy",
-        enemy_type: "spider",
+        name: "spider",
         pic: "spider.png",
-        id: "",
         health: 1,
         difficulty: 1,
         behavior: spider_ai,
@@ -1777,9 +1935,8 @@ function spider_tile(){
 function turret_h_tile(){
     return {
         type: "enemy",
-        enemy_type: "turret",
+        name: "turret",
         pic: "turret_h.png",
-        id: "",
         health: 1,
         difficulty: 2,
         behavior: turret_h_ai,
@@ -1789,9 +1946,8 @@ function turret_h_tile(){
 function turret_d_tile(){
     return {
         type: "enemy",
-        enemy_type: "turret",
+        name: "turret",
         pic: "turret_d.png",
-        id: "",
         health: 1,
         difficulty: 2,
         behavior: turret_d_ai,
@@ -1801,9 +1957,8 @@ function turret_d_tile(){
 function scythe_tile(){
     return{
         type: "enemy",
-        enemy_type: "scythe",
+        name: "scythe",
         pic: "scythe_se.png",
-        id: "",
         health: 1,
         difficulty: 3,
         behavior: scythe_ai,
@@ -1813,9 +1968,8 @@ function scythe_tile(){
 function knight_tile(){
     return{
         type: "enemy",
-        enemy_type: "knight",
+        name: "knight",
         pic: "knight.png",
-        id: "",
         health: 2,
         difficulty: 4,
         behavior: knight_ai,
@@ -1826,11 +1980,10 @@ function spider_web_tile(){
     spawn_timer = 2
     return{
         type: "enemy",
-        enemy_type: "spider egg",
+        name: "spider egg",
         pic: "spider_web.png",
         cycle: 0,
         spawn_timer,
-        id: "",
         health: 2,
         difficulty: 4,
         behavior: spider_web_ai,
@@ -1842,11 +1995,10 @@ function ram_tile(){
     var starting_cycle = 0;
     return{
         type: "enemy",
-        enemy_type: "ram",
+        name: "ram",
         pic: pic_arr[starting_cycle],
         pic_arr,
         cycle: starting_cycle,
-        id: "",
         health: 2,
         difficulty: 5,
         behavior: ram_ai,
@@ -1856,9 +2008,8 @@ function ram_tile(){
 function large_porcuslime_tile(){
     return {
         type: "enemy",
-        enemy_type: "porcuslime",
+        name: "porcuslime",
         pic: "large_porcuslime.png",
-        id: "",
         health: 3,
         difficulty: 8,
         behavior: large_porcuslime_ai,
@@ -1870,11 +2021,10 @@ function medium_porcuslime_tile(){
     var pic_arr = ["medium_h_porcuslime.png", "medium_d_porcuslime.png"];
     return {
         type: "enemy",
-        enemy_type: "medium porcuslime",
+        name: "medium porcuslime",
         pic: pic_arr[ran],
         pic_arr,
         cycle: ran,
-        id: "",
         health: 2,
         difficulty: 5,
         behavior: medium_porcuslime_ai,
@@ -1884,9 +2034,8 @@ function medium_porcuslime_tile(){
 function small_h_porcuslime_tile(){
     return {
         type: "enemy",
-        enemy_type: "small porcuslime",
+        name: "small porcuslime",
         pic: "small_h_porcuslime.png",
-        id: "",
         health: 1,
         difficulty: 3,
         behavior: small_h_porcuslime_ai,
@@ -1896,9 +2045,8 @@ function small_h_porcuslime_tile(){
 function small_d_porcuslime_tile(){
     return {
         type: "enemy",
-        enemy_type: "small porcuslime",
+        name: "small porcuslime",
         pic: "small_d_porcuslime.png",
-        id: "",
         health: 1,
         difficulty: 3,
         behavior: small_d_porcuslime_ai,
@@ -1908,9 +2056,8 @@ function small_d_porcuslime_tile(){
 function acid_bug_tile(){
     return {
         type: "enemy",
-        enemy_type: "acid bug",
+        name: "acid bug",
         pic: "acid_bug.png",
-        id: "",
         health: 1,
         difficulty: 3,
         behavior: acid_bug_ai,
@@ -1920,20 +2067,20 @@ function acid_bug_tile(){
 }
 function lava_pool_tile(){
     return {
-        type: "lava_pool",
+        type: "terrain",
+        name: "lava pool",
         pic: "lava_pool.png",
         description: lava_pool_description,
-        on_enter: lava_pool_enter
+        on_enter: hazard
     }
 }
 function brightling_tile(){
     var starting_cycle = 0;
     return{
         type: "enemy",
-        enemy_type: "brightling",
+        name: "brightling",
         pic: "brightling.png",
         cycle: starting_cycle,
-        id: "",
         health: 1,
         difficulty: 4,
         behavior: brightling_ai,
@@ -1941,14 +2088,11 @@ function brightling_tile(){
     }
 }
 
-
-
 function velociphile_tile(){
     return{
         type: "enemy",
-        enemy_type: "velociphile",
+        name: "velociphile",
         pic: "velociphile.png",
-        id: "",
         health: 3,
         difficulty: "boss",
         behavior: velociphile_ai,
@@ -1956,6 +2100,7 @@ function velociphile_tile(){
     }
 }
 
+// Descriptions
 const empty_description = "There is nothing here.";
 const exit_description = "Stairs to the next floor.";
 const player_description = "You.";
@@ -1974,6 +2119,4 @@ const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no
 const lava_pool_description = "Lava Pool: Attempting to move through this will hurt."
 const brightling_description = "Brightling: Will occasionally teleport the player close to it before teleoprting away the next turn."
 
-
 const velociphile_description = "Velociphile (Boss): A rolling ball o mouths and hate. Moves in straight lines attacking when it hits things.";
-

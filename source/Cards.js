@@ -1,3 +1,19 @@
+// ----------------Cards.js----------------
+// File containing the logic for each card.
+
+// Keys:
+//  name: the name of the card.
+//  pic: the picture used to represent the card in game.
+//  descriptions: list of descriptions put on the buttons the user uses for their decisions.
+//  behavior: list of command groups which will be performed when the user clicks on the corresponding button
+
+// The relative order of descriptions and behavior should match.
+// The current commands are:
+//  ["move", x, y]: moves the player relative to their position.
+//  ["attack", x, y]: attacks relative to the player's position.
+
+
+// List of the options that can be given on level up.
 const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_left, 
                     step_right, trample, horsemanship, lunge_left, lunge_right, 
                     sprint, trident, whack, spin_attack, butterfly, 
@@ -6,6 +22,7 @@ const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_lef
                     fork, explosion, breakthrough, flanking_diagonal, flanking_sideways,
                     flanking_straight, pike];
 
+// Makes the starting deck
 function make_starting_deck(){
     deck = new MoveDeck();
 
@@ -21,6 +38,7 @@ function make_starting_deck(){
     deck.deal();
     return deck;
 }
+// Makes a deck for testing new cards.
 function make_test_deck(){
     deck = new MoveDeck();
     var start = 30;
@@ -33,11 +51,11 @@ function make_test_deck(){
     return deck;
 }
 
+// basic_horizontal and basic_diagonal are unique to the starting deck.
 function basic_horizontal(){
     return{
         name: "basic horizontal",
         pic: "basic_horizontal.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -57,7 +75,6 @@ function basic_diagonal(){
     return{
         name: "basic diagonal",
         pic: "basic_diagonal.png",
-        id: "",
         descriptions: [
             "NE",
             "SE",
@@ -77,7 +94,6 @@ function slice(){
     return{
         name: "slice",
         pic: "slice.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -107,7 +123,6 @@ function short_charge(){
     return{
         name: "short charge",
         pic: "short_charge.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -133,7 +148,6 @@ function jump(){
     return{
         name: "jump",
         pic: "jump.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -153,7 +167,6 @@ function straight_charge(){
     return{
         name: "straight charge",
         pic: "straight_charge.png",
-        id: "",
         descriptions: [
             "N",
             "S"
@@ -173,7 +186,6 @@ function side_charge(){
     return{
         name: "side charge",
         pic: "side_charge.png",
-        id: "",
         descriptions: [
             "E",
             "W"
@@ -193,7 +205,6 @@ function step_left(){
     return{
         name: "step left",
         pic: "step_left.png",
-        id: "",
         descriptions: [
             "NW",
             "W",
@@ -211,7 +222,6 @@ function step_right(){
     return{
         name: "step right",
         pic: "step_right.png",
-        id: "",
         descriptions: [
             "NE",
             "E",
@@ -229,7 +239,6 @@ function trample(){
     return{
         name: "trample",
         pic: "trample.png",
-        id: "",
         descriptions: [
             "NE",
             "NW"
@@ -247,7 +256,6 @@ function horsemanship(){
     return{
         name: "horsemanship",
         pic: "horsemanship.png",
-        id: "",
         descriptions: [
             "NE",
             "SE",
@@ -267,7 +275,6 @@ function lunge_left(){
     return{
         name: "lunge left",
         pic: "lunge_left.png",
-        id: "",
         descriptions: [
             "SE",
             "NW"
@@ -286,7 +293,6 @@ function lunge_right(){
     return{
         name: "lunge right",
         pic: "lunge_right.png",
-        id: "",
         descriptions: [
             "SW",
             "NE"
@@ -305,7 +311,6 @@ function sprint(){
     return{
         name: "sprint",
         pic: "sprint.png",
-        id: "",
         descriptions: [
             "N"
         ],
@@ -320,7 +325,6 @@ function trident(){
     return{
         name: "trident",
         pic: "trident.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -346,7 +350,6 @@ function whack(){
     return{
         name: "whack",
         pic: "whack.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -373,7 +376,6 @@ function spin_attack(){
     return{
         name: "spin attack",
         pic: "spin_attack.png",
-        id: "",
         descriptions: ["spin"],
         behavior: [
             [["attack", 1, 1],
@@ -391,7 +393,6 @@ function butterfly(){
     return{
         name: "butterfly",
         pic: "butterfly.png",
-        id: "",
         descriptions: [
             "NE",
             "SE",
@@ -411,7 +412,6 @@ function retreat(){
     return{
         name: "retreat",
         pic: "retreat.png",
-        id: "",
         descriptions: [
             "SE", 
             "S",
@@ -432,7 +432,6 @@ function force(){
     return{
         name: "force",
         pic: "force.png",
-        id: "",
         descriptions: [
             "N",
         ],
@@ -448,7 +447,6 @@ function side_attack(){
     return{
         name: "side attack",
         pic: "side_attack.png",
-        id: "",
         descriptions: [
             "E",
             "W"
@@ -468,7 +466,6 @@ function clear_behind(){
     return{
         name: "clear behind",
         pic: "clear_behind.png",
-        id: "",
         descriptions: [
             "S"
         ],
@@ -486,7 +483,6 @@ function spear_slice(){
     return{
         name: "spear slice",
         pic: "spear_slice.png",
-        id: "",
         descriptions: [
             "N", 
         ],
@@ -503,7 +499,6 @@ function jab(){
     return{
         name: "jab",
         pic: "jab.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -529,7 +524,6 @@ function overcome(){
     return{
         name: "overcome",
         pic: "overcome.png",
-        id: "",
         descriptions: [
             "N",
             "S"
@@ -552,7 +546,6 @@ function hit_and_run(){
     return{
         name: "hit and run",
         pic: "hit_and_run.png",
-        id: "",
         descriptions: [
             "S"
         ],
@@ -568,7 +561,6 @@ function v(){
     return{
         name: "v",
         pic: "v.png",
-        id: "",
         descriptions: [
             "NE",
             "NW"
@@ -586,7 +578,6 @@ function push_back(){
     return{
         name: "push back",
         pic: "push_back.png",
-        id: "",
         descriptions: [
             "SE",
             "SW",
@@ -604,7 +595,6 @@ function fork(){
     return{
         name: "fork",
         pic: "fork.png",
-        id: "",
         descriptions: [
             "N",
             "E",
@@ -645,7 +635,6 @@ function explosion(){
     return{
         name: "explosion",
         pic: "explosion.png",
-        id: "",
         descriptions: [
             "Explode"
         ],
@@ -658,7 +647,6 @@ function breakthrough(){
     return{
         name: "breakthrough",
         pic: "breakthrough.png",
-        id: "",
         descriptions: [
             "N"
         ],
@@ -674,7 +662,6 @@ function flanking_diagonal(){
     return{
         name: "flanking diagonal",
         pic: "flanking_diagonal.png",
-        id: "",
         descriptions: [
             "NE",
             "NW"
@@ -700,7 +687,6 @@ function flanking_sideways(){
     return{
         name: "flanking sideways",
         pic: "flanking_sideways.png",
-        id: "",
         descriptions: [
             "E",
             "W"
@@ -726,7 +712,6 @@ function flanking_straight(){
     return{
         name: "flanking straight",
         pic: "flanking_straight.png",
-        id: "",
         descriptions: [
             "N",
             "S"
@@ -752,7 +737,6 @@ function pike(){
     return{
         name: "pike",
         pic: "pike.png",
-        id: "",
         descriptions: [
             "N",
             "E",
