@@ -277,7 +277,10 @@ class GameMap{
     }
     unlock(){
         // Unlocks the stairs after a boss fight.
+        // Fully heals the player
         var pos = this.#entity_list.get_exit_pos();
         this.#grid[pos.x][pos.y] = exit_tile();
+        pos = this.#entity_list.get_player_pos();
+        this.#grid[pos.x][pos.y].health = this.#grid[pos.x][pos.y].max_health;
     }
 }

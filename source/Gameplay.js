@@ -60,12 +60,12 @@ async function action(behavior, hand_pos){
                 throw new Error("invalid action type");
             }
         }
+        describe("");
         // Discards the card the user used.
         deck.discard(hand_pos);
         clear_tb("moveButtons");
         deck.display_hand(document.getElementById("handDisplay"));
         mapData.display();
-        describe("");
         await delay(ANIMATION_DELAY);
         // Does the enemies' turn.
         await mapData.enemy_turn();

@@ -346,7 +346,7 @@ function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     map.attack(x + direction[0], y + direction[1]);
 }
 function velociphile_death(x, y, x_dif, y_dif, map, enemy){
-    describe("All falls silent as the Velociphile is defeated.\n The exit unlocks.")
+    describe("The wailing falls silent as the Velociphile is defeated.\n" + boss_death_description)
     map.unlock();
 }
 

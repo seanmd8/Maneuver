@@ -346,7 +346,7 @@ function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     map.attack(x + direction[0], y + direction[1]);
 }
 function velociphile_death(x, y, x_dif, y_dif, map, enemy){
-    describe("All falls silent as the Velociphile is defeated.\n The exit unlocks.")
+    describe("The wailing falls silent as the Velociphile is defeated.\n" + boss_death_description)
     map.unlock();
 }
 
@@ -356,7 +356,7 @@ function hazard(x, y, x_dif, y_dif, map, enemy){
 }
 function wall_death(x, y, x_dif, y_dif, map, enemy){
     var spawn_list = [spider_tile, acid_bug_tile, spider_web_tile];
-    if(Math.floor(Math.random() * 10) < 10){
+    if(Math.floor(Math.random() * 7) < 10){
         var ran = Math.floor(Math.random() * spawn_list.length);
         var new_enemy = spawn_list[ran]();
         new_enemy.stun = 1;
@@ -1593,8 +1593,11 @@ class GameMap{
     }
     unlock(){
         // Unlocks the stairs after a boss fight.
+        // Fully heals the player
         var pos = this.#entity_list.get_exit_pos();
         this.#grid[pos.x][pos.y] = exit_tile();
+        pos = this.#entity_list.get_player_pos();
+        this.#grid[pos.x][pos.y].health = this.#grid[pos.x][pos.y].max_health;
     }
 }// ----------------Gameplay.js----------------
 // File contains functions that control the main gameplay.
@@ -1658,12 +1661,12 @@ async function action(behavior, hand_pos){
                 throw new Error("invalid action type");
             }
         }
+        describe("");
         // Discards the card the user used.
         deck.discard(hand_pos);
         clear_tb("moveButtons");
         deck.display_hand(document.getElementById("handDisplay"));
         mapData.display();
-        describe("");
         await delay(ANIMATION_DELAY);
         // Does the enemies' turn.
         await mapData.enemy_turn();
@@ -1945,6 +1948,7 @@ class MoveDeck{
 //  name: necessary if it can deal damage or the type has multiple tiles.
 //  pic: the picture representing this tile. May be an array if the picture changes.
 //  health: how many hits it takes to kill this tile.
+//  max_health: prevents healing from increasing health above here.
 //  difficulty: how much it costs the floor generator to spawn this.
 //  behavior: the logic for what this tile does on it's turn.
 //  description: info that will be displayed when the user clicks on the tile.
@@ -1976,11 +1980,13 @@ function lock_tile(){
     }
 }
 function player_tile(){
+    var starting_health = 3;
     return {
         type: "player",
         name: "player",
         pic: "helmet.png",
-        health: 3,
+        health: starting_health,
+        max_health: starting_health,
         description: player_description
     }
 }
@@ -2210,3 +2216,5 @@ const lava_pool_description = "Lava Pool: Attempting to move through this will h
 const wall_description = "A wall. It seems sturdy."
 const damaged_wall_description = "A wall. It is damaged. something might live inside."
 const lock_description = "The exit is locked. Defeat the boss to continue."
+
+const boss_death_description = "The exit opens.\nYou feel your wounds begin to heal."

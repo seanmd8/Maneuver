@@ -6,6 +6,7 @@
 //  name: necessary if it can deal damage or the type has multiple tiles.
 //  pic: the picture representing this tile. May be an array if the picture changes.
 //  health: how many hits it takes to kill this tile.
+//  max_health: prevents healing from increasing health above here.
 //  difficulty: how much it costs the floor generator to spawn this.
 //  behavior: the logic for what this tile does on it's turn.
 //  description: info that will be displayed when the user clicks on the tile.
@@ -37,11 +38,13 @@ function lock_tile(){
     }
 }
 function player_tile(){
+    var starting_health = 3;
     return {
         type: "player",
         name: "player",
         pic: "helmet.png",
-        health: 3,
+        health: starting_health,
+        max_health: starting_health,
         description: player_description
     }
 }
@@ -271,3 +274,5 @@ const lava_pool_description = "Lava Pool: Attempting to move through this will h
 const wall_description = "A wall. It seems sturdy."
 const damaged_wall_description = "A wall. It is damaged. something might live inside."
 const lock_description = "The exit is locked. Defeat the boss to continue."
+
+const boss_death_description = "The exit opens.\nYou feel your wounds begin to heal."
