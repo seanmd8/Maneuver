@@ -296,10 +296,7 @@ function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
         map.attack(x + attacks[i][0], y + attacks[i][1]);
     }
 }
-function hazard(x, y, x_dif, y_dif, map, enemy){
-    // hazard function to retaliate if something moves onto it.
-    map.attack(x + x_dif, y + y_dif);
-}
+
 function brightling_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.cycle === -1){
         // teleports to a random empty space, then cycle goes to 1.
@@ -348,7 +345,28 @@ function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     }
     map.attack(x + direction[0], y + direction[1]);
 }
+function velociphile_death(x, y, x_dif, y_dif, map, enemy){
+    describe("All falls silent as the Velociphile is defeated.\n The exit unlocks.")
+    map.unlock();
+}
 
+function hazard(x, y, x_dif, y_dif, map, enemy){
+    // hazard function to retaliate if something moves onto it.
+    map.attack(x + x_dif, y + y_dif);
+}
+function wall_death(x, y, x_dif, y_dif, map, enemy){
+    var spawn_list = [spider_tile, acid_bug_tile, spider_web_tile];
+    if(Math.floor(Math.random() * 10) < 10){
+        var ran = Math.floor(Math.random() * spawn_list.length);
+        var new_enemy = spawn_list[ran]();
+        new_enemy.stun = 1;
+        map.add_tile(new_enemy, x, y);
+    }
+}
+
+function dummy_ai(x, y, x_dif, y_dif, map, enemy){
+    // Does nothing. Used for testing.
+}
 
 // -----Utility functions used mainly by this file-----
 function sign(x){

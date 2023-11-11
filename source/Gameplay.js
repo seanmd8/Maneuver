@@ -2,7 +2,8 @@
 // File contains functions that control the main gameplay.
 
 const ANIMATION_DELAY = 300; // Controls the length of time the map is displayed before moving onto the next entitie's turn in ms.
-const WELCOME_MESSAGE = "Welcome to the dungeon. Use cards to move (blue) and attack (red). " 
+const WELCOME_MESSAGE = "Welcome to the dungeon.\n"
+                        + "Use cards to move (blue) and attack (red).\n" 
                         + "Click on things to learn more about them."; // Message displayed at the start of the dungeon.
 const STARTING_ENEMY = spider_tile; // Controls the single enemy on the first floor.
 
@@ -64,6 +65,7 @@ async function action(behavior, hand_pos){
         clear_tb("moveButtons");
         deck.display_hand(document.getElementById("handDisplay"));
         mapData.display();
+        describe("");
         await delay(ANIMATION_DELAY);
         // Does the enemies' turn.
         await mapData.enemy_turn();

@@ -296,10 +296,7 @@ function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
         map.attack(x + attacks[i][0], y + attacks[i][1]);
     }
 }
-function hazard(x, y, x_dif, y_dif, map, enemy){
-    // hazard function to retaliate if something moves onto it.
-    map.attack(x + x_dif, y + y_dif);
-}
+
 function brightling_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.cycle === -1){
         // teleports to a random empty space, then cycle goes to 1.
@@ -348,7 +345,28 @@ function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     }
     map.attack(x + direction[0], y + direction[1]);
 }
+function velociphile_death(x, y, x_dif, y_dif, map, enemy){
+    describe("All falls silent as the Velociphile is defeated.\n The exit unlocks.")
+    map.unlock();
+}
 
+function hazard(x, y, x_dif, y_dif, map, enemy){
+    // hazard function to retaliate if something moves onto it.
+    map.attack(x + x_dif, y + y_dif);
+}
+function wall_death(x, y, x_dif, y_dif, map, enemy){
+    var spawn_list = [spider_tile, acid_bug_tile, spider_web_tile];
+    if(Math.floor(Math.random() * 10) < 10){
+        var ran = Math.floor(Math.random() * spawn_list.length);
+        var new_enemy = spawn_list[ran]();
+        new_enemy.stun = 1;
+        map.add_tile(new_enemy, x, y);
+    }
+}
+
+function dummy_ai(x, y, x_dif, y_dif, map, enemy){
+    // Does nothing. Used for testing.
+}
 
 // -----Utility functions used mainly by this file-----
 function sign(x){
@@ -1161,25 +1179,36 @@ function pike(){
 class EntityList{
     count // Keeps track of the number of entities currently in the class.
     #player // Keeps track of the player postion.
+    #exit // Keeps track of the position of the exit.
     #enemy_list // A list of each enemy currently on the board and their locations.
     #id_count // Used to give each enemy a unique id as it is added.
     constructor(){
-        this.count = 0;
+        this.count = 2;
         this.#id_count = 0;
         this.#player = 0;
+        this.#exit = 0;
         this.#enemy_list = [];
     }
     next_id(){
         return ++this.#id_count;
     }
     set_player(x, y){
-        this.#player = {x, y}
+        this.#player = {x, y};
     }
     get_player_pos(){
         if(this.#player === 0){
             throw new Error("player doesn't exist");
         }
         return {x: this.#player.x, y: this.#player.y};
+    }
+    set_exit(x, y){
+        this.#exit = {x, y};
+    }
+    get_exit_pos(){
+        if(this.#player === 0){
+            throw new Error("exit doesn't exist");
+        }
+        return {x: this.#exit.x, y: this.#exit.y};
     }
     add_enemy(x, y, enemy){
         enemy.id = this.next_id();
@@ -1232,9 +1261,14 @@ class EntityList{
             var e = turn[i];
             if(!(this.#find_by_id(e.enemy.id) === -1)){
                 try{
-                    e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
-                    map.display();
-                    await delay(ANIMATION_DELAY);
+                    if(e.enemy.hasOwnProperty("stun") && e.enemy.stun > 0){
+                        --e.enemy.stun;
+                    }
+                    else{
+                        e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+                        map.display();
+                        await delay(ANIMATION_DELAY);
+                    }
                 }
                 catch(error){
                     if(error.message === "game over"){
@@ -1252,11 +1286,11 @@ class EntityList{
 const BOSS_FLOOR = [velociphile_floor];
 
 function floor_generator(floor, map){
-    if(!(floor % 5 === 0)){
+    if(!(floor % 5 === 0) || Math.floor(floor / 5) - 1 >= BOSS_FLOOR.length){
         generate_normal_floor(floor, map, ENEMY_LIST);
     }
     else{
-        BOSS_FLOOR[Math.floor(floor / 5)](map);
+        BOSS_FLOOR[Math.floor(floor / 5) - 1](floor, map);
     }
 }
 
@@ -1269,10 +1303,17 @@ function generate_normal_floor(floor, map, enemies){
             i -= new_enemy.difficulty;
         }
     }
-    describe("Welcome to floor " + floor);
+    describe("Welcome to floor " + floor + ".");
 }
 
-function velociphile_floor(map){
+function velociphile_floor(floor, map){
+    map.add_tile(velociphile_tile());
+    map.lock();
+    for(var i = 0; i < 8; ++i){
+        map.add_tile(wall_tile());
+        map.add_tile(damaged_wall_tile());
+    }
+    describe("Welcome to floor " + floor + ".\nYou hear a deafening shriek.")
 }// ----------------GameMap.js----------------
 // GameMap class holds the information on the current floor and everything on it.
 
@@ -1288,7 +1329,7 @@ class GameMap{
     constructor(x_max, y_max){
         this.#x_max = x_max;
         this.#y_max = y_max;
-        this.#floor = 1;
+        this.#floor = 0;
         this.#turn_count = 0;
         this.erase()
     }
@@ -1359,8 +1400,8 @@ class GameMap{
         if(!this.check_empty(exit_x, exit_y)){
             throw new Error("space not empty");
         }
+        this.#entity_list.set_exit(exit_x, exit_y);
         this.#grid[exit_x][exit_y] = exit_tile();
-        ++this.#entity_list.count;
     }
     set_player(player_x, player_y, player_health = -1){
         // Places the player. If a non-negative value is given for the player's health, it will be set to that.
@@ -1375,11 +1416,11 @@ class GameMap{
             player.health = player_health;
         }
         this.#grid[player_x][player_y] = player;
-        ++this.#entity_list.count;
     }
     add_tile(tile, x = -1, y = -1){
         // Adds a new tile to a space.
         // Returns true if it was added successfuly.
+        // If x or y aren't provided, it will select a random empty space.
         try{
             if(x === -1 || y === -1){
                 var position = this.random_empty();
@@ -1416,7 +1457,7 @@ class GameMap{
             }};
 			for (var x = 0; x < this.#x_max; x++){
                 var tile_description = this.#grid[x][y].description;
-                if(this.#grid[x][y].type === "player" || this.#grid[x][y].type === "enemy"){
+                if(this.#grid[x][y].hasOwnProperty("health")){
                     tile_description = "(" + this.#grid[x][y].health + " hp) " + tile_description;
                 }
                 var cell = make_cell(x + " " + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, tile_description);
@@ -1499,12 +1540,14 @@ class GameMap{
             return false;
         }
         var target = this.#grid[x][y];
-        if(target.type === "enemy" && (hits === "enemy" || hits === "all")){
+        if(target.hasOwnProperty("health") && !(target.type === "player") && (hits === "enemy" || hits === "all")){
             target.health -= 1;
             if(target.health === 0){
                 this.#grid[x][y] = empty_tile()
                 this.#grid[x][y].pic = "hit.png";
-                this.#entity_list.remove_enemy(target.id)
+                if(target.type === "enemy"){
+                    this.#entity_list.remove_enemy(target.id)
+                }
                 if(target.hasOwnProperty("on_death")){
                     var player_pos = this.#entity_list.get_player_pos();
                     target.on_death(x, y, player_pos[0] - x, player_pos[1] - y, this, target);
@@ -1543,11 +1586,22 @@ class GameMap{
         // Shows the current floor and turn number.
         element.innerText = "Floor " + this.#floor + " Turn: " + this.#turn_count;
     }
+    lock(){
+        // Locks the stairs for a boss fight.
+        var pos = this.#entity_list.get_exit_pos();
+        this.#grid[pos.x][pos.y] = lock_tile();
+    }
+    unlock(){
+        // Unlocks the stairs after a boss fight.
+        var pos = this.#entity_list.get_exit_pos();
+        this.#grid[pos.x][pos.y] = exit_tile();
+    }
 }// ----------------Gameplay.js----------------
 // File contains functions that control the main gameplay.
 
 const ANIMATION_DELAY = 300; // Controls the length of time the map is displayed before moving onto the next entitie's turn in ms.
-const WELCOME_MESSAGE = "Welcome to the dungeon. Use cards to move (blue) and attack (red). " 
+const WELCOME_MESSAGE = "Welcome to the dungeon.\n"
+                        + "Use cards to move (blue) and attack (red).\n" 
                         + "Click on things to learn more about them."; // Message displayed at the start of the dungeon.
 const STARTING_ENEMY = spider_tile; // Controls the single enemy on the first floor.
 
@@ -1609,6 +1663,7 @@ async function action(behavior, hand_pos){
         clear_tb("moveButtons");
         deck.display_hand(document.getElementById("handDisplay"));
         mapData.display();
+        describe("");
         await delay(ANIMATION_DELAY);
         // Does the enemies' turn.
         await mapData.enemy_turn();
@@ -1912,6 +1967,14 @@ function exit_tile(){
         description: exit_description
     }
 }
+function lock_tile(){
+    return {
+        type: "terrain",
+        name: "lock",
+        pic: "lock.png",
+        description: lock_description
+    }
+}
 function player_tile(){
     return {
         type: "player",
@@ -1921,6 +1984,7 @@ function player_tile(){
         description: player_description
     }
 }
+
 function spider_tile(){
     return {
         type: "enemy",
@@ -2065,15 +2129,6 @@ function acid_bug_tile(){
         description: acid_bug_description
     }
 }
-function lava_pool_tile(){
-    return {
-        type: "terrain",
-        name: "lava pool",
-        pic: "lava_pool.png",
-        description: lava_pool_description,
-        on_enter: hazard
-    }
-}
 function brightling_tile(){
     var starting_cycle = 0;
     return{
@@ -2093,10 +2148,41 @@ function velociphile_tile(){
         type: "enemy",
         name: "velociphile",
         pic: "velociphile.png",
-        health: 3,
+        health: 4,
         difficulty: "boss",
         behavior: velociphile_ai,
+        on_death: velociphile_death,
         description: velociphile_description
+    }
+}
+
+function lava_pool_tile(){
+    return {
+        type: "terrain",
+        name: "lava pool",
+        pic: "lava_pool.png",
+        description: lava_pool_description,
+        on_enter: hazard
+    }
+}
+function wall_tile(){
+    return {
+        type: "terrain",
+        name: "wall",
+        pic: "wall.png",
+        description: wall_description
+    }
+}
+function damaged_wall_tile(){
+    var health = Math.ceil(Math.random() * 2);
+    return {
+        type: "terrain",
+        name: "damaged wall",
+        pic: "damaged_wall.png",
+        health,
+        on_death: wall_death,
+        description: damaged_wall_description
+
     }
 }
 
@@ -2116,7 +2202,11 @@ const medium_porcuslime_description = "Medium Porcuslime: Moves towards the play
 const small_h_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction."
 const small_d_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction."
 const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it."
-const lava_pool_description = "Lava Pool: Attempting to move through this will hurt."
 const brightling_description = "Brightling: Will occasionally teleport the player close to it before teleoprting away the next turn."
 
-const velociphile_description = "Velociphile (Boss): A rolling ball o mouths and hate. Moves in straight lines attacking when it hits things.";
+const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves in straight lines. Must build up speed to ram you.";
+
+const lava_pool_description = "Lava Pool: Attempting to move through this will hurt."
+const wall_description = "A wall. It seems sturdy."
+const damaged_wall_description = "A wall. It is damaged. something might live inside."
+const lock_description = "The exit is locked. Defeat the boss to continue."

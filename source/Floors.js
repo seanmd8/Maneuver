@@ -4,11 +4,11 @@
 const BOSS_FLOOR = [velociphile_floor];
 
 function floor_generator(floor, map){
-    if(true){//!(floor % 5 === 0)){
+    if(!(floor % 5 === 0) || Math.floor(floor / 5) - 1 >= BOSS_FLOOR.length){
         generate_normal_floor(floor, map, ENEMY_LIST);
     }
     else{
-        BOSS_FLOOR[Math.floor(floor / 5)](map);
+        BOSS_FLOOR[Math.floor(floor / 5) - 1](floor, map);
     }
 }
 
@@ -21,8 +21,15 @@ function generate_normal_floor(floor, map, enemies){
             i -= new_enemy.difficulty;
         }
     }
-    describe("Welcome to floor " + floor);
+    describe("Welcome to floor " + floor + ".");
 }
 
-function velociphile_floor(map){
+function velociphile_floor(floor, map){
+    map.add_tile(velociphile_tile());
+    map.lock();
+    for(var i = 0; i < 8; ++i){
+        map.add_tile(wall_tile());
+        map.add_tile(damaged_wall_tile());
+    }
+    describe("Welcome to floor " + floor + ".\nYou hear a deafening shriek.")
 }

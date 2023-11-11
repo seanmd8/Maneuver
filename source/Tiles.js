@@ -28,6 +28,14 @@ function exit_tile(){
         description: exit_description
     }
 }
+function lock_tile(){
+    return {
+        type: "terrain",
+        name: "lock",
+        pic: "lock.png",
+        description: lock_description
+    }
+}
 function player_tile(){
     return {
         type: "player",
@@ -37,6 +45,7 @@ function player_tile(){
         description: player_description
     }
 }
+
 function spider_tile(){
     return {
         type: "enemy",
@@ -181,15 +190,6 @@ function acid_bug_tile(){
         description: acid_bug_description
     }
 }
-function lava_pool_tile(){
-    return {
-        type: "terrain",
-        name: "lava pool",
-        pic: "lava_pool.png",
-        description: lava_pool_description,
-        on_enter: hazard
-    }
-}
 function brightling_tile(){
     var starting_cycle = 0;
     return{
@@ -209,10 +209,41 @@ function velociphile_tile(){
         type: "enemy",
         name: "velociphile",
         pic: "velociphile.png",
-        health: 3,
+        health: 4,
         difficulty: "boss",
         behavior: velociphile_ai,
+        on_death: velociphile_death,
         description: velociphile_description
+    }
+}
+
+function lava_pool_tile(){
+    return {
+        type: "terrain",
+        name: "lava pool",
+        pic: "lava_pool.png",
+        description: lava_pool_description,
+        on_enter: hazard
+    }
+}
+function wall_tile(){
+    return {
+        type: "terrain",
+        name: "wall",
+        pic: "wall.png",
+        description: wall_description
+    }
+}
+function damaged_wall_tile(){
+    var health = Math.ceil(Math.random() * 2);
+    return {
+        type: "terrain",
+        name: "damaged wall",
+        pic: "damaged_wall.png",
+        health,
+        on_death: wall_death,
+        description: damaged_wall_description
+
     }
 }
 
@@ -232,7 +263,11 @@ const medium_porcuslime_description = "Medium Porcuslime: Moves towards the play
 const small_h_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction."
 const small_d_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction."
 const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it."
-const lava_pool_description = "Lava Pool: Attempting to move through this will hurt."
 const brightling_description = "Brightling: Will occasionally teleport the player close to it before teleoprting away the next turn."
 
-const velociphile_description = "Velociphile (Boss): A rolling ball o mouths and hate. Moves in straight lines attacking when it hits things.";
+const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves in straight lines. Must build up speed to ram you.";
+
+const lava_pool_description = "Lava Pool: Attempting to move through this will hurt."
+const wall_description = "A wall. It seems sturdy."
+const damaged_wall_description = "A wall. It is damaged. something might live inside."
+const lock_description = "The exit is locked. Defeat the boss to continue."

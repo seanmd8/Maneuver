@@ -4,25 +4,36 @@
 class EntityList{
     count // Keeps track of the number of entities currently in the class.
     #player // Keeps track of the player postion.
+    #exit // Keeps track of the position of the exit.
     #enemy_list // A list of each enemy currently on the board and their locations.
     #id_count // Used to give each enemy a unique id as it is added.
     constructor(){
-        this.count = 0;
+        this.count = 2;
         this.#id_count = 0;
         this.#player = 0;
+        this.#exit = 0;
         this.#enemy_list = [];
     }
     next_id(){
         return ++this.#id_count;
     }
     set_player(x, y){
-        this.#player = {x, y}
+        this.#player = {x, y};
     }
     get_player_pos(){
         if(this.#player === 0){
             throw new Error("player doesn't exist");
         }
         return {x: this.#player.x, y: this.#player.y};
+    }
+    set_exit(x, y){
+        this.#exit = {x, y};
+    }
+    get_exit_pos(){
+        if(this.#player === 0){
+            throw new Error("exit doesn't exist");
+        }
+        return {x: this.#exit.x, y: this.#exit.y};
     }
     add_enemy(x, y, enemy){
         enemy.id = this.next_id();
@@ -75,9 +86,14 @@ class EntityList{
             var e = turn[i];
             if(!(this.#find_by_id(e.enemy.id) === -1)){
                 try{
-                    e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
-                    map.display();
-                    await delay(ANIMATION_DELAY);
+                    if(e.enemy.hasOwnProperty("stun") && e.enemy.stun > 0){
+                        --e.enemy.stun;
+                    }
+                    else{
+                        e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+                        map.display();
+                        await delay(ANIMATION_DELAY);
+                    }
                 }
                 catch(error){
                     if(error.message === "game over"){

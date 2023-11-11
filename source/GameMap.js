@@ -13,7 +13,7 @@ class GameMap{
     constructor(x_max, y_max){
         this.#x_max = x_max;
         this.#y_max = y_max;
-        this.#floor = 1;
+        this.#floor = 0;
         this.#turn_count = 0;
         this.erase()
     }
@@ -84,8 +84,8 @@ class GameMap{
         if(!this.check_empty(exit_x, exit_y)){
             throw new Error("space not empty");
         }
+        this.#entity_list.set_exit(exit_x, exit_y);
         this.#grid[exit_x][exit_y] = exit_tile();
-        ++this.#entity_list.count;
     }
     set_player(player_x, player_y, player_health = -1){
         // Places the player. If a non-negative value is given for the player's health, it will be set to that.
@@ -100,11 +100,11 @@ class GameMap{
             player.health = player_health;
         }
         this.#grid[player_x][player_y] = player;
-        ++this.#entity_list.count;
     }
     add_tile(tile, x = -1, y = -1){
         // Adds a new tile to a space.
         // Returns true if it was added successfuly.
+        // If x or y aren't provided, it will select a random empty space.
         try{
             if(x === -1 || y === -1){
                 var position = this.random_empty();
@@ -141,7 +141,7 @@ class GameMap{
             }};
 			for (var x = 0; x < this.#x_max; x++){
                 var tile_description = this.#grid[x][y].description;
-                if(this.#grid[x][y].type === "player" || this.#grid[x][y].type === "enemy"){
+                if(this.#grid[x][y].hasOwnProperty("health")){
                     tile_description = "(" + this.#grid[x][y].health + " hp) " + tile_description;
                 }
                 var cell = make_cell(x + " " + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, tile_description);
@@ -224,12 +224,14 @@ class GameMap{
             return false;
         }
         var target = this.#grid[x][y];
-        if(target.type === "enemy" && (hits === "enemy" || hits === "all")){
+        if(target.hasOwnProperty("health") && !(target.type === "player") && (hits === "enemy" || hits === "all")){
             target.health -= 1;
             if(target.health === 0){
                 this.#grid[x][y] = empty_tile()
                 this.#grid[x][y].pic = "hit.png";
-                this.#entity_list.remove_enemy(target.id)
+                if(target.type === "enemy"){
+                    this.#entity_list.remove_enemy(target.id)
+                }
                 if(target.hasOwnProperty("on_death")){
                     var player_pos = this.#entity_list.get_player_pos();
                     target.on_death(x, y, player_pos[0] - x, player_pos[1] - y, this, target);
@@ -267,5 +269,15 @@ class GameMap{
     display_stats(element){
         // Shows the current floor and turn number.
         element.innerText = "Floor " + this.#floor + " Turn: " + this.#turn_count;
+    }
+    lock(){
+        // Locks the stairs for a boss fight.
+        var pos = this.#entity_list.get_exit_pos();
+        this.#grid[pos.x][pos.y] = lock_tile();
+    }
+    unlock(){
+        // Unlocks the stairs after a boss fight.
+        var pos = this.#entity_list.get_exit_pos();
+        this.#grid[pos.x][pos.y] = exit_tile();
     }
 }
