@@ -1,7 +1,7 @@
 // ----------------GameMap.js----------------
 // GameMap class holds the information on the current floor and everything on it.
 
-const GRID_SCALE = 30; // Controls the size of tiles when the map is displayed.
+const GRID_SCALE = 28; // Controls the size of tiles when the map is displayed.
 
 class GameMap{
     #x_max; // Size of the grid's x axis.

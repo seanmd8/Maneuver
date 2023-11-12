@@ -28,23 +28,6 @@ function clear_tb(element_id){
         document.getElementById(element_id).deleteRow(0);
     }
 }
-function prep_move(move, hand_pos){
-    // When the user clicks a card in their hand, this creates buttons they can use to pick their move
-    // from the options for that card.
-    clear_tb("moveButtons");
-    var row = document.createElement("tr");
-    row.id = "buttons";
-    for(var i = 0; i < move.descriptions.length; ++i){
-        var cell = document.createElement("input");
-        cell.type = "button"
-        cell.name = move.descriptions[i];
-        cell.value = move.descriptions[i];
-        var act = function(behavior, hand_pos){return function(){action(behavior, hand_pos)}};
-        cell.onclick = act(move.behavior[i], hand_pos);
-        row.append(cell);
-    }
-    document.getElementById("moveButtons").append(row);
-}
 async function action(behavior, hand_pos){
     // Function to execute the outcome of the player's turn.
     try{
@@ -62,8 +45,8 @@ async function action(behavior, hand_pos){
         }
         describe("");
         // Discards the card the user used.
-        deck.discard(hand_pos);
         clear_tb("moveButtons");
+        deck.discard(hand_pos);
         deck.display_hand(document.getElementById("handDisplay"));
         mapData.display();
         await delay(ANIMATION_DELAY);

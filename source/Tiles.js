@@ -212,7 +212,7 @@ function velociphile_tile(){
         type: "enemy",
         name: "velociphile",
         pic: "velociphile.png",
-        health: 4,
+        health: 3,
         difficulty: "boss",
         behavior: velociphile_ai,
         on_death: velociphile_death,
@@ -259,7 +259,7 @@ const turret_h_description = "Turret: Does not move. Fires beams orthogonally th
 const turret_d_description = "Turret: Does not move. Fires beams diagonally that hit the first thing in their path.";
 const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
 const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
-const spider_web_description = ["Spider egg: Does not move. Spawns a spider every ", " turns."];
+const spider_web_description = ["Spider Web: Does not move. Spawns a spider every ", " turns."];
 const ram_description = "Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.";
 const large_porcuslime_description = "Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when hit."
 const medium_porcuslime_description = "Medium Porcuslime: Moves towards the player 1 space and attacks in that direction. Alternates between orthoganal and diagonal movement. Splits when hit."
