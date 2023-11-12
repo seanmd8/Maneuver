@@ -12,15 +12,14 @@
 
 
 function spider_ai(x, y, x_dif, y_dif, map, enemy){
-    if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
+    if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
         // If the player is next to it, attack.
         map.attack(x + x_dif, y + y_dif, "player");
     }
     else{
-        // Otherwise attempt to move closer.
-        x_dif = sign(x_dif);
-        y_dif = sign(y_dif);
-        map.move(x, y, x + x_dif, y + y_dif);
+        // Otherwise, move closer.
+        var directions = order_nearby(sign(x_dif), sign(y_dif));
+        for(var i = 0; i < directions.length && !map.move(x, y, x + directions[i][0], y + directions[i][1]); ++i){}
     }
 }
 function turret_h_ai(x, y, x_dif, y_dif, map, enemy){
@@ -382,14 +381,50 @@ function sign(x){
 function random_nearby(){
     // Returns an array of each point next to [0, 0] with it's order randomized.
     var cords = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
-    var ran_cords = [];
-    while(cords.length > 0){
-        var index = Math.floor(Math.random() * cords.length);
-        ran_cords.push(cords[index]);
-        cords[index] = cords[cords.length - 1];
-        cords.pop();
+    return randomize_arr(cords);
+}
+function order_nearby(x, y){
+    // Returns an array with points ordered from the nearest to the furthest from the given direction. 
+    // Equal distance points are randomly ordered.
+    var ordering = [];
+    ordering.push([x, y]);
+    if(x === 0){
+        var pair = randomize_arr([[1, y], [-1, y]]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        pair = randomize_arr([[1, 0], [-1, 0]])
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        pair = randomize_arr([[1, -1 * y], [-1, -1 * y]]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        ordering.push([0, -1 * y])
     }
-    return ran_cords;
+    else if(y === 0){
+        var pair = randomize_arr([[x, 1], [x, 1]]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        pair = randomize_arr([[0, 1], [0, -1]])
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        pair = randomize_arr([[-1 * x, 1], [-1 * x, -1]]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        ordering.push([-1 * x, 0])
+    }
+    else{
+        var pair = randomize_arr([[x, 0], [0, y]]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        pair = randomize_arr([[-1 * x, y], [x, -1 * y]]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        pair = randomize_arr([[-1 * x, 0], [0, -1 * y]]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        ordering.push([-1 * x, -1 * y]);
+    }
+    return ordering;
 }
 function random_sign(){
     // Randomly returns 1 or -1.
@@ -411,14 +446,32 @@ function convert_direction(x, y){
         str += "w";
     }
     return str;
+}
+function randomize_arr(arr){
+    arr = copy_arr(arr);
+    var random_arr = [];
+    while(arr.length > 0){
+        var index = Math.floor(Math.random() * arr.length);
+        random_arr.push(arr[index]);
+        arr[index] = arr[arr.length - 1];
+        arr.pop();
+    }
+    return random_arr;
+}
+function copy_arr(arr){
+    var arr2 = [];
+    for(var i = 0; i < arr.length; ++i){
+        arr2[i] = arr[i];
+    }
+    return arr2;
 }// ----------------ButtonGrid.js----------------
 // The ButtonGrid class is used to keep track of the possible moves a card has.
 class ButtonGrid{
     buttons; // A 3x3 2d array used to store the options.
     constructor(){
-        this.buttons =  [[0, 0, 0],
-                    [0, 0, 0], 
-                    [0, 0, 0]];
+        this.buttons = [[0, 0, 0],
+                        [0, 0, 0], 
+                        [0, 0, 0]];
     }
     add_button(description, commands, number = -1){
         // Adds a description and a list of commands to one of the buttons.
@@ -1015,14 +1068,15 @@ class EntityList{
 // ----------------Floors.js----------------
 // File containing the functions for generating new floors.
 
+const AREA_SIZE = 5;
 const BOSS_FLOOR = [velociphile_floor];
 
 function floor_generator(floor, map){
-    if(!(floor % 5 === 0) || Math.floor(floor / 5) - 1 >= BOSS_FLOOR.length){
+    if(!(floor % AREA_SIZE === 0) || Math.floor(floor / AREA_SIZE) - 1 >= BOSS_FLOOR.length){
         generate_normal_floor(floor, map, ENEMY_LIST);
     }
     else{
-        BOSS_FLOOR[Math.floor(floor / 5) - 1](floor, map);
+        BOSS_FLOOR[Math.floor(floor / AREA_SIZE) - 1](floor, map);
     }
 }
 

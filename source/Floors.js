@@ -1,14 +1,15 @@
 // ----------------Floors.js----------------
 // File containing the functions for generating new floors.
 
+const AREA_SIZE = 5;
 const BOSS_FLOOR = [velociphile_floor];
 
 function floor_generator(floor, map){
-    if(!(floor % 5 === 0) || Math.floor(floor / 5) - 1 >= BOSS_FLOOR.length){
+    if(!(floor % AREA_SIZE === 0) || Math.floor(floor / AREA_SIZE) - 1 >= BOSS_FLOOR.length){
         generate_normal_floor(floor, map, ENEMY_LIST);
     }
     else{
-        BOSS_FLOOR[Math.floor(floor / 5) - 1](floor, map);
+        BOSS_FLOOR[Math.floor(floor / AREA_SIZE) - 1](floor, map);
     }
 }
 

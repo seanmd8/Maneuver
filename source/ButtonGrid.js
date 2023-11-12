@@ -3,9 +3,9 @@
 class ButtonGrid{
     buttons; // A 3x3 2d array used to store the options.
     constructor(){
-        this.buttons =  [[0, 0, 0],
-                    [0, 0, 0], 
-                    [0, 0, 0]];
+        this.buttons = [[0, 0, 0],
+                        [0, 0, 0], 
+                        [0, 0, 0]];
     }
     add_button(description, commands, number = -1){
         // Adds a description and a list of commands to one of the buttons.
