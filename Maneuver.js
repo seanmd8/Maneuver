@@ -411,16 +411,20 @@ function convert_direction(x, y){
         str += "w";
     }
     return str;
-}
+}// ----------------ButtonGrid.js----------------
+// The ButtonGrid class is used to keep track of the possible moves a card has.
 class ButtonGrid{
-    buttons;
+    buttons; // A 3x3 2d array used to store the options.
     constructor(){
         this.buttons =  [[0, 0, 0],
                     [0, 0, 0], 
                     [0, 0, 0]];
     }
     add_button(description, commands, number = -1){
+        // Adds a description and a list of commands to one of the buttons.
+        // Throws error of the button number is out of range.
         if(number === -1){
+            // If the button that should be edited is not provided, it will be infered from the description if possible.
             number = this.#convert_direction(description);
         }
         if(number < 1 || number > 9){
@@ -430,6 +434,8 @@ class ButtonGrid{
         this.buttons[Math.floor((number - 1) / 3)][(number - 1) % 3] = button;
     }
     show_buttons(table_name, hand_pos){
+        // Displays the 3x3 grid to the given table.
+        // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
         clear_tb(table_name);
         for(var i = 0; i < this.buttons.length; ++i){
             var row = document.createElement("tr");
@@ -438,12 +444,14 @@ class ButtonGrid{
                 var cell = document.createElement("input");
                 cell.type = "button";
                 if(!(this.buttons[i][j] === 0)){
+                    // If the button has info, that description and list of commands will be used.
                     cell.name = this.buttons[i][j][0];
                     cell.value = this.buttons[i][j][0];
                     var act = function(behavior, hand_pos){return function(){action(behavior, hand_pos)}};
                     cell.onclick = act(this.buttons[i][j][1], hand_pos);
                 }
                 else{
+                    // If it doesn't have info, a "--" button with no onclick will be used.
                     cell.name = "--";
                     cell.value = "--";
                 }
@@ -453,6 +461,8 @@ class ButtonGrid{
         }
     }
     #convert_direction(direction){
+        // Converts a short direction string into the number of the button it should use.
+        // Returns -1 if the string doesn't match one in the list.
         var dir_list = ["NW", "N", "NE", "W", "C", "E", "SW", "S", "SE"];
         for(var i = 0; i < dir_list.length; ++i){
             if(direction === dir_list[i]){
@@ -467,10 +477,8 @@ class ButtonGrid{
 // Keys:
 //  name: the name of the card.
 //  pic: the picture used to represent the card in game.
-//  descriptions: list of descriptions put on the buttons the user uses for their decisions.
-//  behavior: list of command groups which will be performed when the user clicks on the corresponding button
+//  options: a ButtonGrid object containing info on which descriptions and onclick functionality the card's buttons should have.
 
-// The relative order of descriptions and behavior should match.
 // The current commands are:
 //  ["move", x, y]: moves the player relative to their position.
 //  ["attack", x, y]: attacks relative to the player's position.
@@ -1908,7 +1916,7 @@ const turret_h_description = "Turret: Does not move. Fires beams orthogonally th
 const turret_d_description = "Turret: Does not move. Fires beams diagonally that hit the first thing in their path.";
 const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
 const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
-const spider_web_description = ["Spider web: Does not move. Spawns a spider every ", " turns."];
+const spider_web_description = ["Spider Web: Does not move. Spawns a spider every ", " turns."];
 const ram_description = "Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.";
 const large_porcuslime_description = "Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when hit."
 const medium_porcuslime_description = "Medium Porcuslime: Moves towards the player 1 space and attacks in that direction. Alternates between orthoganal and diagonal movement. Splits when hit."
