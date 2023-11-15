@@ -556,14 +556,16 @@ class ButtonGrid{
 
 
 // List of the options that can be given on level up.
-const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_left, 
-                    step_right, trample, horsemanship, lunge_left, lunge_right, 
-                    sprint, trident, whack_horizontal, spin_attack, butterfly, 
-                    retreat, force, side_attack, clear_behind, spear_slice, 
-                    jab, overcome, hit_and_run, push_back, fork,
-                    explosion, breakthrough, flanking_diagonal, flanking_sideways, flanking_straight,
-                    pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
-                    thwack];
+const CARD_CHOICES = [
+    short_charge, jump, straight_charge, side_charge, step_left, 
+    step_right, trample, horsemanship, lunge_left, lunge_right, 
+    sprint, trident, whack_horizontal, spin_attack, butterfly, 
+    retreat, force, side_attack, clear_behind, spear_slice, 
+    jab, overcome, hit_and_run, push_back, fork,
+    explosion, breakthrough, flanking_diagonal, flanking_sideways, flanking_straight,
+    pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
+    thwack, overcome_sideways, y_leap, diamond_slice, spearhead
+];
 
 // Makes the starting deck
 function make_starting_deck(){
@@ -594,7 +596,7 @@ function make_test_deck(){
     return deck;
 }
 
-// basic_horizontal and basic_diagonal are unique to the starting deck.
+// basic_horizontal,  basic_diagonal, and slice are unique to the starting deck.
 function basic_horizontal(){
     var options = new ButtonGrid();
     options.add_button(N, [["move", 0, -1]]);
@@ -1023,7 +1025,56 @@ function thwack(){
         pic: "thwack.png",
         options
     }
-}// ----------------Descriptions.js----------------
+}
+function overcome_sideways(){
+    var options = new ButtonGrid();
+    options.add_button(E, [["attack", 1, 1], ["attack", 1, 0], ["attack", 1, -1], ["move", 2, 0]]);
+    options.add_button(W, [["attack", -1, 1], ["attack", -1, 0], ["attack", -1, -1], ["move", -2, 0]]);
+    return{
+        name: "overcome sideways",
+        pic: "overcome_sideways.png",
+        options
+    }
+}
+function y_leap(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [["move", 2, -2]]);
+    options.add_button(NW, [["move", -2, -2]]);
+    options.add_button(S, [["move", 0, 2]]);
+    return{
+        name: "Y leap",
+        pic: "y_leap.png",
+        options
+    }
+}
+function diamond_slice(){
+    var options = new ButtonGrid();
+    var spin = [["attack", 1, 1],
+                ["attack", 2, 0],
+                ["attack", 1, -1],
+                ["attack", 0, 2],
+                ["attack", 0, -2],
+                ["attack", -1, 1],
+                ["attack", -2, 0],
+                ["attack", -1, -1]]
+    options.add_button("Spin", spin, 5);
+    return{
+        name: "diamond slice",
+        pic: "diamond_slice.png",
+        options
+    }
+}
+function spearhead(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [["move", 1, -1], ["attack", 1, -1], ["attack", 1, 0], ["attack", 0, -1]]);
+    options.add_button(NW, [["move", -1, -1], ["attack", -1, -1], ["attack", -1, 0], ["attack", 0, -1]]);
+    return{
+        name: "spearhead",
+        pic: "spearhead.png",
+        options
+    }
+}
+// ----------------Descriptions.js----------------
 // Contains text that will be displayed.
 
 // General.
