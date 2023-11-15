@@ -315,6 +315,17 @@ function brightling_ai(x, y, x_dif, y_dif, map, enemy){
         ++enemy.cycle;
     }
 }
+function corrosive_caterpillar_ai(x, y, x_dif, y_dif, map, enemy){
+    var direction = get_empty_nearby(x, y, random_nearby(), map);
+    if(!(direction === false)){
+        if(map.move(x, y, x + direction[0], y + direction[1])){
+            map.add_tile(corrosive_slime_tile(), x, y);
+        }
+    }
+}
+function corrosive_caterpillar_death(x, y, x_dif, y_dif, map, enemy){
+    map.add_tile(corrosive_slime_tile(), x, y);
+}
 
 // Boss AIs
 function boss_death(x, y, x_dif, y_dif, map, enemy){
@@ -322,22 +333,21 @@ function boss_death(x, y, x_dif, y_dif, map, enemy){
     map.unlock();
 }
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
+    // Moves towards the player 2/3 of the time, otherwise moves randomly.
     var directions = order_nearby(x_dif, y_dif);
     if(Math.floor(Math.random() * 3) === 0){
         directions = randomize_arr(directions);
     }
-    // Aims towards player.
-    var direction = directions[0];
-    // Reselects direction until it finds one that is unobstructed.
-    for(var i = 1; !map.check_empty(x + direction[0], y + direction[1]) && i < directions.length; ++i){
-        direction = directions[i];
+    // Direction is reselected until an unobstructed one is found.
+    var direction = get_empty_nearby(x, y, directions, map);
+    if(!(direction === false)){
+        // Moves in the chosen direction until it hits something, which it then attacks.
+        while(map.move(x, y, x + direction[0], y + direction[1])){
+            x += direction[0];
+            y += direction[1];
+        }
+        map.attack(x + direction[0], y + direction[1]);
     }
-    // Moves in the chosen direction until it hits something which it then attacks.
-    while(map.move(x, y, x + direction[0], y + direction[1])){
-        x += direction[0];
-        y += direction[1];
-    }
-    map.attack(x + direction[0], y + direction[1]);
 }
 function spider_queen_hit(x, y, x_dif, y_dif, map, enemy){
     // Spawns a new spider nearby. Stuns it so it won't move right away.
@@ -450,6 +460,14 @@ function order_nearby(x_dir, y_dir){
         ordering.push([-1 * x_dir, -1 * y_dir]);
     }
     return ordering;
+}
+function get_empty_nearby(x, y, nearby_arr, map){
+    for(var i = 0; i < nearby_arr.length; ++i){
+        if(map.check_empty(x + nearby_arr[i][0], x + nearby_arr[i][1])){
+            return nearby_arr[i];
+        }
+    }
+    return false;
 }
 function spawn_nearby(map, tile, x, y){
     // Attempts to spawn a <tile> at a random space next to to the given cords.
@@ -1096,7 +1114,9 @@ const medium_porcuslime_description = "Medium Porcuslime: Moves towards the play
 const small_h_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction.";
 const small_d_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction.";
 const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it.";
-const brightling_description = "Brightling: Will occasionally teleport the player close to it before teleoprting away the next turn.";
+const brightling_description = "Brightling: Is not aggressive. Will occasionally teleport the player close to it before teleoprting away the next turn.";
+const corrosive_caterpillar_description = "Corrosive Caterpillar: Is not aggressive. Leaves a trail of corrosive slime behind it when it moves or dies.";
+
 
 // Boss Descriptions.
 const boss_death_description = "The exit opens.\n"
@@ -1114,6 +1134,7 @@ const empty_description = "There is nothing here.";
 const exit_description = "Stairs to the next floor.";
 const player_description = "You.";
 const lava_pool_description = "Lava Pool: Attempting to move through this will hurt.";
+const corrosive_slime_description = "Corrosive Slime: Trying to walk in this will hurt. Clear it out by attacking.";
 const wall_description = "A wall. It seems sturdy.";
 const damaged_wall_description = "A damaged wall. Something might live inside.";
 const lock_description = "The exit is locked. Defeat the boss to continue.";
@@ -1911,7 +1932,8 @@ class MoveDeck{
 
 // This is a list of all the enemies that can be spawned on a normal floor.
 const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
-    spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile, brightling_tile];
+    spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile,
+    brightling_tile, corrosive_caterpillar_tile];
 
 // Non-Enemy tiles
 function empty_tile(){
@@ -1953,6 +1975,16 @@ function lava_pool_tile(){
         name: "lava pool",
         pic: "lava_pool.png",
         description: lava_pool_description,
+        on_enter: hazard
+    }
+}
+function corrosive_slime_tile(){
+    return {
+        type: "terrain",
+        name: "corrosive_slime",
+        pic: "corrosive_slime.png",
+        health: 1,
+        description: corrosive_slime_description,
         on_enter: hazard
     }
 }
@@ -2133,6 +2165,18 @@ function brightling_tile(){
         difficulty: 4,
         behavior: brightling_ai,
         description: brightling_description
+    }
+}
+function corrosive_caterpillar_tile(){
+    return {
+        type: "enemy",
+        name: "corrosive caterpillar",
+        pic: "corrosive_caterpillar.png",
+        health: 1,
+        difficulty: 2,
+        behavior: corrosive_caterpillar_ai,
+        on_death: corrosive_caterpillar_death,
+        description: corrosive_caterpillar_description
     }
 }
 

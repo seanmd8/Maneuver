@@ -13,7 +13,8 @@
 
 // This is a list of all the enemies that can be spawned on a normal floor.
 const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
-    spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile, brightling_tile];
+    spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile,
+    brightling_tile, corrosive_caterpillar_tile];
 
 // Non-Enemy tiles
 function empty_tile(){
@@ -55,6 +56,16 @@ function lava_pool_tile(){
         name: "lava pool",
         pic: "lava_pool.png",
         description: lava_pool_description,
+        on_enter: hazard
+    }
+}
+function corrosive_slime_tile(){
+    return {
+        type: "terrain",
+        name: "corrosive_slime",
+        pic: "corrosive_slime.png",
+        health: 1,
+        description: corrosive_slime_description,
         on_enter: hazard
     }
 }
@@ -235,6 +246,18 @@ function brightling_tile(){
         difficulty: 4,
         behavior: brightling_ai,
         description: brightling_description
+    }
+}
+function corrosive_caterpillar_tile(){
+    return {
+        type: "enemy",
+        name: "corrosive caterpillar",
+        pic: "corrosive_caterpillar.png",
+        health: 1,
+        difficulty: 2,
+        behavior: corrosive_caterpillar_ai,
+        on_death: corrosive_caterpillar_death,
+        description: corrosive_caterpillar_description
     }
 }
 

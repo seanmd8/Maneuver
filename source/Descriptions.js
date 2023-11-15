@@ -20,7 +20,9 @@ const medium_porcuslime_description = "Medium Porcuslime: Moves towards the play
 const small_h_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction.";
 const small_d_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction.";
 const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it.";
-const brightling_description = "Brightling: Will occasionally teleport the player close to it before teleoprting away the next turn.";
+const brightling_description = "Brightling: Is not aggressive. Will occasionally teleport the player close to it before teleoprting away the next turn.";
+const corrosive_caterpillar_description = "Corrosive Caterpillar: Is not aggressive. Leaves a trail of corrosive slime behind it when it moves or dies.";
+
 
 // Boss Descriptions.
 const boss_death_description = "The exit opens.\n"
@@ -38,6 +40,7 @@ const empty_description = "There is nothing here.";
 const exit_description = "Stairs to the next floor.";
 const player_description = "You.";
 const lava_pool_description = "Lava Pool: Attempting to move through this will hurt.";
+const corrosive_slime_description = "Corrosive Slime: Trying to walk in this will hurt. Clear it out by attacking.";
 const wall_description = "A wall. It seems sturdy.";
 const damaged_wall_description = "A damaged wall. Something might live inside.";
 const lock_description = "The exit is locked. Defeat the boss to continue.";

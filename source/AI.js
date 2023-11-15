@@ -315,6 +315,17 @@ function brightling_ai(x, y, x_dif, y_dif, map, enemy){
         ++enemy.cycle;
     }
 }
+function corrosive_caterpillar_ai(x, y, x_dif, y_dif, map, enemy){
+    var direction = get_empty_nearby(x, y, random_nearby(), map);
+    if(!(direction === false)){
+        if(map.move(x, y, x + direction[0], y + direction[1])){
+            map.add_tile(corrosive_slime_tile(), x, y);
+        }
+    }
+}
+function corrosive_caterpillar_death(x, y, x_dif, y_dif, map, enemy){
+    map.add_tile(corrosive_slime_tile(), x, y);
+}
 
 // Boss AIs
 function boss_death(x, y, x_dif, y_dif, map, enemy){
@@ -322,22 +333,21 @@ function boss_death(x, y, x_dif, y_dif, map, enemy){
     map.unlock();
 }
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
+    // Moves towards the player 2/3 of the time, otherwise moves randomly.
     var directions = order_nearby(x_dif, y_dif);
     if(Math.floor(Math.random() * 3) === 0){
         directions = randomize_arr(directions);
     }
-    // Aims towards player.
-    var direction = directions[0];
-    // Reselects direction until it finds one that is unobstructed.
-    for(var i = 1; !map.check_empty(x + direction[0], y + direction[1]) && i < directions.length; ++i){
-        direction = directions[i];
+    // Direction is reselected until an unobstructed one is found.
+    var direction = get_empty_nearby(x, y, directions, map);
+    if(!(direction === false)){
+        // Moves in the chosen direction until it hits something, which it then attacks.
+        while(map.move(x, y, x + direction[0], y + direction[1])){
+            x += direction[0];
+            y += direction[1];
+        }
+        map.attack(x + direction[0], y + direction[1]);
     }
-    // Moves in the chosen direction until it hits something which it then attacks.
-    while(map.move(x, y, x + direction[0], y + direction[1])){
-        x += direction[0];
-        y += direction[1];
-    }
-    map.attack(x + direction[0], y + direction[1]);
 }
 function spider_queen_hit(x, y, x_dif, y_dif, map, enemy){
     // Spawns a new spider nearby. Stuns it so it won't move right away.
@@ -450,6 +460,14 @@ function order_nearby(x_dir, y_dir){
         ordering.push([-1 * x_dir, -1 * y_dir]);
     }
     return ordering;
+}
+function get_empty_nearby(x, y, nearby_arr, map){
+    for(var i = 0; i < nearby_arr.length; ++i){
+        if(map.check_empty(x + nearby_arr[i][0], x + nearby_arr[i][1])){
+            return nearby_arr[i];
+        }
+    }
+    return false;
 }
 function spawn_nearby(map, tile, x, y){
     // Attempts to spawn a <tile> at a random space next to to the given cords.
