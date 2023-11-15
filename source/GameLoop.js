@@ -1,8 +1,9 @@
-// ----------------Gameplay.js----------------
+// ----------------GameLoop.js----------------
 // File contains functions that control the main gameplay.
 
 const ANIMATION_DELAY = 300; // Controls the length of time the map is displayed before moving onto the next entitie's turn in ms.
 const STARTING_ENEMY = spider_tile; // Controls the single enemy on the first floor.
+const STARTING_DECK = make_starting_deck;
 
 
 function setup(){
@@ -12,7 +13,7 @@ function setup(){
     mapData.add_tile(STARTING_ENEMY());
     mapData.display();
     mapData.display_stats(document.getElementById("stats"));
-    deck = make_starting_deck();
+    deck = STARTING_DECK();
     deck.display_hand(document.getElementById("handDisplay"));
 }
 function describe(description){

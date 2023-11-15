@@ -14,11 +14,12 @@
 // List of the options that can be given on level up.
 const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_left, 
                     step_right, trample, horsemanship, lunge_left, lunge_right, 
-                    sprint, trident, whack, spin_attack, butterfly, 
+                    sprint, trident, whack_horizontal, spin_attack, butterfly, 
                     retreat, force, side_attack, clear_behind, spear_slice, 
-                    jab, overcome, hit_and_run, v, push_back,
-                    fork, explosion, breakthrough, flanking_diagonal, flanking_sideways,
-                    flanking_straight, pike];
+                    jab, overcome, hit_and_run, push_back, fork,
+                    explosion, breakthrough, flanking_diagonal, flanking_sideways, flanking_straight,
+                    pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
+                    thwack];
 
 // Makes the starting deck
 function make_starting_deck(){
@@ -39,7 +40,7 @@ function make_starting_deck(){
 // Makes a deck for testing new cards.
 function make_test_deck(){
     deck = new MoveDeck();
-    var start = 30;
+    var start = 35;
     for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
         deck.add(CARD_CHOICES[i]());
     }
@@ -215,15 +216,15 @@ function trident(){
         options
     }
 }
-function whack(){
+function whack_horizontal(){
     var options = new ButtonGrid();
     options.add_button(N, [["attack", 0, -1], ["attack", 0, -1]]);
     options.add_button(E, [["attack", 1, 0], ["attack", 1, 0]]);
     options.add_button(S, [["attack", 0, 1], ["attack", 0, 1]]);
     options.add_button(W, [["attack", -1, 0], ["attack", -1, 0]]);
     return{
-        name: "whack",
-        pic: "whack.png",
+        name: "whack horizontal",
+        pic: "whack_horizontal.png",
         options
     }
 }
@@ -328,26 +329,41 @@ function overcome(){
 }
 function hit_and_run(){
     var options = new ButtonGrid();
-    options.add_button(S, [["attack", 1, -1], ["attack", 0, -1], ["attack", -1, -1], ["move", 0, 1]]);
+    options.add_button(S, [["attack", 1, -1], ["attack", 0, -1], ["attack", -1, -1], ["attack", 1, 0], ["attack", -1, 0], ["move", 0, 1]]);
     return{
         name: "hit and run",
         pic: "hit_and_run.png",
         options
     }
 }
-function v(){
+function combat_diagonal(){
     var options = new ButtonGrid();
     options.add_button(NE, [["attack", 1, -1], ["move", 1, -1]]);
+    options.add_button(SE, [["attack", 1, 1], ["move", 1, 1]]);
+    options.add_button(SW, [["attack", -1, 1], ["move", -1, 1]]);
     options.add_button(NW, [["attack", -1, -1], ["move", -1, -1]]);
     return{
-        name: "v",
-        pic: "v.png",
+        name: "combat diagonal",
+        pic: "combat_diagonal.png",
+        options
+    }
+}
+function combat_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [["attack", 0, -1], ["move", 0, -1]]);
+    options.add_button(E, [["attack", 1, 0], ["move", 1, 0]]);
+    options.add_button(S, [["attack", 0, 1], ["move", 0, 1]]);
+    options.add_button(W, [["attack", -1, 0], ["move", -1, 0]]);
+    return{
+        name: "combat horizontal",
+        pic: "combat_horizontal.png",
         options
     }
 }
 function push_back(){
     var options = new ButtonGrid();
     options.add_button(SE, [["attack", -1, -1], ["move", 1, 1]]);
+    options.add_button(S, [["attack", 0, -1], ["move", 0, 1]]);
     options.add_button(SW, [["attack", 1, -1], ["move", -1, 1]]);
     return{
         name: "push back",
@@ -430,6 +446,37 @@ function pike(){
     return{
         name: "pike",
         pic: "pike.png",
+        options
+    }
+}
+function breakthrough_side(){
+    var options = new ButtonGrid();
+    options.add_button(E, [["move", 1, 0], ["attack", 1, 0], ["attack", 0, 1], ["attack", 0, -1]]);
+    options.add_button(W, [["move", -1, 0], ["attack", -1, 0], ["attack", 0, 1], ["attack", 0, -1]]);
+    return{
+        name: "breakthrough side",
+        pic: "breakthrough_side.png",
+        options
+    }
+}
+function whack_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NW, [["attack", -1, -1], ["attack", -1, -1]]);
+    options.add_button(NE, [["attack", 1, -1], ["attack", 1, -1]]);
+    options.add_button(SE, [["attack", 1, 1], ["attack", 1, 1]]);
+    options.add_button(SW, [["attack", -1, 1], ["attack", -1, 1]]);
+    return{
+        name: "whack diagonal",
+        pic: "whack_diagonal.png",
+        options
+    }
+}
+function thwack(){
+    var options = new ButtonGrid();
+    options.add_button(N, [["attack", 0, -1], ["attack", 0, -1], ["attack", 0, -1]]);
+    return{
+        name: "thwack",
+        pic: "thwack.png",
         options
     }
 }

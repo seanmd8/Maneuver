@@ -4,12 +4,13 @@
 // Parameters:
 //  x: the x location of this entity on the game map.
 //  y: the y location of this entity on the game map.
-//  x_dif: the difference between the x value of this and the player or thing that triggered it.
-//  y_dif: the difference between the y value of this and the player or thing that triggered it.
+//  x_dif: the difference between the x value of this and the player, or the thing that triggered it.
+//  y_dif: the difference between the y value of this and the player, or the thing that triggered it.
 //  map: the game map.
 //  enemy: the entity using the function.
 
 
+// Normal Enemy AIs
 function spider_ai(x, y, x_dif, y_dif, map, enemy){
     if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
         // If the player is next to it, attack.
@@ -315,7 +316,11 @@ function brightling_ai(x, y, x_dif, y_dif, map, enemy){
     }
 }
 
-
+// Boss AIs
+function boss_death(x, y, x_dif, y_dif, map, enemy){
+    describe(enemy.death_message + "\n" + boss_death_description)
+    map.unlock();
+}
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     var directions = order_nearby(x_dif, y_dif);
     if(Math.floor(Math.random() * 3) === 0){
@@ -334,23 +339,17 @@ function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     }
     map.attack(x + direction[0], y + direction[1]);
 }
-function velociphile_death(x, y, x_dif, y_dif, map, enemy){
-    describe(velociphile_death_message + "\n" + boss_death_description)
-    map.unlock();
-}
 function spider_queen_hit(x, y, x_dif, y_dif, map, enemy){
+    // Spawns a new spider nearby. Stuns it so it won't move right away.
     stun(enemy);
     var new_spider = spider_tile();
     stun(new_spider);
     spawn_nearby(map, new_spider, x, y);
 }
-function spider_queen_death(x, y, x_dif, y_dif, map, enemy){
-    describe(spider_queen_death_message + "\n" + boss_death_description)
-    map.unlock();
-}
 
+// Other AIs
 function hazard(x, y, x_dif, y_dif, map, enemy){
-    // hazard function to retaliate if something moves onto it.
+    // General on_move function to retaliate if something tries to move onto it.
     map.attack(x + x_dif, y + y_dif);
 }
 function wall_death(x, y, x_dif, y_dif, map, enemy){
@@ -363,11 +362,31 @@ function wall_death(x, y, x_dif, y_dif, map, enemy){
     }
 }
 
-function dummy_ai(x, y, x_dif, y_dif, map, enemy){
-    // Does nothing. Used for testing.
+// AI Utility Functions
+function stun(tile){
+    // Increases a tile's stun.
+    if(!tile.hasOwnProperty("stun")){
+        tile.stun = 0;
+    }
+    ++tile.stun;
 }
-
-// -----Utility functions used mainly by this file-----
+function convert_direction(x, y){
+    // Converts cords to a cardinal direction.
+    var str = "";
+    if(y > 0){
+        str += "s";
+    }
+    if(y < 0){
+        str += "n";
+    }
+    if(x > 0){
+        str += "e";
+    }
+    if(x < 0){
+        str += "w";
+    }
+    return str;
+}
 function sign(x){
     // Returns whether x is positive, negative, or 0
     if(x > 0){
@@ -377,6 +396,10 @@ function sign(x){
         return -1;
     }
     return 0;
+}
+function random_sign(){
+    // Randomly returns 1 or -1.
+    return Math.floor(1 - (2 * Math.floor(Math.random() * 2)));
 }
 function random_nearby(){
     // Returns an array of each point next to [0, 0] with it's order randomized.
@@ -429,6 +452,8 @@ function order_nearby(x_dir, y_dir){
     return ordering;
 }
 function spawn_nearby(map, tile, x, y){
+    // Attempts to spawn a <tile> at a random space next to to the given cords.
+    // If it succeeds, returns the location, otherwise returns false.
     var nearby = random_nearby();
     for(var i = 0; i < nearby.length; ++i){
         if(map.add_tile(tile, x + nearby[i][0], y + nearby[i][1])){
@@ -437,28 +462,8 @@ function spawn_nearby(map, tile, x, y){
     }
     return false;
 }
-function random_sign(){
-    // Randomly returns 1 or -1.
-    return Math.floor(1 - (2 * Math.floor(Math.random() * 2)));
-}
-function convert_direction(x, y){
-    // Converts cords to a cardinal direction.
-    var str = "";
-    if(y > 0){
-        str += "s";
-    }
-    if(y < 0){
-        str += "n";
-    }
-    if(x > 0){
-        str += "e";
-    }
-    if(x < 0){
-        str += "w";
-    }
-    return str;
-}
 function randomize_arr(arr){
+    // Returns a copy of the given array with it's order randomized.
     arr = copy_arr(arr);
     var random_arr = [];
     while(arr.length > 0){
@@ -470,15 +475,10 @@ function randomize_arr(arr){
     return random_arr;
 }
 function copy_arr(arr){
+    //returns a copy of the given array.
     var arr2 = [];
     for(var i = 0; i < arr.length; ++i){
         arr2[i] = arr[i];
     }
     return arr2;
-}
-function stun(entity){
-    if(!entity.hasOwnProperty("stun")){
-        entity.stun = 0;
-    }
-    ++entity.stun;
 }

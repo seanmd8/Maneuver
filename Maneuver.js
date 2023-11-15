@@ -4,12 +4,13 @@
 // Parameters:
 //  x: the x location of this entity on the game map.
 //  y: the y location of this entity on the game map.
-//  x_dif: the difference between the x value of this and the player or thing that triggered it.
-//  y_dif: the difference between the y value of this and the player or thing that triggered it.
+//  x_dif: the difference between the x value of this and the player, or the thing that triggered it.
+//  y_dif: the difference between the y value of this and the player, or the thing that triggered it.
 //  map: the game map.
 //  enemy: the entity using the function.
 
 
+// Normal Enemy AIs
 function spider_ai(x, y, x_dif, y_dif, map, enemy){
     if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
         // If the player is next to it, attack.
@@ -315,7 +316,11 @@ function brightling_ai(x, y, x_dif, y_dif, map, enemy){
     }
 }
 
-
+// Boss AIs
+function boss_death(x, y, x_dif, y_dif, map, enemy){
+    describe(enemy.death_message + "\n" + boss_death_description)
+    map.unlock();
+}
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     var directions = order_nearby(x_dif, y_dif);
     if(Math.floor(Math.random() * 3) === 0){
@@ -334,23 +339,17 @@ function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     }
     map.attack(x + direction[0], y + direction[1]);
 }
-function velociphile_death(x, y, x_dif, y_dif, map, enemy){
-    describe(velociphile_death_message + "\n" + boss_death_description)
-    map.unlock();
-}
 function spider_queen_hit(x, y, x_dif, y_dif, map, enemy){
+    // Spawns a new spider nearby. Stuns it so it won't move right away.
     stun(enemy);
     var new_spider = spider_tile();
     stun(new_spider);
     spawn_nearby(map, new_spider, x, y);
 }
-function spider_queen_death(x, y, x_dif, y_dif, map, enemy){
-    describe(spider_queen_death_message + "\n" + boss_death_description)
-    map.unlock();
-}
 
+// Other AIs
 function hazard(x, y, x_dif, y_dif, map, enemy){
-    // hazard function to retaliate if something moves onto it.
+    // General on_move function to retaliate if something tries to move onto it.
     map.attack(x + x_dif, y + y_dif);
 }
 function wall_death(x, y, x_dif, y_dif, map, enemy){
@@ -363,11 +362,31 @@ function wall_death(x, y, x_dif, y_dif, map, enemy){
     }
 }
 
-function dummy_ai(x, y, x_dif, y_dif, map, enemy){
-    // Does nothing. Used for testing.
+// AI Utility Functions
+function stun(tile){
+    // Increases a tile's stun.
+    if(!tile.hasOwnProperty("stun")){
+        tile.stun = 0;
+    }
+    ++tile.stun;
 }
-
-// -----Utility functions used mainly by this file-----
+function convert_direction(x, y){
+    // Converts cords to a cardinal direction.
+    var str = "";
+    if(y > 0){
+        str += "s";
+    }
+    if(y < 0){
+        str += "n";
+    }
+    if(x > 0){
+        str += "e";
+    }
+    if(x < 0){
+        str += "w";
+    }
+    return str;
+}
 function sign(x){
     // Returns whether x is positive, negative, or 0
     if(x > 0){
@@ -377,6 +396,10 @@ function sign(x){
         return -1;
     }
     return 0;
+}
+function random_sign(){
+    // Randomly returns 1 or -1.
+    return Math.floor(1 - (2 * Math.floor(Math.random() * 2)));
 }
 function random_nearby(){
     // Returns an array of each point next to [0, 0] with it's order randomized.
@@ -429,6 +452,8 @@ function order_nearby(x_dir, y_dir){
     return ordering;
 }
 function spawn_nearby(map, tile, x, y){
+    // Attempts to spawn a <tile> at a random space next to to the given cords.
+    // If it succeeds, returns the location, otherwise returns false.
     var nearby = random_nearby();
     for(var i = 0; i < nearby.length; ++i){
         if(map.add_tile(tile, x + nearby[i][0], y + nearby[i][1])){
@@ -437,28 +462,8 @@ function spawn_nearby(map, tile, x, y){
     }
     return false;
 }
-function random_sign(){
-    // Randomly returns 1 or -1.
-    return Math.floor(1 - (2 * Math.floor(Math.random() * 2)));
-}
-function convert_direction(x, y){
-    // Converts cords to a cardinal direction.
-    var str = "";
-    if(y > 0){
-        str += "s";
-    }
-    if(y < 0){
-        str += "n";
-    }
-    if(x > 0){
-        str += "e";
-    }
-    if(x < 0){
-        str += "w";
-    }
-    return str;
-}
 function randomize_arr(arr){
+    // Returns a copy of the given array with it's order randomized.
     arr = copy_arr(arr);
     var random_arr = [];
     while(arr.length > 0){
@@ -470,18 +475,14 @@ function randomize_arr(arr){
     return random_arr;
 }
 function copy_arr(arr){
+    //returns a copy of the given array.
     var arr2 = [];
     for(var i = 0; i < arr.length; ++i){
         arr2[i] = arr[i];
     }
     return arr2;
 }
-function stun(entity){
-    if(!entity.hasOwnProperty("stun")){
-        entity.stun = 0;
-    }
-    ++entity.stun;
-}// ----------------ButtonGrid.js----------------
+// ----------------ButtonGrid.js----------------
 // The ButtonGrid class is used to keep track of the possible moves a card has.
 class ButtonGrid{
     #buttons; // A 3x3 2d array used to store the options.
@@ -557,11 +558,12 @@ class ButtonGrid{
 // List of the options that can be given on level up.
 const CARD_CHOICES = [short_charge, jump, straight_charge, side_charge, step_left, 
                     step_right, trample, horsemanship, lunge_left, lunge_right, 
-                    sprint, trident, whack, spin_attack, butterfly, 
+                    sprint, trident, whack_horizontal, spin_attack, butterfly, 
                     retreat, force, side_attack, clear_behind, spear_slice, 
-                    jab, overcome, hit_and_run, v, push_back,
-                    fork, explosion, breakthrough, flanking_diagonal, flanking_sideways,
-                    flanking_straight, pike];
+                    jab, overcome, hit_and_run, push_back, fork,
+                    explosion, breakthrough, flanking_diagonal, flanking_sideways, flanking_straight,
+                    pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
+                    thwack];
 
 // Makes the starting deck
 function make_starting_deck(){
@@ -582,7 +584,7 @@ function make_starting_deck(){
 // Makes a deck for testing new cards.
 function make_test_deck(){
     deck = new MoveDeck();
-    var start = 30;
+    var start = 35;
     for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
         deck.add(CARD_CHOICES[i]());
     }
@@ -758,15 +760,15 @@ function trident(){
         options
     }
 }
-function whack(){
+function whack_horizontal(){
     var options = new ButtonGrid();
     options.add_button(N, [["attack", 0, -1], ["attack", 0, -1]]);
     options.add_button(E, [["attack", 1, 0], ["attack", 1, 0]]);
     options.add_button(S, [["attack", 0, 1], ["attack", 0, 1]]);
     options.add_button(W, [["attack", -1, 0], ["attack", -1, 0]]);
     return{
-        name: "whack",
-        pic: "whack.png",
+        name: "whack horizontal",
+        pic: "whack_horizontal.png",
         options
     }
 }
@@ -871,26 +873,41 @@ function overcome(){
 }
 function hit_and_run(){
     var options = new ButtonGrid();
-    options.add_button(S, [["attack", 1, -1], ["attack", 0, -1], ["attack", -1, -1], ["move", 0, 1]]);
+    options.add_button(S, [["attack", 1, -1], ["attack", 0, -1], ["attack", -1, -1], ["attack", 1, 0], ["attack", -1, 0], ["move", 0, 1]]);
     return{
         name: "hit and run",
         pic: "hit_and_run.png",
         options
     }
 }
-function v(){
+function combat_diagonal(){
     var options = new ButtonGrid();
     options.add_button(NE, [["attack", 1, -1], ["move", 1, -1]]);
+    options.add_button(SE, [["attack", 1, 1], ["move", 1, 1]]);
+    options.add_button(SW, [["attack", -1, 1], ["move", -1, 1]]);
     options.add_button(NW, [["attack", -1, -1], ["move", -1, -1]]);
     return{
-        name: "v",
-        pic: "v.png",
+        name: "combat diagonal",
+        pic: "combat_diagonal.png",
+        options
+    }
+}
+function combat_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [["attack", 0, -1], ["move", 0, -1]]);
+    options.add_button(E, [["attack", 1, 0], ["move", 1, 0]]);
+    options.add_button(S, [["attack", 0, 1], ["move", 0, 1]]);
+    options.add_button(W, [["attack", -1, 0], ["move", -1, 0]]);
+    return{
+        name: "combat horizontal",
+        pic: "combat_horizontal.png",
         options
     }
 }
 function push_back(){
     var options = new ButtonGrid();
     options.add_button(SE, [["attack", -1, -1], ["move", 1, 1]]);
+    options.add_button(S, [["attack", 0, -1], ["move", 0, 1]]);
     options.add_button(SW, [["attack", 1, -1], ["move", -1, 1]]);
     return{
         name: "push back",
@@ -973,6 +990,37 @@ function pike(){
     return{
         name: "pike",
         pic: "pike.png",
+        options
+    }
+}
+function breakthrough_side(){
+    var options = new ButtonGrid();
+    options.add_button(E, [["move", 1, 0], ["attack", 1, 0], ["attack", 0, 1], ["attack", 0, -1]]);
+    options.add_button(W, [["move", -1, 0], ["attack", -1, 0], ["attack", 0, 1], ["attack", 0, -1]]);
+    return{
+        name: "breakthrough side",
+        pic: "breakthrough_side.png",
+        options
+    }
+}
+function whack_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NW, [["attack", -1, -1], ["attack", -1, -1]]);
+    options.add_button(NE, [["attack", 1, -1], ["attack", 1, -1]]);
+    options.add_button(SE, [["attack", 1, 1], ["attack", 1, 1]]);
+    options.add_button(SW, [["attack", -1, 1], ["attack", -1, 1]]);
+    return{
+        name: "whack diagonal",
+        pic: "whack_diagonal.png",
+        options
+    }
+}
+function thwack(){
+    var options = new ButtonGrid();
+    options.add_button(N, [["attack", 0, -1], ["attack", 0, -1], ["attack", 0, -1]]);
+    return{
+        name: "thwack",
+        pic: "thwack.png",
         options
     }
 }// ----------------Descriptions.js----------------
@@ -1186,6 +1234,206 @@ function spider_queen_floor(floor, map){
         map.add_tile(spider_web_tile());
     }
     describe(floor_message + floor + ".\n" + spider_queen_floor_message)
+}// ----------------GameLoop.js----------------
+// File contains functions that control the main gameplay.
+
+const ANIMATION_DELAY = 300; // Controls the length of time the map is displayed before moving onto the next entitie's turn in ms.
+const STARTING_ENEMY = spider_tile; // Controls the single enemy on the first floor.
+const STARTING_DECK = make_starting_deck;
+
+
+function setup(){
+    // Function ran on page load or on restart to set up the game.
+    describe(welcome_message);
+    mapData = new GameMap(8, 8);  
+    mapData.add_tile(STARTING_ENEMY());
+    mapData.display();
+    mapData.display_stats(document.getElementById("stats"));
+    deck = STARTING_DECK();
+    deck.display_hand(document.getElementById("handDisplay"));
+}
+function describe(description){
+    // Used to display text to the "displayMessage" element
+    document.getElementById("displayMessage").innerText = description;
+}
+function clear_tb(element_id){
+    // Deletes all rows from the given html table.
+    while(document.getElementById(element_id).rows.length > 0){
+        document.getElementById(element_id).deleteRow(0);
+    }
+}
+async function action(behavior, hand_pos){
+    // Function to execute the outcome of the player's turn.
+    try{
+        for(var i = 0; i < behavior.length; ++i){
+            // Does each valid command in the behavior list.
+            if(behavior[i][0] === "attack"){
+                mapData.player_attack(behavior[i][1], behavior[i][2]);
+            }
+            else if(behavior[i][0] === "move"){
+                mapData.player_move(behavior[i][1], behavior[i][2]);
+            }
+            else{
+                throw new Error("invalid action type");
+            }
+        }
+        describe("");
+        // Discards the card the user used.
+        clear_tb("moveButtons");
+        deck.discard(hand_pos);
+        deck.display_hand(document.getElementById("handDisplay"));
+        mapData.display();
+        await delay(ANIMATION_DELAY);
+        // Does the enemies' turn.
+        await mapData.enemy_turn();
+        mapData.display();
+        // Update turn number.
+        mapData.display_stats(document.getElementById("stats"))
+    }
+    catch (error){
+        var m = error.message;
+        if(m === "floor complete"){
+            // If the player has reached the end of the floor.
+            mapData.display_stats(document.getElementById("stats"))
+            modify_deck();
+        }
+        else if(m === "game over"){
+            // If the player's health reached 0
+            game_over(error.cause);
+        }
+        else if(m === "pass to player"){
+            // If the enemies' turn was interrupted.
+            mapData.display();
+            mapData.display_stats(document.getElementById("stats"))
+        }
+        else{
+            throw error;
+        }
+    }
+}
+function new_floor(){
+    // Creates the next floor.
+    clear_tb("modifyDeck");
+    document.getElementById("currentDeck").innerText = "";
+    clear_tb("displayDeck");
+    var floor = mapData.erase(mapData.player_health());
+    floor_generator(floor, mapData);
+    mapData.display_stats(document.getElementById("stats"));
+    deck.deal();
+    mapData.display();
+    deck.display_hand(document.getElementById("handDisplay"));
+}
+function modify_deck(){
+    // Gives the player the option to add or remove a card from their deck.
+    // Their deck contents are also displayed.
+    // Options to remove cards will not be displayed if the deck is at the minimum size already.
+    var add_list = [];
+    var remove_list = [];
+    var table = document.getElementById("modifyDeck");
+    deck.display_all(document.getElementById("displayDeck"));
+    for(var i = 0; i < ADD_CHOICES; ++i){
+        add_list.push(CARD_CHOICES[Math.floor(Math.random() * CARD_CHOICES.length)]());
+    }
+    try{
+        for(var i = 0; i < REMOVE_CHOICES; ++i){
+            remove_list.push(deck.get_rand());
+        }
+    }
+    catch{
+        // deck.get_rand throws an error if the deck is at the minimum size, in which case they should not
+        // be able to remove more cards.
+    }
+    clear_tb("mapDisplay");
+    clear_tb("handDisplay");
+    clear_tb("moveButtons");
+    describe("Choose one card to add or remove");
+
+    // Options to add.
+    var add = function(card){return function(){
+        deck.add(card);
+        new_floor();
+    }};
+    var add_row = document.createElement("tr");
+    add_row.id = "add_row";
+    var plus = make_cell("plus", "images/other/plus.png", HAND_SCALE);
+    add_row.append(plus);
+    for(var i = 0; i < add_list.length; ++i){
+        var cell = make_cell("card " + i, "images/cards/" + add_list[i].pic, HAND_SCALE, add, add_list[i]);
+        add_row.append(cell);
+    }
+
+    // Options to Remove.
+    var remove = function(card){return function(){
+        deck.remove(card.id);
+        new_floor();
+    }};
+    var remove_row = document.createElement("tr");
+    remove_row.id = "remove_row";
+    var minus = make_cell("plus", "images/other/minus.png", HAND_SCALE);
+    if(remove_row.length === 0){
+        minus = make_cell("x", "images/other/x.png", HAND_SCALE);
+    }
+    remove_row.append(minus);
+    for(var i = 0; i < remove_list.length; ++i){
+        var cell = make_cell("card " + i, "images/cards/" + remove_list[i].pic, HAND_SCALE, remove, remove_list[i]);
+        remove_row.append(cell);
+    }
+
+    table.append(add_row);
+    table.append(remove_row);
+}
+function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
+    // Function to make a cell for a table.
+    //  id is the id the cell should get.
+    //  pic is the image source the cell should have.
+    //  size is the width and height of the image.
+    //  click is the onclick function.
+    //  param1 and param2 are the parameter that should be given to the onclick if they are provided.
+    // Returns the cell
+    var cell = document.createElement("td");
+    cell.id = id;
+    var image = document.createElement("img");
+    image.src = pic;
+    image.height = size;
+    image.width = size;
+    if(click != undefined){
+        if(param2 === undefined){
+            image.onclick = click(param1);
+        }
+        else{
+            image.onclick = click(param1, param2);
+        }
+    }
+    cell.append(image);
+    return cell;
+}
+function delay(ms){
+    // Function to wait the given number of milliseconds.
+    return new Promise(resolve =>{
+        setTimeout(resolve, ms);
+    })
+}
+function game_over(cause){
+    // Tells the user the game is over, prevents them fro m continuing, tells them the cause
+    // and gives them the chance to retry.
+    mapData.display();
+    clear_tb("handDisplay");
+    clear_tb("moveButtons");
+    describe("Game Over. You were killed by a " + cause + ".");
+    clear_tb("moveButtons");
+    var row = document.createElement("tr");
+    row.id = "buttons";
+    var cell = document.createElement("input");
+    cell.type = "button"
+    cell.name = "retry";
+    cell.value = "retry";
+    var restart = function(){
+        clear_tb("moveButtons");
+        setup();
+    };
+    cell.onclick = restart;
+    row.append(cell);
+    document.getElementById("moveButtons").append(row);
 }// ----------------GameMap.js----------------
 // GameMap class holds the information on the current floor and everything on it.
 
@@ -1475,205 +1723,6 @@ class GameMap{
         pos = this.#entity_list.get_player_pos();
         this.#grid[pos.x][pos.y].health = this.#grid[pos.x][pos.y].max_health;
     }
-}// ----------------Gameplay.js----------------
-// File contains functions that control the main gameplay.
-
-const ANIMATION_DELAY = 300; // Controls the length of time the map is displayed before moving onto the next entitie's turn in ms.
-const STARTING_ENEMY = spider_tile; // Controls the single enemy on the first floor.
-
-
-function setup(){
-    // Function ran on page load or on restart to set up the game.
-    describe(welcome_message);
-    mapData = new GameMap(8, 8);  
-    mapData.add_tile(STARTING_ENEMY());
-    mapData.display();
-    mapData.display_stats(document.getElementById("stats"));
-    deck = make_starting_deck();
-    deck.display_hand(document.getElementById("handDisplay"));
-}
-function describe(description){
-    // Used to display text to the "displayMessage" element
-    document.getElementById("displayMessage").innerText = description;
-}
-function clear_tb(element_id){
-    // Deletes all rows from the given html table.
-    while(document.getElementById(element_id).rows.length > 0){
-        document.getElementById(element_id).deleteRow(0);
-    }
-}
-async function action(behavior, hand_pos){
-    // Function to execute the outcome of the player's turn.
-    try{
-        for(var i = 0; i < behavior.length; ++i){
-            // Does each valid command in the behavior list.
-            if(behavior[i][0] === "attack"){
-                mapData.player_attack(behavior[i][1], behavior[i][2]);
-            }
-            else if(behavior[i][0] === "move"){
-                mapData.player_move(behavior[i][1], behavior[i][2]);
-            }
-            else{
-                throw new Error("invalid action type");
-            }
-        }
-        describe("");
-        // Discards the card the user used.
-        clear_tb("moveButtons");
-        deck.discard(hand_pos);
-        deck.display_hand(document.getElementById("handDisplay"));
-        mapData.display();
-        await delay(ANIMATION_DELAY);
-        // Does the enemies' turn.
-        await mapData.enemy_turn();
-        mapData.display();
-        // Update turn number.
-        mapData.display_stats(document.getElementById("stats"))
-    }
-    catch (error){
-        var m = error.message;
-        if(m === "floor complete"){
-            // If the player has reached the end of the floor.
-            mapData.display_stats(document.getElementById("stats"))
-            modify_deck();
-        }
-        else if(m === "game over"){
-            // If the player's health reached 0
-            game_over(error.cause);
-        }
-        else if(m === "pass to player"){
-            // If the enemies' turn was interrupted.
-            mapData.display();
-            mapData.display_stats(document.getElementById("stats"))
-        }
-        else{
-            throw error;
-        }
-    }
-}
-function new_floor(){
-    // Creates the next floor.
-    clear_tb("modifyDeck");
-    document.getElementById("currentDeck").innerText = "";
-    clear_tb("displayDeck");
-    var floor = mapData.erase(mapData.player_health());
-    floor_generator(floor, mapData);
-    mapData.display_stats(document.getElementById("stats"));
-    deck.deal();
-    mapData.display();
-    deck.display_hand(document.getElementById("handDisplay"));
-}
-function modify_deck(){
-    // Gives the player the option to add or remove a card from their deck.
-    // Their deck contents are also displayed.
-    // Options to remove cards will not be displayed if the deck is at the minimum size already.
-    var add_list = [];
-    var remove_list = [];
-    var table = document.getElementById("modifyDeck");
-    deck.display_all(document.getElementById("displayDeck"));
-    for(var i = 0; i < ADD_CHOICES; ++i){
-        add_list.push(CARD_CHOICES[Math.floor(Math.random() * CARD_CHOICES.length)]());
-    }
-    try{
-        for(var i = 0; i < REMOVE_CHOICES; ++i){
-            remove_list.push(deck.get_rand());
-        }
-    }
-    catch{
-        // deck.get_rand throws an error if the deck is at the minimum size, in which case they should not
-        // be able to remove more cards.
-    }
-    clear_tb("mapDisplay");
-    clear_tb("handDisplay");
-    clear_tb("moveButtons");
-    describe("Choose one card to add or remove");
-
-    // Options to add.
-    var add = function(card){return function(){
-        deck.add(card);
-        new_floor();
-    }};
-    var add_row = document.createElement("tr");
-    add_row.id = "add_row";
-    var plus = make_cell("plus", "images/other/plus.png", HAND_SCALE);
-    add_row.append(plus);
-    for(var i = 0; i < add_list.length; ++i){
-        var cell = make_cell("card " + i, "images/cards/" + add_list[i].pic, HAND_SCALE, add, add_list[i]);
-        add_row.append(cell);
-    }
-
-    // Options to Remove.
-    var remove = function(card){return function(){
-        deck.remove(card.id);
-        new_floor();
-    }};
-    var remove_row = document.createElement("tr");
-    remove_row.id = "remove_row";
-    var minus = make_cell("plus", "images/other/minus.png", HAND_SCALE);
-    if(remove_row.length === 0){
-        minus = make_cell("x", "images/other/x.png", HAND_SCALE);
-    }
-    remove_row.append(minus);
-    for(var i = 0; i < remove_list.length; ++i){
-        var cell = make_cell("card " + i, "images/cards/" + remove_list[i].pic, HAND_SCALE, remove, remove_list[i]);
-        remove_row.append(cell);
-    }
-
-    table.append(add_row);
-    table.append(remove_row);
-}
-function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
-    // Function to make a cell for a table.
-    //  id is the id the cell should get.
-    //  pic is the image source the cell should have.
-    //  size is the width and height of the image.
-    //  click is the onclick function.
-    //  param1 and param2 are the parameter that should be given to the onclick if they are provided.
-    // Returns the cell
-    var cell = document.createElement("td");
-    cell.id = id;
-    var image = document.createElement("img");
-    image.src = pic;
-    image.height = size;
-    image.width = size;
-    if(click != undefined){
-        if(param2 === undefined){
-            image.onclick = click(param1);
-        }
-        else{
-            image.onclick = click(param1, param2);
-        }
-    }
-    cell.append(image);
-    return cell;
-}
-function delay(ms){
-    // Function to wait the given number of milliseconds.
-    return new Promise(resolve =>{
-        setTimeout(resolve, ms);
-    })
-}
-function game_over(cause){
-    // Tells the user the game is over, prevents them fro m continuing, tells them the cause
-    // and gives them the chance to retry.
-    mapData.display();
-    clear_tb("handDisplay");
-    clear_tb("moveButtons");
-    describe("Game Over. You were killed by a " + cause + ".");
-    clear_tb("moveButtons");
-    var row = document.createElement("tr");
-    row.id = "buttons";
-    var cell = document.createElement("input");
-    cell.type = "button"
-    cell.name = "retry";
-    cell.value = "retry";
-    var restart = function(){
-        clear_tb("moveButtons");
-        setup();
-    };
-    cell.onclick = restart;
-    row.append(cell);
-    document.getElementById("moveButtons").append(row);
 }// ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.
 
@@ -1813,6 +1862,7 @@ class MoveDeck{
 const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
     spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile, brightling_tile];
 
+// Non-Enemy tiles
 function empty_tile(){
     return {
         type: "empty",
@@ -1846,7 +1896,37 @@ function player_tile(){
         description: player_description
     }
 }
+function lava_pool_tile(){
+    return {
+        type: "terrain",
+        name: "lava pool",
+        pic: "lava_pool.png",
+        description: lava_pool_description,
+        on_enter: hazard
+    }
+}
+function wall_tile(){
+    return {
+        type: "terrain",
+        name: "wall",
+        pic: "wall.png",
+        description: wall_description
+    }
+}
+function damaged_wall_tile(){
+    var health = Math.ceil(Math.random() * 2);
+    return {
+        type: "terrain",
+        name: "damaged wall",
+        pic: "damaged_wall.png",
+        health,
+        on_death: wall_death,
+        description: damaged_wall_description
 
+    }
+}
+
+// Normal Enemy Tiles
 function spider_tile(){
     return {
         type: "enemy",
@@ -2005,6 +2085,7 @@ function brightling_tile(){
     }
 }
 
+// Boss Tiles
 function velociphile_tile(){
     return{
         type: "enemy",
@@ -2013,8 +2094,9 @@ function velociphile_tile(){
         health: 3,
         difficulty: "boss",
         behavior: velociphile_ai,
-        on_death: velociphile_death,
-        description: velociphile_description
+        on_death: boss_death,
+        description: velociphile_description,
+        death_message: velociphile_death_message
     }
 }
 function spider_queen_tile(){
@@ -2026,38 +2108,10 @@ function spider_queen_tile(){
         difficulty: "boss",
         behavior: spider_ai,
         on_hit: spider_queen_hit,
-        on_death: spider_queen_death,
-        description: spider_queen_description
+        on_death: boss_death,
+        description: spider_queen_description,
+        death_message: spider_queen_death_message
     }
 }
 
-function lava_pool_tile(){
-    return {
-        type: "terrain",
-        name: "lava pool",
-        pic: "lava_pool.png",
-        description: lava_pool_description,
-        on_enter: hazard
-    }
-}
-function wall_tile(){
-    return {
-        type: "terrain",
-        name: "wall",
-        pic: "wall.png",
-        description: wall_description
-    }
-}
-function damaged_wall_tile(){
-    var health = Math.ceil(Math.random() * 2);
-    return {
-        type: "terrain",
-        name: "damaged wall",
-        pic: "damaged_wall.png",
-        health,
-        on_death: wall_death,
-        description: damaged_wall_description
-
-    }
-}
 

@@ -15,6 +15,7 @@
 const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
     spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile, brightling_tile];
 
+// Non-Enemy tiles
 function empty_tile(){
     return {
         type: "empty",
@@ -48,7 +49,37 @@ function player_tile(){
         description: player_description
     }
 }
+function lava_pool_tile(){
+    return {
+        type: "terrain",
+        name: "lava pool",
+        pic: "lava_pool.png",
+        description: lava_pool_description,
+        on_enter: hazard
+    }
+}
+function wall_tile(){
+    return {
+        type: "terrain",
+        name: "wall",
+        pic: "wall.png",
+        description: wall_description
+    }
+}
+function damaged_wall_tile(){
+    var health = Math.ceil(Math.random() * 2);
+    return {
+        type: "terrain",
+        name: "damaged wall",
+        pic: "damaged_wall.png",
+        health,
+        on_death: wall_death,
+        description: damaged_wall_description
 
+    }
+}
+
+// Normal Enemy Tiles
 function spider_tile(){
     return {
         type: "enemy",
@@ -207,6 +238,7 @@ function brightling_tile(){
     }
 }
 
+// Boss Tiles
 function velociphile_tile(){
     return{
         type: "enemy",
@@ -215,8 +247,9 @@ function velociphile_tile(){
         health: 3,
         difficulty: "boss",
         behavior: velociphile_ai,
-        on_death: velociphile_death,
-        description: velociphile_description
+        on_death: boss_death,
+        description: velociphile_description,
+        death_message: velociphile_death_message
     }
 }
 function spider_queen_tile(){
@@ -228,38 +261,10 @@ function spider_queen_tile(){
         difficulty: "boss",
         behavior: spider_ai,
         on_hit: spider_queen_hit,
-        on_death: spider_queen_death,
-        description: spider_queen_description
+        on_death: boss_death,
+        description: spider_queen_description,
+        death_message: spider_queen_death_message
     }
 }
 
-function lava_pool_tile(){
-    return {
-        type: "terrain",
-        name: "lava pool",
-        pic: "lava_pool.png",
-        description: lava_pool_description,
-        on_enter: hazard
-    }
-}
-function wall_tile(){
-    return {
-        type: "terrain",
-        name: "wall",
-        pic: "wall.png",
-        description: wall_description
-    }
-}
-function damaged_wall_tile(){
-    var health = Math.ceil(Math.random() * 2);
-    return {
-        type: "terrain",
-        name: "damaged wall",
-        pic: "damaged_wall.png",
-        health,
-        on_death: wall_death,
-        description: damaged_wall_description
-
-    }
-}
 
