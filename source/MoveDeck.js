@@ -83,7 +83,7 @@ class MoveDeck{
         row.id = "hand";
         var prep_move = function(move, hand_pos){return function(){move.options.show_buttons("moveButtons", hand_pos)}};
         for(var i = 0; i < this.#hand.length; ++i){
-            var cell =  make_cell("card " + i, "images/cards/" + this.#hand[i].pic, HAND_SCALE, prep_move, this.#hand[i], i);
+            var cell =  make_cell("hand " + i, "images/cards/" + this.#hand[i].pic, HAND_SCALE, prep_move, this.#hand[i], i);
 			row.append(cell);
         }
         table.append(row);

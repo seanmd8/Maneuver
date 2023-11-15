@@ -32,7 +32,7 @@ class ButtonGrid{
                 cell.type = "button";
                 if(!(this.#buttons[i][j] === 0)){
                     // If the button has info, that description and list of commands will be used.
-                    cell.name = this.#buttons[i][j][0];
+                    cell.id = "button " + (i * 3 + j);
                     cell.value = this.#buttons[i][j][0];
                     var act = function(behavior, hand_pos){return function(){action(behavior, hand_pos)}};
                     cell.onclick = act(this.#buttons[i][j][1], hand_pos);

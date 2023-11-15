@@ -463,7 +463,7 @@ function order_nearby(x_dir, y_dir){
 }
 function get_empty_nearby(x, y, nearby_arr, map){
     for(var i = 0; i < nearby_arr.length; ++i){
-        if(map.check_empty(x + nearby_arr[i][0], x + nearby_arr[i][1])){
+        if(map.check_empty(x + nearby_arr[i][0], y + nearby_arr[i][1])){
             return nearby_arr[i];
         }
     }
@@ -534,7 +534,7 @@ class ButtonGrid{
                 cell.type = "button";
                 if(!(this.#buttons[i][j] === 0)){
                     // If the button has info, that description and list of commands will be used.
-                    cell.name = this.#buttons[i][j][0];
+                    cell.id = "button " + (i * 3 + j);
                     cell.value = this.#buttons[i][j][0];
                     var act = function(behavior, hand_pos){return function(){action(behavior, hand_pos)}};
                     cell.onclick = act(this.#buttons[i][j][1], hand_pos);
@@ -1312,7 +1312,7 @@ function spider_queen_floor(floor, map){
 const ANIMATION_DELAY = 300; // Controls the length of time the map is displayed before moving onto the next entitie's turn in ms.
 const STARTING_ENEMY = spider_tile; // Controls the single enemy on the first floor.
 const STARTING_DECK = make_starting_deck;
-
+document.onkeydown = press;
 
 function setup(){
     // Function ran on page load or on restart to set up the game.
@@ -1336,6 +1336,7 @@ function clear_tb(element_id){
 }
 async function action(behavior, hand_pos){
     // Function to execute the outcome of the player's turn.
+    describe("");
     try{
         for(var i = 0; i < behavior.length; ++i){
             // Does each valid command in the behavior list.
@@ -1349,7 +1350,6 @@ async function action(behavior, hand_pos){
                 throw new Error("invalid action type");
             }
         }
-        describe("");
         // Discards the card the user used.
         clear_tb("moveButtons");
         deck.discard(hand_pos);
@@ -1388,7 +1388,7 @@ function new_floor(){
     clear_tb("modifyDeck");
     document.getElementById("currentDeck").innerText = "";
     clear_tb("displayDeck");
-    var floor = mapData.erase(mapData.player_health());
+    var floor = mapData.erase(mapData.get_player().health);
     floor_generator(floor, mapData);
     mapData.display_stats(document.getElementById("stats"));
     deck.deal();
@@ -1470,10 +1470,10 @@ function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 
     image.width = size;
     if(click != undefined){
         if(param2 === undefined){
-            image.onclick = click(param1);
+            cell.onclick = click(param1);
         }
         else{
-            image.onclick = click(param1, param2);
+            cell.onclick = click(param1, param2);
         }
     }
     cell.append(image);
@@ -1506,6 +1506,32 @@ function game_over(cause){
     cell.onclick = restart;
     row.append(cell);
     document.getElementById("moveButtons").append(row);
+}
+function press(key){
+    var controls = ["q", "w", "e", "a", "s", "d", "z", "x", "c"];
+    var k = search(key.key, controls);
+    if(k >= 0){
+        var element = document.getElementById("button " + k);
+        if(!(element.onclick === null)){
+            element.click();
+        }
+    }
+    controls = ["h", "j", "k"];
+    k = search(key.key, controls);
+    if(k >= 0){
+        var element = document.getElementById("hand " + k);
+        if(!(element.onclick === null)){
+            element.click();
+        }
+    }
+}
+function search(element, arr){
+    for(var i = 0; i < arr.length; ++i){
+        if(element === arr[i]){
+            return i;
+        }
+    }
+    return -1;
 }// ----------------GameMap.js----------------
 // GameMap class holds the information on the current floor and everything on it.
 
@@ -1662,8 +1688,13 @@ class GameMap{
 		}
         var row = document.createElement("tr");
         row.id = "health";
-        for(var i = 0; i < this.player_health(); ++i){
+        var player = this.get_player()
+        for(var i = 0; i < player.health; ++i){
             var cell = make_cell("health " + i, "images/other/heart.png", GRID_SCALE);
+			row.append(cell);
+        }
+        for(var i = 0; i < (player.max_health - player.health); ++i){
+            var cell = make_cell("hurt " + i, "images/other/heart_broken.png", GRID_SCALE);
 			row.append(cell);
         }
         visual_map.append(row);
@@ -1714,10 +1745,10 @@ class GameMap{
         var pos = this.#entity_list.get_player_pos();
         return this.move(pos.x, pos.y, pos.x + x_dif, pos.y + y_dif)
     }
-    player_health(){
+    get_player(){
         // Returns the player's health.
         var pos = this.#entity_list.get_player_pos();
-        return this.#grid[pos.x][pos.y].health;
+        return this.#grid[pos.x][pos.y];
     }
     attack(x, y, hits = "all"){
         // Attacks the specified square.
@@ -1880,7 +1911,7 @@ class MoveDeck{
         row.id = "hand";
         var prep_move = function(move, hand_pos){return function(){move.options.show_buttons("moveButtons", hand_pos)}};
         for(var i = 0; i < this.#hand.length; ++i){
-            var cell =  make_cell("card " + i, "images/cards/" + this.#hand[i].pic, HAND_SCALE, prep_move, this.#hand[i], i);
+            var cell =  make_cell("hand " + i, "images/cards/" + this.#hand[i].pic, HAND_SCALE, prep_move, this.#hand[i], i);
 			row.append(cell);
         }
         table.append(row);

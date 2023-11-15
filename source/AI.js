@@ -463,7 +463,7 @@ function order_nearby(x_dir, y_dir){
 }
 function get_empty_nearby(x, y, nearby_arr, map){
     for(var i = 0; i < nearby_arr.length; ++i){
-        if(map.check_empty(x + nearby_arr[i][0], x + nearby_arr[i][1])){
+        if(map.check_empty(x + nearby_arr[i][0], y + nearby_arr[i][1])){
             return nearby_arr[i];
         }
     }

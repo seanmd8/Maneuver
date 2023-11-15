@@ -4,7 +4,7 @@
 const ANIMATION_DELAY = 300; // Controls the length of time the map is displayed before moving onto the next entitie's turn in ms.
 const STARTING_ENEMY = spider_tile; // Controls the single enemy on the first floor.
 const STARTING_DECK = make_starting_deck;
-
+document.onkeydown = press;
 
 function setup(){
     // Function ran on page load or on restart to set up the game.
@@ -28,6 +28,7 @@ function clear_tb(element_id){
 }
 async function action(behavior, hand_pos){
     // Function to execute the outcome of the player's turn.
+    describe("");
     try{
         for(var i = 0; i < behavior.length; ++i){
             // Does each valid command in the behavior list.
@@ -41,7 +42,6 @@ async function action(behavior, hand_pos){
                 throw new Error("invalid action type");
             }
         }
-        describe("");
         // Discards the card the user used.
         clear_tb("moveButtons");
         deck.discard(hand_pos);
@@ -80,7 +80,7 @@ function new_floor(){
     clear_tb("modifyDeck");
     document.getElementById("currentDeck").innerText = "";
     clear_tb("displayDeck");
-    var floor = mapData.erase(mapData.player_health());
+    var floor = mapData.erase(mapData.get_player().health);
     floor_generator(floor, mapData);
     mapData.display_stats(document.getElementById("stats"));
     deck.deal();
@@ -162,10 +162,10 @@ function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 
     image.width = size;
     if(click != undefined){
         if(param2 === undefined){
-            image.onclick = click(param1);
+            cell.onclick = click(param1);
         }
         else{
-            image.onclick = click(param1, param2);
+            cell.onclick = click(param1, param2);
         }
     }
     cell.append(image);
@@ -198,4 +198,30 @@ function game_over(cause){
     cell.onclick = restart;
     row.append(cell);
     document.getElementById("moveButtons").append(row);
+}
+function press(key){
+    var controls = ["q", "w", "e", "a", "s", "d", "z", "x", "c"];
+    var k = search(key.key, controls);
+    if(k >= 0){
+        var element = document.getElementById("button " + k);
+        if(!(element.onclick === null)){
+            element.click();
+        }
+    }
+    controls = ["h", "j", "k"];
+    k = search(key.key, controls);
+    if(k >= 0){
+        var element = document.getElementById("hand " + k);
+        if(!(element.onclick === null)){
+            element.click();
+        }
+    }
+}
+function search(element, arr){
+    for(var i = 0; i < arr.length; ++i){
+        if(element === arr[i]){
+            return i;
+        }
+    }
+    return -1;
 }

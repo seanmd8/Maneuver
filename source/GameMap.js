@@ -154,8 +154,13 @@ class GameMap{
 		}
         var row = document.createElement("tr");
         row.id = "health";
-        for(var i = 0; i < this.player_health(); ++i){
+        var player = this.get_player()
+        for(var i = 0; i < player.health; ++i){
             var cell = make_cell("health " + i, "images/other/heart.png", GRID_SCALE);
+			row.append(cell);
+        }
+        for(var i = 0; i < (player.max_health - player.health); ++i){
+            var cell = make_cell("hurt " + i, "images/other/heart_broken.png", GRID_SCALE);
 			row.append(cell);
         }
         visual_map.append(row);
@@ -206,10 +211,10 @@ class GameMap{
         var pos = this.#entity_list.get_player_pos();
         return this.move(pos.x, pos.y, pos.x + x_dif, pos.y + y_dif)
     }
-    player_health(){
+    get_player(){
         // Returns the player's health.
         var pos = this.#entity_list.get_player_pos();
-        return this.#grid[pos.x][pos.y].health;
+        return this.#grid[pos.x][pos.y];
     }
     attack(x, y, hits = "all"){
         // Attacks the specified square.
