@@ -219,6 +219,19 @@ function velociphile_tile(){
         description: velociphile_description
     }
 }
+function spider_queen_tile(){
+    return{
+        type: "enemy",
+        name: "spider queen",
+        pic: "spider_queen.png",
+        health: 3,
+        difficulty: "boss",
+        behavior: spider_ai,
+        on_hit: spider_queen_hit,
+        on_death: spider_queen_death,
+        description: spider_queen_description
+    }
+}
 
 function lava_pool_tile(){
     return {
@@ -250,29 +263,3 @@ function damaged_wall_tile(){
     }
 }
 
-// Descriptions
-const empty_description = "There is nothing here.";
-const exit_description = "Stairs to the next floor.";
-const player_description = "You.";
-const spider_description = "Spider: Will attack the player if it is next to them. Otherwise it will move 1 space closer.";
-const turret_h_description = "Turret: Does not move. Fires beams orthogonally that hit the first thing in their path.";
-const turret_d_description = "Turret: Does not move. Fires beams diagonally that hit the first thing in their path.";
-const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
-const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
-const spider_web_description = ["Spider Web: Does not move. Spawns a spider every ", " turns."];
-const ram_description = "Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.";
-const large_porcuslime_description = "Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when hit."
-const medium_porcuslime_description = "Medium Porcuslime: Moves towards the player 1 space and attacks in that direction. Alternates between orthoganal and diagonal movement. Splits when hit."
-const small_h_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction."
-const small_d_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction."
-const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it."
-const brightling_description = "Brightling: Will occasionally teleport the player close to it before teleoprting away the next turn."
-
-const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves in straight lines. Must build up speed to ram you.";
-
-const lava_pool_description = "Lava Pool: Attempting to move through this will hurt."
-const wall_description = "A wall. It seems sturdy."
-const damaged_wall_description = "A wall. It is damaged. something might live inside."
-const lock_description = "The exit is locked. Defeat the boss to continue."
-
-const boss_death_description = "The exit opens.\nYou feel your wounds begin to heal."

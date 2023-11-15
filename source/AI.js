@@ -17,7 +17,7 @@ function spider_ai(x, y, x_dif, y_dif, map, enemy){
     }
     else{
         // Otherwise, move closer.
-        var directions = order_nearby(sign(x_dif), sign(y_dif));
+        var directions = order_nearby(x_dif, y_dif);
         for(var i = 0; i < directions.length && !map.move(x, y, x + directions[i][0], y + directions[i][1]); ++i){}
     }
 }
@@ -123,8 +123,7 @@ function spider_web_ai(x, y, x_dif, y_dif, map, enemy){
     }
     else{
         // Attempts to spawn a spider nearby and resets cycle.
-        var spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_tile(spider_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        spawn_nearby(map, spider_tile(), x, y);
         enemy.cycle = 0;
     }
 }
@@ -180,19 +179,14 @@ function large_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
         // If health is 2, turns into the medium version.
         map.attack(x, y);
         map.attack(x, y);
-        if(!map.add_tile(medium_porcuslime_tile(), x, y)){
-            var spawnpoints = random_nearby();
-            for(var i = 0; i < spawnpoints.length && !map.add_tile(medium_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
-        }
+        map.add_tile(medium_porcuslime_tile(), x, y);
         return;
     }
     if(enemy.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
         map.attack(x, y);
-        var spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_tile(small_h_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
-        spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_tile(small_d_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        spawn_nearby(map, small_d_porcuslime_tile(), x, y);
+        spawn_nearby(map, small_h_porcuslime_tile(), x, y);
         return;
     }
     if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
@@ -213,10 +207,8 @@ function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
         map.attack(x, y);
-        var spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_tile(small_h_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
-        spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_tile(small_d_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        spawn_nearby(map, small_d_porcuslime_tile(), x, y);
+        spawn_nearby(map, small_h_porcuslime_tile(), x, y);
         return;
     }
     if(enemy.cycle === 0){
@@ -294,7 +286,6 @@ function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
         map.attack(x + attacks[i][0], y + attacks[i][1]);
     }
 }
-
 function brightling_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.cycle === -1){
         // teleports to a random empty space, then cycle goes to 1.
@@ -326,13 +317,13 @@ function brightling_ai(x, y, x_dif, y_dif, map, enemy){
 
 
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
-    var directions = random_nearby();
-    var direction = directions[0];
-    // If the player is in a straight line, attempts to aim at them.
-    if(Math.abs(x_dif) === Math.abs(y_dif) || x_dif === 0 || y_dif === 0){
-        direction = [sign(x_dif), sign(y_dif)];
+    var directions = order_nearby(x_dif, y_dif);
+    if(Math.floor(Math.random() * 3) === 0){
+        directions = randomize_arr(directions);
     }
-    // Reselects direction at random until it finds one that is unobstructed.
+    // Aims towards player.
+    var direction = directions[0];
+    // Reselects direction until it finds one that is unobstructed.
     for(var i = 1; !map.check_empty(x + direction[0], y + direction[1]) && i < directions.length; ++i){
         direction = directions[i];
     }
@@ -344,7 +335,17 @@ function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     map.attack(x + direction[0], y + direction[1]);
 }
 function velociphile_death(x, y, x_dif, y_dif, map, enemy){
-    describe("The wailing falls silent as the Velociphile is defeated.\n" + boss_death_description)
+    describe(velociphile_death_message + "\n" + boss_death_description)
+    map.unlock();
+}
+function spider_queen_hit(x, y, x_dif, y_dif, map, enemy){
+    stun(enemy);
+    var new_spider = spider_tile();
+    stun(new_spider);
+    spawn_nearby(map, new_spider, x, y);
+}
+function spider_queen_death(x, y, x_dif, y_dif, map, enemy){
+    describe(spider_queen_death_message + "\n" + boss_death_description)
     map.unlock();
 }
 
@@ -357,7 +358,7 @@ function wall_death(x, y, x_dif, y_dif, map, enemy){
     if(Math.floor(Math.random() * 7) < 10){
         var ran = Math.floor(Math.random() * spawn_list.length);
         var new_enemy = spawn_list[ran]();
-        new_enemy.stun = 1;
+        stun(new_enemy);
         map.add_tile(new_enemy, x, y);
     }
 }
@@ -382,48 +383,59 @@ function random_nearby(){
     var cords = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
     return randomize_arr(cords);
 }
-function order_nearby(x, y){
+function order_nearby(x_dir, y_dir){
     // Returns an array with points ordered from the nearest to the furthest from the given direction. 
     // Equal distance points are randomly ordered.
+    x_dir = sign(x_dir);
+    y_dir = sign(y_dir);
     var ordering = [];
-    ordering.push([x, y]);
-    if(x === 0){
-        var pair = randomize_arr([[1, y], [-1, y]]);
+    ordering.push([x_dir, y_dir]);
+    if(x_dir === 0){
+        var pair = randomize_arr([[1, y_dir], [-1, y_dir]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
         pair = randomize_arr([[1, 0], [-1, 0]])
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[1, -1 * y], [-1, -1 * y]]);
+        pair = randomize_arr([[1, -1 * y_dir], [-1, -1 * y_dir]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        ordering.push([0, -1 * y])
+        ordering.push([0, -1 * y_dir])
     }
-    else if(y === 0){
-        var pair = randomize_arr([[x, 1], [x, 1]]);
+    else if(y_dir === 0){
+        var pair = randomize_arr([[x_dir, 1], [x_dir, 1]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
         pair = randomize_arr([[0, 1], [0, -1]])
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[-1 * x, 1], [-1 * x, -1]]);
+        pair = randomize_arr([[-1 * x_dir, 1], [-1 * x_dir, -1]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        ordering.push([-1 * x, 0])
+        ordering.push([-1 * x_dir, 0])
     }
     else{
-        var pair = randomize_arr([[x, 0], [0, y]]);
+        var pair = randomize_arr([[x_dir, 0], [0, y_dir]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[-1 * x, y], [x, -1 * y]]);
+        pair = randomize_arr([[-1 * x_dir, y_dir], [x_dir, -1 * y_dir]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[-1 * x, 0], [0, -1 * y]]);
+        pair = randomize_arr([[-1 * x_dir, 0], [0, -1 * y_dir]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        ordering.push([-1 * x, -1 * y]);
+        ordering.push([-1 * x_dir, -1 * y_dir]);
     }
     return ordering;
+}
+function spawn_nearby(map, tile, x, y){
+    var nearby = random_nearby();
+    for(var i = 0; i < nearby.length; ++i){
+        if(map.add_tile(tile, x + nearby[i][0], y + nearby[i][1])){
+            return nearby[i];
+        }
+    }
+    return false;
 }
 function random_sign(){
     // Randomly returns 1 or -1.
@@ -463,4 +475,10 @@ function copy_arr(arr){
         arr2[i] = arr[i];
     }
     return arr2;
+}
+function stun(entity){
+    if(!entity.hasOwnProperty("stun")){
+        entity.stun = 0;
+    }
+    ++entity.stun;
 }

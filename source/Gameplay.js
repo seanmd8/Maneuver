@@ -2,15 +2,12 @@
 // File contains functions that control the main gameplay.
 
 const ANIMATION_DELAY = 300; // Controls the length of time the map is displayed before moving onto the next entitie's turn in ms.
-const WELCOME_MESSAGE = "Welcome to the dungeon.\n"
-                        + "Use cards to move (blue) and attack (red).\n" 
-                        + "Click on things to learn more about them."; // Message displayed at the start of the dungeon.
 const STARTING_ENEMY = spider_tile; // Controls the single enemy on the first floor.
 
 
 function setup(){
     // Function ran on page load or on restart to set up the game.
-    describe(WELCOME_MESSAGE);
+    describe(welcome_message);
     mapData = new GameMap(8, 8);  
     mapData.add_tile(STARTING_ENEMY());
     mapData.display();
@@ -73,7 +70,7 @@ async function action(behavior, hand_pos){
             mapData.display_stats(document.getElementById("stats"))
         }
         else{
-            console.log(m)
+            throw error;
         }
     }
 }

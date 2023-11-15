@@ -4,11 +4,10 @@
 // Parameters:
 //  x: the x location of this entity on the game map.
 //  y: the y location of this entity on the game map.
-//  x_dif: the difference between the x value of this and the player.
-//  y_dif: the difference between the y value of this and the player.
+//  x_dif: the difference between the x value of this and the player or thing that triggered it.
+//  y_dif: the difference between the y value of this and the player or thing that triggered it.
 //  map: the game map.
-//  enemy: the tile representing this entity.
-
+//  enemy: the entity using the function.
 
 
 function spider_ai(x, y, x_dif, y_dif, map, enemy){
@@ -18,7 +17,7 @@ function spider_ai(x, y, x_dif, y_dif, map, enemy){
     }
     else{
         // Otherwise, move closer.
-        var directions = order_nearby(sign(x_dif), sign(y_dif));
+        var directions = order_nearby(x_dif, y_dif);
         for(var i = 0; i < directions.length && !map.move(x, y, x + directions[i][0], y + directions[i][1]); ++i){}
     }
 }
@@ -124,8 +123,7 @@ function spider_web_ai(x, y, x_dif, y_dif, map, enemy){
     }
     else{
         // Attempts to spawn a spider nearby and resets cycle.
-        var spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_tile(spider_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        spawn_nearby(map, spider_tile(), x, y);
         enemy.cycle = 0;
     }
 }
@@ -181,19 +179,14 @@ function large_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
         // If health is 2, turns into the medium version.
         map.attack(x, y);
         map.attack(x, y);
-        if(!map.add_tile(medium_porcuslime_tile(), x, y)){
-            var spawnpoints = random_nearby();
-            for(var i = 0; i < spawnpoints.length && !map.add_tile(medium_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
-        }
+        map.add_tile(medium_porcuslime_tile(), x, y);
         return;
     }
     if(enemy.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
         map.attack(x, y);
-        var spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_tile(small_h_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
-        spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_tile(small_d_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        spawn_nearby(map, small_d_porcuslime_tile(), x, y);
+        spawn_nearby(map, small_h_porcuslime_tile(), x, y);
         return;
     }
     if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
@@ -214,10 +207,8 @@ function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
         map.attack(x, y);
-        var spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_tile(small_h_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
-        spawnpoints = random_nearby();
-        for(var i = 0; i < spawnpoints.length && !map.add_tile(small_d_porcuslime_tile(), x + spawnpoints[i][0], y + spawnpoints[i][1]); ++i){}
+        spawn_nearby(map, small_d_porcuslime_tile(), x, y);
+        spawn_nearby(map, small_h_porcuslime_tile(), x, y);
         return;
     }
     if(enemy.cycle === 0){
@@ -295,7 +286,6 @@ function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
         map.attack(x + attacks[i][0], y + attacks[i][1]);
     }
 }
-
 function brightling_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.cycle === -1){
         // teleports to a random empty space, then cycle goes to 1.
@@ -327,13 +317,13 @@ function brightling_ai(x, y, x_dif, y_dif, map, enemy){
 
 
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
-    var directions = random_nearby();
-    var direction = directions[0];
-    // If the player is in a straight line, attempts to aim at them.
-    if(Math.abs(x_dif) === Math.abs(y_dif) || x_dif === 0 || y_dif === 0){
-        direction = [sign(x_dif), sign(y_dif)];
+    var directions = order_nearby(x_dif, y_dif);
+    if(Math.floor(Math.random() * 3) === 0){
+        directions = randomize_arr(directions);
     }
-    // Reselects direction at random until it finds one that is unobstructed.
+    // Aims towards player.
+    var direction = directions[0];
+    // Reselects direction until it finds one that is unobstructed.
     for(var i = 1; !map.check_empty(x + direction[0], y + direction[1]) && i < directions.length; ++i){
         direction = directions[i];
     }
@@ -345,7 +335,17 @@ function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     map.attack(x + direction[0], y + direction[1]);
 }
 function velociphile_death(x, y, x_dif, y_dif, map, enemy){
-    describe("The wailing falls silent as the Velociphile is defeated.\n" + boss_death_description)
+    describe(velociphile_death_message + "\n" + boss_death_description)
+    map.unlock();
+}
+function spider_queen_hit(x, y, x_dif, y_dif, map, enemy){
+    stun(enemy);
+    var new_spider = spider_tile();
+    stun(new_spider);
+    spawn_nearby(map, new_spider, x, y);
+}
+function spider_queen_death(x, y, x_dif, y_dif, map, enemy){
+    describe(spider_queen_death_message + "\n" + boss_death_description)
     map.unlock();
 }
 
@@ -358,7 +358,7 @@ function wall_death(x, y, x_dif, y_dif, map, enemy){
     if(Math.floor(Math.random() * 7) < 10){
         var ran = Math.floor(Math.random() * spawn_list.length);
         var new_enemy = spawn_list[ran]();
-        new_enemy.stun = 1;
+        stun(new_enemy);
         map.add_tile(new_enemy, x, y);
     }
 }
@@ -383,48 +383,59 @@ function random_nearby(){
     var cords = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
     return randomize_arr(cords);
 }
-function order_nearby(x, y){
+function order_nearby(x_dir, y_dir){
     // Returns an array with points ordered from the nearest to the furthest from the given direction. 
     // Equal distance points are randomly ordered.
+    x_dir = sign(x_dir);
+    y_dir = sign(y_dir);
     var ordering = [];
-    ordering.push([x, y]);
-    if(x === 0){
-        var pair = randomize_arr([[1, y], [-1, y]]);
+    ordering.push([x_dir, y_dir]);
+    if(x_dir === 0){
+        var pair = randomize_arr([[1, y_dir], [-1, y_dir]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
         pair = randomize_arr([[1, 0], [-1, 0]])
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[1, -1 * y], [-1, -1 * y]]);
+        pair = randomize_arr([[1, -1 * y_dir], [-1, -1 * y_dir]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        ordering.push([0, -1 * y])
+        ordering.push([0, -1 * y_dir])
     }
-    else if(y === 0){
-        var pair = randomize_arr([[x, 1], [x, 1]]);
+    else if(y_dir === 0){
+        var pair = randomize_arr([[x_dir, 1], [x_dir, 1]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
         pair = randomize_arr([[0, 1], [0, -1]])
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[-1 * x, 1], [-1 * x, -1]]);
+        pair = randomize_arr([[-1 * x_dir, 1], [-1 * x_dir, -1]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        ordering.push([-1 * x, 0])
+        ordering.push([-1 * x_dir, 0])
     }
     else{
-        var pair = randomize_arr([[x, 0], [0, y]]);
+        var pair = randomize_arr([[x_dir, 0], [0, y_dir]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[-1 * x, y], [x, -1 * y]]);
+        pair = randomize_arr([[-1 * x_dir, y_dir], [x_dir, -1 * y_dir]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[-1 * x, 0], [0, -1 * y]]);
+        pair = randomize_arr([[-1 * x_dir, 0], [0, -1 * y_dir]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        ordering.push([-1 * x, -1 * y]);
+        ordering.push([-1 * x_dir, -1 * y_dir]);
     }
     return ordering;
+}
+function spawn_nearby(map, tile, x, y){
+    var nearby = random_nearby();
+    for(var i = 0; i < nearby.length; ++i){
+        if(map.add_tile(tile, x + nearby[i][0], y + nearby[i][1])){
+            return nearby[i];
+        }
+    }
+    return false;
 }
 function random_sign(){
     // Randomly returns 1 or -1.
@@ -464,12 +475,18 @@ function copy_arr(arr){
         arr2[i] = arr[i];
     }
     return arr2;
+}
+function stun(entity){
+    if(!entity.hasOwnProperty("stun")){
+        entity.stun = 0;
+    }
+    ++entity.stun;
 }// ----------------ButtonGrid.js----------------
 // The ButtonGrid class is used to keep track of the possible moves a card has.
 class ButtonGrid{
-    buttons; // A 3x3 2d array used to store the options.
+    #buttons; // A 3x3 2d array used to store the options.
     constructor(){
-        this.buttons = [[0, 0, 0],
+        this.#buttons = [[0, 0, 0],
                         [0, 0, 0], 
                         [0, 0, 0]];
     }
@@ -484,24 +501,24 @@ class ButtonGrid{
             throw new Error("button out of range");
         }
         var button = [description, commands];
-        this.buttons[Math.floor((number - 1) / 3)][(number - 1) % 3] = button;
+        this.#buttons[Math.floor((number - 1) / 3)][(number - 1) % 3] = button;
     }
     show_buttons(table_name, hand_pos){
         // Displays the 3x3 grid to the given table.
         // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
         clear_tb(table_name);
-        for(var i = 0; i < this.buttons.length; ++i){
+        for(var i = 0; i < this.#buttons.length; ++i){
             var row = document.createElement("tr");
             row.id = "button row " + i;
-            for(var j = 0; j < this.buttons[i].length; ++j){
+            for(var j = 0; j < this.#buttons[i].length; ++j){
                 var cell = document.createElement("input");
                 cell.type = "button";
-                if(!(this.buttons[i][j] === 0)){
+                if(!(this.#buttons[i][j] === 0)){
                     // If the button has info, that description and list of commands will be used.
-                    cell.name = this.buttons[i][j][0];
-                    cell.value = this.buttons[i][j][0];
+                    cell.name = this.#buttons[i][j][0];
+                    cell.value = this.#buttons[i][j][0];
                     var act = function(behavior, hand_pos){return function(){action(behavior, hand_pos)}};
-                    cell.onclick = act(this.buttons[i][j][1], hand_pos);
+                    cell.onclick = act(this.#buttons[i][j][1], hand_pos);
                 }
                 else{
                     // If it doesn't have info, a "--" button with no onclick will be used.
@@ -516,7 +533,7 @@ class ButtonGrid{
     #convert_direction(direction){
         // Converts a short direction string into the number of the button it should use.
         // Returns -1 if the string doesn't match one in the list.
-        var dir_list = ["NW", "N", "NE", "W", "C", "E", "SW", "S", "SE"];
+        var dir_list = [NW, N, NE, W, C, E, SW, S, SE];
         for(var i = 0; i < dir_list.length; ++i){
             if(direction === dir_list[i]){
                 return i + 1;
@@ -578,10 +595,10 @@ function make_test_deck(){
 // basic_horizontal and basic_diagonal are unique to the starting deck.
 function basic_horizontal(){
     var options = new ButtonGrid();
-    options.add_button("N", [["move", 0, -1]]);
-    options.add_button("E", [["move", 1, 0]]);
-    options.add_button("S", [["move", 0, 1]]);
-    options.add_button("W", [["move", -1, 0]]);
+    options.add_button(N, [["move", 0, -1]]);
+    options.add_button(E, [["move", 1, 0]]);
+    options.add_button(S, [["move", 0, 1]]);
+    options.add_button(W, [["move", -1, 0]]);
     return{
         name: "basic horizontal",
         pic: "basic_horizontal.png",
@@ -590,10 +607,10 @@ function basic_horizontal(){
 }
 function basic_diagonal(){
     var options = new ButtonGrid();
-    options.add_button("NE", [["move", 1, -1]]);
-    options.add_button("SE", [["move", 1, 1]]);
-    options.add_button("SW", [["move", -1, 1]]);
-    options.add_button("NW", [["move", -1, -1]]);
+    options.add_button(NE, [["move", 1, -1]]);
+    options.add_button(SE, [["move", 1, 1]]);
+    options.add_button(SW, [["move", -1, 1]]);
+    options.add_button(NW, [["move", -1, -1]]);
     return{
         name: "basic diagonal",
         pic: "basic_diagonal.png",
@@ -602,10 +619,10 @@ function basic_diagonal(){
 }
 function slice(){
     var options = new ButtonGrid();
-    options.add_button("N", [["attack", 1, -1], ["attack", 0, -1], ["attack", -1, -1]]);
-    options.add_button("E", [["attack", 1, 1], ["attack", 1, 0], ["attack", 1, -1]]);
-    options.add_button("S", [["attack", 1, 1], ["attack", 0, 1], ["attack", -1, 1]]);
-    options.add_button("W", [["attack", -1, 1], ["attack", -1, 0], ["attack", -1, -1]]);
+    options.add_button(N, [["attack", 1, -1], ["attack", 0, -1], ["attack", -1, -1]]);
+    options.add_button(E, [["attack", 1, 1], ["attack", 1, 0], ["attack", 1, -1]]);
+    options.add_button(S, [["attack", 1, 1], ["attack", 0, 1], ["attack", -1, 1]]);
+    options.add_button(W, [["attack", -1, 1], ["attack", -1, 0], ["attack", -1, -1]]);
     return{
         name: "slice",
         pic: "slice.png",
@@ -614,10 +631,10 @@ function slice(){
 }
 function short_charge(){
     var options = new ButtonGrid();
-    options.add_button("N", [["move", 0, -1], ["attack", 0, -1]]);
-    options.add_button("E", [["move", 1, 0], ["attack", 1, 0]]);
-    options.add_button("S", [["move", 0, 1], ["attack", 0, 1]]);
-    options.add_button("W", [["move", -1, 0], ["attack", -1, 0]]);
+    options.add_button(N, [["move", 0, -1], ["attack", 0, -1]]);
+    options.add_button(E, [["move", 1, 0], ["attack", 1, 0]]);
+    options.add_button(S, [["move", 0, 1], ["attack", 0, 1]]);
+    options.add_button(W, [["move", -1, 0], ["attack", -1, 0]]);
     return{
         name: "short charge",
         pic: "short_charge.png",
@@ -626,10 +643,10 @@ function short_charge(){
 }
 function jump(){
     var options = new ButtonGrid();
-    options.add_button("N", [["move", 0, -2]]);
-    options.add_button("E", [["move", 2, 0]]);
-    options.add_button("S", [["move", 0, 2]]);
-    options.add_button("W", [["move", -2, 0]]);
+    options.add_button(N, [["move", 0, -2]]);
+    options.add_button(E, [["move", 2, 0]]);
+    options.add_button(S, [["move", 0, 2]]);
+    options.add_button(W, [["move", -2, 0]]);
     return{
         name: "jump",
         pic: "jump.png",
@@ -639,8 +656,8 @@ function jump(){
 
 function straight_charge(){
     var options = new ButtonGrid();
-    options.add_button("N", [["move", 0, -1], ["move", 0, -1], ["attack", 0, -1]]);
-    options.add_button("S", [["move", 0, 1], ["move", 0, 1], ["attack", 0, 1]]);
+    options.add_button(N, [["move", 0, -1], ["move", 0, -1], ["attack", 0, -1]]);
+    options.add_button(S, [["move", 0, 1], ["move", 0, 1], ["attack", 0, 1]]);
     return{
         name: "straight charge",
         pic: "straight_charge.png",
@@ -649,8 +666,8 @@ function straight_charge(){
 }
 function side_charge(){
     var options = new ButtonGrid();
-    options.add_button("E", [["move", 1, 0], ["move", 1, 0], ["attack", 1, 0]]);
-    options.add_button("W", [["move", -1, 0], ["move", -1, 0], ["attack", -1, 0]]);
+    options.add_button(E, [["move", 1, 0], ["move", 1, 0], ["attack", 1, 0]]);
+    options.add_button(W, [["move", -1, 0], ["move", -1, 0], ["attack", -1, 0]]);
     return{
         name: "side charge",
         pic: "side_charge.png",
@@ -659,9 +676,9 @@ function side_charge(){
 }
 function step_left(){
     var options = new ButtonGrid();
-    options.add_button("SW", [["move", -1, 1]]);
-    options.add_button("W", [["move", -1, 0], ["move", -1, 0]]);
-    options.add_button("NW", [["move", -1, -1]]);
+    options.add_button(SW, [["move", -1, 1]]);
+    options.add_button(W, [["move", -1, 0], ["move", -1, 0]]);
+    options.add_button(NW, [["move", -1, -1]]);
     return{
         name: "step left",
         pic: "step_left.png",
@@ -670,9 +687,9 @@ function step_left(){
 }
 function step_right(){
     var options = new ButtonGrid();
-    options.add_button("SE", [["move", 1, 1]]);
-    options.add_button("E", [["move", 1, 0], ["move", 1, 0]]);
-    options.add_button("NE", [["move", 1, -1]]);
+    options.add_button(SE, [["move", 1, 1]]);
+    options.add_button(E, [["move", 1, 0], ["move", 1, 0]]);
+    options.add_button(NE, [["move", 1, -1]]);
     return{
         name: "step right",
         pic: "step_right.png",
@@ -681,8 +698,8 @@ function step_right(){
 }
 function trample(){
     var options = new ButtonGrid();
-    options.add_button("NE", [["attack", 1, -2], ["move", 1, -2]]);
-    options.add_button("NW", [["attack", -1, -2], ["move", -1, -2]]);
+    options.add_button(NE, [["attack", 1, -2], ["move", 1, -2]]);
+    options.add_button(NW, [["attack", -1, -2], ["move", -1, -2]]);
     return{
         name: "trample",
         pic: "trample.png",
@@ -691,10 +708,10 @@ function trample(){
 }
 function horsemanship(){
     var options = new ButtonGrid();
-    options.add_button("NE", [["move", 2, -1]]);
-    options.add_button("SE", [["move", 2, 1]]);
-    options.add_button("SW", [["move", -2, 1]]);
-    options.add_button("NW", [["move", -2, -1]]);
+    options.add_button(NE, [["move", 2, -1]]);
+    options.add_button(SE, [["move", 2, 1]]);
+    options.add_button(SW, [["move", -2, 1]]);
+    options.add_button(NW, [["move", -2, -1]]);
     return{
         name: "horsemanship",
         pic: "horsemanship.png",
@@ -703,8 +720,8 @@ function horsemanship(){
 }
 function lunge_left(){
     var options = new ButtonGrid();
-    options.add_button("SE", [["move", 1, 1]]);
-    options.add_button("NW", [["move", -1, -1], ["move", -1, -1], ["attack", -1, -1]]);
+    options.add_button(SE, [["move", 1, 1]]);
+    options.add_button(NW, [["move", -1, -1], ["move", -1, -1], ["attack", -1, -1]]);
     return{
         name: "lunge left",
         pic: "lunge_left.png",
@@ -713,8 +730,8 @@ function lunge_left(){
 }
 function lunge_right(){
     var options = new ButtonGrid();
-    options.add_button("SW", [["move", -1, 1]]);
-    options.add_button("NE", [["move", 1, -1], ["move", 1, -1], ["attack", 1, -1]]);
+    options.add_button(SW, [["move", -1, 1]]);
+    options.add_button(NE, [["move", 1, -1], ["move", 1, -1], ["attack", 1, -1]]);
     return{
         name: "lunge right",
         pic: "lunge_right.png",
@@ -723,7 +740,7 @@ function lunge_right(){
 }
 function sprint(){
     var options = new ButtonGrid();
-    options.add_button("N", [["move", 0, -1], ["move", 0, -1], ["move", 0, -1]]);
+    options.add_button(N, [["move", 0, -1], ["move", 0, -1], ["move", 0, -1]]);
     return{
         name: "sprint",
         pic: "sprint.png",
@@ -732,9 +749,9 @@ function sprint(){
 }
 function trident(){
     var options = new ButtonGrid();
-    options.add_button("N", [["attack", 1, -2], ["attack", 0, -2], ["attack", -1, -2]]);
-    options.add_button("E", [["attack", 2, 1], ["attack", 2, 0], ["attack", 2, -1]]);
-    options.add_button("W", [["attack", -2, 1], ["attack", -2, 0], ["attack", -2, -1]]);
+    options.add_button(N, [["attack", 1, -2], ["attack", 0, -2], ["attack", -1, -2]]);
+    options.add_button(E, [["attack", 2, 1], ["attack", 2, 0], ["attack", 2, -1]]);
+    options.add_button(W, [["attack", -2, 1], ["attack", -2, 0], ["attack", -2, -1]]);
     return{
         name: "trident",
         pic: "trident.png",
@@ -743,10 +760,10 @@ function trident(){
 }
 function whack(){
     var options = new ButtonGrid();
-    options.add_button("N", [["attack", 0, -1], ["attack", 0, -1]]);
-    options.add_button("E", [["attack", 1, 0], ["attack", 1, 0]]);
-    options.add_button("S", [["attack", 0, 1], ["attack", 0, 1]]);
-    options.add_button("W", [["attack", -1, 0], ["attack", -1, 0]]);
+    options.add_button(N, [["attack", 0, -1], ["attack", 0, -1]]);
+    options.add_button(E, [["attack", 1, 0], ["attack", 1, 0]]);
+    options.add_button(S, [["attack", 0, 1], ["attack", 0, 1]]);
+    options.add_button(W, [["attack", -1, 0], ["attack", -1, 0]]);
     return{
         name: "whack",
         pic: "whack.png",
@@ -772,10 +789,10 @@ function spin_attack(){
 }
 function butterfly(){
     var options = new ButtonGrid();
-    options.add_button("NE", [["move", 2, -2]]);
-    options.add_button("SE", [["move", 1, 1]]);
-    options.add_button("SW", [["move", -1, 1]]);
-    options.add_button("NW", [["move", -2, -2]]);
+    options.add_button(NE, [["move", 2, -2]]);
+    options.add_button(SE, [["move", 1, 1]]);
+    options.add_button(SW, [["move", -1, 1]]);
+    options.add_button(NW, [["move", -2, -2]]);
     return{
         name: "butterfly",
         pic: "butterfly.png",
@@ -784,9 +801,9 @@ function butterfly(){
 }
 function retreat(){
     var options = new ButtonGrid();
-    options.add_button("SE", [["move", 1, 1]]);
-    options.add_button("S", [["move", 0, 1], ["move", 0, 1], ["move", 0, 1]]);
-    options.add_button("SW", [["move", -1, 1]]);
+    options.add_button(SE, [["move", 1, 1]]);
+    options.add_button(S, [["move", 0, 1], ["move", 0, 1], ["move", 0, 1]]);
+    options.add_button(SW, [["move", -1, 1]]);
     return{
         name: "retreat",
         pic: "retreat.png",
@@ -795,7 +812,7 @@ function retreat(){
 }
 function force(){
     var options = new ButtonGrid();
-    options.add_button("N", [["attack", 0, -1], ["move", 0, -1], ["attack", 0, -1], ["move", 0, -1]]);
+    options.add_button(N, [["attack", 0, -1], ["move", 0, -1], ["attack", 0, -1], ["move", 0, -1]]);
     return{
         name: "force",
         pic: "force.png",
@@ -804,8 +821,8 @@ function force(){
 }
 function side_attack(){
     var options = new ButtonGrid();
-    options.add_button("E", [["attack", 1, 0], ["attack", 2, 0], ["attack", 3, 0]]);
-    options.add_button("W", [["attack", -1, 0], ["attack", -2, 0], ["attack", -3, 0]]);
+    options.add_button(E, [["attack", 1, 0], ["attack", 2, 0], ["attack", 3, 0]]);
+    options.add_button(W, [["attack", -1, 0], ["attack", -2, 0], ["attack", -3, 0]]);
     return{
         name: "side attack",
         pic: "side_attack.png",
@@ -814,7 +831,7 @@ function side_attack(){
 }
 function clear_behind(){
     var options = new ButtonGrid();
-    options.add_button("C", [["attack", 1, 1], ["attack", 0, 1], ["attack", -1, 1], ["attack", 1, 2], ["attack", 0, 2], ["attack", -1, 2]]);
+    options.add_button(C, [["attack", 1, 1], ["attack", 0, 1], ["attack", -1, 1], ["attack", 1, 2], ["attack", 0, 2], ["attack", -1, 2]]);
     return{
         name: "clear behind",
         pic: "clear_behind.png",
@@ -823,7 +840,7 @@ function clear_behind(){
 }
 function spear_slice(){
     var options = new ButtonGrid();
-    options.add_button("C", [["attack", 1, -1], ["attack", -1, -1], ["attack", 1, -2], ["attack", 0, -2], ["attack", -1, -2]]);
+    options.add_button(C, [["attack", 1, -1], ["attack", -1, -1], ["attack", 1, -2], ["attack", 0, -2], ["attack", -1, -2]]);
     return{
         name: "spear slice",
         pic: "spear_slice.png",
@@ -832,10 +849,10 @@ function spear_slice(){
 }
 function jab(){
     var options = new ButtonGrid();
-    options.add_button("N", [["attack", 0, -1], ["attack", 0, -2]]);
-    options.add_button("E", [["attack", 1, 0], ["attack", 2, 0]]);
-    options.add_button("S", [["attack", 0, 1], ["attack", 0, 2]]);
-    options.add_button("W", [["attack", -1, 0], ["attack", -2, 0]]);
+    options.add_button(N, [["attack", 0, -1], ["attack", 0, -2]]);
+    options.add_button(E, [["attack", 1, 0], ["attack", 2, 0]]);
+    options.add_button(S, [["attack", 0, 1], ["attack", 0, 2]]);
+    options.add_button(W, [["attack", -1, 0], ["attack", -2, 0]]);
     return{
         name: "jab",
         pic: "jab.png",
@@ -844,8 +861,8 @@ function jab(){
 }
 function overcome(){
     var options = new ButtonGrid();
-    options.add_button("N", [["attack", 1, -1], ["attack", 0, -1], ["attack", -1, -1], ["move", 0, -2]]);
-    options.add_button("S", [["attack", 1, 1], ["attack", 0, 1], ["attack", -1, 1], ["move", 0, 2]]);
+    options.add_button(N, [["attack", 1, -1], ["attack", 0, -1], ["attack", -1, -1], ["move", 0, -2]]);
+    options.add_button(S, [["attack", 1, 1], ["attack", 0, 1], ["attack", -1, 1], ["move", 0, 2]]);
     return{
         name: "overcome",
         pic: "overcome.png",
@@ -854,7 +871,7 @@ function overcome(){
 }
 function hit_and_run(){
     var options = new ButtonGrid();
-    options.add_button("S", [["attack", 1, -1], ["attack", 0, -1], ["attack", -1, -1], ["move", 0, 1]]);
+    options.add_button(S, [["attack", 1, -1], ["attack", 0, -1], ["attack", -1, -1], ["move", 0, 1]]);
     return{
         name: "hit and run",
         pic: "hit_and_run.png",
@@ -863,8 +880,8 @@ function hit_and_run(){
 }
 function v(){
     var options = new ButtonGrid();
-    options.add_button("NE", [["attack", 1, -1], ["move", 1, -1]]);
-    options.add_button("NW", [["attack", -1, -1], ["move", -1, -1]]);
+    options.add_button(NE, [["attack", 1, -1], ["move", 1, -1]]);
+    options.add_button(NW, [["attack", -1, -1], ["move", -1, -1]]);
     return{
         name: "v",
         pic: "v.png",
@@ -873,8 +890,8 @@ function v(){
 }
 function push_back(){
     var options = new ButtonGrid();
-    options.add_button("SE", [["attack", -1, -1], ["move", 1, 1]]);
-    options.add_button("SW", [["attack", 1, -1], ["move", -1, 1]]);
+    options.add_button(SE, [["attack", -1, -1], ["move", 1, 1]]);
+    options.add_button(SW, [["attack", 1, -1], ["move", -1, 1]]);
     return{
         name: "push back",
         pic: "push_back.png",
@@ -883,10 +900,10 @@ function push_back(){
 }
 function fork(){
     var options = new ButtonGrid();
-    options.add_button("N", [["attack", 1, -1], ["attack", -1, -1], ["attack", 1, -2], ["attack", -1, -2]]);
-    options.add_button("E", [["attack", 1, 1], ["attack", 1, -1], ["attack", 2, 1], ["attack", 2, -1]]);
-    options.add_button("S", [["attack", 1, 1], ["attack", -1, 1], ["attack", 1, 2], ["attack", -1, 2]]);
-    options.add_button("W", [["attack", -1, 1], ["attack", -1, -1], ["attack", -2, 1], ["attack", -2, -1]]);
+    options.add_button(N, [["attack", 1, -1], ["attack", -1, -1], ["attack", 1, -2], ["attack", -1, -2]]);
+    options.add_button(E, [["attack", 1, 1], ["attack", 1, -1], ["attack", 2, 1], ["attack", 2, -1]]);
+    options.add_button(S, [["attack", 1, 1], ["attack", -1, 1], ["attack", 1, 2], ["attack", -1, 2]]);
+    options.add_button(W, [["attack", -1, 1], ["attack", -1, -1], ["attack", -2, 1], ["attack", -2, -1]]);
     return{
         name: "fork",
         pic: "fork.png",
@@ -911,7 +928,7 @@ function explosion(){
 }
 function breakthrough(){
     var options = new ButtonGrid();
-    options.add_button("N", [["move", 0, -1], ["attack", 1, 0], ["attack", -1, 0], ["attack", 0, -1]]);
+    options.add_button(N, [["move", 0, -1], ["attack", 1, 0], ["attack", -1, 0], ["attack", 0, -1]]);
     return{
         name: "breakthrough",
         pic: "breakthrough.png",
@@ -920,8 +937,8 @@ function breakthrough(){
 }
 function flanking_diagonal(){
     var options = new ButtonGrid();
-    options.add_button("NE", [["move", 1, -1], ["attack", 0, 1], ["attack", -1, 0], ["move", 1, -1], ["attack", 0, 1], ["attack", -1, 0]]);
-    options.add_button("NW", [["move", -1, -1], ["attack", 0, 1], ["attack", 1, 0], ["move", -1, -1], ["attack", 0, 1], ["attack", 1, 0]]);
+    options.add_button(NE, [["move", 1, -1], ["attack", 0, 1], ["attack", -1, 0], ["move", 1, -1], ["attack", 0, 1], ["attack", -1, 0]]);
+    options.add_button(NW, [["move", -1, -1], ["attack", 0, 1], ["attack", 1, 0], ["move", -1, -1], ["attack", 0, 1], ["attack", 1, 0]]);
     return{
         name: "flanking diagonal",
         pic: "flanking_diagonal.png",
@@ -930,8 +947,8 @@ function flanking_diagonal(){
 }
 function flanking_sideways(){
     var options = new ButtonGrid();
-    options.add_button("E", [["move", 1, 0], ["attack", 0, 1], ["attack", 0, -1], ["move", 1, 0], ["attack", 0, 1], ["attack", 0, -1]]);
-    options.add_button("W", [["move", -1, 0], ["attack", 0, 1], ["attack", 0, -1], ["move", -1, 0], ["attack", 0, 1], ["attack", 0, -1]]);
+    options.add_button(E, [["move", 1, 0], ["attack", 0, 1], ["attack", 0, -1], ["move", 1, 0], ["attack", 0, 1], ["attack", 0, -1]]);
+    options.add_button(W, [["move", -1, 0], ["attack", 0, 1], ["attack", 0, -1], ["move", -1, 0], ["attack", 0, 1], ["attack", 0, -1]]);
     return{
         name: "flanking sideways",
         pic: "flanking_sideways.png",
@@ -940,8 +957,8 @@ function flanking_sideways(){
 }
 function flanking_straight(){
     var options = new ButtonGrid();
-    options.add_button("N", [["move", 0, -1], ["attack", 1, 0], ["attack", -1, 0], ["move", 0, -1], ["attack", 1, 0], ["attack", -1, 0]]);
-    options.add_button("S", [["move", 0, 1], ["attack", 1, 0], ["attack", -1, 0], ["move", 0, 1], ["attack", 1, 0], ["attack", -1, 0]]);
+    options.add_button(N, [["move", 0, -1], ["attack", 1, 0], ["attack", -1, 0], ["move", 0, -1], ["attack", 1, 0], ["attack", -1, 0]]);
+    options.add_button(S, [["move", 0, 1], ["attack", 1, 0], ["attack", -1, 0], ["move", 0, 1], ["attack", 1, 0], ["attack", -1, 0]]);
     return{
         name: "flanking straight",
         pic: "flanking_straight.png",
@@ -950,15 +967,71 @@ function flanking_straight(){
 }
 function pike(){
     var options = new ButtonGrid();
-    options.add_button("N", [["attack", 0, -2], ["attack", 1, -3], ["attack", 0, -3], ["attack", -1, -3]]);
-    options.add_button("E", [["attack", 2, 0], ["attack", 3, 1], ["attack", 3, 0], ["attack", 3, -1]]);
-    options.add_button("W", [["attack", -2, 0], ["attack", -3, 1], ["attack", -3, 0], ["attack", -3, -1]]);
+    options.add_button(N, [["attack", 0, -2], ["attack", 1, -3], ["attack", 0, -3], ["attack", -1, -3]]);
+    options.add_button(E, [["attack", 2, 0], ["attack", 3, 1], ["attack", 3, 0], ["attack", 3, -1]]);
+    options.add_button(W, [["attack", -2, 0], ["attack", -3, 1], ["attack", -3, 0], ["attack", -3, -1]]);
     return{
         name: "pike",
         pic: "pike.png",
         options
     }
-}// ----------------EntityList.js----------------
+}// ----------------Descriptions.js----------------
+// Contains text that will be displayed.
+
+// General.
+const welcome_message = "Welcome to the dungeon.\n"
+                            + "Use cards to move (blue) and attack (red).\n" 
+                            + "Click on things to learn more about them.";
+const floor_message = "Welcome to floor ";
+
+// Normal Enemy Descriptions.
+const spider_description = "Spider: Will attack the player if it is next to them. Otherwise it will move 1 space closer.";
+const turret_h_description = "Turret: Does not move. Fires beams orthogonally that hit the first thing in their path.";
+const turret_d_description = "Turret: Does not move. Fires beams diagonally that hit the first thing in their path.";
+const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
+const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
+const spider_web_description = ["Spider Web: Does not move. Spawns a spider every ", " turns."];
+const ram_description = "Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.";
+const large_porcuslime_description = "Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when hit.";
+const medium_porcuslime_description = "Medium Porcuslime: Moves towards the player 1 space and attacks in that direction. Alternates between orthoganal and diagonal movement. Splits when hit.";
+const small_h_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction.";
+const small_d_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction.";
+const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it.";
+const brightling_description = "Brightling: Will occasionally teleport the player close to it before teleoprting away the next turn.";
+
+// Boss Descriptions.
+const boss_death_description = "The exit opens.\n"
+                                + "You feel your wounds begin to heal.";
+const velociphile_floor_message = "You hear a deafening shriek.";
+const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves in straight lines. Must build up speed to ram you.";
+const velociphile_death_message = "The wailing falls silent as the Velociphile is defeated.";
+const spider_queen_floor_message = "The floor is thick with webs.";
+const spider_queen_description = "Spider Queen (Boss): Moves like a normal spider. Taking damage will stun her, but will also spawn spiders.";
+const spider_queen_death_message = "As the Spider Queen falls to the floor, the last of her children emerge.";
+
+
+// Other Tile Descriptions.
+const empty_description = "There is nothing here.";
+const exit_description = "Stairs to the next floor.";
+const player_description = "You.";
+const lava_pool_description = "Lava Pool: Attempting to move through this will hurt.";
+const wall_description = "A wall. It seems sturdy.";
+const damaged_wall_description = "A damaged wall. Something might live inside.";
+const lock_description = "The exit is locked. Defeat the boss to continue.";
+
+
+
+// Cardinal Directions.
+const NW = "NW";
+const N = "N";
+const NE = "NE";
+const E = "E";
+const SE = "SE";
+const S = "S";
+const SW = "SW";
+const W = "W";
+const C = "C";
+// ----------------EntityList.js----------------
 // EntityList class is used by the GameMap class to keep track of entities without having to search through the map each time.
 
 class EntityList{
@@ -1069,7 +1142,7 @@ class EntityList{
 // File containing the functions for generating new floors.
 
 const AREA_SIZE = 5;
-const BOSS_FLOOR = [velociphile_floor];
+const BOSS_FLOOR = [velociphile_floor, spider_queen_floor];
 
 function floor_generator(floor, map){
     if(!(floor % AREA_SIZE === 0) || Math.floor(floor / AREA_SIZE) - 1 >= BOSS_FLOOR.length){
@@ -1089,7 +1162,7 @@ function generate_normal_floor(floor, map, enemies){
             i -= new_enemy.difficulty;
         }
     }
-    describe("Welcome to floor " + floor + ".");
+    describe(floor_message + floor + ".");
 }
 
 function velociphile_floor(floor, map){
@@ -1099,7 +1172,20 @@ function velociphile_floor(floor, map){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
     }
-    describe("Welcome to floor " + floor + ".\nYou hear a deafening shriek.")
+    describe(floor_message + floor + ".\n" + velociphile_floor_message)
+}
+
+function spider_queen_floor(floor, map){
+    map.add_tile(spider_queen_tile());
+    map.lock();
+    for(var i = 0; i < 5; ++i){
+        map.add_tile(wall_tile());
+        map.add_tile(damaged_wall_tile());
+    }
+    for(var i = 0; i < 2; ++i){
+        map.add_tile(spider_web_tile());
+    }
+    describe(floor_message + floor + ".\n" + spider_queen_floor_message)
 }// ----------------GameMap.js----------------
 // GameMap class holds the information on the current floor and everything on it.
 
@@ -1328,6 +1414,10 @@ class GameMap{
         var target = this.#grid[x][y];
         if(target.hasOwnProperty("health") && !(target.type === "player") && (hits === "enemy" || hits === "all")){
             target.health -= 1;
+            if(target.hasOwnProperty("on_hit")){
+                var player_pos = this.#entity_list.get_player_pos();
+                target.on_hit(x, y, player_pos[0] - x, player_pos[1] - y, this, target);
+            }
             if(target.health === 0){
                 this.#grid[x][y] = empty_tile()
                 this.#grid[x][y].pic = "hit.png";
@@ -1389,15 +1479,12 @@ class GameMap{
 // File contains functions that control the main gameplay.
 
 const ANIMATION_DELAY = 300; // Controls the length of time the map is displayed before moving onto the next entitie's turn in ms.
-const WELCOME_MESSAGE = "Welcome to the dungeon.\n"
-                        + "Use cards to move (blue) and attack (red).\n" 
-                        + "Click on things to learn more about them."; // Message displayed at the start of the dungeon.
 const STARTING_ENEMY = spider_tile; // Controls the single enemy on the first floor.
 
 
 function setup(){
     // Function ran on page load or on restart to set up the game.
-    describe(WELCOME_MESSAGE);
+    describe(welcome_message);
     mapData = new GameMap(8, 8);  
     mapData.add_tile(STARTING_ENEMY());
     mapData.display();
@@ -1460,7 +1547,7 @@ async function action(behavior, hand_pos){
             mapData.display_stats(document.getElementById("stats"))
         }
         else{
-            console.log(m)
+            throw error;
         }
     }
 }
@@ -1930,6 +2017,19 @@ function velociphile_tile(){
         description: velociphile_description
     }
 }
+function spider_queen_tile(){
+    return{
+        type: "enemy",
+        name: "spider queen",
+        pic: "spider_queen.png",
+        health: 3,
+        difficulty: "boss",
+        behavior: spider_ai,
+        on_hit: spider_queen_hit,
+        on_death: spider_queen_death,
+        description: spider_queen_description
+    }
+}
 
 function lava_pool_tile(){
     return {
@@ -1961,29 +2061,3 @@ function damaged_wall_tile(){
     }
 }
 
-// Descriptions
-const empty_description = "There is nothing here.";
-const exit_description = "Stairs to the next floor.";
-const player_description = "You.";
-const spider_description = "Spider: Will attack the player if it is next to them. Otherwise it will move 1 space closer.";
-const turret_h_description = "Turret: Does not move. Fires beams orthogonally that hit the first thing in their path.";
-const turret_d_description = "Turret: Does not move. Fires beams diagonally that hit the first thing in their path.";
-const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
-const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
-const spider_web_description = ["Spider Web: Does not move. Spawns a spider every ", " turns."];
-const ram_description = "Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.";
-const large_porcuslime_description = "Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when hit."
-const medium_porcuslime_description = "Medium Porcuslime: Moves towards the player 1 space and attacks in that direction. Alternates between orthoganal and diagonal movement. Splits when hit."
-const small_h_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction."
-const small_d_porcuslime_description = "Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction."
-const acid_bug_description = "Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it."
-const brightling_description = "Brightling: Will occasionally teleport the player close to it before teleoprting away the next turn."
-
-const velociphile_description = "Velociphile (Boss): A rolling ball of mouths and hate. Moves in straight lines. Must build up speed to ram you.";
-
-const lava_pool_description = "Lava Pool: Attempting to move through this will hurt."
-const wall_description = "A wall. It seems sturdy."
-const damaged_wall_description = "A wall. It is damaged. something might live inside."
-const lock_description = "The exit is locked. Defeat the boss to continue."
-
-const boss_death_description = "The exit opens.\nYou feel your wounds begin to heal."

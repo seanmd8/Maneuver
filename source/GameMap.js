@@ -226,6 +226,10 @@ class GameMap{
         var target = this.#grid[x][y];
         if(target.hasOwnProperty("health") && !(target.type === "player") && (hits === "enemy" || hits === "all")){
             target.health -= 1;
+            if(target.hasOwnProperty("on_hit")){
+                var player_pos = this.#entity_list.get_player_pos();
+                target.on_hit(x, y, player_pos[0] - x, player_pos[1] - y, this, target);
+            }
             if(target.health === 0){
                 this.#grid[x][y] = empty_tile()
                 this.#grid[x][y].pic = "hit.png";

@@ -2,7 +2,7 @@
 // File containing the functions for generating new floors.
 
 const AREA_SIZE = 5;
-const BOSS_FLOOR = [velociphile_floor];
+const BOSS_FLOOR = [velociphile_floor, spider_queen_floor];
 
 function floor_generator(floor, map){
     if(!(floor % AREA_SIZE === 0) || Math.floor(floor / AREA_SIZE) - 1 >= BOSS_FLOOR.length){
@@ -22,7 +22,7 @@ function generate_normal_floor(floor, map, enemies){
             i -= new_enemy.difficulty;
         }
     }
-    describe("Welcome to floor " + floor + ".");
+    describe(floor_message + floor + ".");
 }
 
 function velociphile_floor(floor, map){
@@ -32,5 +32,18 @@ function velociphile_floor(floor, map){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
     }
-    describe("Welcome to floor " + floor + ".\nYou hear a deafening shriek.")
+    describe(floor_message + floor + ".\n" + velociphile_floor_message)
+}
+
+function spider_queen_floor(floor, map){
+    map.add_tile(spider_queen_tile());
+    map.lock();
+    for(var i = 0; i < 5; ++i){
+        map.add_tile(wall_tile());
+        map.add_tile(damaged_wall_tile());
+    }
+    for(var i = 0; i < 2; ++i){
+        map.add_tile(spider_web_tile());
+    }
+    describe(floor_message + floor + ".\n" + spider_queen_floor_message)
 }
