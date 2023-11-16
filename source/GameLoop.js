@@ -4,12 +4,14 @@
 const ANIMATION_DELAY = 300; // Controls the length of time the map is displayed before moving onto the next entitie's turn in ms.
 const STARTING_ENEMY = spider_tile; // Controls the single enemy on the first floor.
 const STARTING_DECK = make_starting_deck;
+const FLOOR_WIDTH = 8;
+const FLOOR_HEIGHT = 8;
 document.onkeydown = press;
 
 function setup(){
     // Function ran on page load or on restart to set up the game.
     describe(welcome_message);
-    mapData = new GameMap(8, 8);  
+    mapData = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT);  
     mapData.add_tile(STARTING_ENEMY());
     mapData.display();
     mapData.display_stats(document.getElementById("stats"));
@@ -45,15 +47,12 @@ async function action(behavior, hand_pos){
         // Discards the card the user used.
         clear_tb("moveButtons");
         deck.discard(hand_pos);
-        deck.display_hand(document.getElementById("handDisplay"));
         mapData.display();
         await delay(ANIMATION_DELAY);
         // Does the enemies' turn.
         await mapData.enemy_turn();
         // Prep for player's next turn.
-        mapData.resolve_events();
-        mapData.display();
-        mapData.display_stats(document.getElementById("stats"))
+        prep_turn();
     }
     catch (error){
         var m = error.message;
@@ -69,9 +68,7 @@ async function action(behavior, hand_pos){
         else if(m === "pass to player"){
             // If the enemies' turn was interrupted,
             // prep for player's next turn.
-            mapData.resolve_events();
-            mapData.display();
-            mapData.display_stats(document.getElementById("stats"))
+            prep_turn();
         }
         else{
             throw error;
@@ -186,14 +183,14 @@ function game_over(cause){
     mapData.display();
     clear_tb("handDisplay");
     clear_tb("moveButtons");
-    describe("Game Over. You were killed by a " + cause + ".");
+    describe(game_over_message + cause + ".");
     clear_tb("moveButtons");
     var row = document.createElement("tr");
     row.id = "buttons";
     var cell = document.createElement("input");
     cell.type = "button"
     cell.name = "retry";
-    cell.value = "retry";
+    cell.value = retry_message;
     var restart = function(){
         clear_tb("moveButtons");
         setup();
@@ -230,4 +227,10 @@ function search(element, arr){
 }
 function give_temp_card(card){
     deck.add_temp(card);
+}
+function prep_turn(){
+    mapData.resolve_events();
+    mapData.display();
+    deck.display_hand(document.getElementById("handDisplay"));
+    mapData.display_stats(document.getElementById("stats"))
 }

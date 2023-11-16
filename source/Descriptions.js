@@ -6,6 +6,8 @@ const welcome_message = "Welcome to the dungeon.\n"
                             + "Use cards to move (blue) and attack (red).\n" 
                             + "Click on things to learn more about them.";
 const floor_message = "Welcome to floor ";
+const game_over_message = "Game Over. You were killed by a ";
+const retry_message = "Retry?";
 
 // Normal Enemy Descriptions.
 const spider_description = "Spider: Will attack the player if it is next to them. Otherwise it will move 1 space closer.";
@@ -35,22 +37,17 @@ const spider_queen_description = "Spider Queen (Boss): Moves like a normal spide
 const spider_queen_death_message = "As the Spider Queen falls to the floor, the last of her children emerge.";
 const lich_floor_message = "Dust and dark magic swirl in the air.";
 const lich_description = "Lich (Boss): An undead wielder of dark magic. Each turn it will move away 1 space and then cast a spell.\n"
-                        + "The Lich is currently preparing to cast ";
+                        + "The Lich is currently preparing to cast:\n";
 const lich_death_message = "The Lich's body crumbles to dust.";
 
 // Lich Spell Descriptions.
-const teleport_spell_description = "Teleport:\n"
-                                    + "The user moves to a random square on the map";
-const summon_spell_description = "Summon:\n"
-                                    + "Summons a random enemy";
-const earthquake_spell_description = "Earthquake:\n"
-                                    + "Causes chunks of the ceiling to rain down. Intensity increases at low health.";
-const flame_wave_spell_description = "Flame Wave:\n"
-                                    + "Creates 3 fireballs which will move forwards until they hit something.";
-const confusion_spell_description = "Confusion:\n"
-                                    + "Pollutes your deck with 2 temporary cards which will disapear after they are used.";
-const lava_barrier_description = "Lava Barrier:\n"
-                                    + "Creates pools of molten lava to shield the user. Creates more at high health.";
+const teleport_spell_description = "Teleport: The user moves to a random square on the map";
+const summon_spell_description = "Summon: Summons a random enemy";
+const earthquake_spell_description = "Earthquake: Causes chunks of the ceiling to rain down. Intensity increases at low health.";
+const flame_wave_spell_description = "Flame Wave: Creates 3 fireballs which will move forwards until they hit something.";
+const confusion_spell_description = "Confusion: Pollutes your deck with 2 temporary cards which will disapear after they are used.";
+const lava_moat_spell_description = "Lava Moat: Creates pools of molten lava to shield the user. Creates more at high health.";
+const rest_description = "Nothing.";
 
 
 // Other Tile Descriptions.
@@ -62,8 +59,8 @@ const corrosive_slime_description = "Corrosive Slime: Trying to walk in this wil
 const wall_description = "A wall. It seems sturdy.";
 const damaged_wall_description = "A damaged wall. Something might live inside.";
 const lock_description = "The exit is locked. Defeat the boss to continue.";
-const fireball_description = "A fireball. Moves forwards until it comes into contact with something, then damages it."
-
+const fireball_description = "A fireball. Moves forwards until it comes into contact with something, then damages it.";
+const falling_rubble_description = "Watch out, something is about to fall here.";
 
 
 // Cardinal Directions.

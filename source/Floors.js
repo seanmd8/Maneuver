@@ -2,7 +2,7 @@
 // File containing the functions for generating new floors.
 
 const AREA_SIZE = 5;
-const BOSS_FLOOR = [velociphile_floor, spider_queen_floor];
+const BOSS_FLOOR = [velociphile_floor, spider_queen_floor, lich_floor];
 
 function floor_generator(floor, map){
     if(!(floor % AREA_SIZE === 0) || Math.floor(floor / AREA_SIZE) - 1 >= BOSS_FLOOR.length){
@@ -24,7 +24,6 @@ function generate_normal_floor(floor, map, enemies){
     }
     describe(floor_message + floor + ".");
 }
-
 function velociphile_floor(floor, map){
     map.add_tile(velociphile_tile());
     map.lock();
@@ -34,7 +33,6 @@ function velociphile_floor(floor, map){
     }
     describe(floor_message + floor + ".\n" + velociphile_floor_message)
 }
-
 function spider_queen_floor(floor, map){
     map.add_tile(spider_queen_tile());
     map.lock();
@@ -46,4 +44,13 @@ function spider_queen_floor(floor, map){
         map.add_tile(spider_web_tile());
     }
     describe(floor_message + floor + ".\n" + spider_queen_floor_message)
+}
+function lich_floor(floor, map){
+    map.add_tile(damaged_wall_tile(), FLOOR_WIDTH - 2, FLOOR_HEIGHT - 2);
+    map.add_tile(damaged_wall_tile(), 1, FLOOR_HEIGHT - 2);
+    map.add_tile(damaged_wall_tile(), FLOOR_WIDTH - 2, 1);
+    map.add_tile(damaged_wall_tile(), 1, 1);
+    map.add_tile(lich_tile());
+    map.lock();
+    describe(floor_message + floor + ".\n" + lich_floor_message)
 }

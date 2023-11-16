@@ -356,24 +356,28 @@ function spider_queen_hit(x, y, x_dif, y_dif, map, enemy){
     spawn_nearby(map, new_spider, x, y);
 }
 function lich_ai(x, y, x_dif, y_dif, map, enemy){
+    var player_close = (Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1);
     var moves = reverse_arr(order_nearby(x_dif, y_dif));
     var i;
     for(i = 0; i < moves.length && !map.move(x, y, x + moves[i][0], y + moves[i][1]); ++i){}
     if(i < moves.length){
         x += moves[i][0];
-        x_dif += moves[i][0];
+        x_dif -= moves[i][0];
         y += moves[i][1];
-        y_dif += moves[i][1];
+        y_dif -= moves[i][1];
     }
     enemy.spells[enemy.cycle][0](x, y, x_dif, y_dif, map, enemy);
-    if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
-        cycle = 1;
+    if(player_close){
+        enemy.cycle = 0;
     }
     else{
-        cycle = random_num(enemy.spells.length - 1) + 1;
+        enemy.cycle = random_num(enemy.spells.length);
     }
-    enemy.description = lich_description + enemy.spells[cycle][1];
+    enemy.description = lich_description + enemy.spells[enemy.cycle][1];
+    enemy.pic = enemy.spells[enemy.cycle][2];
 }
+
+// Spells
 function teleport_spell(x, y, x_dif, y_dif, map, enemy){
     var space = map.random_empty();
     map.move(x, y, space.x, space.y);
@@ -386,36 +390,32 @@ function earthquake_spell(x, y, x_dif, y_dif, map, enemy){
     map.add_event(["earthquake", (4 - enemy.health) * 5 + random_num(4)]);
 }
 function flame_wave_spell(x, y, x_dif, y_dif, map, enemy){
-    var direction = get_empty_nearby(x, y, order_nearby(), map);
+    var direction = get_empty_nearby(x, y, order_nearby(x_dif, y_dif), map);
+    var spawnpoints = [];
     if(direction === false){
         return;
     }
+    var direction_str = convert_direction(direction[0], direction[1]);
     if(direction[0] === 0){
         for(var i = 0; i < 3; ++i){
-            var fireball = fireball_tile();
-            fireball.direction = direction;
-            map.add_tile(fireball, x + i - 1, y + direction[1]);
+            spawnpoints.push([i - 1, direction[1]]);
         }
-        return;
     }
-    if(direction[1] === 0){
+    else if(direction[1] === 0){
         for(var i = 0; i < 3; ++i){
-            var fireball = fireball_tile();
-            fireball.direction = direction;
-            map.add_tile(fireball, x  + direction[0], y + i - 1);
+            spawnpoints.push([direction[0], i - 1]);
         }
-        return;
     }
     else{
+        spawnpoints.push([direction[0], direction[1]]);
+        spawnpoints.push([direction[0], 0]);
+        spawnpoints.push([0, direction[1]]);
+    }
+    for(var i = 0; i < spawnpoints.length; ++i){
         var fireball = fireball_tile();
         fireball.direction = direction;
-        map.add_tile(fireball, x + direction[0], y);
-        fireball = fireball_tile();
-        fireball.direction = direction;
-        map.add_tile(fireball, x, y  + direction[1]);
-        fireball = fireball_tile();
-        fireball.direction = direction;
-        map.add_tile(fireball, x + direction[0], y  + direction[1]);
+        fireball.pic = "fireball_" + direction_str + ".png";
+        map.add_tile(fireball, x + spawnpoints[i][0], y  + spawnpoints[i][1]);
     }
 }
 function confusion_spell(x, y, x_dif, y_dif, map, enemy){
@@ -424,13 +424,14 @@ function confusion_spell(x, y, x_dif, y_dif, map, enemy){
         give_temp_card(CONFUSION_CARDS[ran]());
     }
 }
-function lava_barrier_spell(x, y, x_dif, y_dif, map, enemy){
+function lava_moat_spell(x, y, x_dif, y_dif, map, enemy){
     var nearby = order_nearby(x_dif, y_dif);
-    for(var i = 0; i < enemy.health; ++i){
-        var barrier = lava_pool_tile();
-        spawn_nearby(map, barrier, x, y, nearby);
+    for(var i = 0; i < enemy.health && count_nearby(x, y, map) < 6; ++i){
+        var moat = lava_pool_tile();
+        spawn_nearby(map, moat, x, y, nearby);
     }
 }
+function rest_spell(x, y, x_dif, y_dif, map, enemy){}
 
 // Other AIs
 function hazard(x, y, x_dif, y_dif, map, enemy){
@@ -556,6 +557,16 @@ function get_empty_nearby(x, y, nearby_arr, map){
     }
     return false;
 }
+function count_nearby(x, y, map){
+    var count = 0;
+    var nearby = random_nearby();
+    for(var i = 0; i < nearby.length; ++i){
+        if(!map.check_empty(x + nearby[i][0], y + nearby[i][1])){
+            ++count;
+        }
+    }
+    return count;
+}
 function spawn_nearby(map, tile, x, y, nearby = random_nearby()){
     // Attempts to spawn a <tile> at a space next to to the given cords.
     // If it succeeds, returns the location, otherwise returns false.
@@ -586,9 +597,9 @@ function copy_arr(arr){
     }
     return arr2;
 }
-function reverse_arr(){
+function reverse_arr(arr){
     var new_arr = [];
-    for(var i = reverse_arr.length - 1; i >= 0; --i){
+    for(var i = arr.length - 1; i >= 0; --i){
         new_arr.push(arr[i]);
     }
     return new_arr;

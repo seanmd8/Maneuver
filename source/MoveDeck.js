@@ -58,7 +58,9 @@ class MoveDeck{
             }
             this.#library = this.#shuffle(this.#library);
         }
-        this.#discard_pile.push(this.#hand[x]);
+        if(!(this.#hand[x].hasOwnProperty("temp") && this.#hand[x].temp === true)){
+            this.#discard_pile.push(this.#hand[x]);
+        }
         this.#hand[x] = this.#library.pop();
     }
     add(card){
@@ -70,6 +72,7 @@ class MoveDeck{
     add_temp(card){
         // Adds a temp card which will be removed at the end of the floor by only adding it to the library, not the list
         card.id = this.#id_count;
+        card.temp = true;
         this.#id_count++;
         this.#library.push(card);
         this.#library = this.#shuffle(this.#library);

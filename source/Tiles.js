@@ -149,7 +149,7 @@ function scythe_tile(){
 function shadow_knight_tile(){
     return{
         type: "enemy",
-        name: "shadow_knight",
+        name: "shadow knight",
         pic: "shadow_knight.png",
         health: 2,
         difficulty: 4,
@@ -302,31 +302,33 @@ function spider_queen_tile(){
 }
 function lich_tile(){
     var spells = [
-        [teleport_spell, teleport_spell_description], 
-        [summon_spell, summon_spell_description], 
-        [earthquake_spell, earthquake_spell_description], 
-        [flame_wave_spell, flame_wave_spell_description],
-        [confusion_spell, confusion_spell_description],
-        [lava_barrier_spell, lava_barrier_description]
+        [teleport_spell, teleport_spell_description, "lich_teleport.png"], 
+        [summon_spell, summon_spell_description, "lich_summon.png"], 
+        [earthquake_spell, earthquake_spell_description, "lich_earthquake.png"], 
+        [flame_wave_spell, flame_wave_spell_description, "lich_flame_wave.png"],
+        [confusion_spell, confusion_spell_description, "lich_confusion.png"],
+        [lava_moat_spell, lava_moat_spell_description, "lich_lava_moat.png"],
+        [rest_spell, rest_description, "lich_rest.png"],
+        [rest_spell, rest_description, "lich_rest.png"]
     ];
     var summons = [
+        spider_tile,
         scythe_tile,
         shadow_knight_tile,
         ram_tile,
-        large_porcuslime_tile
+        medium_porcuslime_tile
     ];
     var starting_cycle = 1;
     return{
         type: "enemy",
         name: "lich",
-        pic: "lich.png",
+        pic: spells[starting_cycle][2],
         health: 3,
         difficulty: "boss",
         behavior: lich_ai,
         cycle: starting_cycle,
         spells,
         summons,
-        earthquake_targets: [],
         on_death: boss_death,
         description: lich_description + spells[starting_cycle][1],
         death_message: lich_death_message

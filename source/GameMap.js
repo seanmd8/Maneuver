@@ -103,12 +103,12 @@ class GameMap{
         }
         this.#grid[player_x][player_y] = player;
     }
-    add_tile(tile, x = -1, y = -1){
+    add_tile(tile, x = undefined, y = undefined){
         // Adds a new tile to a space.
         // Returns true if it was added successfuly.
         // If x or y aren't provided, it will select a random empty space.
         try{
-            if(x === -1 || y === -1){
+            if(x === undefined || y === undefined){
                 var position = this.random_empty();
                 x = position.x;
                 y = position.y;
@@ -301,22 +301,23 @@ class GameMap{
     resolve_events(){
         var new_events = [];
         for(var i = 0; i < this.#events.length; ++i){
-            if(events[i][0] === "earthquake"){
+            var event = this.#events[i];
+            if(event[0] === "earthquake"){
                 var rubble = [];
-                for(var j = 0; j < events[i][1]; ++j){
+                for(var j = 0; j < event[1]; ++j){
                     var space = this.random_empty();
-                    this.grid[space.x][space.y].description = falling_rubble_description;
-                    this.grid[space.x][space.y].pic = falling_rubble.png;
+                    this.#grid[space.x][space.y].description = falling_rubble_description;
+                    this.#grid[space.x][space.y].pic = "falling_rubble.png";
                     rubble.push(space);
                 }
                 new_events.push(["earthquake_rubble", rubble]);
             }
-            else if(events[i][0] === "earthquake_rubble"){
-                for(var j = 0; j < events[i][1].length; ++j){
-                    this.attack(events[i][1][j].x, events[i][1][j].y);
+            else if(event[0] === "earthquake_rubble"){
+                for(var j = 0; j < event[1].length; ++j){
+                    this.attack(event[1][j].x, event[1][j].y);
                 }
             }
         }
-        this.events = new_events;
+        this.#events = new_events;
     }
 }

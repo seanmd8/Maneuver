@@ -24,7 +24,7 @@ const CARD_CHOICES = [
 ];
 
 const CONFUSION_CARDS = [
-    stumble_left, stumble_right, stumble_up, stumble_down, freeze_up, lash_out
+    stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out
 ]
 
 // Makes the starting deck
@@ -536,39 +536,75 @@ function spearhead(){
 }
 
 // Cards given to the player as debuffs
-function stumble_left(){
-    var options = new ButtonGrid();
-    options.add_button(E, [["move", 1, 0]]);
-    return{
-        name: "stumble left",
-        pic: "stumble_left.png",
-        options
-    }
-}
-function stumble_right(){
+function stumble_w(){
     var options = new ButtonGrid();
     options.add_button(W, [["move", -1, 0]]);
     return{
-        name: "stumble right",
-        pic: "stumble_right.png",
+        name: "stumble west",
+        pic: "stumble_w.png",
         options
     }
 }
-function stumble_up(){
+function stumble_e(){
+    var options = new ButtonGrid();
+    options.add_button(E, [["move", 1, 0]]);
+    return{
+        name: "stumble east",
+        pic: "stumble_e.png",
+        options
+    }
+}
+function stumble_n(){
     var options = new ButtonGrid();
     options.add_button(N, [["move", 0, -1]]);
     return{
-        name: "stumble up",
-        pic: "stumble_up.png",
+        name: "stumble north",
+        pic: "stumble_n.png",
         options
     }
 }
-function stumble_down(){
+function stumble_s(){
     var options = new ButtonGrid();
     options.add_button(S, [["move", 0, 1]]);
     return{
-        name: "stumble down",
-        pic: "stumble_down.png",
+        name: "stumble south",
+        pic: "stumble_s.png",
+        options
+    }
+}
+function stumble_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NW, [["move", -1, -1]]);
+    return{
+        name: "stumble nw",
+        pic: "stumble_nw.png",
+        options
+    }
+}
+function stumble_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [["move", 1, -1]]);
+    return{
+        name: "stumble ne",
+        pic: "stumble_ne.png",
+        options
+    }
+}
+function stumble_se(){
+    var options = new ButtonGrid();
+    options.add_button(SE, [["move", 1, 1]]);
+    return{
+        name: "stumble se",
+        pic: "stumble_se.png",
+        options
+    }
+}
+function stumble_sw(){
+    var options = new ButtonGrid();
+    options.add_button(SW, [["move", -1, 1]]);
+    return{
+        name: "stumble sw",
+        pic: "stumble_sw.png",
         options
     }
 }
