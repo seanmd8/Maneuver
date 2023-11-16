@@ -10,11 +10,13 @@ class GameMap{
     #grid; // Grid is a 2d list of tiles representing the entity in each location.
     #floor; // The current floor number.
     #turn_count; // How many turns the player has taken.
+    #events;
     constructor(x_max, y_max){
         this.#x_max = x_max;
         this.#y_max = y_max;
         this.#floor = 0;
         this.#turn_count = 0;
+        this.#events = [];
         this.erase()
     }
     erase(player_health = -1){
@@ -28,21 +30,21 @@ class GameMap{
                 this.#grid[i].push(empty_tile());
             }
         }
-        this.set_exit(Math.floor(Math.random() * this.#y_max), 0)
-        this.set_player(Math.floor(Math.random() * this.#y_max), this.#x_max - 1, player_health)
+        this.set_exit(random_num(this.#y_max), 0)
+        this.set_player(random_num(this.#y_max), this.#x_max - 1, player_health)
         return ++this.#floor;
     }
     random_space(){
         // Returns a randome space in the grid.
-        x = Math.floor(Math.random() * this.#x_max);
-        y = Math.floor(Math.random() * this.#y_max);
+        x = random_num(this.#x_max);
+        y = random_num(this.#y_max);
         return {x, y};
     }
     random_empty(){
         // Returns a random empty space in the grid.
         // Throws an erro if the map is full.
         var num_empty = this.#x_max * this.#y_max - this.#entity_list.count;
-        var rand = Math.floor(Math.random() * num_empty);
+        var rand = random_num(num_empty);
         if(num_empty === 0){
             throw new Error("map full");
         }
@@ -147,6 +149,7 @@ class GameMap{
                 var cell = make_cell(x + " " + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, tile_description);
                 if(this.#grid[x][y].type === "empty"){
                     this.#grid[x][y].pic = "empty.png";
+                    this.#grid[x][y].description = empty_description;
                 }
 				row.append(cell);
 			}
@@ -291,5 +294,29 @@ class GameMap{
         this.#grid[pos.x][pos.y] = exit_tile();
         pos = this.#entity_list.get_player_pos();
         this.#grid[pos.x][pos.y].health = this.#grid[pos.x][pos.y].max_health;
+    }
+    add_event(event){
+        this.#events.push(event);
+    }
+    resolve_events(){
+        var new_events = [];
+        for(var i = 0; i < this.#events.length; ++i){
+            if(events[i][0] === "earthquake"){
+                var rubble = [];
+                for(var j = 0; j < events[i][1]; ++j){
+                    var space = this.random_empty();
+                    this.grid[space.x][space.y].description = falling_rubble_description;
+                    this.grid[space.x][space.y].pic = falling_rubble.png;
+                    rubble.push(space);
+                }
+                new_events.push(["earthquake_rubble", rubble]);
+            }
+            else if(events[i][0] === "earthquake_rubble"){
+                for(var j = 0; j < events[i][1].length; ++j){
+                    this.attack(events[i][1][j].x, events[i][1][j].y);
+                }
+            }
+        }
+        this.events = new_events;
     }
 }

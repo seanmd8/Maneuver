@@ -83,7 +83,7 @@ function scythe_ai(x, y, x_dif, y_dif, map, enemy){
         map.attack(x, y - direction[1], "player"); 
     }
 }
-function knight_ai(x, y, x_dif, y_dif, map, enemy){
+function shadow_knight_ai(x, y, x_dif, y_dif, map, enemy){
     // Moves in an L.
     if(Math.abs(x_dif) === 1 && Math.abs(y_dif) === 1){
         // If the player is next to it diagonally, attempty to reposition to attack them next turn.
@@ -226,7 +226,7 @@ function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
         var dir = [sign(x_dif), sign(y_dif)];
         for(var i = 0; i < dir.length; ++i){
             if(dir[i] === 0){
-                dir[i] = -1 + (2 * Math.floor(Math.random(2)));
+                dir[i] = -1 + random_num(2);
             }
         }
     }
@@ -290,11 +290,10 @@ function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
 function brightling_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.cycle === -1){
         // teleports to a random empty space, then cycle goes to 1.
-        var space = map.random_empty();
-        map.move(x, y, space.x, space.y);
+        teleport_spell(x, y, x_dif, y_dif, map, enemy);
         ++enemy.cycle;
     }
-    else if(Math.floor(Math.random() * 4) < enemy.cycle){
+    else if(random_num(4) < enemy.cycle){
         // Teleports the player next to it then cycle goes to 0 to prepare to teleport.
         var near_points = random_nearby();
         for(var i = 0; i < near_points.length && !map.move(x + x_dif, y + y_dif, x + near_points[i][0], y + near_points[i][1]); ++i){}
@@ -335,7 +334,7 @@ function boss_death(x, y, x_dif, y_dif, map, enemy){
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     // Moves towards the player 2/3 of the time, otherwise moves randomly.
     var directions = order_nearby(x_dif, y_dif);
-    if(Math.floor(Math.random() * 3) === 0){
+    if(random_num(3) === 0){
         directions = randomize_arr(directions);
     }
     // Direction is reselected until an unobstructed one is found.
@@ -356,6 +355,82 @@ function spider_queen_hit(x, y, x_dif, y_dif, map, enemy){
     stun(new_spider);
     spawn_nearby(map, new_spider, x, y);
 }
+function lich_ai(x, y, x_dif, y_dif, map, enemy){
+    var moves = reverse_arr(order_nearby(x_dif, y_dif));
+    var i;
+    for(i = 0; i < moves.length && !map.move(x, y, x + moves[i][0], y + moves[i][1]); ++i){}
+    if(i < moves.length){
+        x += moves[i][0];
+        x_dif += moves[i][0];
+        y += moves[i][1];
+        y_dif += moves[i][1];
+    }
+    enemy.spells[enemy.cycle][0](x, y, x_dif, y_dif, map, enemy);
+    if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
+        cycle = 1;
+    }
+    else{
+        cycle = random_num(enemy.spells.length - 1) + 1;
+    }
+    enemy.description = lich_description + enemy.spells[cycle][1];
+}
+function teleport_spell(x, y, x_dif, y_dif, map, enemy){
+    var space = map.random_empty();
+    map.move(x, y, space.x, space.y);
+}
+function summon_spell(x, y, x_dif, y_dif, map, enemy){
+    var tile = enemy.summons[random_num(enemy.summons.length)]();
+    spawn_nearby(map, tile, x, y);
+}
+function earthquake_spell(x, y, x_dif, y_dif, map, enemy){
+    map.add_event(["earthquake", (4 - enemy.health) * 5 + random_num(4)]);
+}
+function flame_wave_spell(x, y, x_dif, y_dif, map, enemy){
+    var direction = get_empty_nearby(x, y, order_nearby(), map);
+    if(direction === false){
+        return;
+    }
+    if(direction[0] === 0){
+        for(var i = 0; i < 3; ++i){
+            var fireball = fireball_tile();
+            fireball.direction = direction;
+            map.add_tile(fireball, x + i - 1, y + direction[1]);
+        }
+        return;
+    }
+    if(direction[1] === 0){
+        for(var i = 0; i < 3; ++i){
+            var fireball = fireball_tile();
+            fireball.direction = direction;
+            map.add_tile(fireball, x  + direction[0], y + i - 1);
+        }
+        return;
+    }
+    else{
+        var fireball = fireball_tile();
+        fireball.direction = direction;
+        map.add_tile(fireball, x + direction[0], y);
+        fireball = fireball_tile();
+        fireball.direction = direction;
+        map.add_tile(fireball, x, y  + direction[1]);
+        fireball = fireball_tile();
+        fireball.direction = direction;
+        map.add_tile(fireball, x + direction[0], y  + direction[1]);
+    }
+}
+function confusion_spell(x, y, x_dif, y_dif, map, enemy){
+    for(var i = 0; i < 2; ++i){
+        var ran = random_num(CONFUSION_CARDS.length);
+        give_temp_card(CONFUSION_CARDS[ran]());
+    }
+}
+function lava_barrier_spell(x, y, x_dif, y_dif, map, enemy){
+    var nearby = order_nearby(x_dif, y_dif);
+    for(var i = 0; i < enemy.health; ++i){
+        var barrier = lava_pool_tile();
+        spawn_nearby(map, barrier, x, y, nearby);
+    }
+}
 
 // Other AIs
 function hazard(x, y, x_dif, y_dif, map, enemy){
@@ -364,12 +439,24 @@ function hazard(x, y, x_dif, y_dif, map, enemy){
 }
 function wall_death(x, y, x_dif, y_dif, map, enemy){
     var spawn_list = [spider_tile, acid_bug_tile, spider_web_tile];
-    if(Math.floor(Math.random() * 7) < 10){
-        var ran = Math.floor(Math.random() * spawn_list.length);
+    if(random_num(7) < 10){
+        var ran = random_num(spawn_list.length);
         var new_enemy = spawn_list[ran]();
         stun(new_enemy);
         map.add_tile(new_enemy, x, y);
     }
+}
+function fireball_ai(x, y, x_dif, y_dif, map, enemy){
+    if(!map.move(x, y, x + enemy.direction[0], y + enemy.direction[1])){
+        map.attack(x + enemy.direction[0], y + enemy.direction[1]);
+        enemy.health = 1;
+        map.attack(x, y);
+    }
+}
+function fireball_on_enter(x, y, x_dif, y_dif, map, enemy){
+    hazard(x, y, x_dif, y_dif, map, enemy);
+    enemy.health = 1;
+    map.attack(x, y);
 }
 
 // AI Utility Functions
@@ -409,7 +496,7 @@ function sign(x){
 }
 function random_sign(){
     // Randomly returns 1 or -1.
-    return Math.floor(1 - (2 * Math.floor(Math.random() * 2)));
+    return 2 * random_num(2) - 1;
 }
 function random_nearby(){
     // Returns an array of each point next to [0, 0] with it's order randomized.
@@ -469,10 +556,9 @@ function get_empty_nearby(x, y, nearby_arr, map){
     }
     return false;
 }
-function spawn_nearby(map, tile, x, y){
-    // Attempts to spawn a <tile> at a random space next to to the given cords.
+function spawn_nearby(map, tile, x, y, nearby = random_nearby()){
+    // Attempts to spawn a <tile> at a space next to to the given cords.
     // If it succeeds, returns the location, otherwise returns false.
-    var nearby = random_nearby();
     for(var i = 0; i < nearby.length; ++i){
         if(map.add_tile(tile, x + nearby[i][0], y + nearby[i][1])){
             return nearby[i];
@@ -485,7 +571,7 @@ function randomize_arr(arr){
     arr = copy_arr(arr);
     var random_arr = [];
     while(arr.length > 0){
-        var index = Math.floor(Math.random() * arr.length);
+        var index = random_num(arr.length);
         random_arr.push(arr[index]);
         arr[index] = arr[arr.length - 1];
         arr.pop();
@@ -499,6 +585,16 @@ function copy_arr(arr){
         arr2[i] = arr[i];
     }
     return arr2;
+}
+function reverse_arr(){
+    var new_arr = [];
+    for(var i = reverse_arr.length - 1; i >= 0; --i){
+        new_arr.push(arr[i]);
+    }
+    return new_arr;
+}
+function random_num(x){
+    return Math.floor(Math.random() * x);
 }
 // ----------------ButtonGrid.js----------------
 // The ButtonGrid class is used to keep track of the possible moves a card has.
@@ -584,6 +680,10 @@ const CARD_CHOICES = [
     pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
     thwack, overcome_sideways, y_leap, diamond_slice, spearhead
 ];
+
+const CONFUSION_CARDS = [
+    stumble_left, stumble_right, stumble_up, stumble_down, freeze_up, lash_out
+]
 
 // Makes the starting deck
 function make_starting_deck(){
@@ -1092,7 +1192,71 @@ function spearhead(){
         options
     }
 }
-// ----------------Descriptions.js----------------
+
+// Cards given to the player as debuffs
+function stumble_left(){
+    var options = new ButtonGrid();
+    options.add_button(E, [["move", 1, 0]]);
+    return{
+        name: "stumble left",
+        pic: "stumble_left.png",
+        options
+    }
+}
+function stumble_right(){
+    var options = new ButtonGrid();
+    options.add_button(W, [["move", -1, 0]]);
+    return{
+        name: "stumble right",
+        pic: "stumble_right.png",
+        options
+    }
+}
+function stumble_up(){
+    var options = new ButtonGrid();
+    options.add_button(N, [["move", 0, -1]]);
+    return{
+        name: "stumble up",
+        pic: "stumble_up.png",
+        options
+    }
+}
+function stumble_down(){
+    var options = new ButtonGrid();
+    options.add_button(S, [["move", 0, 1]]);
+    return{
+        name: "stumble down",
+        pic: "stumble_down.png",
+        options
+    }
+}
+function freeze_up(){
+    var options = new ButtonGrid();
+    options.add_button("Freeze Up", [], 5);
+    return{
+        name: "freeze up",
+        pic: "freeze_up.png",
+        options
+    }
+}
+function lash_out(){
+    var options = new ButtonGrid();
+    var spin = [["attack", 1, 1],
+                ["attack", 1, 0],
+                ["attack", 1, -1],
+                ["attack", 0, 1],
+                ["attack", 0, 0],
+                ["attack", 0, -1],
+                ["attack", -1, 1],
+                ["attack", -1, 0],
+                ["attack", -1, -1]]
+    options.add_button("Lash Out", spin, 5);
+    return{
+        name: "lash out",
+        pic: "lash_out.png",
+        options
+    }
+}// ----------------Descriptions.js----------------
 // Contains text that will be displayed.
 
 // General.
@@ -1106,7 +1270,7 @@ const spider_description = "Spider: Will attack the player if it is next to them
 const turret_h_description = "Turret: Does not move. Fires beams orthogonally that hit the first thing in their path.";
 const turret_d_description = "Turret: Does not move. Fires beams diagonally that hit the first thing in their path.";
 const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
-const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
+const shadow_knight_description = "Shadow Knight: Moves in an L shape. If it tramples the player, it will move again.";
 const spider_web_description = ["Spider Web: Does not move. Spawns a spider every ", " turns."];
 const ram_description = "Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.";
 const large_porcuslime_description = "Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when hit.";
@@ -1127,6 +1291,24 @@ const velociphile_death_message = "The wailing falls silent as the Velociphile i
 const spider_queen_floor_message = "The floor is thick with webs.";
 const spider_queen_description = "Spider Queen (Boss): Moves like a normal spider. Taking damage will stun her, but will also spawn spiders.";
 const spider_queen_death_message = "As the Spider Queen falls to the floor, the last of her children emerge.";
+const lich_floor_message = "Dust and dark magic swirl in the air.";
+const lich_description = "Lich (Boss): An undead wielder of dark magic. Each turn it will move away 1 space and then cast a spell.\n"
+                        + "The Lich is currently preparing to cast ";
+const lich_death_message = "The Lich's body crumbles to dust.";
+
+// Lich Spell Descriptions.
+const teleport_spell_description = "Teleport:\n"
+                                    + "The user moves to a random square on the map";
+const summon_spell_description = "Summon:\n"
+                                    + "Summons a random enemy";
+const earthquake_spell_description = "Earthquake:\n"
+                                    + "Causes chunks of the ceiling to rain down. Intensity increases at low health.";
+const flame_wave_spell_description = "Flame Wave:\n"
+                                    + "Creates 3 fireballs which will move forwards until they hit something.";
+const confusion_spell_description = "Confusion:\n"
+                                    + "Pollutes your deck with 2 temporary cards which will disapear after they are used.";
+const lava_barrier_description = "Lava Barrier:\n"
+                                    + "Creates pools of molten lava to shield the user. Creates more at high health.";
 
 
 // Other Tile Descriptions.
@@ -1138,6 +1320,7 @@ const corrosive_slime_description = "Corrosive Slime: Trying to walk in this wil
 const wall_description = "A wall. It seems sturdy.";
 const damaged_wall_description = "A damaged wall. Something might live inside.";
 const lock_description = "The exit is locked. Defeat the boss to continue.";
+const fireball_description = "A fireball. Moves forwards until it comes into contact with something, then damages it."
 
 
 
@@ -1275,7 +1458,7 @@ function floor_generator(floor, map){
 
 function generate_normal_floor(floor, map, enemies){
     for(var i = floor * 2; i > 0;){
-        var choice = Math.floor(Math.random() * enemies.length);
+        var choice = random_num(enemies.length);
         var new_enemy = enemies[choice]();
         if(new_enemy.difficulty <= i){
             map.add_tile(new_enemy);
@@ -1358,8 +1541,9 @@ async function action(behavior, hand_pos){
         await delay(ANIMATION_DELAY);
         // Does the enemies' turn.
         await mapData.enemy_turn();
+        // Prep for player's next turn.
+        mapData.resolve_events();
         mapData.display();
-        // Update turn number.
         mapData.display_stats(document.getElementById("stats"))
     }
     catch (error){
@@ -1374,7 +1558,9 @@ async function action(behavior, hand_pos){
             game_over(error.cause);
         }
         else if(m === "pass to player"){
-            // If the enemies' turn was interrupted.
+            // If the enemies' turn was interrupted,
+            // prep for player's next turn.
+            mapData.resolve_events();
             mapData.display();
             mapData.display_stats(document.getElementById("stats"))
         }
@@ -1404,7 +1590,7 @@ function modify_deck(){
     var table = document.getElementById("modifyDeck");
     deck.display_all(document.getElementById("displayDeck"));
     for(var i = 0; i < ADD_CHOICES; ++i){
-        add_list.push(CARD_CHOICES[Math.floor(Math.random() * CARD_CHOICES.length)]());
+        add_list.push(CARD_CHOICES[random_num(CARD_CHOICES.length)]());
     }
     try{
         for(var i = 0; i < REMOVE_CHOICES; ++i){
@@ -1532,6 +1718,9 @@ function search(element, arr){
         }
     }
     return -1;
+}
+function give_temp_card(card){
+    deck.add_temp(card);
 }// ----------------GameMap.js----------------
 // GameMap class holds the information on the current floor and everything on it.
 
@@ -1544,11 +1733,13 @@ class GameMap{
     #grid; // Grid is a 2d list of tiles representing the entity in each location.
     #floor; // The current floor number.
     #turn_count; // How many turns the player has taken.
+    #events;
     constructor(x_max, y_max){
         this.#x_max = x_max;
         this.#y_max = y_max;
         this.#floor = 0;
         this.#turn_count = 0;
+        this.#events = [];
         this.erase()
     }
     erase(player_health = -1){
@@ -1562,21 +1753,21 @@ class GameMap{
                 this.#grid[i].push(empty_tile());
             }
         }
-        this.set_exit(Math.floor(Math.random() * this.#y_max), 0)
-        this.set_player(Math.floor(Math.random() * this.#y_max), this.#x_max - 1, player_health)
+        this.set_exit(random_num(this.#y_max), 0)
+        this.set_player(random_num(this.#y_max), this.#x_max - 1, player_health)
         return ++this.#floor;
     }
     random_space(){
         // Returns a randome space in the grid.
-        x = Math.floor(Math.random() * this.#x_max);
-        y = Math.floor(Math.random() * this.#y_max);
+        x = random_num(this.#x_max);
+        y = random_num(this.#y_max);
         return {x, y};
     }
     random_empty(){
         // Returns a random empty space in the grid.
         // Throws an erro if the map is full.
         var num_empty = this.#x_max * this.#y_max - this.#entity_list.count;
-        var rand = Math.floor(Math.random() * num_empty);
+        var rand = random_num(num_empty);
         if(num_empty === 0){
             throw new Error("map full");
         }
@@ -1681,6 +1872,7 @@ class GameMap{
                 var cell = make_cell(x + " " + y, "images/tiles/" + this.#grid[x][y].pic, GRID_SCALE, desc, tile_description);
                 if(this.#grid[x][y].type === "empty"){
                     this.#grid[x][y].pic = "empty.png";
+                    this.#grid[x][y].description = empty_description;
                 }
 				row.append(cell);
 			}
@@ -1826,6 +2018,30 @@ class GameMap{
         pos = this.#entity_list.get_player_pos();
         this.#grid[pos.x][pos.y].health = this.#grid[pos.x][pos.y].max_health;
     }
+    add_event(event){
+        this.#events.push(event);
+    }
+    resolve_events(){
+        var new_events = [];
+        for(var i = 0; i < this.#events.length; ++i){
+            if(events[i][0] === "earthquake"){
+                var rubble = [];
+                for(var j = 0; j < events[i][1]; ++j){
+                    var space = this.random_empty();
+                    this.grid[space.x][space.y].description = falling_rubble_description;
+                    this.grid[space.x][space.y].pic = falling_rubble.png;
+                    rubble.push(space);
+                }
+                new_events.push(["earthquake_rubble", rubble]);
+            }
+            else if(events[i][0] === "earthquake_rubble"){
+                for(var j = 0; j < events[i][1].length; ++j){
+                    this.attack(events[i][1][j].x, events[i][1][j].y);
+                }
+            }
+        }
+        this.events = new_events;
+    }
 }// ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.
 
@@ -1853,7 +2069,7 @@ class MoveDeck{
         // returns a new array which is a randomly ordered version of the previous one.
         var new_arr = [];
         while(arr.length != 0){
-            var ran = Math.floor(Math.random() * arr.length);
+            var ran = random_num(arr.length);
             new_arr.push(arr[ran]);
             arr[ran] = arr[arr.length - 1];
             arr.pop();
@@ -1934,7 +2150,7 @@ class MoveDeck{
         if(this.#list.length <= DECK_MINIMUM){
             throw new Error("deck minimum reached");
         }
-        return this.#list[Math.floor(Math.random() * this.#list.length)];
+        return this.#list[random_num(this.#list.length)];
     }
     remove(id){
         // Removes the card with the given id from the deck.
@@ -1948,7 +2164,8 @@ class MoveDeck{
         }
         return false;
     }
-}// ----------------Tiles.js----------------
+}
+// ----------------Tiles.js----------------
 // This file contains the functions to generate tiles representing things on the game_map.
 
 // Fields (not all are used by each tile):
@@ -1962,7 +2179,7 @@ class MoveDeck{
 //  description: info that will be displayed when the user clicks on the tile.
 
 // This is a list of all the enemies that can be spawned on a normal floor.
-const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
+const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, spider_tile, shadow_knight_tile, 
     spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile,
     brightling_tile, corrosive_caterpillar_tile];
 
@@ -2028,7 +2245,7 @@ function wall_tile(){
     }
 }
 function damaged_wall_tile(){
-    var health = Math.ceil(Math.random() * 2);
+    var health = random_num(2) + 1;
     return {
         type: "terrain",
         name: "damaged wall",
@@ -2037,6 +2254,17 @@ function damaged_wall_tile(){
         on_death: wall_death,
         description: damaged_wall_description
 
+    }
+}
+function fireball_tile(){
+    return {
+        type: "enemy",
+        name: "fireball",
+        pic: "fireball.png",
+        direction: [],
+        description: fireball_description,
+        behavior: fireball_ai,
+        on_enter: fireball_on_enter
     }
 }
 
@@ -2085,15 +2313,15 @@ function scythe_tile(){
         description: scythe_description
     }
 }
-function knight_tile(){
+function shadow_knight_tile(){
     return{
         type: "enemy",
-        name: "knight",
-        pic: "knight.png",
+        name: "shadow_knight",
+        pic: "shadow_knight.png",
         health: 2,
         difficulty: 4,
-        behavior: knight_ai,
-        description: knight_description
+        behavior: shadow_knight_ai,
+        description: shadow_knight_description
     }
 }
 function spider_web_tile(){
@@ -2137,7 +2365,7 @@ function large_porcuslime_tile(){
     }
 }
 function medium_porcuslime_tile(){
-    var ran = Math.floor(Math.random(2));
+    var ran = random_num(2);
     var pic_arr = ["medium_h_porcuslime.png", "medium_d_porcuslime.png"];
     return {
         type: "enemy",
@@ -2237,6 +2465,38 @@ function spider_queen_tile(){
         on_death: boss_death,
         description: spider_queen_description,
         death_message: spider_queen_death_message
+    }
+}
+function lich_tile(){
+    var spells = [
+        [teleport_spell, teleport_spell_description], 
+        [summon_spell, summon_spell_description], 
+        [earthquake_spell, earthquake_spell_description], 
+        [flame_wave_spell, flame_wave_spell_description],
+        [confusion_spell, confusion_spell_description],
+        [lava_barrier_spell, lava_barrier_description]
+    ];
+    var summons = [
+        scythe_tile,
+        shadow_knight_tile,
+        ram_tile,
+        large_porcuslime_tile
+    ];
+    var starting_cycle = 1;
+    return{
+        type: "enemy",
+        name: "lich",
+        pic: "lich.png",
+        health: 3,
+        difficulty: "boss",
+        behavior: lich_ai,
+        cycle: starting_cycle,
+        spells,
+        summons,
+        earthquake_targets: [],
+        on_death: boss_death,
+        description: lich_description + spells[starting_cycle][1],
+        death_message: lich_death_message
     }
 }
 

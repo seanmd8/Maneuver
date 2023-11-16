@@ -23,6 +23,10 @@ const CARD_CHOICES = [
     thwack, overcome_sideways, y_leap, diamond_slice, spearhead
 ];
 
+const CONFUSION_CARDS = [
+    stumble_left, stumble_right, stumble_up, stumble_down, freeze_up, lash_out
+]
+
 // Makes the starting deck
 function make_starting_deck(){
     deck = new MoveDeck();
@@ -527,6 +531,71 @@ function spearhead(){
     return{
         name: "spearhead",
         pic: "spearhead.png",
+        options
+    }
+}
+
+// Cards given to the player as debuffs
+function stumble_left(){
+    var options = new ButtonGrid();
+    options.add_button(E, [["move", 1, 0]]);
+    return{
+        name: "stumble left",
+        pic: "stumble_left.png",
+        options
+    }
+}
+function stumble_right(){
+    var options = new ButtonGrid();
+    options.add_button(W, [["move", -1, 0]]);
+    return{
+        name: "stumble right",
+        pic: "stumble_right.png",
+        options
+    }
+}
+function stumble_up(){
+    var options = new ButtonGrid();
+    options.add_button(N, [["move", 0, -1]]);
+    return{
+        name: "stumble up",
+        pic: "stumble_up.png",
+        options
+    }
+}
+function stumble_down(){
+    var options = new ButtonGrid();
+    options.add_button(S, [["move", 0, 1]]);
+    return{
+        name: "stumble down",
+        pic: "stumble_down.png",
+        options
+    }
+}
+function freeze_up(){
+    var options = new ButtonGrid();
+    options.add_button("Freeze Up", [], 5);
+    return{
+        name: "freeze up",
+        pic: "freeze_up.png",
+        options
+    }
+}
+function lash_out(){
+    var options = new ButtonGrid();
+    var spin = [["attack", 1, 1],
+                ["attack", 1, 0],
+                ["attack", 1, -1],
+                ["attack", 0, 1],
+                ["attack", 0, 0],
+                ["attack", 0, -1],
+                ["attack", -1, 1],
+                ["attack", -1, 0],
+                ["attack", -1, -1]]
+    options.add_button("Lash Out", spin, 5);
+    return{
+        name: "lash out",
+        pic: "lash_out.png",
         options
     }
 }

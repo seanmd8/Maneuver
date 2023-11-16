@@ -15,7 +15,7 @@ function floor_generator(floor, map){
 
 function generate_normal_floor(floor, map, enemies){
     for(var i = floor * 2; i > 0;){
-        var choice = Math.floor(Math.random() * enemies.length);
+        var choice = random_num(enemies.length);
         var new_enemy = enemies[choice]();
         if(new_enemy.difficulty <= i){
             map.add_tile(new_enemy);

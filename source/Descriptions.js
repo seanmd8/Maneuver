@@ -12,7 +12,7 @@ const spider_description = "Spider: Will attack the player if it is next to them
 const turret_h_description = "Turret: Does not move. Fires beams orthogonally that hit the first thing in their path.";
 const turret_d_description = "Turret: Does not move. Fires beams diagonally that hit the first thing in their path.";
 const scythe_description = "Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.";
-const knight_description = "Knight: Moves in an L shape. If it tramples the player, it will move again.";
+const shadow_knight_description = "Shadow Knight: Moves in an L shape. If it tramples the player, it will move again.";
 const spider_web_description = ["Spider Web: Does not move. Spawns a spider every ", " turns."];
 const ram_description = "Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.";
 const large_porcuslime_description = "Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when hit.";
@@ -33,6 +33,24 @@ const velociphile_death_message = "The wailing falls silent as the Velociphile i
 const spider_queen_floor_message = "The floor is thick with webs.";
 const spider_queen_description = "Spider Queen (Boss): Moves like a normal spider. Taking damage will stun her, but will also spawn spiders.";
 const spider_queen_death_message = "As the Spider Queen falls to the floor, the last of her children emerge.";
+const lich_floor_message = "Dust and dark magic swirl in the air.";
+const lich_description = "Lich (Boss): An undead wielder of dark magic. Each turn it will move away 1 space and then cast a spell.\n"
+                        + "The Lich is currently preparing to cast ";
+const lich_death_message = "The Lich's body crumbles to dust.";
+
+// Lich Spell Descriptions.
+const teleport_spell_description = "Teleport:\n"
+                                    + "The user moves to a random square on the map";
+const summon_spell_description = "Summon:\n"
+                                    + "Summons a random enemy";
+const earthquake_spell_description = "Earthquake:\n"
+                                    + "Causes chunks of the ceiling to rain down. Intensity increases at low health.";
+const flame_wave_spell_description = "Flame Wave:\n"
+                                    + "Creates 3 fireballs which will move forwards until they hit something.";
+const confusion_spell_description = "Confusion:\n"
+                                    + "Pollutes your deck with 2 temporary cards which will disapear after they are used.";
+const lava_barrier_description = "Lava Barrier:\n"
+                                    + "Creates pools of molten lava to shield the user. Creates more at high health.";
 
 
 // Other Tile Descriptions.
@@ -44,6 +62,7 @@ const corrosive_slime_description = "Corrosive Slime: Trying to walk in this wil
 const wall_description = "A wall. It seems sturdy.";
 const damaged_wall_description = "A damaged wall. Something might live inside.";
 const lock_description = "The exit is locked. Defeat the boss to continue.";
+const fireball_description = "A fireball. Moves forwards until it comes into contact with something, then damages it."
 
 
 

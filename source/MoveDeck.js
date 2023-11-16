@@ -25,7 +25,7 @@ class MoveDeck{
         // returns a new array which is a randomly ordered version of the previous one.
         var new_arr = [];
         while(arr.length != 0){
-            var ran = Math.floor(Math.random() * arr.length);
+            var ran = random_num(arr.length);
             new_arr.push(arr[ran]);
             arr[ran] = arr[arr.length - 1];
             arr.pop();
@@ -106,7 +106,7 @@ class MoveDeck{
         if(this.#list.length <= DECK_MINIMUM){
             throw new Error("deck minimum reached");
         }
-        return this.#list[Math.floor(Math.random() * this.#list.length)];
+        return this.#list[random_num(this.#list.length)];
     }
     remove(id){
         // Removes the card with the given id from the deck.

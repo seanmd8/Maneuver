@@ -50,8 +50,9 @@ async function action(behavior, hand_pos){
         await delay(ANIMATION_DELAY);
         // Does the enemies' turn.
         await mapData.enemy_turn();
+        // Prep for player's next turn.
+        mapData.resolve_events();
         mapData.display();
-        // Update turn number.
         mapData.display_stats(document.getElementById("stats"))
     }
     catch (error){
@@ -66,7 +67,9 @@ async function action(behavior, hand_pos){
             game_over(error.cause);
         }
         else if(m === "pass to player"){
-            // If the enemies' turn was interrupted.
+            // If the enemies' turn was interrupted,
+            // prep for player's next turn.
+            mapData.resolve_events();
             mapData.display();
             mapData.display_stats(document.getElementById("stats"))
         }
@@ -96,7 +99,7 @@ function modify_deck(){
     var table = document.getElementById("modifyDeck");
     deck.display_all(document.getElementById("displayDeck"));
     for(var i = 0; i < ADD_CHOICES; ++i){
-        add_list.push(CARD_CHOICES[Math.floor(Math.random() * CARD_CHOICES.length)]());
+        add_list.push(CARD_CHOICES[random_num(CARD_CHOICES.length)]());
     }
     try{
         for(var i = 0; i < REMOVE_CHOICES; ++i){
@@ -224,4 +227,7 @@ function search(element, arr){
         }
     }
     return -1;
+}
+function give_temp_card(card){
+    deck.add_temp(card);
 }

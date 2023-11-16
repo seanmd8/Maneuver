@@ -83,7 +83,7 @@ function scythe_ai(x, y, x_dif, y_dif, map, enemy){
         map.attack(x, y - direction[1], "player"); 
     }
 }
-function knight_ai(x, y, x_dif, y_dif, map, enemy){
+function shadow_knight_ai(x, y, x_dif, y_dif, map, enemy){
     // Moves in an L.
     if(Math.abs(x_dif) === 1 && Math.abs(y_dif) === 1){
         // If the player is next to it diagonally, attempty to reposition to attack them next turn.
@@ -226,7 +226,7 @@ function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
         var dir = [sign(x_dif), sign(y_dif)];
         for(var i = 0; i < dir.length; ++i){
             if(dir[i] === 0){
-                dir[i] = -1 + (2 * Math.floor(Math.random(2)));
+                dir[i] = -1 + random_num(2);
             }
         }
     }
@@ -290,11 +290,10 @@ function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
 function brightling_ai(x, y, x_dif, y_dif, map, enemy){
     if(enemy.cycle === -1){
         // teleports to a random empty space, then cycle goes to 1.
-        var space = map.random_empty();
-        map.move(x, y, space.x, space.y);
+        teleport_spell(x, y, x_dif, y_dif, map, enemy);
         ++enemy.cycle;
     }
-    else if(Math.floor(Math.random() * 4) < enemy.cycle){
+    else if(random_num(4) < enemy.cycle){
         // Teleports the player next to it then cycle goes to 0 to prepare to teleport.
         var near_points = random_nearby();
         for(var i = 0; i < near_points.length && !map.move(x + x_dif, y + y_dif, x + near_points[i][0], y + near_points[i][1]); ++i){}
@@ -335,7 +334,7 @@ function boss_death(x, y, x_dif, y_dif, map, enemy){
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
     // Moves towards the player 2/3 of the time, otherwise moves randomly.
     var directions = order_nearby(x_dif, y_dif);
-    if(Math.floor(Math.random() * 3) === 0){
+    if(random_num(3) === 0){
         directions = randomize_arr(directions);
     }
     // Direction is reselected until an unobstructed one is found.
@@ -356,6 +355,82 @@ function spider_queen_hit(x, y, x_dif, y_dif, map, enemy){
     stun(new_spider);
     spawn_nearby(map, new_spider, x, y);
 }
+function lich_ai(x, y, x_dif, y_dif, map, enemy){
+    var moves = reverse_arr(order_nearby(x_dif, y_dif));
+    var i;
+    for(i = 0; i < moves.length && !map.move(x, y, x + moves[i][0], y + moves[i][1]); ++i){}
+    if(i < moves.length){
+        x += moves[i][0];
+        x_dif += moves[i][0];
+        y += moves[i][1];
+        y_dif += moves[i][1];
+    }
+    enemy.spells[enemy.cycle][0](x, y, x_dif, y_dif, map, enemy);
+    if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
+        cycle = 1;
+    }
+    else{
+        cycle = random_num(enemy.spells.length - 1) + 1;
+    }
+    enemy.description = lich_description + enemy.spells[cycle][1];
+}
+function teleport_spell(x, y, x_dif, y_dif, map, enemy){
+    var space = map.random_empty();
+    map.move(x, y, space.x, space.y);
+}
+function summon_spell(x, y, x_dif, y_dif, map, enemy){
+    var tile = enemy.summons[random_num(enemy.summons.length)]();
+    spawn_nearby(map, tile, x, y);
+}
+function earthquake_spell(x, y, x_dif, y_dif, map, enemy){
+    map.add_event(["earthquake", (4 - enemy.health) * 5 + random_num(4)]);
+}
+function flame_wave_spell(x, y, x_dif, y_dif, map, enemy){
+    var direction = get_empty_nearby(x, y, order_nearby(), map);
+    if(direction === false){
+        return;
+    }
+    if(direction[0] === 0){
+        for(var i = 0; i < 3; ++i){
+            var fireball = fireball_tile();
+            fireball.direction = direction;
+            map.add_tile(fireball, x + i - 1, y + direction[1]);
+        }
+        return;
+    }
+    if(direction[1] === 0){
+        for(var i = 0; i < 3; ++i){
+            var fireball = fireball_tile();
+            fireball.direction = direction;
+            map.add_tile(fireball, x  + direction[0], y + i - 1);
+        }
+        return;
+    }
+    else{
+        var fireball = fireball_tile();
+        fireball.direction = direction;
+        map.add_tile(fireball, x + direction[0], y);
+        fireball = fireball_tile();
+        fireball.direction = direction;
+        map.add_tile(fireball, x, y  + direction[1]);
+        fireball = fireball_tile();
+        fireball.direction = direction;
+        map.add_tile(fireball, x + direction[0], y  + direction[1]);
+    }
+}
+function confusion_spell(x, y, x_dif, y_dif, map, enemy){
+    for(var i = 0; i < 2; ++i){
+        var ran = random_num(CONFUSION_CARDS.length);
+        give_temp_card(CONFUSION_CARDS[ran]());
+    }
+}
+function lava_barrier_spell(x, y, x_dif, y_dif, map, enemy){
+    var nearby = order_nearby(x_dif, y_dif);
+    for(var i = 0; i < enemy.health; ++i){
+        var barrier = lava_pool_tile();
+        spawn_nearby(map, barrier, x, y, nearby);
+    }
+}
 
 // Other AIs
 function hazard(x, y, x_dif, y_dif, map, enemy){
@@ -364,12 +439,24 @@ function hazard(x, y, x_dif, y_dif, map, enemy){
 }
 function wall_death(x, y, x_dif, y_dif, map, enemy){
     var spawn_list = [spider_tile, acid_bug_tile, spider_web_tile];
-    if(Math.floor(Math.random() * 7) < 10){
-        var ran = Math.floor(Math.random() * spawn_list.length);
+    if(random_num(7) < 10){
+        var ran = random_num(spawn_list.length);
         var new_enemy = spawn_list[ran]();
         stun(new_enemy);
         map.add_tile(new_enemy, x, y);
     }
+}
+function fireball_ai(x, y, x_dif, y_dif, map, enemy){
+    if(!map.move(x, y, x + enemy.direction[0], y + enemy.direction[1])){
+        map.attack(x + enemy.direction[0], y + enemy.direction[1]);
+        enemy.health = 1;
+        map.attack(x, y);
+    }
+}
+function fireball_on_enter(x, y, x_dif, y_dif, map, enemy){
+    hazard(x, y, x_dif, y_dif, map, enemy);
+    enemy.health = 1;
+    map.attack(x, y);
 }
 
 // AI Utility Functions
@@ -409,7 +496,7 @@ function sign(x){
 }
 function random_sign(){
     // Randomly returns 1 or -1.
-    return Math.floor(1 - (2 * Math.floor(Math.random() * 2)));
+    return 2 * random_num(2) - 1;
 }
 function random_nearby(){
     // Returns an array of each point next to [0, 0] with it's order randomized.
@@ -469,10 +556,9 @@ function get_empty_nearby(x, y, nearby_arr, map){
     }
     return false;
 }
-function spawn_nearby(map, tile, x, y){
-    // Attempts to spawn a <tile> at a random space next to to the given cords.
+function spawn_nearby(map, tile, x, y, nearby = random_nearby()){
+    // Attempts to spawn a <tile> at a space next to to the given cords.
     // If it succeeds, returns the location, otherwise returns false.
-    var nearby = random_nearby();
     for(var i = 0; i < nearby.length; ++i){
         if(map.add_tile(tile, x + nearby[i][0], y + nearby[i][1])){
             return nearby[i];
@@ -485,7 +571,7 @@ function randomize_arr(arr){
     arr = copy_arr(arr);
     var random_arr = [];
     while(arr.length > 0){
-        var index = Math.floor(Math.random() * arr.length);
+        var index = random_num(arr.length);
         random_arr.push(arr[index]);
         arr[index] = arr[arr.length - 1];
         arr.pop();
@@ -499,4 +585,14 @@ function copy_arr(arr){
         arr2[i] = arr[i];
     }
     return arr2;
+}
+function reverse_arr(){
+    var new_arr = [];
+    for(var i = reverse_arr.length - 1; i >= 0; --i){
+        new_arr.push(arr[i]);
+    }
+    return new_arr;
+}
+function random_num(x){
+    return Math.floor(Math.random() * x);
 }

@@ -12,7 +12,7 @@
 //  description: info that will be displayed when the user clicks on the tile.
 
 // This is a list of all the enemies that can be spawned on a normal floor.
-const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, knight_tile, 
+const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, spider_tile, shadow_knight_tile, 
     spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile,
     brightling_tile, corrosive_caterpillar_tile];
 
@@ -78,7 +78,7 @@ function wall_tile(){
     }
 }
 function damaged_wall_tile(){
-    var health = Math.ceil(Math.random() * 2);
+    var health = random_num(2) + 1;
     return {
         type: "terrain",
         name: "damaged wall",
@@ -87,6 +87,17 @@ function damaged_wall_tile(){
         on_death: wall_death,
         description: damaged_wall_description
 
+    }
+}
+function fireball_tile(){
+    return {
+        type: "enemy",
+        name: "fireball",
+        pic: "fireball.png",
+        direction: [],
+        description: fireball_description,
+        behavior: fireball_ai,
+        on_enter: fireball_on_enter
     }
 }
 
@@ -135,15 +146,15 @@ function scythe_tile(){
         description: scythe_description
     }
 }
-function knight_tile(){
+function shadow_knight_tile(){
     return{
         type: "enemy",
-        name: "knight",
-        pic: "knight.png",
+        name: "shadow_knight",
+        pic: "shadow_knight.png",
         health: 2,
         difficulty: 4,
-        behavior: knight_ai,
-        description: knight_description
+        behavior: shadow_knight_ai,
+        description: shadow_knight_description
     }
 }
 function spider_web_tile(){
@@ -187,7 +198,7 @@ function large_porcuslime_tile(){
     }
 }
 function medium_porcuslime_tile(){
-    var ran = Math.floor(Math.random(2));
+    var ran = random_num(2);
     var pic_arr = ["medium_h_porcuslime.png", "medium_d_porcuslime.png"];
     return {
         type: "enemy",
@@ -287,6 +298,38 @@ function spider_queen_tile(){
         on_death: boss_death,
         description: spider_queen_description,
         death_message: spider_queen_death_message
+    }
+}
+function lich_tile(){
+    var spells = [
+        [teleport_spell, teleport_spell_description], 
+        [summon_spell, summon_spell_description], 
+        [earthquake_spell, earthquake_spell_description], 
+        [flame_wave_spell, flame_wave_spell_description],
+        [confusion_spell, confusion_spell_description],
+        [lava_barrier_spell, lava_barrier_description]
+    ];
+    var summons = [
+        scythe_tile,
+        shadow_knight_tile,
+        ram_tile,
+        large_porcuslime_tile
+    ];
+    var starting_cycle = 1;
+    return{
+        type: "enemy",
+        name: "lich",
+        pic: "lich.png",
+        health: 3,
+        difficulty: "boss",
+        behavior: lich_ai,
+        cycle: starting_cycle,
+        spells,
+        summons,
+        earthquake_targets: [],
+        on_death: boss_death,
+        description: lich_description + spells[starting_cycle][1],
+        death_message: lich_death_message
     }
 }
 
