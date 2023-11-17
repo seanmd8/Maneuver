@@ -189,7 +189,7 @@ function ram_tile(){
 function large_porcuslime_tile(){
     return {
         type: "enemy",
-        name: "porcuslime",
+        name: "large porcuslime",
         pic: "large_porcuslime.png",
         health: 3,
         difficulty: 8,

@@ -192,7 +192,7 @@ function large_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     }
     if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
         // If the player is next to it, attacks.
-        map.attack(x + x_dif, y + y_dif, "player");
+        map.attack(x + x_dif, y + y_dif);
     }
     else{
         // Otherwise moves closer and attacks in that direction.
@@ -200,7 +200,7 @@ function large_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
         y_dif = sign(y_dif);
         var moved = map.move(x, y, x + x_dif, y + y_dif);
         if(moved){
-            map.attack(x + (2 * x_dif), y + (2 * y_dif), "player");
+            map.attack(x + (2 * x_dif), y + (2 * y_dif));
         }
     }
 }
@@ -233,10 +233,10 @@ function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     // Moves then attacks in that direction.
     var moved = map.move(x, y, x + dir[0], y + dir[1]);
     if(moved){
-        map.attack(x + (2 * dir[0]), y + (2 * dir[1]), "player");
+        map.attack(x + (2 * dir[0]), y + (2 * dir[1]));
     }
     else{
-        map.attack(x + dir[0], y + dir[1], "player");
+        map.attack(x + dir[0], y + dir[1]);
     }
     // Swaps cycle and picture between the two.
     enemy.cycle = 1 - enemy.cycle;
@@ -252,10 +252,10 @@ function small_h_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     }
     var moved = map.move(x, y, x + dir[0], y + dir[1]);
     if(moved){
-        map.attack(x + (2 * dir[0]), y + (2 * dir[1]), "player");
+        map.attack(x + (2 * dir[0]), y + (2 * dir[1]));
     }
     else{
-        map.attack(x + dir[0], y + dir[1], "player");
+        map.attack(x + dir[0], y + dir[1]);
     }
 }
 function small_d_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
@@ -268,10 +268,10 @@ function small_d_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
     }
     var moved = map.move(x, y, x + dir[0], y + dir[1]);
     if(moved){
-        map.attack(x + (2 * dir[0]), y + (2 * dir[1]), "player");
+        map.attack(x + (2 * dir[0]), y + (2 * dir[1]));
     }
     else{
-        map.attack(x + dir[0], y + dir[1], "player");
+        map.attack(x + dir[0], y + dir[1]);
     }
 }
 function acid_bug_ai(x, y, x_dif, y_dif, map, enemy){
@@ -2421,7 +2421,7 @@ function ram_tile(){
 function large_porcuslime_tile(){
     return {
         type: "enemy",
-        name: "porcuslime",
+        name: "large porcuslime",
         pic: "large_porcuslime.png",
         health: 3,
         difficulty: 8,
