@@ -10,7 +10,6 @@ class EntityList{
     constructor(){
         this.count = 2;
         this.#id_count = 0;
-        this.#player = 0;
         this.#exit = 0;
         this.#enemy_list = [];
     }
@@ -21,7 +20,7 @@ class EntityList{
         this.#player = {x, y};
     }
     get_player_pos(){
-        if(this.#player === 0){
+        if(this.#player === undefined){
             throw new Error("player doesn't exist");
         }
         return {x: this.#player.x, y: this.#player.y};

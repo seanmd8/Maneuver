@@ -80,7 +80,7 @@ function new_floor(){
     clear_tb("modifyDeck");
     document.getElementById("currentDeck").innerText = "";
     clear_tb("displayDeck");
-    var floor = mapData.erase(mapData.get_player().health);
+    var floor = mapData.erase();
     floor_generator(floor, mapData);
     mapData.display_stats(document.getElementById("stats"));
     deck.deal();

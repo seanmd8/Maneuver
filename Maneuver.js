@@ -1390,7 +1390,6 @@ class EntityList{
     constructor(){
         this.count = 2;
         this.#id_count = 0;
-        this.#player = 0;
         this.#exit = 0;
         this.#enemy_list = [];
     }
@@ -1401,7 +1400,7 @@ class EntityList{
         this.#player = {x, y};
     }
     get_player_pos(){
-        if(this.#player === 0){
+        if(this.#player === undefined){
             throw new Error("player doesn't exist");
         }
         return {x: this.#player.x, y: this.#player.y};
@@ -1622,7 +1621,7 @@ function new_floor(){
     clear_tb("modifyDeck");
     document.getElementById("currentDeck").innerText = "";
     clear_tb("displayDeck");
-    var floor = mapData.erase(mapData.get_player().health);
+    var floor = mapData.erase();
     floor_generator(floor, mapData);
     mapData.display_stats(document.getElementById("stats"));
     deck.deal();
@@ -1791,14 +1790,26 @@ class GameMap{
     constructor(x_max, y_max){
         this.#x_max = x_max;
         this.#y_max = y_max;
+        this.#entity_list = new EntityList();
         this.#floor = 0;
         this.#turn_count = 0;
         this.#events = [];
         this.erase()
     }
-    erase(player_health = -1){
+    erase(){
         // Function to start a new floor by erasing the board and adding only the player and the exit.
         // Returns the floor number.
+        try{
+            var player = this.get_player();
+        }
+        catch(error){
+            if(error.message === "player doesn't exist"){
+                var player = player_tile();
+            }
+            else{
+                throw error;
+            }
+        }
         this.#entity_list = new EntityList();
         this.#grid = [];
         for(var i = 0; i < this.#x_max; ++i){
@@ -1808,7 +1819,7 @@ class GameMap{
             }
         }
         this.set_exit(random_num(this.#y_max), 0)
-        this.set_player(random_num(this.#y_max), this.#x_max - 1, player_health)
+        this.set_player(random_num(this.#y_max), this.#x_max - 1, player)
         return ++this.#floor;
     }
     random_space(){
@@ -1866,7 +1877,7 @@ class GameMap{
         this.#entity_list.set_exit(exit_x, exit_y);
         this.#grid[exit_x][exit_y] = exit_tile();
     }
-    set_player(player_x, player_y, player_health = -1){
+    set_player(player_x, player_y, player){
         // Places the player. If a non-negative value is given for the player's health, it will be set to that.
         // Throws an error is the space is occupied or out of bounds.
         this.check_bounds(player_x, player_y);
@@ -1874,10 +1885,6 @@ class GameMap{
             throw new Error("space not empty");
         }
         this.#entity_list.set_player(player_x, player_y);
-        var player = player_tile();
-        if(player_health > 0){
-            player.health = player_health;
-        }
         this.#grid[player_x][player_y] = player;
     }
     add_tile(tile, x = undefined, y = undefined){
