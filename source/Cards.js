@@ -21,7 +21,7 @@ const CARD_CHOICES = [
     explosion, breakthrough, flanking_diagonal, flanking_sideways, flanking_straight,
     pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
     thwack, overcome_sideways, y_leap, diamond_slice, spearhead,
-    alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical
+    alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal
 ];
 
 const CONFUSION_CARDS = [
@@ -582,6 +582,18 @@ function alt_vertical(){
         options
     }
 }
+function jab_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [["attack", 1, -1], ["attack", 2, -2]]);
+    options.add_button(SE, [["attack", 1, 1], ["attack", 2, 2]]);
+    options.add_button(SW, [["attack", -1, 1], ["attack", -2, 2]]);
+    options.add_button(NW, [["attack", -1, -1], ["attack", -2, -2]]);
+    return{
+        name: "jab_diagonal",
+        pic: "jab_diagonal.png",
+        options
+    }
+}
 
 // Cards given to the player as debuffs
 function stumble_w(){
@@ -683,3 +695,4 @@ function lash_out(){
         options
     }
 }
+
