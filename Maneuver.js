@@ -689,7 +689,8 @@ const CARD_CHOICES = [
     jab, overcome, hit_and_run, push_back, fork,
     explosion, breakthrough, flanking_diagonal, flanking_sideways, flanking_straight,
     pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
-    thwack, overcome_sideways, y_leap, diamond_slice, spearhead
+    thwack, overcome_sideways, y_leap, diamond_slice, spearhead,
+    alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical
 ];
 
 const CONFUSION_CARDS = [
@@ -715,11 +716,10 @@ function make_starting_deck(){
 // Makes a deck for testing new cards.
 function make_test_deck(){
     deck = new MoveDeck();
-    var start = 35;
+    var start = 40;
     for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
         deck.add(CARD_CHOICES[i]());
     }
-    deck.add(basic_horizontal());
     deck.add(basic_horizontal());
     deck.deal();
     return deck;
@@ -1203,6 +1203,54 @@ function spearhead(){
         options
     }
 }
+function alt_diagonal_left(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [["attack", 1, 0], ["attack", 1, -1], ["attack", 0, -1]]);
+    options.add_button(SE, [["move", 1, 1]]);
+    options.add_button(SW, [["attack", -1, 0], ["attack", -1, 1], ["attack", 0, 1]]);
+    options.add_button(NW, [["move", -1, -1]]);
+    return{
+        name: "alternating diagonal left",
+        pic: "alt_diagonal_left.png",
+        options
+    }
+}
+function alt_diagonal_right(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [["move", 1, -1]]);
+    options.add_button(SE, [["attack", 1, 0], ["attack", 1, 1], ["attack", 0, 1]]);
+    options.add_button(SW, [["move", -1, 1]]);
+    options.add_button(NW, [["attack", -1, 0], ["attack", -1, -1], ["attack", 0, -1]]);
+    return{
+        name: "alternating diagonal right",
+        pic: "alt_diagonal_right.png",
+        options
+    }
+}
+function alt_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [["attack", 1, -1], ["attack", 0, -1], ["attack", -1, -1]]);
+    options.add_button(E, [["move", 1, 0]]);
+    options.add_button(S, [["attack", 1, 1], ["attack", 0, 1], ["attack", -1, 1]]);
+    options.add_button(W, [["move", -1, 0]]);
+    return{
+        name: "alternating horizontal",
+        pic: "alt_horizontal.png",
+        options
+    }
+}
+function alt_vertical(){
+    var options = new ButtonGrid();
+    options.add_button(N, [["move", 0, -1]]);
+    options.add_button(E, [["attack", 1, 1], ["attack", 1, 0], ["attack", 1, -1]]);
+    options.add_button(S, [["move", 0, 1]]);
+    options.add_button(W, [["attack", -1, 1], ["attack", -1, 0], ["attack", -1, -1]]);
+    return{
+        name: "alternating vertical",
+        pic: "alt_vertical.png",
+        options
+    }
+}
 
 // Cards given to the player as debuffs
 function stumble_w(){
@@ -1303,7 +1351,8 @@ function lash_out(){
         pic: "lash_out.png",
         options
     }
-}// ----------------Descriptions.js----------------
+}
+// ----------------Descriptions.js----------------
 // Contains text that will be displayed.
 
 // General.
@@ -1522,7 +1571,7 @@ function velociphile_floor(floor, map){
 function spider_queen_floor(floor, map){
     map.add_tile(spider_queen_tile());
     map.lock();
-    for(var i = 0; i < 5; ++i){
+    for(var i = 0; i < 4; ++i){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
     }

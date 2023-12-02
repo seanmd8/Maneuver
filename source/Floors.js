@@ -36,7 +36,7 @@ function velociphile_floor(floor, map){
 function spider_queen_floor(floor, map){
     map.add_tile(spider_queen_tile());
     map.lock();
-    for(var i = 0; i < 5; ++i){
+    for(var i = 0; i < 4; ++i){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
     }
