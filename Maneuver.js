@@ -226,7 +226,7 @@ function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
         var dir = [sign(x_dif), sign(y_dif)];
         for(var i = 0; i < dir.length; ++i){
             if(dir[i] === 0){
-                dir[i] = -1 + random_num(2);
+                dir[i] = random_sign();
             }
         }
     }
@@ -1760,6 +1760,7 @@ function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 
     var cell = document.createElement("td");
     cell.id = id;
     var image = document.createElement("img");
+    image.id = id + " img";
     image.src = pic;
     image.height = size;
     image.width = size;
@@ -1836,7 +1837,8 @@ function prep_turn(){
     mapData.display();
     deck.display_hand(document.getElementById("handDisplay"));
     mapData.display_stats(document.getElementById("stats"))
-}// ----------------GameMap.js----------------
+}
+// ----------------GameMap.js----------------
 // GameMap class holds the information on the current floor and everything on it.
 
 const GRID_SCALE = 28; // Controls the size of tiles when the map is displayed.
@@ -2252,7 +2254,10 @@ class MoveDeck{
         }
         var row = document.createElement("tr");
         row.id = "hand";
-        var prep_move = function(move, hand_pos){return function(){move.options.show_buttons("moveButtons", hand_pos)}};
+        var prep_move = function(move, hand_pos){return function(){
+            deck.select(hand_pos);
+            move.options.show_buttons("moveButtons", hand_pos);
+        }};
         for(var i = 0; i < this.#hand.length; ++i){
             var cell =  make_cell("hand " + i, "images/cards/" + this.#hand[i].pic, HAND_SCALE, prep_move, this.#hand[i], i);
 			row.append(cell);
@@ -2290,6 +2295,12 @@ class MoveDeck{
             }
         }
         return false;
+    }
+    select(hand_pos){
+        for(var i = 0; i < this.#hand.length; ++i){
+            document.getElementById("hand " + i + " img").border = "";
+        }
+        document.getElementById("hand " + hand_pos + " img").border = "3px solid #555";
     }
 }
 // ----------------Tiles.js----------------

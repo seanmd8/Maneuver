@@ -226,7 +226,7 @@ function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
         var dir = [sign(x_dif), sign(y_dif)];
         for(var i = 0; i < dir.length; ++i){
             if(dir[i] === 0){
-                dir[i] = -1 + random_num(2);
+                dir[i] = random_sign();
             }
         }
     }

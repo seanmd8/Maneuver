@@ -157,6 +157,7 @@ function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 
     var cell = document.createElement("td");
     cell.id = id;
     var image = document.createElement("img");
+    image.id = id + " img";
     image.src = pic;
     image.height = size;
     image.width = size;
