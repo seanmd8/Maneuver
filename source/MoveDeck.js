@@ -96,7 +96,7 @@ class MoveDeck{
     }
     display_all(table){
         // Displays the deck list to the given table.
-        document.getElementById("currentDeck").innerText = "Current Deck (minimum " + DECK_MINIMUM + "):";
+        document.getElementById("currentDeck").innerText = current_deck + DECK_MINIMUM + "):";
         for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
             var row = document.createElement("tr");
             for(var j = 0; j < DECK_DISPLAY_WIDTH && j + i * DECK_DISPLAY_WIDTH < this.#list.length; ++j){
@@ -106,13 +106,11 @@ class MoveDeck{
             table.append(row);
         }
     }
-    get_rand(){
-        // gets a random card in the deck.
-        // Throws an error if the deck is at it's minimum size.
+    get_rand_arr(size){
         if(this.#list.length <= DECK_MINIMUM){
-            throw new Error("deck minimum reached");
+            return []
         }
-        return this.#list[random_num(this.#list.length)];
+        return rand_no_repeates(this.#list, size);
     }
     remove(id){
         // Removes the card with the given id from the deck.

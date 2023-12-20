@@ -12,7 +12,7 @@
 //  description: info that will be displayed when the user clicks on the tile.
 
 // This is a list of all the enemies that can be spawned on a normal floor.
-const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, spider_tile, shadow_knight_tile, 
+const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, shadow_knight_tile, scythe_tile,
     spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile,
     brightling_tile, corrosive_caterpillar_tile];
 

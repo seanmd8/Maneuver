@@ -10,6 +10,7 @@ document.onkeydown = press;
 
 function setup(){
     // Function ran on page load or on restart to set up the game.
+    describe(game_title, "title")
     describe(welcome_message);
     mapData = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT);  
     mapData.add_tile(STARTING_ENEMY());
@@ -17,10 +18,13 @@ function setup(){
     mapData.display_stats(document.getElementById("stats"));
     deck = STARTING_DECK();
     deck.display_hand(document.getElementById("handDisplay"));
+    describe(mod_deck, "shopInstruction");
+    swap_screen("gameScreen");
+    swap_screen("stage");
 }
-function describe(description){
+function describe(description, element = "displayMessage"){
     // Used to display text to the "displayMessage" element
-    document.getElementById("displayMessage").innerText = description;
+    document.getElementById(element).innerText = description;
 }
 function clear_tb(element_id){
     // Deletes all rows from the given html table.
@@ -77,40 +81,24 @@ async function action(behavior, hand_pos){
 }
 function new_floor(){
     // Creates the next floor.
-    clear_tb("modifyDeck");
-    document.getElementById("currentDeck").innerText = "";
-    clear_tb("displayDeck");
     var floor = mapData.erase();
     floor_generator(floor, mapData);
     mapData.display_stats(document.getElementById("stats"));
-    deck.deal();
     mapData.display();
+    deck.deal();
     deck.display_hand(document.getElementById("handDisplay"));
+    swap_screen("stage");
 }
 function modify_deck(){
     // Gives the player the option to add or remove a card from their deck.
     // Their deck contents are also displayed.
     // Options to remove cards will not be displayed if the deck is at the minimum size already.
-    var add_list = [];
-    var remove_list = [];
+    var add_list = rand_no_repeates(CARD_CHOICES, ADD_CHOICES);
+    var remove_list = deck.get_rand_arr(REMOVE_CHOICES);
     var table = document.getElementById("modifyDeck");
+    clear_tb("modifyDeck");
+    clear_tb("displayDeck");
     deck.display_all(document.getElementById("displayDeck"));
-    for(var i = 0; i < ADD_CHOICES; ++i){
-        add_list.push(CARD_CHOICES[random_num(CARD_CHOICES.length)]());
-    }
-    try{
-        for(var i = 0; i < REMOVE_CHOICES; ++i){
-            remove_list.push(deck.get_rand());
-        }
-    }
-    catch{
-        // deck.get_rand throws an error if the deck is at the minimum size, in which case they should not
-        // be able to remove more cards.
-    }
-    clear_tb("mapDisplay");
-    clear_tb("handDisplay");
-    clear_tb("moveButtons");
-    describe("Choose one card to add or remove");
 
     // Options to add.
     var add = function(card){return function(){
@@ -122,7 +110,8 @@ function modify_deck(){
     var plus = make_cell("plus", "images/other/plus.png", HAND_SCALE);
     add_row.append(plus);
     for(var i = 0; i < add_list.length; ++i){
-        var cell = make_cell("card " + i, "images/cards/" + add_list[i].pic, HAND_SCALE, add, add_list[i]);
+        var card = add_list[i]();
+        var cell = make_cell("card " + i, "images/cards/" + card.pic, HAND_SCALE, add, card);
         add_row.append(cell);
     }
 
@@ -145,6 +134,7 @@ function modify_deck(){
 
     table.append(add_row);
     table.append(remove_row);
+    swap_screen("shop");
 }
 function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
     // Function to make a cell for a table.
@@ -234,4 +224,49 @@ function prep_turn(){
     mapData.display();
     deck.display_hand(document.getElementById("handDisplay"));
     mapData.display_stats(document.getElementById("stats"))
+}
+function swap_screen(screen){
+    switch(screen){
+        case "gameScreen":
+            document.getElementById("tutorial").style.display = "none";
+            document.getElementById("gameScreen").style.display = "block";
+            break;
+        case "stage":
+            document.getElementById("shop").style.display = "none";
+            document.getElementById("chest").style.display = "none";
+            document.getElementById("stage").style.display = "block";
+            break;
+        case "shop":
+            document.getElementById("stage").style.display = "none";
+            document.getElementById("chest").style.display = "none";
+            document.getElementById("shop").style.display = "block";
+            break;
+        case "chest":
+            document.getElementById("stage").style.display = "none";
+            document.getElementById("shop").style.display = "none";
+            document.getElementById("chest").style.display = "block";
+            break;
+        case "tutorial":
+            document.getElementById("gameScreen").style.display = "none";
+            document.getElementById("tutorial").style.display = "block";
+            break;
+        default:
+            throw Error("invalid screen swap");
+    }
+    return;
+}
+function rand_no_repeates(source, draws){
+    var index_arr = [];
+    var result = [];
+    draws = Math.min(draws, source.length);
+    for(var i = 0; i < source.length; ++i){
+        index_arr.push(i);
+    }
+    for(var i = 0; i < draws; ++i){
+        rand = random_num(index_arr.length);
+        result.push(source[index_arr[rand]]);
+        index_arr[rand] = index_arr[index_arr.length - 1];
+        index_arr.pop();
+    }
+    return result;
 }
