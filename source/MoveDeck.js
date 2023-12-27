@@ -1,13 +1,6 @@
 // ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.
 
-const HAND_SIZE = 3; // The number of options available each turn.
-const HAND_SCALE = 90; // The size of the cards when they are displayed.
-const ADD_CHOICES = 3; // How many card options they get when adding cards.
-const REMOVE_CHOICES = 3; // How many card options they get when removing cards.
-const DECK_MINIMUM = 5; // The minimum number of cards they can have in their deck.
-const DECK_DISPLAY_WIDTH = 4; // How many cards shown per line when the deck is displayed.
-
 class MoveDeck{
     #list; // The list of all cards they have.
     #library; // The list of cards in their draw pile.
@@ -50,7 +43,7 @@ class MoveDeck{
         // If the library is empty, it will first shuffle in the discard. 
         // Throws an error if x doens't correspond to a card in hand.
         if(x >= this.#hand.length || x < 0){
-            throw new Error("hand out of bounds");
+            throw new Error(`hand out of bounds`);
         }
         if(this.#library.length === 0){
             while(this.#discard_pile.length != 0){
@@ -58,7 +51,7 @@ class MoveDeck{
             }
             this.#library = this.#shuffle(this.#library);
         }
-        if(!(this.#hand[x].hasOwnProperty("temp") && this.#hand[x].temp === true)){
+        if(!(this.#hand[x].hasOwnProperty(`temp`) && this.#hand[x].temp === true)){
             this.#discard_pile.push(this.#hand[x]);
         }
         this.#hand[x] = this.#library.pop();
@@ -82,25 +75,25 @@ class MoveDeck{
         while(table.rows.length > 0){
             table.deleteRow(0);
         }
-        var row = document.createElement("tr");
-        row.id = "hand";
+        var row = document.createElement(`tr`);
+        row.id = `hand`;
         var prep_move = function(move, hand_pos){return function(){
             deck.select(hand_pos);
-            move.options.show_buttons("moveButtons", hand_pos);
+            move.options.show_buttons(`moveButtons`, hand_pos);
         }};
         for(var i = 0; i < this.#hand.length; ++i){
-            var cell =  make_cell("hand " + i, "images/cards/" + this.#hand[i].pic, HAND_SCALE, prep_move, this.#hand[i], i);
+            var cell =  make_cell(`hand ${i}`, `images/cards/${this.#hand[i].pic}`, HAND_SCALE, prep_move, this.#hand[i], i);
 			row.append(cell);
         }
         table.append(row);
     }
     display_all(table){
         // Displays the deck list to the given table.
-        document.getElementById("currentDeck").innerText = current_deck + DECK_MINIMUM + "):";
+        document.getElementById(`currentDeck`).innerText = `${current_deck}${DECK_MINIMUM}):`;
         for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
-            var row = document.createElement("tr");
+            var row = document.createElement(`tr`);
             for(var j = 0; j < DECK_DISPLAY_WIDTH && j + i * DECK_DISPLAY_WIDTH < this.#list.length; ++j){
-                var cell =  make_cell("card " + (i * DECK_DISPLAY_WIDTH + j), "images/cards/" + this.#list[i * DECK_DISPLAY_WIDTH + j].pic, HAND_SCALE);
+                var cell =  make_cell(`card ${i * DECK_DISPLAY_WIDTH + j}`, `images/cards/${this.#list[i * DECK_DISPLAY_WIDTH + j].pic}`, HAND_SCALE);
 			    row.append(cell);
             }
             table.append(row);
@@ -126,8 +119,8 @@ class MoveDeck{
     }
     select(hand_pos){
         for(var i = 0; i < this.#hand.length; ++i){
-            document.getElementById("hand " + i + " img").border = "";
+            document.getElementById(`hand ${i} img`).border = ``;
         }
-        document.getElementById("hand " + hand_pos + " img").border = "3px solid #555";
+        document.getElementById(`hand ${hand_pos} img`).border = `3px solid #555`;
     }
 }

@@ -14,7 +14,7 @@
 function spider_ai(x, y, x_dif, y_dif, map, enemy){
     if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
         // If the player is next to it, attack.
-        map.attack(x + x_dif, y + y_dif, "player");
+        map.attack(x + x_dif, y + y_dif, `player`);
     }
     else{
         // Otherwise, move closer.
@@ -40,7 +40,7 @@ function turret_h_ai(x, y, x_dif, y_dif, map, enemy){
         }
     }
     catch(error){
-        if(!(error.message === "x out of bounds" || error.message === "y out of bounds")){
+        if(!(error.message === `x out of bounds` || error.message === `y out of bounds`)){
             throw error;
         }
     }
@@ -59,7 +59,7 @@ function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
         }
     }
     catch(error){
-        if(!(error.message === "x out of bounds" || error.message === "y out of bounds")){
+        if(!(error.message === `x out of bounds` || error.message === `y out of bounds`)){
             throw error;
         }
     }
@@ -71,7 +71,7 @@ function scythe_ai(x, y, x_dif, y_dif, map, enemy){
         // If the player is orthogonal, moves randomly.
         direction = [random_sign(), random_sign()];
     }
-    enemy.pic = "scythe_" + convert_direction(direction[0], direction[1]) + ".png";
+    enemy.pic = `scythe_${convert_direction(direction[0], direction[1])}.png`;
     for(var i = 0; i < distance; ++i){
         // moves <distance> spaces attacking each space it passes next to.
         if(!map.move(x, y, x + direction[0], y + direction[1])){
@@ -79,8 +79,8 @@ function scythe_ai(x, y, x_dif, y_dif, map, enemy){
         }
         x += direction[0];
         y += direction[1];
-        map.attack(x - direction[0], y, "player");
-        map.attack(x, y - direction[1], "player"); 
+        map.attack(x - direction[0], y, `player`);
+        map.attack(x, y - direction[1], `player`); 
     }
 }
 function shadow_knight_ai(x, y, x_dif, y_dif, map, enemy){
@@ -95,7 +95,7 @@ function shadow_knight_ai(x, y, x_dif, y_dif, map, enemy){
     if(Math.abs(x_dif) + Math.abs(y_dif) === 3){
         if(x_dif === 1 || x_dif === -1 || y_dif === 1 || y_dif === -1){
             // If the player is a L away, attak them then try to move past them.
-            map.attack(x + x_dif, y + y_dif, "player");
+            map.attack(x + x_dif, y + y_dif, `player`);
             map.move(x, y, x + x_dif * 2, y + y_dif * 2);
             return;
         }
@@ -299,7 +299,7 @@ function brightling_ai(x, y, x_dif, y_dif, map, enemy){
         for(var i = 0; i < near_points.length && !map.move(x + x_dif, y + y_dif, x + near_points[i][0], y + near_points[i][1]); ++i){}
         enemy.cycle = -1;
         // Since player has been moved, it returns to their turn.
-        throw new Error("pass to player");
+        throw new Error(`pass to player`);
     }
     else{
         // Moves 2 spaces randomly.
@@ -328,7 +328,7 @@ function corrosive_caterpillar_death(x, y, x_dif, y_dif, map, enemy){
 
 // Boss AIs
 function boss_death(x, y, x_dif, y_dif, map, enemy){
-    describe(enemy.death_message + "\n" + boss_death_description)
+    describe(`${enemy.death_message}\n${boss_death_description}`);
     map.unlock();
 }
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
@@ -387,7 +387,7 @@ function summon_spell(x, y, x_dif, y_dif, map, enemy){
     spawn_nearby(map, tile, x, y);
 }
 function earthquake_spell(x, y, x_dif, y_dif, map, enemy){
-    map.add_event(["earthquake", (4 - enemy.health) * 5 + random_num(4)]);
+    map.add_event([`earthquake`, (4 - enemy.health) * 5 + random_num(4)]);
 }
 function flame_wave_spell(x, y, x_dif, y_dif, map, enemy){
     var direction = get_empty_nearby(x, y, order_nearby(x_dif, y_dif), map);
@@ -414,7 +414,7 @@ function flame_wave_spell(x, y, x_dif, y_dif, map, enemy){
     for(var i = 0; i < spawnpoints.length; ++i){
         var fireball = fireball_tile();
         fireball.direction = direction;
-        fireball.pic = "fireball_" + direction_str + ".png";
+        fireball.pic = `fireball_${direction_str}.png`;
         map.add_tile(fireball, x + spawnpoints[i][0], y  + spawnpoints[i][1]);
     }
 }
@@ -463,25 +463,25 @@ function fireball_on_enter(x, y, x_dif, y_dif, map, enemy){
 // AI Utility Functions
 function stun(tile){
     // Increases a tile's stun.
-    if(!tile.hasOwnProperty("stun")){
+    if(!tile.hasOwnProperty(`stun`)){
         tile.stun = 0;
     }
     ++tile.stun;
 }
 function convert_direction(x, y){
     // Converts cords to a cardinal direction.
-    var str = "";
+    var str = ``;
     if(y > 0){
-        str += "s";
+        str += `s`;
     }
     if(y < 0){
-        str += "n";
+        str += `n`;
     }
     if(x > 0){
-        str += "e";
+        str += `e`;
     }
     if(x < 0){
-        str += "w";
+        str += `w`;
     }
     return str;
 }

@@ -15,7 +15,7 @@ class ButtonGrid{
             number = this.#convert_direction(description);
         }
         if(number < 1 || number > 9){
-            throw new Error("button out of range");
+            throw new Error(`button out of range`);
         }
         var button = [description, commands];
         this.#buttons[Math.floor((number - 1) / 3)][(number - 1) % 3] = button;
@@ -25,22 +25,22 @@ class ButtonGrid{
         // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
         clear_tb(table_name);
         for(var i = 0; i < this.#buttons.length; ++i){
-            var row = document.createElement("tr");
-            row.id = "button row " + i;
+            var row = document.createElement(`tr`);
+            row.id = `button row ${i}`;
             for(var j = 0; j < this.#buttons[i].length; ++j){
-                var cell = document.createElement("input");
-                cell.type = "button";
+                var cell = document.createElement(`input`);
+                cell.type = `button`;
                 if(!(this.#buttons[i][j] === 0)){
                     // If the button has info, that description and list of commands will be used.
-                    cell.id = "button " + (i * 3 + j);
+                    cell.id = `button ${i * 3 + j}`;
                     cell.value = this.#buttons[i][j][0];
                     var act = function(behavior, hand_pos){return function(){action(behavior, hand_pos)}};
                     cell.onclick = act(this.#buttons[i][j][1], hand_pos);
                 }
                 else{
-                    // If it doesn't have info, a "--" button with no onclick will be used.
-                    cell.name = "--";
-                    cell.value = "--";
+                    // If it doesn't have info, a `--` button with no onclick will be used.
+                    cell.name = `--`;
+                    cell.value = `--`;
                 }
                 row.append(cell);
             }
