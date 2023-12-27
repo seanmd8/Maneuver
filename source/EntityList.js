@@ -52,7 +52,7 @@ class EntityList{
         if(index === -1){
             throw new Error(`id not found`);
         }
-        this.#enemy_list = this.#enemy_list.slice(0, index).concat(this.#enemy_list.slice(index + 1, this.#enemy_list.length));
+        this.#enemy_list.splice(index, 1);
         --this.count_non_empty;
     }
     #find_by_id(id){

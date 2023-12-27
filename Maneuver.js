@@ -4,10 +4,10 @@
 // Parameters:
 //  x: the x location of this entity on the game map.
 //  y: the y location of this entity on the game map.
-//  x_dif: the difference between the x value of this and the player, or the thing that triggered it.
-//  y_dif: the difference between the y value of this and the player, or the thing that triggered it.
+//  x_dif: the difference between the x value of this and the target (generally the player).
+//  y_dif: the difference between the y value of this and the target (generally the player).
 //  map: the game map.
-//  enemy: the entity using the function.
+//  enemy: the tile of the entity using the function.
 
 
 // Normal Enemy AIs
@@ -461,12 +461,12 @@ function fireball_on_enter(x, y, x_dif, y_dif, map, enemy){
 }
 
 // AI Utility Functions
-function stun(tile){
+function stun(tile, amount = 1){
     // Increases a tile's stun.
     if(!tile.hasOwnProperty(`stun`)){
         tile.stun = 0;
     }
-    ++tile.stun;
+    tile.stun += amount;
 }
 function convert_direction(x, y){
     // Converts cords to a cardinal direction.
@@ -1523,7 +1523,7 @@ class EntityList{
         if(index === -1){
             throw new Error(`id not found`);
         }
-        this.#enemy_list = this.#enemy_list.slice(0, index).concat(this.#enemy_list.slice(index + 1, this.#enemy_list.length));
+        this.#enemy_list.splice(index, 1);
         --this.count_non_empty;
     }
     #find_by_id(id){
@@ -1909,14 +1909,14 @@ class GameMap{
     #y_max; // Size of the grid's y axis.
     #entity_list; // entity_list class makes keeping track of entity locations easier.
     #grid; // Grid is a 2d list of tiles representing the entity in each location.
-    #floor; // The current floor number.
+    #floor_num; // The current floor number.
     #turn_count; // How many turns the player has taken.
     #events;
     constructor(x_max, y_max){
         this.#x_max = x_max;
         this.#y_max = y_max;
         this.#entity_list = new EntityList();
-        this.#floor = 0;
+        this.#floor_num = 0;
         this.#turn_count = 0;
         this.#events = [];
         this.erase()
@@ -1945,7 +1945,7 @@ class GameMap{
         }
         this.set_exit(random_num(this.#y_max), 0)
         this.set_player(random_num(this.#y_max), this.#x_max - 1, player)
-        return ++this.#floor;
+        return ++this.#floor_num;
     }
     random_space(){
         // Returns a randome space in the grid.
@@ -2094,7 +2094,7 @@ class GameMap{
         var start = this.#grid[x1][y1];
         var end = this.#grid[x2][y2];
         if(start.type === `player` && end.type === `exit`){
-            this.#turn_count++;
+            ++this.#turn_count;
             throw new Error(`floor complete`);
         }
         if(end.hasOwnProperty(`on_enter`)){
@@ -2185,12 +2185,12 @@ class GameMap{
     }
     async enemy_turn(){
         // Causes each enemy to execute their behavior.
-        this.#turn_count++;
+        ++this.#turn_count;
         await this.#entity_list.enemy_turn(this);
     }
     display_stats(element){
         // Shows the current floor and turn number.
-        element.innerText = `Floor ${this.#floor} Turn: ${this.#turn_count}`;
+        element.innerText = `Floor ${this.#floor_num} Turn: ${this.#turn_count}`;
     }
     lock(){
         // Locks the stairs for a boss fight.

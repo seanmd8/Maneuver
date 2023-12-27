@@ -4,10 +4,10 @@
 // Parameters:
 //  x: the x location of this entity on the game map.
 //  y: the y location of this entity on the game map.
-//  x_dif: the difference between the x value of this and the player, or the thing that triggered it.
-//  y_dif: the difference between the y value of this and the player, or the thing that triggered it.
+//  x_dif: the difference between the x value of this and the target (generally the player).
+//  y_dif: the difference between the y value of this and the target (generally the player).
 //  map: the game map.
-//  enemy: the entity using the function.
+//  enemy: the tile of the entity using the function.
 
 
 // Normal Enemy AIs
@@ -461,12 +461,12 @@ function fireball_on_enter(x, y, x_dif, y_dif, map, enemy){
 }
 
 // AI Utility Functions
-function stun(tile){
+function stun(tile, amount = 1){
     // Increases a tile's stun.
     if(!tile.hasOwnProperty(`stun`)){
         tile.stun = 0;
     }
-    ++tile.stun;
+    tile.stun += amount;
 }
 function convert_direction(x, y){
     // Converts cords to a cardinal direction.
