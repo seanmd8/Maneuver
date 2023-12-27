@@ -153,7 +153,7 @@ class GameMap{
                 if(tile.hasOwnProperty(`health`)){
                     description_with_hp = `(${tile.health} hp) ${description_with_hp}`;
                 }
-                var cell = make_cell(`${x} ${y}`, `images/tiles/${tile.pic}`, GRID_SCALE, desc, description_with_hp);
+                var cell = make_cell(`${x} ${y}`, `images/tiles/${tile.pic}`, TILE_SCALE, desc, description_with_hp);
                 if(tile.type === `empty`){
                     tile.pic = `empty.png`;
                     tile.description = empty_description;
@@ -166,11 +166,11 @@ class GameMap{
         row.id = `health`;
         var player = this.get_player()
         for(var i = 0; i < player.health; ++i){
-            var cell = make_cell(`health ${i}`, `images/other/heart.png`, GRID_SCALE);
+            var cell = make_cell(`health ${i}`, `images/other/heart.png`, TILE_SCALE);
 			row.append(cell);
         }
         for(var i = 0; i < (player.max_health - player.health); ++i){
-            var cell = make_cell(`hurt ${i}`, `images/other/heart_broken.png`, GRID_SCALE);
+            var cell = make_cell(`hurt ${i}`, `images/other/heart_broken.png`, TILE_SCALE);
 			row.append(cell);
         }
         visual_map.append(row);

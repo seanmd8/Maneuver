@@ -328,7 +328,7 @@ function corrosive_caterpillar_death(x, y, x_dif, y_dif, map, enemy){
 
 // Boss AIs
 function boss_death(x, y, x_dif, y_dif, map, enemy){
-    describe(enemy.death_message + `\n` + boss_death_description)
+    describe(`${enemy.death_message}\n${boss_death_description}`);
     map.unlock();
 }
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
@@ -414,7 +414,7 @@ function flame_wave_spell(x, y, x_dif, y_dif, map, enemy){
     for(var i = 0; i < spawnpoints.length; ++i){
         var fireball = fireball_tile();
         fireball.direction = direction;
-        fireball.pic = `fireball_` + direction_str + `.png`;
+        fireball.pic = `fireball_${direction_str}.png`;
         map.add_tile(fireball, x + spawnpoints[i][0], y  + spawnpoints[i][1]);
     }
 }
@@ -635,15 +635,15 @@ class ButtonGrid{
         clear_tb(table_name);
         for(var i = 0; i < this.#buttons.length; ++i){
             var row = document.createElement(`tr`);
-            row.id = `button row ` + i;
+            row.id = `button row ${i}`;
             for(var j = 0; j < this.#buttons[i].length; ++j){
                 var cell = document.createElement(`input`);
                 cell.type = `button`;
                 if(!(this.#buttons[i][j] === 0)){
                     // If the button has info, that description and list of commands will be used.
-                    cell.id = `button ` + (i * 3 + j);
+                    cell.id = `button ${i * 3 + j}`;
                     cell.value = this.#buttons[i][j][0];
-                    var act = function(behavior, hand_pos){return function(){action(behavior, hand_pos)}};
+                    var act = function(behavior, hand_pos){return function(){player_turn(behavior, hand_pos)}};
                     cell.onclick = act(this.#buttons[i][j][1], hand_pos);
                 }
                 else{
@@ -1365,7 +1365,31 @@ function lash_out(){
     }
 }
 
-// ----------------Descriptions.js----------------
+
+// Starting player stats
+const PLAYER_STARTING_HEALTH = 3;
+const HAND_SIZE = 3;
+const ADD_CHOICE_COUNT = 3;
+const REMOVE_CHOICE_COUNT = 3;
+const MIN_DECK_SIZE = 5;
+const BUFF_CHOICE_COUNT = 2;
+const BUFF_SPAWN_DENOMINATOR = 4;
+
+
+// Initialization settings
+const STARTING_ENEMY = spider_tile;
+const STARTING_DECK = make_starting_deck;
+
+// Dungeon generation settings
+const FLOOR_WIDTH = 8;
+const FLOOR_HEIGHT = 8;
+const AREA_SIZE = 5;
+
+// Visual and animation settings
+const CARD_SCALE = 90;
+const TILE_SCALE = 30;
+const ANIMATION_DELAY = 300;
+const DECK_DISPLAY_WIDTH = 4;// ----------------Descriptions.js----------------
 // Contains text that will be displayed.
 
 
@@ -1449,13 +1473,13 @@ const C = `C`;
 // EntityList class is used by the GameMap class to keep track of entities without having to search through the map each time.
 
 class EntityList{
-    count // Keeps track of the number of entities currently in the class.
+    count_non_empty // Keeps track of the number of entities currently in the class.
     #player // Keeps track of the player postion.
     #exit // Keeps track of the position of the exit.
     #enemy_list // A list of each enemy currently on the board and their locations.
     #id_count // Used to give each enemy a unique id as it is added.
     constructor(){
-        this.count = 2;
+        this.count_non_empty = 2;
         this.#id_count = 0;
         this.#exit = 0;
         this.#enemy_list = [];
@@ -1484,7 +1508,7 @@ class EntityList{
     add_enemy(x, y, enemy){
         enemy.id = this.next_id();
         this.#enemy_list.push({x, y, enemy});
-        ++this.count;
+        ++this.count_non_empty;
     }
     move_enemy(x, y, id){
         var index = this.#find_by_id(id);
@@ -1500,7 +1524,7 @@ class EntityList{
             throw new Error(`id not found`);
         }
         this.#enemy_list = this.#enemy_list.slice(0, index).concat(this.#enemy_list.slice(index + 1, this.#enemy_list.length));
-        --this.count;
+        --this.count_non_empty;
     }
     #find_by_id(id){
         for(var i = 0; i < this.#enemy_list.length; ++i){
@@ -1554,7 +1578,6 @@ class EntityList{
 // ----------------Floors.js----------------
 // File containing the functions for generating new floors.
 
-const AREA_SIZE = 5;
 const BOSS_FLOOR = [velociphile_floor, spider_queen_floor, lich_floor];
 
 function floor_generator(floor, map){
@@ -1575,7 +1598,7 @@ function generate_normal_floor(floor, map, enemies){
             i -= new_enemy.difficulty;
         }
     }
-    describe(floor_message + floor + `.`);
+    describe(`${floor_message}${floor}.`);
 }
 function velociphile_floor(floor, map){
     map.add_tile(velociphile_tile());
@@ -1584,7 +1607,7 @@ function velociphile_floor(floor, map){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
     }
-    describe(floor_message + floor + `.\n` + velociphile_floor_message)
+    describe(`${floor_message}${floor}.\n${velociphile_floor_message}`);
 }
 function spider_queen_floor(floor, map){
     map.add_tile(spider_queen_tile());
@@ -1596,7 +1619,7 @@ function spider_queen_floor(floor, map){
     for(var i = 0; i < 2; ++i){
         map.add_tile(spider_web_tile());
     }
-    describe(floor_message + floor + `.\n` + spider_queen_floor_message)
+    describe(`${floor_message}${floor}.\n${spider_queen_floor_message}`)
 }
 function lich_floor(floor, map){
     map.add_tile(damaged_wall_tile(), FLOOR_WIDTH - 2, FLOOR_HEIGHT - 2);
@@ -1605,15 +1628,10 @@ function lich_floor(floor, map){
     map.add_tile(damaged_wall_tile(), 1, 1);
     map.add_tile(lich_tile());
     map.lock();
-    describe(floor_message + floor + `.\n` + lich_floor_message)
+    describe(`${floor_message}${floor}.\n${lich_floor_message}`)
 }// ----------------GameLoop.js----------------
 // File contains functions that control the main gameplay.
 
-const ANIMATION_DELAY = 300; // Controls the length of time the map is displayed before moving onto the next entitie's turn in ms.
-const STARTING_ENEMY = spider_tile; // Controls the single enemy on the first floor.
-const STARTING_DECK = make_starting_deck;
-const FLOOR_WIDTH = 8;
-const FLOOR_HEIGHT = 8;
 document.onkeydown = press;
 
 function setup(){
@@ -1640,21 +1658,13 @@ function clear_tb(element_id){
         document.getElementById(element_id).deleteRow(0);
     }
 }
-async function action(behavior, hand_pos){
+async function player_turn(behavior, hand_pos){
     // Function to execute the outcome of the player's turn.
     describe(``);
     try{
         for(var i = 0; i < behavior.length; ++i){
             // Does each valid command in the behavior list.
-            if(behavior[i][0] === `attack`){
-                mapData.player_attack(behavior[i][1], behavior[i][2]);
-            }
-            else if(behavior[i][0] === `move`){
-                mapData.player_move(behavior[i][1], behavior[i][2]);
-            }
-            else{
-                throw new Error(`invalid action type`);
-            }
+            player_action(mapData, behavior[i]);
         }
         // Discards the card the user used.
         clear_tb(`moveButtons`);
@@ -1671,7 +1681,7 @@ async function action(behavior, hand_pos){
         if(m === `floor complete`){
             // If the player has reached the end of the floor.
             mapData.display_stats(document.getElementById(`stats`))
-            modify_deck();
+            enter_shop();
         }
         else if(m === `game over`){
             // If the player's health reached 0
@@ -1687,6 +1697,17 @@ async function action(behavior, hand_pos){
         }
     }
 }
+function player_action(mapData, action){
+    if(action[0] === `attack`){
+        mapData.player_attack(action[1], action[2]);
+    }
+    else if(action[0] === `move`){
+        mapData.player_move(action[1], action[2]);
+    }
+    else{
+        throw new Error(`invalid action type`);
+    }
+}
 function new_floor(){
     // Creates the next floor.
     var floor = mapData.erase();
@@ -1697,52 +1718,54 @@ function new_floor(){
     deck.display_hand(document.getElementById(`handDisplay`));
     swap_screen(`stage`);
 }
-function modify_deck(){
+function enter_shop(){
     // Gives the player the option to add or remove a card from their deck.
     // Their deck contents are also displayed.
     // Options to remove cards will not be displayed if the deck is at the minimum size already.
-    var add_list = rand_no_repeates(CARD_CHOICES, ADD_CHOICES);
-    var remove_list = deck.get_rand_arr(REMOVE_CHOICES);
-    var table = document.getElementById(`modifyDeck`);
     clear_tb(`modifyDeck`);
     clear_tb(`displayDeck`);
     deck.display_all(document.getElementById(`displayDeck`));
-
-    // Options to add.
+    var table = document.getElementById(`modifyDeck`);
+    table.append(generate_add_row());
+    table.append(generate_remove_row());
+    swap_screen(`shop`);
+}
+function generate_add_row(){
+    var add_list = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
     var add = function(card){return function(){
         deck.add(card);
         new_floor();
     }};
     var add_row = document.createElement(`tr`);
     add_row.id = `add_row`;
-    var plus = make_cell(`plus`, `images/other/plus.png`, HAND_SCALE);
+    var plus = make_cell(`plus`, `images/other/plus.png`, CARD_SCALE);
     add_row.append(plus);
     for(var i = 0; i < add_list.length; ++i){
         var card = add_list[i]();
-        var cell = make_cell(`card ` + i, `images/cards/` + card.pic, HAND_SCALE, add, card);
+        var cell = make_cell(`card ${i}`, `images/cards/${card.pic}`, CARD_SCALE, add, card);
         add_row.append(cell);
     }
-
-    // Options to Remove.
+    return add_row;
+}
+function generate_remove_row(){
+    var remove_list = deck.get_rand_arr(REMOVE_CHOICE_COUNT);
     var remove = function(card){return function(){
         deck.remove(card.id);
         new_floor();
     }};
     var remove_row = document.createElement(`tr`);
     remove_row.id = `remove_row`;
-    var minus = make_cell(`plus`, `images/other/minus.png`, HAND_SCALE);
+    var minus = make_cell(`plus`, `images/other/minus.png`, CARD_SCALE);
     if(remove_row.length === 0){
-        minus = make_cell(`x`, `images/other/x.png`, HAND_SCALE);
+        minus = make_cell(`x`, `images/other/x.png`, CARD_SCALE);
     }
     remove_row.append(minus);
     for(var i = 0; i < remove_list.length; ++i){
-        var cell = make_cell(`card ` + i, `images/cards/` + remove_list[i].pic, HAND_SCALE, remove, remove_list[i]);
+        var card = remove_list[i];
+        var cell = make_cell(`card ${i}`, `images/cards/${card.pic}`, CARD_SCALE, remove, card);
         remove_row.append(cell);
     }
-
-    table.append(add_row);
-    table.append(remove_row);
-    swap_screen(`shop`);
+    return remove_row;
 }
 function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
     // Function to make a cell for a table.
@@ -1755,7 +1778,7 @@ function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 
     var cell = document.createElement(`td`);
     cell.id = id;
     var image = document.createElement(`img`);
-    image.id = id + ` img`;
+    image.id = `${id} img`;
     image.src = pic;
     image.height = size;
     image.width = size;
@@ -1782,7 +1805,7 @@ function game_over(cause){
     mapData.display();
     clear_tb(`handDisplay`);
     clear_tb(`moveButtons`);
-    describe(game_over_message + cause + `.`);
+    describe(`${game_over_message}${cause}.`);
     clear_tb(`moveButtons`);
     var row = document.createElement(`tr`);
     row.id = `buttons`;
@@ -1802,7 +1825,7 @@ function press(key){
     var controls = [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`];
     var k = search(key.key, controls);
     if(k >= 0){
-        var element = document.getElementById(`button ` + k);
+        var element = document.getElementById(`button ${k}`);
         if(!(element.onclick === null)){
             element.click();
         }
@@ -1810,7 +1833,7 @@ function press(key){
     controls = [`h`, `j`, `k`];
     k = search(key.key, controls);
     if(k >= 0){
-        var element = document.getElementById(`hand ` + k);
+        var element = document.getElementById(`hand ${k}`);
         if(!(element.onclick === null)){
             element.click();
         }
@@ -1881,8 +1904,6 @@ function rand_no_repeates(source, draws){
 // ----------------GameMap.js----------------
 // GameMap class holds the information on the current floor and everything on it.
 
-const GRID_SCALE = 28; // Controls the size of tiles when the map is displayed.
-
 class GameMap{
     #x_max; // Size of the grid's x axis.
     #y_max; // Size of the grid's y axis.
@@ -1935,7 +1956,7 @@ class GameMap{
     random_empty(){
         // Returns a random empty space in the grid.
         // Throws an erro if the map is full.
-        var num_empty = this.#x_max * this.#y_max - this.#entity_list.count;
+        var num_empty = this.#x_max * this.#y_max - this.#entity_list.count_non_empty;
         var rand = random_num(num_empty);
         if(num_empty === 0){
             throw new Error(`map full`);
@@ -2025,19 +2046,20 @@ class GameMap{
         }
 		for (var y = 0; y < this.#y_max; y++){
 			var row = document.createElement(`tr`);
-            row.id = `row ` + y;
+            row.id = `row ${y}`;
             var desc = function(str){return function(){
                 describe(str);
             }};
 			for (var x = 0; x < this.#x_max; x++){
-                var tile_description = this.#grid[x][y].description;
-                if(this.#grid[x][y].hasOwnProperty(`health`)){
-                    tile_description = `(` + this.#grid[x][y].health + ` hp) ` + tile_description;
+                var tile = this.#grid[x][y]
+                var description_with_hp = tile.description;
+                if(tile.hasOwnProperty(`health`)){
+                    description_with_hp = `(${tile.health} hp) ${description_with_hp}`;
                 }
-                var cell = make_cell(x + ` ` + y, `images/tiles/` + this.#grid[x][y].pic, GRID_SCALE, desc, tile_description);
-                if(this.#grid[x][y].type === `empty`){
-                    this.#grid[x][y].pic = `empty.png`;
-                    this.#grid[x][y].description = empty_description;
+                var cell = make_cell(`${x} ${y}`, `images/tiles/${tile.pic}`, TILE_SCALE, desc, description_with_hp);
+                if(tile.type === `empty`){
+                    tile.pic = `empty.png`;
+                    tile.description = empty_description;
                 }
 				row.append(cell);
 			}
@@ -2047,11 +2069,11 @@ class GameMap{
         row.id = `health`;
         var player = this.get_player()
         for(var i = 0; i < player.health; ++i){
-            var cell = make_cell(`health ` + i, `images/other/heart.png`, GRID_SCALE);
+            var cell = make_cell(`health ${i}`, `images/other/heart.png`, TILE_SCALE);
 			row.append(cell);
         }
         for(var i = 0; i < (player.max_health - player.health); ++i){
-            var cell = make_cell(`hurt ` + i, `images/other/heart_broken.png`, GRID_SCALE);
+            var cell = make_cell(`hurt ${i}`, `images/other/heart_broken.png`, TILE_SCALE);
 			row.append(cell);
         }
         visual_map.append(row);
@@ -2168,7 +2190,7 @@ class GameMap{
     }
     display_stats(element){
         // Shows the current floor and turn number.
-        element.innerText = `Floor ` + this.#floor + ` Turn: ` + this.#turn_count;
+        element.innerText = `Floor ${this.#floor} Turn: ${this.#turn_count}`;
     }
     lock(){
         // Locks the stairs for a boss fight.
@@ -2210,13 +2232,6 @@ class GameMap{
     }
 }// ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.
-
-const HAND_SIZE = 3; // The number of options available each turn.
-const HAND_SCALE = 90; // The size of the cards when they are displayed.
-const ADD_CHOICES = 3; // How many card options they get when adding cards.
-const REMOVE_CHOICES = 3; // How many card options they get when removing cards.
-const DECK_MINIMUM = 5; // The minimum number of cards they can have in their deck.
-const DECK_DISPLAY_WIDTH = 4; // How many cards shown per line when the deck is displayed.
 
 class MoveDeck{
     #list; // The list of all cards they have.
@@ -2299,25 +2314,25 @@ class MoveDeck{
             move.options.show_buttons(`moveButtons`, hand_pos);
         }};
         for(var i = 0; i < this.#hand.length; ++i){
-            var cell =  make_cell(`hand ` + i, `images/cards/` + this.#hand[i].pic, HAND_SCALE, prep_move, this.#hand[i], i);
+            var cell =  make_cell(`hand ${i}`, `images/cards/${this.#hand[i].pic}`, CARD_SCALE, prep_move, this.#hand[i], i);
 			row.append(cell);
         }
         table.append(row);
     }
     display_all(table){
         // Displays the deck list to the given table.
-        document.getElementById(`currentDeck`).innerText = current_deck + DECK_MINIMUM + `):`;
+        document.getElementById(`currentDeck`).innerText = `${current_deck}${MIN_DECK_SIZE}):`;
         for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
             var row = document.createElement(`tr`);
             for(var j = 0; j < DECK_DISPLAY_WIDTH && j + i * DECK_DISPLAY_WIDTH < this.#list.length; ++j){
-                var cell =  make_cell(`card ` + (i * DECK_DISPLAY_WIDTH + j), `images/cards/` + this.#list[i * DECK_DISPLAY_WIDTH + j].pic, HAND_SCALE);
+                var cell =  make_cell(`card ${i * DECK_DISPLAY_WIDTH + j}`, `images/cards/${this.#list[i * DECK_DISPLAY_WIDTH + j].pic}`, CARD_SCALE);
 			    row.append(cell);
             }
             table.append(row);
         }
     }
     get_rand_arr(size){
-        if(this.#list.length <= DECK_MINIMUM){
+        if(this.#list.length <= MIN_DECK_SIZE){
             return []
         }
         return rand_no_repeates(this.#list, size);
@@ -2336,9 +2351,9 @@ class MoveDeck{
     }
     select(hand_pos){
         for(var i = 0; i < this.#hand.length; ++i){
-            document.getElementById(`hand ` + i + ` img`).border = ``;
+            document.getElementById(`hand ${i} img`).border = ``;
         }
-        document.getElementById(`hand ` + hand_pos + ` img`).border = `3px solid #555`;
+        document.getElementById(`hand ${hand_pos} img`).border = `3px solid #555`;
     }
 }
 // ----------------Tiles.js----------------
@@ -2383,13 +2398,12 @@ function lock_tile(){
     }
 }
 function player_tile(){
-    var starting_health = 3;
     return {
         type: `player`,
         name: `player`,
         pic: `helmet.png`,
-        health: starting_health,
-        max_health: starting_health,
+        health: PLAYER_STARTING_HEALTH,
+        max_health: PLAYER_STARTING_HEALTH,
         description: player_description
     }
 }

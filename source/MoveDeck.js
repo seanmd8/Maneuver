@@ -82,25 +82,25 @@ class MoveDeck{
             move.options.show_buttons(`moveButtons`, hand_pos);
         }};
         for(var i = 0; i < this.#hand.length; ++i){
-            var cell =  make_cell(`hand ${i}`, `images/cards/${this.#hand[i].pic}`, HAND_SCALE, prep_move, this.#hand[i], i);
+            var cell =  make_cell(`hand ${i}`, `images/cards/${this.#hand[i].pic}`, CARD_SCALE, prep_move, this.#hand[i], i);
 			row.append(cell);
         }
         table.append(row);
     }
     display_all(table){
         // Displays the deck list to the given table.
-        document.getElementById(`currentDeck`).innerText = `${current_deck}${DECK_MINIMUM}):`;
+        document.getElementById(`currentDeck`).innerText = `${current_deck}${MIN_DECK_SIZE}):`;
         for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
             var row = document.createElement(`tr`);
             for(var j = 0; j < DECK_DISPLAY_WIDTH && j + i * DECK_DISPLAY_WIDTH < this.#list.length; ++j){
-                var cell =  make_cell(`card ${i * DECK_DISPLAY_WIDTH + j}`, `images/cards/${this.#list[i * DECK_DISPLAY_WIDTH + j].pic}`, HAND_SCALE);
+                var cell =  make_cell(`card ${i * DECK_DISPLAY_WIDTH + j}`, `images/cards/${this.#list[i * DECK_DISPLAY_WIDTH + j].pic}`, CARD_SCALE);
 			    row.append(cell);
             }
             table.append(row);
         }
     }
     get_rand_arr(size){
-        if(this.#list.length <= DECK_MINIMUM){
+        if(this.#list.length <= MIN_DECK_SIZE){
             return []
         }
         return rand_no_repeates(this.#list, size);

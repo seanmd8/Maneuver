@@ -130,7 +130,8 @@ function generate_remove_row(){
     }
     remove_row.append(minus);
     for(var i = 0; i < remove_list.length; ++i){
-        var cell = make_cell(`card ${i}`, `images/cards/${card.pic}`, CARD_SCALE, remove, remove_list[i]);
+        var card = remove_list[i];
+        var cell = make_cell(`card ${i}`, `images/cards/${card.pic}`, CARD_SCALE, remove, card);
         remove_row.append(cell);
     }
     return remove_row;
