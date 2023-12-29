@@ -1469,7 +1469,70 @@ const S = `S`;
 const SW = `SW`;
 const W = `W`;
 const C = `C`;
-// ----------------EntityList.js----------------
+
+function DisplayGet(language){
+    // Factory function for the display classes (currently only html)
+    switch(language){
+        case `html`:
+            return new DisplayHTML();
+        default:
+            throw exception(`invalid display language`);
+    }
+}
+
+class DisplayHTML{
+    constructor(){
+        for (var element of this){
+            if (element === undefined){
+                throw exception(`Attempt to initialize abstract base class`);
+            }
+        }
+    }
+    display_table(location, to_display){
+
+    }
+    display_buttons(location, buttons){
+
+    }
+    display_message(location, to_display){
+        document.getElementById(location).innerText = to_display;
+    }
+    clear_table(location){
+        while(document.getElementById(location).rows.length > 0){
+            document.getElementById(location).deleteRow(0);
+        }
+    }
+    swap_screen(screen){
+        switch(screen){
+            case ui_id.game_screen:
+                document.getElementById(ui_id.tutorial).style.display = `none`;
+                document.getElementById(ui_id.game_screen).style.display = `block`;
+                break;
+            case ui_id.stage:
+                document.getElementById(ui_id.shop).style.display = `none`;
+                document.getElementById(ui_id.chest).style.display = `none`;
+                document.getElementById(ui_id.stage).style.display = `block`;
+                break;
+            case ui_id.shop:
+                document.getElementById(ui_id.stage).style.display = `none`;
+                document.getElementById(ui_id.chest).style.display = `none`;
+                document.getElementById(ui_id.shop).style.display = `block`;
+                break;
+            case ui_id.chest:
+                document.getElementById(ui_id.stage).style.display = `none`;
+                document.getElementById(ui_id.shop).style.display = `none`;
+                document.getElementById(ui_id.chest).style.display = `block`;
+                break;
+            case ui_id.tutorial:
+                document.getElementById(ui_id.game_screen).style.display = `none`;
+                document.getElementById(ui_id.tutorial).style.display = `block`;
+                break;
+            default:
+                throw Error(`invalid screen swap`);
+        }
+        return;
+    }
+}// ----------------EntityList.js----------------
 // EntityList class is used by the GameMap class to keep track of entities without having to search through the map each time.
 
 class EntityList{
@@ -1636,20 +1699,20 @@ document.onkeydown = press;
 
 function setup(){
     // Function ran on page load or on restart to set up the game.
-    describe(game_title, `title`)
+    describe(game_title, ui_id.title)
     describe(welcome_message);
     mapData = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT);  
     mapData.add_tile(STARTING_ENEMY());
     mapData.display();
-    mapData.display_stats(document.getElementById(`stats`));
+    mapData.display_stats(document.getElementById(ui_id.stats));
     deck = STARTING_DECK();
-    deck.display_hand(document.getElementById(`handDisplay`));
-    describe(mod_deck, `shopInstruction`);
-    swap_screen(`gameScreen`);
-    swap_screen(`stage`);
+    deck.display_hand(document.getElementById(ui_id.hand_display));
+    describe(mod_deck, ui_id.shop_instructions);
+    swap_screen(ui_id.game_screen);
+    swap_screen(ui_id.stage);
 }
-function describe(description, element = `displayMessage`){
-    // Used to display text to the `displayMessage` element
+function describe(description, element = ui_id.display_message){
+    // Used to display text to the location.display_message element
     document.getElementById(element).innerText = description;
 }
 function clear_tb(element_id){
@@ -1667,7 +1730,7 @@ async function player_turn(behavior, hand_pos){
             player_action(mapData, behavior[i]);
         }
         // Discards the card the user used.
-        clear_tb(`moveButtons`);
+        clear_tb(ui_id.move_buttons);
         deck.discard(hand_pos);
         mapData.display();
         await delay(ANIMATION_DELAY);
@@ -1680,7 +1743,7 @@ async function player_turn(behavior, hand_pos){
         var m = error.message;
         if(m === `floor complete`){
             // If the player has reached the end of the floor.
-            mapData.display_stats(document.getElementById(`stats`))
+            mapData.display_stats(document.getElementById(ui_id.stats))
             enter_shop();
         }
         else if(m === `game over`){
@@ -1712,23 +1775,23 @@ function new_floor(){
     // Creates the next floor.
     var floor = mapData.erase();
     floor_generator(floor, mapData);
-    mapData.display_stats(document.getElementById(`stats`));
+    mapData.display_stats(document.getElementById(ui_id.stats));
     mapData.display();
     deck.deal();
-    deck.display_hand(document.getElementById(`handDisplay`));
-    swap_screen(`stage`);
+    deck.display_hand(document.getElementById(ui_id.hand_display));
+    swap_screen(ui_id.stage);
 }
 function enter_shop(){
     // Gives the player the option to add or remove a card from their deck.
     // Their deck contents are also displayed.
     // Options to remove cards will not be displayed if the deck is at the minimum size already.
-    clear_tb(`modifyDeck`);
-    clear_tb(`displayDeck`);
-    deck.display_all(document.getElementById(`displayDeck`));
-    var table = document.getElementById(`modifyDeck`);
+    clear_tb(ui_id.modify_deck);
+    clear_tb(ui_id.display_deck);
+    deck.display_all(document.getElementById(ui_id.display_deck));
+    var table = document.getElementById(ui_id.modify_deck);
     table.append(generate_add_row());
     table.append(generate_remove_row());
-    swap_screen(`shop`);
+    swap_screen(ui_id.shop);
 }
 function generate_add_row(){
     var add_list = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
@@ -1803,10 +1866,10 @@ function game_over(cause){
     // Tells the user the game is over, prevents them fro m continuing, tells them the cause
     // and gives them the chance to retry.
     mapData.display();
-    clear_tb(`handDisplay`);
-    clear_tb(`moveButtons`);
+    clear_tb(ui_id.hand_display);
+    clear_tb(ui_id.move_buttons);
     describe(`${game_over_message}${cause}.`);
-    clear_tb(`moveButtons`);
+    clear_tb(ui_id.move_buttons);
     var row = document.createElement(`tr`);
     row.id = `buttons`;
     var cell = document.createElement(`input`);
@@ -1814,12 +1877,12 @@ function game_over(cause){
     cell.name = `retry`;
     cell.value = retry_message;
     var restart = function(){
-        clear_tb(`moveButtons`);
+        clear_tb(ui_id.move_buttons);
         setup();
     };
     cell.onclick = restart;
     row.append(cell);
-    document.getElementById(`moveButtons`).append(row);
+    document.getElementById(ui_id.move_buttons).append(row);
 }
 function press(key){
     var controls = [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`];
@@ -1853,33 +1916,33 @@ function give_temp_card(card){
 function prep_turn(){
     mapData.resolve_events();
     mapData.display();
-    deck.display_hand(document.getElementById(`handDisplay`));
-    mapData.display_stats(document.getElementById(`stats`))
+    deck.display_hand(document.getElementById(ui_id.hand_display));
+    mapData.display_stats(document.getElementById(ui_id.stats))
 }
 function swap_screen(screen){
     switch(screen){
-        case `gameScreen`:
-            document.getElementById(`tutorial`).style.display = `none`;
-            document.getElementById(`gameScreen`).style.display = `block`;
+        case ui_id.game_screen:
+            document.getElementById(ui_id.tutorial).style.display = `none`;
+            document.getElementById(ui_id.game_screen).style.display = `block`;
             break;
-        case `stage`:
-            document.getElementById(`shop`).style.display = `none`;
-            document.getElementById(`chest`).style.display = `none`;
-            document.getElementById(`stage`).style.display = `block`;
+        case ui_id.stage:
+            document.getElementById(ui_id.shop).style.display = `none`;
+            document.getElementById(ui_id.chest).style.display = `none`;
+            document.getElementById(ui_id.stage).style.display = `block`;
             break;
-        case `shop`:
-            document.getElementById(`stage`).style.display = `none`;
-            document.getElementById(`chest`).style.display = `none`;
-            document.getElementById(`shop`).style.display = `block`;
+        case ui_id.shop:
+            document.getElementById(ui_id.stage).style.display = `none`;
+            document.getElementById(ui_id.chest).style.display = `none`;
+            document.getElementById(ui_id.shop).style.display = `block`;
             break;
-        case `chest`:
-            document.getElementById(`stage`).style.display = `none`;
-            document.getElementById(`shop`).style.display = `none`;
-            document.getElementById(`chest`).style.display = `block`;
+        case ui_id.chest:
+            document.getElementById(ui_id.stage).style.display = `none`;
+            document.getElementById(ui_id.shop).style.display = `none`;
+            document.getElementById(ui_id.chest).style.display = `block`;
             break;
-        case `tutorial`:
-            document.getElementById(`gameScreen`).style.display = `none`;
-            document.getElementById(`tutorial`).style.display = `block`;
+        case ui_id.tutorial:
+            document.getElementById(ui_id.game_screen).style.display = `none`;
+            document.getElementById(ui_id.tutorial).style.display = `block`;
             break;
         default:
             throw Error(`invalid screen swap`);
@@ -2040,7 +2103,7 @@ class GameMap{
         // Diplays the gamemap. Each element shows it's description and hp (if applicable) when clicked.
         // If any empty tiles have been marked as hit, it resets the pic to empty.
         // Shows the player's remaining health below.
-		var visual_map = document.getElementById(`mapDisplay`);
+		var visual_map = document.getElementById(ui_id.map_display);
         while(visual_map.rows.length > 0){
             visual_map.deleteRow(0);
         }
@@ -2230,7 +2293,24 @@ class GameMap{
         }
         this.#events = new_events;
     }
-}// ----------------MoveDeck.js----------------
+}const ui_id = {
+    title: `title`,
+    stats: `stats`,
+    game_screen: `gameScreen`,
+    stage: `stage`,
+    map_display: `mapDisplay`,
+    hand_display: `handDisplay`,
+    move_buttons: `moveButtons`,
+    display_message: `displayMessage`,
+    shop: `shop`,
+    shop_instructions: `shopInstructions`,
+    modify_deck: `modifyDeck`,
+    current_deck: `currentDeck`,
+    display_deck: `displayDeck`,
+    chest: `chest`,
+    tutorial: `tutorial`
+}
+Object.freeze(ui_id);// ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.
 
 class MoveDeck{
@@ -2311,7 +2391,7 @@ class MoveDeck{
         row.id = `hand`;
         var prep_move = function(move, hand_pos){return function(){
             deck.select(hand_pos);
-            move.options.show_buttons(`moveButtons`, hand_pos);
+            move.options.show_buttons(ui_id.move_buttons, hand_pos);
         }};
         for(var i = 0; i < this.#hand.length; ++i){
             var cell =  make_cell(`hand ${i}`, `images/cards/${this.#hand[i].pic}`, CARD_SCALE, prep_move, this.#hand[i], i);
@@ -2321,7 +2401,7 @@ class MoveDeck{
     }
     display_all(table){
         // Displays the deck list to the given table.
-        document.getElementById(`currentDeck`).innerText = `${current_deck}${MIN_DECK_SIZE}):`;
+        document.getElementById(ui_id.current_deck).innerText = `${current_deck}${MIN_DECK_SIZE}):`;
         for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
             var row = document.createElement(`tr`);
             for(var j = 0; j < DECK_DISPLAY_WIDTH && j + i * DECK_DISPLAY_WIDTH < this.#list.length; ++j){

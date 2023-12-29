@@ -79,7 +79,7 @@ class MoveDeck{
         row.id = `hand`;
         var prep_move = function(move, hand_pos){return function(){
             deck.select(hand_pos);
-            move.options.show_buttons(`moveButtons`, hand_pos);
+            move.options.show_buttons(ui_id.move_buttons, hand_pos);
         }};
         for(var i = 0; i < this.#hand.length; ++i){
             var cell =  make_cell(`hand ${i}`, `images/cards/${this.#hand[i].pic}`, CARD_SCALE, prep_move, this.#hand[i], i);
@@ -89,7 +89,7 @@ class MoveDeck{
     }
     display_all(table){
         // Displays the deck list to the given table.
-        document.getElementById(`currentDeck`).innerText = `${current_deck}${MIN_DECK_SIZE}):`;
+        document.getElementById(ui_id.current_deck).innerText = `${current_deck}${MIN_DECK_SIZE}):`;
         for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
             var row = document.createElement(`tr`);
             for(var j = 0; j < DECK_DISPLAY_WIDTH && j + i * DECK_DISPLAY_WIDTH < this.#list.length; ++j){

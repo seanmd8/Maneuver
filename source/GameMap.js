@@ -137,7 +137,7 @@ class GameMap{
         // Diplays the gamemap. Each element shows it's description and hp (if applicable) when clicked.
         // If any empty tiles have been marked as hit, it resets the pic to empty.
         // Shows the player's remaining health below.
-		var visual_map = document.getElementById(`mapDisplay`);
+		var visual_map = document.getElementById(ui_id.map_display);
         while(visual_map.rows.length > 0){
             visual_map.deleteRow(0);
         }
