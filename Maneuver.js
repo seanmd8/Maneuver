@@ -1846,6 +1846,7 @@ function enter_shop(){
     // Gives the player the option to add or remove a card from their deck.
     // Their deck contents are also displayed.
     // Options to remove cards will not be displayed if the deck is at the minimum size already.
+    display.clear_tb(ui_id.move_buttons);
     display.clear_tb(ui_id.add_card);
     display.clear_tb(ui_id.remove_card);
     display.clear_tb(ui_id.display_deck);
@@ -2024,9 +2025,9 @@ class GameMap{
         }
         this.#entity_list = new EntityList();
         this.#grid = [];
-        for(var i = 0; i < this.#x_max; ++i){
+        for(var i = 0; i < this.#y_max; ++i){
             this.#grid.push([]);
-            for(var j = 0; j < this.#y_max; ++j){
+            for(var j = 0; j < this.#x_max; ++j){
                 this.#grid[i].push(empty_tile());
             }
         }
@@ -2077,7 +2078,7 @@ class GameMap{
         catch{
             return false;
         }
-        return this.#grid[x][y].type === `empty`;
+        return this.#grid[y][x].type === `empty`;
     }
     set_exit(exit_x, exit_y){
         // Places the exit.
@@ -2087,7 +2088,7 @@ class GameMap{
             throw new Error(`space not empty`);
         }
         this.#entity_list.set_exit(exit_x, exit_y);
-        this.#grid[exit_x][exit_y] = exit_tile();
+        this.#grid[exit_y][exit_x] = exit_tile();
     }
     set_player(player_x, player_y, player){
         // Places the player. If a non-negative value is given for the player's health, it will be set to that.
@@ -2097,7 +2098,7 @@ class GameMap{
             throw new Error(`space not empty`);
         }
         this.#entity_list.set_player(player_x, player_y);
-        this.#grid[player_x][player_y] = player;
+        this.#grid[player_y][player_x] = player;
     }
     add_tile(tile, x = undefined, y = undefined){
         // Adds a new tile to a space.
@@ -2117,7 +2118,7 @@ class GameMap{
         catch{
             return false;
         }
-        this.#grid[x][y] = tile;
+        this.#grid[y][x] = tile;
         if(tile.type === `enemy`){
             this.#entity_list.add_enemy(x, y, tile);
         }
@@ -2129,7 +2130,6 @@ class GameMap{
         // Shows the player's remaining health below.
 		var visual_map = document.getElementById(ui_id.map_display);
         display.clear_tb(ui_id.map_display);
-        /*
         var make_on_click = function(gameMap){
             return function(tile){
                 var description = tile_description(tile);
@@ -2140,7 +2140,7 @@ class GameMap{
         for (var y = 0; y < this.#y_max; y++){
             display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this));
         }
-        */
+        /*
 		for (var y = 0; y < this.#y_max; y++){
             var desc = function(str){return function(){
                 display.display_message(ui_id.display_message, str);
@@ -2163,9 +2163,22 @@ class GameMap{
 			}
 			visual_map.append(row);
 		}
+        */
         display.clear_tb(ui_id.health_display);
         display_health(this.get_player(), TILE_SCALE);
+        this.clear_empty()
 	}
+    clear_empty(){
+        for(var y = 0; y < this.#y_max; ++y){
+            for(var x = 0; x < this.#x_max; ++x){
+                var tile = this.#grid[y][x];
+                if(tile.type === `empty`){
+                    tile.pic = `${img_folder.tiles}empty.png`;
+                    tile.description = empty_description;
+                }
+            }
+        }
+    }
     move(x1, y1, x2, y2){
         // Moves the tile at [x1, y1] to [x2, y2] if it is empty. 
         // Triggers the attempted destination's on_move if applicable.
@@ -2179,8 +2192,8 @@ class GameMap{
         catch{
             return false;
         }
-        var start = this.#grid[x1][y1];
-        var end = this.#grid[x2][y2];
+        var start = this.#grid[y1][x1];
+        var end = this.#grid[y2][x2];
         if(start.type === `player` && end.type === `exit`){
             ++this.#turn_count;
             throw new Error(`floor complete`);
@@ -2203,8 +2216,8 @@ class GameMap{
             return false;
         }
         this.#entity_list.move_any(x2, y2, start);
-        this.#grid[x2][y2] = start;
-        this.#grid[x1][y1] = empty_tile();
+        this.#grid[y2][x2] = start;
+        this.#grid[y1][x1] = empty_tile();
         return true;
     }
     player_move(x_dif, y_dif){
@@ -2215,7 +2228,7 @@ class GameMap{
     get_player(){
         // Returns the player's health.
         var pos = this.#entity_list.get_player_pos();
-        return this.#grid[pos.x][pos.y];
+        return this.#grid[pos.y][pos.x];
     }
     attack(x, y, hits = `all`){
         // Attacks the specified square.
@@ -2229,7 +2242,7 @@ class GameMap{
         catch(error){
             return false;
         }
-        var target = this.#grid[x][y];
+        var target = this.#grid[y][x];
         if(target.hasOwnProperty(`health`) && !(target.type === `player`) && (hits === `enemy` || hits === `all`)){
             target.health -= 1;
             if(target.hasOwnProperty(`on_hit`)){
@@ -2237,8 +2250,8 @@ class GameMap{
                 target.on_hit(x, y, player_pos[0] - x, player_pos[1] - y, this, target);
             }
             if(target.health === 0){
-                this.#grid[x][y] = empty_tile()
-                this.#grid[x][y].pic = `${img_folder.tiles}hit.png`;
+                this.#grid[y][x] = empty_tile()
+                this.#grid[y][x].pic = `${img_folder.tiles}hit.png`;
                 if(target.type === `enemy`){
                     this.#entity_list.remove_enemy(target.id)
                 }
@@ -2283,15 +2296,15 @@ class GameMap{
     lock(){
         // Locks the stairs for a boss fight.
         var pos = this.#entity_list.get_exit_pos();
-        this.#grid[pos.x][pos.y] = lock_tile();
+        this.#grid[pos.y][pos.x] = lock_tile();
     }
     unlock(){
         // Unlocks the stairs after a boss fight.
         // Fully heals the player
         var pos = this.#entity_list.get_exit_pos();
-        this.#grid[pos.x][pos.y] = exit_tile();
+        this.#grid[pos.y][pos.x] = exit_tile();
         pos = this.#entity_list.get_player_pos();
-        this.#grid[pos.x][pos.y].health = this.#grid[pos.x][pos.y].max_health;
+        this.#grid[pos.y][pos.x].health = this.#grid[pos.y][pos.x].max_health;
     }
     add_event(event){
         this.#events.push(event);
@@ -2304,15 +2317,15 @@ class GameMap{
                 var rubble = [];
                 for(var j = 0; j < event[1]; ++j){
                     var space = this.random_empty();
-                    this.#grid[space.x][space.y].description = falling_rubble_description;
-                    this.#grid[space.x][space.y].pic = `falling_rubble.png`;
+                    this.#grid[space.y][space.x].description = falling_rubble_description;
+                    this.#grid[space.y][space.x].pic = `falling_rubble.png`;
                     rubble.push(space);
                 }
                 new_events.push([`earthquake_rubble`, rubble]);
             }
             else if(event[0] === `earthquake_rubble`){
                 for(var j = 0; j < event[1].length; ++j){
-                    this.attack(event[1][j].x, event[1][j].y);
+                    this.attack(event[1][j].y, event[1][j].x);
                 }
             }
         }

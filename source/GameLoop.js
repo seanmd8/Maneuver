@@ -80,6 +80,7 @@ function enter_shop(){
     // Gives the player the option to add or remove a card from their deck.
     // Their deck contents are also displayed.
     // Options to remove cards will not be displayed if the deck is at the minimum size already.
+    display.clear_tb(ui_id.move_buttons);
     display.clear_tb(ui_id.add_card);
     display.clear_tb(ui_id.remove_card);
     display.clear_tb(ui_id.display_deck);
