@@ -71,7 +71,7 @@ function scythe_ai(x, y, x_dif, y_dif, map, enemy){
         // If the player is orthogonal, moves randomly.
         direction = [random_sign(), random_sign()];
     }
-    enemy.pic = `scythe_${convert_direction(direction[0], direction[1])}.png`;
+    enemy.pic = `${img_folder.tiles}scythe_${convert_direction(direction[0], direction[1])}.png`;
     for(var i = 0; i < distance; ++i){
         // moves <distance> spaces attacking each space it passes next to.
         if(!map.move(x, y, x + direction[0], y + direction[1])){
@@ -2128,7 +2128,6 @@ class GameMap{
         // Diplays the gamemap. Each element shows it's description and hp (if applicable) when clicked.
         // If any empty tiles have been marked as hit, it resets the pic to empty.
         // Shows the player's remaining health below.
-		var visual_map = document.getElementById(ui_id.map_display);
         display.clear_tb(ui_id.map_display);
         var make_on_click = function(gameMap){
             return function(tile){
@@ -2140,30 +2139,6 @@ class GameMap{
         for (var y = 0; y < this.#y_max; y++){
             display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this));
         }
-        /*
-		for (var y = 0; y < this.#y_max; y++){
-            var desc = function(str){return function(){
-                display.display_message(ui_id.display_message, str);
-            }};
-			var row = document.createElement(`tr`);
-            row.id = `row ${y}`;
-            
-			for (var x = 0; x < this.#x_max; x++){
-                var tile = this.#grid[x][y]
-                var description_with_hp = tile.description;
-                if(tile.hasOwnProperty(`health`)){
-                    description_with_hp = `(${tile.health} hp) ${description_with_hp}`;
-                }
-                var cell = make_cell(`${x} ${y}`, `${img_folder.src}${tile.pic}`, TILE_SCALE, desc, description_with_hp);
-                if(tile.type === `empty`){
-                    tile.pic = `${img_folder.tiles}empty.png`;
-                    tile.description = empty_description;
-                }
-				row.append(cell);
-			}
-			visual_map.append(row);
-		}
-        */
         display.clear_tb(ui_id.health_display);
         display_health(this.get_player(), TILE_SCALE);
         this.clear_empty()

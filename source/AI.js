@@ -71,7 +71,7 @@ function scythe_ai(x, y, x_dif, y_dif, map, enemy){
         // If the player is orthogonal, moves randomly.
         direction = [random_sign(), random_sign()];
     }
-    enemy.pic = `scythe_${convert_direction(direction[0], direction[1])}.png`;
+    enemy.pic = `${img_folder.tiles}scythe_${convert_direction(direction[0], direction[1])}.png`;
     for(var i = 0; i < distance; ++i){
         // moves <distance> spaces attacking each space it passes next to.
         if(!map.move(x, y, x + direction[0], y + direction[1])){
