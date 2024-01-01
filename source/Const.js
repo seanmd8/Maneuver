@@ -23,3 +23,20 @@ const CARD_SCALE = 90;
 const TILE_SCALE = 30;
 const ANIMATION_DELAY = 300;
 const DECK_DISPLAY_WIDTH = 4;
+
+const MARKUP_LANGUAGE = `html`;
+
+
+const controls = {
+    directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
+    card: [`h`, `j`, `k`]
+}
+Object.freeze(controls);
+
+const img_folder = {
+    src: `images/`,
+    cards: `cards/`,
+    other: `other/`,
+    tiles: `tiles/`
+}
+Object.freeze(img_folder);

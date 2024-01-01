@@ -4,9 +4,9 @@
 
 
 // General.
-const game_title = `Maneuver`
-const mod_deck = `Choose one card to add or remove:`
-const current_deck = `Current Deck (minimum `
+const game_title = `Maneuver`;
+const mod_deck = `Choose one card to add or remove:`;
+const current_deck = `Current Deck (minimum `;
 const welcome_message = `Welcome to the dungeon.\n`
                             + `Use cards to move (blue) and attack (red).\n` 
                             + `Click on things to learn more about them.`;

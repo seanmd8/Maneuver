@@ -3,11 +3,14 @@
 class ButtonGrid{
     #buttons; // A 3x3 2d array used to store the options.
     constructor(){
-        this.#buttons = [[0, 0, 0],
-                        [0, 0, 0], 
-                        [0, 0, 0]];
+        var initial = {
+            description: `--`
+        }
+        this.#buttons = [[initial, initial, initial],
+                        [initial, initial, initial], 
+                        [initial, initial, initial]];
     }
-    add_button(description, commands, number = -1){
+    add_button(description, behavior, number = -1){
         // Adds a description and a list of commands to one of the buttons.
         // Throws error of the button number is out of range.
         if(number === -1){
@@ -17,34 +20,27 @@ class ButtonGrid{
         if(number < 1 || number > 9){
             throw new Error(`button out of range`);
         }
-        var button = [description, commands];
+        var button = {
+            description,
+            behavior
+        }
         this.#buttons[Math.floor((number - 1) / 3)][(number - 1) % 3] = button;
     }
     show_buttons(table_name, hand_pos){
         // Displays the 3x3 grid to the given table.
         // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
-        clear_tb(table_name);
-        for(var i = 0; i < this.#buttons.length; ++i){
-            var row = document.createElement(`tr`);
-            row.id = `button row ${i}`;
-            for(var j = 0; j < this.#buttons[i].length; ++j){
-                var cell = document.createElement(`input`);
-                cell.type = `button`;
-                if(!(this.#buttons[i][j] === 0)){
-                    // If the button has info, that description and list of commands will be used.
-                    cell.id = `button ${i * 3 + j}`;
-                    cell.value = this.#buttons[i][j][0];
-                    var act = function(behavior, hand_pos){return function(){player_turn(behavior, hand_pos)}};
-                    cell.onclick = act(this.#buttons[i][j][1], hand_pos);
+        display.clear_tb(table_name);
+
+        var make_press_button = function(hand_position){
+            return function(button){
+                if(button.behavior){
+                    player_turn(button.behavior, hand_position)
                 }
-                else{
-                    // If it doesn't have info, a `--` button with no onclick will be used.
-                    cell.name = `--`;
-                    cell.value = `--`;
-                }
-                row.append(cell);
             }
-            document.getElementById(table_name).append(row);
+        }
+        var press_button = make_press_button(hand_pos);
+        for(var i = 0; i < this.#buttons.length; ++i){
+            display.display_buttons(table_name, this.#buttons[i], press_button)
         }
     }
     #convert_direction(direction){

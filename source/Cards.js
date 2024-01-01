@@ -65,7 +65,7 @@ function basic_horizontal(){
     options.add_button(W, [[`move`, -1, 0]]);
     return{
         name: `basic horizontal`,
-        pic: `basic_horizontal.png`,
+        pic: `${img_folder.cards}basic_horizontal.png`,
         options
     }
 }
@@ -77,7 +77,7 @@ function basic_diagonal(){
     options.add_button(NW, [[`move`, -1, -1]]);
     return{
         name: `basic diagonal`,
-        pic: `basic_diagonal.png`,
+        pic: `${img_folder.cards}basic_diagonal.png`,
         options
     }
 }
@@ -89,7 +89,7 @@ function slice(){
     options.add_button(W, [[`attack`, -1, 1], [`attack`, -1, 0], [`attack`, -1, -1]]);
     return{
         name: `slice`,
-        pic: `slice.png`,
+        pic: `${img_folder.cards}slice.png`,
         options
     }
 }
@@ -101,7 +101,7 @@ function short_charge(){
     options.add_button(W, [[`move`, -1, 0], [`attack`, -1, 0]]);
     return{
         name: `short charge`,
-        pic: `short_charge.png`,
+        pic: `${img_folder.cards}short_charge.png`,
         options
     }
 }
@@ -113,7 +113,7 @@ function jump(){
     options.add_button(W, [[`move`, -2, 0]]);
     return{
         name: `jump`,
-        pic: `jump.png`,
+        pic: `${img_folder.cards}jump.png`,
         options
     }
 }
@@ -124,7 +124,7 @@ function straight_charge(){
     options.add_button(S, [[`move`, 0, 1], [`move`, 0, 1], [`attack`, 0, 1]]);
     return{
         name: `straight charge`,
-        pic: `straight_charge.png`,
+        pic: `${img_folder.cards}straight_charge.png`,
         options
     }
 }
@@ -134,7 +134,7 @@ function side_charge(){
     options.add_button(W, [[`move`, -1, 0], [`move`, -1, 0], [`attack`, -1, 0]]);
     return{
         name: `side charge`,
-        pic: `side_charge.png`,
+        pic: `${img_folder.cards}side_charge.png`,
         options
     }
 }
@@ -145,7 +145,7 @@ function step_left(){
     options.add_button(NW, [[`move`, -1, -1]]);
     return{
         name: `step left`,
-        pic: `step_left.png`,
+        pic: `${img_folder.cards}step_left.png`,
         options
     }
 }
@@ -156,7 +156,7 @@ function step_right(){
     options.add_button(NE, [[`move`, 1, -1]]);
     return{
         name: `step right`,
-        pic: `step_right.png`,
+        pic: `${img_folder.cards}step_right.png`,
         options
     }
 }
@@ -166,7 +166,7 @@ function trample(){
     options.add_button(NW, [[`attack`, -1, -2], [`move`, -1, -2]]);
     return{
         name: `trample`,
-        pic: `trample.png`,
+        pic: `${img_folder.cards}trample.png`,
         options
     }
 }
@@ -178,7 +178,7 @@ function horsemanship(){
     options.add_button(NW, [[`move`, -2, -1]]);
     return{
         name: `horsemanship`,
-        pic: `horsemanship.png`,
+        pic: `${img_folder.cards}horsemanship.png`,
         options
     }
 }
@@ -188,7 +188,7 @@ function lunge_left(){
     options.add_button(NW, [[`move`, -1, -1], [`move`, -1, -1], [`attack`, -1, -1]]);
     return{
         name: `lunge left`,
-        pic: `lunge_left.png`,
+        pic: `${img_folder.cards}lunge_left.png`,
         options
     }
 }
@@ -198,7 +198,7 @@ function lunge_right(){
     options.add_button(NE, [[`move`, 1, -1], [`move`, 1, -1], [`attack`, 1, -1]]);
     return{
         name: `lunge right`,
-        pic: `lunge_right.png`,
+        pic: `${img_folder.cards}lunge_right.png`,
         options
     }
 }
@@ -207,7 +207,7 @@ function sprint(){
     options.add_button(N, [[`move`, 0, -1], [`move`, 0, -1], [`move`, 0, -1]]);
     return{
         name: `sprint`,
-        pic: `sprint.png`,
+        pic: `${img_folder.cards}sprint.png`,
         options
     }
 }
@@ -218,7 +218,7 @@ function trident(){
     options.add_button(W, [[`attack`, -2, 1], [`attack`, -2, 0], [`attack`, -2, -1]]);
     return{
         name: `trident`,
-        pic: `trident.png`,
+        pic: `${img_folder.cards}trident.png`,
         options
     }
 }
@@ -230,7 +230,7 @@ function whack_horizontal(){
     options.add_button(W, [[`attack`, -1, 0], [`attack`, -1, 0]]);
     return{
         name: `whack horizontal`,
-        pic: `whack_horizontal.png`,
+        pic: `${img_folder.cards}whack_horizontal.png`,
         options
     }
 }
@@ -247,7 +247,7 @@ function spin_attack(){
     options.add_button(`Spin`, spin, 5);
     return{
         name: `spin attack`,
-        pic: `spin_attack.png`,
+        pic: `${img_folder.cards}spin_attack.png`,
         options
     }
 }
@@ -259,7 +259,7 @@ function butterfly(){
     options.add_button(NW, [[`move`, -2, -2]]);
     return{
         name: `butterfly`,
-        pic: `butterfly.png`,
+        pic: `${img_folder.cards}butterfly.png`,
         options
     }
 }
@@ -270,7 +270,7 @@ function retreat(){
     options.add_button(SW, [[`move`, -1, 1]]);
     return{
         name: `retreat`,
-        pic: `retreat.png`,
+        pic: `${img_folder.cards}retreat.png`,
         options
     }
 }
@@ -279,7 +279,7 @@ function force(){
     options.add_button(N, [[`attack`, 0, -1], [`move`, 0, -1], [`attack`, 0, -1], [`move`, 0, -1]]);
     return{
         name: `force`,
-        pic: `force.png`,
+        pic: `${img_folder.cards}force.png`,
         options
     }
 }
@@ -289,7 +289,7 @@ function side_attack(){
     options.add_button(W, [[`attack`, -1, 0], [`attack`, -2, 0], [`attack`, -3, 0]]);
     return{
         name: `side attack`,
-        pic: `side_attack.png`,
+        pic: `${img_folder.cards}side_attack.png`,
         options
     }
 }
@@ -298,7 +298,7 @@ function clear_behind(){
     options.add_button(C, [[`attack`, 1, 1], [`attack`, 0, 1], [`attack`, -1, 1], [`attack`, 1, 2], [`attack`, 0, 2], [`attack`, -1, 2]]);
     return{
         name: `clear behind`,
-        pic: `clear_behind.png`,
+        pic: `${img_folder.cards}clear_behind.png`,
         options
     }
 }
@@ -307,7 +307,7 @@ function spear_slice(){
     options.add_button(C, [[`attack`, 1, -1], [`attack`, -1, -1], [`attack`, 1, -2], [`attack`, 0, -2], [`attack`, -1, -2]]);
     return{
         name: `spear slice`,
-        pic: `spear_slice.png`,
+        pic: `${img_folder.cards}spear_slice.png`,
         options
     }
 }
@@ -319,7 +319,7 @@ function jab(){
     options.add_button(W, [[`attack`, -1, 0], [`attack`, -2, 0]]);
     return{
         name: `jab`,
-        pic: `jab.png`,
+        pic: `${img_folder.cards}jab.png`,
         options
     }
 }
@@ -329,7 +329,7 @@ function overcome(){
     options.add_button(S, [[`attack`, 1, 1], [`attack`, 0, 1], [`attack`, -1, 1], [`move`, 0, 2]]);
     return{
         name: `overcome`,
-        pic: `overcome.png`,
+        pic: `${img_folder.cards}overcome.png`,
         options
     }
 }
@@ -338,7 +338,7 @@ function hit_and_run(){
     options.add_button(S, [[`attack`, 1, -1], [`attack`, 0, -1], [`attack`, -1, -1], [`attack`, 1, 0], [`attack`, -1, 0], [`move`, 0, 1]]);
     return{
         name: `hit and run`,
-        pic: `hit_and_run.png`,
+        pic: `${img_folder.cards}hit_and_run.png`,
         options
     }
 }
@@ -350,7 +350,7 @@ function combat_diagonal(){
     options.add_button(NW, [[`attack`, -1, -1], [`move`, -1, -1]]);
     return{
         name: `combat diagonal`,
-        pic: `combat_diagonal.png`,
+        pic: `${img_folder.cards}combat_diagonal.png`,
         options
     }
 }
@@ -362,7 +362,7 @@ function combat_horizontal(){
     options.add_button(W, [[`attack`, -1, 0], [`move`, -1, 0]]);
     return{
         name: `combat horizontal`,
-        pic: `combat_horizontal.png`,
+        pic: `${img_folder.cards}combat_horizontal.png`,
         options
     }
 }
@@ -373,7 +373,7 @@ function push_back(){
     options.add_button(SW, [[`attack`, 1, -1], [`move`, -1, 1]]);
     return{
         name: `push back`,
-        pic: `push_back.png`,
+        pic: `${img_folder.cards}push_back.png`,
         options
     }
 }
@@ -385,7 +385,7 @@ function fork(){
     options.add_button(W, [[`attack`, -1, 1], [`attack`, -1, -1], [`attack`, -2, 1], [`attack`, -2, -1]]);
     return{
         name: `fork`,
-        pic: `fork.png`,
+        pic: `${img_folder.cards}fork.png`,
         options
     }
 }
@@ -401,7 +401,7 @@ function explosion(){
     options.add_button(`Explode!`, area, 5);
     return{
         name: `explosion`,
-        pic: `explosion.png`,
+        pic: `${img_folder.cards}explosion.png`,
         options
     }
 }
@@ -410,7 +410,7 @@ function breakthrough(){
     options.add_button(N, [[`move`, 0, -1], [`attack`, 1, 0], [`attack`, -1, 0], [`attack`, 0, -1]]);
     return{
         name: `breakthrough`,
-        pic: `breakthrough.png`,
+        pic: `${img_folder.cards}breakthrough.png`,
         options
     }
 }
@@ -420,7 +420,7 @@ function flanking_diagonal(){
     options.add_button(NW, [[`move`, -1, -1], [`attack`, 0, 1], [`attack`, 1, 0], [`move`, -1, -1], [`attack`, 0, 1], [`attack`, 1, 0]]);
     return{
         name: `flanking diagonal`,
-        pic: `flanking_diagonal.png`,
+        pic: `${img_folder.cards}flanking_diagonal.png`,
         options
     }
 }
@@ -430,7 +430,7 @@ function flanking_sideways(){
     options.add_button(W, [[`move`, -1, 0], [`attack`, 0, 1], [`attack`, 0, -1], [`move`, -1, 0], [`attack`, 0, 1], [`attack`, 0, -1]]);
     return{
         name: `flanking sideways`,
-        pic: `flanking_sideways.png`,
+        pic: `${img_folder.cards}flanking_sideways.png`,
         options
     }
 }
@@ -440,7 +440,7 @@ function flanking_straight(){
     options.add_button(S, [[`move`, 0, 1], [`attack`, 1, 0], [`attack`, -1, 0], [`move`, 0, 1], [`attack`, 1, 0], [`attack`, -1, 0]]);
     return{
         name: `flanking straight`,
-        pic: `flanking_straight.png`,
+        pic: `${img_folder.cards}flanking_straight.png`,
         options
     }
 }
@@ -451,7 +451,7 @@ function pike(){
     options.add_button(W, [[`attack`, -2, 0], [`attack`, -3, 1], [`attack`, -3, 0], [`attack`, -3, -1]]);
     return{
         name: `pike`,
-        pic: `pike.png`,
+        pic: `${img_folder.cards}pike.png`,
         options
     }
 }
@@ -461,7 +461,7 @@ function breakthrough_side(){
     options.add_button(W, [[`move`, -1, 0], [`attack`, -1, 0], [`attack`, 0, 1], [`attack`, 0, -1]]);
     return{
         name: `breakthrough side`,
-        pic: `breakthrough_side.png`,
+        pic: `${img_folder.cards}breakthrough_side.png`,
         options
     }
 }
@@ -473,7 +473,7 @@ function whack_diagonal(){
     options.add_button(SW, [[`attack`, -1, 1], [`attack`, -1, 1]]);
     return{
         name: `whack diagonal`,
-        pic: `whack_diagonal.png`,
+        pic: `${img_folder.cards}whack_diagonal.png`,
         options
     }
 }
@@ -482,7 +482,7 @@ function thwack(){
     options.add_button(N, [[`attack`, 0, -1], [`attack`, 0, -1], [`attack`, 0, -1]]);
     return{
         name: `thwack`,
-        pic: `thwack.png`,
+        pic: `${img_folder.cards}thwack.png`,
         options
     }
 }
@@ -492,7 +492,7 @@ function overcome_sideways(){
     options.add_button(W, [[`attack`, -1, 1], [`attack`, -1, 0], [`attack`, -1, -1], [`move`, -2, 0]]);
     return{
         name: `overcome sideways`,
-        pic: `overcome_sideways.png`,
+        pic: `${img_folder.cards}overcome_sideways.png`,
         options
     }
 }
@@ -503,7 +503,7 @@ function y_leap(){
     options.add_button(S, [[`move`, 0, 2]]);
     return{
         name: `Y leap`,
-        pic: `y_leap.png`,
+        pic: `${img_folder.cards}y_leap.png`,
         options
     }
 }
@@ -520,7 +520,7 @@ function diamond_slice(){
     options.add_button(`Spin`, spin, 5);
     return{
         name: `diamond slice`,
-        pic: `diamond_slice.png`,
+        pic: `${img_folder.cards}diamond_slice.png`,
         options
     }
 }
@@ -530,7 +530,7 @@ function spearhead(){
     options.add_button(NW, [[`move`, -1, -1], [`attack`, -1, -1], [`attack`, -1, 0], [`attack`, 0, -1]]);
     return{
         name: `spearhead`,
-        pic: `spearhead.png`,
+        pic: `${img_folder.cards}spearhead.png`,
         options
     }
 }
@@ -542,7 +542,7 @@ function alt_diagonal_left(){
     options.add_button(NW, [[`move`, -1, -1]]);
     return{
         name: `alternating diagonal left`,
-        pic: `alt_diagonal_left.png`,
+        pic: `${img_folder.cards}alt_diagonal_left.png`,
         options
     }
 }
@@ -554,7 +554,7 @@ function alt_diagonal_right(){
     options.add_button(NW, [[`attack`, -1, 0], [`attack`, -1, -1], [`attack`, 0, -1]]);
     return{
         name: `alternating diagonal right`,
-        pic: `alt_diagonal_right.png`,
+        pic: `${img_folder.cards}alt_diagonal_right.png`,
         options
     }
 }
@@ -566,7 +566,7 @@ function alt_horizontal(){
     options.add_button(W, [[`move`, -1, 0]]);
     return{
         name: `alternating horizontal`,
-        pic: `alt_horizontal.png`,
+        pic: `${img_folder.cards}alt_horizontal.png`,
         options
     }
 }
@@ -578,7 +578,7 @@ function alt_vertical(){
     options.add_button(W, [[`attack`, -1, 1], [`attack`, -1, 0], [`attack`, -1, -1]]);
     return{
         name: `alternating vertical`,
-        pic: `alt_vertical.png`,
+        pic: `${img_folder.cards}alt_vertical.png`,
         options
     }
 }
@@ -590,7 +590,7 @@ function jab_diagonal(){
     options.add_button(NW, [[`attack`, -1, -1], [`attack`, -2, -2]]);
     return{
         name: `jab_diagonal`,
-        pic: `jab_diagonal.png`,
+        pic: `${img_folder.cards}jab_diagonal.png`,
         options
     }
 }
@@ -601,7 +601,7 @@ function stumble_w(){
     options.add_button(W, [[`move`, -1, 0]]);
     return{
         name: `stumble west`,
-        pic: `stumble_w.png`,
+        pic: `${img_folder.cards}stumble_w.png`,
         options
     }
 }
@@ -610,7 +610,7 @@ function stumble_e(){
     options.add_button(E, [[`move`, 1, 0]]);
     return{
         name: `stumble east`,
-        pic: `stumble_e.png`,
+        pic: `${img_folder.cards}stumble_e.png`,
         options
     }
 }
@@ -619,7 +619,7 @@ function stumble_n(){
     options.add_button(N, [[`move`, 0, -1]]);
     return{
         name: `stumble north`,
-        pic: `stumble_n.png`,
+        pic: `${img_folder.cards}stumble_n.png`,
         options
     }
 }
@@ -628,7 +628,7 @@ function stumble_s(){
     options.add_button(S, [[`move`, 0, 1]]);
     return{
         name: `stumble south`,
-        pic: `stumble_s.png`,
+        pic: `${img_folder.cards}stumble_s.png`,
         options
     }
 }
@@ -637,7 +637,7 @@ function stumble_nw(){
     options.add_button(NW, [[`move`, -1, -1]]);
     return{
         name: `stumble nw`,
-        pic: `stumble_nw.png`,
+        pic: `${img_folder.cards}stumble_nw.png`,
         options
     }
 }
@@ -646,7 +646,7 @@ function stumble_ne(){
     options.add_button(NE, [[`move`, 1, -1]]);
     return{
         name: `stumble ne`,
-        pic: `stumble_ne.png`,
+        pic: `${img_folder.cards}stumble_ne.png`,
         options
     }
 }
@@ -655,7 +655,7 @@ function stumble_se(){
     options.add_button(SE, [[`move`, 1, 1]]);
     return{
         name: `stumble se`,
-        pic: `stumble_se.png`,
+        pic: `${img_folder.cards}stumble_se.png`,
         options
     }
 }
@@ -664,7 +664,7 @@ function stumble_sw(){
     options.add_button(SW, [[`move`, -1, 1]]);
     return{
         name: `stumble sw`,
-        pic: `stumble_sw.png`,
+        pic: `${img_folder.cards}stumble_sw.png`,
         options
     }
 }
@@ -673,7 +673,7 @@ function freeze_up(){
     options.add_button(`Freeze Up`, [], 5);
     return{
         name: `freeze up`,
-        pic: `freeze_up.png`,
+        pic: `${img_folder.cards}freeze_up.png`,
         options
     }
 }
@@ -691,7 +691,7 @@ function lash_out(){
     options.add_button(`Lash Out`, spin, 5);
     return{
         name: `lash out`,
-        pic: `lash_out.png`,
+        pic: `${img_folder.cards}lash_out.png`,
         options
     }
 }

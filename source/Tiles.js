@@ -20,14 +20,14 @@ const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, shadow_knight_til
 function empty_tile(){
     return {
         type: `empty`,
-        pic: `empty.png`,
+        pic: `${img_folder.tiles}empty.png`,
         description: empty_description
     }
 }
 function exit_tile(){
     return {
         type: `exit`,
-        pic: `stairs.png`,
+        pic: `${img_folder.tiles}stairs.png`,
         description: exit_description
     }
 }
@@ -35,7 +35,7 @@ function lock_tile(){
     return {
         type: `terrain`,
         name: `lock`,
-        pic: `lock.png`,
+        pic: `${img_folder.tiles}lock.png`,
         description: lock_description
     }
 }
@@ -43,7 +43,7 @@ function player_tile(){
     return {
         type: `player`,
         name: `player`,
-        pic: `helmet.png`,
+        pic: `${img_folder.tiles}helmet.png`,
         health: PLAYER_STARTING_HEALTH,
         max_health: PLAYER_STARTING_HEALTH,
         description: player_description
@@ -53,7 +53,7 @@ function lava_pool_tile(){
     return {
         type: `terrain`,
         name: `lava pool`,
-        pic: `lava_pool.png`,
+        pic: `${img_folder.tiles}lava_pool.png`,
         description: lava_pool_description,
         on_enter: hazard
     }
@@ -62,7 +62,7 @@ function corrosive_slime_tile(){
     return {
         type: `terrain`,
         name: `corrosive_slime`,
-        pic: `corrosive_slime.png`,
+        pic: `${img_folder.tiles}corrosive_slime.png`,
         health: 1,
         description: corrosive_slime_description,
         on_enter: hazard
@@ -72,7 +72,7 @@ function wall_tile(){
     return {
         type: `terrain`,
         name: `wall`,
-        pic: `wall.png`,
+        pic: `${img_folder.tiles}wall.png`,
         description: wall_description
     }
 }
@@ -81,7 +81,7 @@ function damaged_wall_tile(){
     return {
         type: `terrain`,
         name: `damaged wall`,
-        pic: `damaged_wall.png`,
+        pic: `${img_folder.tiles}damaged_wall.png`,
         health,
         on_death: wall_death,
         description: damaged_wall_description
@@ -92,7 +92,7 @@ function fireball_tile(){
     return {
         type: `enemy`,
         name: `fireball`,
-        pic: `fireball.png`,
+        pic: `${img_folder.tiles}fireball.png`,
         direction: [],
         description: fireball_description,
         behavior: fireball_ai,
@@ -105,7 +105,7 @@ function spider_tile(){
     return {
         type: `enemy`,
         name: `spider`,
-        pic: `spider.png`,
+        pic: `${img_folder.tiles}spider.png`,
         health: 1,
         difficulty: 1,
         behavior: spider_ai,
@@ -116,7 +116,7 @@ function turret_h_tile(){
     return {
         type: `enemy`,
         name: `turret`,
-        pic: `turret_h.png`,
+        pic: `${img_folder.tiles}turret_h.png`,
         health: 1,
         difficulty: 2,
         behavior: turret_h_ai,
@@ -127,7 +127,7 @@ function turret_d_tile(){
     return {
         type: `enemy`,
         name: `turret`,
-        pic: `turret_d.png`,
+        pic: `${img_folder.tiles}turret_d.png`,
         health: 1,
         difficulty: 2,
         behavior: turret_d_ai,
@@ -138,7 +138,7 @@ function scythe_tile(){
     return{
         type: `enemy`,
         name: `scythe`,
-        pic: `scythe_se.png`,
+        pic: `${img_folder.tiles}scythe_se.png`,
         health: 1,
         difficulty: 3,
         behavior: scythe_ai,
@@ -149,7 +149,7 @@ function shadow_knight_tile(){
     return{
         type: `enemy`,
         name: `shadow knight`,
-        pic: `shadow_knight.png`,
+        pic: `${img_folder.tiles}shadow_knight.png`,
         health: 2,
         difficulty: 4,
         behavior: shadow_knight_ai,
@@ -161,7 +161,7 @@ function spider_web_tile(){
     return{
         type: `enemy`,
         name: `spider egg`,
-        pic: `spider_web.png`,
+        pic: `${img_folder.tiles}spider_web.png`,
         cycle: 0,
         spawn_timer,
         health: 2,
@@ -171,7 +171,7 @@ function spider_web_tile(){
     }
 }
 function ram_tile(){
-    var pic_arr = [`ram.png`, `ram_charge.png`];
+    var pic_arr = [`${img_folder.tiles}ram.png`, `${img_folder.tiles}ram_charge.png`];
     var starting_cycle = 0;
     return{
         type: `enemy`,
@@ -189,7 +189,7 @@ function large_porcuslime_tile(){
     return {
         type: `enemy`,
         name: `large porcuslime`,
-        pic: `large_porcuslime.png`,
+        pic: `${img_folder.tiles}large_porcuslime.png`,
         health: 3,
         difficulty: 8,
         behavior: large_porcuslime_ai,
@@ -198,7 +198,7 @@ function large_porcuslime_tile(){
 }
 function medium_porcuslime_tile(){
     var ran = random_num(2);
-    var pic_arr = [`medium_h_porcuslime.png`, `medium_d_porcuslime.png`];
+    var pic_arr = [`${img_folder.tiles}medium_h_porcuslime.png`, `${img_folder.tiles}medium_d_porcuslime.png`];
     return {
         type: `enemy`,
         name: `medium porcuslime`,
@@ -215,7 +215,7 @@ function small_h_porcuslime_tile(){
     return {
         type: `enemy`,
         name: `small porcuslime`,
-        pic: `small_h_porcuslime.png`,
+        pic: `${img_folder.tiles}small_h_porcuslime.png`,
         health: 1,
         difficulty: 3,
         behavior: small_h_porcuslime_ai,
@@ -226,7 +226,7 @@ function small_d_porcuslime_tile(){
     return {
         type: `enemy`,
         name: `small porcuslime`,
-        pic: `small_d_porcuslime.png`,
+        pic: `${img_folder.tiles}small_d_porcuslime.png`,
         health: 1,
         difficulty: 3,
         behavior: small_d_porcuslime_ai,
@@ -237,7 +237,7 @@ function acid_bug_tile(){
     return {
         type: `enemy`,
         name: `acid bug`,
-        pic: `acid_bug.png`,
+        pic: `${img_folder.tiles}acid_bug.png`,
         health: 1,
         difficulty: 3,
         behavior: acid_bug_ai,
@@ -250,7 +250,7 @@ function brightling_tile(){
     return{
         type: `enemy`,
         name: `brightling`,
-        pic: `brightling.png`,
+        pic: `${img_folder.tiles}brightling.png`,
         cycle: starting_cycle,
         health: 1,
         difficulty: 4,
@@ -262,7 +262,7 @@ function corrosive_caterpillar_tile(){
     return {
         type: `enemy`,
         name: `corrosive caterpillar`,
-        pic: `corrosive_caterpillar.png`,
+        pic: `${img_folder.tiles}corrosive_caterpillar.png`,
         health: 1,
         difficulty: 2,
         behavior: corrosive_caterpillar_ai,
@@ -276,7 +276,7 @@ function velociphile_tile(){
     return{
         type: `enemy`,
         name: `velociphile`,
-        pic: `velociphile.png`,
+        pic: `${img_folder.tiles}velociphile.png`,
         health: 3,
         difficulty: `boss`,
         behavior: velociphile_ai,
@@ -289,7 +289,7 @@ function spider_queen_tile(){
     return{
         type: `enemy`,
         name: `spider queen`,
-        pic: `spider_queen.png`,
+        pic: `${img_folder.tiles}spider_queen.png`,
         health: 3,
         difficulty: `boss`,
         behavior: spider_ai,
@@ -301,14 +301,13 @@ function spider_queen_tile(){
 }
 function lich_tile(){
     var spells = [
-        [teleport_spell, teleport_spell_description, `lich_teleport.png`], 
-        [summon_spell, summon_spell_description, `lich_summon.png`], 
-        [earthquake_spell, earthquake_spell_description, `lich_earthquake.png`], 
-        [flame_wave_spell, flame_wave_spell_description, `lich_flame_wave.png`],
-        [confusion_spell, confusion_spell_description, `lich_confusion.png`],
-        [lava_moat_spell, lava_moat_spell_description, `lich_lava_moat.png`],
-        [rest_spell, rest_description, `lich_rest.png`],
-        [rest_spell, rest_description, `lich_rest.png`]
+        [teleport_spell, teleport_spell_description, `${img_folder.tiles}lich_teleport.png`], 
+        [summon_spell, summon_spell_description, `${img_folder.tiles}lich_summon.png`], 
+        [earthquake_spell, earthquake_spell_description, `${img_folder.tiles}lich_earthquake.png`], 
+        [flame_wave_spell, flame_wave_spell_description, `${img_folder.tiles}lich_flame_wave.png`],
+        [confusion_spell, confusion_spell_description, `${img_folder.tiles}lich_confusion.png`],
+        [lava_moat_spell, lava_moat_spell_description, `${img_folder.tiles}lich_lava_moat.png`],
+        [rest_spell, rest_description, `${img_folder.tiles}lich_rest.png`]
     ];
     var summons = [
         spider_tile,

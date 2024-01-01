@@ -138,42 +138,43 @@ class GameMap{
         // If any empty tiles have been marked as hit, it resets the pic to empty.
         // Shows the player's remaining health below.
 		var visual_map = document.getElementById(ui_id.map_display);
-        while(visual_map.rows.length > 0){
-            visual_map.deleteRow(0);
+        display.clear_tb(ui_id.map_display);
+        /*
+        var make_on_click = function(gameMap){
+            return function(tile){
+                var description = tile_description(tile);
+                display.display_message(ui_id.display_message, description);
+                var gameMap = gameMap;
+            }
         }
+        for (var y = 0; y < this.#y_max; y++){
+            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this));
+        }
+        */
 		for (var y = 0; y < this.#y_max; y++){
+            var desc = function(str){return function(){
+                display.display_message(ui_id.display_message, str);
+            }};
 			var row = document.createElement(`tr`);
             row.id = `row ${y}`;
-            var desc = function(str){return function(){
-                describe(str);
-            }};
+            
 			for (var x = 0; x < this.#x_max; x++){
                 var tile = this.#grid[x][y]
                 var description_with_hp = tile.description;
                 if(tile.hasOwnProperty(`health`)){
                     description_with_hp = `(${tile.health} hp) ${description_with_hp}`;
                 }
-                var cell = make_cell(`${x} ${y}`, `images/tiles/${tile.pic}`, TILE_SCALE, desc, description_with_hp);
+                var cell = make_cell(`${x} ${y}`, `${img_folder.src}${tile.pic}`, TILE_SCALE, desc, description_with_hp);
                 if(tile.type === `empty`){
-                    tile.pic = `empty.png`;
+                    tile.pic = `${img_folder.tiles}empty.png`;
                     tile.description = empty_description;
                 }
 				row.append(cell);
 			}
 			visual_map.append(row);
 		}
-        var row = document.createElement(`tr`);
-        row.id = `health`;
-        var player = this.get_player()
-        for(var i = 0; i < player.health; ++i){
-            var cell = make_cell(`health ${i}`, `images/other/heart.png`, TILE_SCALE);
-			row.append(cell);
-        }
-        for(var i = 0; i < (player.max_health - player.health); ++i){
-            var cell = make_cell(`hurt ${i}`, `images/other/heart_broken.png`, TILE_SCALE);
-			row.append(cell);
-        }
-        visual_map.append(row);
+        display.clear_tb(ui_id.health_display);
+        display_health(this.get_player(), TILE_SCALE);
 	}
     move(x1, y1, x2, y2){
         // Moves the tile at [x1, y1] to [x2, y2] if it is empty. 
@@ -247,7 +248,7 @@ class GameMap{
             }
             if(target.health === 0){
                 this.#grid[x][y] = empty_tile()
-                this.#grid[x][y].pic = `hit.png`;
+                this.#grid[x][y].pic = `${img_folder.tiles}hit.png`;
                 if(target.type === `enemy`){
                     this.#entity_list.remove_enemy(target.id)
                 }
@@ -266,7 +267,7 @@ class GameMap{
             return true;
         }
         if(target.type === `empty`){
-            target.pic = `hit.png`;
+            target.pic = `${img_folder.tiles}hit.png`;
         }
         return false;
     }
@@ -285,9 +286,9 @@ class GameMap{
         ++this.#turn_count;
         await this.#entity_list.enemy_turn(this);
     }
-    display_stats(element){
+    display_stats(location){
         // Shows the current floor and turn number.
-        element.innerText = `Floor ${this.#floor_num} Turn: ${this.#turn_count}`;
+        display.display_message(location, `Floor ${this.#floor_num} Turn: ${this.#turn_count}`);
     }
     lock(){
         // Locks the stairs for a boss fight.

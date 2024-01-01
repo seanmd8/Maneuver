@@ -72,31 +72,24 @@ class MoveDeck{
     }
     display_hand(table){
         // Displays the hand to the given table.
-        while(table.rows.length > 0){
-            table.deleteRow(0);
+        display.clear_tb(table);
+        var make_prep_move = function(deck){
+            return function(card, hand_pos){
+                //deck.select(hand_pos);
+                display.select(ui_id.hand_display, 0, hand_pos);
+                card.options.show_buttons(ui_id.move_buttons, hand_pos);
+                var deck = deck;
+            }
         }
-        var row = document.createElement(`tr`);
-        row.id = `hand`;
-        var prep_move = function(move, hand_pos){return function(){
-            deck.select(hand_pos);
-            move.options.show_buttons(ui_id.move_buttons, hand_pos);
-        }};
-        for(var i = 0; i < this.#hand.length; ++i){
-            var cell =  make_cell(`hand ${i}`, `images/cards/${this.#hand[i].pic}`, CARD_SCALE, prep_move, this.#hand[i], i);
-			row.append(cell);
-        }
-        table.append(row);
+        display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this));
     }
     display_all(table){
         // Displays the deck list to the given table.
-        document.getElementById(ui_id.current_deck).innerText = `${current_deck}${MIN_DECK_SIZE}):`;
+        //document.getElementById(ui_id.current_deck).innerText = `${current_deck}${MIN_DECK_SIZE}):`;
+        display.display_message(ui_id.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
         for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
-            var row = document.createElement(`tr`);
-            for(var j = 0; j < DECK_DISPLAY_WIDTH && j + i * DECK_DISPLAY_WIDTH < this.#list.length; ++j){
-                var cell =  make_cell(`card ${i * DECK_DISPLAY_WIDTH + j}`, `images/cards/${this.#list[i * DECK_DISPLAY_WIDTH + j].pic}`, CARD_SCALE);
-			    row.append(cell);
-            }
-            table.append(row);
+            display.add_tb_row(table, this.#list.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH) ,CARD_SCALE)
+            
         }
     }
     get_rand_arr(size){

@@ -328,7 +328,7 @@ function corrosive_caterpillar_death(x, y, x_dif, y_dif, map, enemy){
 
 // Boss AIs
 function boss_death(x, y, x_dif, y_dif, map, enemy){
-    describe(`${enemy.death_message}\n${boss_death_description}`);
+    display.display_message(ui_id.display_message, `${enemy.death_message}\n${boss_death_description}`);
     map.unlock();
 }
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){

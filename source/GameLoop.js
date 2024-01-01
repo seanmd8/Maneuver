@@ -1,42 +1,31 @@
 // ----------------GameLoop.js----------------
 // File contains functions that control the main gameplay.
 
-document.onkeydown = press;
 
 function setup(){
     // Function ran on page load or on restart to set up the game.
-    describe(game_title, ui_id.title)
-    describe(welcome_message);
+    display.display_message(ui_id.title, game_title)
+    display.display_message(ui_id.display_message, welcome_message);
     mapData = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT);  
     mapData.add_tile(STARTING_ENEMY());
     mapData.display();
-    mapData.display_stats(document.getElementById(ui_id.stats));
+    mapData.display_stats(ui_id.stats);
     deck = STARTING_DECK();
-    deck.display_hand(document.getElementById(ui_id.hand_display));
-    describe(mod_deck, ui_id.shop_instructions);
-    swap_screen(ui_id.game_screen);
-    swap_screen(ui_id.stage);
-}
-function describe(description, element = ui_id.display_message){
-    // Used to display text to the location.display_message element
-    document.getElementById(element).innerText = description;
-}
-function clear_tb(element_id){
-    // Deletes all rows from the given html table.
-    while(document.getElementById(element_id).rows.length > 0){
-        document.getElementById(element_id).deleteRow(0);
-    }
+    deck.display_hand(ui_id.hand_display);
+    display.display_message(ui_id.shop_instructions, mod_deck);
+    display.swap_screen(ui_id.game_screen);
+    display.swap_screen(ui_id.stage);
 }
 async function player_turn(behavior, hand_pos){
     // Function to execute the outcome of the player's turn.
-    describe(``);
+    display.display_message(ui_id.display_message, ``);
     try{
         for(var i = 0; i < behavior.length; ++i){
             // Does each valid command in the behavior list.
             player_action(mapData, behavior[i]);
         }
         // Discards the card the user used.
-        clear_tb(ui_id.move_buttons);
+        display.clear_tb(ui_id.move_buttons);
         deck.discard(hand_pos);
         mapData.display();
         await delay(ANIMATION_DELAY);
@@ -49,7 +38,7 @@ async function player_turn(behavior, hand_pos){
         var m = error.message;
         if(m === `floor complete`){
             // If the player has reached the end of the floor.
-            mapData.display_stats(document.getElementById(ui_id.stats))
+            mapData.display_stats(ui_id.stats);
             enter_shop();
         }
         else if(m === `game over`){
@@ -81,60 +70,57 @@ function new_floor(){
     // Creates the next floor.
     var floor = mapData.erase();
     floor_generator(floor, mapData);
-    mapData.display_stats(document.getElementById(ui_id.stats));
+    mapData.display_stats(ui_id.stats);
     mapData.display();
     deck.deal();
-    deck.display_hand(document.getElementById(ui_id.hand_display));
-    swap_screen(ui_id.stage);
+    deck.display_hand(ui_id.hand_display);
+    display.swap_screen(ui_id.stage);
 }
 function enter_shop(){
     // Gives the player the option to add or remove a card from their deck.
     // Their deck contents are also displayed.
     // Options to remove cards will not be displayed if the deck is at the minimum size already.
-    clear_tb(ui_id.modify_deck);
-    clear_tb(ui_id.display_deck);
-    deck.display_all(document.getElementById(ui_id.display_deck));
-    var table = document.getElementById(ui_id.modify_deck);
-    table.append(generate_add_row());
-    table.append(generate_remove_row());
-    swap_screen(ui_id.shop);
+    display.clear_tb(ui_id.add_card);
+    display.clear_tb(ui_id.remove_card);
+    display.clear_tb(ui_id.display_deck);
+    deck.display_all(ui_id.display_deck);
+    generate_add_row(deck, ui_id.add_card);
+    generate_remove_row(deck, ui_id.remove_card);
+    display.swap_screen(ui_id.shop);
 }
-function generate_add_row(){
+function generate_add_row(deck, table){
     var add_list = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
-    var add = function(card){return function(){
-        deck.add(card);
-        new_floor();
-    }};
-    var add_row = document.createElement(`tr`);
-    add_row.id = `add_row`;
-    var plus = make_cell(`plus`, `images/other/plus.png`, CARD_SCALE);
-    add_row.append(plus);
     for(var i = 0; i < add_list.length; ++i){
-        var card = add_list[i]();
-        var cell = make_cell(`card ${i}`, `images/cards/${card.pic}`, CARD_SCALE, add, card);
-        add_row.append(cell);
+        add_list[i] = add_list[i]();
     }
-    return add_row;
+    add_list.unshift({pic: `${img_folder.other}plus.png`})
+    var make_add_card = function(deck){
+        return function(card, position){
+            if(position > 0){
+                deck.add(card);
+                new_floor();
+            }
+        }
+    }
+    display.add_tb_row(table, add_list, CARD_SCALE, make_add_card(deck));
 }
-function generate_remove_row(){
+function generate_remove_row(deck, table){
     var remove_list = deck.get_rand_arr(REMOVE_CHOICE_COUNT);
-    var remove = function(card){return function(){
-        deck.remove(card.id);
-        new_floor();
-    }};
-    var remove_row = document.createElement(`tr`);
-    remove_row.id = `remove_row`;
-    var minus = make_cell(`plus`, `images/other/minus.png`, CARD_SCALE);
-    if(remove_row.length === 0){
-        minus = make_cell(`x`, `images/other/x.png`, CARD_SCALE);
+    if(remove_list){
+        remove_list.unshift({pic: `${img_folder.other}minus.png`});
     }
-    remove_row.append(minus);
-    for(var i = 0; i < remove_list.length; ++i){
-        var card = remove_list[i];
-        var cell = make_cell(`card ${i}`, `images/cards/${card.pic}`, CARD_SCALE, remove, card);
-        remove_row.append(cell);
+    else{
+        remove_list.unshift({pic: `${img_folder.other}x.png`});
     }
-    return remove_row;
+    var make_remove_card = function(deck){
+        return function(card, position){
+            if(position > 0){
+                deck.remove(card.id);
+                new_floor();
+            }
+        }
+    }
+    display.add_tb_row(table, remove_list, CARD_SCALE, make_remove_card(deck));
 }
 function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
     // Function to make a cell for a table.
@@ -172,41 +158,18 @@ function game_over(cause){
     // Tells the user the game is over, prevents them fro m continuing, tells them the cause
     // and gives them the chance to retry.
     mapData.display();
-    clear_tb(ui_id.hand_display);
-    clear_tb(ui_id.move_buttons);
-    describe(`${game_over_message}${cause}.`);
-    clear_tb(ui_id.move_buttons);
-    var row = document.createElement(`tr`);
-    row.id = `buttons`;
-    var cell = document.createElement(`input`);
-    cell.type = `button`
-    cell.name = `retry`;
-    cell.value = retry_message;
+    display.clear_tb(ui_id.hand_display);
+    display.clear_tb(ui_id.move_buttons);
+    display.display_message(ui_id.display_message, `${game_over_message}${cause}.`);
+    display.clear_tb(ui_id.move_buttons);
     var restart = function(){
-        clear_tb(ui_id.move_buttons);
+        display.clear_tb(ui_id.move_buttons);
         setup();
     };
-    cell.onclick = restart;
-    row.append(cell);
-    document.getElementById(ui_id.move_buttons).append(row);
-}
-function press(key){
-    var controls = [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`];
-    var k = search(key.key, controls);
-    if(k >= 0){
-        var element = document.getElementById(`button ${k}`);
-        if(!(element.onclick === null)){
-            element.click();
-        }
-    }
-    controls = [`h`, `j`, `k`];
-    k = search(key.key, controls);
-    if(k >= 0){
-        var element = document.getElementById(`hand ${k}`);
-        if(!(element.onclick === null)){
-            element.click();
-        }
-    }
+    var restart_message = [{
+        description: retry_message
+    }]
+    display.display_buttons(ui_id.move_buttons, restart_message, restart);
 }
 function search(element, arr){
     for(var i = 0; i < arr.length; ++i){
@@ -222,38 +185,8 @@ function give_temp_card(card){
 function prep_turn(){
     mapData.resolve_events();
     mapData.display();
-    deck.display_hand(document.getElementById(ui_id.hand_display));
-    mapData.display_stats(document.getElementById(ui_id.stats))
-}
-function swap_screen(screen){
-    switch(screen){
-        case ui_id.game_screen:
-            document.getElementById(ui_id.tutorial).style.display = `none`;
-            document.getElementById(ui_id.game_screen).style.display = `block`;
-            break;
-        case ui_id.stage:
-            document.getElementById(ui_id.shop).style.display = `none`;
-            document.getElementById(ui_id.chest).style.display = `none`;
-            document.getElementById(ui_id.stage).style.display = `block`;
-            break;
-        case ui_id.shop:
-            document.getElementById(ui_id.stage).style.display = `none`;
-            document.getElementById(ui_id.chest).style.display = `none`;
-            document.getElementById(ui_id.shop).style.display = `block`;
-            break;
-        case ui_id.chest:
-            document.getElementById(ui_id.stage).style.display = `none`;
-            document.getElementById(ui_id.shop).style.display = `none`;
-            document.getElementById(ui_id.chest).style.display = `block`;
-            break;
-        case ui_id.tutorial:
-            document.getElementById(ui_id.game_screen).style.display = `none`;
-            document.getElementById(ui_id.tutorial).style.display = `block`;
-            break;
-        default:
-            throw Error(`invalid screen swap`);
-    }
-    return;
+    deck.display_hand(ui_id.hand_display);
+    mapData.display_stats(ui_id.stats);
 }
 function rand_no_repeates(source, draws){
     var index_arr = [];
@@ -269,4 +202,24 @@ function rand_no_repeates(source, draws){
         index_arr.pop();
     }
     return result;
+}
+function tile_description(tile){
+    var hp = ``
+    if(tile.hasOwnProperty(`max_health`)){
+        var hp = `(${tile.health}/${tile.max_health} hp) `;
+    }
+    else if(tile.hasOwnProperty(`health`)){
+        var hp = `(${tile.health} hp) `;
+    }
+    return `${hp}${tile.description}`;
+}
+function display_health(player, scale){
+    var health = [];
+    for(var i = 0; i < player.health; ++i){
+        health.push({pic: `${img_folder.other}heart.png`});
+    }
+    for(var i = 0; i < (player.max_health - player.health); ++i){
+        health.push({pic: `${img_folder.other}heart_broken.png`});
+    }
+    display.add_tb_row(ui_id.health_display, health, scale);
 }

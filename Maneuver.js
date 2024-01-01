@@ -328,7 +328,7 @@ function corrosive_caterpillar_death(x, y, x_dif, y_dif, map, enemy){
 
 // Boss AIs
 function boss_death(x, y, x_dif, y_dif, map, enemy){
-    describe(`${enemy.death_message}\n${boss_death_description}`);
+    display.display_message(ui_id.display_message, `${enemy.death_message}\n${boss_death_description}`);
     map.unlock();
 }
 function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
@@ -612,11 +612,14 @@ function random_num(x){
 class ButtonGrid{
     #buttons; // A 3x3 2d array used to store the options.
     constructor(){
-        this.#buttons = [[0, 0, 0],
-                        [0, 0, 0], 
-                        [0, 0, 0]];
+        var initial = {
+            description: `--`
+        }
+        this.#buttons = [[initial, initial, initial],
+                        [initial, initial, initial], 
+                        [initial, initial, initial]];
     }
-    add_button(description, commands, number = -1){
+    add_button(description, behavior, number = -1){
         // Adds a description and a list of commands to one of the buttons.
         // Throws error of the button number is out of range.
         if(number === -1){
@@ -626,34 +629,27 @@ class ButtonGrid{
         if(number < 1 || number > 9){
             throw new Error(`button out of range`);
         }
-        var button = [description, commands];
+        var button = {
+            description,
+            behavior
+        }
         this.#buttons[Math.floor((number - 1) / 3)][(number - 1) % 3] = button;
     }
     show_buttons(table_name, hand_pos){
         // Displays the 3x3 grid to the given table.
         // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
-        clear_tb(table_name);
-        for(var i = 0; i < this.#buttons.length; ++i){
-            var row = document.createElement(`tr`);
-            row.id = `button row ${i}`;
-            for(var j = 0; j < this.#buttons[i].length; ++j){
-                var cell = document.createElement(`input`);
-                cell.type = `button`;
-                if(!(this.#buttons[i][j] === 0)){
-                    // If the button has info, that description and list of commands will be used.
-                    cell.id = `button ${i * 3 + j}`;
-                    cell.value = this.#buttons[i][j][0];
-                    var act = function(behavior, hand_pos){return function(){player_turn(behavior, hand_pos)}};
-                    cell.onclick = act(this.#buttons[i][j][1], hand_pos);
+        display.clear_tb(table_name);
+
+        var make_press_button = function(hand_position){
+            return function(button){
+                if(button.behavior){
+                    player_turn(button.behavior, hand_position)
                 }
-                else{
-                    // If it doesn't have info, a `--` button with no onclick will be used.
-                    cell.name = `--`;
-                    cell.value = `--`;
-                }
-                row.append(cell);
             }
-            document.getElementById(table_name).append(row);
+        }
+        var press_button = make_press_button(hand_pos);
+        for(var i = 0; i < this.#buttons.length; ++i){
+            display.display_buttons(table_name, this.#buttons[i], press_button)
         }
     }
     #convert_direction(direction){
@@ -734,7 +730,7 @@ function basic_horizontal(){
     options.add_button(W, [[`move`, -1, 0]]);
     return{
         name: `basic horizontal`,
-        pic: `basic_horizontal.png`,
+        pic: `${img_folder.cards}basic_horizontal.png`,
         options
     }
 }
@@ -746,7 +742,7 @@ function basic_diagonal(){
     options.add_button(NW, [[`move`, -1, -1]]);
     return{
         name: `basic diagonal`,
-        pic: `basic_diagonal.png`,
+        pic: `${img_folder.cards}basic_diagonal.png`,
         options
     }
 }
@@ -758,7 +754,7 @@ function slice(){
     options.add_button(W, [[`attack`, -1, 1], [`attack`, -1, 0], [`attack`, -1, -1]]);
     return{
         name: `slice`,
-        pic: `slice.png`,
+        pic: `${img_folder.cards}slice.png`,
         options
     }
 }
@@ -770,7 +766,7 @@ function short_charge(){
     options.add_button(W, [[`move`, -1, 0], [`attack`, -1, 0]]);
     return{
         name: `short charge`,
-        pic: `short_charge.png`,
+        pic: `${img_folder.cards}short_charge.png`,
         options
     }
 }
@@ -782,7 +778,7 @@ function jump(){
     options.add_button(W, [[`move`, -2, 0]]);
     return{
         name: `jump`,
-        pic: `jump.png`,
+        pic: `${img_folder.cards}jump.png`,
         options
     }
 }
@@ -793,7 +789,7 @@ function straight_charge(){
     options.add_button(S, [[`move`, 0, 1], [`move`, 0, 1], [`attack`, 0, 1]]);
     return{
         name: `straight charge`,
-        pic: `straight_charge.png`,
+        pic: `${img_folder.cards}straight_charge.png`,
         options
     }
 }
@@ -803,7 +799,7 @@ function side_charge(){
     options.add_button(W, [[`move`, -1, 0], [`move`, -1, 0], [`attack`, -1, 0]]);
     return{
         name: `side charge`,
-        pic: `side_charge.png`,
+        pic: `${img_folder.cards}side_charge.png`,
         options
     }
 }
@@ -814,7 +810,7 @@ function step_left(){
     options.add_button(NW, [[`move`, -1, -1]]);
     return{
         name: `step left`,
-        pic: `step_left.png`,
+        pic: `${img_folder.cards}step_left.png`,
         options
     }
 }
@@ -825,7 +821,7 @@ function step_right(){
     options.add_button(NE, [[`move`, 1, -1]]);
     return{
         name: `step right`,
-        pic: `step_right.png`,
+        pic: `${img_folder.cards}step_right.png`,
         options
     }
 }
@@ -835,7 +831,7 @@ function trample(){
     options.add_button(NW, [[`attack`, -1, -2], [`move`, -1, -2]]);
     return{
         name: `trample`,
-        pic: `trample.png`,
+        pic: `${img_folder.cards}trample.png`,
         options
     }
 }
@@ -847,7 +843,7 @@ function horsemanship(){
     options.add_button(NW, [[`move`, -2, -1]]);
     return{
         name: `horsemanship`,
-        pic: `horsemanship.png`,
+        pic: `${img_folder.cards}horsemanship.png`,
         options
     }
 }
@@ -857,7 +853,7 @@ function lunge_left(){
     options.add_button(NW, [[`move`, -1, -1], [`move`, -1, -1], [`attack`, -1, -1]]);
     return{
         name: `lunge left`,
-        pic: `lunge_left.png`,
+        pic: `${img_folder.cards}lunge_left.png`,
         options
     }
 }
@@ -867,7 +863,7 @@ function lunge_right(){
     options.add_button(NE, [[`move`, 1, -1], [`move`, 1, -1], [`attack`, 1, -1]]);
     return{
         name: `lunge right`,
-        pic: `lunge_right.png`,
+        pic: `${img_folder.cards}lunge_right.png`,
         options
     }
 }
@@ -876,7 +872,7 @@ function sprint(){
     options.add_button(N, [[`move`, 0, -1], [`move`, 0, -1], [`move`, 0, -1]]);
     return{
         name: `sprint`,
-        pic: `sprint.png`,
+        pic: `${img_folder.cards}sprint.png`,
         options
     }
 }
@@ -887,7 +883,7 @@ function trident(){
     options.add_button(W, [[`attack`, -2, 1], [`attack`, -2, 0], [`attack`, -2, -1]]);
     return{
         name: `trident`,
-        pic: `trident.png`,
+        pic: `${img_folder.cards}trident.png`,
         options
     }
 }
@@ -899,7 +895,7 @@ function whack_horizontal(){
     options.add_button(W, [[`attack`, -1, 0], [`attack`, -1, 0]]);
     return{
         name: `whack horizontal`,
-        pic: `whack_horizontal.png`,
+        pic: `${img_folder.cards}whack_horizontal.png`,
         options
     }
 }
@@ -916,7 +912,7 @@ function spin_attack(){
     options.add_button(`Spin`, spin, 5);
     return{
         name: `spin attack`,
-        pic: `spin_attack.png`,
+        pic: `${img_folder.cards}spin_attack.png`,
         options
     }
 }
@@ -928,7 +924,7 @@ function butterfly(){
     options.add_button(NW, [[`move`, -2, -2]]);
     return{
         name: `butterfly`,
-        pic: `butterfly.png`,
+        pic: `${img_folder.cards}butterfly.png`,
         options
     }
 }
@@ -939,7 +935,7 @@ function retreat(){
     options.add_button(SW, [[`move`, -1, 1]]);
     return{
         name: `retreat`,
-        pic: `retreat.png`,
+        pic: `${img_folder.cards}retreat.png`,
         options
     }
 }
@@ -948,7 +944,7 @@ function force(){
     options.add_button(N, [[`attack`, 0, -1], [`move`, 0, -1], [`attack`, 0, -1], [`move`, 0, -1]]);
     return{
         name: `force`,
-        pic: `force.png`,
+        pic: `${img_folder.cards}force.png`,
         options
     }
 }
@@ -958,7 +954,7 @@ function side_attack(){
     options.add_button(W, [[`attack`, -1, 0], [`attack`, -2, 0], [`attack`, -3, 0]]);
     return{
         name: `side attack`,
-        pic: `side_attack.png`,
+        pic: `${img_folder.cards}side_attack.png`,
         options
     }
 }
@@ -967,7 +963,7 @@ function clear_behind(){
     options.add_button(C, [[`attack`, 1, 1], [`attack`, 0, 1], [`attack`, -1, 1], [`attack`, 1, 2], [`attack`, 0, 2], [`attack`, -1, 2]]);
     return{
         name: `clear behind`,
-        pic: `clear_behind.png`,
+        pic: `${img_folder.cards}clear_behind.png`,
         options
     }
 }
@@ -976,7 +972,7 @@ function spear_slice(){
     options.add_button(C, [[`attack`, 1, -1], [`attack`, -1, -1], [`attack`, 1, -2], [`attack`, 0, -2], [`attack`, -1, -2]]);
     return{
         name: `spear slice`,
-        pic: `spear_slice.png`,
+        pic: `${img_folder.cards}spear_slice.png`,
         options
     }
 }
@@ -988,7 +984,7 @@ function jab(){
     options.add_button(W, [[`attack`, -1, 0], [`attack`, -2, 0]]);
     return{
         name: `jab`,
-        pic: `jab.png`,
+        pic: `${img_folder.cards}jab.png`,
         options
     }
 }
@@ -998,7 +994,7 @@ function overcome(){
     options.add_button(S, [[`attack`, 1, 1], [`attack`, 0, 1], [`attack`, -1, 1], [`move`, 0, 2]]);
     return{
         name: `overcome`,
-        pic: `overcome.png`,
+        pic: `${img_folder.cards}overcome.png`,
         options
     }
 }
@@ -1007,7 +1003,7 @@ function hit_and_run(){
     options.add_button(S, [[`attack`, 1, -1], [`attack`, 0, -1], [`attack`, -1, -1], [`attack`, 1, 0], [`attack`, -1, 0], [`move`, 0, 1]]);
     return{
         name: `hit and run`,
-        pic: `hit_and_run.png`,
+        pic: `${img_folder.cards}hit_and_run.png`,
         options
     }
 }
@@ -1019,7 +1015,7 @@ function combat_diagonal(){
     options.add_button(NW, [[`attack`, -1, -1], [`move`, -1, -1]]);
     return{
         name: `combat diagonal`,
-        pic: `combat_diagonal.png`,
+        pic: `${img_folder.cards}combat_diagonal.png`,
         options
     }
 }
@@ -1031,7 +1027,7 @@ function combat_horizontal(){
     options.add_button(W, [[`attack`, -1, 0], [`move`, -1, 0]]);
     return{
         name: `combat horizontal`,
-        pic: `combat_horizontal.png`,
+        pic: `${img_folder.cards}combat_horizontal.png`,
         options
     }
 }
@@ -1042,7 +1038,7 @@ function push_back(){
     options.add_button(SW, [[`attack`, 1, -1], [`move`, -1, 1]]);
     return{
         name: `push back`,
-        pic: `push_back.png`,
+        pic: `${img_folder.cards}push_back.png`,
         options
     }
 }
@@ -1054,7 +1050,7 @@ function fork(){
     options.add_button(W, [[`attack`, -1, 1], [`attack`, -1, -1], [`attack`, -2, 1], [`attack`, -2, -1]]);
     return{
         name: `fork`,
-        pic: `fork.png`,
+        pic: `${img_folder.cards}fork.png`,
         options
     }
 }
@@ -1070,7 +1066,7 @@ function explosion(){
     options.add_button(`Explode!`, area, 5);
     return{
         name: `explosion`,
-        pic: `explosion.png`,
+        pic: `${img_folder.cards}explosion.png`,
         options
     }
 }
@@ -1079,7 +1075,7 @@ function breakthrough(){
     options.add_button(N, [[`move`, 0, -1], [`attack`, 1, 0], [`attack`, -1, 0], [`attack`, 0, -1]]);
     return{
         name: `breakthrough`,
-        pic: `breakthrough.png`,
+        pic: `${img_folder.cards}breakthrough.png`,
         options
     }
 }
@@ -1089,7 +1085,7 @@ function flanking_diagonal(){
     options.add_button(NW, [[`move`, -1, -1], [`attack`, 0, 1], [`attack`, 1, 0], [`move`, -1, -1], [`attack`, 0, 1], [`attack`, 1, 0]]);
     return{
         name: `flanking diagonal`,
-        pic: `flanking_diagonal.png`,
+        pic: `${img_folder.cards}flanking_diagonal.png`,
         options
     }
 }
@@ -1099,7 +1095,7 @@ function flanking_sideways(){
     options.add_button(W, [[`move`, -1, 0], [`attack`, 0, 1], [`attack`, 0, -1], [`move`, -1, 0], [`attack`, 0, 1], [`attack`, 0, -1]]);
     return{
         name: `flanking sideways`,
-        pic: `flanking_sideways.png`,
+        pic: `${img_folder.cards}flanking_sideways.png`,
         options
     }
 }
@@ -1109,7 +1105,7 @@ function flanking_straight(){
     options.add_button(S, [[`move`, 0, 1], [`attack`, 1, 0], [`attack`, -1, 0], [`move`, 0, 1], [`attack`, 1, 0], [`attack`, -1, 0]]);
     return{
         name: `flanking straight`,
-        pic: `flanking_straight.png`,
+        pic: `${img_folder.cards}flanking_straight.png`,
         options
     }
 }
@@ -1120,7 +1116,7 @@ function pike(){
     options.add_button(W, [[`attack`, -2, 0], [`attack`, -3, 1], [`attack`, -3, 0], [`attack`, -3, -1]]);
     return{
         name: `pike`,
-        pic: `pike.png`,
+        pic: `${img_folder.cards}pike.png`,
         options
     }
 }
@@ -1130,7 +1126,7 @@ function breakthrough_side(){
     options.add_button(W, [[`move`, -1, 0], [`attack`, -1, 0], [`attack`, 0, 1], [`attack`, 0, -1]]);
     return{
         name: `breakthrough side`,
-        pic: `breakthrough_side.png`,
+        pic: `${img_folder.cards}breakthrough_side.png`,
         options
     }
 }
@@ -1142,7 +1138,7 @@ function whack_diagonal(){
     options.add_button(SW, [[`attack`, -1, 1], [`attack`, -1, 1]]);
     return{
         name: `whack diagonal`,
-        pic: `whack_diagonal.png`,
+        pic: `${img_folder.cards}whack_diagonal.png`,
         options
     }
 }
@@ -1151,7 +1147,7 @@ function thwack(){
     options.add_button(N, [[`attack`, 0, -1], [`attack`, 0, -1], [`attack`, 0, -1]]);
     return{
         name: `thwack`,
-        pic: `thwack.png`,
+        pic: `${img_folder.cards}thwack.png`,
         options
     }
 }
@@ -1161,7 +1157,7 @@ function overcome_sideways(){
     options.add_button(W, [[`attack`, -1, 1], [`attack`, -1, 0], [`attack`, -1, -1], [`move`, -2, 0]]);
     return{
         name: `overcome sideways`,
-        pic: `overcome_sideways.png`,
+        pic: `${img_folder.cards}overcome_sideways.png`,
         options
     }
 }
@@ -1172,7 +1168,7 @@ function y_leap(){
     options.add_button(S, [[`move`, 0, 2]]);
     return{
         name: `Y leap`,
-        pic: `y_leap.png`,
+        pic: `${img_folder.cards}y_leap.png`,
         options
     }
 }
@@ -1189,7 +1185,7 @@ function diamond_slice(){
     options.add_button(`Spin`, spin, 5);
     return{
         name: `diamond slice`,
-        pic: `diamond_slice.png`,
+        pic: `${img_folder.cards}diamond_slice.png`,
         options
     }
 }
@@ -1199,7 +1195,7 @@ function spearhead(){
     options.add_button(NW, [[`move`, -1, -1], [`attack`, -1, -1], [`attack`, -1, 0], [`attack`, 0, -1]]);
     return{
         name: `spearhead`,
-        pic: `spearhead.png`,
+        pic: `${img_folder.cards}spearhead.png`,
         options
     }
 }
@@ -1211,7 +1207,7 @@ function alt_diagonal_left(){
     options.add_button(NW, [[`move`, -1, -1]]);
     return{
         name: `alternating diagonal left`,
-        pic: `alt_diagonal_left.png`,
+        pic: `${img_folder.cards}alt_diagonal_left.png`,
         options
     }
 }
@@ -1223,7 +1219,7 @@ function alt_diagonal_right(){
     options.add_button(NW, [[`attack`, -1, 0], [`attack`, -1, -1], [`attack`, 0, -1]]);
     return{
         name: `alternating diagonal right`,
-        pic: `alt_diagonal_right.png`,
+        pic: `${img_folder.cards}alt_diagonal_right.png`,
         options
     }
 }
@@ -1235,7 +1231,7 @@ function alt_horizontal(){
     options.add_button(W, [[`move`, -1, 0]]);
     return{
         name: `alternating horizontal`,
-        pic: `alt_horizontal.png`,
+        pic: `${img_folder.cards}alt_horizontal.png`,
         options
     }
 }
@@ -1247,7 +1243,7 @@ function alt_vertical(){
     options.add_button(W, [[`attack`, -1, 1], [`attack`, -1, 0], [`attack`, -1, -1]]);
     return{
         name: `alternating vertical`,
-        pic: `alt_vertical.png`,
+        pic: `${img_folder.cards}alt_vertical.png`,
         options
     }
 }
@@ -1259,7 +1255,7 @@ function jab_diagonal(){
     options.add_button(NW, [[`attack`, -1, -1], [`attack`, -2, -2]]);
     return{
         name: `jab_diagonal`,
-        pic: `jab_diagonal.png`,
+        pic: `${img_folder.cards}jab_diagonal.png`,
         options
     }
 }
@@ -1270,7 +1266,7 @@ function stumble_w(){
     options.add_button(W, [[`move`, -1, 0]]);
     return{
         name: `stumble west`,
-        pic: `stumble_w.png`,
+        pic: `${img_folder.cards}stumble_w.png`,
         options
     }
 }
@@ -1279,7 +1275,7 @@ function stumble_e(){
     options.add_button(E, [[`move`, 1, 0]]);
     return{
         name: `stumble east`,
-        pic: `stumble_e.png`,
+        pic: `${img_folder.cards}stumble_e.png`,
         options
     }
 }
@@ -1288,7 +1284,7 @@ function stumble_n(){
     options.add_button(N, [[`move`, 0, -1]]);
     return{
         name: `stumble north`,
-        pic: `stumble_n.png`,
+        pic: `${img_folder.cards}stumble_n.png`,
         options
     }
 }
@@ -1297,7 +1293,7 @@ function stumble_s(){
     options.add_button(S, [[`move`, 0, 1]]);
     return{
         name: `stumble south`,
-        pic: `stumble_s.png`,
+        pic: `${img_folder.cards}stumble_s.png`,
         options
     }
 }
@@ -1306,7 +1302,7 @@ function stumble_nw(){
     options.add_button(NW, [[`move`, -1, -1]]);
     return{
         name: `stumble nw`,
-        pic: `stumble_nw.png`,
+        pic: `${img_folder.cards}stumble_nw.png`,
         options
     }
 }
@@ -1315,7 +1311,7 @@ function stumble_ne(){
     options.add_button(NE, [[`move`, 1, -1]]);
     return{
         name: `stumble ne`,
-        pic: `stumble_ne.png`,
+        pic: `${img_folder.cards}stumble_ne.png`,
         options
     }
 }
@@ -1324,7 +1320,7 @@ function stumble_se(){
     options.add_button(SE, [[`move`, 1, 1]]);
     return{
         name: `stumble se`,
-        pic: `stumble_se.png`,
+        pic: `${img_folder.cards}stumble_se.png`,
         options
     }
 }
@@ -1333,7 +1329,7 @@ function stumble_sw(){
     options.add_button(SW, [[`move`, -1, 1]]);
     return{
         name: `stumble sw`,
-        pic: `stumble_sw.png`,
+        pic: `${img_folder.cards}stumble_sw.png`,
         options
     }
 }
@@ -1342,7 +1338,7 @@ function freeze_up(){
     options.add_button(`Freeze Up`, [], 5);
     return{
         name: `freeze up`,
-        pic: `freeze_up.png`,
+        pic: `${img_folder.cards}freeze_up.png`,
         options
     }
 }
@@ -1360,7 +1356,7 @@ function lash_out(){
     options.add_button(`Lash Out`, spin, 5);
     return{
         name: `lash out`,
-        pic: `lash_out.png`,
+        pic: `${img_folder.cards}lash_out.png`,
         options
     }
 }
@@ -1389,15 +1385,32 @@ const AREA_SIZE = 5;
 const CARD_SCALE = 90;
 const TILE_SCALE = 30;
 const ANIMATION_DELAY = 300;
-const DECK_DISPLAY_WIDTH = 4;// ----------------Descriptions.js----------------
+const DECK_DISPLAY_WIDTH = 4;
+
+const MARKUP_LANGUAGE = `html`;
+
+
+const controls = {
+    directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
+    card: [`h`, `j`, `k`]
+}
+Object.freeze(controls);
+
+const img_folder = {
+    src: `images/`,
+    cards: `cards/`,
+    other: `other/`,
+    tiles: `tiles/`
+}
+Object.freeze(img_folder);// ----------------Descriptions.js----------------
 // Contains text that will be displayed.
 
 
 
 // General.
-const game_title = `Maneuver`
-const mod_deck = `Choose one card to add or remove:`
-const current_deck = `Current Deck (minimum `
+const game_title = `Maneuver`;
+const mod_deck = `Choose one card to add or remove:`;
+const current_deck = `Current Deck (minimum `;
 const welcome_message = `Welcome to the dungeon.\n`
                             + `Use cards to move (blue) and attack (red).\n` 
                             + `Click on things to learn more about them.`;
@@ -1470,39 +1483,74 @@ const SW = `SW`;
 const W = `W`;
 const C = `C`;
 
-function DisplayGet(language){
+function get_display(language){
     // Factory function for the display classes (currently only html)
     switch(language){
         case `html`:
-            return new DisplayHTML();
+            return DisplayHTML;
         default:
             throw exception(`invalid display language`);
     }
 }
 
 class DisplayHTML{
-    constructor(){
-        for (var element of this){
-            if (element === undefined){
-                throw exception(`Attempt to initialize abstract base class`);
+    static add_tb_row(location, row_contents, scale, on_click){
+        var table = document.getElementById(location);
+        var row_num = table.rows.length;
+        var row = document.createElement(`tr`);
+        row.id = `${location} row ${row_num}`;
+        var make_on_click = function(tile, position){
+            return function(){
+                return on_click(tile, position);
             }
         }
+        for(var i = 0; i < row_contents.length; ++i){
+            var cell = document.createElement(`td`);
+            cell.id = `${location} ${row_num} ${i}`;
+            if(!(on_click === undefined)){
+                cell.onclick = make_on_click(row_contents[i], i);
+            }
+            var img = document.createElement(`img`);
+            img.id = `${location} ${row_num} ${i} img`;
+            img.src = `${img_folder.src}${row_contents[i].pic}`;
+            img.height = scale;
+            img.width = scale;
+            cell.append(img);
+            row.append(cell);
+        }
+        table.append(row);
     }
-    display_table(location, to_display){
-
+    static display_buttons(location, row_contents, on_click){
+        var table = document.getElementById(location);
+        var row_num = table.rows.length;
+        var row = document.createElement(`tr`);
+        row.id = `${location} row ${row_num}`;
+        var make_on_click = function(tile, position){
+            return function(){
+                return on_click(tile, position);
+            }
+        }
+        for(var i = 0; i < row_contents.length; ++i){
+            var cell = document.createElement(`input`);
+            cell.type = `button`;
+            cell.id = `${location} ${row_num} ${i}`;
+            if(!(on_click === undefined)){
+                cell.onclick = make_on_click(row_contents[i], i);
+            }
+            cell.value = row_contents[i].description;
+            row.append(cell);
+        }
+        table.append(row);
     }
-    display_buttons(location, buttons){
-
-    }
-    display_message(location, to_display){
+    static display_message(location, to_display){
         document.getElementById(location).innerText = to_display;
     }
-    clear_table(location){
+    static clear_tb(location){
         while(document.getElementById(location).rows.length > 0){
             document.getElementById(location).deleteRow(0);
         }
     }
-    swap_screen(screen){
+    static swap_screen(screen){
         switch(screen){
             case ui_id.game_screen:
                 document.getElementById(ui_id.tutorial).style.display = `none`;
@@ -1532,7 +1580,31 @@ class DisplayHTML{
         }
         return;
     }
-}// ----------------EntityList.js----------------
+    static select(location, row_num, column_num, border = 3, color = 555){
+        var row = document.getElementById(`${location} row ${row_num}`);
+        var column_count = row.cells.length;
+        for(var i = 0; i < column_count; ++i){
+            document.getElementById(`${location} ${row_num} ${i} img`).border = ``;
+        }
+        document.getElementById(`${location} ${row_num} ${column_num} img`).border = `${border}px solid #${color}`;
+    }
+    static press(key_press){
+        // Pick direction via keyboard.
+        var key_num = search(key_press.key, controls.directional);
+        if(key_num >= 0){
+            var element = document.getElementById(`${ui_id.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`);
+            element && element.click();
+        }
+        // Select card via keyboard.
+        key_num = search(key_press.key, controls.card);
+        if(key_num >= 0){
+            var element = document.getElementById(`${ui_id.hand_display} 0 ${key_num}`);
+            element && element.click();
+        }
+    }
+}
+const display = get_display(MARKUP_LANGUAGE);
+document.onkeydown = display.press;// ----------------EntityList.js----------------
 // EntityList class is used by the GameMap class to keep track of entities without having to search through the map each time.
 
 class EntityList{
@@ -1661,7 +1733,7 @@ function generate_normal_floor(floor, map, enemies){
             i -= new_enemy.difficulty;
         }
     }
-    describe(`${floor_message}${floor}.`);
+    display.display_message(ui_id.display_message, `${floor_message}${floor}.`);
 }
 function velociphile_floor(floor, map){
     map.add_tile(velociphile_tile());
@@ -1670,7 +1742,7 @@ function velociphile_floor(floor, map){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
     }
-    describe(`${floor_message}${floor}.\n${velociphile_floor_message}`);
+    display.display_message(ui_id.display_message, `${floor_message}${floor}.\n${velociphile_floor_message}`);
 }
 function spider_queen_floor(floor, map){
     map.add_tile(spider_queen_tile());
@@ -1682,7 +1754,7 @@ function spider_queen_floor(floor, map){
     for(var i = 0; i < 2; ++i){
         map.add_tile(spider_web_tile());
     }
-    describe(`${floor_message}${floor}.\n${spider_queen_floor_message}`)
+    display.display_message(ui_id.display_message, `${floor_message}${floor}.\n${spider_queen_floor_message}`)
 }
 function lich_floor(floor, map){
     map.add_tile(damaged_wall_tile(), FLOOR_WIDTH - 2, FLOOR_HEIGHT - 2);
@@ -1691,46 +1763,35 @@ function lich_floor(floor, map){
     map.add_tile(damaged_wall_tile(), 1, 1);
     map.add_tile(lich_tile());
     map.lock();
-    describe(`${floor_message}${floor}.\n${lich_floor_message}`)
+    display.display_message(ui_id.display_message, `${floor_message}${floor}.\n${lich_floor_message}`)
 }// ----------------GameLoop.js----------------
 // File contains functions that control the main gameplay.
 
-document.onkeydown = press;
 
 function setup(){
     // Function ran on page load or on restart to set up the game.
-    describe(game_title, ui_id.title)
-    describe(welcome_message);
+    display.display_message(ui_id.title, game_title)
+    display.display_message(ui_id.display_message, welcome_message);
     mapData = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT);  
     mapData.add_tile(STARTING_ENEMY());
     mapData.display();
-    mapData.display_stats(document.getElementById(ui_id.stats));
+    mapData.display_stats(ui_id.stats);
     deck = STARTING_DECK();
-    deck.display_hand(document.getElementById(ui_id.hand_display));
-    describe(mod_deck, ui_id.shop_instructions);
-    swap_screen(ui_id.game_screen);
-    swap_screen(ui_id.stage);
-}
-function describe(description, element = ui_id.display_message){
-    // Used to display text to the location.display_message element
-    document.getElementById(element).innerText = description;
-}
-function clear_tb(element_id){
-    // Deletes all rows from the given html table.
-    while(document.getElementById(element_id).rows.length > 0){
-        document.getElementById(element_id).deleteRow(0);
-    }
+    deck.display_hand(ui_id.hand_display);
+    display.display_message(ui_id.shop_instructions, mod_deck);
+    display.swap_screen(ui_id.game_screen);
+    display.swap_screen(ui_id.stage);
 }
 async function player_turn(behavior, hand_pos){
     // Function to execute the outcome of the player's turn.
-    describe(``);
+    display.display_message(ui_id.display_message, ``);
     try{
         for(var i = 0; i < behavior.length; ++i){
             // Does each valid command in the behavior list.
             player_action(mapData, behavior[i]);
         }
         // Discards the card the user used.
-        clear_tb(ui_id.move_buttons);
+        display.clear_tb(ui_id.move_buttons);
         deck.discard(hand_pos);
         mapData.display();
         await delay(ANIMATION_DELAY);
@@ -1743,7 +1804,7 @@ async function player_turn(behavior, hand_pos){
         var m = error.message;
         if(m === `floor complete`){
             // If the player has reached the end of the floor.
-            mapData.display_stats(document.getElementById(ui_id.stats))
+            mapData.display_stats(ui_id.stats);
             enter_shop();
         }
         else if(m === `game over`){
@@ -1775,60 +1836,57 @@ function new_floor(){
     // Creates the next floor.
     var floor = mapData.erase();
     floor_generator(floor, mapData);
-    mapData.display_stats(document.getElementById(ui_id.stats));
+    mapData.display_stats(ui_id.stats);
     mapData.display();
     deck.deal();
-    deck.display_hand(document.getElementById(ui_id.hand_display));
-    swap_screen(ui_id.stage);
+    deck.display_hand(ui_id.hand_display);
+    display.swap_screen(ui_id.stage);
 }
 function enter_shop(){
     // Gives the player the option to add or remove a card from their deck.
     // Their deck contents are also displayed.
     // Options to remove cards will not be displayed if the deck is at the minimum size already.
-    clear_tb(ui_id.modify_deck);
-    clear_tb(ui_id.display_deck);
-    deck.display_all(document.getElementById(ui_id.display_deck));
-    var table = document.getElementById(ui_id.modify_deck);
-    table.append(generate_add_row());
-    table.append(generate_remove_row());
-    swap_screen(ui_id.shop);
+    display.clear_tb(ui_id.add_card);
+    display.clear_tb(ui_id.remove_card);
+    display.clear_tb(ui_id.display_deck);
+    deck.display_all(ui_id.display_deck);
+    generate_add_row(deck, ui_id.add_card);
+    generate_remove_row(deck, ui_id.remove_card);
+    display.swap_screen(ui_id.shop);
 }
-function generate_add_row(){
+function generate_add_row(deck, table){
     var add_list = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
-    var add = function(card){return function(){
-        deck.add(card);
-        new_floor();
-    }};
-    var add_row = document.createElement(`tr`);
-    add_row.id = `add_row`;
-    var plus = make_cell(`plus`, `images/other/plus.png`, CARD_SCALE);
-    add_row.append(plus);
     for(var i = 0; i < add_list.length; ++i){
-        var card = add_list[i]();
-        var cell = make_cell(`card ${i}`, `images/cards/${card.pic}`, CARD_SCALE, add, card);
-        add_row.append(cell);
+        add_list[i] = add_list[i]();
     }
-    return add_row;
+    add_list.unshift({pic: `${img_folder.other}plus.png`})
+    var make_add_card = function(deck){
+        return function(card, position){
+            if(position > 0){
+                deck.add(card);
+                new_floor();
+            }
+        }
+    }
+    display.add_tb_row(table, add_list, CARD_SCALE, make_add_card(deck));
 }
-function generate_remove_row(){
+function generate_remove_row(deck, table){
     var remove_list = deck.get_rand_arr(REMOVE_CHOICE_COUNT);
-    var remove = function(card){return function(){
-        deck.remove(card.id);
-        new_floor();
-    }};
-    var remove_row = document.createElement(`tr`);
-    remove_row.id = `remove_row`;
-    var minus = make_cell(`plus`, `images/other/minus.png`, CARD_SCALE);
-    if(remove_row.length === 0){
-        minus = make_cell(`x`, `images/other/x.png`, CARD_SCALE);
+    if(remove_list){
+        remove_list.unshift({pic: `${img_folder.other}minus.png`});
     }
-    remove_row.append(minus);
-    for(var i = 0; i < remove_list.length; ++i){
-        var card = remove_list[i];
-        var cell = make_cell(`card ${i}`, `images/cards/${card.pic}`, CARD_SCALE, remove, card);
-        remove_row.append(cell);
+    else{
+        remove_list.unshift({pic: `${img_folder.other}x.png`});
     }
-    return remove_row;
+    var make_remove_card = function(deck){
+        return function(card, position){
+            if(position > 0){
+                deck.remove(card.id);
+                new_floor();
+            }
+        }
+    }
+    display.add_tb_row(table, remove_list, CARD_SCALE, make_remove_card(deck));
 }
 function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
     // Function to make a cell for a table.
@@ -1866,41 +1924,18 @@ function game_over(cause){
     // Tells the user the game is over, prevents them fro m continuing, tells them the cause
     // and gives them the chance to retry.
     mapData.display();
-    clear_tb(ui_id.hand_display);
-    clear_tb(ui_id.move_buttons);
-    describe(`${game_over_message}${cause}.`);
-    clear_tb(ui_id.move_buttons);
-    var row = document.createElement(`tr`);
-    row.id = `buttons`;
-    var cell = document.createElement(`input`);
-    cell.type = `button`
-    cell.name = `retry`;
-    cell.value = retry_message;
+    display.clear_tb(ui_id.hand_display);
+    display.clear_tb(ui_id.move_buttons);
+    display.display_message(ui_id.display_message, `${game_over_message}${cause}.`);
+    display.clear_tb(ui_id.move_buttons);
     var restart = function(){
-        clear_tb(ui_id.move_buttons);
+        display.clear_tb(ui_id.move_buttons);
         setup();
     };
-    cell.onclick = restart;
-    row.append(cell);
-    document.getElementById(ui_id.move_buttons).append(row);
-}
-function press(key){
-    var controls = [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`];
-    var k = search(key.key, controls);
-    if(k >= 0){
-        var element = document.getElementById(`button ${k}`);
-        if(!(element.onclick === null)){
-            element.click();
-        }
-    }
-    controls = [`h`, `j`, `k`];
-    k = search(key.key, controls);
-    if(k >= 0){
-        var element = document.getElementById(`hand ${k}`);
-        if(!(element.onclick === null)){
-            element.click();
-        }
-    }
+    var restart_message = [{
+        description: retry_message
+    }]
+    display.display_buttons(ui_id.move_buttons, restart_message, restart);
 }
 function search(element, arr){
     for(var i = 0; i < arr.length; ++i){
@@ -1916,38 +1951,8 @@ function give_temp_card(card){
 function prep_turn(){
     mapData.resolve_events();
     mapData.display();
-    deck.display_hand(document.getElementById(ui_id.hand_display));
-    mapData.display_stats(document.getElementById(ui_id.stats))
-}
-function swap_screen(screen){
-    switch(screen){
-        case ui_id.game_screen:
-            document.getElementById(ui_id.tutorial).style.display = `none`;
-            document.getElementById(ui_id.game_screen).style.display = `block`;
-            break;
-        case ui_id.stage:
-            document.getElementById(ui_id.shop).style.display = `none`;
-            document.getElementById(ui_id.chest).style.display = `none`;
-            document.getElementById(ui_id.stage).style.display = `block`;
-            break;
-        case ui_id.shop:
-            document.getElementById(ui_id.stage).style.display = `none`;
-            document.getElementById(ui_id.chest).style.display = `none`;
-            document.getElementById(ui_id.shop).style.display = `block`;
-            break;
-        case ui_id.chest:
-            document.getElementById(ui_id.stage).style.display = `none`;
-            document.getElementById(ui_id.shop).style.display = `none`;
-            document.getElementById(ui_id.chest).style.display = `block`;
-            break;
-        case ui_id.tutorial:
-            document.getElementById(ui_id.game_screen).style.display = `none`;
-            document.getElementById(ui_id.tutorial).style.display = `block`;
-            break;
-        default:
-            throw Error(`invalid screen swap`);
-    }
-    return;
+    deck.display_hand(ui_id.hand_display);
+    mapData.display_stats(ui_id.stats);
 }
 function rand_no_repeates(source, draws){
     var index_arr = [];
@@ -1964,7 +1969,26 @@ function rand_no_repeates(source, draws){
     }
     return result;
 }
-// ----------------GameMap.js----------------
+function tile_description(tile){
+    var hp = ``
+    if(tile.hasOwnProperty(`max_health`)){
+        var hp = `(${tile.health}/${tile.max_health} hp) `;
+    }
+    else if(tile.hasOwnProperty(`health`)){
+        var hp = `(${tile.health} hp) `;
+    }
+    return `${hp}${tile.description}`;
+}
+function display_health(player, scale){
+    var health = [];
+    for(var i = 0; i < player.health; ++i){
+        health.push({pic: `${img_folder.other}heart.png`});
+    }
+    for(var i = 0; i < (player.max_health - player.health); ++i){
+        health.push({pic: `${img_folder.other}heart_broken.png`});
+    }
+    display.add_tb_row(ui_id.health_display, health, scale);
+}// ----------------GameMap.js----------------
 // GameMap class holds the information on the current floor and everything on it.
 
 class GameMap{
@@ -2104,42 +2128,43 @@ class GameMap{
         // If any empty tiles have been marked as hit, it resets the pic to empty.
         // Shows the player's remaining health below.
 		var visual_map = document.getElementById(ui_id.map_display);
-        while(visual_map.rows.length > 0){
-            visual_map.deleteRow(0);
+        display.clear_tb(ui_id.map_display);
+        /*
+        var make_on_click = function(gameMap){
+            return function(tile){
+                var description = tile_description(tile);
+                display.display_message(ui_id.display_message, description);
+                var gameMap = gameMap;
+            }
         }
+        for (var y = 0; y < this.#y_max; y++){
+            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this));
+        }
+        */
 		for (var y = 0; y < this.#y_max; y++){
+            var desc = function(str){return function(){
+                display.display_message(ui_id.display_message, str);
+            }};
 			var row = document.createElement(`tr`);
             row.id = `row ${y}`;
-            var desc = function(str){return function(){
-                describe(str);
-            }};
+            
 			for (var x = 0; x < this.#x_max; x++){
                 var tile = this.#grid[x][y]
                 var description_with_hp = tile.description;
                 if(tile.hasOwnProperty(`health`)){
                     description_with_hp = `(${tile.health} hp) ${description_with_hp}`;
                 }
-                var cell = make_cell(`${x} ${y}`, `images/tiles/${tile.pic}`, TILE_SCALE, desc, description_with_hp);
+                var cell = make_cell(`${x} ${y}`, `${img_folder.src}${tile.pic}`, TILE_SCALE, desc, description_with_hp);
                 if(tile.type === `empty`){
-                    tile.pic = `empty.png`;
+                    tile.pic = `${img_folder.tiles}empty.png`;
                     tile.description = empty_description;
                 }
 				row.append(cell);
 			}
 			visual_map.append(row);
 		}
-        var row = document.createElement(`tr`);
-        row.id = `health`;
-        var player = this.get_player()
-        for(var i = 0; i < player.health; ++i){
-            var cell = make_cell(`health ${i}`, `images/other/heart.png`, TILE_SCALE);
-			row.append(cell);
-        }
-        for(var i = 0; i < (player.max_health - player.health); ++i){
-            var cell = make_cell(`hurt ${i}`, `images/other/heart_broken.png`, TILE_SCALE);
-			row.append(cell);
-        }
-        visual_map.append(row);
+        display.clear_tb(ui_id.health_display);
+        display_health(this.get_player(), TILE_SCALE);
 	}
     move(x1, y1, x2, y2){
         // Moves the tile at [x1, y1] to [x2, y2] if it is empty. 
@@ -2213,7 +2238,7 @@ class GameMap{
             }
             if(target.health === 0){
                 this.#grid[x][y] = empty_tile()
-                this.#grid[x][y].pic = `hit.png`;
+                this.#grid[x][y].pic = `${img_folder.tiles}hit.png`;
                 if(target.type === `enemy`){
                     this.#entity_list.remove_enemy(target.id)
                 }
@@ -2232,7 +2257,7 @@ class GameMap{
             return true;
         }
         if(target.type === `empty`){
-            target.pic = `hit.png`;
+            target.pic = `${img_folder.tiles}hit.png`;
         }
         return false;
     }
@@ -2251,9 +2276,9 @@ class GameMap{
         ++this.#turn_count;
         await this.#entity_list.enemy_turn(this);
     }
-    display_stats(element){
+    display_stats(location){
         // Shows the current floor and turn number.
-        element.innerText = `Floor ${this.#floor_num} Turn: ${this.#turn_count}`;
+        display.display_message(location, `Floor ${this.#floor_num} Turn: ${this.#turn_count}`);
     }
     lock(){
         // Locks the stairs for a boss fight.
@@ -2293,24 +2318,7 @@ class GameMap{
         }
         this.#events = new_events;
     }
-}const ui_id = {
-    title: `title`,
-    stats: `stats`,
-    game_screen: `gameScreen`,
-    stage: `stage`,
-    map_display: `mapDisplay`,
-    hand_display: `handDisplay`,
-    move_buttons: `moveButtons`,
-    display_message: `displayMessage`,
-    shop: `shop`,
-    shop_instructions: `shopInstructions`,
-    modify_deck: `modifyDeck`,
-    current_deck: `currentDeck`,
-    display_deck: `displayDeck`,
-    chest: `chest`,
-    tutorial: `tutorial`
-}
-Object.freeze(ui_id);// ----------------MoveDeck.js----------------
+}// ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.
 
 class MoveDeck{
@@ -2384,31 +2392,24 @@ class MoveDeck{
     }
     display_hand(table){
         // Displays the hand to the given table.
-        while(table.rows.length > 0){
-            table.deleteRow(0);
+        display.clear_tb(table);
+        var make_prep_move = function(deck){
+            return function(card, hand_pos){
+                //deck.select(hand_pos);
+                display.select(ui_id.hand_display, 0, hand_pos);
+                card.options.show_buttons(ui_id.move_buttons, hand_pos);
+                var deck = deck;
+            }
         }
-        var row = document.createElement(`tr`);
-        row.id = `hand`;
-        var prep_move = function(move, hand_pos){return function(){
-            deck.select(hand_pos);
-            move.options.show_buttons(ui_id.move_buttons, hand_pos);
-        }};
-        for(var i = 0; i < this.#hand.length; ++i){
-            var cell =  make_cell(`hand ${i}`, `images/cards/${this.#hand[i].pic}`, CARD_SCALE, prep_move, this.#hand[i], i);
-			row.append(cell);
-        }
-        table.append(row);
+        display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this));
     }
     display_all(table){
         // Displays the deck list to the given table.
-        document.getElementById(ui_id.current_deck).innerText = `${current_deck}${MIN_DECK_SIZE}):`;
+        //document.getElementById(ui_id.current_deck).innerText = `${current_deck}${MIN_DECK_SIZE}):`;
+        display.display_message(ui_id.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
         for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
-            var row = document.createElement(`tr`);
-            for(var j = 0; j < DECK_DISPLAY_WIDTH && j + i * DECK_DISPLAY_WIDTH < this.#list.length; ++j){
-                var cell =  make_cell(`card ${i * DECK_DISPLAY_WIDTH + j}`, `images/cards/${this.#list[i * DECK_DISPLAY_WIDTH + j].pic}`, CARD_SCALE);
-			    row.append(cell);
-            }
-            table.append(row);
+            display.add_tb_row(table, this.#list.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH) ,CARD_SCALE)
+            
         }
     }
     get_rand_arr(size){
@@ -2458,14 +2459,14 @@ const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, shadow_knight_til
 function empty_tile(){
     return {
         type: `empty`,
-        pic: `empty.png`,
+        pic: `${img_folder.tiles}empty.png`,
         description: empty_description
     }
 }
 function exit_tile(){
     return {
         type: `exit`,
-        pic: `stairs.png`,
+        pic: `${img_folder.tiles}stairs.png`,
         description: exit_description
     }
 }
@@ -2473,7 +2474,7 @@ function lock_tile(){
     return {
         type: `terrain`,
         name: `lock`,
-        pic: `lock.png`,
+        pic: `${img_folder.tiles}lock.png`,
         description: lock_description
     }
 }
@@ -2481,7 +2482,7 @@ function player_tile(){
     return {
         type: `player`,
         name: `player`,
-        pic: `helmet.png`,
+        pic: `${img_folder.tiles}helmet.png`,
         health: PLAYER_STARTING_HEALTH,
         max_health: PLAYER_STARTING_HEALTH,
         description: player_description
@@ -2491,7 +2492,7 @@ function lava_pool_tile(){
     return {
         type: `terrain`,
         name: `lava pool`,
-        pic: `lava_pool.png`,
+        pic: `${img_folder.tiles}lava_pool.png`,
         description: lava_pool_description,
         on_enter: hazard
     }
@@ -2500,7 +2501,7 @@ function corrosive_slime_tile(){
     return {
         type: `terrain`,
         name: `corrosive_slime`,
-        pic: `corrosive_slime.png`,
+        pic: `${img_folder.tiles}corrosive_slime.png`,
         health: 1,
         description: corrosive_slime_description,
         on_enter: hazard
@@ -2510,7 +2511,7 @@ function wall_tile(){
     return {
         type: `terrain`,
         name: `wall`,
-        pic: `wall.png`,
+        pic: `${img_folder.tiles}wall.png`,
         description: wall_description
     }
 }
@@ -2519,7 +2520,7 @@ function damaged_wall_tile(){
     return {
         type: `terrain`,
         name: `damaged wall`,
-        pic: `damaged_wall.png`,
+        pic: `${img_folder.tiles}damaged_wall.png`,
         health,
         on_death: wall_death,
         description: damaged_wall_description
@@ -2530,7 +2531,7 @@ function fireball_tile(){
     return {
         type: `enemy`,
         name: `fireball`,
-        pic: `fireball.png`,
+        pic: `${img_folder.tiles}fireball.png`,
         direction: [],
         description: fireball_description,
         behavior: fireball_ai,
@@ -2543,7 +2544,7 @@ function spider_tile(){
     return {
         type: `enemy`,
         name: `spider`,
-        pic: `spider.png`,
+        pic: `${img_folder.tiles}spider.png`,
         health: 1,
         difficulty: 1,
         behavior: spider_ai,
@@ -2554,7 +2555,7 @@ function turret_h_tile(){
     return {
         type: `enemy`,
         name: `turret`,
-        pic: `turret_h.png`,
+        pic: `${img_folder.tiles}turret_h.png`,
         health: 1,
         difficulty: 2,
         behavior: turret_h_ai,
@@ -2565,7 +2566,7 @@ function turret_d_tile(){
     return {
         type: `enemy`,
         name: `turret`,
-        pic: `turret_d.png`,
+        pic: `${img_folder.tiles}turret_d.png`,
         health: 1,
         difficulty: 2,
         behavior: turret_d_ai,
@@ -2576,7 +2577,7 @@ function scythe_tile(){
     return{
         type: `enemy`,
         name: `scythe`,
-        pic: `scythe_se.png`,
+        pic: `${img_folder.tiles}scythe_se.png`,
         health: 1,
         difficulty: 3,
         behavior: scythe_ai,
@@ -2587,7 +2588,7 @@ function shadow_knight_tile(){
     return{
         type: `enemy`,
         name: `shadow knight`,
-        pic: `shadow_knight.png`,
+        pic: `${img_folder.tiles}shadow_knight.png`,
         health: 2,
         difficulty: 4,
         behavior: shadow_knight_ai,
@@ -2599,7 +2600,7 @@ function spider_web_tile(){
     return{
         type: `enemy`,
         name: `spider egg`,
-        pic: `spider_web.png`,
+        pic: `${img_folder.tiles}spider_web.png`,
         cycle: 0,
         spawn_timer,
         health: 2,
@@ -2609,7 +2610,7 @@ function spider_web_tile(){
     }
 }
 function ram_tile(){
-    var pic_arr = [`ram.png`, `ram_charge.png`];
+    var pic_arr = [`${img_folder.tiles}ram.png`, `${img_folder.tiles}ram_charge.png`];
     var starting_cycle = 0;
     return{
         type: `enemy`,
@@ -2627,7 +2628,7 @@ function large_porcuslime_tile(){
     return {
         type: `enemy`,
         name: `large porcuslime`,
-        pic: `large_porcuslime.png`,
+        pic: `${img_folder.tiles}large_porcuslime.png`,
         health: 3,
         difficulty: 8,
         behavior: large_porcuslime_ai,
@@ -2636,7 +2637,7 @@ function large_porcuslime_tile(){
 }
 function medium_porcuslime_tile(){
     var ran = random_num(2);
-    var pic_arr = [`medium_h_porcuslime.png`, `medium_d_porcuslime.png`];
+    var pic_arr = [`${img_folder.tiles}medium_h_porcuslime.png`, `${img_folder.tiles}medium_d_porcuslime.png`];
     return {
         type: `enemy`,
         name: `medium porcuslime`,
@@ -2653,7 +2654,7 @@ function small_h_porcuslime_tile(){
     return {
         type: `enemy`,
         name: `small porcuslime`,
-        pic: `small_h_porcuslime.png`,
+        pic: `${img_folder.tiles}small_h_porcuslime.png`,
         health: 1,
         difficulty: 3,
         behavior: small_h_porcuslime_ai,
@@ -2664,7 +2665,7 @@ function small_d_porcuslime_tile(){
     return {
         type: `enemy`,
         name: `small porcuslime`,
-        pic: `small_d_porcuslime.png`,
+        pic: `${img_folder.tiles}small_d_porcuslime.png`,
         health: 1,
         difficulty: 3,
         behavior: small_d_porcuslime_ai,
@@ -2675,7 +2676,7 @@ function acid_bug_tile(){
     return {
         type: `enemy`,
         name: `acid bug`,
-        pic: `acid_bug.png`,
+        pic: `${img_folder.tiles}acid_bug.png`,
         health: 1,
         difficulty: 3,
         behavior: acid_bug_ai,
@@ -2688,7 +2689,7 @@ function brightling_tile(){
     return{
         type: `enemy`,
         name: `brightling`,
-        pic: `brightling.png`,
+        pic: `${img_folder.tiles}brightling.png`,
         cycle: starting_cycle,
         health: 1,
         difficulty: 4,
@@ -2700,7 +2701,7 @@ function corrosive_caterpillar_tile(){
     return {
         type: `enemy`,
         name: `corrosive caterpillar`,
-        pic: `corrosive_caterpillar.png`,
+        pic: `${img_folder.tiles}corrosive_caterpillar.png`,
         health: 1,
         difficulty: 2,
         behavior: corrosive_caterpillar_ai,
@@ -2714,7 +2715,7 @@ function velociphile_tile(){
     return{
         type: `enemy`,
         name: `velociphile`,
-        pic: `velociphile.png`,
+        pic: `${img_folder.tiles}velociphile.png`,
         health: 3,
         difficulty: `boss`,
         behavior: velociphile_ai,
@@ -2727,7 +2728,7 @@ function spider_queen_tile(){
     return{
         type: `enemy`,
         name: `spider queen`,
-        pic: `spider_queen.png`,
+        pic: `${img_folder.tiles}spider_queen.png`,
         health: 3,
         difficulty: `boss`,
         behavior: spider_ai,
@@ -2739,14 +2740,13 @@ function spider_queen_tile(){
 }
 function lich_tile(){
     var spells = [
-        [teleport_spell, teleport_spell_description, `lich_teleport.png`], 
-        [summon_spell, summon_spell_description, `lich_summon.png`], 
-        [earthquake_spell, earthquake_spell_description, `lich_earthquake.png`], 
-        [flame_wave_spell, flame_wave_spell_description, `lich_flame_wave.png`],
-        [confusion_spell, confusion_spell_description, `lich_confusion.png`],
-        [lava_moat_spell, lava_moat_spell_description, `lich_lava_moat.png`],
-        [rest_spell, rest_description, `lich_rest.png`],
-        [rest_spell, rest_description, `lich_rest.png`]
+        [teleport_spell, teleport_spell_description, `${img_folder.tiles}lich_teleport.png`], 
+        [summon_spell, summon_spell_description, `${img_folder.tiles}lich_summon.png`], 
+        [earthquake_spell, earthquake_spell_description, `${img_folder.tiles}lich_earthquake.png`], 
+        [flame_wave_spell, flame_wave_spell_description, `${img_folder.tiles}lich_flame_wave.png`],
+        [confusion_spell, confusion_spell_description, `${img_folder.tiles}lich_confusion.png`],
+        [lava_moat_spell, lava_moat_spell_description, `${img_folder.tiles}lich_lava_moat.png`],
+        [rest_spell, rest_description, `${img_folder.tiles}lich_rest.png`]
     ];
     var summons = [
         spider_tile,
@@ -2773,3 +2773,35 @@ function lich_tile(){
 }
 
 
+function get_ui_ids(language){
+    // Factory function for the display classes (currently only html)
+    switch(language){
+        case `html`:
+            return HTML_UI_ID;
+        default:
+            throw exception(`invalid display language`);
+    }
+}
+
+const HTML_UI_ID = {
+    title: `title`,
+    stats: `stats`,
+    game_screen: `gameScreen`,
+    stage: `stage`,
+    map_display: `mapDisplay`,
+    health_display: `healthDisplay`,
+    hand_display: `handDisplay`,
+    move_buttons: `moveButtons`,
+    display_message: `displayMessage`,
+    shop: `shop`,
+    shop_instructions: `shopInstructions`,
+    add_card: `addCard`,
+    remove_card: `removeCard`,
+    current_deck: `currentDeck`,
+    display_deck: `displayDeck`,
+    chest: `chest`,
+    tutorial: `tutorial`
+}
+Object.freeze(HTML_UI_ID);
+
+const ui_id = get_ui_ids(MARKUP_LANGUAGE);
