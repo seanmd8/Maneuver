@@ -68,7 +68,7 @@ class DisplayHTML{
         table.append(row);
     }
     static display_message(location, message){
-        var output = message;//split_str(message, TEXT_WRAP_WIDTH, ` `);
+        var output = wrap_str(message, TEXT_WRAP_WIDTH, ` `);
         document.getElementById(location).innerText = output;
     }
     static clear_tb(location){

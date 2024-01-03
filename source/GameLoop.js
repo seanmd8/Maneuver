@@ -224,3 +224,42 @@ function display_health(player, scale){
     }
     display.add_tb_row(ui_id.health_display, health, scale);
 }
+function wrap_str(message, wrap_length, delimiter = undefined){
+    if(!(typeof message === `string`)){
+        throw new Error(`message is not string`);
+    }
+    var new_message = ``;
+    if(message.indexOf(`\n`) > -1){
+        var str_arr = message.split(`\n`);
+        for(var i = 0; i < str_arr.length; ++i){
+            new_message = `${new_message}${wrap_str(str_arr[i], wrap_length, delimiter)}\n`
+        }
+    }
+    else if(delimiter === undefined){
+        var str_arr = []
+        var start = 0;
+        while(start < message.length){
+            end = Math.min(message.length, start + wrap_length);
+            str_arr.push(message.slice(start, end));
+            start = end;
+        }
+        for(var i = 0; i < str_arr.length; ++i){
+            new_message = `${new_message}${str_arr[i]}\n`
+        }
+    }
+    else{
+        var str_arr = message.split(` `);
+        var line = ``
+        for(var i = 0; i < str_arr.length; ++i){
+            line = `${line}${str_arr[i]} `;
+            if(line.length >= wrap_length){
+                new_message = `${new_message}${line.slice(0, -1)}\n`
+                line = ``;
+            } 
+        }
+        if(line.length >= 0){
+            new_message = `${new_message}${line.slice(0, -1)}\n`
+        } 
+    }
+    return new_message.slice(0, -1);
+}
