@@ -195,14 +195,17 @@ class GameMap{
                     throw error;
                 }
             }
+            if(start.hasOwnProperty(`health`) && start.health <= 0){
+                throw new Error(`creature died`);
+            }
         }
-        if(!(end.type === `empty`)){
-            return false;
+        if(end.type === `empty` && this.#grid[y1][x1] === start){
+            this.#entity_list.move_any(x2, y2, start);
+            this.#grid[y2][x2] = start;
+            this.#grid[y1][x1] = empty_tile();
+            return true;
         }
-        this.#entity_list.move_any(x2, y2, start);
-        this.#grid[y2][x2] = start;
-        this.#grid[y1][x1] = empty_tile();
-        return true;
+        return false;
     }
     player_move(x_dif, y_dif){
         // Moves the player the given relative distance.
@@ -233,7 +236,7 @@ class GameMap{
                 var player_pos = this.#entity_list.get_player_pos();
                 target.on_hit(x, y, player_pos[0] - x, player_pos[1] - y, this, target);
             }
-            if(target.health === 0){
+            if(target.health <= 0){
                 this.#grid[y][x] = empty_tile()
                 this.#grid[y][x].pic = `${img_folder.tiles}hit.png`;
                 if(target.type === `enemy`){

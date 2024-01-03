@@ -12,9 +12,10 @@
 //  description: info that will be displayed when the user clicks on the tile.
 
 // This is a list of all the enemies that can be spawned on a normal floor.
-const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, shadow_knight_tile, scythe_tile,
-    spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, acid_bug_tile,
-    brightling_tile, corrosive_caterpillar_tile];
+const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, shadow_knight_tile, 
+    scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
+    acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
+    clay_golem_tile];
 
 // Non-Enemy tiles
 function empty_tile(){
@@ -134,11 +135,37 @@ function turret_d_tile(){
         description: turret_d_description
     }
 }
+function turret_r_tile(){
+    var pic_arr = [`${img_folder.tiles}turret_r_N_S.png`, `${img_folder.tiles}turret_r_NE_SW.png`];
+    var starting_cycle = random_num(4);
+    var direction = random_sign();
+    if(direction > 0){
+        var starting_rotation = 90 * Math.floor(starting_cycle / 2);
+    }
+    else{
+        var starting_rotation = 90 * Math.floor(((starting_cycle + 1) % 4) / 2);
+    }
+    return {
+        type: `enemy`,
+        name: `rotary turret`,
+        pic: pic_arr[starting_cycle % 2],
+        pic_arr,
+        cycle: starting_cycle,
+        direction,
+        flip: (direction === -1),
+        rotate: starting_rotation,
+        health: 1,
+        difficulty: 2,
+        behavior: turret_r_ai,
+        description: turret_r_description
+    }
+}
 function scythe_tile(){
     return{
         type: `enemy`,
         name: `scythe`,
-        pic: `${img_folder.tiles}scythe_se.png`,
+        pic: `${img_folder.tiles}scythe.png`,
+        rotate: 90 * random_num(4),
         health: 1,
         difficulty: 3,
         behavior: scythe_ai,
@@ -167,7 +194,7 @@ function spider_web_tile(){
         health: 2,
         difficulty: 4,
         behavior: spider_web_ai,
-        description: spider_web_description[0] + (spawn_timer + 1) + spider_web_description[1]
+        description: `${spider_web_description[0]}${spawn_timer + 1}${spider_web_description[1]}`
     }
 }
 function ram_tile(){
@@ -270,6 +297,76 @@ function corrosive_caterpillar_tile(){
         description: corrosive_caterpillar_description
     }
 }
+function noxious_toad_tile(){
+    var pic_arr = [`${img_folder.tiles}noxious_toad_leaping.png`, `${img_folder.tiles}noxious_toad.png`];
+    var starting_cycle = random_num(pic_arr.length);
+    return {
+        type: `enemy`,
+        name: `noxious toad`,
+        pic: pic_arr[starting_cycle],
+        pic_arr,
+        cycle: starting_cycle,
+        health: 1,
+        difficulty: 4,
+        behavior: noxious_toad_ai,
+        description: noxious_toad_description
+    }
+}
+function vampire_tile(){
+    return {
+        type: `enemy`,
+        name: `vampire`,
+        pic: `${img_folder.tiles}vampire.png`,
+        health: 2,
+        max_health: 2,
+        difficulty: 5,
+        behavior: vampire_ai,
+        on_hit: vampire_hit,
+        description: vampire_description
+    }
+}
+function clay_golem_tile(){
+    return {
+        type: `enemy`,
+        name: `clay golem`,
+        pic: `${img_folder.tiles}clay_golem.png`,
+        cycle: 1,
+        health: 3,
+        difficulty: 4,
+        behavior: clay_golem_ai,
+        on_hit: clay_golem_hit,
+        description: clay_golem_description
+    }
+}
+
+/*
+function vinesnare_bush_tile(){
+    var range = 3;
+    return {
+        type: `enemy`,
+        name: `vinesnare bush`,
+        pic: `${img_folder.tiles}vampire.png`,
+        cycle: 0,
+        health: 1,
+        difficulty: 4,
+        behavior: vinesnare_bush_ai,
+        description: `${vinesnare_bush[0]}${range}${vinesnare_bush[1]}`,
+        range
+    }
+}
+
+function salamander_tile(){
+    return {
+        type: `enemy`,
+        name: `salamander`,
+        pic: `${img_folder.tiles}salamander.png`,
+        health: 1,
+        difficulty: 3,
+        behavior: salamander_ai,
+        description: salamanader_description
+    }
+}
+*/
 
 // Boss Tiles
 function velociphile_tile(){

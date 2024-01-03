@@ -170,7 +170,7 @@ function game_over(cause){
     var restart_message = [{
         description: retry_message
     }]
-    display.display_buttons(ui_id.move_buttons, restart_message, restart);
+    display.add_button_row(ui_id.move_buttons, restart_message, restart);
 }
 function search(element, arr){
     for(var i = 0; i < arr.length; ++i){

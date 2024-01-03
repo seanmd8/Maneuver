@@ -24,33 +24,57 @@ function spider_ai(x, y, x_dif, y_dif, map, enemy){
 }
 function turret_h_ai(x, y, x_dif, y_dif, map, enemy){
     // Turret version that shoots orthogonally.
-    try{
-        // If it sees the player, fires until it hits something or reaches the bounds of the map.
-        if(x_dif === 0){
-            var direction = sign(y_dif);
-            for(var i = 1; !map.attack(x, y + i * direction); ++i){
-                map.check_bounds(x, y + i * direction)
-            }
-        }
-        else if(y_dif === 0){
-            var direction = sign(x_dif);
-            for(var i = 1; !map.attack(x + i * direction, y); ++i){
-                map.check_bounds(x + i * direction, y)
-            }
-        }
-    }
-    catch(error){
-        if(!(error.message === `x out of bounds` || error.message === `y out of bounds`)){
-            throw error;
-        }
+    if(x_dif === 0 || y_dif === 0){
+        turret_fire_ai(x, y, x_dif, y_dif, map, enemy);
     }
 }
 function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
     // Turret version that shoots diagonally.
-    if(!(Math.abs(x_dif) === Math.abs(y_dif))){
-        return;
+    if(Math.abs(x_dif) === Math.abs(y_dif)){
+        turret_fire_ai(x, y, x_dif, y_dif, map, enemy);
     }
-    // If it sees the player, fires until it hits something or the bounds of the map.
+}
+function turret_r_ai(x, y, x_dif, y_dif, map, enemy){
+    switch(enemy.cycle){
+        case 0:
+            if(x_dif === 0){
+                // Fires N and S.
+                turret_fire_ai(x, y, x_dif, y_dif, map, enemy);
+            }
+            break;
+        case 1:
+            if(x_dif === -1 * y_dif){
+                // Fires NE and SW.
+                turret_fire_ai(x, y, x_dif, y_dif, map, enemy);
+            }
+            break;
+        case 2:
+            if(y_dif === 0){
+                // Fires E and W.
+                turret_fire_ai(x, y, x_dif, y_dif, map, enemy);
+            }
+            break;
+        case 3:
+            if(x_dif === y_dif){
+                // Fires SE and NW.
+                turret_fire_ai(x, y, x_dif, y_dif, map, enemy);
+            }
+            break;
+        default:
+            throw Error(`Improper case for ${enemy.name}`);
+    }
+    // Rotate.
+    enemy.cycle = (enemy.cycle + enemy.direction + 4) % 4;
+    enemy.pic = enemy.pic_arr[enemy.cycle % 2];
+    if(!enemy.flip){
+        enemy.rotate = 90 * Math.floor(enemy.cycle / 2);
+    }
+    else{
+        enemy.rotate = 90 * Math.floor(((enemy.cycle + 1) % 4) / 2);
+    }
+}
+function turret_fire_ai(x, y, x_dif, y_dif, map, enemy){
+    // Fires a shot in the direction of the player.
     var x_direction = sign(x_dif);
     var y_direction = sign(y_dif);
     try{
@@ -71,12 +95,13 @@ function scythe_ai(x, y, x_dif, y_dif, map, enemy){
         // If the player is orthogonal, moves randomly.
         direction = [random_sign(), random_sign()];
     }
-    enemy.pic = `${img_folder.tiles}scythe_${convert_direction(direction[0], direction[1])}.png`;
-    for(var i = 0; i < distance; ++i){
+    // Rotate image based on direction.
+    enemy.rotate = 90 * (direction[0] + direction[1] + 2) / 2;
+    if(direction[0] === -1 && direction[1] === 1){
+        enemy.rotate = 90 * 3;
+    }
+    for(var i = 0; i < distance && map.move(x, y, x + direction[0], y + direction[1]) ; ++i){
         // moves <distance> spaces attacking each space it passes next to.
-        if(!map.move(x, y, x + direction[0], y + direction[1])){
-            break;
-        }
         x += direction[0];
         y += direction[1];
         map.attack(x - direction[0], y, `player`);
@@ -276,9 +301,8 @@ function small_d_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
 }
 function acid_bug_ai(x, y, x_dif, y_dif, map, enemy){
     // Moves 1 space towards the player.
-    x_dif = sign(x_dif);
-    y_dif = sign(y_dif);
-    map.move(x, y, x + x_dif, y + y_dif);
+    var directions = order_nearby(x_dif, y_dif);
+    for(var i = 0; i < directions.length && !map.move(x, y, x + directions[i][0], y + directions[i][1]) && enemy.health > 0; ++i){}
 }
 function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
     // On death, attacks each space next to it.
@@ -325,6 +349,86 @@ function corrosive_caterpillar_ai(x, y, x_dif, y_dif, map, enemy){
 function corrosive_caterpillar_death(x, y, x_dif, y_dif, map, enemy){
     map.add_tile(corrosive_slime_tile(), x, y);
 }
+function noxious_toad_ai(x, y, x_dif, y_dif, map, enemy){
+    if(enemy.cycle === 0){
+        var directions = order_nearby(x_dif, y_dif);
+        var moved = false;
+        for(var i = 0; i < directions.length && !moved; ++i){
+            if(directions[i][0] === 0 || directions[i][1] === 0){
+                var moved = map.move(x, y, x + (2 * directions[i][0]), y + (2 * directions[i][1]));
+                if(moved){
+                    x_dif = x + (2 * directions[i][0]);
+                    y_dif = y + (2 * directions[i][1]);
+                }
+            }
+        }
+        if(moved){
+            for(var i = 0; i < directions.length; ++i){
+                map.attack(x_dif + directions[i][0], y_dif + directions[i][1]);
+            }
+            enemy.cycle = 1;
+        }
+    }
+    else{
+        enemy.cycle = 0;
+    }
+    enemy.pic = enemy.pic_arr[enemy.cycle]
+}
+function vampire_ai(x, y, x_dif, y_dif, map, enemy){
+    var player_pos = [x + x_dif, y + y_dif];
+    var target_spaces = [[player_pos[0] + 1, player_pos[1] + 1], 
+                        [player_pos[0] - 1, player_pos[1] + 1], 
+                        [player_pos[0] + 1, player_pos[1] - 1], 
+                        [player_pos[0] - 1, player_pos[1] - 1]];
+    target_spaces = randomize_arr(target_spaces);
+    var moved = false;
+    for(var i = 0; i < target_spaces.length && !moved; ++i){
+        var target = target_spaces[i];
+        if(Math.abs(target[0] - x) + Math.abs(target[1] - y) === 1){
+            moved = map.move(x, y, target[0], target[1]);
+        }
+    }
+    if(moved && map.attack(x + x_dif, y + y_dif) && enemy.health < enemy.max_health){
+        ++enemy.health;
+    }
+    if(!moved){
+        var directions = order_nearby(x_dif, y_dif);
+        for(var i = 0; i < directions.length && !moved; ++i){
+            var direction = directions[i]
+            if(direction[0] === 0 || direction[1] === 0){
+                moved = map.move(x, y, x + direction[0], y + direction[1]);
+            }
+            
+        }
+    }
+}
+function vampire_hit(x, y, x_dif, y_dif, map, enemy){
+    if(enemy.health > 0){
+        stun(enemy);
+        teleport_spell(x, y, x_dif, y_dif, map, enemy);
+    }
+}
+function clay_golem_ai(x, y, x_dif, y_dif, map, enemy){
+    if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
+        // If the player is next to it, attack.
+        map.attack(x + x_dif, y + y_dif, `player`);
+        enemy.cycle = 1;
+    }
+    else if(enemy.cycle === 1){
+        // Otherwise, move closer.
+        var directions = order_nearby(x_dif, y_dif);
+        for(var i = 0; i < directions.length && !map.move(x, y, x + directions[i][0], y + directions[i][1]); ++i){}
+        enemy.cycle = 0;
+    }
+    else{
+        enemy.cycle = 1;
+    }
+}
+function clay_golem_hit(x, y, x_dif, y_dif, map, enemy){
+    stun(enemy);
+    enemy.cycle = 1;
+}
+
 
 // Boss AIs
 function boss_death(x, y, x_dif, y_dif, map, enemy){
@@ -507,47 +611,67 @@ function random_nearby(){
 function order_nearby(x_dir, y_dir){
     // Returns an array with points ordered from the nearest to the furthest from the given direction. 
     // Equal distance points are randomly ordered.
-    x_dir = sign(x_dir);
-    y_dir = sign(y_dir);
+    var x_sign = sign(x_dir);
+    var y_sign = sign(y_dir);
     var ordering = [];
-    ordering.push([x_dir, y_dir]);
-    if(x_dir === 0){
-        var pair = randomize_arr([[1, y_dir], [-1, y_dir]]);
+    ordering.push([x_sign, y_sign]);
+    if(x_sign === 0){
+        // Target is along the vertical line.
+        var pair = randomize_arr([[1, y_sign], [-1, y_sign]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
         pair = randomize_arr([[1, 0], [-1, 0]])
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[1, -1 * y_dir], [-1, -1 * y_dir]]);
+        pair = randomize_arr([[1, -1 * y_sign], [-1, -1 * y_sign]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        ordering.push([0, -1 * y_dir])
     }
-    else if(y_dir === 0){
-        var pair = randomize_arr([[x_dir, 1], [x_dir, 1]]);
+    else if(y_sign === 0){
+        // Target is along the horizontal line.
+        var pair = randomize_arr([[x_sign, 1], [x_sign, 1]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
         pair = randomize_arr([[0, 1], [0, -1]])
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[-1 * x_dir, 1], [-1 * x_dir, -1]]);
+        pair = randomize_arr([[-1 * x_sign, 1], [-1 * x_sign, -1]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        ordering.push([-1 * x_dir, 0])
+    }
+    else if(Math.abs(x_dir) > Math.abs(y_dir)){  
+        // Target is closer to the horizontal line than the vertical one.
+        ordering.push([x_sign, 0]);
+        ordering.push([0, y_sign]);
+        ordering.push([x_sign, -1 * y_sign]);
+        ordering.push([-1 * x_sign, y_sign]);
+        ordering.push([0, -1 * y_sign]);
+        ordering.push([-1 * x_sign, 0]);
+    }
+    else if(Math.abs(x_dir) < Math.abs(y_dir)){
+        // Target is closer to the vertical line than the horizontal one one.
+        ordering.push([0, y_sign]);
+        ordering.push([x_sign, 0]);
+        ordering.push([-1 * x_sign, y_sign]);
+        ordering.push([x_sign, -1 * y_sign]);
+        ordering.push([-1 * x_sign, 0]);
+        ordering.push([0, -1 * y_sign]);
     }
     else{
-        var pair = randomize_arr([[x_dir, 0], [0, y_dir]]);
+        // Target is along the diagonal.
+        var pair = randomize_arr([[x_sign, 0], [0, y_sign]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[-1 * x_dir, y_dir], [x_dir, -1 * y_dir]]);
+        pair = randomize_arr([[-1 * x_sign, y_sign], [x_sign, -1 * y_sign]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[-1 * x_dir, 0], [0, -1 * y_dir]]);
+        pair = randomize_arr([[-1 * x_sign, 0], [0, -1 * y_sign]]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        ordering.push([-1 * x_dir, -1 * y_dir]);
     }
+    ordering.push([-1 * x_sign, -1 * y_sign]);
     return ordering;
+
 }
 function get_empty_nearby(x, y, nearby_arr, map){
     for(var i = 0; i < nearby_arr.length; ++i){

@@ -89,7 +89,14 @@ class EntityList{
                         --e.enemy.stun;
                     }
                     else{
-                        e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+                        try{
+                            e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+                        }
+                        catch(error){
+                            if(!(error.message === `creature died`)){
+                                throw error
+                            }
+                        }
                         map.display();
                         await delay(ANIMATION_DELAY);
                     }

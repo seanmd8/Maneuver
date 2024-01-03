@@ -40,7 +40,7 @@ class ButtonGrid{
         }
         var press_button = make_press_button(hand_pos);
         for(var i = 0; i < this.#buttons.length; ++i){
-            display.display_buttons(table_name, this.#buttons[i], press_button)
+            display.add_button_row(table_name, this.#buttons[i], press_button)
         }
     }
     #convert_direction(direction){

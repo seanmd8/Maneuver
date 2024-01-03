@@ -21,22 +21,31 @@ class DisplayHTML{
             }
         }
         for(var i = 0; i < row_contents.length; ++i){
+            var to_display = row_contents[i];
             var cell = document.createElement(`td`);
             cell.id = `${location} ${row_num} ${i}`;
             if(!(on_click === undefined)){
-                cell.onclick = make_on_click(row_contents[i], i);
+                cell.onclick = make_on_click(to_display, i);
             }
             var img = document.createElement(`img`);
             img.id = `${location} ${row_num} ${i} img`;
-            img.src = `${img_folder.src}${row_contents[i].pic}`;
+            img.src = `${img_folder.src}${to_display.pic}`;
             img.height = scale;
             img.width = scale;
+            var style = ``;
+            if(to_display.hasOwnProperty(`rotate`)){
+                style = `${style}rotate(${to_display.rotate}deg) `
+            }
+            if(to_display.hasOwnProperty(`flip`) && to_display.flip){
+                style = `${style}scaleX(-1) `;
+            }         
+            img.style.transform = style;
             cell.append(img);
             row.append(cell);
         }
         table.append(row);
     }
-    static display_buttons(location, row_contents, on_click){
+    static add_button_row(location, row_contents, on_click){
         var table = document.getElementById(location);
         var row_num = table.rows.length;
         var row = document.createElement(`tr`);
@@ -58,8 +67,9 @@ class DisplayHTML{
         }
         table.append(row);
     }
-    static display_message(location, to_display){
-        document.getElementById(location).innerText = to_display;
+    static display_message(location, message){
+        var output = message;//split_str(message, TEXT_WRAP_WIDTH, ` `);
+        document.getElementById(location).innerText = output;
     }
     static clear_tb(location){
         while(document.getElementById(location).rows.length > 0){
