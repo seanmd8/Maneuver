@@ -15,7 +15,7 @@
 const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, shadow_knight_tile, 
     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
-    clay_golem_tile];
+    clay_golem_tile, vinesnare_bush_tile];
 
 // Non-Enemy tiles
 function empty_tile(){
@@ -90,11 +90,14 @@ function damaged_wall_tile(){
     }
 }
 function fireball_tile(){
+    var pic_arr = [`${img_folder.tiles}fireball_n.png`, `${img_folder.tiles}fireball_nw.png`];
     return {
         type: `enemy`,
         name: `fireball`,
         pic: `${img_folder.tiles}fireball.png`,
+        pic_arr,
         direction: [],
+        rotate: 0,
         description: fireball_description,
         behavior: fireball_ai,
         on_enter: fireball_on_enter
@@ -338,23 +341,23 @@ function clay_golem_tile(){
         description: clay_golem_description
     }
 }
-
-/*
 function vinesnare_bush_tile(){
     var range = 3;
+    var pic_arr = [`${img_folder.tiles}vinesnare_bush_lashing.png`, `${img_folder.tiles}vinesnare_bush_rooted.png`];
     return {
         type: `enemy`,
         name: `vinesnare bush`,
-        pic: `${img_folder.tiles}vampire.png`,
-        cycle: 0,
+        pic: pic_arr[1],
+        pic_arr,
+        cycle: 1,
         health: 1,
         difficulty: 4,
         behavior: vinesnare_bush_ai,
-        description: `${vinesnare_bush[0]}${range}${vinesnare_bush[1]}`,
+        description: `${vinesnare_bush_description[0]}${range}${vinesnare_bush_description[1]}`,
         range
     }
 }
-
+/*
 function salamander_tile(){
     return {
         type: `enemy`,

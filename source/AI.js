@@ -302,7 +302,11 @@ function small_d_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
 function acid_bug_ai(x, y, x_dif, y_dif, map, enemy){
     // Moves 1 space towards the player.
     var directions = order_nearby(x_dif, y_dif);
-    for(var i = 0; i < directions.length && !map.move(x, y, x + directions[i][0], y + directions[i][1]) && enemy.health > 0; ++i){}
+    for(var i = 0;
+        i < directions.length &&
+        !map.move(x, y, x + directions[i][0], y + directions[i][1])
+        && enemy.health > 0;
+        ++i){}
 }
 function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
     // On death, attacks each space next to it.
@@ -355,18 +359,22 @@ function noxious_toad_ai(x, y, x_dif, y_dif, map, enemy){
         var moved = false;
         for(var i = 0; i < directions.length && !moved; ++i){
             if(directions[i][0] === 0 || directions[i][1] === 0){
-                var moved = map.move(x, y, x + (2 * directions[i][0]), y + (2 * directions[i][1]));
+                moved = map.move(x, y, x + (2 * directions[i][0]), y + (2 * directions[i][1]));
                 if(moved){
-                    x_dif = x + (2 * directions[i][0]);
-                    y_dif = y + (2 * directions[i][1]);
+                    x += (2 * directions[i][0]);
+                    y += (2 * directions[i][1]);
+                    x_dif -= (2 * directions[i][0]);
+                    y_dif -= (2 * directions[i][1]);
                 }
             }
         }
         if(moved){
-            for(var i = 0; i < directions.length; ++i){
-                map.attack(x_dif + directions[i][0], y_dif + directions[i][1]);
-            }
             enemy.cycle = 1;
+            if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
+                for(var i = 0; i < directions.length; ++i){
+                    map.attack(x+ directions[i][0], y + directions[i][1]);
+                }
+            }
         }
     }
     else{
@@ -427,6 +435,34 @@ function clay_golem_ai(x, y, x_dif, y_dif, map, enemy){
 function clay_golem_hit(x, y, x_dif, y_dif, map, enemy){
     stun(enemy);
     enemy.cycle = 1;
+}
+function vinesnare_bush_ai(x, y, x_dif, y_dif, map, enemy){
+    var moved = false;
+    if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
+        // If the player is next to it, attack.
+        map.attack(x + x_dif, y + y_dif, `player`);
+    }
+    else if(enemy.cycle > 0 && Math.abs(x_dif) <= enemy.range && Math.abs(y_dif) <= enemy.range){
+        var sign_x = sign(x_dif);
+        var sign_y = sign(y_dif);
+        if(x_dif === 0 || y_dif === 0 || Math.abs(x_dif) === Math.abs(y_dif)){
+            for(var i = Math.max(Math.abs(x_dif), Math.abs(y_dif));
+                i > 1 &&
+                map.move(x + i * sign_x, y + i * sign_y, x + (i - 1) * sign_x, y + (i - 1) * sign_y);
+                --i){
+                    moved = true;
+                }
+            
+        }
+    }
+    if(moved){
+        enemy.cycle = 0;
+        enemy.pic = enemy.pic_arr[0];
+        throw new Error(`pass to player`);
+    }
+    if(++enemy.cycle > 0){
+        enemy.pic = enemy.pic_arr[1];
+    }
 }
 
 
@@ -499,26 +535,27 @@ function flame_wave_spell(x, y, x_dif, y_dif, map, enemy){
     if(direction === false){
         return;
     }
-    var direction_str = convert_direction(direction[0], direction[1]);
     if(direction[0] === 0){
+        // Shooting vertically.
         for(var i = 0; i < 3; ++i){
             spawnpoints.push([i - 1, direction[1]]);
         }
     }
     else if(direction[1] === 0){
+        // Shooting horizontally.
         for(var i = 0; i < 3; ++i){
             spawnpoints.push([direction[0], i - 1]);
         }
     }
     else{
+        // Shooting diagonally.
         spawnpoints.push([direction[0], direction[1]]);
         spawnpoints.push([direction[0], 0]);
         spawnpoints.push([0, direction[1]]);
     }
     for(var i = 0; i < spawnpoints.length; ++i){
         var fireball = fireball_tile();
-        fireball.direction = direction;
-        fireball.pic = `fireball_${direction_str}.png`;
+        set_direction(fireball, direction);
         map.add_tile(fireball, x + spawnpoints[i][0], y  + spawnpoints[i][1]);
     }
 }
@@ -588,6 +625,20 @@ function convert_direction(x, y){
         str += `w`;
     }
     return str;
+}
+function set_direction(enemy, direction){
+    enemy.direction = direction;
+    if(direction[0] === 0 || direction[1] === 0){
+        enemy.rotate = 90 * (Math.abs((direction[0] * -2 + 1)) + direction[1]);
+        enemy.pic = enemy.pic_arr[0];
+    }
+    else{
+        enemy.rotate= 90 * ((direction[0] + direction[1]) / 2 + 1);
+        if(direction[0] === -1 && direction[1] === 1){
+            enemy.rotate = 90 * 3;
+        }
+        enemy.pic = enemy.pic_arr[1];
+    }
 }
 function sign(x){
     // Returns whether x is positive, negative, or 0
@@ -730,4 +781,18 @@ function reverse_arr(arr){
 }
 function random_num(x){
     return Math.floor(Math.random() * x);
+}
+function array_equals(a1, a2){
+    if(!(typeof a1 === `array`) || !(typeof a2 === `array`)){
+        return false;
+    }
+    if(!(a1.length === a2.length)){
+        return false;
+    }
+    for(var i = 0; i < a1.length; ++i){
+        if(!(a1[i] === a2[i])){
+            return false;
+        }
+    }
+    return true;
 }
