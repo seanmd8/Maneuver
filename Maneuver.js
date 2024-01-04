@@ -1606,6 +1606,7 @@ const welcome_message = `Welcome to the dungeon.\n`
 const floor_message = `Welcome to floor `;
 const game_over_message = `Game Over. You were killed by a `;
 const retry_message = `Retry?`;
+const stunned_msg = `Stunned x`;
 
 // Normal Enemy Descriptions.
 const spider_description = `Spider: Will attack the player if it is next to them. Otherwise it will move 1 space closer.`;
@@ -2185,13 +2186,17 @@ function rand_no_repeates(source, draws){
 }
 function tile_description(tile){
     var hp = ``
+    var stunned = ``;
     if(tile.hasOwnProperty(`max_health`)){
-        var hp = `(${tile.health}/${tile.max_health} hp) `;
+        hp = `(${tile.health}/${tile.max_health} hp) `;
     }
     else if(tile.hasOwnProperty(`health`)){
-        var hp = `(${tile.health} hp) `;
+        hp = `(${tile.health} hp) `;
     }
-    return `${hp}${tile.description}`;
+    if(tile.hasOwnProperty(`stun`) && tile.stun > 0){
+        stunned = `*${stunned_msg}${tile.stun}* `;
+    }
+    return `${hp}${stunned}${tile.description}`;
 }
 function display_health(player, scale){
     var health = [];

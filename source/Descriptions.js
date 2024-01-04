@@ -13,6 +13,7 @@ const welcome_message = `Welcome to the dungeon.\n`
 const floor_message = `Welcome to floor `;
 const game_over_message = `Game Over. You were killed by a `;
 const retry_message = `Retry?`;
+const stunned_msg = `Stunned x`;
 
 // Normal Enemy Descriptions.
 const spider_description = `Spider: Will attack the player if it is next to them. Otherwise it will move 1 space closer.`;
