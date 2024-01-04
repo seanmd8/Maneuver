@@ -60,7 +60,7 @@ class GameMap{
         }
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
-                if(this.#grid[x][y].type === `empty`){
+                if(this.#grid[y][x].type === `empty`){
                     if(rand === 0){
                         return {x, y};
                     }
@@ -130,6 +130,9 @@ class GameMap{
         this.#grid[y][x] = tile;
         if(tile.type === `enemy`){
             this.#entity_list.add_enemy(x, y, tile);
+        }
+        else if(!(tile.type === `empty`)){
+            ++this.#entity_list.count_non_empty;
         }
         return true;
     }

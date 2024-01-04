@@ -1986,7 +1986,7 @@ function setup(){
     // Function ran on page load or on restart to set up the game.
     display.display_message(ui_id.title, game_title)
     display.display_message(ui_id.display_message, welcome_message);
-    mapData = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT);  
+    mapData = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT); 
     mapData.add_tile(STARTING_ENEMY());
     mapData.display();
     mapData.display_stats(ui_id.stats);
@@ -2308,7 +2308,7 @@ class GameMap{
         }
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
-                if(this.#grid[x][y].type === `empty`){
+                if(this.#grid[y][x].type === `empty`){
                     if(rand === 0){
                         return {x, y};
                     }
@@ -2378,6 +2378,9 @@ class GameMap{
         this.#grid[y][x] = tile;
         if(tile.type === `enemy`){
             this.#entity_list.add_enemy(x, y, tile);
+        }
+        else if(!(tile.type === `empty`)){
+            ++this.#entity_list.count_non_empty;
         }
         return true;
     }
