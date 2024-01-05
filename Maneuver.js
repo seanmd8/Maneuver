@@ -464,6 +464,37 @@ function vinesnare_bush_ai(x, y, x_dif, y_dif, map, enemy){
         enemy.pic = enemy.pic_arr[1];
     }
 }
+function rat_ai(x, y, x_dif, y_dif, map, enemy){
+    if(enemy.cycle >= 1 && Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
+        // If the player is next to it, attack.
+        map.attack(x + x_dif, y + y_dif, `player`);
+        enemy.cycle = -1;
+    }
+    // Otherwise, move closer.
+    for(var i = 0; i < 2; ++i){
+        var directions = order_nearby(x_dif, y_dif);
+        if(enemy.cycle <= 0){
+            directions = reverse_arr(directions);
+        }
+        var moved = false;
+        for(var j = 0; j < directions.length && !moved; ++j){
+            moved = map.move(x, y, x + directions[j][0], y + directions[j][1]);
+            if(moved){
+                x += directions[j][0];
+                x_dif -= directions[j][0];
+                y += directions[j][1];
+                y_dif -= directions[j][1];
+                if(directions[j][0] < 0){
+                    enemy.flip = false;
+                }
+                if(directions[j][0] > 0){
+                    enemy.flip = true;
+                }
+            }
+        }
+    }
+    ++enemy.cycle;
+}
 
 
 // Boss AIs
@@ -1626,11 +1657,9 @@ const brightling_description = `Brightling: Is not aggressive. Will occasionally
 const corrosive_caterpillar_description = `Corrosive Caterpillar: Is not aggressive. Leaves a trail of corrosive slime behind it when it moves or dies.`;
 const noxious_toad_description = `Noxious Toad: Every other turn it will hop over a space orthogonally. If it lands near the player, it will damage everything next to it.`;
 const vampire_description = `Vampire: Moves orthogonally then will attempt to attack diagonally. When it hits the player, it will heal itself. Teleports away and is stunned when hit.`;
-const clay_golem_description = `Clay Golem: Will attack the player if it is next to them. Otherwise it will move 1 space closer. Taking damage will stun it and it cannot move two turns in a row.`
+const clay_golem_description = `Clay Golem: Will attack the player if it is next to them. Otherwise it will move 1 space closer. Taking damage will stun it and it cannot move two turns in a row.`;
 const vinesnare_bush_description = [`Vinesnare Bush: Does not move. Will attack if the player is close to it. Otherwise, it can drag the player closer with vines from up to `, ` spaces away.`];
-
-//const salamanader_description = `Salamander: A distant relative to the dragon. Shoots fireballs from it's mouth.`;
-
+const rat_description = `Rat: Will attack the player if it is next to them. Otherwise it will move 2 spaces closer. After attacking, it will flee.`;
 
 // Boss Descriptions.
 const boss_death_description = `The exit opens.\n`
@@ -2705,7 +2734,7 @@ class MoveDeck{
 const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, shadow_knight_tile, 
     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
-    clay_golem_tile, vinesnare_bush_tile];
+    clay_golem_tile, vinesnare_bush_tile, rat_tile];
 
 // Non-Enemy tiles
 function empty_tile(){
@@ -3047,19 +3076,18 @@ function vinesnare_bush_tile(){
         range
     }
 }
-/*
-function salamander_tile(){
+function rat_tile(){
     return {
         type: `enemy`,
-        name: `salamander`,
-        pic: `${img_folder.tiles}salamander.png`,
+        name: `rat`,
+        pic: `${img_folder.tiles}rat.png`,
+        cycle: 1,
         health: 1,
-        difficulty: 3,
-        behavior: salamander_ai,
-        description: salamanader_description
+        difficulty: 2,
+        behavior: rat_ai,
+        description: rat_description
     }
 }
-*/
 
 // Boss Tiles
 function velociphile_tile(){

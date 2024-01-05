@@ -464,6 +464,37 @@ function vinesnare_bush_ai(x, y, x_dif, y_dif, map, enemy){
         enemy.pic = enemy.pic_arr[1];
     }
 }
+function rat_ai(x, y, x_dif, y_dif, map, enemy){
+    if(enemy.cycle >= 1 && Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
+        // If the player is next to it, attack.
+        map.attack(x + x_dif, y + y_dif, `player`);
+        enemy.cycle = -1;
+    }
+    // Otherwise, move closer.
+    for(var i = 0; i < 2; ++i){
+        var directions = order_nearby(x_dif, y_dif);
+        if(enemy.cycle <= 0){
+            directions = reverse_arr(directions);
+        }
+        var moved = false;
+        for(var j = 0; j < directions.length && !moved; ++j){
+            moved = map.move(x, y, x + directions[j][0], y + directions[j][1]);
+            if(moved){
+                x += directions[j][0];
+                x_dif -= directions[j][0];
+                y += directions[j][1];
+                y_dif -= directions[j][1];
+                if(directions[j][0] < 0){
+                    enemy.flip = false;
+                }
+                if(directions[j][0] > 0){
+                    enemy.flip = true;
+                }
+            }
+        }
+    }
+    ++enemy.cycle;
+}
 
 
 // Boss AIs

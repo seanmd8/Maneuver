@@ -15,7 +15,7 @@
 const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, shadow_knight_tile, 
     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
-    clay_golem_tile, vinesnare_bush_tile];
+    clay_golem_tile, vinesnare_bush_tile, rat_tile];
 
 // Non-Enemy tiles
 function empty_tile(){
@@ -357,19 +357,18 @@ function vinesnare_bush_tile(){
         range
     }
 }
-/*
-function salamander_tile(){
+function rat_tile(){
     return {
         type: `enemy`,
-        name: `salamander`,
-        pic: `${img_folder.tiles}salamander.png`,
+        name: `rat`,
+        pic: `${img_folder.tiles}rat.png`,
+        cycle: 1,
         health: 1,
-        difficulty: 3,
-        behavior: salamander_ai,
-        description: salamanader_description
+        difficulty: 2,
+        behavior: rat_ai,
+        description: rat_description
     }
 }
-*/
 
 // Boss Tiles
 function velociphile_tile(){
