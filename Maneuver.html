@@ -1,30 +1,36 @@
-<h1 id= "title" style="margin-bottom: 0px;"></h1>
-<h2 id= "stats" style="margin-top: 0px;" style="margin-bottom: 0px;"></h2>
-<div id= "gameScreen">
-    <div id= "stage">
-        <table id="mapDisplay" style="margin-top: 0px;"></table>
-        <table id="healthDisplay" style="margin-top: 0px;" style="margin-bottom: 0px;"></table>
-        <table id="handDisplay"></table>
-        <table id="moveButtons"></table>
-        <h3 id= "displayMessage" style="margin-top: 0px;"></h3>
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="ManeuverStyles.css">
+    </head>
+
+    <h1 id= "title" style="margin-bottom: 0px;"></h1>
+    <h2 id= "stats" style="margin-top: 0px;" style="margin-bottom: 0px;"></h2>
+
+    <div id= "gameScreen">
+        <div id= "stage">
+            <table id="mapDisplay" style="margin-top: 0px;"></table>
+            <table id="healthDisplay" style="margin-top: 0px;" style="margin-bottom: 0px;"></table>
+            <table id="handDisplay"></table>
+            <table id="moveButtons"></table>
+            <h3 id= "displayMessage" style="margin-top: 0px;"></h3>
+        </div>
+        
+        <div id= "shop">
+            <h3 id= "shopInstructions"></h3>
+            <table id="addCard"></table>
+            <table id="removeCard"></table>
+            <h3 id= "currentDeck" style="margin-bottom: 0px;"></h4>
+            <table id="displayDeck"></table>
+        </div>
+        
+        <div id= "chest">
+        </div>
     </div>
     
-    <div id= "shop">
-        <h3 id= "shopInstructions"></h3>
-        <table id="addCard"></table>
-        <table id="removeCard"></table>
-        <h3 id= "currentDeck" style="margin-bottom: 0px;"></h4>
-        <table id="displayDeck"></table>
+    <div id= "tutorial">
     </div>
     
-    <div id= "chest">
-    
-    </div>
-</div>
-<div id= "tutorial">
-
-</div>
-
-
-<body onload="setup()"></body>
-<script src="Maneuver.js"></script>
+    <body onload="setup()"></body>
+    <script src="Maneuver.js"></script>
+</html>

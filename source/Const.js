@@ -37,6 +37,7 @@ const img_folder = {
     src: `images/`,
     cards: `cards/`,
     other: `other/`,
-    tiles: `tiles/`
+    tiles: `tiles/`,
+    backgrounds: `backgrounds/`
 }
 Object.freeze(img_folder);

@@ -611,8 +611,8 @@ function hazard(x, y, x_dif, y_dif, map, enemy){
     map.attack(x + x_dif, y + y_dif);
 }
 function wall_death(x, y, x_dif, y_dif, map, enemy){
-    var spawn_list = [spider_tile, acid_bug_tile, spider_web_tile];
-    if(random_num(7) < 10){
+    var spawn_list = [spider_tile, acid_bug_tile, spider_web_tile, rat_tile];
+    if(random_num(10) < 7){
         var ran = random_num(spawn_list.length);
         var new_enemy = spawn_list[ran]();
         stun(new_enemy);
@@ -1620,7 +1620,8 @@ const img_folder = {
     src: `images/`,
     cards: `cards/`,
     other: `other/`,
-    tiles: `tiles/`
+    tiles: `tiles/`,
+    backgrounds: `backgrounds/`
 }
 Object.freeze(img_folder);// ----------------Descriptions.js----------------
 // Contains text that will be displayed.
@@ -1720,7 +1721,7 @@ function get_display(language){
 }
 
 class DisplayHTML{
-    static add_tb_row(location, row_contents, scale, on_click){
+    static add_tb_row(location, row_contents, scale, on_click, background){
         var table = document.getElementById(location);
         var row_num = table.rows.length;
         var row = document.createElement(`tr`);
@@ -1734,23 +1735,30 @@ class DisplayHTML{
             var to_display = row_contents[i];
             var cell = document.createElement(`td`);
             cell.id = `${location} ${row_num} ${i}`;
+            cell.style.height = `${scale}px`;
+            cell.style.width = `${scale}px`;
+            cell.classList.add(`relative`);
             if(!(on_click === undefined)){
                 cell.onclick = make_on_click(to_display, i);
             }
-            var img = document.createElement(`img`);
-            img.id = `${location} ${row_num} ${i} img`;
-            img.src = `${img_folder.src}${to_display.pic}`;
-            img.height = scale;
-            img.width = scale;
-            var style = ``;
-            if(to_display.hasOwnProperty(`rotate`)){
-                style = `${style}rotate(${to_display.rotate}deg) `
+            if(!(background === undefined)){
+                var bottom_img = document.createElement(`img`);
+                bottom_img.id = `${location} ${row_num} ${i} background img`;
+                bottom_img.src = `${img_folder.src}${background}`;
+                bottom_img.height = scale;
+                bottom_img.width = scale;
+                bottom_img.classList.add(`absolute`);
+                bottom_img.style.position = `absolute`;
+                cell.append(bottom_img);
             }
-            if(to_display.hasOwnProperty(`flip`) && to_display.flip){
-                style = `${style}scaleX(-1) `;
-            }         
-            img.style.transform = style;
-            cell.append(img);
+            var top_img = document.createElement(`img`);
+            top_img.id = `${location} ${row_num} ${i} img`;
+            top_img.src = `${img_folder.src}${to_display.pic}`;
+            top_img.height = scale;
+            top_img.width = scale;
+            top_img.classList.add(`absolute`);
+            top_img.style.transform = this.#get_transformation(to_display);
+            cell.append(top_img);
             row.append(cell);
         }
         table.append(row);
@@ -1837,6 +1845,16 @@ class DisplayHTML{
             var element = document.getElementById(`${ui_id.hand_display} 0 ${key_num}`);
             element && element.click();
         }
+    }
+    static #get_transformation(to_display){
+        var transformation = ``;
+        if(to_display.hasOwnProperty(`rotate`)){
+            transformation = `${transformation}rotate(${to_display.rotate}deg) `;
+        }
+        if(to_display.hasOwnProperty(`flip`) && to_display.flip){
+            transformation = `${transformation}scaleX(-1) `;
+        }
+        return transformation;   
     }
 }
 const display = get_display(MARKUP_LANGUAGE);
@@ -2132,32 +2150,6 @@ function generate_remove_row(deck, table){
     }
     display.add_tb_row(table, remove_list, CARD_SCALE, make_remove_card(deck));
 }
-function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
-    // Function to make a cell for a table.
-    //  id is the id the cell should get.
-    //  pic is the image source the cell should have.
-    //  size is the width and height of the image.
-    //  click is the onclick function.
-    //  param1 and param2 are the parameter that should be given to the onclick if they are provided.
-    // Returns the cell
-    var cell = document.createElement(`td`);
-    cell.id = id;
-    var image = document.createElement(`img`);
-    image.id = `${id} img`;
-    image.src = pic;
-    image.height = size;
-    image.width = size;
-    if(click != undefined){
-        if(param2 === undefined){
-            cell.onclick = click(param1);
-        }
-        else{
-            cell.onclick = click(param1, param2);
-        }
-    }
-    cell.append(image);
-    return cell;
-}
 function delay(ms){
     // Function to wait the given number of milliseconds.
     return new Promise(resolve =>{
@@ -2426,7 +2418,7 @@ class GameMap{
             }
         }
         for (var y = 0; y < this.#y_max; y++){
-            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this));
+            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), `${img_folder.backgrounds}default.png`);
         }
         display.clear_tb(ui_id.health_display);
         display_health(this.get_player(), TILE_SCALE);

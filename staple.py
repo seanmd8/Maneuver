@@ -3,11 +3,14 @@
 
 import os
 def main():
-    source = os.listdir("./source")
-    destination = "Maneuver.js"
+    staple("./source", "Maneuver.js")
+    staple("./css", "ManeuverStyles.css")
+
+def staple(folder, destination):
+    source = os.listdir(folder)
     body = ""
     for i in range(len(source)):
-        body += read_file("./source/" + source[i])
+        body += read_file(folder + "/" + source[i])
     write_file(destination, body)
 
 def read_file(file_name):

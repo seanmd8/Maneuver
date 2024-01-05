@@ -123,32 +123,6 @@ function generate_remove_row(deck, table){
     }
     display.add_tb_row(table, remove_list, CARD_SCALE, make_remove_card(deck));
 }
-function make_cell(id, pic, size, click = undefined, param1 = undefined, param2 = undefined){
-    // Function to make a cell for a table.
-    //  id is the id the cell should get.
-    //  pic is the image source the cell should have.
-    //  size is the width and height of the image.
-    //  click is the onclick function.
-    //  param1 and param2 are the parameter that should be given to the onclick if they are provided.
-    // Returns the cell
-    var cell = document.createElement(`td`);
-    cell.id = id;
-    var image = document.createElement(`img`);
-    image.id = `${id} img`;
-    image.src = pic;
-    image.height = size;
-    image.width = size;
-    if(click != undefined){
-        if(param2 === undefined){
-            cell.onclick = click(param1);
-        }
-        else{
-            cell.onclick = click(param1, param2);
-        }
-    }
-    cell.append(image);
-    return cell;
-}
 function delay(ms){
     // Function to wait the given number of milliseconds.
     return new Promise(resolve =>{

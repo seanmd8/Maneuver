@@ -611,8 +611,8 @@ function hazard(x, y, x_dif, y_dif, map, enemy){
     map.attack(x + x_dif, y + y_dif);
 }
 function wall_death(x, y, x_dif, y_dif, map, enemy){
-    var spawn_list = [spider_tile, acid_bug_tile, spider_web_tile];
-    if(random_num(7) < 10){
+    var spawn_list = [spider_tile, acid_bug_tile, spider_web_tile, rat_tile];
+    if(random_num(10) < 7){
         var ran = random_num(spawn_list.length);
         var new_enemy = spawn_list[ran]();
         stun(new_enemy);

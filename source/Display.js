@@ -10,7 +10,7 @@ function get_display(language){
 }
 
 class DisplayHTML{
-    static add_tb_row(location, row_contents, scale, on_click){
+    static add_tb_row(location, row_contents, scale, on_click, background){
         var table = document.getElementById(location);
         var row_num = table.rows.length;
         var row = document.createElement(`tr`);
@@ -24,23 +24,30 @@ class DisplayHTML{
             var to_display = row_contents[i];
             var cell = document.createElement(`td`);
             cell.id = `${location} ${row_num} ${i}`;
+            cell.style.height = `${scale}px`;
+            cell.style.width = `${scale}px`;
+            cell.classList.add(`relative`);
             if(!(on_click === undefined)){
                 cell.onclick = make_on_click(to_display, i);
             }
-            var img = document.createElement(`img`);
-            img.id = `${location} ${row_num} ${i} img`;
-            img.src = `${img_folder.src}${to_display.pic}`;
-            img.height = scale;
-            img.width = scale;
-            var style = ``;
-            if(to_display.hasOwnProperty(`rotate`)){
-                style = `${style}rotate(${to_display.rotate}deg) `
+            if(!(background === undefined)){
+                var bottom_img = document.createElement(`img`);
+                bottom_img.id = `${location} ${row_num} ${i} background img`;
+                bottom_img.src = `${img_folder.src}${background}`;
+                bottom_img.height = scale;
+                bottom_img.width = scale;
+                bottom_img.classList.add(`absolute`);
+                bottom_img.style.position = `absolute`;
+                cell.append(bottom_img);
             }
-            if(to_display.hasOwnProperty(`flip`) && to_display.flip){
-                style = `${style}scaleX(-1) `;
-            }         
-            img.style.transform = style;
-            cell.append(img);
+            var top_img = document.createElement(`img`);
+            top_img.id = `${location} ${row_num} ${i} img`;
+            top_img.src = `${img_folder.src}${to_display.pic}`;
+            top_img.height = scale;
+            top_img.width = scale;
+            top_img.classList.add(`absolute`);
+            top_img.style.transform = this.#get_transformation(to_display);
+            cell.append(top_img);
             row.append(cell);
         }
         table.append(row);
@@ -127,6 +134,16 @@ class DisplayHTML{
             var element = document.getElementById(`${ui_id.hand_display} 0 ${key_num}`);
             element && element.click();
         }
+    }
+    static #get_transformation(to_display){
+        var transformation = ``;
+        if(to_display.hasOwnProperty(`rotate`)){
+            transformation = `${transformation}rotate(${to_display.rotate}deg) `;
+        }
+        if(to_display.hasOwnProperty(`flip`) && to_display.flip){
+            transformation = `${transformation}scaleX(-1) `;
+        }
+        return transformation;   
     }
 }
 const display = get_display(MARKUP_LANGUAGE);
