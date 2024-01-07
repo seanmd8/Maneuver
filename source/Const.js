@@ -17,7 +17,7 @@ const STARTING_AREA = generate_ruins_area;
 // Dungeon generation settings
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
-const AREA_SIZE = 3;
+const AREA_SIZE = 5;
 
 // Visual and animation settings
 const CARD_SCALE = 90;
