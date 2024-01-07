@@ -194,7 +194,7 @@ function spider_web_tile(){
         pic: `${img_folder.tiles}spider_web.png`,
         cycle: 0,
         spawn_timer,
-        health: 2,
+        health: 1,
         difficulty: 4,
         behavior: spider_web_ai,
         description: `${spider_web_description[0]}${spawn_timer + 1}${spider_web_description[1]}`
