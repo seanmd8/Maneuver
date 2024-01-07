@@ -4,9 +4,10 @@
 
 function setup(){
     // Function ran on page load or on restart to set up the game.
-    display.display_message(ui_id.title, game_title)
-    display.display_message(ui_id.display_message, welcome_message);
-    mapData = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT); 
+    var start = STARTING_AREA();
+    display.display_message(ui_id.title, game_title);
+    display.display_message(ui_id.display_message, `${start.description}\n${welcome_message}`);
+    mapData = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
     mapData.add_tile(STARTING_ENEMY());
     mapData.display();
     mapData.display_stats(ui_id.stats);
@@ -68,8 +69,7 @@ function player_action(mapData, action){
 }
 function new_floor(){
     // Creates the next floor.
-    var floor = mapData.erase();
-    floor_generator(floor, mapData);
+    mapData.next_floor();
     mapData.display_stats(ui_id.stats);
     mapData.display();
     deck.deal();

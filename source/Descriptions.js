@@ -7,9 +7,8 @@
 const game_title = `Maneuver`;
 const mod_deck = `Choose one card to add or remove:`;
 const current_deck = `Current Deck (minimum `;
-const welcome_message = `Welcome to the dungeon.\n`
-                            + `Use cards to move (blue) and attack (red).\n` 
-                            + `Click on things to learn more about them.`;
+const welcome_message = `Use cards to move (blue) and attack (red).\n` 
+                        + `Click on things to learn more about them.`;
 const floor_message = `Welcome to floor `;
 const game_over_message = `Game Over. You were killed by a `;
 const retry_message = `Retry?`;
@@ -36,6 +35,17 @@ const vampire_description = `Vampire: Moves orthogonally then will attempt to at
 const clay_golem_description = `Clay Golem: Will attack the player if it is next to them. Otherwise it will move 1 space closer. Taking damage will stun it and it cannot move two turns in a row.`;
 const vinesnare_bush_description = [`Vinesnare Bush: Does not move. Will attack if the player is close to it. Otherwise, it can drag the player closer with vines from up to `, ` spaces away.`];
 const rat_description = `Rat: Will attack the player if it is next to them. Otherwise it will move 2 spaces closer. After attacking, it will flee.`;
+
+// Area Descriptions.
+const ruins_description = `You have entered the ruins.`;
+const sewers_description = `You have entered the sewers.`;
+const basement_description = `You have entered the basement.`;
+const magma_description = `You have entered the magmatic caves.`;
+const crypt_description = `You have entered the crypt.`;
+const forest_description = `You have entered the subteranean forest.`;
+const library_description = `You have entered the library.`;
+const sanctum_description = `You have entered the sanctum.`;
+const default_area_description = `You have reached the end of the current content. Floors will continue to generate but there will be no more boss fights. Good luck.`;
 
 // Boss Descriptions.
 const boss_death_description = `The exit opens.\n`

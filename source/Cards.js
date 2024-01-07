@@ -25,7 +25,8 @@ const CARD_CHOICES = [
 ];
 
 const CONFUSION_CARDS = [
-    stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out
+    stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
+    stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out
 ]
 
 // Makes the starting deck

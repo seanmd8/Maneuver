@@ -9,13 +9,15 @@ class GameMap{
     #floor_num; // The current floor number.
     #turn_count; // How many turns the player has taken.
     #events;
-    constructor(x_max, y_max){
+    #area;
+    constructor(x_max, y_max, area){
         this.#x_max = x_max;
         this.#y_max = y_max;
         this.#entity_list = new EntityList();
         this.#floor_num = 0;
         this.#turn_count = 0;
         this.#events = [];
+        this.#area = area;
         this.erase()
     }
     erase(){
@@ -149,7 +151,7 @@ class GameMap{
             }
         }
         for (var y = 0; y < this.#y_max; y++){
-            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), `${img_folder.backgrounds}default.png`);
+            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), this.#area.background);
         }
         display.clear_tb(ui_id.health_display);
         display_health(this.get_player(), TILE_SCALE);
@@ -308,17 +310,43 @@ class GameMap{
                 for(var j = 0; j < event[1]; ++j){
                     var space = this.random_empty();
                     this.#grid[space.y][space.x].description = falling_rubble_description;
-                    this.#grid[space.y][space.x].pic = `falling_rubble.png`;
+                    this.#grid[space.y][space.x].pic = `${img_folder.tiles}falling_rubble.png`;
                     rubble.push(space);
                 }
                 new_events.push([`earthquake_rubble`, rubble]);
             }
             else if(event[0] === `earthquake_rubble`){
-                for(var j = 0; j < event[1].length; ++j){
-                    this.attack(event[1][j].y, event[1][j].x);
+                try{
+                    for(var j = 0; j < event[1].length; ++j){
+                        this.attack(event[1][j].y, event[1][j].x);
+                    }
+                }
+                catch(error){
+                    if(error.message === `game over`){
+                        throw new Error(`game over`, {cause: `falling rubble`});
+                    }
+                    throw error;
                 }
             }
         }
         this.#events = new_events;
+    }
+    next_floor(){
+        this.erase();
+        var floor_description = `${floor_message}${this.#floor_num}.`;
+        if(this.#floor_num % AREA_SIZE === 1){
+            var next_list = this.#area.next_area_list;
+            this.#area = next_list[random_num(next_list.length)]();
+            floor_description = `${floor_description}\n${this.#area.description}`;
+        }
+        if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
+            var boss_floor = this.#area.boss_floor_list[random_num(this.#area.boss_floor_list.length)]; 
+            var boss_message = boss_floor(this.#floor_num, this.#area, this);
+            floor_description = `${floor_description}\n${boss_message}`;
+        }
+        else{
+            this.#area.generate_floor(this.#floor_num, this.#area, this);
+        }
+        display.display_message(ui_id.display_message, floor_description);
     }
 }

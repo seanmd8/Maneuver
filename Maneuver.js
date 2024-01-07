@@ -827,6 +827,191 @@ function array_equals(a1, a2){
     }
     return true;
 }
+// ----------------Floors.js----------------
+// File containing the functions for generating new floors.
+
+const BOSS_FLOOR = [velociphile_floor, spider_queen_floor, lich_floor];
+
+function floor_generator(floor_num, area, map){
+    if(!(floor_num % AREA_SIZE === 0) || Math.floor(floor_num / AREA_SIZE) - 1 >= BOSS_FLOOR.length){
+        generate_normal_floor(floor_num, area, map);
+    }
+    else{
+        BOSS_FLOOR[Math.floor(floor_num / AREA_SIZE) - 1](floor_num, area, map);
+    }
+}
+
+function generate_normal_floor(floor_num, area, map){
+    var enemy_list = area.enemy_list;
+    for(var i = floor_num * 2; i > 0;){
+        var choice = random_num(enemy_list.length);
+        var new_enemy = enemy_list[choice]();
+        if(new_enemy.difficulty <= i){
+            map.add_tile(new_enemy);
+            i -= new_enemy.difficulty;
+        }
+    }
+}
+
+function generate_ruins_floor(floor_num, area, map){
+    generate_normal_floor(floor_num, area, map);
+}
+function generate_sewers_floor(floor_num, area, map){
+    generate_normal_floor(floor_num, area, map);
+}
+function generate_basement_floor(floor_num, area, map){
+    generate_normal_floor(floor_num, area, map);
+}
+function generate_magma_floor(floor_num, area, map){
+    generate_normal_floor(floor_num, area, map);
+}
+function generate_crypt_floor(floor_num, area, map){
+    generate_normal_floor(floor_num, area, map);
+}
+function generate_forest_floor(floor_num, area, map){
+    generate_normal_floor(floor_num, area, map);
+}
+function generate_library_floor(floor_num, area, map){
+    generate_normal_floor(floor_num, area, map);
+}
+function generate_sanctum_floor(floor_num, area, map){
+    generate_normal_floor(floor_num, area, map);
+}
+
+
+
+const area_end = [generate_default_area];
+const area1 = [generate_ruins_area];
+const area2 = [/*generate_sewers_area, */generate_basement_area];
+const area3 = [/*generate_magma_area, */generate_crypt_area];
+const area4 = area_end;//[generate_forest_area, generate_library_area];
+const area5 = [generate_sanctum_area];
+
+
+
+
+
+function generate_ruins_area(){
+    return {
+        background: `${img_folder.backgrounds}ruins.png`,
+        generate_floor: generate_ruins_floor,
+        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, ram_tile, rat_tile, acid_bug_tile, shadow_knight_tile],
+        boss_floor_list: [velociphile_floor],
+        next_area_list: area2,
+        description: ruins_description
+    }
+}
+function generate_sewers_area(){
+    return {
+        background: `${img_folder.backgrounds}sewers.png`,
+        generate_floor: generate_sewers_floor,
+        enemy_list: [rat_tile, turret_h_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile],
+        boss_floor_list: [],
+        next_area_list: area3,
+        description: sewers_description
+    }
+}
+function generate_basement_area(){
+    return {
+        background: `${img_folder.backgrounds}basement.png`,
+        generate_floor: generate_basement_floor,
+        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile],
+        boss_floor_list: [spider_queen_floor],
+        next_area_list: area3,
+        description: basement_description
+    }
+}
+function generate_magma_area(){
+    return {
+        background: `${img_folder.backgrounds}magma.png`,
+        generate_floor: generate_magma_floor,
+        enemy_list: [],
+        boss_floor_list: [],
+        next_area_list: area4,
+        description: magma_description
+    }
+}
+function generate_crypt_area(){
+    return {
+        background: `${img_folder.backgrounds}crypt.png`,
+        generate_floor: generate_crypt_floor,
+        enemy_list: [shadow_knight_tile, spider_web_tile, vampire_tile, clay_golem_tile, rat_tile, spider_tile, turret_r_tile, brightling_tile],
+        boss_floor_list: [lich_floor],
+        next_area_list: area4,
+        description: crypt_description
+    }
+}
+function generate_forest_area(){
+    return {
+        background: `${img_folder.backgrounds}forest.png`,
+        generate_floor: generate_forest_floor,
+        enemy_list: [],
+        boss_floor_list: [],
+        next_area_list: area5,
+        description: forest_description
+    }
+}
+function generate_library_area(){
+    return {
+        background: `${img_folder.backgrounds}library.png`,
+        generate_floor: generate_library_floor,
+        enemy_list: [],
+        boss_floor_list: [],
+        next_area_list: area5,
+        description: ruins_description
+    }
+}
+function generate_sanctum_area(){
+    return {
+        background: `${img_folder.backgrounds}sanctum.png`,
+        generate_floor: generate_sanctum_floor,
+        enemy_list: [],
+        boss_floor_list: [],
+        next_area_list: [generate_default_area],
+        description: sanctum_description
+    }
+}
+
+function generate_default_area(){
+    return {
+        background: `${img_folder.backgrounds}default.png`,
+        generate_floor: floor_generator,
+        enemy_list: ENEMY_LIST,
+        boss_floor_list: [],
+        next_area_list: [generate_default_area],
+        description: default_area_description
+    }
+}function velociphile_floor(floor_num,  area, map){
+    map.add_tile(velociphile_tile());
+    map.lock();
+    for(var i = 0; i < 8; ++i){
+        map.add_tile(wall_tile());
+        map.add_tile(damaged_wall_tile());
+    }
+    return velociphile_floor_message;
+}
+function spider_queen_floor(floor_num, area, map){
+    map.add_tile(spider_queen_tile());
+    map.lock();
+    for(var i = 0; i < 4; ++i){
+        map.add_tile(wall_tile());
+        map.add_tile(damaged_wall_tile());
+    }
+    for(var i = 0; i < 2; ++i){
+        map.add_tile(spider_web_tile());
+    }
+    return spider_queen_floor_message;
+}
+function lich_floor(floor_num,  area, map){
+    map.add_tile(damaged_wall_tile(), FLOOR_WIDTH - 2, FLOOR_HEIGHT - 2);
+    map.add_tile(damaged_wall_tile(), 1, FLOOR_HEIGHT - 2);
+    map.add_tile(damaged_wall_tile(), FLOOR_WIDTH - 2, 1);
+    map.add_tile(damaged_wall_tile(), 1, 1);
+    map.add_tile(lich_tile());
+    map.lock();
+    return lich_floor_message;
+}
+
 // ----------------ButtonGrid.js----------------
 // The ButtonGrid class is used to keep track of the possible moves a card has.
 class ButtonGrid{
@@ -910,7 +1095,8 @@ const CARD_CHOICES = [
 ];
 
 const CONFUSION_CARDS = [
-    stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out
+    stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
+    stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out
 ]
 
 // Makes the starting deck
@@ -1595,11 +1781,12 @@ const BUFF_SPAWN_DENOMINATOR = 4;
 // Initialization settings
 const STARTING_ENEMY = spider_tile;
 const STARTING_DECK = make_starting_deck;
+const STARTING_AREA = generate_ruins_area;
 
 // Dungeon generation settings
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
-const AREA_SIZE = 5;
+const AREA_SIZE = 3;
 
 // Visual and animation settings
 const CARD_SCALE = 90;
@@ -1632,9 +1819,8 @@ Object.freeze(img_folder);// ----------------Descriptions.js----------------
 const game_title = `Maneuver`;
 const mod_deck = `Choose one card to add or remove:`;
 const current_deck = `Current Deck (minimum `;
-const welcome_message = `Welcome to the dungeon.\n`
-                            + `Use cards to move (blue) and attack (red).\n` 
-                            + `Click on things to learn more about them.`;
+const welcome_message = `Use cards to move (blue) and attack (red).\n` 
+                        + `Click on things to learn more about them.`;
 const floor_message = `Welcome to floor `;
 const game_over_message = `Game Over. You were killed by a `;
 const retry_message = `Retry?`;
@@ -1661,6 +1847,17 @@ const vampire_description = `Vampire: Moves orthogonally then will attempt to at
 const clay_golem_description = `Clay Golem: Will attack the player if it is next to them. Otherwise it will move 1 space closer. Taking damage will stun it and it cannot move two turns in a row.`;
 const vinesnare_bush_description = [`Vinesnare Bush: Does not move. Will attack if the player is close to it. Otherwise, it can drag the player closer with vines from up to `, ` spaces away.`];
 const rat_description = `Rat: Will attack the player if it is next to them. Otherwise it will move 2 spaces closer. After attacking, it will flee.`;
+
+// Area Descriptions.
+const ruins_description = `You have entered the ruins.`;
+const sewers_description = `You have entered the sewers.`;
+const basement_description = `You have entered the basement.`;
+const magma_description = `You have entered the magmatic caves.`;
+const crypt_description = `You have entered the crypt.`;
+const forest_description = `You have entered the subteranean forest.`;
+const library_description = `You have entered the library.`;
+const sanctum_description = `You have entered the sanctum.`;
+const default_area_description = `You have reached the end of the current content. Floors will continue to generate but there will be no more boss fights. Good luck.`;
 
 // Boss Descriptions.
 const boss_death_description = `The exit opens.\n`
@@ -1971,69 +2168,16 @@ class EntityList{
         }
     }
 }
-// ----------------Floors.js----------------
-// File containing the functions for generating new floors.
-
-const BOSS_FLOOR = [velociphile_floor, spider_queen_floor, lich_floor];
-
-function floor_generator(floor, map){
-    if(!(floor % AREA_SIZE === 0) || Math.floor(floor / AREA_SIZE) - 1 >= BOSS_FLOOR.length){
-        generate_normal_floor(floor, map, ENEMY_LIST);
-    }
-    else{
-        BOSS_FLOOR[Math.floor(floor / AREA_SIZE) - 1](floor, map);
-    }
-}
-
-function generate_normal_floor(floor, map, enemies){
-    for(var i = floor * 2; i > 0;){
-        var choice = random_num(enemies.length);
-        var new_enemy = enemies[choice]();
-        if(new_enemy.difficulty <= i){
-            map.add_tile(new_enemy);
-            i -= new_enemy.difficulty;
-        }
-    }
-    display.display_message(ui_id.display_message, `${floor_message}${floor}.`);
-}
-function velociphile_floor(floor, map){
-    map.add_tile(velociphile_tile());
-    map.lock();
-    for(var i = 0; i < 8; ++i){
-        map.add_tile(wall_tile());
-        map.add_tile(damaged_wall_tile());
-    }
-    display.display_message(ui_id.display_message, `${floor_message}${floor}.\n${velociphile_floor_message}`);
-}
-function spider_queen_floor(floor, map){
-    map.add_tile(spider_queen_tile());
-    map.lock();
-    for(var i = 0; i < 4; ++i){
-        map.add_tile(wall_tile());
-        map.add_tile(damaged_wall_tile());
-    }
-    for(var i = 0; i < 2; ++i){
-        map.add_tile(spider_web_tile());
-    }
-    display.display_message(ui_id.display_message, `${floor_message}${floor}.\n${spider_queen_floor_message}`)
-}
-function lich_floor(floor, map){
-    map.add_tile(damaged_wall_tile(), FLOOR_WIDTH - 2, FLOOR_HEIGHT - 2);
-    map.add_tile(damaged_wall_tile(), 1, FLOOR_HEIGHT - 2);
-    map.add_tile(damaged_wall_tile(), FLOOR_WIDTH - 2, 1);
-    map.add_tile(damaged_wall_tile(), 1, 1);
-    map.add_tile(lich_tile());
-    map.lock();
-    display.display_message(ui_id.display_message, `${floor_message}${floor}.\n${lich_floor_message}`)
-}// ----------------GameLoop.js----------------
+// ----------------GameLoop.js----------------
 // File contains functions that control the main gameplay.
 
 
 function setup(){
     // Function ran on page load or on restart to set up the game.
-    display.display_message(ui_id.title, game_title)
-    display.display_message(ui_id.display_message, welcome_message);
-    mapData = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT); 
+    var start = STARTING_AREA();
+    display.display_message(ui_id.title, game_title);
+    display.display_message(ui_id.display_message, `${start.description}\n${welcome_message}`);
+    mapData = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
     mapData.add_tile(STARTING_ENEMY());
     mapData.display();
     mapData.display_stats(ui_id.stats);
@@ -2095,8 +2239,7 @@ function player_action(mapData, action){
 }
 function new_floor(){
     // Creates the next floor.
-    var floor = mapData.erase();
-    floor_generator(floor, mapData);
+    mapData.next_floor();
     mapData.display_stats(ui_id.stats);
     mapData.display();
     deck.deal();
@@ -2278,13 +2421,15 @@ class GameMap{
     #floor_num; // The current floor number.
     #turn_count; // How many turns the player has taken.
     #events;
-    constructor(x_max, y_max){
+    #area;
+    constructor(x_max, y_max, area){
         this.#x_max = x_max;
         this.#y_max = y_max;
         this.#entity_list = new EntityList();
         this.#floor_num = 0;
         this.#turn_count = 0;
         this.#events = [];
+        this.#area = area;
         this.erase()
     }
     erase(){
@@ -2418,7 +2563,7 @@ class GameMap{
             }
         }
         for (var y = 0; y < this.#y_max; y++){
-            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), `${img_folder.backgrounds}default.png`);
+            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), this.#area.background);
         }
         display.clear_tb(ui_id.health_display);
         display_health(this.get_player(), TILE_SCALE);
@@ -2577,18 +2722,44 @@ class GameMap{
                 for(var j = 0; j < event[1]; ++j){
                     var space = this.random_empty();
                     this.#grid[space.y][space.x].description = falling_rubble_description;
-                    this.#grid[space.y][space.x].pic = `falling_rubble.png`;
+                    this.#grid[space.y][space.x].pic = `${img_folder.tiles}falling_rubble.png`;
                     rubble.push(space);
                 }
                 new_events.push([`earthquake_rubble`, rubble]);
             }
             else if(event[0] === `earthquake_rubble`){
-                for(var j = 0; j < event[1].length; ++j){
-                    this.attack(event[1][j].y, event[1][j].x);
+                try{
+                    for(var j = 0; j < event[1].length; ++j){
+                        this.attack(event[1][j].y, event[1][j].x);
+                    }
+                }
+                catch(error){
+                    if(error.message === `game over`){
+                        throw new Error(`game over`, {cause: `falling rubble`});
+                    }
+                    throw error;
                 }
             }
         }
         this.#events = new_events;
+    }
+    next_floor(){
+        this.erase();
+        var floor_description = `${floor_message}${this.#floor_num}.`;
+        if(this.#floor_num % AREA_SIZE === 1){
+            var next_list = this.#area.next_area_list;
+            this.#area = next_list[random_num(next_list.length)]();
+            floor_description = `${floor_description}\n${this.#area.description}`;
+        }
+        if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
+            var boss_floor = this.#area.boss_floor_list[random_num(this.#area.boss_floor_list.length)]; 
+            var boss_message = boss_floor(this.#floor_num, this.#area, this);
+            floor_description = `${floor_description}\n${boss_message}`;
+        }
+        else{
+            this.#area.generate_floor(this.#floor_num, this.#area, this);
+        }
+        display.display_message(ui_id.display_message, floor_description);
     }
 }// ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.

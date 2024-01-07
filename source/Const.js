@@ -12,11 +12,12 @@ const BUFF_SPAWN_DENOMINATOR = 4;
 // Initialization settings
 const STARTING_ENEMY = spider_tile;
 const STARTING_DECK = make_starting_deck;
+const STARTING_AREA = generate_ruins_area;
 
 // Dungeon generation settings
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
-const AREA_SIZE = 5;
+const AREA_SIZE = 3;
 
 // Visual and animation settings
 const CARD_SCALE = 90;
