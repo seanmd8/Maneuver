@@ -96,7 +96,7 @@ function fireball_tile(){
         name: `fireball`,
         pic: `${img_folder.tiles}fireball.png`,
         pic_arr,
-        direction: [],
+        direction: undefined,
         rotate: 0,
         description: fireball_description,
         behavior: fireball_ai,
@@ -248,7 +248,7 @@ function small_h_porcuslime_tile(){
         pic: `${img_folder.tiles}small_h_porcuslime.png`,
         health: 1,
         difficulty: 3,
-        behavior: small_h_porcuslime_ai,
+        behavior: porcuslime_horizontal_ai,
         description: small_h_porcuslime_description
     }
 }
@@ -259,7 +259,7 @@ function small_d_porcuslime_tile(){
         pic: `${img_folder.tiles}small_d_porcuslime.png`,
         health: 1,
         difficulty: 3,
-        behavior: small_d_porcuslime_ai,
+        behavior: porcuslime_diagonal_ai,
         description: small_d_porcuslime_description
     }
 }
@@ -413,14 +413,16 @@ function lich_tile(){
         scythe_tile,
         shadow_knight_tile,
         ram_tile,
-        medium_porcuslime_tile
+        medium_porcuslime_tile,
+        clay_golem_tile,
+        rat_tile
     ];
     var starting_cycle = 1;
     return{
         type: `enemy`,
         name: `lich`,
         pic: spells[starting_cycle][2],
-        health: 3,
+        health: 4,
         difficulty: `boss`,
         behavior: lich_ai,
         cycle: starting_cycle,

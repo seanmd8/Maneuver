@@ -25,6 +25,9 @@ class GameMap{
         // Returns the floor number.
         try{
             var player = this.get_player();
+            if(player === undefined){
+                player = player_tile();
+            }
         }
         catch(error){
             if(error.message === `player doesn't exist`){
@@ -42,15 +45,15 @@ class GameMap{
                 this.#grid[i].push(empty_tile());
             }
         }
-        this.set_exit(random_num(this.#y_max), 0)
-        this.set_player(random_num(this.#y_max), this.#x_max - 1, player)
+        var exit_location = new Point(random_num(this.#y_max), 0);
+        this.set_exit(exit_location);
+        var player_location = new Point(random_num(this.#y_max), this.#x_max - 1);
+        this.set_player(player_location, player);
         return ++this.#floor_num;
     }
     random_space(){
-        // Returns a randome space in the grid.
-        x = random_num(this.#x_max);
-        y = random_num(this.#y_max);
-        return {x, y};
+        // Returns a random space in the grid.
+        return new Point(random_num(this.#x_max), random_num(this.#y_max));
     }
     random_empty(){
         // Returns a random empty space in the grid.
@@ -62,76 +65,82 @@ class GameMap{
         }
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
-                if(this.#grid[y][x].type === `empty`){
+                var pos = new Point(x, y)
+                if(this.#get_grid(pos).type === `empty`){
                     if(rand === 0){
-                        return {x, y};
+                        return pos;
                     }
                     --rand;
                 }
             }
         }
+        throw new Error(`grid full`);
     }
-    check_bounds(x, y){
+    check_bounds(location){
         // Throws an error if x or y is out of bounds.
-        if(x < 0 || x >= this.#x_max){
+        if(location.x < 0 || location.x >= this.#x_max){
             throw new Error(`x out of bounds`);
         }
-        if(y < 0 || y >= this.#y_max){
+        if(location.y < 0 || location.y >= this.#y_max){
             throw new Error(`y out of bounds`);
         }
     }
-    check_empty(x, y){
+    check_empty(location){
         // returns true if the space at grid[x, y] is empty.
         // throws an error if the space is out of bounds.
         try{
-            this.check_bounds(x, y);
+            this.check_bounds(location);
         }
         catch{
             return false;
         }
-        return this.#grid[y][x].type === `empty`;
+        return this.#get_grid(location).type === `empty`;
     }
-    set_exit(exit_x, exit_y){
+    set_exit(location){
         // Places the exit.
         // Throws an error if the space is occupied or out of bounds..
-        this.check_bounds(exit_x, exit_y);
-        if(!this.check_empty(exit_x, exit_y)){
+        this.check_bounds(location);
+        if(!this.check_empty(location)){
             throw new Error(`space not empty`);
         }
-        this.#entity_list.set_exit(exit_x, exit_y);
-        this.#grid[exit_y][exit_x] = exit_tile();
+        if(!(this.#entity_list.get_exit_pos() === undefined)){
+            throw new Error(`exit already set`)
+        }
+        this.#entity_list.set_exit(location);
+        this.#set_grid(location, exit_tile());
     }
-    set_player(player_x, player_y, player){
+    set_player(player_location, player){
         // Places the player. If a non-negative value is given for the player's health, it will be set to that.
         // Throws an error is the space is occupied or out of bounds.
-        this.check_bounds(player_x, player_y);
-        if(!this.check_empty(player_x, player_y)){
+        this.check_bounds(player_location);
+        if(!this.check_empty(player_location)){
             throw new Error(`space not empty`);
         }
-        this.#entity_list.set_player(player_x, player_y);
-        this.#grid[player_y][player_x] = player;
+        if(!(this.#entity_list.get_player_pos() === undefined)){
+            throw new Error(`player already set`)
+        }
+        this.#entity_list.set_player_pos(player_location);
+        this.#set_grid(player_location, player);
     }
-    add_tile(tile, x = undefined, y = undefined){
+    add_tile(tile, location = undefined){
         // Adds a new tile to a space.
         // Returns true if it was added successfuly.
         // If x or y aren't provided, it will select a random empty space.
         try{
-            if(x === undefined || y === undefined){
-                var position = this.random_empty();
-                x = position.x;
-                y = position.y;
+            if(location === undefined){
+                location = this.random_empty();
             }
-            this.check_bounds(x, y);
-            if(!this.check_empty(x, y)){
+            this.check_bounds(location);
+            if(!this.check_empty(location)){
                 throw new Error(`space not empty`);
             }
         }
-        catch{
+        catch(error){
             return false;
         }
-        this.#grid[y][x] = tile;
+        this.#set_grid(location, tile);
         if(tile.type === `enemy`){
-            this.#entity_list.add_enemy(x, y, tile);
+            this.#entity_list.add_enemy(location, tile);
         }
         else if(!(tile.type === `empty`)){
             ++this.#entity_list.count_non_empty;
@@ -160,7 +169,7 @@ class GameMap{
     clear_empty(){
         for(var y = 0; y < this.#y_max; ++y){
             for(var x = 0; x < this.#x_max; ++x){
-                var tile = this.#grid[y][x];
+                var tile = this.#get_grid(new Point(x, y));
                 if(tile.type === `empty`){
                     tile.pic = `${img_folder.tiles}empty.png`;
                     tile.description = empty_description;
@@ -168,21 +177,21 @@ class GameMap{
             }
         }
     }
-    move(x1, y1, x2, y2){
+    move(start_point, end_point){
         // Moves the tile at [x1, y1] to [x2, y2] if it is empty. 
         // Triggers the attempted destination's on_move if applicable.
         // Throws an error if the starting location is out of bounds.
         // Returns true if the move was successful.
         // Also throws errors if the player reaches the end of the floor or dies.
-        this.check_bounds(x1, y1);
+        this.check_bounds(start_point);
         try{
-            this.check_bounds(x2, y2);
+            this.check_bounds(end_point);
         }
         catch{
             return false;
         }
-        var start = this.#grid[y1][x1];
-        var end = this.#grid[y2][x2];
+        var start = this.#get_grid(start_point);
+        var end = this.#get_grid(end_point);
         if(start.type === `player` && end.type === `exit`){
             ++this.#turn_count;
             throw new Error(`floor complete`);
@@ -190,7 +199,7 @@ class GameMap{
         if(end.hasOwnProperty(`on_enter`)){
             // If the destination does something if moved onto, call it.
             try{
-                end.on_enter(x2, y2, x1 - x2, y1 - y2, this, end);
+                end.on_enter(end_point, start_point.minus(end_point), this, end);
             }
             catch(error){
                 if(error.message === `game over`){
@@ -204,52 +213,55 @@ class GameMap{
                 throw new Error(`creature died`);
             }
         }
-        if(end.type === `empty` && this.#grid[y1][x1] === start){
-            this.#entity_list.move_any(x2, y2, start);
-            this.#grid[y2][x2] = start;
-            this.#grid[y1][x1] = empty_tile();
+        if(end.type === `empty` && this.#get_grid(start_point) === start){
+            this.#entity_list.move_any(end_point, start);
+            this.#set_grid(end_point, start);
+            this.#set_grid(start_point, empty_tile());
             return true;
         }
         return false;
     }
-    player_move(x_dif, y_dif){
+    player_move(direction){
         // Moves the player the given relative distance.
-        var pos = this.#entity_list.get_player_pos();
-        return this.move(pos.x, pos.y, pos.x + x_dif, pos.y + y_dif)
+        var player_pos = this.#entity_list.get_player_pos();
+        return this.move(player_pos, player_pos.plus(direction));
     }
     get_player(){
         // Returns the player's health.
         var pos = this.#entity_list.get_player_pos();
-        return this.#grid[pos.y][pos.x];
+        if(!(pos === undefined)){
+            return this.#get_grid(pos);
+        }
+        return undefined;
     }
-    attack(x, y, hits = `all`){
+    attack(location, hits = `all`){
         // Attacks the specified square.
         // hits specifes if the attacks only hits enemy, player or all tiles.
         // If an enemy dies, it's on_death effect will be triggered if applicable.
         // Throws an error if the location is out of bounds.
         // Returns true if damage was dealt.
         try{
-            this.check_bounds(x, y);
+            this.check_bounds(location);
         }
         catch(error){
             return false;
         }
-        var target = this.#grid[y][x];
+        var target = this.#get_grid(location);
         if(target.hasOwnProperty(`health`) && !(target.type === `player`) && (hits === `enemy` || hits === `all`)){
             target.health -= 1;
             if(target.hasOwnProperty(`on_hit`)){
                 var player_pos = this.#entity_list.get_player_pos();
-                target.on_hit(x, y, player_pos[0] - x, player_pos[1] - y, this, target);
+                target.on_hit(location, player_pos.minus(location), this, target);
             }
             if(target.health <= 0){
-                this.#grid[y][x] = empty_tile()
-                this.#grid[y][x].pic = `${img_folder.tiles}hit.png`;
+                this.#set_grid(location, empty_tile());
+                this.#get_grid(location).pic = `${img_folder.tiles}hit.png`;
                 if(target.type === `enemy`){
                     this.#entity_list.remove_enemy(target.id)
                 }
                 if(target.hasOwnProperty(`on_death`)){
                     var player_pos = this.#entity_list.get_player_pos();
-                    target.on_death(x, y, player_pos[0] - x, player_pos[1] - y, this, target);
+                    target.on_death(location, player_pos.minus(location), this, target);
                 }
             }
             return true;
@@ -266,11 +278,11 @@ class GameMap{
         }
         return false;
     }
-    player_attack(x_dif, y_dif){
+    player_attack(direction){
         // Attacks the given square relative to the player's current positon.
         var pos = this.#entity_list.get_player_pos();
         try{
-            this.attack(pos.x + x_dif, pos.y + y_dif, `all`);
+            this.attack(pos.plus(direction), `all`);
         }
         catch{
             throw new Error(`game over`, {cause: `player`});
@@ -288,15 +300,15 @@ class GameMap{
     lock(){
         // Locks the stairs for a boss fight.
         var pos = this.#entity_list.get_exit_pos();
-        this.#grid[pos.y][pos.x] = lock_tile();
+        this.#get_grid(pos, lock_tile())
     }
     unlock(){
         // Unlocks the stairs after a boss fight.
         // Fully heals the player
         var pos = this.#entity_list.get_exit_pos();
-        this.#grid[pos.y][pos.x] = exit_tile();
-        pos = this.#entity_list.get_player_pos();
-        this.#grid[pos.y][pos.x].health = this.#grid[pos.y][pos.x].max_health;
+        this.#get_grid(pos, exit_tile());
+        var player = this.get_player();
+        player.health = player.max_health;
     }
     add_event(event){
         this.#events.push(event);
@@ -305,20 +317,23 @@ class GameMap{
         var new_events = [];
         for(var i = 0; i < this.#events.length; ++i){
             var event = this.#events[i];
-            if(event[0] === `earthquake`){
+            if(event.type === `earthquake`){
                 var rubble = [];
-                for(var j = 0; j < event[1]; ++j){
+                for(var j = 0; j < event.amount; ++j){
                     var space = this.random_empty();
-                    this.#grid[space.y][space.x].description = falling_rubble_description;
-                    this.#grid[space.y][space.x].pic = `${img_folder.tiles}falling_rubble.png`;
+                    this.#get_grid(space).description = falling_rubble_description;
+                    this.#get_grid(space).pic = `${img_folder.tiles}falling_rubble.png`;
                     rubble.push(space);
                 }
-                new_events.push([`earthquake_rubble`, rubble]);
+                new_events.push({
+                    type: `earthquake_rubble`,
+                    rubble
+                });
             }
-            else if(event[0] === `earthquake_rubble`){
+            else if(event.type === `earthquake_rubble`){
                 try{
-                    for(var j = 0; j < event[1].length; ++j){
-                        this.attack(event[1][j].y, event[1][j].x);
+                    for(var j = 0; j < event.rubble.length; ++j){
+                        this.attack(event.rubble[j]);
                     }
                 }
                 catch(error){
@@ -348,5 +363,12 @@ class GameMap{
             this.#area.generate_floor(this.#floor_num, this.#area, this);
         }
         display.display_message(ui_id.display_message, floor_description);
+    }
+
+    #get_grid(location){
+        return this.#grid[location.y][location.x];
+    }
+    #set_grid(location, value){
+        this.#grid[location.y][location.x] = value;
     }
 }

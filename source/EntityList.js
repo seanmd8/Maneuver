@@ -3,49 +3,47 @@
 
 class EntityList{
     count_non_empty // Keeps track of the number of entities currently in the class.
-    #player // Keeps track of the player postion.
-    #exit // Keeps track of the position of the exit.
+    #player_pos // Keeps track of the player postion.
+    #exit_pos // Keeps track of the position of the exit.
     #enemy_list // A list of each enemy currently on the board and their locations.
     #id_count // Used to give each enemy a unique id as it is added.
     constructor(){
         this.count_non_empty = 2;
         this.#id_count = 0;
-        this.#exit = 0;
         this.#enemy_list = [];
     }
     next_id(){
         return ++this.#id_count;
     }
-    set_player(x, y){
-        this.#player = {x, y};
+    set_player_pos(location){
+        this.#player_pos = location;
     }
     get_player_pos(){
-        if(this.#player === undefined){
-            throw new Error(`player doesn't exist`);
+        if(this.#player_pos === undefined){
+            return undefined;
         }
-        return {x: this.#player.x, y: this.#player.y};
+        return this.#player_pos.copy();
     }
-    set_exit(x, y){
-        this.#exit = {x, y};
+    set_exit(location){
+        this.#exit_pos = location;
     }
     get_exit_pos(){
-        if(this.#player === 0){
-            throw new Error(`exit doesn't exist`);
+        if(this.#exit_pos === undefined){
+            return undefined;
         }
-        return {x: this.#exit.x, y: this.#exit.y};
+        return this.#exit_pos.copy();
     }
-    add_enemy(x, y, enemy){
+    add_enemy(location, enemy){
         enemy.id = this.next_id();
-        this.#enemy_list.push({x, y, enemy});
+        this.#enemy_list.push({location, enemy});
         ++this.count_non_empty;
     }
-    move_enemy(x, y, id){
+    move_enemy(location, id){
         var index = this.#find_by_id(id);
         if(index === -1){
             throw new Error(`id not found`);
         }
-        this.#enemy_list[index].x = x;
-        this.#enemy_list[index].y = y;
+        this.#enemy_list[index].location = location;
     }
     remove_enemy(id){
         var index = this.#find_by_id(id);
@@ -63,12 +61,12 @@ class EntityList{
         }
         return -1;
     }
-    move_any(x, y, entity){
+    move_any(location, entity){
         if(entity.type === `player`){
-            this.set_player(x, y);
+            this.set_player_pos(location);
         }
         else if(entity.type === `enemy`){
-            this.move_enemy(x, y, entity.id);
+            this.move_enemy(location, entity.id);
         }
         else{
             throw new Error(`moving invalid type`);
@@ -90,7 +88,7 @@ class EntityList{
                     }
                     else{
                         try{
-                            e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+                            e.enemy.behavior(e.location, this.#player_pos.minus(e.location), map, e.enemy);
                         }
                         catch(error){
                             if(!(error.message === `creature died`)){

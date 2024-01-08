@@ -11,57 +11,57 @@
 
 
 // Normal Enemy AIs
-function spider_ai(x, y, x_dif, y_dif, map, enemy){
-    if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
+function spider_ai(location, difference, map, enemy){
+    if(difference.within_radius(1)){
         // If the player is next to it, attack.
-        map.attack(x + x_dif, y + y_dif, `player`);
+        map.attack(location.plus(difference), `player`);
     }
     else{
         // Otherwise, move closer.
-        var directions = order_nearby(x_dif, y_dif);
-        for(var i = 0; i < directions.length && !map.move(x, y, x + directions[i][0], y + directions[i][1]); ++i){}
+        var directions = order_nearby(difference);
+        for(var i = 0; i < directions.length && !map.move(location, location.plus(directions[i])); ++i){}
     }
 }
-function turret_h_ai(x, y, x_dif, y_dif, map, enemy){
+function turret_h_ai(location, difference, map, enemy){
     // Turret version that shoots orthogonally.
-    if(x_dif === 0 || y_dif === 0){
-        turret_fire_ai(x, y, x_dif, y_dif, map, enemy);
+    if(difference.x === 0 || difference.y === 0){
+        turret_fire_ai(location, difference, map, enemy);
     }
 }
-function turret_d_ai(x, y, x_dif, y_dif, map, enemy){
+function turret_d_ai(location, difference, map, enemy){
     // Turret version that shoots diagonally.
-    if(Math.abs(x_dif) === Math.abs(y_dif)){
-        turret_fire_ai(x, y, x_dif, y_dif, map, enemy);
+    if(Math.abs(difference.x) === Math.abs(difference.y)){
+        turret_fire_ai(location, difference, map, enemy);
     }
 }
-function turret_r_ai(x, y, x_dif, y_dif, map, enemy){
+function turret_r_ai(location, difference, map, enemy){
     switch(enemy.cycle){
         case 0:
-            if(x_dif === 0){
+            if(difference.x === 0){
                 // Fires N and S.
-                turret_fire_ai(x, y, x_dif, y_dif, map, enemy);
+                turret_fire_ai(location, difference, map, enemy);
             }
             break;
         case 1:
-            if(x_dif === -1 * y_dif){
+            if(difference.x === -1 * difference.y){
                 // Fires NE and SW.
-                turret_fire_ai(x, y, x_dif, y_dif, map, enemy);
+                turret_fire_ai(location, difference, map, enemy);
             }
             break;
         case 2:
-            if(y_dif === 0){
+            if(difference.y === 0){
                 // Fires E and W.
-                turret_fire_ai(x, y, x_dif, y_dif, map, enemy);
+                turret_fire_ai(location, difference, map, enemy);
             }
             break;
         case 3:
-            if(x_dif === y_dif){
+            if(difference.x === difference.y){
                 // Fires SE and NW.
-                turret_fire_ai(x, y, x_dif, y_dif, map, enemy);
+                turret_fire_ai(location, difference, map, enemy);
             }
             break;
         default:
-            throw Error(`Improper case for ${enemy.name}`);
+            throw new Error(`Improper case for ${enemy.name}`);
     }
     // Rotate.
     enemy.cycle = (enemy.cycle + enemy.direction + 4) % 4;
@@ -73,13 +73,12 @@ function turret_r_ai(x, y, x_dif, y_dif, map, enemy){
         enemy.rotate = 90 * Math.floor(((enemy.cycle + 1) % 4) / 2);
     }
 }
-function turret_fire_ai(x, y, x_dif, y_dif, map, enemy){
+function turret_fire_ai(location, difference, map, enemy){
     // Fires a shot in the direction of the player.
-    var x_direction = sign(x_dif);
-    var y_direction = sign(y_dif);
+    var direction = sign(difference)
     try{
-        for(var i = 1; !map.attack(x + i * x_direction, y + i * y_direction); ++i){ 
-            map.check_bounds(x + i * x_direction, y + i * y_direction);
+        for(var i = 1; !map.attack(location.plus(direction.times(i))); ++i){ 
+            map.check_bounds(location.plus(direction.times(i)));
         }
     }
     catch(error){
@@ -88,91 +87,87 @@ function turret_fire_ai(x, y, x_dif, y_dif, map, enemy){
         }
     }
 }
-function scythe_ai(x, y, x_dif, y_dif, map, enemy){
+function scythe_ai(location, difference, map, enemy){
     var distance = 3;
-    var direction = [sign(x_dif), sign(y_dif)];
-    if(direction[0] === 0 || direction[1] === 0){
+    var direction = sign(difference);
+    if(direction.x === 0 || direction.y === 0){
         // If the player is orthogonal, moves randomly.
-        direction = [random_sign(), random_sign()];
+        direction = new Point(random_sign(), random_sign());
     }
     // Rotate image based on direction.
-    enemy.rotate = 90 * (direction[0] + direction[1] + 2) / 2;
-    if(direction[0] === -1 && direction[1] === 1){
+    enemy.rotate = 90 * (direction.x + direction.y + 2) / 2;
+    if(direction.x === -1 && direction.y === 1){
         enemy.rotate = 90 * 3;
     }
-    for(var i = 0; i < distance && map.move(x, y, x + direction[0], y + direction[1]) ; ++i){
+    for(var i = 0; i < distance && map.move(location, location.plus(direction)) ; ++i){
         // moves <distance> spaces attacking each space it passes next to.
-        x += direction[0];
-        y += direction[1];
-        map.attack(x - direction[0], y, `player`);
-        map.attack(x, y - direction[1], `player`); 
+        location.plus_equals(direction)
+        map.attack(new Point(location.x - direction.x, location.y), `player`);
+        map.attack(new Point(location.x, location.y - direction.y), `player`); 
     }
 }
-function shadow_knight_ai(x, y, x_dif, y_dif, map, enemy){
+function shadow_knight_ai(location, difference, map, enemy){
     // Moves in an L.
-    if(Math.abs(x_dif) === 1 && Math.abs(y_dif) === 1){
+    if(Math.abs(difference.x) === 1 && Math.abs(difference.y) === 1){
         // If the player is next to it diagonally, attempty to reposition to attack them next turn.
-        if(!map.move(x, y, x + (2 * sign(x_dif)), y + (-1 * sign(y_dif)))){
-            map.move(x, y, x + (-1 * sign(x_dif)), y + (2 * sign(y_dif)));
+        if(!map.move(location, location.plus(sign(difference).times(new Point(2, -1))))){
+            map.move(location, location.plus(sign(difference).times(new Point(-1, 2))));
         }
         return;
     }
-    if(Math.abs(x_dif) + Math.abs(y_dif) === 3){
-        if(x_dif === 1 || x_dif === -1 || y_dif === 1 || y_dif === -1){
-            // If the player is a L away, attak them then try to move past them.
-            map.attack(x + x_dif, y + y_dif, `player`);
-            map.move(x, y, x + x_dif * 2, y + y_dif * 2);
-            return;
-        }
+    if((Math.abs(difference.x === 1) || Math.abs(difference.y) === 1) && Math.abs(difference.x) + Math.abs(difference.y) === 3){
+        // If the player is a L away, attak them then try to move past them.
+        map.attack(location.plus(difference), `player`);
+        map.move(location, location.plus(difference.times(new Point(2, 2))));
+        return;
     }
     // Otherwise, attempt to move closer
-    if(Math.abs(x_dif) >= Math.abs(y_dif)){
-        var new_x = 2;
-        var new_y = 1;
+    if(Math.abs(difference.x) >= Math.abs(difference.y)){
+        var new_dir = new Point(2, 1);
     }
     else{
-        var new_x = 1;
-        var new_y = 2;
+        var new_dir = new Point(1, 2);
     }
-    if(x_dif < 0){
-        new_x *= -1;
+    if(difference.x < 0){
+        new_dir.x *= -1;
     }
-    if(y_dif < 0){
-        new_y *= -1;
+    if(difference.y < 0){
+        new_dir.y *= -1;
     }
-    map.move(x, y, x + new_x, y + new_y);
+    map.move(location, location.plus(new_dir));
 }
-function spider_web_ai(x, y, x_dif, y_dif, map, enemy){
+function spider_web_ai(location, difference, map, enemy){
     if(enemy.cycle < enemy.spawn_timer){
         // If the cycle hasn't reached the spawn timer, increments it.
         ++enemy.cycle;
     }
     else{
         // Attempts to spawn a spider nearby and resets cycle.
-        spawn_nearby(map, spider_tile(), x, y);
+        spawn_nearby(map, spider_tile(), location);
         enemy.cycle = 0;
     }
 }
-function ram_ai(x, y, x_dif, y_dif, map, enemy){
-    var x_direction = sign(x_dif);
-    var y_direction = sign(y_dif);
+function ram_ai(location, difference, map, enemy){
+    var direction = sign(difference);
     var wander_speed = 2;
     if(enemy.cycle === 0){
         // moves <wander_speed> closer to a row or column that the player is in.
         var moved = true;
-        if(Math.abs(x_dif) <= Math.abs(y_dif)){
-            for(var i = 0; i < wander_speed && i < Math.abs(x_dif) && moved; ++i){
-                moved = map.move(x, y, x + x_direction, y);
-                x += x_direction;
+        if(Math.abs(difference.x) <= Math.abs(difference.y)){
+            direction.y = 0;
+            for(var i = 0; i < wander_speed && i < Math.abs(difference.x) && moved; ++i){
+                moved = map.move(location, location.plus(direction));
+                location.plus_equals(direction);
             }
         }
         else{
-            for(var i = 0; i < wander_speed && i < Math.abs(y_dif) && moved; ++i){
-                moved = map.move(x, y, x, y + y_direction);
-                y += y_direction;
+            direction.x = 0;
+            for(var i = 0; i < wander_speed && i < Math.abs(difference.y) && moved; ++i){
+                moved = map.move(location, location.plus(direction));
+                location.plus_equals(direction);
             }
         }
-        if(moved === true && (Math.abs(x_dif) < 3 || Math.abs(y_dif) < 3)){
+        if(moved === true && (Math.abs(difference.x) < 3 || Math.abs(difference.y) < 3)){
             // If it sees them, prepares to charge.
             enemy.cycle = 1;
             enemy.pic = enemy.pic_arr[enemy.cycle];
@@ -182,149 +177,115 @@ function ram_ai(x, y, x_dif, y_dif, map, enemy){
         // Charges orthogonally until it hits something and rams it.
         // Reverts to wandering after.
         var moved = true;
-        if(Math.abs(x_dif) > Math.abs(y_dif)){
-            while(moved){
-                moved = map.move(x, y, x + x_direction, y);
-                x += x_direction;
-            }
-            map.attack(x, y);
+        if(Math.abs(difference.x) > Math.abs(difference.y)){
+            direction.y = 0;
         }
         else{
-            while(moved){
-                moved = map.move(x, y, x, y + y_direction);
-                y += y_direction;
-            }
-            map.attack(x, y);
+            direction.x = 0;
         }
+        while(moved){
+            moved = map.move(location, location.plus(direction));
+            location.plus_equals(direction);
+        }
+        map.attack(location);
         enemy.cycle = 0;
         enemy.pic = enemy.pic_arr[enemy.cycle];
     }
 }
-function large_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
+function large_porcuslime_ai(location, difference, map, enemy){
     if(enemy.health === 2){
         // If health is 2, turns into the medium version.
-        map.attack(x, y);
-        map.attack(x, y);
-        map.add_tile(medium_porcuslime_tile(), x, y);
+        map.attack(location);
+        map.attack(location);
+        map.add_tile(medium_porcuslime_tile(), location);
         return;
     }
     if(enemy.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
-        map.attack(x, y);
-        spawn_nearby(map, small_d_porcuslime_tile(), x, y);
-        spawn_nearby(map, small_h_porcuslime_tile(), x, y);
+        map.attack(location);
+        spawn_nearby(map, small_d_porcuslime_tile(), location);
+        spawn_nearby(map, small_h_porcuslime_tile(), location);
         return;
     }
-    if(-1 <= x_dif && x_dif <= 1 && -1 <= y_dif && y_dif <= 1){
-        // If the player is next to it, attacks.
-        map.attack(x + x_dif, y + y_dif);
-    }
-    else{
-        // Otherwise moves closer and attacks in that direction.
-        x_dif = sign(x_dif);
-        y_dif = sign(y_dif);
-        var moved = map.move(x, y, x + x_dif, y + y_dif);
-        if(moved){
-            map.attack(x + (2 * x_dif), y + (2 * y_dif));
-        }
-    }
+    var direction = sign(difference);
+    move_attack_ai(location, direction, map, enemy);
 }
-function medium_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
+function medium_porcuslime_ai(location, difference, map, enemy){
     if(enemy.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
-        map.attack(x, y);
-        spawn_nearby(map, small_d_porcuslime_tile(), x, y);
-        spawn_nearby(map, small_h_porcuslime_tile(), x, y);
+        map.attack(location);
+        spawn_nearby(map, small_d_porcuslime_tile(), location);
+        spawn_nearby(map, small_h_porcuslime_tile(), location);
         return;
     }
     if(enemy.cycle === 0){
         // If cycle is at 0, direction will be orthogonally towards the player.
-        if(Math.abs(x_dif) > Math.abs(y_dif)){
-            var dir = [sign(x_dif), 0];
-        }
-        else{
-            var dir = [0, sign(y_dif)];
-        }
+        porcuslime_horizontal_ai(location, difference, map, enemy)
     }
     else{
         // If cycle is at 1, direction will be diagonally towards the player.
-        var dir = [sign(x_dif), sign(y_dif)];
-        for(var i = 0; i < dir.length; ++i){
-            if(dir[i] === 0){
-                dir[i] = random_sign();
-            }
-        }
-    }
-    // Moves then attacks in that direction.
-    var moved = map.move(x, y, x + dir[0], y + dir[1]);
-    if(moved){
-        map.attack(x + (2 * dir[0]), y + (2 * dir[1]));
-    }
-    else{
-        map.attack(x + dir[0], y + dir[1]);
+        porcuslime_diagonal_ai(location, difference, map, enemy)
     }
     // Swaps cycle and picture between the two.
     enemy.cycle = 1 - enemy.cycle;
     enemy.pic = enemy.pic_arr[enemy.cycle];
 }
-function small_h_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
-    // Small version which moves  then attacks orthogonally.
-    if(Math.abs(x_dif) > Math.abs(y_dif)){
-        var dir = [sign(x_dif), 0];
-    }
-    else{
-        var dir = [0, sign(y_dif)];
-    }
-    var moved = map.move(x, y, x + dir[0], y + dir[1]);
-    if(moved){
-        map.attack(x + (2 * dir[0]), y + (2 * dir[1]));
-    }
-    else{
-        map.attack(x + dir[0], y + dir[1]);
-    }
-}
-function small_d_porcuslime_ai(x, y, x_dif, y_dif, map, enemy){
-    // Small version which moves  then attacks diagonally.
-    var dir = [sign(x_dif), sign(y_dif)];
-    for(var i = 0; i < dir.length; ++i){
-        if(dir[i] === 0){
-            dir[i] = random_sign();
+function porcuslime_diagonal_ai(location, difference, map, enemy){
+    // Small version which moves then attacks diagonally.
+    var direction = order_nearby(difference);
+    var dir = undefined
+    for(var i = 0; i < direction.length && dir === undefined; ++i){
+        if(Math.abs(direction[i].x) === 1 && Math.abs(direction[i].y) === 1){
+            dir = direction[i];
         }
     }
-    var moved = map.move(x, y, x + dir[0], y + dir[1]);
+    move_attack_ai(location, dir, map, enemy);
+}
+function porcuslime_horizontal_ai(location, difference, map, enemy){
+    var direction = order_nearby(difference);
+    var dir = undefined
+    for(var i = 0; i < direction.length && dir === undefined; ++i){
+        if(direction[i].x === 0 || direction[i].y === 0){
+            dir = direction[i];
+        }
+    }
+    move_attack_ai(location, dir, map, enemy);
+}
+function move_attack_ai(location, difference, map, enemy){
+    var moved = map.move(location, location.plus(difference));
     if(moved){
-        map.attack(x + (2 * dir[0]), y + (2 * dir[1]));
+        map.attack(location.plus(difference.times(2)));
     }
     else{
-        map.attack(x + dir[0], y + dir[1]);
+        map.attack(location.plus(difference));
     }
 }
-function acid_bug_ai(x, y, x_dif, y_dif, map, enemy){
+function acid_bug_ai(location, difference, map, enemy){
     // Moves 1 space towards the player.
-    var directions = order_nearby(x_dif, y_dif);
+    var directions = order_nearby(difference);
     for(var i = 0;
         i < directions.length &&
-        !map.move(x, y, x + directions[i][0], y + directions[i][1])
+        !map.move(location, location.plus(directions[i]))
         && enemy.health > 0;
         ++i){}
 }
-function acid_bug_death(x, y, x_dif, y_dif, map, enemy){
+function acid_bug_death(location, difference, map, enemy){
     // On death, attacks each space next to it.
     var attacks = random_nearby();
     for(var i = 0; i < attacks.length; ++i){
-        map.attack(x + attacks[i][0], y + attacks[i][1]);
+        map.attack(location.plus(attacks[i]));
     }
 }
-function brightling_ai(x, y, x_dif, y_dif, map, enemy){
+function brightling_ai(location, difference, map, enemy){
     if(enemy.cycle === -1){
         // teleports to a random empty space, then cycle goes to 1.
-        teleport_spell(x, y, x_dif, y_dif, map, enemy);
+        teleport_spell(location, difference, map, enemy);
         ++enemy.cycle;
     }
     else if(random_num(4) < enemy.cycle){
         // Teleports the player next to it then cycle goes to 0 to prepare to teleport.
         var near_points = random_nearby();
-        for(var i = 0; i < near_points.length && !map.move(x + x_dif, y + y_dif, x + near_points[i][0], y + near_points[i][1]); ++i){}
+        for(var i = 0; i < near_points.length && !map.move(location.plus(difference), location.plus(near_points[i])); ++i){}
         enemy.cycle = -1;
         // Since player has been moved, it returns to their turn.
         throw new Error(`pass to player`);
@@ -333,46 +294,43 @@ function brightling_ai(x, y, x_dif, y_dif, map, enemy){
         // Moves 2 spaces randomly.
         var near_points = random_nearby();
         for(var i = 0; i < 2; ++i){
-            var moved = map.move(x, y, x + near_points[i][0], y + near_points[i][1]);
+            var moved = map.move(location, location.plus(near_points[i]));
             if(moved){
-                x = x + near_points[i][0];
-                y = y + near_points[i][1];
+                location.plus_equals(near_points[i])
             }
         }
         ++enemy.cycle;
     }
 }
-function corrosive_caterpillar_ai(x, y, x_dif, y_dif, map, enemy){
-    var direction = get_empty_nearby(x, y, random_nearby(), map);
+function corrosive_caterpillar_ai(location, difference, map, enemy){
+    var direction = get_empty_nearby(location, random_nearby(), map);
     if(!(direction === false)){
-        if(map.move(x, y, x + direction[0], y + direction[1])){
-            map.add_tile(corrosive_slime_tile(), x, y);
+        if(map.move(location, location.plus(direction))){
+            map.add_tile(corrosive_slime_tile(), location);
         }
     }
 }
-function corrosive_caterpillar_death(x, y, x_dif, y_dif, map, enemy){
-    map.add_tile(corrosive_slime_tile(), x, y);
+function corrosive_caterpillar_death(location, difference, map, enemy){
+    map.add_tile(corrosive_slime_tile(), location);
 }
-function noxious_toad_ai(x, y, x_dif, y_dif, map, enemy){
+function noxious_toad_ai(location, difference, map, enemy){
     if(enemy.cycle === 0){
-        var directions = order_nearby(x_dif, y_dif);
+        var directions = order_nearby(difference);
         var moved = false;
         for(var i = 0; i < directions.length && !moved; ++i){
-            if(directions[i][0] === 0 || directions[i][1] === 0){
-                moved = map.move(x, y, x + (2 * directions[i][0]), y + (2 * directions[i][1]));
+            if(directions[i].x === 0 || directions[i].y === 0){
+                moved = map.move(location, location.plus(directions[i].times(2)));
                 if(moved){
-                    x += (2 * directions[i][0]);
-                    y += (2 * directions[i][1]);
-                    x_dif -= (2 * directions[i][0]);
-                    y_dif -= (2 * directions[i][1]);
+                    location.plus_equals(directions[i].times(2));
+                    difference.minus_equals(directions[i].times(2))
                 }
             }
         }
         if(moved){
             enemy.cycle = 1;
-            if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
+            if(difference.within_radius(1)){
                 for(var i = 0; i < directions.length; ++i){
-                    map.attack(x+ directions[i][0], y + directions[i][1]);
+                    map.attack(location.plus(directions[i]));
                 }
             }
         }
@@ -382,73 +340,73 @@ function noxious_toad_ai(x, y, x_dif, y_dif, map, enemy){
     }
     enemy.pic = enemy.pic_arr[enemy.cycle]
 }
-function vampire_ai(x, y, x_dif, y_dif, map, enemy){
-    var player_pos = [x + x_dif, y + y_dif];
-    var target_spaces = [[player_pos[0] + 1, player_pos[1] + 1], 
-                        [player_pos[0] - 1, player_pos[1] + 1], 
-                        [player_pos[0] + 1, player_pos[1] - 1], 
-                        [player_pos[0] - 1, player_pos[1] - 1]];
+function vampire_ai(location, difference, map, enemy){
+    var player_pos = location.plus(difference);
+    var target_spaces = [new Point(player_pos.x + 1, player_pos.y + 1), 
+                        new Point(player_pos.x - 1, player_pos.y + 1), 
+                        new Point(player_pos.x + 1, player_pos.y - 1), 
+                        new Point(player_pos.x - 1, player_pos.y - 1)];
     target_spaces = randomize_arr(target_spaces);
     var moved = false;
     for(var i = 0; i < target_spaces.length && !moved; ++i){
         var target = target_spaces[i];
-        if(Math.abs(target[0] - x) + Math.abs(target[1] - y) === 1){
-            moved = map.move(x, y, target[0], target[1]);
+        var target_distance = target.minus(location);
+        if(Math.abs(target_distance.x) + Math.abs(target_distance.y) === 1){
+            moved = map.move(location, target);
         }
     }
-    if(moved && map.attack(x + x_dif, y + y_dif) && enemy.health < enemy.max_health){
+    if(moved && map.attack(location.plus(difference)) && enemy.health < enemy.max_health){
         ++enemy.health;
     }
     if(!moved){
-        var directions = order_nearby(x_dif, y_dif);
+        var directions = order_nearby(difference);
         for(var i = 0; i < directions.length && !moved; ++i){
             var direction = directions[i]
-            if(direction[0] === 0 || direction[1] === 0){
-                moved = map.move(x, y, x + direction[0], y + direction[1]);
+            if(direction.x === 0 || direction.y === 0){
+                moved = map.move(location, location.plus(direction));
             }
             
         }
     }
 }
-function vampire_hit(x, y, x_dif, y_dif, map, enemy){
+function vampire_hit(location, difference, map, enemy){
     if(enemy.health > 0){
         stun(enemy);
-        teleport_spell(x, y, x_dif, y_dif, map, enemy);
+        teleport_spell(location, difference, map, enemy);
     }
 }
-function clay_golem_ai(x, y, x_dif, y_dif, map, enemy){
-    if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
+function clay_golem_ai(location, difference, map, enemy){
+    if(difference.within_radius(1)){
         // If the player is next to it, attack.
-        map.attack(x + x_dif, y + y_dif, `player`);
+        map.attack(location.plus(difference), `player`);
         enemy.cycle = 1;
     }
     else if(enemy.cycle === 1){
         // Otherwise, move closer.
-        var directions = order_nearby(x_dif, y_dif);
-        for(var i = 0; i < directions.length && !map.move(x, y, x + directions[i][0], y + directions[i][1]); ++i){}
+        var directions = order_nearby(difference);
+        for(var i = 0; i < directions.length && !map.move(location, location.plus(directions[i])); ++i){}
         enemy.cycle = 0;
     }
     else{
         enemy.cycle = 1;
     }
 }
-function clay_golem_hit(x, y, x_dif, y_dif, map, enemy){
+function clay_golem_hit(location, difference, map, enemy){
     stun(enemy);
     enemy.cycle = 1;
 }
-function vinesnare_bush_ai(x, y, x_dif, y_dif, map, enemy){
+function vinesnare_bush_ai(location, difference, map, enemy){
     var moved = false;
-    if(Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
+    if(difference.within_radius(1)){
         // If the player is next to it, attack.
-        map.attack(x + x_dif, y + y_dif, `player`);
+        map.attack(location.plus(difference), `player`);
     }
-    else if(enemy.cycle > 0 && Math.abs(x_dif) <= enemy.range && Math.abs(y_dif) <= enemy.range){
-        var sign_x = sign(x_dif);
-        var sign_y = sign(y_dif);
-        if(x_dif === 0 || y_dif === 0 || Math.abs(x_dif) === Math.abs(y_dif)){
-            for(var i = Math.max(Math.abs(x_dif), Math.abs(y_dif));
+    else if(enemy.cycle > 0 && difference.within_radius(enemy.range)){
+        var direction = sign(difference);
+        if(difference.x === 0 || difference.y === 0 || Math.abs(difference.x) === Math.abs(difference.y)){
+            for(var i = Math.max(Math.abs(difference.x), Math.abs(difference.y));
                 i > 1 &&
-                map.move(x + i * sign_x, y + i * sign_y, x + (i - 1) * sign_x, y + (i - 1) * sign_y);
+                map.move(location.plus(direction.times(i)), location.plus(direction.times(i - 1)));
                 --i){
                     moved = true;
                 }
@@ -464,30 +422,28 @@ function vinesnare_bush_ai(x, y, x_dif, y_dif, map, enemy){
         enemy.pic = enemy.pic_arr[1];
     }
 }
-function rat_ai(x, y, x_dif, y_dif, map, enemy){
-    if(enemy.cycle >= 1 && Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1){
+function rat_ai(location, difference, map, enemy){
+    if(enemy.cycle >= 1 && difference.within_radius(1)){
         // If the player is next to it, attack.
-        map.attack(x + x_dif, y + y_dif, `player`);
+        map.attack(location.plus(difference), `player`);
         enemy.cycle = -1;
     }
     // Otherwise, move closer.
     for(var i = 0; i < 2; ++i){
-        var directions = order_nearby(x_dif, y_dif);
+        var directions = order_nearby(difference);
         if(enemy.cycle <= 0){
             directions = reverse_arr(directions);
         }
         var moved = false;
         for(var j = 0; j < directions.length && !moved; ++j){
-            moved = map.move(x, y, x + directions[j][0], y + directions[j][1]);
+            moved = map.move(location, location.plus(directions[j]));
             if(moved){
-                x += directions[j][0];
-                x_dif -= directions[j][0];
-                y += directions[j][1];
-                y_dif -= directions[j][1];
-                if(directions[j][0] < 0){
+                location.plus_equals(directions[j])
+                difference.minus_equals(directions[j])
+                if(directions[j].x < 0){
                     enemy.flip = false;
                 }
-                if(directions[j][0] > 0){
+                if(directions[j].x > 0){
                     enemy.flip = true;
                 }
             }
@@ -498,46 +454,43 @@ function rat_ai(x, y, x_dif, y_dif, map, enemy){
 
 
 // Boss AIs
-function boss_death(x, y, x_dif, y_dif, map, enemy){
+function boss_death(location, difference, map, enemy){
     display.display_message(ui_id.display_message, `${enemy.death_message}\n${boss_death_description}`);
     map.unlock();
 }
-function velociphile_ai(x, y, x_dif, y_dif, map, enemy){
+function velociphile_ai(location, difference, map, enemy){
     // Moves towards the player 2/3 of the time, otherwise moves randomly.
-    var directions = order_nearby(x_dif, y_dif);
+    var directions = order_nearby(difference);
     if(random_num(3) === 0){
         directions = randomize_arr(directions);
     }
     // Direction is reselected until an unobstructed one is found.
-    var direction = get_empty_nearby(x, y, directions, map);
+    var direction = get_empty_nearby(location, directions, map);
     if(!(direction === false)){
         // Moves in the chosen direction until it hits something, which it then attacks.
-        while(map.move(x, y, x + direction[0], y + direction[1])){
-            x += direction[0];
-            y += direction[1];
+        while(map.move(location, location.plus(direction))){
+            location.plus_equals(direction);
         }
-        map.attack(x + direction[0], y + direction[1]);
+        map.attack(location.plus(direction));
     }
 }
-function spider_queen_hit(x, y, x_dif, y_dif, map, enemy){
+function spider_queen_hit(location, difference, map, enemy){
     // Spawns a new spider nearby. Stuns it so it won't move right away.
     stun(enemy);
     var new_spider = spider_tile();
     stun(new_spider);
-    spawn_nearby(map, new_spider, x, y);
+    spawn_nearby(map, new_spider, location);
 }
-function lich_ai(x, y, x_dif, y_dif, map, enemy){
-    var player_close = (Math.abs(x_dif) <= 1 && Math.abs(y_dif) <= 1);
-    var moves = reverse_arr(order_nearby(x_dif, y_dif));
+function lich_ai(location, difference, map, enemy){
+    var player_close = (difference.within_radius(1));
+    var moves = reverse_arr(order_nearby(difference));
     var i;
-    for(i = 0; i < moves.length && !map.move(x, y, x + moves[i][0], y + moves[i][1]); ++i){}
+    for(i = 0; i < moves.length && !map.move(location, location.plus(moves[i])); ++i){}
     if(i < moves.length){
-        x += moves[i][0];
-        x_dif -= moves[i][0];
-        y += moves[i][1];
-        y_dif -= moves[i][1];
+        location.plus_equals(moves[i]);
+        difference.minus_equals(moves[i]);
     }
-    enemy.spells[enemy.cycle][0](x, y, x_dif, y_dif, map, enemy);
+    enemy.spells[enemy.cycle][0](location, difference, map, enemy);
     if(player_close){
         enemy.cycle = 0;
     }
@@ -549,87 +502,90 @@ function lich_ai(x, y, x_dif, y_dif, map, enemy){
 }
 
 // Spells
-function teleport_spell(x, y, x_dif, y_dif, map, enemy){
+function teleport_spell(location, difference, map, enemy){
     var space = map.random_empty();
-    map.move(x, y, space.x, space.y);
+    map.move(location, space);
 }
-function summon_spell(x, y, x_dif, y_dif, map, enemy){
+function summon_spell(location, difference, map, enemy){
     var tile = enemy.summons[random_num(enemy.summons.length)]();
-    spawn_nearby(map, tile, x, y);
+    spawn_nearby(map, tile, location);
 }
-function earthquake_spell(x, y, x_dif, y_dif, map, enemy){
-    map.add_event([`earthquake`, (4 - enemy.health) * 5 + random_num(4)]);
+function earthquake_spell(location, difference, map, enemy){
+    map.add_event({
+        type: `earthquake`,
+        amount: (4 - enemy.health) * 5 + random_num(4)
+    });
 }
-function flame_wave_spell(x, y, x_dif, y_dif, map, enemy){
-    var direction = get_empty_nearby(x, y, order_nearby(x_dif, y_dif), map);
+function flame_wave_spell(location, difference, map, enemy){
+    var direction = get_empty_nearby(location, order_nearby(difference), map);
     var spawnpoints = [];
     if(direction === false){
         return;
     }
-    if(direction[0] === 0){
+    if(direction.x === 0){
         // Shooting vertically.
         for(var i = 0; i < 3; ++i){
-            spawnpoints.push([i - 1, direction[1]]);
+            spawnpoints.push(new Point(i - 1, direction.y));
         }
     }
-    else if(direction[1] === 0){
+    else if(direction.y === 0){
         // Shooting horizontally.
         for(var i = 0; i < 3; ++i){
-            spawnpoints.push([direction[0], i - 1]);
+            spawnpoints.push(new Point(direction.x, i - 1));
         }
     }
     else{
         // Shooting diagonally.
-        spawnpoints.push([direction[0], direction[1]]);
-        spawnpoints.push([direction[0], 0]);
-        spawnpoints.push([0, direction[1]]);
+        spawnpoints.push(new Point(direction.x, direction.y));
+        spawnpoints.push(new Point(direction.x, 0));
+        spawnpoints.push(new Point(0, direction.y));
     }
     for(var i = 0; i < spawnpoints.length; ++i){
         var fireball = fireball_tile();
         set_direction(fireball, direction);
-        map.add_tile(fireball, x + spawnpoints[i][0], y  + spawnpoints[i][1]);
+        map.add_tile(fireball, location.plus(spawnpoints[i]));
     }
 }
-function confusion_spell(x, y, x_dif, y_dif, map, enemy){
+function confusion_spell(location, difference, map, enemy){
     for(var i = 0; i < 2; ++i){
         var ran = random_num(CONFUSION_CARDS.length);
         give_temp_card(CONFUSION_CARDS[ran]());
     }
 }
-function lava_moat_spell(x, y, x_dif, y_dif, map, enemy){
-    var nearby = order_nearby(x_dif, y_dif);
-    for(var i = 0; i < enemy.health && count_nearby(x, y, map) < 6; ++i){
+function lava_moat_spell(location, difference, map, enemy){
+    var nearby = order_nearby(difference);
+    for(var i = 0; i < enemy.health && count_nearby(location, map) < 6; ++i){
         var moat = lava_pool_tile();
-        spawn_nearby(map, moat, x, y, nearby);
+        spawn_nearby(map, moat, location, nearby);
     }
 }
-function rest_spell(x, y, x_dif, y_dif, map, enemy){}
+function rest_spell(location, difference, map, enemy){}
 
 // Other AIs
-function hazard(x, y, x_dif, y_dif, map, enemy){
+function hazard(location, difference, map, enemy){
     // General on_move function to retaliate if something tries to move onto it.
-    map.attack(x + x_dif, y + y_dif);
+    map.attack(location.plus(difference));
 }
-function wall_death(x, y, x_dif, y_dif, map, enemy){
+function wall_death(location, difference, map, enemy){
     var spawn_list = [spider_tile, acid_bug_tile, spider_web_tile, rat_tile];
     if(random_num(10) < 7){
         var ran = random_num(spawn_list.length);
         var new_enemy = spawn_list[ran]();
         stun(new_enemy);
-        map.add_tile(new_enemy, x, y);
+        map.add_tile(new_enemy, location);
     }
 }
-function fireball_ai(x, y, x_dif, y_dif, map, enemy){
-    if(!map.move(x, y, x + enemy.direction[0], y + enemy.direction[1])){
-        map.attack(x + enemy.direction[0], y + enemy.direction[1]);
+function fireball_ai(location, difference, map, enemy){
+    if(!map.move(location, location.plus(enemy.direction))){
+        map.attack(location.plus(enemy.direction));
         enemy.health = 1;
-        map.attack(x, y);
+        map.attack(location);
     }
 }
-function fireball_on_enter(x, y, x_dif, y_dif, map, enemy){
-    hazard(x, y, x_dif, y_dif, map, enemy);
+function fireball_on_enter(location, difference, map, enemy){
+    hazard(location, difference, map, enemy);
     enemy.health = 1;
-    map.attack(x, y);
+    map.attack(location);
 }
 
 // AI Utility Functions
@@ -640,46 +596,38 @@ function stun(tile, amount = 1){
     }
     tile.stun += amount;
 }
-function convert_direction(x, y){
-    // Converts cords to a cardinal direction.
-    var str = ``;
-    if(y > 0){
-        str += `s`;
-    }
-    if(y < 0){
-        str += `n`;
-    }
-    if(x > 0){
-        str += `e`;
-    }
-    if(x < 0){
-        str += `w`;
-    }
-    return str;
-}
 function set_direction(enemy, direction){
     enemy.direction = direction;
-    if(direction[0] === 0 || direction[1] === 0){
-        enemy.rotate = 90 * (Math.abs((direction[0] * -2 + 1)) + direction[1]);
+    if(direction.within_radius(0)){
+        enemy.rotate = 90 * (Math.abs((direction.x * -2 + 1)) + direction.y);
         enemy.pic = enemy.pic_arr[0];
     }
     else{
-        enemy.rotate= 90 * ((direction[0] + direction[1]) / 2 + 1);
-        if(direction[0] === -1 && direction[1] === 1){
+        enemy.rotate= 90 * ((direction.x + direction.y) / 2 + 1);
+        if(direction.x === -1 && direction.y === 1){
             enemy.rotate = 90 * 3;
         }
         enemy.pic = enemy.pic_arr[1];
     }
 }
-function sign(x){
+function sign(num){
     // Returns whether x is positive, negative, or 0
-    if(x > 0){
-        return 1;
+    if(typeof num === `number`){
+        if(num > 0){
+            return 1;
+        }
+        if(num < 0){
+            return -1;
+        }
+        return 0;
     }
-    if(x < 0){
-        return -1;
+    else if(num.hasOwnProperty(`x`) && num.hasOwnProperty(`y`)){
+        return new Point(sign(num.x), sign(num.y));
     }
-    return 0;
+    else{
+        throw new Error(`invalid type`);
+    }
+    
 }
 function random_sign(){
     // Randomly returns 1 or -1.
@@ -687,97 +635,104 @@ function random_sign(){
 }
 function random_nearby(){
     // Returns an array of each point next to [0, 0] with it's order randomized.
-    var cords = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+    var cords = [
+        new Point(-1, -1),
+        new Point(-1, 0),
+        new Point(-1, 1),
+        new Point(0, -1),
+        new Point(0, 1),
+        new Point(1, -1),
+        new Point(1, 0),
+        new Point(1, 1)];
     return randomize_arr(cords);
 }
-function order_nearby(x_dir, y_dir){
+function order_nearby(direction){
     // Returns an array with points ordered from the nearest to the furthest from the given direction. 
     // Equal distance points are randomly ordered.
-    var x_sign = sign(x_dir);
-    var y_sign = sign(y_dir);
+    var sign_dir = sign(direction);
     var ordering = [];
-    ordering.push([x_sign, y_sign]);
-    if(x_sign === 0){
+    ordering.push(sign_dir);
+    if(sign_dir.x === 0){
         // Target is along the vertical line.
-        var pair = randomize_arr([[1, y_sign], [-1, y_sign]]);
+        var pair = randomize_arr([new Point(1, sign_dir.y), new Point(-1, sign_dir.y)]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[1, 0], [-1, 0]])
+        pair = randomize_arr([new Point(1, 0), new Point(-1, 0)])
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[1, -1 * y_sign], [-1, -1 * y_sign]]);
+        pair = randomize_arr([new Point(1, -1 * sign_dir.y), new Point(-1, -1 * sign_dir.y)]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
     }
-    else if(y_sign === 0){
+    else if(sign_dir.y === 0){
         // Target is along the horizontal line.
-        var pair = randomize_arr([[x_sign, 1], [x_sign, 1]]);
+        var pair = randomize_arr([new Point(sign_dir.x, 1), new Point(sign_dir.x, 1)]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[0, 1], [0, -1]])
+        pair = randomize_arr([new Point(0, 1), new Point(0, -1)])
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[-1 * x_sign, 1], [-1 * x_sign, -1]]);
+        pair = randomize_arr([new Point(-1 * sign_dir.x, 1), new Point(-1 * sign_dir.x, -1)]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
     }
-    else if(Math.abs(x_dir) > Math.abs(y_dir)){  
+    else if(Math.abs(direction.x) > Math.abs(direction.y)){  
         // Target is closer to the horizontal line than the vertical one.
-        ordering.push([x_sign, 0]);
-        ordering.push([0, y_sign]);
-        ordering.push([x_sign, -1 * y_sign]);
-        ordering.push([-1 * x_sign, y_sign]);
-        ordering.push([0, -1 * y_sign]);
-        ordering.push([-1 * x_sign, 0]);
+        ordering.push(new Point(sign_dir.x, 0));
+        ordering.push(new Point(0, sign_dir.y));
+        ordering.push(new Point(sign_dir.x, -1 * sign_dir.y));
+        ordering.push(new Point(-1 * sign_dir.x, sign_dir.y));
+        ordering.push(new Point(0, -1 * sign_dir.y));
+        ordering.push(new Point(-1 * sign_dir.x, 0));
     }
-    else if(Math.abs(x_dir) < Math.abs(y_dir)){
+    else if(Math.abs(direction.x) < Math.abs(direction.y)){
         // Target is closer to the vertical line than the horizontal one one.
-        ordering.push([0, y_sign]);
-        ordering.push([x_sign, 0]);
-        ordering.push([-1 * x_sign, y_sign]);
-        ordering.push([x_sign, -1 * y_sign]);
-        ordering.push([-1 * x_sign, 0]);
-        ordering.push([0, -1 * y_sign]);
+        ordering.push(new Point(0, sign_dir.y));
+        ordering.push(new Point(sign_dir.x, 0));
+        ordering.push(new Point(-1 * sign_dir.x, sign_dir.y));
+        ordering.push(new Point(sign_dir.x, -1 * sign_dir.y));
+        ordering.push(new Point(-1 * sign_dir.x, 0));
+        ordering.push(new Point(0, -1 * sign_dir.y));
     }
     else{
         // Target is along the diagonal.
-        var pair = randomize_arr([[x_sign, 0], [0, y_sign]]);
+        var pair = randomize_arr([new Point(sign_dir.x, 0), new Point(0, sign_dir.y)]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[-1 * x_sign, y_sign], [x_sign, -1 * y_sign]]);
+        pair = randomize_arr([new Point(-1 * sign_dir.x, sign_dir.y), new Point(sign_dir.x, -1 * sign_dir.y)]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
-        pair = randomize_arr([[-1 * x_sign, 0], [0, -1 * y_sign]]);
+        pair = randomize_arr([new Point(-1 * sign_dir.x, 0), new Point(0, -1 * sign_dir.y)]);
         ordering.push(pair[0]);
         ordering.push(pair[1]);
     }
-    ordering.push([-1 * x_sign, -1 * y_sign]);
+    ordering.push(new Point(-1 * sign_dir.x, -1 * sign_dir.y));
     return ordering;
 
 }
-function get_empty_nearby(x, y, nearby_arr, map){
+function get_empty_nearby(location, nearby_arr, map){
     for(var i = 0; i < nearby_arr.length; ++i){
-        if(map.check_empty(x + nearby_arr[i][0], y + nearby_arr[i][1])){
+        if(map.check_empty(location.plus(nearby_arr[i]))){
             return nearby_arr[i];
         }
     }
     return false;
 }
-function count_nearby(x, y, map){
+function count_nearby(location, map){
     var count = 0;
     var nearby = random_nearby();
     for(var i = 0; i < nearby.length; ++i){
-        if(!map.check_empty(x + nearby[i][0], y + nearby[i][1])){
+        if(!map.check_empty(location.plus(nearby[i]))){
             ++count;
         }
     }
     return count;
 }
-function spawn_nearby(map, tile, x, y, nearby = random_nearby()){
+function spawn_nearby(map, tile, location, nearby = random_nearby()){
     // Attempts to spawn a <tile> at a space next to to the given cords.
     // If it succeeds, returns the location, otherwise returns false.
     for(var i = 0; i < nearby.length; ++i){
-        if(map.add_tile(tile, x + nearby[i][0], y + nearby[i][1])){
+        if(map.add_tile(tile, location.plus(nearby[i]))){
             return nearby[i];
         }
     }
@@ -814,7 +769,7 @@ function random_num(x){
     return Math.floor(Math.random() * x);
 }
 function array_equals(a1, a2){
-    if(!(typeof a1 === `array`) || !(typeof a2 === `array`)){
+    if(!Array.isArray(a1) || !Array.isArray(a2)){
         return false;
     }
     if(!(a1.length === a2.length)){
@@ -1003,10 +958,15 @@ function spider_queen_floor(floor_num, area, map){
     return spider_queen_floor_message;
 }
 function lich_floor(floor_num,  area, map){
-    map.add_tile(damaged_wall_tile(), FLOOR_WIDTH - 2, FLOOR_HEIGHT - 2);
-    map.add_tile(damaged_wall_tile(), 1, FLOOR_HEIGHT - 2);
-    map.add_tile(damaged_wall_tile(), FLOOR_WIDTH - 2, 1);
-    map.add_tile(damaged_wall_tile(), 1, 1);
+    var locations = [
+        new Point(FLOOR_WIDTH - 2, FLOOR_HEIGHT - 2),
+        new Point(1, FLOOR_HEIGHT - 2),
+        new Point(FLOOR_WIDTH - 2, 1),
+        new Point(1, 1)
+    ]
+    for(var i = 0; i < locations.length; ++i){
+        map.add_tile(damaged_wall_tile(), locations[i]);
+    }
     map.add_tile(lich_tile());
     map.lock();
     return lich_floor_message;
@@ -1786,7 +1746,7 @@ const STARTING_AREA = generate_ruins_area;
 // Dungeon generation settings
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
-const AREA_SIZE = 3;
+const AREA_SIZE = 5;
 
 // Visual and animation settings
 const CARD_SCALE = 90;
@@ -1913,7 +1873,7 @@ function get_display(language){
         case `html`:
             return DisplayHTML;
         default:
-            throw exception(`invalid display language`);
+            throw new Error(`invalid display language`);
     }
 }
 
@@ -2017,7 +1977,7 @@ class DisplayHTML{
                 document.getElementById(ui_id.tutorial).style.display = `block`;
                 break;
             default:
-                throw Error(`invalid screen swap`);
+                throw new Error(`invalid screen swap`);
         }
         return;
     }
@@ -2060,49 +2020,47 @@ document.onkeydown = display.press;// ----------------EntityList.js-------------
 
 class EntityList{
     count_non_empty // Keeps track of the number of entities currently in the class.
-    #player // Keeps track of the player postion.
-    #exit // Keeps track of the position of the exit.
+    #player_pos // Keeps track of the player postion.
+    #exit_pos // Keeps track of the position of the exit.
     #enemy_list // A list of each enemy currently on the board and their locations.
     #id_count // Used to give each enemy a unique id as it is added.
     constructor(){
         this.count_non_empty = 2;
         this.#id_count = 0;
-        this.#exit = 0;
         this.#enemy_list = [];
     }
     next_id(){
         return ++this.#id_count;
     }
-    set_player(x, y){
-        this.#player = {x, y};
+    set_player_pos(location){
+        this.#player_pos = location;
     }
     get_player_pos(){
-        if(this.#player === undefined){
-            throw new Error(`player doesn't exist`);
+        if(this.#player_pos === undefined){
+            return undefined;
         }
-        return {x: this.#player.x, y: this.#player.y};
+        return this.#player_pos.copy();
     }
-    set_exit(x, y){
-        this.#exit = {x, y};
+    set_exit(location){
+        this.#exit_pos = location;
     }
     get_exit_pos(){
-        if(this.#player === 0){
-            throw new Error(`exit doesn't exist`);
+        if(this.#exit_pos === undefined){
+            return undefined;
         }
-        return {x: this.#exit.x, y: this.#exit.y};
+        return this.#exit_pos.copy();
     }
-    add_enemy(x, y, enemy){
+    add_enemy(location, enemy){
         enemy.id = this.next_id();
-        this.#enemy_list.push({x, y, enemy});
+        this.#enemy_list.push({location, enemy});
         ++this.count_non_empty;
     }
-    move_enemy(x, y, id){
+    move_enemy(location, id){
         var index = this.#find_by_id(id);
         if(index === -1){
             throw new Error(`id not found`);
         }
-        this.#enemy_list[index].x = x;
-        this.#enemy_list[index].y = y;
+        this.#enemy_list[index].location = location;
     }
     remove_enemy(id){
         var index = this.#find_by_id(id);
@@ -2120,12 +2078,12 @@ class EntityList{
         }
         return -1;
     }
-    move_any(x, y, entity){
+    move_any(location, entity){
         if(entity.type === `player`){
-            this.set_player(x, y);
+            this.set_player_pos(location);
         }
         else if(entity.type === `enemy`){
-            this.move_enemy(x, y, entity.id);
+            this.move_enemy(location, entity.id);
         }
         else{
             throw new Error(`moving invalid type`);
@@ -2147,7 +2105,7 @@ class EntityList{
                     }
                     else{
                         try{
-                            e.enemy.behavior(e.x, e.y, this.#player.x - e.x, this.#player.y - e.y, map, e.enemy);
+                            e.enemy.behavior(e.location, this.#player_pos.minus(e.location), map, e.enemy);
                         }
                         catch(error){
                             if(!(error.message === `creature died`)){
@@ -2228,10 +2186,10 @@ async function player_turn(behavior, hand_pos){
 }
 function player_action(mapData, action){
     if(action[0] === `attack`){
-        mapData.player_attack(action[1], action[2]);
+        mapData.player_attack(new Point(action[1], action[2]));
     }
     else if(action[0] === `move`){
-        mapData.player_move(action[1], action[2]);
+        mapData.player_move(new Point(action[1], action[2]));
     }
     else{
         throw new Error(`invalid action type`);
@@ -2437,6 +2395,9 @@ class GameMap{
         // Returns the floor number.
         try{
             var player = this.get_player();
+            if(player === undefined){
+                player = player_tile();
+            }
         }
         catch(error){
             if(error.message === `player doesn't exist`){
@@ -2454,15 +2415,15 @@ class GameMap{
                 this.#grid[i].push(empty_tile());
             }
         }
-        this.set_exit(random_num(this.#y_max), 0)
-        this.set_player(random_num(this.#y_max), this.#x_max - 1, player)
+        var exit_location = new Point(random_num(this.#y_max), 0);
+        this.set_exit(exit_location);
+        var player_location = new Point(random_num(this.#y_max), this.#x_max - 1);
+        this.set_player(player_location, player);
         return ++this.#floor_num;
     }
     random_space(){
-        // Returns a randome space in the grid.
-        x = random_num(this.#x_max);
-        y = random_num(this.#y_max);
-        return {x, y};
+        // Returns a random space in the grid.
+        return new Point(random_num(this.#x_max), random_num(this.#y_max));
     }
     random_empty(){
         // Returns a random empty space in the grid.
@@ -2474,76 +2435,82 @@ class GameMap{
         }
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
-                if(this.#grid[y][x].type === `empty`){
+                var pos = new Point(x, y)
+                if(this.#get_grid(pos).type === `empty`){
                     if(rand === 0){
-                        return {x, y};
+                        return pos;
                     }
                     --rand;
                 }
             }
         }
+        throw new Error(`grid full`);
     }
-    check_bounds(x, y){
+    check_bounds(location){
         // Throws an error if x or y is out of bounds.
-        if(x < 0 || x >= this.#x_max){
+        if(location.x < 0 || location.x >= this.#x_max){
             throw new Error(`x out of bounds`);
         }
-        if(y < 0 || y >= this.#y_max){
+        if(location.y < 0 || location.y >= this.#y_max){
             throw new Error(`y out of bounds`);
         }
     }
-    check_empty(x, y){
+    check_empty(location){
         // returns true if the space at grid[x, y] is empty.
         // throws an error if the space is out of bounds.
         try{
-            this.check_bounds(x, y);
+            this.check_bounds(location);
         }
         catch{
             return false;
         }
-        return this.#grid[y][x].type === `empty`;
+        return this.#get_grid(location).type === `empty`;
     }
-    set_exit(exit_x, exit_y){
+    set_exit(location){
         // Places the exit.
         // Throws an error if the space is occupied or out of bounds..
-        this.check_bounds(exit_x, exit_y);
-        if(!this.check_empty(exit_x, exit_y)){
+        this.check_bounds(location);
+        if(!this.check_empty(location)){
             throw new Error(`space not empty`);
         }
-        this.#entity_list.set_exit(exit_x, exit_y);
-        this.#grid[exit_y][exit_x] = exit_tile();
+        if(!(this.#entity_list.get_exit_pos() === undefined)){
+            throw new Error(`exit already set`)
+        }
+        this.#entity_list.set_exit(location);
+        this.#set_grid(location, exit_tile());
     }
-    set_player(player_x, player_y, player){
+    set_player(player_location, player){
         // Places the player. If a non-negative value is given for the player's health, it will be set to that.
         // Throws an error is the space is occupied or out of bounds.
-        this.check_bounds(player_x, player_y);
-        if(!this.check_empty(player_x, player_y)){
+        this.check_bounds(player_location);
+        if(!this.check_empty(player_location)){
             throw new Error(`space not empty`);
         }
-        this.#entity_list.set_player(player_x, player_y);
-        this.#grid[player_y][player_x] = player;
+        if(!(this.#entity_list.get_player_pos() === undefined)){
+            throw new Error(`player already set`)
+        }
+        this.#entity_list.set_player_pos(player_location);
+        this.#set_grid(player_location, player);
     }
-    add_tile(tile, x = undefined, y = undefined){
+    add_tile(tile, location = undefined){
         // Adds a new tile to a space.
         // Returns true if it was added successfuly.
         // If x or y aren't provided, it will select a random empty space.
         try{
-            if(x === undefined || y === undefined){
-                var position = this.random_empty();
-                x = position.x;
-                y = position.y;
+            if(location === undefined){
+                location = this.random_empty();
             }
-            this.check_bounds(x, y);
-            if(!this.check_empty(x, y)){
+            this.check_bounds(location);
+            if(!this.check_empty(location)){
                 throw new Error(`space not empty`);
             }
         }
-        catch{
+        catch(error){
             return false;
         }
-        this.#grid[y][x] = tile;
+        this.#set_grid(location, tile);
         if(tile.type === `enemy`){
-            this.#entity_list.add_enemy(x, y, tile);
+            this.#entity_list.add_enemy(location, tile);
         }
         else if(!(tile.type === `empty`)){
             ++this.#entity_list.count_non_empty;
@@ -2572,7 +2539,7 @@ class GameMap{
     clear_empty(){
         for(var y = 0; y < this.#y_max; ++y){
             for(var x = 0; x < this.#x_max; ++x){
-                var tile = this.#grid[y][x];
+                var tile = this.#get_grid(new Point(x, y));
                 if(tile.type === `empty`){
                     tile.pic = `${img_folder.tiles}empty.png`;
                     tile.description = empty_description;
@@ -2580,21 +2547,21 @@ class GameMap{
             }
         }
     }
-    move(x1, y1, x2, y2){
+    move(start_point, end_point){
         // Moves the tile at [x1, y1] to [x2, y2] if it is empty. 
         // Triggers the attempted destination's on_move if applicable.
         // Throws an error if the starting location is out of bounds.
         // Returns true if the move was successful.
         // Also throws errors if the player reaches the end of the floor or dies.
-        this.check_bounds(x1, y1);
+        this.check_bounds(start_point);
         try{
-            this.check_bounds(x2, y2);
+            this.check_bounds(end_point);
         }
         catch{
             return false;
         }
-        var start = this.#grid[y1][x1];
-        var end = this.#grid[y2][x2];
+        var start = this.#get_grid(start_point);
+        var end = this.#get_grid(end_point);
         if(start.type === `player` && end.type === `exit`){
             ++this.#turn_count;
             throw new Error(`floor complete`);
@@ -2602,7 +2569,7 @@ class GameMap{
         if(end.hasOwnProperty(`on_enter`)){
             // If the destination does something if moved onto, call it.
             try{
-                end.on_enter(x2, y2, x1 - x2, y1 - y2, this, end);
+                end.on_enter(end_point, start_point.minus(end_point), this, end);
             }
             catch(error){
                 if(error.message === `game over`){
@@ -2616,52 +2583,55 @@ class GameMap{
                 throw new Error(`creature died`);
             }
         }
-        if(end.type === `empty` && this.#grid[y1][x1] === start){
-            this.#entity_list.move_any(x2, y2, start);
-            this.#grid[y2][x2] = start;
-            this.#grid[y1][x1] = empty_tile();
+        if(end.type === `empty` && this.#get_grid(start_point) === start){
+            this.#entity_list.move_any(end_point, start);
+            this.#set_grid(end_point, start);
+            this.#set_grid(start_point, empty_tile());
             return true;
         }
         return false;
     }
-    player_move(x_dif, y_dif){
+    player_move(direction){
         // Moves the player the given relative distance.
-        var pos = this.#entity_list.get_player_pos();
-        return this.move(pos.x, pos.y, pos.x + x_dif, pos.y + y_dif)
+        var player_pos = this.#entity_list.get_player_pos();
+        return this.move(player_pos, player_pos.plus(direction));
     }
     get_player(){
         // Returns the player's health.
         var pos = this.#entity_list.get_player_pos();
-        return this.#grid[pos.y][pos.x];
+        if(!(pos === undefined)){
+            return this.#get_grid(pos);
+        }
+        return undefined;
     }
-    attack(x, y, hits = `all`){
+    attack(location, hits = `all`){
         // Attacks the specified square.
         // hits specifes if the attacks only hits enemy, player or all tiles.
         // If an enemy dies, it's on_death effect will be triggered if applicable.
         // Throws an error if the location is out of bounds.
         // Returns true if damage was dealt.
         try{
-            this.check_bounds(x, y);
+            this.check_bounds(location);
         }
         catch(error){
             return false;
         }
-        var target = this.#grid[y][x];
+        var target = this.#get_grid(location);
         if(target.hasOwnProperty(`health`) && !(target.type === `player`) && (hits === `enemy` || hits === `all`)){
             target.health -= 1;
             if(target.hasOwnProperty(`on_hit`)){
                 var player_pos = this.#entity_list.get_player_pos();
-                target.on_hit(x, y, player_pos[0] - x, player_pos[1] - y, this, target);
+                target.on_hit(location, player_pos.minus(location), this, target);
             }
             if(target.health <= 0){
-                this.#grid[y][x] = empty_tile()
-                this.#grid[y][x].pic = `${img_folder.tiles}hit.png`;
+                this.#set_grid(location, empty_tile());
+                this.#get_grid(location).pic = `${img_folder.tiles}hit.png`;
                 if(target.type === `enemy`){
                     this.#entity_list.remove_enemy(target.id)
                 }
                 if(target.hasOwnProperty(`on_death`)){
                     var player_pos = this.#entity_list.get_player_pos();
-                    target.on_death(x, y, player_pos[0] - x, player_pos[1] - y, this, target);
+                    target.on_death(location, player_pos.minus(location), this, target);
                 }
             }
             return true;
@@ -2678,11 +2648,11 @@ class GameMap{
         }
         return false;
     }
-    player_attack(x_dif, y_dif){
+    player_attack(direction){
         // Attacks the given square relative to the player's current positon.
         var pos = this.#entity_list.get_player_pos();
         try{
-            this.attack(pos.x + x_dif, pos.y + y_dif, `all`);
+            this.attack(pos.plus(direction), `all`);
         }
         catch{
             throw new Error(`game over`, {cause: `player`});
@@ -2700,15 +2670,15 @@ class GameMap{
     lock(){
         // Locks the stairs for a boss fight.
         var pos = this.#entity_list.get_exit_pos();
-        this.#grid[pos.y][pos.x] = lock_tile();
+        this.#get_grid(pos, lock_tile())
     }
     unlock(){
         // Unlocks the stairs after a boss fight.
         // Fully heals the player
         var pos = this.#entity_list.get_exit_pos();
-        this.#grid[pos.y][pos.x] = exit_tile();
-        pos = this.#entity_list.get_player_pos();
-        this.#grid[pos.y][pos.x].health = this.#grid[pos.y][pos.x].max_health;
+        this.#get_grid(pos, exit_tile());
+        var player = this.get_player();
+        player.health = player.max_health;
     }
     add_event(event){
         this.#events.push(event);
@@ -2717,20 +2687,23 @@ class GameMap{
         var new_events = [];
         for(var i = 0; i < this.#events.length; ++i){
             var event = this.#events[i];
-            if(event[0] === `earthquake`){
+            if(event.type === `earthquake`){
                 var rubble = [];
-                for(var j = 0; j < event[1]; ++j){
+                for(var j = 0; j < event.amount; ++j){
                     var space = this.random_empty();
-                    this.#grid[space.y][space.x].description = falling_rubble_description;
-                    this.#grid[space.y][space.x].pic = `${img_folder.tiles}falling_rubble.png`;
+                    this.#get_grid(space).description = falling_rubble_description;
+                    this.#get_grid(space).pic = `${img_folder.tiles}falling_rubble.png`;
                     rubble.push(space);
                 }
-                new_events.push([`earthquake_rubble`, rubble]);
+                new_events.push({
+                    type: `earthquake_rubble`,
+                    rubble
+                });
             }
-            else if(event[0] === `earthquake_rubble`){
+            else if(event.type === `earthquake_rubble`){
                 try{
-                    for(var j = 0; j < event[1].length; ++j){
-                        this.attack(event[1][j].y, event[1][j].x);
+                    for(var j = 0; j < event.rubble.length; ++j){
+                        this.attack(event.rubble[j]);
                     }
                 }
                 catch(error){
@@ -2760,6 +2733,13 @@ class GameMap{
             this.#area.generate_floor(this.#floor_num, this.#area, this);
         }
         display.display_message(ui_id.display_message, floor_description);
+    }
+
+    #get_grid(location){
+        return this.#grid[location.y][location.x];
+    }
+    #set_grid(location, value){
+        this.#grid[location.y][location.x] = value;
     }
 }// ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.
@@ -2880,7 +2860,82 @@ class MoveDeck{
         document.getElementById(`hand ${hand_pos} img`).border = `3px solid #555`;
     }
 }
-// ----------------Tiles.js----------------
+class Point{
+    x;
+    y;
+    constructor(x, y){
+        this.x = x;
+        this.y = y;
+    }
+    plus_equals(p2){
+        if(typeof p2 === `number`){
+            this.x += p2;
+            this.y += p2;
+            return this
+        }
+        else if(p2.hasOwnProperty(`x`) && p2.hasOwnProperty(`y`)){
+            this.x += p2.x;
+            this.y += p2.y;
+            return this
+        }
+        else{
+            throw Error(`invalid type`);
+        }
+    }
+    plus(p2){
+        return this.copy().plus_equals(p2);
+    }
+    minus_equals(p2){
+        if(typeof p2 === `number`){
+            this.x -= p2;
+            this.y -= p2;
+            return this
+        }
+        else if(p2.hasOwnProperty(`x`) && p2.hasOwnProperty(`y`)){
+            this.x -= p2.x;
+            this.y -= p2.y;
+            return this
+        }
+        else{
+            throw Error(`invalid type`);
+        }
+    }
+    times(p2){
+        return this.copy().times_equals(p2);
+    }
+    times_equals(p2){
+        if(typeof p2 === `number`){
+            this.x *= p2;
+            this.y *= p2;
+            return this
+        }
+        else if(p2.hasOwnProperty(`x`) && p2.hasOwnProperty(`y`)){
+            this.x *= p2.x;
+            this.y *= p2.y;
+            return this
+        }
+        else{
+            throw Error(`invalid type`);
+        }
+    }
+    minus(p2){
+        return this.copy().minus_equals(p2);
+    }
+    within_radius(radius){
+        return Math.abs(this.x) <= radius && Math.abs(this.y) <= radius;
+    }
+    copy(){
+        return new Point(this.x, this.y);
+    }
+}
+function point_equals(p1, p2){
+    if(p1.hasOwnProperty(`x`) && p1.hasOwnProperty(`y`) && p2.hasOwnProperty(`x`) && p2.hasOwnProperty(`y`)){
+        return p1.x === p2.x && p1.y === p2.y;
+    }
+    else{
+        throw Error(`invalid type`);
+    }
+}// ----------------Tiles.js----------------
 // This file contains the functions to generate tiles representing things on the game_map.
 
 // Fields (not all are used by each tile):
@@ -2978,7 +3033,7 @@ function fireball_tile(){
         name: `fireball`,
         pic: `${img_folder.tiles}fireball.png`,
         pic_arr,
-        direction: [],
+        direction: undefined,
         rotate: 0,
         description: fireball_description,
         behavior: fireball_ai,
@@ -3076,7 +3131,7 @@ function spider_web_tile(){
         pic: `${img_folder.tiles}spider_web.png`,
         cycle: 0,
         spawn_timer,
-        health: 2,
+        health: 1,
         difficulty: 4,
         behavior: spider_web_ai,
         description: `${spider_web_description[0]}${spawn_timer + 1}${spider_web_description[1]}`
@@ -3130,7 +3185,7 @@ function small_h_porcuslime_tile(){
         pic: `${img_folder.tiles}small_h_porcuslime.png`,
         health: 1,
         difficulty: 3,
-        behavior: small_h_porcuslime_ai,
+        behavior: porcuslime_horizontal_ai,
         description: small_h_porcuslime_description
     }
 }
@@ -3141,7 +3196,7 @@ function small_d_porcuslime_tile(){
         pic: `${img_folder.tiles}small_d_porcuslime.png`,
         health: 1,
         difficulty: 3,
-        behavior: small_d_porcuslime_ai,
+        behavior: porcuslime_diagonal_ai,
         description: small_d_porcuslime_description
     }
 }
@@ -3295,14 +3350,16 @@ function lich_tile(){
         scythe_tile,
         shadow_knight_tile,
         ram_tile,
-        medium_porcuslime_tile
+        medium_porcuslime_tile,
+        clay_golem_tile,
+        rat_tile
     ];
     var starting_cycle = 1;
     return{
         type: `enemy`,
         name: `lich`,
         pic: spells[starting_cycle][2],
-        health: 3,
+        health: 4,
         difficulty: `boss`,
         behavior: lich_ai,
         cycle: starting_cycle,
@@ -3321,7 +3378,7 @@ function get_ui_ids(language){
         case `html`:
             return HTML_UI_ID;
         default:
-            throw exception(`invalid display language`);
+            throw new Error(`invalid display language`);
     }
 }
 

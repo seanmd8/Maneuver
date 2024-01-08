@@ -58,10 +58,10 @@ async function player_turn(behavior, hand_pos){
 }
 function player_action(mapData, action){
     if(action[0] === `attack`){
-        mapData.player_attack(action[1], action[2]);
+        mapData.player_attack(new Point(action[1], action[2]));
     }
     else if(action[0] === `move`){
-        mapData.player_move(action[1], action[2]);
+        mapData.player_move(new Point(action[1], action[2]));
     }
     else{
         throw new Error(`invalid action type`);

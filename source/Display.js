@@ -5,7 +5,7 @@ function get_display(language){
         case `html`:
             return DisplayHTML;
         default:
-            throw exception(`invalid display language`);
+            throw new Error(`invalid display language`);
     }
 }
 
@@ -109,7 +109,7 @@ class DisplayHTML{
                 document.getElementById(ui_id.tutorial).style.display = `block`;
                 break;
             default:
-                throw Error(`invalid screen swap`);
+                throw new Error(`invalid screen swap`);
         }
         return;
     }

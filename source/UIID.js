@@ -4,7 +4,7 @@ function get_ui_ids(language){
         case `html`:
             return HTML_UI_ID;
         default:
-            throw exception(`invalid display language`);
+            throw new Error(`invalid display language`);
     }
 }
 
