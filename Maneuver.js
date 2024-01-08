@@ -1898,6 +1898,9 @@ class DisplayHTML{
             if(!(on_click === undefined)){
                 cell.onclick = make_on_click(to_display, i);
             }
+            if(to_display.hasOwnProperty(`name`)){
+                cell.title = to_display.name;
+            }
             if(!(background === undefined)){
                 var bottom_img = document.createElement(`img`);
                 bottom_img.id = `${location} ${row_num} ${i} background img`;
@@ -2958,6 +2961,7 @@ const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, sh
 function empty_tile(){
     return {
         type: `empty`,
+        name: `empty`,
         pic: `${img_folder.tiles}empty.png`,
         description: empty_description
     }
@@ -2965,6 +2969,7 @@ function empty_tile(){
 function exit_tile(){
     return {
         type: `exit`,
+        name: `exit`,
         pic: `${img_folder.tiles}stairs.png`,
         description: exit_description
     }

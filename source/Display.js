@@ -30,6 +30,9 @@ class DisplayHTML{
             if(!(on_click === undefined)){
                 cell.onclick = make_on_click(to_display, i);
             }
+            if(to_display.hasOwnProperty(`name`)){
+                cell.title = to_display.name;
+            }
             if(!(background === undefined)){
                 var bottom_img = document.createElement(`img`);
                 bottom_img.id = `${location} ${row_num} ${i} background img`;
