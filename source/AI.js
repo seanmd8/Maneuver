@@ -178,21 +178,21 @@ function ram_ai(location, difference, map, self){
     }
     var direction = sign(difference);
     var wander_speed = 2;
+    var moved = true;
     if(self.cycle === 0){
         // moves <wander_speed> closer to a row or column that the player is in.
-        var moved = true;
         if(Math.abs(difference.x) <= Math.abs(difference.y)){
             direction.y = 0;
             for(var i = 0; i < wander_speed && i < Math.abs(difference.x) && moved; ++i){
                 moved = map.move(location, location.plus(direction));
-                location.plus_equals(direction);
+                moved && location.plus_equals(direction);
             }
         }
         else{
             direction.x = 0;
             for(var i = 0; i < wander_speed && i < Math.abs(difference.y) && moved; ++i){
                 moved = map.move(location, location.plus(direction));
-                location.plus_equals(direction);
+                moved && location.plus_equals(direction);
             }
         }
         if(moved === true && (Math.abs(difference.x) < 3 || Math.abs(difference.y) < 3)){
@@ -204,7 +204,6 @@ function ram_ai(location, difference, map, self){
     else{
         // Charges orthogonally until it hits something and rams it.
         // Reverts to wandering after.
-        var moved = true;
         if(Math.abs(difference.x) > Math.abs(difference.y)){
             direction.y = 0;
         }
@@ -654,7 +653,7 @@ function flame_wave_spell(location, difference, map, self){
 function confusion_spell(location, difference, map, self){
     for(var i = 0; i < 2; ++i){
         var ran = random_num(CONFUSION_CARDS.length);
-        give_temp_card(CONFUSION_CARDS[ran]());
+        GS.give_temp_card(CONFUSION_CARDS[ran]());
     }
 }
 /** @type {AIFunction}*/

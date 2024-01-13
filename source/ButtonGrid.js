@@ -44,7 +44,7 @@ class ButtonGrid{
         var make_press_button = function(hand_position){
             return function(button){
                 if(button.behavior){
-                    player_turn(button.behavior, hand_position)
+                    GS.player_turn(button.behavior, hand_position)
                 }
             }
         }

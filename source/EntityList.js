@@ -128,7 +128,7 @@ class EntityList{
                     }
                     else{
                         try{
-                            e.enemy.behavior(e.location, this.#player_pos.minus(e.location), map, e.enemy);
+                            e.enemy.behavior(e.location.copy(), this.#player_pos.minus(e.location), map, e.enemy);
                         }
                         catch(error){
                             if(!(error.message === `creature died`)){
