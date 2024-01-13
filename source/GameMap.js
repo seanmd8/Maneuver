@@ -1,6 +1,14 @@
 // ----------------GameMap.js----------------
 // GameMap class holds the information on the current floor and everything on it.
 
+/**
+ * @typedef {Object} MapEvent
+ * @property {string} type
+ * 
+ * @property {number=} amount
+ * @property {Point[]=} rubble
+ */
+
 class GameMap{
     #x_max; // Size of the grid's x axis.
     #y_max; // Size of the grid's y axis.
@@ -10,6 +18,11 @@ class GameMap{
     #turn_count; // How many turns the player has taken.
     #events;
     #area;
+    /**
+     * @param {number} x_max 
+     * @param {number} y_max 
+     * @param {*} area 
+     */
     constructor(x_max, y_max, area){
         this.#x_max = x_max;
         this.#y_max = y_max;
@@ -20,17 +33,17 @@ class GameMap{
         this.#area = area;
         this.erase()
     }
+    /**
+     * @returns {number}
+     */
     erase(){
         // Function to start a new floor by erasing the board and adding only the player and the exit.
         // Returns the floor number.
         try{
             var player = this.get_player();
-            if(player === undefined){
-                player = player_tile();
-            }
         }
         catch(error){
-            if(error.message === `player doesn't exist`){
+            if(error.message === `player does not exist`){
                 var player = player_tile();
             }
             else{
@@ -51,10 +64,16 @@ class GameMap{
         this.set_player(player_location, player);
         return ++this.#floor_num;
     }
+    /**
+     * @returns {Point}
+     */
     random_space(){
         // Returns a random space in the grid.
         return new Point(random_num(this.#x_max), random_num(this.#y_max));
     }
+    /**
+     * @returns {Point}
+     */
     random_empty(){
         // Returns a random empty space in the grid.
         // Throws an erro if the map is full.
@@ -76,6 +95,9 @@ class GameMap{
         }
         throw new Error(`grid full`);
     }
+    /**
+     * @param {Point} location 
+     */
     check_bounds(location){
         // Throws an error if x or y is out of bounds.
         if(location.x < 0 || location.x >= this.#x_max){
@@ -85,6 +107,9 @@ class GameMap{
             throw new Error(`y out of bounds`);
         }
     }
+    /**
+     * @param {Point} location 
+     */
     check_empty(location){
         // returns true if the space at grid[x, y] is empty.
         // throws an error if the space is out of bounds.
@@ -96,6 +121,9 @@ class GameMap{
         }
         return this.#get_grid(location).type === `empty`;
     }
+    /**
+     * @param {Point} location 
+     */
     set_exit(location){
         // Places the exit.
         // Throws an error if the space is occupied or out of bounds..
@@ -103,12 +131,24 @@ class GameMap{
         if(!this.check_empty(location)){
             throw new Error(`space not empty`);
         }
-        if(!(this.#entity_list.get_exit_pos() === undefined)){
+        try{
+            // If exit isn't undefined, throws error.
+            this.#entity_list.get_exit_pos();
             throw new Error(`exit already set`)
+        }
+        catch(error) {
+            if(error.message !== `exit does not exist`){
+                throw error;
+            }
+            // otherwise continues.
         }
         this.#entity_list.set_exit(location);
         this.#set_grid(location, exit_tile());
     }
+    /**
+     * @param {Point} player_location
+     * @param {Tile} player
+     */
     set_player(player_location, player){
         // Places the player. If a non-negative value is given for the player's health, it will be set to that.
         // Throws an error is the space is occupied or out of bounds.
@@ -116,12 +156,24 @@ class GameMap{
         if(!this.check_empty(player_location)){
             throw new Error(`space not empty`);
         }
-        if(!(this.#entity_list.get_player_pos() === undefined)){
+        try{
+            // If player isn't undefined, throws error.
+            this.#entity_list.get_player_pos();
             throw new Error(`player already set`)
+        }
+        catch(error) {
+            if(error.message !== `player does not exist`){
+                throw error;
+            }
+            // otherwise continues.
         }
         this.#entity_list.set_player_pos(player_location);
         this.#set_grid(player_location, player);
     }
+    /**
+     * @param {Tile} tile
+     * @param {Point} [location = undefined]
+     */
     add_tile(tile, location = undefined){
         // Adds a new tile to a space.
         // Returns true if it was added successfuly.
@@ -147,6 +199,9 @@ class GameMap{
         }
         return true;
     }
+    /**
+     * @returns {undefined}
+     */
     display(){
         // Diplays the gamemap. Each element shows it's description and hp (if applicable) when clicked.
         // If any empty tiles have been marked as hit, it resets the pic to empty.
@@ -166,6 +221,9 @@ class GameMap{
         display_health(this.get_player(), TILE_SCALE);
         this.clear_empty()
 	}
+    /**
+     * @returns {undefined}
+     */
     clear_empty(){
         for(var y = 0; y < this.#y_max; ++y){
             for(var x = 0; x < this.#x_max; ++x){
@@ -177,8 +235,13 @@ class GameMap{
             }
         }
     }
+    /**
+     * @param {Point} start_point 
+     * @param {Point} end_point 
+     * @returns {boolean}
+     */
     move(start_point, end_point){
-        // Moves the tile at [x1, y1] to [x2, y2] if it is empty. 
+        // Moves the tile at start_point to end_point if it is empty. 
         // Triggers the attempted destination's on_move if applicable.
         // Throws an error if the starting location is out of bounds.
         // Returns true if the move was successful.
@@ -196,20 +259,20 @@ class GameMap{
             ++this.#turn_count;
             throw new Error(`floor complete`);
         }
-        if(end.hasOwnProperty(`on_enter`)){
+        if(end.on_enter !== undefined){
             // If the destination does something if moved onto, call it.
             try{
                 end.on_enter(end_point, start_point.minus(end_point), this, end);
             }
             catch(error){
                 if(error.message === `game over`){
-                    throw new Error(`game over`, {cause: end.name});
+                    throw new Error(`game over`, {cause: new Error(end.name)});
                 }
                 else{
                     throw error;
                 }
             }
-            if(start.hasOwnProperty(`health`) && start.health <= 0){
+            if(start.health !== undefined && start.health <= 0){
                 throw new Error(`creature died`);
             }
         }
@@ -221,19 +284,28 @@ class GameMap{
         }
         return false;
     }
+    /**
+     * @param {Point} direction 
+     * @returns {boolean}
+     */
     player_move(direction){
         // Moves the player the given relative distance.
         var player_pos = this.#entity_list.get_player_pos();
         return this.move(player_pos, player_pos.plus(direction));
     }
+    /**
+     * @returns {Tile}
+     */
     get_player(){
         // Returns the player's health.
         var pos = this.#entity_list.get_player_pos();
-        if(!(pos === undefined)){
-            return this.#get_grid(pos);
-        }
-        return undefined;
+        return this.#get_grid(pos);
     }
+    /**
+     * @param {Point} location 
+     * @param {string} [hits = `all`]
+     * @returns {boolean}
+     */
     attack(location, hits = `all`){
         // Attacks the specified square.
         // hits specifes if the attacks only hits enemy, player or all tiles.
@@ -247,9 +319,9 @@ class GameMap{
             return false;
         }
         var target = this.#get_grid(location);
-        if(target.hasOwnProperty(`health`) && !(target.type === `player`) && (hits === `enemy` || hits === `all`)){
+        if(target.health !== undefined && !(target.type === `player`) && (hits === `enemy` || hits === `all`)){
             target.health -= 1;
-            if(target.hasOwnProperty(`on_hit`)){
+            if(target.on_hit !== undefined){
                 var player_pos = this.#entity_list.get_player_pos();
                 target.on_hit(location, player_pos.minus(location), this, target);
             }
@@ -257,9 +329,12 @@ class GameMap{
                 this.#set_grid(location, empty_tile());
                 this.#get_grid(location).pic = `${img_folder.tiles}hit.png`;
                 if(target.type === `enemy`){
+                    if(target.id === undefined){
+                        throw new Error(`enemy missing id`)
+                    }
                     this.#entity_list.remove_enemy(target.id)
                 }
-                if(target.hasOwnProperty(`on_death`)){
+                if(target.on_death !== undefined){
                     var player_pos = this.#entity_list.get_player_pos();
                     target.on_death(location, player_pos.minus(location), this, target);
                 }
@@ -267,6 +342,9 @@ class GameMap{
             return true;
         }
         if(target.type === `player` && (hits === `player` || hits === `all`)){
+            if(target.health === undefined){
+                throw new Error(`player missing health`);
+            }
             target.health -= 1;
             if(target.health === 0){
                 throw new Error(`game over`)
@@ -278,41 +356,63 @@ class GameMap{
         }
         return false;
     }
+    /**
+     * @param {Point} direction
+     * @returns {boolean}
+     */
     player_attack(direction){
         // Attacks the given square relative to the player's current positon.
         var pos = this.#entity_list.get_player_pos();
         try{
-            this.attack(pos.plus(direction), `all`);
+            return this.attack(pos.plus(direction), `all`);
         }
         catch{
-            throw new Error(`game over`, {cause: `player`});
+            throw new Error(`game over`, {cause: new Error(`player`)});
         }
     }
+    /**
+     * @returns {Promise<undefined>}
+     */
     async enemy_turn(){
         // Causes each enemy to execute their behavior.
         ++this.#turn_count;
         await this.#entity_list.enemy_turn(this);
     }
+    /**
+     * @param {string} location 
+     */
     display_stats(location){
         // Shows the current floor and turn number.
         display.display_message(location, `Floor ${this.#floor_num} Turn: ${this.#turn_count}`);
     }
+    /**
+     * @returns {undefined}
+     */
     lock(){
         // Locks the stairs for a boss fight.
         var pos = this.#entity_list.get_exit_pos();
-        this.#get_grid(pos, lock_tile())
+        this.#set_grid(pos, lock_tile())
     }
+    /**
+     * @returns {undefined}
+     */
     unlock(){
         // Unlocks the stairs after a boss fight.
         // Fully heals the player
         var pos = this.#entity_list.get_exit_pos();
-        this.#get_grid(pos, exit_tile());
+        this.#set_grid(pos, exit_tile());
         var player = this.get_player();
         player.health = player.max_health;
     }
+    /**
+     * @param {MapEvent} event
+     */
     add_event(event){
         this.#events.push(event);
     }
+    /**
+     * @returns {undefined}
+     */
     resolve_events(){
         var new_events = [];
         for(var i = 0; i < this.#events.length; ++i){
@@ -338,7 +438,7 @@ class GameMap{
                 }
                 catch(error){
                     if(error.message === `game over`){
-                        throw new Error(`game over`, {cause: `falling rubble`});
+                        throw new Error(`game over`, {cause: new Error(`falling rubble`)});
                     }
                     throw error;
                 }
@@ -346,6 +446,9 @@ class GameMap{
         }
         this.#events = new_events;
     }
+    /**
+     * @returns {undefined}
+     */
     next_floor(){
         this.erase();
         var floor_description = `${floor_message}${this.#floor_num}.`;
@@ -364,10 +467,16 @@ class GameMap{
         }
         display.display_message(ui_id.display_message, floor_description);
     }
-
+    /**
+     * @returns {Tile}
+     */
     #get_grid(location){
         return this.#grid[location.y][location.x];
     }
+    /**
+     * @param {Point} location 
+     * @param {Tile} value 
+     */
     #set_grid(location, value){
         this.#grid[location.y][location.x] = value;
     }

@@ -1,8 +1,6 @@
 // ----------------Descriptions.js----------------
 // Contains text that will be displayed.
 
-
-
 // General.
 const game_title = `Maneuver`;
 const mod_deck = `Choose one card to add or remove:`;

@@ -1,17 +1,19 @@
 // ----------------AI.js----------------
-// File containing the logic for attacks, movements and other effects of non-player entities.
+// File containing the logic for the behavior of non player entities.
 
-// Parameters:
-//  x: the x location of this entity on the game map.
-//  y: the y location of this entity on the game map.
-//  x_dif: the difference between the x value of this and the target (generally the player).
-//  y_dif: the difference between the y value of this and the target (generally the player).
-//  map: the game map.
-//  enemy: the tile of the entity using the function.
+
+/**
+ * @callback AIFunction
+ * @param {Point} location The current location of this entity.
+ * @param {Point} difference The difference between this entity's location and what it is targeting.
+ * @param {GameMap} map The game map where any actions will be performed.
+ * @param {Tile} self The tile for the entity whose ai this is.
+ */
 
 
 // Normal Enemy AIs
-function spider_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function spider_ai(location, difference, map, self){
     if(difference.within_radius(1)){
         // If the player is next to it, attack.
         map.attack(location.plus(difference), `player`);
@@ -22,58 +24,69 @@ function spider_ai(location, difference, map, enemy){
         for(var i = 0; i < directions.length && !map.move(location, location.plus(directions[i])); ++i){}
     }
 }
-function turret_h_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function turret_h_ai(location, difference, map, self){
     // Turret version that shoots orthogonally.
     if(difference.x === 0 || difference.y === 0){
-        turret_fire_ai(location, difference, map, enemy);
+        turret_fire_ai(location, difference, map, self);
     }
 }
-function turret_d_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function turret_d_ai(location, difference, map, self){
     // Turret version that shoots diagonally.
     if(Math.abs(difference.x) === Math.abs(difference.y)){
-        turret_fire_ai(location, difference, map, enemy);
+        turret_fire_ai(location, difference, map, self);
     }
 }
-function turret_r_ai(location, difference, map, enemy){
-    switch(enemy.cycle){
+/** @type {AIFunction}*/
+function turret_r_ai(location, difference, map, self){
+    if( self.cycle === undefined || 
+        self.rotate === undefined || 
+        self.flip === undefined || 
+        self.spin_direction === undefined || 
+        self.pic_arr === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
+    switch(self.cycle){
         case 0:
             if(difference.x === 0){
                 // Fires N and S.
-                turret_fire_ai(location, difference, map, enemy);
+                turret_fire_ai(location, difference, map, self);
             }
             break;
         case 1:
             if(difference.x === -1 * difference.y){
                 // Fires NE and SW.
-                turret_fire_ai(location, difference, map, enemy);
+                turret_fire_ai(location, difference, map, self);
             }
             break;
         case 2:
             if(difference.y === 0){
                 // Fires E and W.
-                turret_fire_ai(location, difference, map, enemy);
+                turret_fire_ai(location, difference, map, self);
             }
             break;
         case 3:
             if(difference.x === difference.y){
                 // Fires SE and NW.
-                turret_fire_ai(location, difference, map, enemy);
+                turret_fire_ai(location, difference, map, self);
             }
             break;
         default:
-            throw new Error(`Improper case for ${enemy.name}`);
+            throw new Error(`Improper case for ${self.name}`);
     }
     // Rotate.
-    enemy.cycle = (enemy.cycle + enemy.direction + 4) % 4;
-    enemy.pic = enemy.pic_arr[enemy.cycle % 2];
-    if(!enemy.flip){
-        enemy.rotate = 90 * Math.floor(enemy.cycle / 2);
+    self.cycle = (self.cycle + self.spin_direction + 4) % 4;
+    self.pic = self.pic_arr[self.cycle % 2];
+    if(!self.flip){
+        self.rotate = 90 * Math.floor(self.cycle / 2);
     }
     else{
-        enemy.rotate = 90 * Math.floor(((enemy.cycle + 1) % 4) / 2);
+        self.rotate = 90 * Math.floor(((self.cycle + 1) % 4) / 2);
     }
 }
-function turret_fire_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function turret_fire_ai(location, difference, map, self){
     // Fires a shot in the direction of the player.
     var direction = sign(difference)
     try{
@@ -87,7 +100,11 @@ function turret_fire_ai(location, difference, map, enemy){
         }
     }
 }
-function scythe_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function scythe_ai(location, difference, map, self){
+    if(self.rotate === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
     var distance = 3;
     var direction = sign(difference);
     if(direction.x === 0 || direction.y === 0){
@@ -95,9 +112,9 @@ function scythe_ai(location, difference, map, enemy){
         direction = new Point(random_sign(), random_sign());
     }
     // Rotate image based on direction.
-    enemy.rotate = 90 * (direction.x + direction.y + 2) / 2;
+    self.rotate = 90 * (direction.x + direction.y + 2) / 2;
     if(direction.x === -1 && direction.y === 1){
-        enemy.rotate = 90 * 3;
+        self.rotate = 90 * 3;
     }
     for(var i = 0; i < distance && map.move(location, location.plus(direction)) ; ++i){
         // moves <distance> spaces attacking each space it passes next to.
@@ -106,7 +123,8 @@ function scythe_ai(location, difference, map, enemy){
         map.attack(new Point(location.x, location.y - direction.y), `player`); 
     }
 }
-function shadow_knight_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function shadow_knight_ai(location, difference, map, self){
     // Moves in an L.
     if(Math.abs(difference.x) === 1 && Math.abs(difference.y) === 1){
         // If the player is next to it diagonally, attempty to reposition to attack them next turn.
@@ -115,7 +133,7 @@ function shadow_knight_ai(location, difference, map, enemy){
         }
         return;
     }
-    if((Math.abs(difference.x === 1) || Math.abs(difference.y) === 1) && Math.abs(difference.x) + Math.abs(difference.y) === 3){
+    if((Math.abs(difference.x) === 1 || Math.abs(difference.y) === 1) && Math.abs(difference.x) + Math.abs(difference.y) === 3){
         // If the player is a L away, attak them then try to move past them.
         map.attack(location.plus(difference), `player`);
         map.move(location, location.plus(difference.times(new Point(2, 2))));
@@ -136,21 +154,31 @@ function shadow_knight_ai(location, difference, map, enemy){
     }
     map.move(location, location.plus(new_dir));
 }
-function spider_web_ai(location, difference, map, enemy){
-    if(enemy.cycle < enemy.spawn_timer){
+/** @type {AIFunction}*/
+function spider_web_ai(location, difference, map, self){
+    if( self.cycle === undefined || 
+        self.spawn_timer === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
+    if(self.cycle < self.spawn_timer){
         // If the cycle hasn't reached the spawn timer, increments it.
-        ++enemy.cycle;
+        ++self.cycle;
     }
     else{
         // Attempts to spawn a spider nearby and resets cycle.
         spawn_nearby(map, spider_tile(), location);
-        enemy.cycle = 0;
+        self.cycle = 0;
     }
 }
-function ram_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function ram_ai(location, difference, map, self){
+    if( self.cycle === undefined || 
+        self.pic_arr === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
     var direction = sign(difference);
     var wander_speed = 2;
-    if(enemy.cycle === 0){
+    if(self.cycle === 0){
         // moves <wander_speed> closer to a row or column that the player is in.
         var moved = true;
         if(Math.abs(difference.x) <= Math.abs(difference.y)){
@@ -169,8 +197,8 @@ function ram_ai(location, difference, map, enemy){
         }
         if(moved === true && (Math.abs(difference.x) < 3 || Math.abs(difference.y) < 3)){
             // If it sees them, prepares to charge.
-            enemy.cycle = 1;
-            enemy.pic = enemy.pic_arr[enemy.cycle];
+            self.cycle = 1;
+            self.pic = self.pic_arr[self.cycle];
         }
     }
     else{
@@ -188,19 +216,20 @@ function ram_ai(location, difference, map, enemy){
             location.plus_equals(direction);
         }
         map.attack(location);
-        enemy.cycle = 0;
-        enemy.pic = enemy.pic_arr[enemy.cycle];
+        self.cycle = 0;
+        self.pic = self.pic_arr[self.cycle];
     }
 }
-function large_porcuslime_ai(location, difference, map, enemy){
-    if(enemy.health === 2){
+/** @type {AIFunction}*/
+function large_porcuslime_ai(location, difference, map, self){
+    if(self.health !== undefined && self.health === 2){
         // If health is 2, turns into the medium version.
         map.attack(location);
         map.attack(location);
         map.add_tile(medium_porcuslime_tile(), location);
         return;
     }
-    if(enemy.health === 1){
+    if(self.health !== undefined && self.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
         map.attack(location);
         spawn_nearby(map, small_d_porcuslime_tile(), location);
@@ -208,50 +237,67 @@ function large_porcuslime_ai(location, difference, map, enemy){
         return;
     }
     var direction = sign(difference);
-    move_attack_ai(location, direction, map, enemy);
+    move_attack_ai(location, direction, map, self);
 }
-function medium_porcuslime_ai(location, difference, map, enemy){
-    if(enemy.health === 1){
+/** @type {AIFunction}*/
+function medium_porcuslime_ai(location, difference, map, self){
+    if( self.cycle === undefined || 
+        self.pic_arr === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
+    if(self.health !== undefined && self.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
         map.attack(location);
         spawn_nearby(map, small_d_porcuslime_tile(), location);
         spawn_nearby(map, small_h_porcuslime_tile(), location);
         return;
     }
-    if(enemy.cycle === 0){
+    if(self.cycle === 0){
         // If cycle is at 0, direction will be orthogonally towards the player.
-        porcuslime_horizontal_ai(location, difference, map, enemy)
+        porcuslime_horizontal_ai(location, difference, map, self);
     }
     else{
         // If cycle is at 1, direction will be diagonally towards the player.
-        porcuslime_diagonal_ai(location, difference, map, enemy)
+        porcuslime_diagonal_ai(location, difference, map, self);
     }
     // Swaps cycle and picture between the two.
-    enemy.cycle = 1 - enemy.cycle;
-    enemy.pic = enemy.pic_arr[enemy.cycle];
+    self.cycle = 1 - self.cycle;
+    self.pic = self.pic_arr[self.cycle];
 }
-function porcuslime_diagonal_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function porcuslime_diagonal_ai(location, difference, map, self){
     // Small version which moves then attacks diagonally.
     var direction = order_nearby(difference);
-    var dir = undefined
+    var dir = undefined;
     for(var i = 0; i < direction.length && dir === undefined; ++i){
         if(Math.abs(direction[i].x) === 1 && Math.abs(direction[i].y) === 1){
             dir = direction[i];
         }
     }
-    move_attack_ai(location, dir, map, enemy);
+    if(dir === undefined){
+        throw new Error(`porcuslime failed to pick a direction`);
+    }
+    move_attack_ai(location, dir, map, self);
 }
-function porcuslime_horizontal_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function porcuslime_horizontal_ai(location, difference, map, self){
     var direction = order_nearby(difference);
-    var dir = undefined
+    var dir = undefined;
     for(var i = 0; i < direction.length && dir === undefined; ++i){
         if(direction[i].x === 0 || direction[i].y === 0){
             dir = direction[i];
         }
     }
-    move_attack_ai(location, dir, map, enemy);
+    if(dir === undefined){
+        throw new Error(`porcuslime failed to pick a direction`);
+    }
+    move_attack_ai(location, dir, map, self);
 }
-function move_attack_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function move_attack_ai(location, difference, map, self){
+    if(point_equals(difference, new Point(0, 0))){
+        return;
+    }
     var moved = map.move(location, location.plus(difference));
     if(moved){
         map.attack(location.plus(difference.times(2)));
@@ -260,33 +306,39 @@ function move_attack_ai(location, difference, map, enemy){
         map.attack(location.plus(difference));
     }
 }
-function acid_bug_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function acid_bug_ai(location, difference, map, self){
     // Moves 1 space towards the player.
     var directions = order_nearby(difference);
     for(var i = 0;
         i < directions.length &&
         !map.move(location, location.plus(directions[i]))
-        && enemy.health > 0;
+        && (self.health === undefined || self.health > 0);
         ++i){}
 }
-function acid_bug_death(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function acid_bug_death(location, difference, map, self){
     // On death, attacks each space next to it.
     var attacks = random_nearby();
     for(var i = 0; i < attacks.length; ++i){
         map.attack(location.plus(attacks[i]));
     }
 }
-function brightling_ai(location, difference, map, enemy){
-    if(enemy.cycle === -1){
-        // teleports to a random empty space, then cycle goes to 1.
-        teleport_spell(location, difference, map, enemy);
-        ++enemy.cycle;
+/** @type {AIFunction}*/
+function brightling_ai(location, difference, map, self){
+    if(self.cycle === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
     }
-    else if(random_num(4) < enemy.cycle){
+    if(self.cycle === -1){
+        // teleports to a random empty space, then cycle goes to 1.
+        teleport_spell(location, difference, map, self);
+        ++self.cycle;
+    }
+    else if(random_num(4) < self.cycle){
         // Teleports the player next to it then cycle goes to 0 to prepare to teleport.
         var near_points = random_nearby();
         for(var i = 0; i < near_points.length && !map.move(location.plus(difference), location.plus(near_points[i])); ++i){}
-        enemy.cycle = -1;
+        self.cycle = -1;
         // Since player has been moved, it returns to their turn.
         throw new Error(`pass to player`);
     }
@@ -299,22 +351,29 @@ function brightling_ai(location, difference, map, enemy){
                 location.plus_equals(near_points[i])
             }
         }
-        ++enemy.cycle;
+        ++self.cycle;
     }
 }
-function corrosive_caterpillar_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function corrosive_caterpillar_ai(location, difference, map, self){
     var direction = get_empty_nearby(location, random_nearby(), map);
-    if(!(direction === false)){
+    if(!(direction === undefined)){
         if(map.move(location, location.plus(direction))){
             map.add_tile(corrosive_slime_tile(), location);
         }
     }
 }
-function corrosive_caterpillar_death(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function corrosive_caterpillar_death(location, difference, map, self){
     map.add_tile(corrosive_slime_tile(), location);
 }
-function noxious_toad_ai(location, difference, map, enemy){
-    if(enemy.cycle === 0){
+/** @type {AIFunction}*/
+function noxious_toad_ai(location, difference, map, self){
+    if( self.cycle === undefined || 
+        self.pic_arr === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    if(self.cycle === 0){
         var directions = order_nearby(difference);
         var moved = false;
         for(var i = 0; i < directions.length && !moved; ++i){
@@ -327,7 +386,7 @@ function noxious_toad_ai(location, difference, map, enemy){
             }
         }
         if(moved){
-            enemy.cycle = 1;
+            self.cycle = 1;
             if(difference.within_radius(1)){
                 for(var i = 0; i < directions.length; ++i){
                     map.attack(location.plus(directions[i]));
@@ -336,11 +395,12 @@ function noxious_toad_ai(location, difference, map, enemy){
         }
     }
     else{
-        enemy.cycle = 0;
+        self.cycle = 0;
     }
-    enemy.pic = enemy.pic_arr[enemy.cycle]
+    self.pic = self.pic_arr[self.cycle]
 }
-function vampire_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function vampire_ai(location, difference, map, self){
     var player_pos = location.plus(difference);
     var target_spaces = [new Point(player_pos.x + 1, player_pos.y + 1), 
                         new Point(player_pos.x - 1, player_pos.y + 1), 
@@ -355,8 +415,10 @@ function vampire_ai(location, difference, map, enemy){
             moved = map.move(location, target);
         }
     }
-    if(moved && map.attack(location.plus(difference)) && enemy.health < enemy.max_health){
-        ++enemy.health;
+    if(moved && map.attack(location.plus(difference)) // If you moved into range, attack.
+        && self.health !== undefined // If you have health
+        && (self.max_health === undefined || self.health < self.max_health)){ // and your health isn't at your max_health,
+        ++self.health; // heal.
     }
     if(!moved){
         var directions = order_nearby(difference);
@@ -369,39 +431,54 @@ function vampire_ai(location, difference, map, enemy){
         }
     }
 }
-function vampire_hit(location, difference, map, enemy){
-    if(enemy.health > 0){
-        stun(enemy);
-        teleport_spell(location, difference, map, enemy);
+/** @type {AIFunction}*/
+function vampire_hit(location, difference, map, self){
+    if(self.health !== undefined && self.health > 0){
+        stun(self);
+        teleport_spell(location, difference, map, self);
     }
 }
-function clay_golem_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function clay_golem_ai(location, difference, map, self){
+    if(self.cycle === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     if(difference.within_radius(1)){
         // If the player is next to it, attack.
         map.attack(location.plus(difference), `player`);
-        enemy.cycle = 1;
+        self.cycle = 1;
     }
-    else if(enemy.cycle === 1){
+    else if(self.cycle === 1){
         // Otherwise, move closer.
         var directions = order_nearby(difference);
         for(var i = 0; i < directions.length && !map.move(location, location.plus(directions[i])); ++i){}
-        enemy.cycle = 0;
+        self.cycle = 0;
     }
     else{
-        enemy.cycle = 1;
+        self.cycle = 1;
     }
 }
-function clay_golem_hit(location, difference, map, enemy){
-    stun(enemy);
-    enemy.cycle = 1;
+/** @type {AIFunction}*/
+function clay_golem_hit(location, difference, map, self){
+    if(self.cycle === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    stun(self);
+    self.cycle = 1;
 }
-function vinesnare_bush_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function vinesnare_bush_ai(location, difference, map, self){
+    if( self.cycle === undefined || 
+        self.pic_arr === undefined ||
+        self.range === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     var moved = false;
     if(difference.within_radius(1)){
         // If the player is next to it, attack.
         map.attack(location.plus(difference), `player`);
     }
-    else if(enemy.cycle > 0 && difference.within_radius(enemy.range)){
+    else if(self.cycle > 0 && difference.within_radius(self.range)){
         var direction = sign(difference);
         if(difference.x === 0 || difference.y === 0 || Math.abs(difference.x) === Math.abs(difference.y)){
             for(var i = Math.max(Math.abs(difference.x), Math.abs(difference.y));
@@ -414,24 +491,29 @@ function vinesnare_bush_ai(location, difference, map, enemy){
         }
     }
     if(moved){
-        enemy.cycle = 0;
-        enemy.pic = enemy.pic_arr[0];
+        self.cycle = 0;
+        self.pic = self.pic_arr[0];
         throw new Error(`pass to player`);
     }
-    if(++enemy.cycle > 0){
-        enemy.pic = enemy.pic_arr[1];
+    if(++self.cycle > 0){
+        self.pic = self.pic_arr[1];
     }
 }
-function rat_ai(location, difference, map, enemy){
-    if(enemy.cycle >= 1 && difference.within_radius(1)){
+/** @type {AIFunction}*/
+function rat_ai(location, difference, map, self){
+    if( self.cycle === undefined || 
+        self.flip === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    if(self.cycle >= 1 && difference.within_radius(1)){
         // If the player is next to it, attack.
         map.attack(location.plus(difference), `player`);
-        enemy.cycle = -1;
+        self.cycle = -1;
     }
     // Otherwise, move closer.
     for(var i = 0; i < 2; ++i){
         var directions = order_nearby(difference);
-        if(enemy.cycle <= 0){
+        if(self.cycle <= 0){
             directions = reverse_arr(directions);
         }
         var moved = false;
@@ -441,24 +523,29 @@ function rat_ai(location, difference, map, enemy){
                 location.plus_equals(directions[j])
                 difference.minus_equals(directions[j])
                 if(directions[j].x < 0){
-                    enemy.flip = false;
+                    self.flip = false;
                 }
                 if(directions[j].x > 0){
-                    enemy.flip = true;
+                    self.flip = true;
                 }
             }
         }
     }
-    ++enemy.cycle;
+    ++self.cycle;
 }
 
 
 // Boss AIs
-function boss_death(location, difference, map, enemy){
-    display.display_message(ui_id.display_message, `${enemy.death_message}\n${boss_death_description}`);
+/** @type {AIFunction}*/
+function boss_death(location, difference, map, self){
+    if(self.death_message === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    display.display_message(ui_id.display_message, `${self.death_message}\n${boss_death_description}`);
     map.unlock();
 }
-function velociphile_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function velociphile_ai(location, difference, map, self){
     // Moves towards the player 2/3 of the time, otherwise moves randomly.
     var directions = order_nearby(difference);
     if(random_num(3) === 0){
@@ -466,7 +553,7 @@ function velociphile_ai(location, difference, map, enemy){
     }
     // Direction is reselected until an unobstructed one is found.
     var direction = get_empty_nearby(location, directions, map);
-    if(!(direction === false)){
+    if(!(direction === undefined)){
         // Moves in the chosen direction until it hits something, which it then attacks.
         while(map.move(location, location.plus(direction))){
             location.plus_equals(direction);
@@ -474,14 +561,20 @@ function velociphile_ai(location, difference, map, enemy){
         map.attack(location.plus(direction));
     }
 }
-function spider_queen_hit(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function spider_queen_hit(location, difference, map, self){
     // Spawns a new spider nearby. Stuns it so it won't move right away.
-    stun(enemy);
+    stun(self);
     var new_spider = spider_tile();
     stun(new_spider);
     spawn_nearby(map, new_spider, location);
 }
-function lich_ai(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function lich_ai(location, difference, map, self){
+    if( self.cycle === undefined || 
+        self.spells === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     var player_close = (difference.within_radius(1));
     var moves = reverse_arr(order_nearby(difference));
     var i;
@@ -490,36 +583,47 @@ function lich_ai(location, difference, map, enemy){
         location.plus_equals(moves[i]);
         difference.minus_equals(moves[i]);
     }
-    enemy.spells[enemy.cycle][0](location, difference, map, enemy);
+    self.spells[self.cycle].behavior(location, difference, map, self);
     if(player_close){
-        enemy.cycle = 0;
+        self.cycle = 0;
     }
     else{
-        enemy.cycle = random_num(enemy.spells.length);
+        self.cycle = random_num(self.spells.length);
     }
-    enemy.description = lich_description + enemy.spells[enemy.cycle][1];
-    enemy.pic = enemy.spells[enemy.cycle][2];
+    self.description = `${lich_description}${self.spells[self.cycle].description}`;
+    self.pic = self.spells[self.cycle].pic;
 }
 
 // Spells
-function teleport_spell(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function teleport_spell(location, difference, map, self){
     var space = map.random_empty();
     map.move(location, space);
 }
-function summon_spell(location, difference, map, enemy){
-    var tile = enemy.summons[random_num(enemy.summons.length)]();
+/** @type {AIFunction}*/
+function summon_spell(location, difference, map, self){
+    if(self.summons === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    var tile = self.summons[random_num(self.summons.length)]();
     spawn_nearby(map, tile, location);
 }
-function earthquake_spell(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function earthquake_spell(location, difference, map, self){
+    var health = self.health;
+    if( health === undefined){
+        health = 4;
+    }
     map.add_event({
         type: `earthquake`,
-        amount: (4 - enemy.health) * 5 + random_num(4)
+        amount: (5 - health) * 5 + random_num(4)
     });
 }
-function flame_wave_spell(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function flame_wave_spell(location, difference, map, self){
     var direction = get_empty_nearby(location, order_nearby(difference), map);
     var spawnpoints = [];
-    if(direction === false){
+    if(direction === undefined){
         return;
     }
     if(direction.x === 0){
@@ -546,27 +650,36 @@ function flame_wave_spell(location, difference, map, enemy){
         map.add_tile(fireball, location.plus(spawnpoints[i]));
     }
 }
-function confusion_spell(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function confusion_spell(location, difference, map, self){
     for(var i = 0; i < 2; ++i){
         var ran = random_num(CONFUSION_CARDS.length);
         give_temp_card(CONFUSION_CARDS[ran]());
     }
 }
-function lava_moat_spell(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function lava_moat_spell(location, difference, map, self){
+    var health = self.health;
+    if( health === undefined){
+        health = 4;
+    }
     var nearby = order_nearby(difference);
-    for(var i = 0; i < enemy.health && count_nearby(location, map) < 6; ++i){
+    for(var i = 0; i < health && count_nearby(location, map) < 6; ++i){
         var moat = lava_pool_tile();
         spawn_nearby(map, moat, location, nearby);
     }
 }
-function rest_spell(location, difference, map, enemy){}
+/** @type {AIFunction}*/
+function rest_spell(location, difference, map, self){}
 
 // Other AIs
-function hazard(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function hazard(location, difference, map, self){
     // General on_move function to retaliate if something tries to move onto it.
     map.attack(location.plus(difference));
 }
-function wall_death(location, difference, map, enemy){
+/** @type {AIFunction}*/
+function wall_death(location, difference, map, self){
     var spawn_list = [spider_tile, acid_bug_tile, spider_web_tile, rat_tile];
     if(random_num(10) < 7){
         var ran = random_num(spawn_list.length);
@@ -575,43 +688,72 @@ function wall_death(location, difference, map, enemy){
         map.add_tile(new_enemy, location);
     }
 }
-function fireball_ai(location, difference, map, enemy){
-    if(!map.move(location, location.plus(enemy.direction))){
-        map.attack(location.plus(enemy.direction));
-        enemy.health = 1;
+/** @type {AIFunction}*/
+function fireball_ai(location, difference, map, self){
+    if(self.direction === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    if(!map.move(location, location.plus(self.direction))){
+        map.attack(location.plus(self.direction));
+        self.health = 1;
         map.attack(location);
     }
 }
-function fireball_on_enter(location, difference, map, enemy){
-    hazard(location, difference, map, enemy);
-    enemy.health = 1;
+/** @type {AIFunction}*/
+function fireball_on_enter(location, difference, map, self){
+    hazard(location, difference, map, self);
+    self.health = 1;
     map.attack(location);
 }
 
 // AI Utility Functions
+/**
+ * @param {Tile} tile 
+ * @param {number} [amount = 1]
+ */
 function stun(tile, amount = 1){
     // Increases a tile's stun.
-    if(!tile.hasOwnProperty(`stun`)){
+    if(tile.stun === undefined){
         tile.stun = 0;
     }
     tile.stun += amount;
 }
-function set_direction(enemy, direction){
-    enemy.direction = direction;
+/**
+ * @param {Tile} tile 
+ * @param {Point} direction 
+ */
+function set_direction(tile, direction){
+    if( tile.pic_arr === undefined ||
+        tile.rotate === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    tile.direction = direction;
     if(direction.within_radius(0)){
-        enemy.rotate = 90 * (Math.abs((direction.x * -2 + 1)) + direction.y);
-        enemy.pic = enemy.pic_arr[0];
+        tile.rotate = 90 * (Math.abs((direction.x * -2 + 1)) + direction.y);
+        tile.pic = tile.pic_arr[0];
     }
     else{
-        enemy.rotate= 90 * ((direction.x + direction.y) / 2 + 1);
+        tile.rotate= 90 * ((direction.x + direction.y) / 2 + 1);
         if(direction.x === -1 && direction.y === 1){
-            enemy.rotate = 90 * 3;
+            tile.rotate = 90 * 3;
         }
-        enemy.pic = enemy.pic_arr[1];
+        tile.pic = tile.pic_arr[1];
     }
 }
+/**
+ * @overload
+ * @param {number} num
+ * @return {number}
+ * 
+ * @overload
+ * @param {Point} num
+ * @return {Point}
+ * 
+ * @param {*} num
+ * @returns {*}
+ */
 function sign(num){
-    // Returns whether x is positive, negative, or 0
+    // Returns whether num is positive, negative, or 0
     if(typeof num === `number`){
         if(num > 0){
             return 1;
@@ -621,18 +763,20 @@ function sign(num){
         }
         return 0;
     }
-    else if(num.hasOwnProperty(`x`) && num.hasOwnProperty(`y`)){
+    else{
         return new Point(sign(num.x), sign(num.y));
     }
-    else{
-        throw new Error(`invalid type`);
-    }
-    
 }
+/**
+ * @returns {number}
+ */
 function random_sign(){
     // Randomly returns 1 or -1.
     return 2 * random_num(2) - 1;
 }
+/**
+ * @returns {Point[]}
+ */
 function random_nearby(){
     // Returns an array of each point next to [0, 0] with it's order randomized.
     var cords = [
@@ -646,6 +790,10 @@ function random_nearby(){
         new Point(1, 1)];
     return randomize_arr(cords);
 }
+/**
+ * @param {Point} direction
+ * @returns {Point[]}
+ */
 function order_nearby(direction){
     // Returns an array with points ordered from the nearest to the furthest from the given direction. 
     // Equal distance points are randomly ordered.
@@ -710,14 +858,25 @@ function order_nearby(direction){
     return ordering;
 
 }
+/**
+ * @param {Point} location 
+ * @param {Point[]} nearby_arr 
+ * @param {GameMap} map 
+ * @returns {Point | undefined}
+ */
 function get_empty_nearby(location, nearby_arr, map){
     for(var i = 0; i < nearby_arr.length; ++i){
         if(map.check_empty(location.plus(nearby_arr[i]))){
             return nearby_arr[i];
         }
     }
-    return false;
+    return undefined;
 }
+/**
+ * @param {Point} location 
+ * @param {GameMap} map 
+ * @returns {number}
+ */
 function count_nearby(location, map){
     var count = 0;
     var nearby = random_nearby();
@@ -728,6 +887,13 @@ function count_nearby(location, map){
     }
     return count;
 }
+/**
+ * @param {GameMap} map 
+ * @param {Tile} tile 
+ * @param {Point} location 
+ * @param {Point[]=} nearby 
+ * @returns {Point | undefined}
+ */
 function spawn_nearby(map, tile, location, nearby = random_nearby()){
     // Attempts to spawn a <tile> at a space next to to the given cords.
     // If it succeeds, returns the location, otherwise returns false.
@@ -736,8 +902,13 @@ function spawn_nearby(map, tile, location, nearby = random_nearby()){
             return nearby[i];
         }
     }
-    return false;
+    return undefined;
 }
+/**
+ * @template T
+ * @param {T[]} arr 
+ * @returns {T[]}
+ */
 function randomize_arr(arr){
     // Returns a copy of the given array with it's order randomized.
     arr = copy_arr(arr);
@@ -750,6 +921,11 @@ function randomize_arr(arr){
     }
     return random_arr;
 }
+/**
+ * @template T
+ * @param {T[]} arr 
+ * @returns {T[]}
+ */
 function copy_arr(arr){
     //returns a copy of the given array.
     var arr2 = [];
@@ -758,6 +934,11 @@ function copy_arr(arr){
     }
     return arr2;
 }
+/**
+ * @template T
+ * @param {T[]} arr 
+ * @returns {T[]}
+ */
 function reverse_arr(arr){
     var new_arr = [];
     for(var i = arr.length - 1; i >= 0; --i){
@@ -765,13 +946,19 @@ function reverse_arr(arr){
     }
     return new_arr;
 }
+/**
+ * @param {number} x 
+ * @returns {number}
+ */
 function random_num(x){
     return Math.floor(Math.random() * x);
 }
+/**
+ * @param {[]} a1 
+ * @param {[]} a2
+ * @returns {boolean}
+ */
 function array_equals(a1, a2){
-    if(!Array.isArray(a1) || !Array.isArray(a2)){
-        return false;
-    }
     if(!(a1.length === a2.length)){
         return false;
     }

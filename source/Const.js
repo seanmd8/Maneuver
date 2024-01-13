@@ -1,3 +1,6 @@
+// ----------------Cards.js----------------
+// File containing global constants used throughout the program.
+
 
 // Starting player stats
 const PLAYER_STARTING_HEALTH = 3;

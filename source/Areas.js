@@ -1,3 +1,5 @@
+// ----------------Areas.js----------------
+// File containing functions to generate area objects.
 
 const area_end = [generate_default_area];
 const area1 = [generate_ruins_area];
@@ -8,8 +10,22 @@ const area5 = [generate_sanctum_area];
 
 
 
+/**
+ * @typedef {object} Area
+ * @property {string} background
+ * @property {FloorGenerator} generate_floor
+ * @property {TileGenerator[]} enemy_list
+ * @property {FloorGenerator[]} boss_floor_list
+ * @property {AreaGenerator[]} next_area_list
+ * @property {string} description
+ */
 
+/**
+ * @callback AreaGenerator
+ * @returns {Area}
+ */
 
+/** @type {AreaGenerator}*/
 function generate_ruins_area(){
     return {
         background: `${img_folder.backgrounds}ruins.png`,
@@ -20,6 +36,7 @@ function generate_ruins_area(){
         description: ruins_description
     }
 }
+/** @type {AreaGenerator}*/
 function generate_sewers_area(){
     return {
         background: `${img_folder.backgrounds}sewers.png`,
@@ -30,6 +47,7 @@ function generate_sewers_area(){
         description: sewers_description
     }
 }
+/** @type {AreaGenerator}*/
 function generate_basement_area(){
     return {
         background: `${img_folder.backgrounds}basement.png`,
@@ -40,6 +58,7 @@ function generate_basement_area(){
         description: basement_description
     }
 }
+/** @type {AreaGenerator}*/
 function generate_magma_area(){
     return {
         background: `${img_folder.backgrounds}magma.png`,
@@ -50,6 +69,7 @@ function generate_magma_area(){
         description: magma_description
     }
 }
+/** @type {AreaGenerator}*/
 function generate_crypt_area(){
     return {
         background: `${img_folder.backgrounds}crypt.png`,
@@ -60,6 +80,7 @@ function generate_crypt_area(){
         description: crypt_description
     }
 }
+/** @type {AreaGenerator}*/
 function generate_forest_area(){
     return {
         background: `${img_folder.backgrounds}forest.png`,
@@ -70,6 +91,7 @@ function generate_forest_area(){
         description: forest_description
     }
 }
+/** @type {AreaGenerator}*/
 function generate_library_area(){
     return {
         background: `${img_folder.backgrounds}library.png`,
@@ -80,6 +102,7 @@ function generate_library_area(){
         description: ruins_description
     }
 }
+/** @type {AreaGenerator}*/
 function generate_sanctum_area(){
     return {
         background: `${img_folder.backgrounds}sanctum.png`,
@@ -91,6 +114,7 @@ function generate_sanctum_area(){
     }
 }
 
+/** @type {AreaGenerator}*/
 function generate_default_area(){
     return {
         background: `${img_folder.backgrounds}default.png`,

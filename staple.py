@@ -3,12 +3,14 @@
 
 import os
 def main():
-    staple("./source", "Maneuver.js")
+    staple("./source", "Maneuver.js", False)
     staple("./css", "ManeuverStyles.css")
 
-def staple(folder, destination):
+def staple(folder, destination, jsd_enabled = False):
     source = os.listdir(folder)
     body = ""
+    if(jsd_enabled):
+        body = "// @ts-check\n"
     for i in range(len(source)):
         body += read_file(folder + "/" + source[i])
     write_file(destination, body)

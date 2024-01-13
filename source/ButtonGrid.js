@@ -1,5 +1,6 @@
 // ----------------ButtonGrid.js----------------
 // The ButtonGrid class is used to keep track of the possible moves a card has.
+
 class ButtonGrid{
     #buttons; // A 3x3 2d array used to store the options.
     constructor(){
@@ -10,6 +11,11 @@ class ButtonGrid{
                         [initial, initial, initial], 
                         [initial, initial, initial]];
     }
+    /**
+     * @param {string} description 
+     * @param {PlayerCommand[]} behavior 
+     * @param {number} [number = 1]
+     */
     add_button(description, behavior, number = -1){
         // Adds a description and a list of commands to one of the buttons.
         // Throws error of the button number is out of range.
@@ -26,6 +32,10 @@ class ButtonGrid{
         }
         this.#buttons[Math.floor((number - 1) / 3)][(number - 1) % 3] = button;
     }
+    /**
+     * @param {string} table_name 
+     * @param {number} hand_pos 
+     */
     show_buttons(table_name, hand_pos){
         // Displays the 3x3 grid to the given table.
         // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
@@ -43,6 +53,10 @@ class ButtonGrid{
             display.add_button_row(table_name, this.#buttons[i], press_button)
         }
     }
+    /**
+     * @param {string} direction 
+     * @returns {number}
+     */
     #convert_direction(direction){
         // Converts a short direction string into the number of the button it should use.
         // Returns -1 if the string doesn't match one in the list.

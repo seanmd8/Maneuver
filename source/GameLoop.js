@@ -1,7 +1,7 @@
 // ----------------GameLoop.js----------------
 // File contains functions that control the main gameplay.
 
-
+/** @returns {void} */
 function setup(){
     // Function ran on page load or on restart to set up the game.
     var start = STARTING_AREA();
@@ -17,6 +17,10 @@ function setup(){
     display.swap_screen(ui_id.game_screen);
     display.swap_screen(ui_id.stage);
 }
+/** 
+ * @param {PlayerCommand[]} behavior
+ * @param {number} hand_pos 
+ */
 async function player_turn(behavior, hand_pos){
     // Function to execute the outcome of the player's turn.
     display.display_message(ui_id.display_message, ``);
@@ -44,7 +48,7 @@ async function player_turn(behavior, hand_pos){
         }
         else if(m === `game over`){
             // If the player's health reached 0
-            game_over(error.cause);
+            game_over(error.cause.message);
         }
         else if(m === `pass to player`){
             // If the enemies' turn was interrupted,
@@ -56,17 +60,22 @@ async function player_turn(behavior, hand_pos){
         }
     }
 }
+/**
+ * @param {GameMap} mapData 
+ * @param {PlayerCommand} action 
+ */
 function player_action(mapData, action){
-    if(action[0] === `attack`){
-        mapData.player_attack(new Point(action[1], action[2]));
+    if(action.type === `attack`){
+        mapData.player_attack(action.change);
     }
-    else if(action[0] === `move`){
-        mapData.player_move(new Point(action[1], action[2]));
+    else if(action.type === `move`){
+        mapData.player_move(action.change);
     }
     else{
         throw new Error(`invalid action type`);
     }
 }
+/** @returns {void} */
 function new_floor(){
     // Creates the next floor.
     mapData.next_floor();
@@ -76,6 +85,7 @@ function new_floor(){
     deck.display_hand(ui_id.hand_display);
     display.swap_screen(ui_id.stage);
 }
+/** @returns {void} */
 function enter_shop(){
     // Gives the player the option to add or remove a card from their deck.
     // Their deck contents are also displayed.
@@ -89,10 +99,12 @@ function enter_shop(){
     generate_remove_row(deck, ui_id.remove_card);
     display.swap_screen(ui_id.shop);
 }
+/** @returns {void} */
 function generate_add_row(deck, table){
-    var add_list = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
-    for(var i = 0; i < add_list.length; ++i){
-        add_list[i] = add_list[i]();
+    var add_list_generators = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
+    var add_list = [];
+    for(var i = 0; i < add_list_generators.length; ++i){
+        add_list[i] = add_list_generators[i]();
     }
     add_list.unshift({pic: `${img_folder.other}plus.png`})
     var make_add_card = function(deck){
@@ -105,8 +117,9 @@ function generate_add_row(deck, table){
     }
     display.add_tb_row(table, add_list, CARD_SCALE, make_add_card(deck));
 }
+/** @returns {void} */
 function generate_remove_row(deck, table){
-    var remove_list = deck.get_rand_arr(REMOVE_CHOICE_COUNT);
+    var remove_list = deck.get_rand_cards(REMOVE_CHOICE_COUNT);
     if(remove_list){
         remove_list.unshift({pic: `${img_folder.other}minus.png`});
     }
@@ -123,12 +136,19 @@ function generate_remove_row(deck, table){
     }
     display.add_tb_row(table, remove_list, CARD_SCALE, make_remove_card(deck));
 }
+/**
+ * @param {number} ms 
+ * @returns {Promise<*>}
+ */
 function delay(ms){
     // Function to wait the given number of milliseconds.
     return new Promise(resolve =>{
         setTimeout(resolve, ms);
     })
 }
+/**
+ * @param {string} cause 
+ */
 function game_over(cause){
     // Tells the user the game is over, prevents them fro m continuing, tells them the cause
     // and gives them the chance to retry.
@@ -146,6 +166,12 @@ function game_over(cause){
     }]
     display.add_button_row(ui_id.move_buttons, restart_message, restart);
 }
+/**
+ * @template T
+ * @param {T} element 
+ * @param {T[]} arr 
+ * @returns {number}
+ */
 function search(element, arr){
     for(var i = 0; i < arr.length; ++i){
         if(element === arr[i]){
@@ -154,15 +180,25 @@ function search(element, arr){
     }
     return -1;
 }
+/**
+ * @param {Card} card 
+ */
 function give_temp_card(card){
     deck.add_temp(card);
 }
+/** @returns {void} */
 function prep_turn(){
     mapData.resolve_events();
     mapData.display();
     deck.display_hand(ui_id.hand_display);
     mapData.display_stats(ui_id.stats);
 }
+/**
+ * @template T
+ * @param {T[]} source 
+ * @param {number} draws 
+ * @returns {T[]}
+ */
 function rand_no_repeates(source, draws){
     var index_arr = [];
     var result = [];
@@ -171,28 +207,42 @@ function rand_no_repeates(source, draws){
         index_arr.push(i);
     }
     for(var i = 0; i < draws; ++i){
-        rand = random_num(index_arr.length);
+        var rand = random_num(index_arr.length);
         result.push(source[index_arr[rand]]);
         index_arr[rand] = index_arr[index_arr.length - 1];
         index_arr.pop();
     }
     return result;
 }
+/**
+ * @param {Tile} tile 
+ * @returns {string}
+ */
 function tile_description(tile){
+    if(tile.description === undefined){
+        throw new Error(`tile missing description`);
+    }
     var hp = ``
     var stunned = ``;
-    if(tile.hasOwnProperty(`max_health`)){
+    if(tile.max_health !== undefined && tile.health !== undefined){
         hp = `(${tile.health}/${tile.max_health} hp) `;
     }
-    else if(tile.hasOwnProperty(`health`)){
+    else if(tile.health !== undefined){
         hp = `(${tile.health} hp) `;
     }
-    if(tile.hasOwnProperty(`stun`) && tile.stun > 0){
+    if(tile.stun !== undefined && tile.stun > 0){
         stunned = `*${stunned_msg}${tile.stun}* `;
     }
     return `${hp}${stunned}${tile.description}`;
 }
+/**
+ * @param {Tile} player 
+ * @param {number} scale 
+ */
 function display_health(player, scale){
+    if(player.health === undefined || player.max_health === undefined){
+        throw new Error(`player missing health`);
+    }
     var health = [];
     for(var i = 0; i < player.health; ++i){
         health.push({pic: `${img_folder.other}heart.png`});
@@ -202,22 +252,25 @@ function display_health(player, scale){
     }
     display.add_tb_row(ui_id.health_display, health, scale);
 }
+/**
+ * @param {string} message 
+ * @param {number} wrap_length 
+ * @param {string} [delimiter = undefined]
+ * @returns {string}
+ */
 function wrap_str(message, wrap_length, delimiter = undefined){
-    if(!(typeof message === `string`)){
-        throw new Error(`message is not string`);
-    }
     var new_message = ``;
+    var str_arr = [];
     if(message.indexOf(`\n`) > -1){
-        var str_arr = message.split(`\n`);
+        str_arr = message.split(`\n`);
         for(var i = 0; i < str_arr.length; ++i){
             new_message = `${new_message}${wrap_str(str_arr[i], wrap_length, delimiter)}\n`
         }
     }
     else if(delimiter === undefined){
-        var str_arr = []
         var start = 0;
         while(start < message.length){
-            end = Math.min(message.length, start + wrap_length);
+            var end = Math.min(message.length, start + wrap_length);
             str_arr.push(message.slice(start, end));
             start = end;
         }
@@ -226,7 +279,7 @@ function wrap_str(message, wrap_length, delimiter = undefined){
         }
     }
     else{
-        var str_arr = message.split(` `);
+        str_arr = message.split(` `);
         var line = ``
         for(var i = 0; i < str_arr.length; ++i){
             line = `${line}${str_arr[i]} `;
