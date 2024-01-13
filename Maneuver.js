@@ -704,270 +704,6 @@ function fireball_on_enter(location, difference, map, self){
     self.health = 1;
     map.attack(location);
 }
-
-// AI Utility Functions
-/**
- * @param {Tile} tile 
- * @param {number} [amount = 1]
- */
-function stun(tile, amount = 1){
-    // Increases a tile's stun.
-    if(tile.stun === undefined){
-        tile.stun = 0;
-    }
-    tile.stun += amount;
-}
-/**
- * @param {Tile} tile 
- * @param {Point} direction 
- */
-function set_direction(tile, direction){
-    if( tile.pic_arr === undefined ||
-        tile.rotate === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
-    }
-    tile.direction = direction;
-    if(direction.within_radius(0)){
-        tile.rotate = 90 * (Math.abs((direction.x * -2 + 1)) + direction.y);
-        tile.pic = tile.pic_arr[0];
-    }
-    else{
-        tile.rotate= 90 * ((direction.x + direction.y) / 2 + 1);
-        if(direction.x === -1 && direction.y === 1){
-            tile.rotate = 90 * 3;
-        }
-        tile.pic = tile.pic_arr[1];
-    }
-}
-/**
- * @overload
- * @param {number} num
- * @return {number}
- * 
- * @overload
- * @param {Point} num
- * @return {Point}
- * 
- * @param {*} num
- * @returns {*}
- */
-function sign(num){
-    // Returns whether num is positive, negative, or 0
-    if(typeof num === `number`){
-        if(num > 0){
-            return 1;
-        }
-        if(num < 0){
-            return -1;
-        }
-        return 0;
-    }
-    else{
-        return new Point(sign(num.x), sign(num.y));
-    }
-}
-/**
- * @returns {number}
- */
-function random_sign(){
-    // Randomly returns 1 or -1.
-    return 2 * random_num(2) - 1;
-}
-/**
- * @returns {Point[]}
- */
-function random_nearby(){
-    // Returns an array of each point next to [0, 0] with it's order randomized.
-    var cords = [
-        new Point(-1, -1),
-        new Point(-1, 0),
-        new Point(-1, 1),
-        new Point(0, -1),
-        new Point(0, 1),
-        new Point(1, -1),
-        new Point(1, 0),
-        new Point(1, 1)];
-    return randomize_arr(cords);
-}
-/**
- * @param {Point} direction
- * @returns {Point[]}
- */
-function order_nearby(direction){
-    // Returns an array with points ordered from the nearest to the furthest from the given direction. 
-    // Equal distance points are randomly ordered.
-    var sign_dir = sign(direction);
-    var ordering = [];
-    ordering.push(sign_dir);
-    if(sign_dir.x === 0){
-        // Target is along the vertical line.
-        var pair = randomize_arr([new Point(1, sign_dir.y), new Point(-1, sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
-        pair = randomize_arr([new Point(1, 0), new Point(-1, 0)])
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
-        pair = randomize_arr([new Point(1, -1 * sign_dir.y), new Point(-1, -1 * sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
-    }
-    else if(sign_dir.y === 0){
-        // Target is along the horizontal line.
-        var pair = randomize_arr([new Point(sign_dir.x, 1), new Point(sign_dir.x, 1)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
-        pair = randomize_arr([new Point(0, 1), new Point(0, -1)])
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
-        pair = randomize_arr([new Point(-1 * sign_dir.x, 1), new Point(-1 * sign_dir.x, -1)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
-    }
-    else if(Math.abs(direction.x) > Math.abs(direction.y)){  
-        // Target is closer to the horizontal line than the vertical one.
-        ordering.push(new Point(sign_dir.x, 0));
-        ordering.push(new Point(0, sign_dir.y));
-        ordering.push(new Point(sign_dir.x, -1 * sign_dir.y));
-        ordering.push(new Point(-1 * sign_dir.x, sign_dir.y));
-        ordering.push(new Point(0, -1 * sign_dir.y));
-        ordering.push(new Point(-1 * sign_dir.x, 0));
-    }
-    else if(Math.abs(direction.x) < Math.abs(direction.y)){
-        // Target is closer to the vertical line than the horizontal one one.
-        ordering.push(new Point(0, sign_dir.y));
-        ordering.push(new Point(sign_dir.x, 0));
-        ordering.push(new Point(-1 * sign_dir.x, sign_dir.y));
-        ordering.push(new Point(sign_dir.x, -1 * sign_dir.y));
-        ordering.push(new Point(-1 * sign_dir.x, 0));
-        ordering.push(new Point(0, -1 * sign_dir.y));
-    }
-    else{
-        // Target is along the diagonal.
-        var pair = randomize_arr([new Point(sign_dir.x, 0), new Point(0, sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
-        pair = randomize_arr([new Point(-1 * sign_dir.x, sign_dir.y), new Point(sign_dir.x, -1 * sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
-        pair = randomize_arr([new Point(-1 * sign_dir.x, 0), new Point(0, -1 * sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
-    }
-    ordering.push(new Point(-1 * sign_dir.x, -1 * sign_dir.y));
-    return ordering;
-
-}
-/**
- * @param {Point} location 
- * @param {Point[]} nearby_arr 
- * @param {GameMap} map 
- * @returns {Point | undefined}
- */
-function get_empty_nearby(location, nearby_arr, map){
-    for(var i = 0; i < nearby_arr.length; ++i){
-        if(map.check_empty(location.plus(nearby_arr[i]))){
-            return nearby_arr[i];
-        }
-    }
-    return undefined;
-}
-/**
- * @param {Point} location 
- * @param {GameMap} map 
- * @returns {number}
- */
-function count_nearby(location, map){
-    var count = 0;
-    var nearby = random_nearby();
-    for(var i = 0; i < nearby.length; ++i){
-        if(!map.check_empty(location.plus(nearby[i]))){
-            ++count;
-        }
-    }
-    return count;
-}
-/**
- * @param {GameMap} map 
- * @param {Tile} tile 
- * @param {Point} location 
- * @param {Point[]=} nearby 
- * @returns {Point | undefined}
- */
-function spawn_nearby(map, tile, location, nearby = random_nearby()){
-    // Attempts to spawn a <tile> at a space next to to the given cords.
-    // If it succeeds, returns the location, otherwise returns false.
-    for(var i = 0; i < nearby.length; ++i){
-        if(map.add_tile(tile, location.plus(nearby[i]))){
-            return nearby[i];
-        }
-    }
-    return undefined;
-}
-/**
- * @template T
- * @param {T[]} arr 
- * @returns {T[]}
- */
-function randomize_arr(arr){
-    // Returns a copy of the given array with it's order randomized.
-    arr = copy_arr(arr);
-    var random_arr = [];
-    while(arr.length > 0){
-        var index = random_num(arr.length);
-        random_arr.push(arr[index]);
-        arr[index] = arr[arr.length - 1];
-        arr.pop();
-    }
-    return random_arr;
-}
-/**
- * @template T
- * @param {T[]} arr 
- * @returns {T[]}
- */
-function copy_arr(arr){
-    //returns a copy of the given array.
-    var arr2 = [];
-    for(var i = 0; i < arr.length; ++i){
-        arr2[i] = arr[i];
-    }
-    return arr2;
-}
-/**
- * @template T
- * @param {T[]} arr 
- * @returns {T[]}
- */
-function reverse_arr(arr){
-    var new_arr = [];
-    for(var i = arr.length - 1; i >= 0; --i){
-        new_arr.push(arr[i]);
-    }
-    return new_arr;
-}
-/**
- * @param {number} x 
- * @returns {number}
- */
-function random_num(x){
-    return Math.floor(Math.random() * x);
-}
-/**
- * @param {[]} a1 
- * @param {[]} a2
- * @returns {boolean}
- */
-function array_equals(a1, a2){
-    if(!(a1.length === a2.length)){
-        return false;
-    }
-    for(var i = 0; i < a1.length; ++i){
-        if(!(a1[i] === a2[i])){
-            return false;
-        }
-    }
-    return true;
-}
 // ----------------Areas.js----------------
 // File containing functions to generate area objects.
 
@@ -1228,35 +964,7 @@ const CONFUSION_CARDS = [
     stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out
 ]
 
-// Makes the starting deck
-/** @returns {MoveDeck}*/
-function make_starting_deck(){
-    var deck = new MoveDeck();
 
-    deck.add(basic_horizontal());
-    deck.add(basic_horizontal());
-    deck.add(basic_diagonal());
-    deck.add(basic_diagonal());
-    deck.add(slice());
-    deck.add(slice());
-    deck.add(short_charge());
-    deck.add(jump());
-
-    deck.deal();
-    return deck;
-}
-// Makes a deck for testing new cards.
-/** @returns {MoveDeck}*/
-function make_test_deck(){
-    var deck = new MoveDeck();
-    var start = 40;
-    for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
-        deck.add(CARD_CHOICES[i]());
-    }
-    deck.add(basic_horizontal());
-    deck.deal();
-    return deck;
-}
 
 // command function generators
 /**
@@ -2657,321 +2365,7 @@ function generate_sanctum_floor(floor_num, area, map){
 }
 
 
-// ----------------GameLoop.js----------------
-// File contains functions that control the main gameplay.
-
-/**
- * @returns {undefined}
- */
-function initiate_game(){
-    GS = new GameState();
-}
-
-class GameState{
-    map;
-    deck;
-    constructor(){
-        this.setup();
-    }
-    /** @returns {void} */
-    setup(){
-        // Function ran on page load or on restart to set up the game.
-        var start = STARTING_AREA();
-        display.display_message(ui_id.title, game_title);
-        display.display_message(ui_id.display_message, `${start.description}\n${welcome_message}`);
-        this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
-        this.map.add_tile(STARTING_ENEMY());
-        this.map.display();
-        this.map.display_stats(ui_id.stats);
-        this.deck = STARTING_DECK();
-        this.deck.display_hand(ui_id.hand_display);
-        display.display_message(ui_id.shop_instructions, mod_deck);
-        display.swap_screen(ui_id.game_screen);
-        display.swap_screen(ui_id.stage);
-    }
-    /** 
-    * @param {PlayerCommand[]} behavior
-    * @param {number} hand_pos 
-    */
-    async player_turn(behavior, hand_pos){
-        // Function to execute the outcome of the player's turn.
-        display.display_message(ui_id.display_message, ``);
-        try{
-            for(var i = 0; i < behavior.length; ++i){
-                // Does each valid command in the behavior list.
-                this.player_action(behavior[i]);
-            }
-            display.clear_tb(ui_id.move_buttons);
-            this.deck.discard(hand_pos);
-            this.map.display();
-            await delay(ANIMATION_DELAY);
-            await this.map.enemy_turn();
-            this.prep_turn();
-        }
-        catch (error){
-            var m = error.message;
-            if(m === `floor complete`){
-                // If the player has reached the end of the floor.
-                this.map.display_stats(ui_id.stats);
-                this.enter_shop();
-            }
-            else if(m === `game over`){
-                // If the player's health reached 0
-                this.game_over(error.cause.message);
-            }
-            else if(m === `pass to player`){
-                // If the enemies' turn was interrupted,
-                // prep for player's next turn.
-                this.prep_turn();
-            }
-            else{
-                throw error;
-            }
-        }
-    }
-    /**
-     * @param {PlayerCommand} action 
-     */
-    player_action(action){
-        if(action.type === `attack`){
-            this.map.player_attack(action.change);
-        }
-        else if(action.type === `move`){
-            this.map.player_move(action.change);
-        }
-        else{
-            throw new Error(`invalid action type`);
-        }
-    }
-    /** @returns {void} */
-    new_floor(){
-        // Creates the next floor.
-        this.map.next_floor();
-        this.map.display_stats(ui_id.stats);
-        this.map.display();
-        this.deck.deal();
-        this.deck.display_hand(ui_id.hand_display);
-        display.swap_screen(ui_id.stage);
-    }
-    /** @returns {void} */
-    enter_shop(){
-        // Gives the player the option to add or remove a card from their deck.
-        // Their deck contents are also displayed.
-        // Options to remove cards will not be displayed if the deck is at the minimum size already.
-        display.clear_tb(ui_id.move_buttons);
-        display.clear_tb(ui_id.add_card);
-        display.clear_tb(ui_id.remove_card);
-        display.clear_tb(ui_id.display_deck);
-        this.deck.display_all(ui_id.display_deck);
-        this.#generate_add_row(ui_id.add_card);
-        this.#generate_remove_row(ui_id.remove_card);
-        display.swap_screen(ui_id.shop);
-    }
-    /** 
-     * @param {string} table
-    */
-    #generate_add_row(table){
-        var add_list_generators = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
-        var add_list = [];
-        for(var i = 0; i < add_list_generators.length; ++i){
-            add_list[i] = add_list_generators[i]();
-        }
-        add_list.unshift({pic: `${img_folder.other}plus.png`})
-        var make_add_card = function(gamestate){
-            return function(card, position){
-                if(position > 0){
-                    gamestate.deck.add(card);
-                    gamestate.new_floor();
-                }
-            }
-        }
-        display.add_tb_row(table, add_list, CARD_SCALE, make_add_card(this));
-    }
-    /** 
-     * @param {string} table
-     * */
-    #generate_remove_row(table){
-        var remove_list = this.deck.get_rand_cards(REMOVE_CHOICE_COUNT);
-        if(remove_list){
-            remove_list.unshift({pic: `${img_folder.other}minus.png`});
-        }
-        else{
-            remove_list.unshift({pic: `${img_folder.other}x.png`});
-        }
-        var make_remove_card = function(gamestate){
-            return function(card, position){
-                if(position > 0){
-                    gamestate.deck.remove(card.id);
-                    gamestate.new_floor();
-                }
-            }
-        }
-        display.add_tb_row(table, remove_list, CARD_SCALE, make_remove_card(this));
-    }
-    /**
-    * @param {string} cause 
-    */
-    game_over(cause){
-        // Tells the user the game is over, prevents them fro m continuing, tells them the cause
-        // and gives them the chance to retry.
-        this.map.display();
-        display.clear_tb(ui_id.hand_display);
-        display.clear_tb(ui_id.move_buttons);
-        display.display_message(ui_id.display_message, `${game_over_message}${cause}.`);
-        display.clear_tb(ui_id.move_buttons);
-        var restart = function(){
-            display.clear_tb(ui_id.move_buttons);
-            this.setup();
-        };
-        var restart_message = [{
-            description: retry_message
-        }]
-        display.add_button_row(ui_id.move_buttons, restart_message, restart);
-    }
-    /**
-     * @param {Card} card 
-     */
-    give_temp_card(card){
-        this.deck.add_temp(card);
-    }
-    /** @returns {void} */
-    prep_turn(){
-        this.map.resolve_events();
-        this.map.display();
-        this.deck.display_hand(ui_id.hand_display);
-        this.map.display_stats(ui_id.stats);
-    }
-}
-
-
-/**
- * @param {number} ms 
- * @returns {Promise<*>}
- */
-function delay(ms){
-    // Function to wait the given number of milliseconds.
-    return new Promise(resolve =>{
-        setTimeout(resolve, ms);
-    })
-}
-
-/**
- * @template T
- * @param {T} element 
- * @param {T[]} arr 
- * @returns {number}
- */
-function search(element, arr){
-    for(var i = 0; i < arr.length; ++i){
-        if(element === arr[i]){
-            return i;
-        }
-    }
-    return -1;
-}
-
-
-/**
- * @template T
- * @param {T[]} source 
- * @param {number} draws 
- * @returns {T[]}
- */
-function rand_no_repeates(source, draws){
-    var index_arr = [];
-    var result = [];
-    draws = Math.min(draws, source.length);
-    for(var i = 0; i < source.length; ++i){
-        index_arr.push(i);
-    }
-    for(var i = 0; i < draws; ++i){
-        var rand = random_num(index_arr.length);
-        result.push(source[index_arr[rand]]);
-        index_arr[rand] = index_arr[index_arr.length - 1];
-        index_arr.pop();
-    }
-    return result;
-}
-/**
- * @param {Tile} tile 
- * @returns {string}
- */
-function tile_description(tile){
-    if(tile.description === undefined){
-        throw new Error(`tile missing description`);
-    }
-    var hp = ``
-    var stunned = ``;
-    if(tile.max_health !== undefined && tile.health !== undefined){
-        hp = `(${tile.health}/${tile.max_health} hp) `;
-    }
-    else if(tile.health !== undefined){
-        hp = `(${tile.health} hp) `;
-    }
-    if(tile.stun !== undefined && tile.stun > 0){
-        stunned = `*${stunned_msg}${tile.stun}* `;
-    }
-    return `${hp}${stunned}${tile.description}`;
-}
-/**
- * @param {Tile} player 
- * @param {number} scale 
- */
-function display_health(player, scale){
-    if(player.health === undefined || player.max_health === undefined){
-        throw new Error(`player missing health`);
-    }
-    var health = [];
-    for(var i = 0; i < player.health; ++i){
-        health.push({pic: `${img_folder.other}heart.png`});
-    }
-    for(var i = 0; i < (player.max_health - player.health); ++i){
-        health.push({pic: `${img_folder.other}heart_broken.png`});
-    }
-    display.add_tb_row(ui_id.health_display, health, scale);
-}
-/**
- * @param {string} message 
- * @param {number} wrap_length 
- * @param {string} [delimiter = undefined]
- * @returns {string}
- */
-function wrap_str(message, wrap_length, delimiter = undefined){
-    var new_message = ``;
-    var str_arr = [];
-    if(message.indexOf(`\n`) > -1){
-        str_arr = message.split(`\n`);
-        for(var i = 0; i < str_arr.length; ++i){
-            new_message = `${new_message}${wrap_str(str_arr[i], wrap_length, delimiter)}\n`
-        }
-    }
-    else if(delimiter === undefined){
-        var start = 0;
-        while(start < message.length){
-            var end = Math.min(message.length, start + wrap_length);
-            str_arr.push(message.slice(start, end));
-            start = end;
-        }
-        for(var i = 0; i < str_arr.length; ++i){
-            new_message = `${new_message}${str_arr[i]}\n`
-        }
-    }
-    else{
-        str_arr = message.split(` `);
-        var line = ``
-        for(var i = 0; i < str_arr.length; ++i){
-            line = `${line}${str_arr[i]} `;
-            if(line.length >= wrap_length){
-                new_message = `${new_message}${line.slice(0, -1)}\n`
-                line = ``;
-            } 
-        }
-        if(line.length >= 0){
-            new_message = `${new_message}${line.slice(0, -1)}\n`
-        } 
-    }
-    return new_message.slice(0, -1);
-}// ----------------GameMap.js----------------
+// ----------------GameMap.js----------------
 // GameMap class holds the information on the current floor and everything on it.
 
 /**
@@ -3453,7 +2847,630 @@ class GameMap{
     #set_grid(location, value){
         this.#grid[location.y][location.x] = value;
     }
-}// ----------------MoveDeck.js----------------
+}// ----------------GameState.js----------------
+// File containing a class to control the general flow of the game.
+
+
+class GameState{
+    map;
+    deck;
+    constructor(){
+        this.setup();
+    }
+    /** @returns {void} */
+    setup(){
+        // Function ran on page load or on restart to set up the game.
+        var start = STARTING_AREA();
+        display.display_message(ui_id.title, game_title);
+        display.display_message(ui_id.display_message, `${start.description}\n${welcome_message}`);
+        this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
+        this.map.add_tile(STARTING_ENEMY());
+        this.map.display();
+        this.map.display_stats(ui_id.stats);
+        this.deck = STARTING_DECK();
+        this.deck.display_hand(ui_id.hand_display);
+        display.display_message(ui_id.shop_instructions, mod_deck);
+        display.swap_screen(ui_id.game_screen);
+        display.swap_screen(ui_id.stage);
+    }
+    /** 
+    * @param {PlayerCommand[]} behavior
+    * @param {number} hand_pos 
+    */
+    async player_turn(behavior, hand_pos){
+        // Function to execute the outcome of the player's turn.
+        display.display_message(ui_id.display_message, ``);
+        try{
+            for(var i = 0; i < behavior.length; ++i){
+                // Does each valid command in the behavior list.
+                this.player_action(behavior[i]);
+            }
+            display.clear_tb(ui_id.move_buttons);
+            this.deck.discard(hand_pos);
+            this.map.display();
+            await delay(ANIMATION_DELAY);
+            await this.map.enemy_turn();
+            this.prep_turn();
+        }
+        catch (error){
+            var m = error.message;
+            if(m === `floor complete`){
+                // If the player has reached the end of the floor.
+                this.map.display_stats(ui_id.stats);
+                this.enter_shop();
+            }
+            else if(m === `game over`){
+                // If the player's health reached 0
+                this.game_over(error.cause.message);
+            }
+            else if(m === `pass to player`){
+                // If the enemies' turn was interrupted,
+                // prep for player's next turn.
+                this.prep_turn();
+            }
+            else{
+                throw error;
+            }
+        }
+    }
+    /**
+     * @param {PlayerCommand} action 
+     */
+    player_action(action){
+        if(action.type === `attack`){
+            this.map.player_attack(action.change);
+        }
+        else if(action.type === `move`){
+            this.map.player_move(action.change);
+        }
+        else{
+            throw new Error(`invalid action type`);
+        }
+    }
+    /** @returns {void} */
+    new_floor(){
+        // Creates the next floor.
+        this.map.next_floor();
+        this.map.display_stats(ui_id.stats);
+        this.map.display();
+        this.deck.deal();
+        this.deck.display_hand(ui_id.hand_display);
+        display.swap_screen(ui_id.stage);
+    }
+    /** @returns {void} */
+    enter_shop(){
+        // Gives the player the option to add or remove a card from their deck.
+        // Their deck contents are also displayed.
+        // Options to remove cards will not be displayed if the deck is at the minimum size already.
+        display.clear_tb(ui_id.move_buttons);
+        display.clear_tb(ui_id.add_card);
+        display.clear_tb(ui_id.remove_card);
+        display.clear_tb(ui_id.display_deck);
+        this.deck.display_all(ui_id.display_deck);
+        this.#generate_add_row(ui_id.add_card);
+        this.#generate_remove_row(ui_id.remove_card);
+        display.swap_screen(ui_id.shop);
+    }
+    /** 
+     * @param {string} table
+    */
+    #generate_add_row(table){
+        var add_list_generators = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
+        var add_list = [];
+        for(var i = 0; i < add_list_generators.length; ++i){
+            add_list[i] = add_list_generators[i]();
+        }
+        add_list.unshift({pic: `${img_folder.other}plus.png`})
+        var make_add_card = function(gamestate){
+            return function(card, position){
+                if(position > 0){
+                    gamestate.deck.add(card);
+                    gamestate.new_floor();
+                }
+            }
+        }
+        display.add_tb_row(table, add_list, CARD_SCALE, make_add_card(this));
+    }
+    /** 
+     * @param {string} table
+     * */
+    #generate_remove_row(table){
+        var remove_list = this.deck.get_rand_cards(REMOVE_CHOICE_COUNT);
+        if(remove_list){
+            remove_list.unshift({pic: `${img_folder.other}minus.png`});
+        }
+        else{
+            remove_list.unshift({pic: `${img_folder.other}x.png`});
+        }
+        var make_remove_card = function(gamestate){
+            return function(card, position){
+                if(position > 0){
+                    gamestate.deck.remove(card.id);
+                    gamestate.new_floor();
+                }
+            }
+        }
+        display.add_tb_row(table, remove_list, CARD_SCALE, make_remove_card(this));
+    }
+    /**
+    * @param {string} cause 
+    */
+    game_over(cause){
+        // Tells the user the game is over, prevents them fro m continuing, tells them the cause
+        // and gives them the chance to retry.
+        this.map.display();
+        display.clear_tb(ui_id.hand_display);
+        display.clear_tb(ui_id.move_buttons);
+        display.display_message(ui_id.display_message, `${game_over_message}${cause}.`);
+        display.clear_tb(ui_id.move_buttons);
+        var restart = function(){
+            display.clear_tb(ui_id.move_buttons);
+            this.setup();
+        };
+        var restart_message = [{
+            description: retry_message
+        }]
+        display.add_button_row(ui_id.move_buttons, restart_message, restart);
+    }
+    /**
+     * @param {Card} card 
+     */
+    give_temp_card(card){
+        this.deck.add_temp(card);
+    }
+    /** @returns {void} */
+    prep_turn(){
+        this.map.resolve_events();
+        this.map.display();
+        this.deck.display_hand(ui_id.hand_display);
+        this.map.display_stats(ui_id.stats);
+    }
+}
+
+
+// ----------------GeneralUtil.js----------------
+// File for utility functions not connected to any specific project.
+
+/**
+ * @param {number} ms 
+ * @returns {Promise<*>}
+ */
+function delay(ms){
+    // Function to wait the given number of milliseconds.
+    return new Promise(resolve =>{
+        setTimeout(resolve, ms);
+    })
+}
+/**
+ * @template T
+ * @param {T} element 
+ * @param {T[]} arr 
+ * @returns {number}
+ */
+function search(element, arr){
+    for(var i = 0; i < arr.length; ++i){
+        if(element === arr[i]){
+            return i;
+        }
+    }
+    return -1;
+}
+/**
+ * @template T
+ * @param {T[]} source 
+ * @param {number} draws 
+ * @returns {T[]}
+ */
+function rand_no_repeates(source, draws){
+    var index_arr = [];
+    var result = [];
+    draws = Math.min(draws, source.length);
+    for(var i = 0; i < source.length; ++i){
+        index_arr.push(i);
+    }
+    for(var i = 0; i < draws; ++i){
+        var rand = random_num(index_arr.length);
+        result.push(source[index_arr[rand]]);
+        index_arr[rand] = index_arr[index_arr.length - 1];
+        index_arr.pop();
+    }
+    return result;
+}
+/**
+ * @param {string} message 
+ * @param {number} wrap_length 
+ * @param {string} [delimiter = undefined]
+ * @returns {string}
+ */
+function wrap_str(message, wrap_length, delimiter = undefined){
+    var new_message = ``;
+    var str_arr = [];
+    if(message.indexOf(`\n`) > -1){
+        str_arr = message.split(`\n`);
+        for(var i = 0; i < str_arr.length; ++i){
+            new_message = `${new_message}${wrap_str(str_arr[i], wrap_length, delimiter)}\n`
+        }
+    }
+    else if(delimiter === undefined){
+        var start = 0;
+        while(start < message.length){
+            var end = Math.min(message.length, start + wrap_length);
+            str_arr.push(message.slice(start, end));
+            start = end;
+        }
+        for(var i = 0; i < str_arr.length; ++i){
+            new_message = `${new_message}${str_arr[i]}\n`
+        }
+    }
+    else{
+        str_arr = message.split(` `);
+        var line = ``
+        for(var i = 0; i < str_arr.length; ++i){
+            line = `${line}${str_arr[i]} `;
+            if(line.length >= wrap_length){
+                new_message = `${new_message}${line.slice(0, -1)}\n`
+                line = ``;
+            } 
+        }
+        if(line.length >= 0){
+            new_message = `${new_message}${line.slice(0, -1)}\n`
+        } 
+    }
+    return new_message.slice(0, -1);
+}
+/**
+ * @overload
+ * @param {number} num
+ * @return {number}
+ * 
+ * @overload
+ * @param {Point} num
+ * @return {Point}
+ * 
+ * @param {*} num
+ * @returns {*}
+ */
+function sign(num){
+    // Returns whether num is positive, negative, or 0
+    if(typeof num === `number`){
+        if(num > 0){
+            return 1;
+        }
+        if(num < 0){
+            return -1;
+        }
+        return 0;
+    }
+    else{
+        return new Point(sign(num.x), sign(num.y));
+    }
+}
+/**
+ * @returns {number}
+ */
+function random_sign(){
+    // Randomly returns 1 or -1.
+    return 2 * random_num(2) - 1;
+}
+/**
+ * @template T
+ * @param {T[]} arr 
+ * @returns {T[]}
+ */
+function randomize_arr(arr){
+    // Returns a copy of the given array with it's order randomized.
+    arr = copy_arr(arr);
+    var random_arr = [];
+    while(arr.length > 0){
+        var index = random_num(arr.length);
+        random_arr.push(arr[index]);
+        arr[index] = arr[arr.length - 1];
+        arr.pop();
+    }
+    return random_arr;
+}
+/**
+ * @template T
+ * @param {T[]} arr 
+ * @returns {T[]}
+ */
+function copy_arr(arr){
+    //returns a copy of the given array.
+    var arr2 = [];
+    for(var i = 0; i < arr.length; ++i){
+        arr2[i] = arr[i];
+    }
+    return arr2;
+}
+/**
+ * @template T
+ * @param {T[]} arr 
+ * @returns {T[]}
+ */
+function reverse_arr(arr){
+    var new_arr = [];
+    for(var i = arr.length - 1; i >= 0; --i){
+        new_arr.push(arr[i]);
+    }
+    return new_arr;
+}
+/**
+ * @param {number} x 
+ * @returns {number}
+ */
+function random_num(x){
+    return Math.floor(Math.random() * x);
+}
+/**
+ * @param {[]} a1 
+ * @param {[]} a2
+ * @returns {boolean}
+ */
+function array_equals(a1, a2){
+    if(!(a1.length === a2.length)){
+        return false;
+    }
+    for(var i = 0; i < a1.length; ++i){
+        if(!(a1[i] === a2[i])){
+            return false;
+        }
+    }
+    return true;
+}
+
+
+/**
+ * @returns {undefined}
+ */
+function initiate_game(){
+    GS = new GameState();
+}
+
+
+// Deck Creation
+/** @returns {MoveDeck}*/
+function make_starting_deck(){
+    var deck = new MoveDeck();
+
+    deck.add(basic_horizontal());
+    deck.add(basic_horizontal());
+    deck.add(basic_diagonal());
+    deck.add(basic_diagonal());
+    deck.add(slice());
+    deck.add(slice());
+    deck.add(short_charge());
+    deck.add(jump());
+
+    deck.deal();
+    return deck;
+}
+// Makes a deck for testing new cards.
+/** @returns {MoveDeck}*/
+function make_test_deck(){
+    var deck = new MoveDeck();
+    var start = 40;
+    for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
+        deck.add(CARD_CHOICES[i]());
+    }
+    deck.add(basic_horizontal());
+    deck.deal();
+    return deck;
+}
+
+
+
+
+
+
+
+// AI utility functions
+/**
+ * @param {Tile} tile 
+ * @param {number} [amount = 1]
+ */
+function stun(tile, amount = 1){
+    // Increases a tile's stun.
+    if(tile.stun === undefined){
+        tile.stun = 0;
+    }
+    tile.stun += amount;
+}
+/**
+ * @param {Tile} tile 
+ * @param {Point} direction 
+ */
+function set_direction(tile, direction){
+    if( tile.pic_arr === undefined ||
+        tile.rotate === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    tile.direction = direction;
+    if(direction.within_radius(0)){
+        tile.rotate = 90 * (Math.abs((direction.x * -2 + 1)) + direction.y);
+        tile.pic = tile.pic_arr[0];
+    }
+    else{
+        tile.rotate= 90 * ((direction.x + direction.y) / 2 + 1);
+        if(direction.x === -1 && direction.y === 1){
+            tile.rotate = 90 * 3;
+        }
+        tile.pic = tile.pic_arr[1];
+    }
+}
+/**
+ * @returns {Point[]}
+ */
+function random_nearby(){
+    // Returns an array of each point next to [0, 0] with it's order randomized.
+    var cords = [
+        new Point(-1, -1),
+        new Point(-1, 0),
+        new Point(-1, 1),
+        new Point(0, -1),
+        new Point(0, 1),
+        new Point(1, -1),
+        new Point(1, 0),
+        new Point(1, 1)];
+    return randomize_arr(cords);
+}
+/**
+ * @param {Point} direction
+ * @returns {Point[]}
+ */
+function order_nearby(direction){
+    // Returns an array with points ordered from the nearest to the furthest from the given direction. 
+    // Equal distance points are randomly ordered.
+    var sign_dir = sign(direction);
+    var ordering = [];
+    ordering.push(sign_dir);
+    if(sign_dir.x === 0){
+        // Target is along the vertical line.
+        var pair = randomize_arr([new Point(1, sign_dir.y), new Point(-1, sign_dir.y)]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        pair = randomize_arr([new Point(1, 0), new Point(-1, 0)])
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        pair = randomize_arr([new Point(1, -1 * sign_dir.y), new Point(-1, -1 * sign_dir.y)]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+    }
+    else if(sign_dir.y === 0){
+        // Target is along the horizontal line.
+        var pair = randomize_arr([new Point(sign_dir.x, 1), new Point(sign_dir.x, 1)]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        pair = randomize_arr([new Point(0, 1), new Point(0, -1)])
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        pair = randomize_arr([new Point(-1 * sign_dir.x, 1), new Point(-1 * sign_dir.x, -1)]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+    }
+    else if(Math.abs(direction.x) > Math.abs(direction.y)){  
+        // Target is closer to the horizontal line than the vertical one.
+        ordering.push(new Point(sign_dir.x, 0));
+        ordering.push(new Point(0, sign_dir.y));
+        ordering.push(new Point(sign_dir.x, -1 * sign_dir.y));
+        ordering.push(new Point(-1 * sign_dir.x, sign_dir.y));
+        ordering.push(new Point(0, -1 * sign_dir.y));
+        ordering.push(new Point(-1 * sign_dir.x, 0));
+    }
+    else if(Math.abs(direction.x) < Math.abs(direction.y)){
+        // Target is closer to the vertical line than the horizontal one one.
+        ordering.push(new Point(0, sign_dir.y));
+        ordering.push(new Point(sign_dir.x, 0));
+        ordering.push(new Point(-1 * sign_dir.x, sign_dir.y));
+        ordering.push(new Point(sign_dir.x, -1 * sign_dir.y));
+        ordering.push(new Point(-1 * sign_dir.x, 0));
+        ordering.push(new Point(0, -1 * sign_dir.y));
+    }
+    else{
+        // Target is along the diagonal.
+        var pair = randomize_arr([new Point(sign_dir.x, 0), new Point(0, sign_dir.y)]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        pair = randomize_arr([new Point(-1 * sign_dir.x, sign_dir.y), new Point(sign_dir.x, -1 * sign_dir.y)]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+        pair = randomize_arr([new Point(-1 * sign_dir.x, 0), new Point(0, -1 * sign_dir.y)]);
+        ordering.push(pair[0]);
+        ordering.push(pair[1]);
+    }
+    ordering.push(new Point(-1 * sign_dir.x, -1 * sign_dir.y));
+    return ordering;
+
+}
+/**
+ * @param {Point} location 
+ * @param {Point[]} nearby_arr 
+ * @param {GameMap} map 
+ * @returns {Point | undefined}
+ */
+function get_empty_nearby(location, nearby_arr, map){
+    for(var i = 0; i < nearby_arr.length; ++i){
+        if(map.check_empty(location.plus(nearby_arr[i]))){
+            return nearby_arr[i];
+        }
+    }
+    return undefined;
+}
+/**
+ * @param {Point} location 
+ * @param {GameMap} map 
+ * @returns {number}
+ */
+function count_nearby(location, map){
+    var count = 0;
+    var nearby = random_nearby();
+    for(var i = 0; i < nearby.length; ++i){
+        if(!map.check_empty(location.plus(nearby[i]))){
+            ++count;
+        }
+    }
+    return count;
+}
+/**
+ * @param {GameMap} map 
+ * @param {Tile} tile 
+ * @param {Point} location 
+ * @param {Point[]=} nearby 
+ * @returns {Point | undefined}
+ */
+function spawn_nearby(map, tile, location, nearby = random_nearby()){
+    // Attempts to spawn a <tile> at a space next to to the given cords.
+    // If it succeeds, returns the location, otherwise returns false.
+    for(var i = 0; i < nearby.length; ++i){
+        if(map.add_tile(tile, location.plus(nearby[i]))){
+            return nearby[i];
+        }
+    }
+    return undefined;
+}
+
+
+// misc display
+/**
+ * @param {Tile} tile 
+ * @returns {string}
+ */
+function tile_description(tile){
+    if(tile.description === undefined){
+        throw new Error(`tile missing description`);
+    }
+    var hp = ``
+    var stunned = ``;
+    if(tile.max_health !== undefined && tile.health !== undefined){
+        hp = `(${tile.health}/${tile.max_health} hp) `;
+    }
+    else if(tile.health !== undefined){
+        hp = `(${tile.health} hp) `;
+    }
+    if(tile.stun !== undefined && tile.stun > 0){
+        stunned = `*${stunned_msg}${tile.stun}* `;
+    }
+    return `${hp}${stunned}${tile.description}`;
+}
+/**
+ * @param {Tile} player 
+ * @param {number} scale 
+ */
+function display_health(player, scale){
+    if(player.health === undefined || player.max_health === undefined){
+        throw new Error(`player missing health`);
+    }
+    var health = [];
+    for(var i = 0; i < player.health; ++i){
+        health.push({pic: `${img_folder.other}heart.png`});
+    }
+    for(var i = 0; i < (player.max_health - player.health); ++i){
+        health.push({pic: `${img_folder.other}heart_broken.png`});
+    }
+    display.add_tb_row(ui_id.health_display, health, scale);
+}
+
+
+// ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.
 
 class MoveDeck{
@@ -3579,6 +3596,12 @@ class MoveDeck{
         return false;
     }
 }
+/**
+ * @callback PointOp
+ * @param {Point | number}
+ * @returns {Point}
+ */
+
 class Point{
     x;
     y;
@@ -3590,17 +3613,11 @@ class Point{
         this.x = x;
         this.y = y;
     }
-    /**
-     * @param {Point | number} p2 
-     * @returns {Point}
-     */
+    /** @type {PointOp} */
     plus(p2){
         return this.copy().plus_equals(p2);
     }
-    /**
-     * @param {Point | number} p2 
-     * @returns {Point}
-     */
+    /** @type {PointOp} */
     plus_equals(p2){
         if(typeof p2 === `number`){
             this.x += p2;
@@ -3616,17 +3633,11 @@ class Point{
             throw Error(`invalid type`);
         }
     }
-    /**
-     * @param {Point | number} p2 
-     * @returns {Point}
-     */
+    /** @type {PointOp} */
     minus(p2){
         return this.copy().minus_equals(p2);
     }
-    /**
-     * @param {Point | number} p2 
-     * @returns {Point}
-     */
+    /** @type {PointOp} */
     minus_equals(p2){
         if(typeof p2 === `number`){
             this.x -= p2;
@@ -3642,17 +3653,11 @@ class Point{
             throw Error(`invalid type`);
         }
     }
-    /**
-     * @param {Point | number} p2 
-     * @returns {Point}
-     */
+    /** @type {PointOp} */
     times(p2){
         return this.copy().times_equals(p2);
     }
-    /**
-     * @param {Point | number} p2 
-     * @returns {Point}
-     */
+    /** @type {PointOp} */
     times_equals(p2){
         if(typeof p2 === `number`){
             this.x *= p2;

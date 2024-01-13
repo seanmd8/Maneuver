@@ -1,3 +1,9 @@
+/**
+ * @callback PointOp
+ * @param {Point | number}
+ * @returns {Point}
+ */
+
 class Point{
     x;
     y;
@@ -9,17 +15,11 @@ class Point{
         this.x = x;
         this.y = y;
     }
-    /**
-     * @param {Point | number} p2 
-     * @returns {Point}
-     */
+    /** @type {PointOp} */
     plus(p2){
         return this.copy().plus_equals(p2);
     }
-    /**
-     * @param {Point | number} p2 
-     * @returns {Point}
-     */
+    /** @type {PointOp} */
     plus_equals(p2){
         if(typeof p2 === `number`){
             this.x += p2;
@@ -35,17 +35,11 @@ class Point{
             throw Error(`invalid type`);
         }
     }
-    /**
-     * @param {Point | number} p2 
-     * @returns {Point}
-     */
+    /** @type {PointOp} */
     minus(p2){
         return this.copy().minus_equals(p2);
     }
-    /**
-     * @param {Point | number} p2 
-     * @returns {Point}
-     */
+    /** @type {PointOp} */
     minus_equals(p2){
         if(typeof p2 === `number`){
             this.x -= p2;
@@ -61,17 +55,11 @@ class Point{
             throw Error(`invalid type`);
         }
     }
-    /**
-     * @param {Point | number} p2 
-     * @returns {Point}
-     */
+    /** @type {PointOp} */
     times(p2){
         return this.copy().times_equals(p2);
     }
-    /**
-     * @param {Point | number} p2 
-     * @returns {Point}
-     */
+    /** @type {PointOp} */
     times_equals(p2){
         if(typeof p2 === `number`){
             this.x *= p2;

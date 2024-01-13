@@ -20,35 +20,7 @@ const CONFUSION_CARDS = [
     stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out
 ]
 
-// Makes the starting deck
-/** @returns {MoveDeck}*/
-function make_starting_deck(){
-    var deck = new MoveDeck();
 
-    deck.add(basic_horizontal());
-    deck.add(basic_horizontal());
-    deck.add(basic_diagonal());
-    deck.add(basic_diagonal());
-    deck.add(slice());
-    deck.add(slice());
-    deck.add(short_charge());
-    deck.add(jump());
-
-    deck.deal();
-    return deck;
-}
-// Makes a deck for testing new cards.
-/** @returns {MoveDeck}*/
-function make_test_deck(){
-    var deck = new MoveDeck();
-    var start = 40;
-    for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
-        deck.add(CARD_CHOICES[i]());
-    }
-    deck.add(basic_horizontal());
-    deck.deal();
-    return deck;
-}
 
 // command function generators
 /**
