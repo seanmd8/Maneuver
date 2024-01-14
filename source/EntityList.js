@@ -14,7 +14,7 @@ class EntityList{
     #player_pos;
     /** @type {Point | undefined} The position of the exit, or undefined if it hasn't been added yet.*/
     #exit_pos;
-    /** @type {Tile_W_Pos[]} A list of each entity on the floor with a behavior as well as their location.*/
+    /** @type {Tile_W_Pos[]} An array of each entity on the floor with a behavior as well as their location.*/
     #enemy_list;
     /** @type {number} Used to give a unique ID to each tile that is added.*/
     #id_count;
@@ -64,7 +64,7 @@ class EntityList{
         return this.#exit_pos.copy();
     }
     /**
-     * Adds a new enemy and it's location to the list of enemies.
+     * Adds a new enemy and it's location to the array of enemies.
      * @param {Point} location The location of the enemy.
      * @param {Tile} enemy The tile.
      */
@@ -98,7 +98,7 @@ class EntityList{
         --this.count_non_empty;
     }
     /**
-     * Helper function to determine the location of an entity in the list.
+     * Helper function to determine the location of an entity in the entity_list.
      * @param {number} id ID to search for.
      * @returns {number} Returns the index if found and -1 if not.
      */
@@ -111,7 +111,7 @@ class EntityList{
         return -1;
     }
     /**
-     * Moves a enemy or a player. Throwas an error if the type is something else or the entity is not in the list.
+     * Moves a enemy or a player. Throws an error if the type is something else or the entity is not in the entity_list.
      * @param {Point} location The new location.
      * @param {Tile} entity The Tile to be moved
      */

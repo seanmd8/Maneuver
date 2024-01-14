@@ -599,7 +599,7 @@ function teleport_spell(location, difference, map, self){
     var space = map.random_empty();
     map.move(location, space);
 }
-/** @type {AIFunction} Spell which summons a random thing from the user's summon list.*/
+/** @type {AIFunction} Spell which summons a random thing from the user's summon array.*/
 function summon_spell(location, difference, map, self){
     if(self.summons === undefined){
         throw new Error(`tile missing properties used by it's ai.`);

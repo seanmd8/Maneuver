@@ -27,8 +27,8 @@ class GameState{
         this.deck = STARTING_DECK();
         this.deck.display_hand(ui_id.hand_display);
         display.display_message(ui_id.shop_instructions, mod_deck);
-        display.swap_screen(ui_id.game_screen);
-        display.swap_screen(ui_id.stage);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.game_screen);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.stage);
     }
     /** 
      * Handles the effects of using a card, then passes to the enemies' turn.
@@ -44,7 +44,7 @@ class GameState{
         display.display_message(ui_id.display_message, ``);
         try{
             for(var i = 0; i < behavior.length; ++i){
-                // Does each valid command in the behavior list.
+                // Does each valid command in the behavior array.
                 this.player_action(behavior[i]);
             }
             display.clear_tb(ui_id.move_buttons);
@@ -102,7 +102,7 @@ class GameState{
         this.map.display();
         this.deck.deal();
         this.deck.display_hand(ui_id.hand_display);
-        display.swap_screen(ui_id.stage);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.stage);
     }
     /** 
      * Preps and swaps to the shop screen.
@@ -119,7 +119,7 @@ class GameState{
         this.deck.display_all(ui_id.display_deck);
         this.#generate_add_row(ui_id.add_card);
         this.#generate_remove_row(ui_id.remove_card);
-        display.swap_screen(ui_id.shop);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.shop);
     }
     /** 
      * Creates the row of cards that can be added to the deck.

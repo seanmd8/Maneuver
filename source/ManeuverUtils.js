@@ -199,7 +199,7 @@ function count_nearby(location, map){
  * @param {Tile} tile The tile to add.
  * @param {Point} location The point to spawn near.
  * @param {Point[]=} nearby Array of relative locations to spawn from randomly.
- *                            If not provided, it will choose from a randomized list of locations next to the given one.
+ *                            If not provided, it will choose from a randomized array of locations next to the given one.
  * @returns {Point | undefined} Returns the location of the new tile if it was successfully added, or undefined if no spaces were available.
  */
 function spawn_nearby(map, tile, location, nearby = random_nearby()){

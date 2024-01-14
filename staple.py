@@ -3,7 +3,7 @@
 
 import os
 def main():
-    staple("./source", "Maneuver.js", False)
+    staple("./source", "Maneuver.js", True)
     staple("./css", "ManeuverStyles.css")
 
 def staple(folder, destination, jsd_enabled = False):

@@ -14,7 +14,7 @@ class ButtonGrid{
     /**
      * A function to add behavior to a button.
      * @param {string} description Text that should appear on the button.
-     * @param {PlayerCommand[]} behavior A list of commands for the player to follow when the button is clicked.
+     * @param {PlayerCommand[]} behavior An array of commands for the player to follow when the button is clicked.
      * @param {number} [number = -1] Which spot on the 3x3 grid (numbered 1-9) the button should appear on. 
      *                                  If it is blank or -1, the position will be infered from the description.
      */

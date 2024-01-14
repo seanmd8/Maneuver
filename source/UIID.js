@@ -62,3 +62,6 @@ const HTML_UI_ID = {
 Object.freeze(HTML_UI_ID);
 
 const ui_id = get_ui_ids(MARKUP_LANGUAGE);
+
+const GAME_SCREEN_DIVISIONS = [ui_id.stage, ui_id.shop, ui_id.chest];
+const DISPLAY_DIVISIONS = [ui_id.game_screen, ui_id.tutorial];

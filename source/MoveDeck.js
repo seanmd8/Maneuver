@@ -2,13 +2,13 @@
 // The MoveDeck class contains the player's current deck of move cards.
 
 class MoveDeck{
-    /** @type {Card[]} The list of all cards they have.*/
+    /** @type {Card[]} The array of all cards they have.*/
     #decklist; // .
-    /** @type {Card[]} The list of cards in their draw pile.*/
+    /** @type {Card[]} The array of cards in their draw pile.*/
     #library; // 
-    /** @type {Card[]} The list of cards curently usable.*/
+    /** @type {Card[]} The array of cards curently usable.*/
     #hand; // 
-    /** @type {Card[]} The list of cards they have used since they reshuffled.*/
+    /** @type {Card[]} The array of cards they have used since they reshuffled.*/
     #discard_pile;
     /** @type {number} Used to give each card a unique id.*/
     #id_count;
@@ -71,7 +71,6 @@ class MoveDeck{
      * @param {Card} new_card Card to add.
      */
     add(new_card){
-        // Adds a new card to the list.
         new_card.id = this.#id_count;
         this.#id_count++;
         this.#decklist.push(new_card);
@@ -82,7 +81,6 @@ class MoveDeck{
      * @param {Card} new_card Card to add.
      */
     add_temp(new_card){
-        // Adds a temp card which will be removed at the end of the floor by only adding it to the library, not the list
         new_card.id = this.#id_count;
         new_card.temp = true;
         this.#id_count++;
@@ -106,11 +104,10 @@ class MoveDeck{
         display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this));
     }
     /**
-     * Displays the whole deck
+     * Displays the whole decklist
      * @param {string} table Where it should be displayed.
      */
     display_all(table){
-        // Displays the deck list to the given table.
         display.display_message(ui_id.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
         for(var i = 0; i < Math.ceil(this.#decklist.length / DECK_DISPLAY_WIDTH); ++i){
             display.add_tb_row(table, this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH) ,CARD_SCALE)
@@ -118,10 +115,10 @@ class MoveDeck{
         }
     }
     /**
-     * Gets a random list of cards from the decklist with no repeats.
-     * If the decklist is at minimum size, returns an empty list instead.
+     * Gets a random array of cards from the decklist with no repeats.
+     * If the decklist is at minimum size, returns an empty array instead.
      * @param {number} size number of cards to get.
-     * @returns {Card[]} The list of random cards.
+     * @returns {Card[]} The array of random cards.
      */
     get_rand_cards(size){
         if(this.#decklist.length <= MIN_DECK_SIZE){
@@ -130,7 +127,7 @@ class MoveDeck{
         return rand_no_repeates(this.#decklist, size);
     }
     /**
-     * Removes a card from the list.
+     * Removes a card from the decklist.
      * @param {number} id The ID of the card to remove.
      * @returns {boolean} Returns true if the card was removed and false otherwise.
      */

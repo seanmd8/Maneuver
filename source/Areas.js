@@ -15,9 +15,9 @@ const area5 = [generate_sanctum_area];
  * @typedef {object} Area A section of the dungeon that ends with a boss fight.
  * @property {string} background The picture used as a background for this area.
  * @property {FloorGenerator} generate_floor A function to generate a normal floor of the dungeon.
- * @property {TileGenerator[]} enemy_list A list of which enemies can spawn here normally.
- * @property {FloorGenerator[]} boss_floor_list A list of functions that create the floors of the bosses which can apear at the end.
- * @property {AreaGenerator[]} next_area_list A list of the areas that can follow this one.
+ * @property {TileGenerator[]} enemy_list An array of which enemies can spawn here.
+ * @property {FloorGenerator[]} boss_floor_list An array of functions that can create a boss floor at the end of the area.
+ * @property {AreaGenerator[]} next_area_list An array of the areas that can follow this one.
  * @property {string} description A description given when entering this area.
  */
 

@@ -2,7 +2,7 @@
 // File containing the logic for each card.
 
 
-// List of the options of cards that can be given on level up.
+// Cards that can be given on level up.
 const CARD_CHOICES = [
     short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
@@ -15,7 +15,7 @@ const CARD_CHOICES = [
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal
 ];
 
-// List of cards that can be given as a debuff.
+// Cards that can be given as a debuff.
 const CONFUSION_CARDS = [
     stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
     stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out

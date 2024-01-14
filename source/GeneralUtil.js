@@ -28,11 +28,11 @@ function search(element, arr){
     return -1;
 }
 /**
- * Creates a list from drawing random elements from another with no repeats.
+ * Creates an array by drawing random elements from another with no repeats.
  * @template T
- * @param {T[]} source List to draw from.
+ * @param {T[]} source Array to draw from.
  * @param {number} draws Number of draws. If it is larger than source.length, then source.length will be used instead.
- * @returns {T[]} List of random draws.
+ * @returns {T[]} Array of random draws.
  */
 function rand_no_repeates(source, draws){
     var index_arr = [];

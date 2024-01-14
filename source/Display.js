@@ -52,7 +52,8 @@
 
 /**
  * @callback swap_screen A function to swap which div from a group is visible
- * @param {string} screen The ID of the div to swap to.
+ * @param {string[]} divisions An array of div names to set to invisible.
+ * @param {string} [screen = undefined] Optional parameter for the ID of a div to set to visible.
  */
 
 /**
@@ -122,7 +123,7 @@ function get_display(language){
  */
 
 /**
- * @typedef HTML_Helpers A list of which helper functions are used by the DisplayHTML library.
+ * @typedef HTML_Helpers A collection of the helper functions used by the DisplayHTML library.
  * @property {get_transformation} get_transformation
  * @property {get_element} get_element
  */
@@ -212,35 +213,13 @@ const DisplayHTML = {
             table.deleteRow(0);
         }
     },
-    swap_screen: function(screen){
-        switch(screen){
-            case ui_id.game_screen:
-                DisplayHTML.get_element(ui_id.tutorial, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.game_screen, HTMLDivElement).style.display = `block`;
-                break;
-            case ui_id.stage:
-                DisplayHTML.get_element(ui_id.shop, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.chest, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.stage, HTMLDivElement).style.display = `block`;
-                break;
-            case ui_id.shop:
-                DisplayHTML.get_element(ui_id.stage, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.chest, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.shop, HTMLDivElement).style.display = `block`;
-                break;
-            case ui_id.chest:
-                DisplayHTML.get_element(ui_id.stage, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.shop, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.chest, HTMLDivElement).style.display = `block`;
-                break;
-            case ui_id.tutorial:
-                DisplayHTML.get_element(ui_id.game_screen, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.tutorial, HTMLDivElement).style.display = `block`;
-                break;
-            default:
-                throw new Error(`invalid screen swap`);
+    swap_screen: function(divisions, screen = undefined){
+        for(var i = 0; i < divisions.length; ++i){
+            DisplayHTML.get_element(divisions[i], HTMLDivElement).style.display = `none`;
         }
-        return;
+        if(screen !== undefined){
+            DisplayHTML.get_element(screen, HTMLDivElement).style.display = `block`;
+        }
     },
     select: function(location, row_num, column_num, border = 3, color = 555){
         var row = DisplayHTML.get_element(`${location} row ${row_num}`, HTMLTableRowElement);

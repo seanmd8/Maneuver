@@ -1,3 +1,4 @@
+// @ts-check
 // ----------------AI.js----------------
 // File containing the logic for the behavior of non player entities.
 
@@ -599,7 +600,7 @@ function teleport_spell(location, difference, map, self){
     var space = map.random_empty();
     map.move(location, space);
 }
-/** @type {AIFunction} Spell which summons a random thing from the user's summon list.*/
+/** @type {AIFunction} Spell which summons a random thing from the user's summon array.*/
 function summon_spell(location, difference, map, self){
     if(self.summons === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
@@ -721,9 +722,9 @@ const area5 = [generate_sanctum_area];
  * @typedef {object} Area A section of the dungeon that ends with a boss fight.
  * @property {string} background The picture used as a background for this area.
  * @property {FloorGenerator} generate_floor A function to generate a normal floor of the dungeon.
- * @property {TileGenerator[]} enemy_list A list of which enemies can spawn here normally.
- * @property {FloorGenerator[]} boss_floor_list A list of functions that create the floors of the bosses which can apear at the end.
- * @property {AreaGenerator[]} next_area_list A list of the areas that can follow this one.
+ * @property {TileGenerator[]} enemy_list An array of which enemies can spawn here.
+ * @property {FloorGenerator[]} boss_floor_list An array of functions that can create a boss floor at the end of the area.
+ * @property {AreaGenerator[]} next_area_list An array of the areas that can follow this one.
  * @property {string} description A description given when entering this area.
  */
 
@@ -889,7 +890,7 @@ class ButtonGrid{
     /**
      * A function to add behavior to a button.
      * @param {string} description Text that should appear on the button.
-     * @param {PlayerCommand[]} behavior A list of commands for the player to follow when the button is clicked.
+     * @param {PlayerCommand[]} behavior An array of commands for the player to follow when the button is clicked.
      * @param {number} [number = -1] Which spot on the 3x3 grid (numbered 1-9) the button should appear on. 
      *                                  If it is blank or -1, the position will be infered from the description.
      */
@@ -949,7 +950,7 @@ class ButtonGrid{
 // File containing the logic for each card.
 
 
-// List of the options of cards that can be given on level up.
+// Cards that can be given on level up.
 const CARD_CHOICES = [
     short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
@@ -962,7 +963,7 @@ const CARD_CHOICES = [
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal
 ];
 
-// List of cards that can be given as a debuff.
+// Cards that can be given as a debuff.
 const CONFUSION_CARDS = [
     stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
     stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out
@@ -1933,7 +1934,8 @@ const C = `C`;
 
 /**
  * @callback swap_screen A function to swap which div from a group is visible
- * @param {string} screen The ID of the div to swap to.
+ * @param {string[]} divisions An array of div names to set to invisible.
+ * @param {string} [screen = undefined] Optional parameter for the ID of a div to set to visible.
  */
 
 /**
@@ -2003,7 +2005,7 @@ function get_display(language){
  */
 
 /**
- * @typedef HTML_Helpers A list of which helper functions are used by the DisplayHTML library.
+ * @typedef HTML_Helpers A collection of the helper functions used by the DisplayHTML library.
  * @property {get_transformation} get_transformation
  * @property {get_element} get_element
  */
@@ -2093,35 +2095,13 @@ const DisplayHTML = {
             table.deleteRow(0);
         }
     },
-    swap_screen: function(screen){
-        switch(screen){
-            case ui_id.game_screen:
-                DisplayHTML.get_element(ui_id.tutorial, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.game_screen, HTMLDivElement).style.display = `block`;
-                break;
-            case ui_id.stage:
-                DisplayHTML.get_element(ui_id.shop, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.chest, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.stage, HTMLDivElement).style.display = `block`;
-                break;
-            case ui_id.shop:
-                DisplayHTML.get_element(ui_id.stage, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.chest, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.shop, HTMLDivElement).style.display = `block`;
-                break;
-            case ui_id.chest:
-                DisplayHTML.get_element(ui_id.stage, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.shop, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.chest, HTMLDivElement).style.display = `block`;
-                break;
-            case ui_id.tutorial:
-                DisplayHTML.get_element(ui_id.game_screen, HTMLDivElement).style.display = `none`;
-                DisplayHTML.get_element(ui_id.tutorial, HTMLDivElement).style.display = `block`;
-                break;
-            default:
-                throw new Error(`invalid screen swap`);
+    swap_screen: function(divisions, screen = undefined){
+        for(var i = 0; i < divisions.length; ++i){
+            DisplayHTML.get_element(divisions[i], HTMLDivElement).style.display = `none`;
         }
-        return;
+        if(screen !== undefined){
+            DisplayHTML.get_element(screen, HTMLDivElement).style.display = `block`;
+        }
     },
     select: function(location, row_num, column_num, border = 3, color = 555){
         var row = DisplayHTML.get_element(`${location} row ${row_num}`, HTMLTableRowElement);
@@ -2195,7 +2175,7 @@ class EntityList{
     #player_pos;
     /** @type {Point | undefined} The position of the exit, or undefined if it hasn't been added yet.*/
     #exit_pos;
-    /** @type {Tile_W_Pos[]} A list of each entity on the floor with a behavior as well as their location.*/
+    /** @type {Tile_W_Pos[]} An array of each entity on the floor with a behavior as well as their location.*/
     #enemy_list;
     /** @type {number} Used to give a unique ID to each tile that is added.*/
     #id_count;
@@ -2245,7 +2225,7 @@ class EntityList{
         return this.#exit_pos.copy();
     }
     /**
-     * Adds a new enemy and it's location to the list of enemies.
+     * Adds a new enemy and it's location to the array of enemies.
      * @param {Point} location The location of the enemy.
      * @param {Tile} enemy The tile.
      */
@@ -2279,7 +2259,7 @@ class EntityList{
         --this.count_non_empty;
     }
     /**
-     * Helper function to determine the location of an entity in the list.
+     * Helper function to determine the location of an entity in the entity_list.
      * @param {number} id ID to search for.
      * @returns {number} Returns the index if found and -1 if not.
      */
@@ -2292,7 +2272,7 @@ class EntityList{
         return -1;
     }
     /**
-     * Moves a enemy or a player. Throwas an error if the type is something else or the entity is not in the list.
+     * Moves a enemy or a player. Throws an error if the type is something else or the entity is not in the entity_list.
      * @param {Point} location The new location.
      * @param {Tile} entity The Tile to be moved
      */
@@ -2991,8 +2971,8 @@ class GameState{
         this.deck = STARTING_DECK();
         this.deck.display_hand(ui_id.hand_display);
         display.display_message(ui_id.shop_instructions, mod_deck);
-        display.swap_screen(ui_id.game_screen);
-        display.swap_screen(ui_id.stage);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.game_screen);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.stage);
     }
     /** 
      * Handles the effects of using a card, then passes to the enemies' turn.
@@ -3008,7 +2988,7 @@ class GameState{
         display.display_message(ui_id.display_message, ``);
         try{
             for(var i = 0; i < behavior.length; ++i){
-                // Does each valid command in the behavior list.
+                // Does each valid command in the behavior array.
                 this.player_action(behavior[i]);
             }
             display.clear_tb(ui_id.move_buttons);
@@ -3066,7 +3046,7 @@ class GameState{
         this.map.display();
         this.deck.deal();
         this.deck.display_hand(ui_id.hand_display);
-        display.swap_screen(ui_id.stage);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.stage);
     }
     /** 
      * Preps and swaps to the shop screen.
@@ -3083,7 +3063,7 @@ class GameState{
         this.deck.display_all(ui_id.display_deck);
         this.#generate_add_row(ui_id.add_card);
         this.#generate_remove_row(ui_id.remove_card);
-        display.swap_screen(ui_id.shop);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.shop);
     }
     /** 
      * Creates the row of cards that can be added to the deck.
@@ -3199,11 +3179,11 @@ function search(element, arr){
     return -1;
 }
 /**
- * Creates a list from drawing random elements from another with no repeats.
+ * Creates an array by drawing random elements from another with no repeats.
  * @template T
- * @param {T[]} source List to draw from.
+ * @param {T[]} source Array to draw from.
  * @param {number} draws Number of draws. If it is larger than source.length, then source.length will be used instead.
- * @returns {T[]} List of random draws.
+ * @returns {T[]} Array of random draws.
  */
 function rand_no_repeates(source, draws){
     var index_arr = [];
@@ -3568,7 +3548,7 @@ function count_nearby(location, map){
  * @param {Tile} tile The tile to add.
  * @param {Point} location The point to spawn near.
  * @param {Point[]=} nearby Array of relative locations to spawn from randomly.
- *                            If not provided, it will choose from a randomized list of locations next to the given one.
+ *                            If not provided, it will choose from a randomized array of locations next to the given one.
  * @returns {Point | undefined} Returns the location of the new tile if it was successfully added, or undefined if no spaces were available.
  */
 function spawn_nearby(map, tile, location, nearby = random_nearby()){
@@ -3634,13 +3614,13 @@ function display_health(player, scale){
 // The MoveDeck class contains the player's current deck of move cards.
 
 class MoveDeck{
-    /** @type {Card[]} The list of all cards they have.*/
+    /** @type {Card[]} The array of all cards they have.*/
     #decklist; // .
-    /** @type {Card[]} The list of cards in their draw pile.*/
+    /** @type {Card[]} The array of cards in their draw pile.*/
     #library; // 
-    /** @type {Card[]} The list of cards curently usable.*/
+    /** @type {Card[]} The array of cards curently usable.*/
     #hand; // 
-    /** @type {Card[]} The list of cards they have used since they reshuffled.*/
+    /** @type {Card[]} The array of cards they have used since they reshuffled.*/
     #discard_pile;
     /** @type {number} Used to give each card a unique id.*/
     #id_count;
@@ -3703,7 +3683,6 @@ class MoveDeck{
      * @param {Card} new_card Card to add.
      */
     add(new_card){
-        // Adds a new card to the list.
         new_card.id = this.#id_count;
         this.#id_count++;
         this.#decklist.push(new_card);
@@ -3714,7 +3693,6 @@ class MoveDeck{
      * @param {Card} new_card Card to add.
      */
     add_temp(new_card){
-        // Adds a temp card which will be removed at the end of the floor by only adding it to the library, not the list
         new_card.id = this.#id_count;
         new_card.temp = true;
         this.#id_count++;
@@ -3738,11 +3716,10 @@ class MoveDeck{
         display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this));
     }
     /**
-     * Displays the whole deck
+     * Displays the whole decklist
      * @param {string} table Where it should be displayed.
      */
     display_all(table){
-        // Displays the deck list to the given table.
         display.display_message(ui_id.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
         for(var i = 0; i < Math.ceil(this.#decklist.length / DECK_DISPLAY_WIDTH); ++i){
             display.add_tb_row(table, this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH) ,CARD_SCALE)
@@ -3750,10 +3727,10 @@ class MoveDeck{
         }
     }
     /**
-     * Gets a random list of cards from the decklist with no repeats.
-     * If the decklist is at minimum size, returns an empty list instead.
+     * Gets a random array of cards from the decklist with no repeats.
+     * If the decklist is at minimum size, returns an empty array instead.
      * @param {number} size number of cards to get.
-     * @returns {Card[]} The list of random cards.
+     * @returns {Card[]} The array of random cards.
      */
     get_rand_cards(size){
         if(this.#decklist.length <= MIN_DECK_SIZE){
@@ -3762,7 +3739,7 @@ class MoveDeck{
         return rand_no_repeates(this.#decklist, size);
     }
     /**
-     * Removes a card from the list.
+     * Removes a card from the decklist.
      * @param {number} id The ID of the card to remove.
      * @returns {boolean} Returns true if the card was removed and false otherwise.
      */
@@ -3912,19 +3889,11 @@ function point_equals(p1, p2){
  * @property {string} pic The picture of the tile's contents.
  * @property {string} description A description given when the tile is clicked on.
  * 
- * // Properties added later //
- * @property {number=} stun When the tile is stunned, it's turn will be skipped.
- * @property {number=} id Given a unique one when added to a entity list.
- * 
  * // Misc //
  * @property {number=} health The amount of damage it can take before dying.
  * @property {number=} max_health It can never be healed above this.
  * @property {number=} difficulty Used to determine how many things can be spawned.
- * 
- * // Properties used to determing aesthetics //
- * @property {string[]=} pic_arr Used when the tile sometimes changes images.
- * @property {number=} rotate How much to rotate the image when displaying it. Must be in 90 degree increments.
- * @property {boolean=} flip If the image should be horizontally flipped.
+ * @property {string=} death_message Displayed on death.
  * 
  * // Functions controlling behavior. //
  * @property {AIFunction=} behavior What it does on it's turn.
@@ -3932,15 +3901,23 @@ function point_equals(p1, p2){
  * @property {AIFunction=} on_hit What it does when attacked.
  * @property {AIFunction=} on_death What it does when killed.
  * 
+ * // Properties used to determing aesthetics //
+ * @property {string[]=} pic_arr Used when the tile sometimes changes images.
+ * @property {number=} rotate How much to rotate the image when displaying it. Must be in 90 degree increments.
+ * @property {boolean=} flip If the image should be horizontally flipped.
+ * 
  * // Properties used by AI functions to determine behavior. //
  * @property {number=} cycle Used when a tile's state must persist between turns.
  * @property {number=} spawn_timer How many turns between spawning things.
  * @property {number=} range How far away can it attack.
  * @property {Point=} direction The relative direction is it moving.
  * @property {number=} spin_direction The direction it is spinning.
- * @property {string=} death_message Displayed on death.
- * @property {Spell[]=} spells A list of behavior functions it can call along with their own descriptions and pictures.
- * @property {TileGenerator[]=} summons A list of tiles it can spawn.
+ * @property {Spell[]=} spells A array of behavior functions it can call along with their own descriptions and pictures.
+ * @property {TileGenerator[]=} summons A array of tiles it can spawn.
+ * 
+ * // Properties added later //
+ * @property {number=} stun When the tile is stunned, it's turn will be skipped.
+ * @property {number=} id Given a unique one when added to a EntityList.
  */
 
 /**
@@ -3949,7 +3926,7 @@ function point_equals(p1, p2){
  */
 
 
-// This is a list of all the enemies that can be spawned on a normal floor.
+// This is a array of all the enemies that can be spawned on a normal floor.
 const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, shadow_knight_tile, 
     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
@@ -4045,11 +4022,11 @@ function fireball_tile(){
         name: `fireball`,
         pic: `${img_folder.tiles}fireball.png`,
         description: fireball_description,
-        pic_arr,
-        direction: undefined,
-        rotate: 0,
         behavior: fireball_ai,
-        on_enter: fireball_on_enter
+        on_enter: fireball_on_enter,
+        pic_arr,
+        rotate: 0,
+        direction: undefined
     }
 }
 
@@ -4085,10 +4062,10 @@ function turret_d_tile(){
         type: `enemy`,
         name: `turret`,
         pic: `${img_folder.tiles}turret_d.png`,
+        description: turret_d_description,
         health: 1,
         difficulty: 2,
-        behavior: turret_d_ai,
-        description: turret_d_description
+        behavior: turret_d_ai
     }
 }
 /** @type {TileGenerator} */
@@ -4106,15 +4083,15 @@ function turret_r_tile(){
         type: `enemy`,
         name: `rotary turret`,
         pic: pic_arr[starting_cycle % 2],
-        pic_arr,
-        cycle: starting_cycle,
-        spin_direction,
-        flip: (spin_direction === -1),
-        rotate: starting_rotation,
+        description: turret_r_description,
         health: 1,
         difficulty: 2,
         behavior: turret_r_ai,
-        description: turret_r_description
+        pic_arr,
+        rotate: starting_rotation,
+        flip: (spin_direction === -1),
+        cycle: starting_cycle,
+        spin_direction
     }
 }
 /** @type {TileGenerator} */
@@ -4123,11 +4100,11 @@ function scythe_tile(){
         type: `enemy`,
         name: `scythe`,
         pic: `${img_folder.tiles}scythe.png`,
-        rotate: 90 * random_num(4),
+        description: scythe_description,
         health: 1,
         difficulty: 3,
         behavior: scythe_ai,
-        description: scythe_description
+        rotate: 90 * random_num(4)
     }
 }
 /** @type {TileGenerator} */
@@ -4136,10 +4113,10 @@ function shadow_knight_tile(){
         type: `enemy`,
         name: `shadow knight`,
         pic: `${img_folder.tiles}shadow_knight.png`,
+        description: shadow_knight_description,
         health: 2,
         difficulty: 4,
         behavior: shadow_knight_ai,
-        description: shadow_knight_description
     }
 }
 /** @type {TileGenerator} */
@@ -4149,12 +4126,12 @@ function spider_web_tile(){
         type: `enemy`,
         name: `spider egg`,
         pic: `${img_folder.tiles}spider_web.png`,
-        cycle: 0,
-        spawn_timer,
+        description: `${spider_web_description[0]}${spawn_timer + 1}${spider_web_description[1]}`,
         health: 1,
         difficulty: 4,
         behavior: spider_web_ai,
-        description: `${spider_web_description[0]}${spawn_timer + 1}${spider_web_description[1]}`
+        cycle: 0,
+        spawn_timer
     }
 }
 /** @type {TileGenerator} */
@@ -4165,12 +4142,12 @@ function ram_tile(){
         type: `enemy`,
         name: `ram`,
         pic: pic_arr[starting_cycle],
-        pic_arr,
-        cycle: starting_cycle,
+        description: ram_description,
         health: 2,
         difficulty: 5,
         behavior: ram_ai,
-        description: ram_description
+        pic_arr,
+        cycle: starting_cycle
     }
 }
 /** @type {TileGenerator} */
@@ -4179,26 +4156,26 @@ function large_porcuslime_tile(){
         type: `enemy`,
         name: `large porcuslime`,
         pic: `${img_folder.tiles}large_porcuslime.png`,
+        description: large_porcuslime_description,
         health: 3,
         difficulty: 8,
         behavior: large_porcuslime_ai,
-        description: large_porcuslime_description
     }
 }
 /** @type {TileGenerator} */
 function medium_porcuslime_tile(){
-    var ran = random_num(2);
+    var starting_cycle = random_num(2);
     var pic_arr = [`${img_folder.tiles}medium_h_porcuslime.png`, `${img_folder.tiles}medium_d_porcuslime.png`];
     return {
         type: `enemy`,
         name: `medium porcuslime`,
-        pic: pic_arr[ran],
-        pic_arr,
-        cycle: ran,
+        pic: pic_arr[starting_cycle],
+        description: medium_porcuslime_description,
         health: 2,
         difficulty: 5,
         behavior: medium_porcuslime_ai,
-        description: medium_porcuslime_description
+        pic_arr,
+        cycle: starting_cycle
     }
 }
 /** @type {TileGenerator} */
@@ -4207,10 +4184,10 @@ function small_h_porcuslime_tile(){
         type: `enemy`,
         name: `small porcuslime`,
         pic: `${img_folder.tiles}small_h_porcuslime.png`,
+        description: small_h_porcuslime_description,
         health: 1,
         difficulty: 3,
-        behavior: porcuslime_horizontal_ai,
-        description: small_h_porcuslime_description
+        behavior: porcuslime_horizontal_ai
     }
 }
 /** @type {TileGenerator} */
@@ -4219,10 +4196,10 @@ function small_d_porcuslime_tile(){
         type: `enemy`,
         name: `small porcuslime`,
         pic: `${img_folder.tiles}small_d_porcuslime.png`,
+        description: small_d_porcuslime_description,
         health: 1,
         difficulty: 3,
         behavior: porcuslime_diagonal_ai,
-        description: small_d_porcuslime_description
     }
 }
 /** @type {TileGenerator} */
@@ -4231,11 +4208,11 @@ function acid_bug_tile(){
         type: `enemy`,
         name: `acid bug`,
         pic: `${img_folder.tiles}acid_bug.png`,
+        description: acid_bug_description,
         health: 1,
         difficulty: 3,
         behavior: acid_bug_ai,
         on_death: acid_bug_death,
-        description: acid_bug_description
     }
 }
 /** @type {TileGenerator} */
@@ -4245,11 +4222,12 @@ function brightling_tile(){
         type: `enemy`,
         name: `brightling`,
         pic: `${img_folder.tiles}brightling.png`,
-        cycle: starting_cycle,
+        description: brightling_description,
         health: 1,
         difficulty: 4,
         behavior: brightling_ai,
-        description: brightling_description
+        cycle: starting_cycle
+
     }
 }
 /** @type {TileGenerator} */
@@ -4258,11 +4236,11 @@ function corrosive_caterpillar_tile(){
         type: `enemy`,
         name: `corrosive caterpillar`,
         pic: `${img_folder.tiles}corrosive_caterpillar.png`,
+        description: corrosive_caterpillar_description,
         health: 1,
         difficulty: 2,
         behavior: corrosive_caterpillar_ai,
-        on_death: corrosive_caterpillar_death,
-        description: corrosive_caterpillar_description
+        on_death: corrosive_caterpillar_death
     }
 }
 /** @type {TileGenerator} */
@@ -4273,12 +4251,12 @@ function noxious_toad_tile(){
         type: `enemy`,
         name: `noxious toad`,
         pic: pic_arr[starting_cycle],
-        pic_arr,
-        cycle: starting_cycle,
+        description: noxious_toad_description, 
         health: 1,
         difficulty: 4,
         behavior: noxious_toad_ai,
-        description: noxious_toad_description
+        pic_arr,
+        cycle: starting_cycle
     }
 }
 /** @type {TileGenerator} */
@@ -4287,12 +4265,12 @@ function vampire_tile(){
         type: `enemy`,
         name: `vampire`,
         pic: `${img_folder.tiles}vampire.png`,
+        description: vampire_description,
         health: 2,
         max_health: 2,
         difficulty: 5,
         behavior: vampire_ai,
-        on_hit: vampire_hit,
-        description: vampire_description
+        on_hit: vampire_hit
     }
 }
 /** @type {TileGenerator} */
@@ -4301,28 +4279,29 @@ function clay_golem_tile(){
         type: `enemy`,
         name: `clay golem`,
         pic: `${img_folder.tiles}clay_golem.png`,
-        cycle: 1,
+        description: clay_golem_description,
         health: 3,
         difficulty: 4,
         behavior: clay_golem_ai,
         on_hit: clay_golem_hit,
-        description: clay_golem_description
+        cycle: 1
     }
 }
 /** @type {TileGenerator} */
 function vinesnare_bush_tile(){
     var range = 3;
     var pic_arr = [`${img_folder.tiles}vinesnare_bush_lashing.png`, `${img_folder.tiles}vinesnare_bush_rooted.png`];
+    var starting_cycle = 1;
     return {
         type: `enemy`,
         name: `vinesnare bush`,
-        pic: pic_arr[1],
-        pic_arr,
-        cycle: 1,
+        pic: pic_arr[starting_cycle],
+        description: `${vinesnare_bush_description[0]}${range}${vinesnare_bush_description[1]}`,
         health: 1,
         difficulty: 4,
         behavior: vinesnare_bush_ai,
-        description: `${vinesnare_bush_description[0]}${range}${vinesnare_bush_description[1]}`,
+        pic_arr,
+        cycle: starting_cycle,
         range
     }
 }
@@ -4332,12 +4311,13 @@ function rat_tile(){
         type: `enemy`,
         name: `rat`,
         pic: `${img_folder.tiles}rat.png`,
-        cycle: 1,
-        flip: random_num(2) === 0,
+        description: rat_description,
         health: 1,
         difficulty: 2,
         behavior: rat_ai,
-        description: rat_description
+        flip: random_num(2) === 0,
+        cycle: 1
+
     }
 }
 
@@ -4348,11 +4328,11 @@ function velociphile_tile(){
         type: `enemy`,
         name: `velociphile`,
         pic: `${img_folder.tiles}velociphile.png`,
-        health: 3,
-        behavior: velociphile_ai,
-        on_death: boss_death,
         description: velociphile_description,
-        death_message: velociphile_death_message
+        health: 3,
+        death_message: velociphile_death_message,
+        behavior: velociphile_ai,
+        on_death: boss_death
     }
 }
 /** @type {TileGenerator} */
@@ -4361,12 +4341,12 @@ function spider_queen_tile(){
         type: `enemy`,
         name: `spider queen`,
         pic: `${img_folder.tiles}spider_queen.png`,
+        description: spider_queen_description,
         health: 3,
+        death_message: spider_queen_death_message,
         behavior: spider_ai,
         on_hit: spider_queen_hit,
-        on_death: boss_death,
-        description: spider_queen_description,
-        death_message: spider_queen_death_message
+        on_death: boss_death
     }
 }
 /** @type {TileGenerator} */
@@ -4394,14 +4374,14 @@ function lich_tile(){
         type: `enemy`,
         name: `lich`,
         pic: spells[starting_cycle].pic,
+        description: `${lich_description}${spells[starting_cycle].description}`,
         health: 4,
+        death_message: lich_death_message,
         behavior: lich_ai,
+        on_death: boss_death,
         cycle: starting_cycle,
         spells,
         summons,
-        on_death: boss_death,
-        description: `${lich_description}${spells[starting_cycle].description}`,
-        death_message: lich_death_message
     }
 }
 /**
@@ -4491,3 +4471,6 @@ const HTML_UI_ID = {
 Object.freeze(HTML_UI_ID);
 
 const ui_id = get_ui_ids(MARKUP_LANGUAGE);
+
+const GAME_SCREEN_DIVISIONS = [ui_id.stage, ui_id.shop, ui_id.chest];
+const DISPLAY_DIVISIONS = [ui_id.game_screen, ui_id.tutorial];
