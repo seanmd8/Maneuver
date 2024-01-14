@@ -12,42 +12,47 @@
 //  description: info that will be displayed when the user clicks on the tile.
 
 /**
- * @typedef {object} Tile
+ * @typedef {object} Tile Information about the contents of a single square of a floor of the dungeon.
  * 
- * @property {string} type
- * @property {string} name
- * @property {string} pic
- * @property {string} description
+ * // Required properties //
+ * @property {string} type The type of thing this tile is (player, enemy, exit, etc).
+ * @property {string} name More specific than type. Used for mousover text.
+ * @property {string} pic The picture of the tile's contents.
+ * @property {string} description A description given when the tile is clicked on.
  * 
- * @property {number=} stun
- * @property {number=} id
+ * // Properties added later //
+ * @property {number=} stun When the tile is stunned, it's turn will be skipped.
+ * @property {number=} id Given a unique one when added to a entity list.
  * 
- * @property {number=} health
- * @property {number=} max_health
- * @property {number=} difficulty
+ * // Misc //
+ * @property {number=} health The amount of damage it can take before dying.
+ * @property {number=} max_health It can never be healed above this.
+ * @property {number=} difficulty Used to determine how many things can be spawned.
  * 
- * @property {string[]=} pic_arr
- * @property {number=} cycle
- * @property {Point=} direction
- * @property {number=} spin_direction
- * @property {number=} rotate
- * @property {boolean=} flip
+ * // Properties used to determing aesthetics //
+ * @property {string[]=} pic_arr Used when the tile sometimes changes images.
+ * @property {number=} rotate How much to rotate the image when displaying it. Must be in 90 degree increments.
+ * @property {boolean=} flip If the image should be horizontally flipped.
  * 
- * @property {AIFunction=} behavior
- * @property {AIFunction=} on_enter
- * @property {AIFunction=} on_hit
- * @property {AIFunction=} on_death
- * @property {string=} death_message
+ * // Functions controlling behavior. //
+ * @property {AIFunction=} behavior What it does on it's turn.
+ * @property {AIFunction=} on_enter What it does when something tries to move onto it.
+ * @property {AIFunction=} on_hit What it does when attacked.
+ * @property {AIFunction=} on_death What it does when killed.
  * 
- * 
- * @property {number=} spawn_timer
- * @property {number=} range
- * @property {Spell[]=} spells
- * @property {TileGenerator[]=} summons
+ * // Properties used by AI functions to determine behavior. //
+ * @property {number=} cycle Used when a tile's state must persist between turns.
+ * @property {number=} spawn_timer How many turns between spawning things.
+ * @property {number=} range How far away can it attack.
+ * @property {Point=} direction The relative direction is it moving.
+ * @property {number=} spin_direction The direction it is spinning.
+ * @property {string=} death_message Displayed on death.
+ * @property {Spell[]=} spells A list of behavior functions it can call along with their own descriptions and pictures.
+ * @property {TileGenerator[]=} summons A list of tiles it can spawn.
  */
 
 /**
- * @callback TileGenerator
+ * @callback TileGenerator Function used to create a tile.
  * @returns {Tile}
  */
 
@@ -59,8 +64,7 @@ const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, sh
     clay_golem_tile, vinesnare_bush_tile, rat_tile];
 
 // Non-Enemy tiles
-
-/** @type {TileGenerator} */
+/** @type {TileGenerator} Empty space.*/
 function empty_tile(){
     return {
         type: `empty`,
@@ -69,7 +73,7 @@ function empty_tile(){
         description: empty_description
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} The player must move here to complete the floor.*/
 function exit_tile(){
     return {
         type: `exit`,
@@ -78,7 +82,7 @@ function exit_tile(){
         description: exit_description
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} Must be unlocked to reveal the exit.*/
 function lock_tile(){
     return {
         type: `terrain`,
@@ -87,7 +91,7 @@ function lock_tile(){
         description: lock_description
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} The starting player.*/
 function player_tile(){
     return {
         type: `player`,
@@ -99,7 +103,7 @@ function player_tile(){
         
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} A hazardous pool of lava.*/
 function lava_pool_tile(){
     return {
         type: `terrain`,
@@ -109,7 +113,7 @@ function lava_pool_tile(){
         on_enter: hazard
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} A hazardous pool of slime that can be cleared by attacking.*/
 function corrosive_slime_tile(){
     return {
         type: `terrain`,
@@ -120,7 +124,7 @@ function corrosive_slime_tile(){
         on_enter: hazard
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} A sturdy wall.*/
 function wall_tile(){
     return {
         type: `terrain`,
@@ -129,7 +133,7 @@ function wall_tile(){
         description: wall_description
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} A damaged wall that might spawn something on death.*/
 function damaged_wall_tile(){
     var health = random_num(2) + 1;
     return {
@@ -141,7 +145,7 @@ function damaged_wall_tile(){
         on_death: wall_death
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} A fireball that travels in a straight line until it hits something.*/
 function fireball_tile(){
     var pic_arr = [`${img_folder.tiles}fireball_n.png`, `${img_folder.tiles}fireball_nw.png`];
     return {
@@ -509,13 +513,14 @@ function lich_tile(){
     }
 }
 /**
- * @typedef Spell
- * @property {AIFunction} behavior
- * @property {string} description
- * @property {string} pic
+ * @typedef Spell A set a behavior, description and pic used by the lich.
+ * @property {AIFunction} behavior Function performing the spell.
+ * @property {string} description A description of what the spell does.
+ * @property {string} pic A picture to help telegraph the spell.
  */
 
 /**
+ * Function to generate and return a spell with the fields provided as parameters.
  * @param {AIFunction} behavior 
  * @param {string} description 
  * @param {string} pic 

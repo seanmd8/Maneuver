@@ -1,31 +1,45 @@
 // ----------------EntityList.js----------------
 // EntityList class is used by the GameMap class to keep track of entities without having to search through the map each time.
 
+/**
+ * @typedef Tile_W_Pos An object containing a Tile and it's current position.
+ * @property {Tile} enemy The tile.
+ * @property {Point} location It's current location.
+ */
+
 class EntityList{
-    count_non_empty // Keeps track of the number of entities currently in the class.
-    #player_pos // Keeps track of the player postion.
-    #exit_pos // Keeps track of the position of the exit.
-    #enemy_list // A list of each enemy currently on the board and their locations.
-    #id_count // Used to give each enemy a unique id as it is added.
+    /** @type {number} The number of nun empty tiles on the floor.*/
+    count_non_empty;
+    /** @type {Point | undefined} The position of the player, or undefined if they haven't been added yet.*/
+    #player_pos;
+    /** @type {Point | undefined} The position of the exit, or undefined if it hasn't been added yet.*/
+    #exit_pos;
+    /** @type {Tile_W_Pos[]} A list of each entity on the floor with a behavior as well as their location.*/
+    #enemy_list;
+    /** @type {number} Used to give a unique ID to each tile that is added.*/
+    #id_count;
+
     constructor(){
         this.count_non_empty = 2;
         this.#id_count = 0;
         this.#enemy_list = [];
     }
     /**
-     * @returns {number}
+     * Gets a unique id and increments the count.
+     * @returns {number} The id.
      */
     next_id(){
         return ++this.#id_count;
     }
     /**
-     * @param {Point} location 
+     * @param {Point} location Where the player's location should be set to.
      */
     set_player_pos(location){
         this.#player_pos = location;
     }
     /**
-     * @returns {Point} 
+     * Returns the player's location. Throws an error if it's undefined.
+     * @returns {Point} The player's location.
      */
     get_player_pos(){
         if(this.#player_pos === undefined){
@@ -34,13 +48,14 @@ class EntityList{
         return this.#player_pos.copy();
     }
     /**
-     * @param {Point} location 
+     * @param {Point} location Where the exit's location should be set to
      */
     set_exit(location){
         this.#exit_pos = location;
     }
     /**
-     * @returns {Point} 
+     * Returns the exit's location. Throws an error if it's undefined.
+     * @returns {Point} The exit's location.
      */
     get_exit_pos(){
         if(this.#exit_pos === undefined){
@@ -49,8 +64,9 @@ class EntityList{
         return this.#exit_pos.copy();
     }
     /**
-     * @param {Point} location 
-     * @param {Tile} enemy
+     * Adds a new enemy and it's location to the list of enemies.
+     * @param {Point} location The location of the enemy.
+     * @param {Tile} enemy The tile.
      */
     add_enemy(location, enemy){
         enemy.id = this.next_id();
@@ -58,8 +74,9 @@ class EntityList{
         ++this.count_non_empty;
     }
     /**
-     * @param {Point} location 
-     * @param {number} id 
+     * Changes an enemy's location.
+     * @param {Point} location The new location.
+     * @param {number} id The id of the enemy whose location should be moved. Throws an error if none match.
      */
     move_enemy(location, id){
         var index = this.#find_by_id(id);
@@ -69,7 +86,8 @@ class EntityList{
         this.#enemy_list[index].location = location;
     }
     /**
-     * @param {number} id 
+     * Removes an enemy.
+     * @param {number} id The id of the enemy to be removed. Throws an error if none match.
      */
     remove_enemy(id){
         var index = this.#find_by_id(id);
@@ -80,8 +98,9 @@ class EntityList{
         --this.count_non_empty;
     }
     /**
-     * @param {number} id 
-     * @returns {number}
+     * Helper function to determine the location of an entity in the list.
+     * @param {number} id ID to search for.
+     * @returns {number} Returns the index if found and -1 if not.
      */
     #find_by_id(id){
         for(var i = 0; i < this.#enemy_list.length; ++i){
@@ -92,8 +111,9 @@ class EntityList{
         return -1;
     }
     /**
-     * @param {Point} location 
-     * @param {Tile} entity 
+     * Moves a enemy or a player. Throwas an error if the type is something else or the entity is not in the list.
+     * @param {Point} location The new location.
+     * @param {Tile} entity The Tile to be moved
      */
     move_any(location, entity){
         if(entity.type === `player`){
@@ -110,7 +130,9 @@ class EntityList{
         }
     }
     /**
-     * @param {GameMap} map 
+     * Each enemy takes a turn in order.
+     * Throws an error if the player dies or is moved.
+     * @param {GameMap} map The map object which their actions will be performed on.
      */
     async enemy_turn(map){
         // Triggers each enemy's behavior.
@@ -121,6 +143,9 @@ class EntityList{
         }
         for(var i = 0; i < turn.length; ++i){
             var e = turn[i];
+            if(e.enemy.id === undefined){
+                throw new Error(`enemy has no id`);
+            }
             if(!(this.#find_by_id(e.enemy.id) === -1)){
                 try{
                     if(e.enemy.stun !== undefined && e.enemy.stun > 0){
@@ -128,7 +153,9 @@ class EntityList{
                     }
                     else{
                         try{
-                            e.enemy.behavior(e.location.copy(), this.#player_pos.minus(e.location), map, e.enemy);
+                            if(e.enemy.behavior !== undefined){
+                                e.enemy.behavior(e.location.copy(), this.get_player_pos().minus(e.location), map, e.enemy);
+                            }
                         }
                         catch(error){
                             if(!(error.message === `creature died`)){

@@ -12,9 +12,11 @@ class ButtonGrid{
                         [initial, initial, initial]];
     }
     /**
-     * @param {string} description 
-     * @param {PlayerCommand[]} behavior 
-     * @param {number} [number = 1]
+     * A function to add behavior to a button.
+     * @param {string} description Text that should appear on the button.
+     * @param {PlayerCommand[]} behavior A list of commands for the player to follow when the button is clicked.
+     * @param {number} [number = -1] Which spot on the 3x3 grid (numbered 1-9) the button should appear on. 
+     *                                  If it is blank or -1, the position will be infered from the description.
      */
     add_button(description, behavior, number = -1){
         // Adds a description and a list of commands to one of the buttons.
@@ -33,8 +35,9 @@ class ButtonGrid{
         this.#buttons[Math.floor((number - 1) / 3)][(number - 1) % 3] = button;
     }
     /**
-     * @param {string} table_name 
-     * @param {number} hand_pos 
+     * A function to display the grid of buttons to a table.
+     * @param {string} table_name The location where the buttons should be displayed.
+     * @param {number} hand_pos the position of the card in hand that these buttons belong to.
      */
     show_buttons(table_name, hand_pos){
         // Displays the 3x3 grid to the given table.
@@ -54,15 +57,14 @@ class ButtonGrid{
         }
     }
     /**
-     * @param {string} direction 
-     * @returns {number}
+     * A helper function to infer the number (1-9) on the 3x3 button grid where a new button should go.
+     * @param {string} direction String used to make the inference.
+     * @returns {number} Returns the number (1-9) if it can be infered and -1 if it can't.
      */
     #convert_direction(direction){
-        // Converts a short direction string into the number of the button it should use.
-        // Returns -1 if the string doesn't match one in the list.
-        var dir_list = [NW, N, NE, W, C, E, SW, S, SE];
-        for(var i = 0; i < dir_list.length; ++i){
-            if(direction === dir_list[i]){
+        var direction_list = [NW, N, NE, W, C, E, SW, S, SE];
+        for(var i = 0; i < direction_list.length; ++i){
+            if(direction === direction_list[i]){
                 return i + 1;
             }
         }

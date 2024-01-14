@@ -1,7 +1,7 @@
 // ----------------BossFloors.js----------------
 // File containing functions to create boss floors.
 
-/** @type {FloorGenerator}*/
+/** @type {FloorGenerator} Generates the floor where the Velociphile appears.*/
 function velociphile_floor(floor_num,  area, map){
     map.add_tile(velociphile_tile());
     map.lock();
@@ -11,7 +11,7 @@ function velociphile_floor(floor_num,  area, map){
     }
     return velociphile_floor_message;
 }
-/** @type {FloorGenerator}*/
+/** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){
     map.add_tile(spider_queen_tile());
     map.lock();
@@ -24,7 +24,7 @@ function spider_queen_floor(floor_num, area, map){
     }
     return spider_queen_floor_message;
 }
-/** @type {FloorGenerator}*/
+/** @type {FloorGenerator} Generates the floor where the Lich appears.*/
 function lich_floor(floor_num,  area, map){
     var locations = [
         new Point(FLOOR_WIDTH - 2, FLOOR_HEIGHT - 2),

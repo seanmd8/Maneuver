@@ -12,7 +12,7 @@
 
 
 // Normal Enemy AIs
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by spiders and the Spider Queen.*/
 function spider_ai(location, difference, map, self){
     if(difference.within_radius(1)){
         // If the player is next to it, attack.
@@ -24,21 +24,21 @@ function spider_ai(location, difference, map, self){
         for(var i = 0; i < directions.length && !map.move(location, location.plus(directions[i])); ++i){}
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by turrets that shoot orthogonally.*/
 function turret_h_ai(location, difference, map, self){
     // Turret version that shoots orthogonally.
     if(difference.x === 0 || difference.y === 0){
         turret_fire_ai(location, difference, map, self);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by turrets that shoot diagonally.*/
 function turret_d_ai(location, difference, map, self){
     // Turret version that shoots diagonally.
     if(Math.abs(difference.x) === Math.abs(difference.y)){
         turret_fire_ai(location, difference, map, self);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by turrets that rotate.*/
 function turret_r_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.rotate === undefined || 
@@ -85,7 +85,7 @@ function turret_r_ai(location, difference, map, self){
         self.rotate = 90 * Math.floor(((self.cycle + 1) % 4) / 2);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by all turrets to fire towards the player.*/
 function turret_fire_ai(location, difference, map, self){
     // Fires a shot in the direction of the player.
     var direction = sign(difference)
@@ -100,7 +100,7 @@ function turret_fire_ai(location, difference, map, self){
         }
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by scythes.*/
 function scythe_ai(location, difference, map, self){
     if(self.rotate === undefined){
         throw new Error(`tile missing properties used by it's ai.`)
@@ -123,7 +123,7 @@ function scythe_ai(location, difference, map, self){
         map.attack(new Point(location.x, location.y - direction.y), `player`); 
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by shadow knights.*/
 function shadow_knight_ai(location, difference, map, self){
     // Moves in an L.
     if(Math.abs(difference.x) === 1 && Math.abs(difference.y) === 1){
@@ -154,7 +154,7 @@ function shadow_knight_ai(location, difference, map, self){
     }
     map.move(location, location.plus(new_dir));
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by spider webs.*/
 function spider_web_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.spawn_timer === undefined){
@@ -170,7 +170,7 @@ function spider_web_ai(location, difference, map, self){
         self.cycle = 0;
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by rams.*/
 function ram_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.pic_arr === undefined){
@@ -219,7 +219,7 @@ function ram_ai(location, difference, map, self){
         self.pic = self.pic_arr[self.cycle];
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by large porcuslimes.*/
 function large_porcuslime_ai(location, difference, map, self){
     if(self.health !== undefined && self.health === 2){
         // If health is 2, turns into the medium version.
@@ -238,7 +238,7 @@ function large_porcuslime_ai(location, difference, map, self){
     var direction = sign(difference);
     move_attack_ai(location, direction, map, self);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by medium porcuslimes.*/
 function medium_porcuslime_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.pic_arr === undefined){
@@ -263,7 +263,7 @@ function medium_porcuslime_ai(location, difference, map, self){
     self.cycle = 1 - self.cycle;
     self.pic = self.pic_arr[self.cycle];
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by small and medium porcuslimes when moving diagonally.*/
 function porcuslime_diagonal_ai(location, difference, map, self){
     // Small version which moves then attacks diagonally.
     var direction = order_nearby(difference);
@@ -278,7 +278,7 @@ function porcuslime_diagonal_ai(location, difference, map, self){
     }
     move_attack_ai(location, dir, map, self);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by small and medium porcuslimes when moving orthogonally.*/
 function porcuslime_horizontal_ai(location, difference, map, self){
     var direction = order_nearby(difference);
     var dir = undefined;
@@ -292,7 +292,7 @@ function porcuslime_horizontal_ai(location, difference, map, self){
     }
     move_attack_ai(location, dir, map, self);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used when a entity should move and attack in a direction (difference).*/
 function move_attack_ai(location, difference, map, self){
     if(point_equals(difference, new Point(0, 0))){
         return;
@@ -305,7 +305,7 @@ function move_attack_ai(location, difference, map, self){
         map.attack(location.plus(difference));
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by acid bugs.*/
 function acid_bug_ai(location, difference, map, self){
     // Moves 1 space towards the player.
     var directions = order_nearby(difference);
@@ -315,7 +315,7 @@ function acid_bug_ai(location, difference, map, self){
         && (self.health === undefined || self.health > 0);
         ++i){}
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used when acid bugs die to explode and harm everything around them.*/
 function acid_bug_death(location, difference, map, self){
     // On death, attacks each space next to it.
     var attacks = random_nearby();
@@ -323,7 +323,7 @@ function acid_bug_death(location, difference, map, self){
         map.attack(location.plus(attacks[i]));
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by brightlings.*/
 function brightling_ai(location, difference, map, self){
     if(self.cycle === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
@@ -353,7 +353,7 @@ function brightling_ai(location, difference, map, self){
         ++self.cycle;
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by corrosive catterpillars.*/
 function corrosive_caterpillar_ai(location, difference, map, self){
     var direction = get_empty_nearby(location, random_nearby(), map);
     if(!(direction === undefined)){
@@ -362,11 +362,11 @@ function corrosive_caterpillar_ai(location, difference, map, self){
         }
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used on corrosive catterpillar death to slime where they were.*/
 function corrosive_caterpillar_death(location, difference, map, self){
     map.add_tile(corrosive_slime_tile(), location);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by noxious toads.*/
 function noxious_toad_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.pic_arr === undefined){
@@ -398,7 +398,7 @@ function noxious_toad_ai(location, difference, map, self){
     }
     self.pic = self.pic_arr[self.cycle]
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by vampires.*/
 function vampire_ai(location, difference, map, self){
     var player_pos = location.plus(difference);
     var target_spaces = [new Point(player_pos.x + 1, player_pos.y + 1), 
@@ -430,14 +430,14 @@ function vampire_ai(location, difference, map, self){
         }
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used when a vampire is hit to teleport it away.*/
 function vampire_hit(location, difference, map, self){
     if(self.health !== undefined && self.health > 0){
         stun(self);
         teleport_spell(location, difference, map, self);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by clay golems.*/
 function clay_golem_ai(location, difference, map, self){
     if(self.cycle === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
@@ -457,7 +457,7 @@ function clay_golem_ai(location, difference, map, self){
         self.cycle = 1;
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used when clay golems are hit to stun them and reset their cycle.*/
 function clay_golem_hit(location, difference, map, self){
     if(self.cycle === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
@@ -465,7 +465,7 @@ function clay_golem_hit(location, difference, map, self){
     stun(self);
     self.cycle = 1;
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by vinesnare bushes.*/
 function vinesnare_bush_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.pic_arr === undefined ||
@@ -498,7 +498,7 @@ function vinesnare_bush_ai(location, difference, map, self){
         self.pic = self.pic_arr[1];
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by rats.*/
 function rat_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.flip === undefined){
@@ -535,7 +535,7 @@ function rat_ai(location, difference, map, self){
 
 
 // Boss AIs
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
 function boss_death(location, difference, map, self){
     if(self.death_message === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
@@ -543,7 +543,7 @@ function boss_death(location, difference, map, self){
     display.display_message(ui_id.display_message, `${self.death_message}\n${boss_death_description}`);
     map.unlock();
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by the Velociphile.*/
 function velociphile_ai(location, difference, map, self){
     // Moves towards the player 2/3 of the time, otherwise moves randomly.
     var directions = order_nearby(difference);
@@ -560,7 +560,7 @@ function velociphile_ai(location, difference, map, self){
         map.attack(location.plus(direction));
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used when the spider queen is hit to stun her and spawn a spider.*/
 function spider_queen_hit(location, difference, map, self){
     // Spawns a new spider nearby. Stuns it so it won't move right away.
     stun(self);
@@ -568,7 +568,7 @@ function spider_queen_hit(location, difference, map, self){
     stun(new_spider);
     spawn_nearby(map, new_spider, location);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by the Lich.*/
 function lich_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.spells === undefined){
@@ -594,12 +594,12 @@ function lich_ai(location, difference, map, self){
 }
 
 // Spells
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which teleports the user to a random location.*/
 function teleport_spell(location, difference, map, self){
     var space = map.random_empty();
     map.move(location, space);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which summons a random thing from the user's summon list.*/
 function summon_spell(location, difference, map, self){
     if(self.summons === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
@@ -607,7 +607,7 @@ function summon_spell(location, difference, map, self){
     var tile = self.summons[random_num(self.summons.length)]();
     spawn_nearby(map, tile, location);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which causes an earthquake causing debris to rain from the ceiling.*/
 function earthquake_spell(location, difference, map, self){
     var health = self.health;
     if( health === undefined){
@@ -618,7 +618,7 @@ function earthquake_spell(location, difference, map, self){
         amount: (5 - health) * 5 + random_num(4)
     });
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which creates a wave of fireballs aimed at the target.*/
 function flame_wave_spell(location, difference, map, self){
     var direction = get_empty_nearby(location, order_nearby(difference), map);
     var spawnpoints = [];
@@ -649,14 +649,14 @@ function flame_wave_spell(location, difference, map, self){
         map.add_tile(fireball, location.plus(spawnpoints[i]));
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which adds 2 random temporary debuff cards to the player's deck.*/
 function confusion_spell(location, difference, map, self){
     for(var i = 0; i < 2; ++i){
         var ran = random_num(CONFUSION_CARDS.length);
         GS.give_temp_card(CONFUSION_CARDS[ran]());
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which creates several lava pools between the user and their target.*/
 function lava_moat_spell(location, difference, map, self){
     var health = self.health;
     if( health === undefined){
@@ -668,16 +668,16 @@ function lava_moat_spell(location, difference, map, self){
         spawn_nearby(map, moat, location, nearby);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which does nothing.*/
 function rest_spell(location, difference, map, self){}
 
 // Other AIs
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used when something moves onto this to harm that thing.*/
 function hazard(location, difference, map, self){
     // General on_move function to retaliate if something tries to move onto it.
     map.attack(location.plus(difference));
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used when a damaged wall is destroyed to potentially spawn something.*/
 function wall_death(location, difference, map, self){
     var spawn_list = [spider_tile, acid_bug_tile, spider_web_tile, rat_tile];
     if(random_num(10) < 7){
@@ -687,7 +687,7 @@ function wall_death(location, difference, map, self){
         map.add_tile(new_enemy, location);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction}  AI used by fireballs.*/
 function fireball_ai(location, difference, map, self){
     if(self.direction === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
@@ -698,7 +698,7 @@ function fireball_ai(location, difference, map, self){
         map.attack(location);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used by fireballs to blow up when soemthing tries to move onto them.*/
 function fireball_on_enter(location, difference, map, self){
     hazard(location, difference, map, self);
     self.health = 1;
@@ -707,6 +707,7 @@ function fireball_on_enter(location, difference, map, self){
 // ----------------Areas.js----------------
 // File containing functions to generate area objects.
 
+// The structure of the dungeon. Each area can lead to a random one in the next numbered array.
 const area_end = [generate_default_area];
 const area1 = [generate_ruins_area];
 const area2 = [/*generate_sewers_area, */generate_basement_area];
@@ -717,18 +718,18 @@ const area5 = [generate_sanctum_area];
 
 
 /**
- * @typedef {object} Area
- * @property {string} background
- * @property {FloorGenerator} generate_floor
- * @property {TileGenerator[]} enemy_list
- * @property {FloorGenerator[]} boss_floor_list
- * @property {AreaGenerator[]} next_area_list
- * @property {string} description
+ * @typedef {object} Area A section of the dungeon that ends with a boss fight.
+ * @property {string} background The picture used as a background for this area.
+ * @property {FloorGenerator} generate_floor A function to generate a normal floor of the dungeon.
+ * @property {TileGenerator[]} enemy_list A list of which enemies can spawn here normally.
+ * @property {FloorGenerator[]} boss_floor_list A list of functions that create the floors of the bosses which can apear at the end.
+ * @property {AreaGenerator[]} next_area_list A list of the areas that can follow this one.
+ * @property {string} description A description given when entering this area.
  */
 
 /**
- * @callback AreaGenerator
- * @returns {Area}
+ * @callback AreaGenerator A function to create 
+ * @returns {Area}         and return an area object.
  */
 
 /** @type {AreaGenerator}*/
@@ -833,7 +834,7 @@ function generate_default_area(){
 }// ----------------BossFloors.js----------------
 // File containing functions to create boss floors.
 
-/** @type {FloorGenerator}*/
+/** @type {FloorGenerator} Generates the floor where the Velociphile appears.*/
 function velociphile_floor(floor_num,  area, map){
     map.add_tile(velociphile_tile());
     map.lock();
@@ -843,7 +844,7 @@ function velociphile_floor(floor_num,  area, map){
     }
     return velociphile_floor_message;
 }
-/** @type {FloorGenerator}*/
+/** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){
     map.add_tile(spider_queen_tile());
     map.lock();
@@ -856,7 +857,7 @@ function spider_queen_floor(floor_num, area, map){
     }
     return spider_queen_floor_message;
 }
-/** @type {FloorGenerator}*/
+/** @type {FloorGenerator} Generates the floor where the Lich appears.*/
 function lich_floor(floor_num,  area, map){
     var locations = [
         new Point(FLOOR_WIDTH - 2, FLOOR_HEIGHT - 2),
@@ -886,9 +887,11 @@ class ButtonGrid{
                         [initial, initial, initial]];
     }
     /**
-     * @param {string} description 
-     * @param {PlayerCommand[]} behavior 
-     * @param {number} [number = 1]
+     * A function to add behavior to a button.
+     * @param {string} description Text that should appear on the button.
+     * @param {PlayerCommand[]} behavior A list of commands for the player to follow when the button is clicked.
+     * @param {number} [number = -1] Which spot on the 3x3 grid (numbered 1-9) the button should appear on. 
+     *                                  If it is blank or -1, the position will be infered from the description.
      */
     add_button(description, behavior, number = -1){
         // Adds a description and a list of commands to one of the buttons.
@@ -907,8 +910,9 @@ class ButtonGrid{
         this.#buttons[Math.floor((number - 1) / 3)][(number - 1) % 3] = button;
     }
     /**
-     * @param {string} table_name 
-     * @param {number} hand_pos 
+     * A function to display the grid of buttons to a table.
+     * @param {string} table_name The location where the buttons should be displayed.
+     * @param {number} hand_pos the position of the card in hand that these buttons belong to.
      */
     show_buttons(table_name, hand_pos){
         // Displays the 3x3 grid to the given table.
@@ -928,15 +932,14 @@ class ButtonGrid{
         }
     }
     /**
-     * @param {string} direction 
-     * @returns {number}
+     * A helper function to infer the number (1-9) on the 3x3 button grid where a new button should go.
+     * @param {string} direction String used to make the inference.
+     * @returns {number} Returns the number (1-9) if it can be infered and -1 if it can't.
      */
     #convert_direction(direction){
-        // Converts a short direction string into the number of the button it should use.
-        // Returns -1 if the string doesn't match one in the list.
-        var dir_list = [NW, N, NE, W, C, E, SW, S, SE];
-        for(var i = 0; i < dir_list.length; ++i){
-            if(direction === dir_list[i]){
+        var direction_list = [NW, N, NE, W, C, E, SW, S, SE];
+        for(var i = 0; i < direction_list.length; ++i){
+            if(direction === direction_list[i]){
                 return i + 1;
             }
         }
@@ -946,7 +949,7 @@ class ButtonGrid{
 // File containing the logic for each card.
 
 
-// List of the options that can be given on level up.
+// List of the options of cards that can be given on level up.
 const CARD_CHOICES = [
     short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
@@ -959,6 +962,7 @@ const CARD_CHOICES = [
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal
 ];
 
+// List of cards that can be given as a debuff.
 const CONFUSION_CARDS = [
     stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
     stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out
@@ -966,28 +970,27 @@ const CONFUSION_CARDS = [
 
 
 
-// command function generators
 /**
- * @typedef {object} PlayerCommand
- * @property {string} type
- * @property {Point} change
+ * @typedef {object} PlayerCommand A object used to give a command for a single action the player should do.
+ * @property {string} type What type of action it is (move, attack, etc.).
+ * @property {Point} change The location the action should be performed at relative to the current one.
  */
 
 /**
- * @callback PlayerCommandGenerator
- * @param {number} x
- * @param {number} y
- * @returns {PlayerCommand}
+ * @callback PlayerCommandGenerator Creates a PlayerCommand Object.
+ * @param {number} x The relative x location
+ * @param {number} y The relative y location
+ * @returns {PlayerCommand} The resulting command.
  */
 
-/** @type {PlayerCommandGenerator}*/
+/** @type {PlayerCommandGenerator} Function to create a move command.*/
 function pmove(x, y){
     return {
         type: "move",
         change: new Point(x, y)
     }
 }
-/** @type {PlayerCommandGenerator}*/
+/** @type {PlayerCommandGenerator} Function to create a attack command.*/
 function pattack(x, y){
     return {
         type: "attack",
@@ -996,17 +999,17 @@ function pattack(x, y){
 }
 // Cards
 /**
- * @typedef {Object} Card
- * @property {string} name
- * @property {string} pic
- * @property {ButtonGrid} options
+ * @typedef {Object} Card A card used by the player to perform actions on their turn.
+ * @property {string} name The name of the card which will be displayed as mouseover text.
+ * @property {string} pic The card's image.
+ * @property {ButtonGrid} options A button grid object which determines what actions the player can use the card to perform.
  * 
- * @property {number=} id
- * @property {boolean=} temp
+ * @property {number=} id A unique id that will be added to the card when it is added to the deck.
+ * @property {boolean=} temp Given true when the card is temporary and will be removed on use or on end of floor.
  */
 /**
- * @callback CardGenerator
- * @returns {Card}
+ * @callback CardGenerator A function that creates a card.
+ * @returns {Card} The resulting card.
  */
 
 // basic_horizontal,  basic_diagonal, and slice are unique to the starting deck.
@@ -1707,11 +1710,38 @@ function lash_out(){
     }
 }
 
+
+// Card Dummy Images to be displayed in the same space
+/** @type {CardGenerator} Shown in shop to denote adding a card to your deck.*/
+function add_card_symbol(){
+    return{
+        name: `Add a card to your deck`,
+        pic: `${img_folder.other}plus.png`,
+        options: new ButtonGrid()
+    }
+}
+/** @type {CardGenerator} Shown in show to denote removing a card from your deck.*/
+function remove_card_symbol(){
+    return{
+        name: `Remove a card from your deck`,
+        pic: `${img_folder.other}minus.png`,
+        options: new ButtonGrid()
+    }
+}
+/** @type {CardGenerator} Shown in shop ind=stead of the remove symbol when your deck is at the minimum size.*/
+function deck_at_minimum_symbol(){
+    return{
+        name: `Your deck is at the minimum size`,
+        pic: `${img_folder.other}x.png`,
+        options: new ButtonGrid()
+    }
+}
+
 // ----------------Cards.js----------------
 // File containing global constants used throughout the program.
 
 
-// Starting player stats
+// Starting player stats.
 const PLAYER_STARTING_HEALTH = 3;
 const HAND_SIZE = 3;
 const ADD_CHOICE_COUNT = 3;
@@ -1721,17 +1751,17 @@ const BUFF_CHOICE_COUNT = 2;
 const BUFF_SPAWN_DENOMINATOR = 4;
 
 
-// Initialization settings
+// Initialization settings.
 const STARTING_ENEMY = spider_tile;
 const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = generate_ruins_area;
 
-// Dungeon generation settings
+// Dungeon generation settings.
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
 const AREA_SIZE = 5;
 
-// Visual and animation settings
+// Visual and animation settings.
 const CARD_SCALE = 90;
 const TILE_SCALE = 30;
 const ANIMATION_DELAY = 300;
@@ -1740,12 +1770,14 @@ const TEXT_WRAP_WIDTH = 45;
 const MARKUP_LANGUAGE = `html`;
 
 
+// Keyboard controls.
 const controls = {
     directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
     card: [`h`, `j`, `k`]
 }
 Object.freeze(controls);
 
+// Image folder file structure.
 const img_folder = {
     src: `images/`,
     cards: `cards/`,
@@ -1854,72 +1886,72 @@ const C = `C`;
 // Standardizes how information is displayed making it easier to create new display elements.
 
 /**
- * @typedef {Object} CellInfo
- * @property {string} pic
- * @property {string=} name
- * @property {number=} rotate
- * @property {boolean=} flip
+ * @typedef {Object} CellInfo The info required to create a table cell with an image.
+ * @property {string} pic The image to be displayed in the cell.
+ * @property {string=} name If name is provided, it will be used as mouseover text.
+ * @property {number=} rotate If rotate is provided (in 90 degree increments) the image will be rotated by that amount.
+ * @property {boolean=} flip If flip is provided, the image will be flipped horizontally.
  */
 
 /**
- * @typedef {Object} ButtonInfo
- * @property {string} description
+ * @typedef {Object} ButtonInfo The info required to create a button table cell.
+ * @property {string} description The text to be displayed in the button.
  */
 
 /**
- * @callback OnClickFunction
- * @param {CellInfo} tile
- * @param {number} position
+ * @callback OnClickFunction A function to be called when an element is clicked.
+ * @param {CellInfo} tile The object used to create this element.
+ * @param {number} position The column number of the element.
  */
 
 /**
- * @callback add_tb_row
- * @param {string} location
- * @param {CellInfo[]} row_contents
- * @param {number} scale
- * @param {OnClickFunction} [on_click = undefined]
- * @param {string} [background = undefined]
+ * @callback add_tb_row A function to add a row of images to a table.
+ * @param {string} location The ID of the table to be added to.
+ * @param {CellInfo[]} row_contents The objects used to construct the row's contents.
+ * @param {number} scale The size of the images.
+ * @param {OnClickFunction} [on_click = undefined] Optional parameter which is used to give onclick functionality to the images.
+ * @param {string} [background = undefined] Optional parameter which specifies a image to be layered underneath each other one.
  */
 
 /**
- * @callback add_button_row
- * @param {string} location
- * @param {ButtonInfo[]} row_contents
- * @param {OnClickFunction} [on_click = undefined]
+ * @callback add_button_row A function to add a row of buttons to a table.
+ * @param {string} location The ID of the table to be added to.
+ * @param {ButtonInfo[]} row_contents The objects used to construct the row's contents.
+ * @param {OnClickFunction} [on_click = undefined] Optional parameter which is used to give onclick functionality to the buttons.
  */
 
 /**
- * @callback display_message
- * @param {string} location
- * @param {string} message
+ * @callback display_message A function to display a message to an element.
+ * @param {string} location The ID of the element to display the message to.
+ * @param {string} message The message to be displayed.
  */
 
 /**
- * @callback clear_tb
- * @param {string} location
+ * @callback clear_tb A function to remove all rows from a table.
+ * @param {string} location The ID of the table to remove rows from.
  */
 
 /**
- * @callback swap_screen
- * @param {string} screen
+ * @callback swap_screen A function to swap which div from a group is visible
+ * @param {string} screen The ID of the div to swap to.
  */
 
 /**
- * @callback select
- * @param {string} location
- * @param {number} row_num
- * @param {number} column_num
- * @param {number} [border = 3]
- * @param {number} [color = 555]
+ * @callback select A function to outline one image from a row of images in a table.
+ * @param {string} location The ID of the table.
+ * @param {number} row_num The row number of the image.
+ * @param {number} column_num The column number of the image.
+ * @param {number} [border = 3] Optional parameter to specify border thickness
+ * @param {number} [color = 555] Optional parameter to specify border color.
  */
 
 /**
- * @callback press
- * @param {KeyboardEvent} key_press
+ * @callback press A function to handle keyboard controls.
+ * @param {KeyboardEvent} key_press The keystroke to handle.
  */
 
 /**
- * @typedef {Object} DisplayLibrary
+ * @typedef {Object} DisplayLibrary The library of functions used to handle displaying things in a specific language.
  * @property {add_tb_row} add_tb_row
  * @property {add_button_row} add_button_row
  * @property {display_message} display_message
@@ -1931,7 +1963,8 @@ const C = `C`;
 
 
 /**
- * @param {string} language 
+ * A function to get the display library for a given language.
+ * @param {string} language The language to get the library for.
  * @returns {DisplayLibrary}
  */
 function get_display(language){
@@ -1945,17 +1978,16 @@ function get_display(language){
 }
 
 /**
- * @callback get_transformation
- * @param {CellInfo} to_display
- * @returns {string}
+ * @callback get_transformation A helper function to format all css transformation properties detailed by an object into a single string.
+ * @param {CellInfo} to_display The object that contains which transformations to perform.
+ * @returns {string} String that can be used to apply the appropriate transformations.
  */
 
 /**
- * 
- * @callback html_constructor
+ * @callback html_constructor Typedef for a HTMLElement constructor
  * @returns {*}
  * 
- * @overload
+ * @overload 
  * @param {string} location
  * @returns {HTMLElement}
  * 
@@ -1964,25 +1996,26 @@ function get_display(language){
  * @param {html_constructor} type
  * @returns {HTMLElement}
  * 
- * @callback get_element
- * @param {string} location
- * @param {function} [type = undefined]
- * @returns {*}
+ * @callback get_element Function to get a html element, make sure it's not void, and optionally make sure it is the correct type.
+ * @param {string} location The ID of the element to get.
+ * @param {function} [type = undefined] Optional constructor of the type of element it should be.
+ * @returns {*} Returns the element which is optionally guarenteed to be the right type.
  */
 
 /**
- * @typedef HTML_Helpers
+ * @typedef HTML_Helpers A list of which helper functions are used by the DisplayHTML library.
  * @property {get_transformation} get_transformation
  * @property {get_element} get_element
  */
 
 
 /**
+ * Library containing functions used to diplay things in HTML.
+ * Implements DisplayLibrary.
  * @type {DisplayLibrary & HTML_Helpers}
- * 
  */
 const DisplayHTML = {
-    // Required
+    // Required functions.
     add_tb_row: function(location, row_contents, scale, on_click, background = undefined){
         var table = DisplayHTML.get_element(location, HTMLTableElement);
         var row_num = table.rows.length;
@@ -2120,7 +2153,7 @@ const DisplayHTML = {
         }
     },
 
-    // Not Required helper function
+    // Non Required helper functions.
     get_transformation: function(to_display){
         var transformation = ``;
         if(to_display.rotate !== undefined){
@@ -2144,35 +2177,50 @@ const DisplayHTML = {
 }
 Object.freeze(DisplayHTML);
 
+// Set up the display library and the onkeydown function.
 const display = get_display(MARKUP_LANGUAGE);
 document.onkeydown = display.press;// ----------------EntityList.js----------------
 // EntityList class is used by the GameMap class to keep track of entities without having to search through the map each time.
 
+/**
+ * @typedef Tile_W_Pos An object containing a Tile and it's current position.
+ * @property {Tile} enemy The tile.
+ * @property {Point} location It's current location.
+ */
+
 class EntityList{
-    count_non_empty // Keeps track of the number of entities currently in the class.
-    #player_pos // Keeps track of the player postion.
-    #exit_pos // Keeps track of the position of the exit.
-    #enemy_list // A list of each enemy currently on the board and their locations.
-    #id_count // Used to give each enemy a unique id as it is added.
+    /** @type {number} The number of nun empty tiles on the floor.*/
+    count_non_empty;
+    /** @type {Point | undefined} The position of the player, or undefined if they haven't been added yet.*/
+    #player_pos;
+    /** @type {Point | undefined} The position of the exit, or undefined if it hasn't been added yet.*/
+    #exit_pos;
+    /** @type {Tile_W_Pos[]} A list of each entity on the floor with a behavior as well as their location.*/
+    #enemy_list;
+    /** @type {number} Used to give a unique ID to each tile that is added.*/
+    #id_count;
+
     constructor(){
         this.count_non_empty = 2;
         this.#id_count = 0;
         this.#enemy_list = [];
     }
     /**
-     * @returns {number}
+     * Gets a unique id and increments the count.
+     * @returns {number} The id.
      */
     next_id(){
         return ++this.#id_count;
     }
     /**
-     * @param {Point} location 
+     * @param {Point} location Where the player's location should be set to.
      */
     set_player_pos(location){
         this.#player_pos = location;
     }
     /**
-     * @returns {Point} 
+     * Returns the player's location. Throws an error if it's undefined.
+     * @returns {Point} The player's location.
      */
     get_player_pos(){
         if(this.#player_pos === undefined){
@@ -2181,13 +2229,14 @@ class EntityList{
         return this.#player_pos.copy();
     }
     /**
-     * @param {Point} location 
+     * @param {Point} location Where the exit's location should be set to
      */
     set_exit(location){
         this.#exit_pos = location;
     }
     /**
-     * @returns {Point} 
+     * Returns the exit's location. Throws an error if it's undefined.
+     * @returns {Point} The exit's location.
      */
     get_exit_pos(){
         if(this.#exit_pos === undefined){
@@ -2196,8 +2245,9 @@ class EntityList{
         return this.#exit_pos.copy();
     }
     /**
-     * @param {Point} location 
-     * @param {Tile} enemy
+     * Adds a new enemy and it's location to the list of enemies.
+     * @param {Point} location The location of the enemy.
+     * @param {Tile} enemy The tile.
      */
     add_enemy(location, enemy){
         enemy.id = this.next_id();
@@ -2205,8 +2255,9 @@ class EntityList{
         ++this.count_non_empty;
     }
     /**
-     * @param {Point} location 
-     * @param {number} id 
+     * Changes an enemy's location.
+     * @param {Point} location The new location.
+     * @param {number} id The id of the enemy whose location should be moved. Throws an error if none match.
      */
     move_enemy(location, id){
         var index = this.#find_by_id(id);
@@ -2216,7 +2267,8 @@ class EntityList{
         this.#enemy_list[index].location = location;
     }
     /**
-     * @param {number} id 
+     * Removes an enemy.
+     * @param {number} id The id of the enemy to be removed. Throws an error if none match.
      */
     remove_enemy(id){
         var index = this.#find_by_id(id);
@@ -2227,8 +2279,9 @@ class EntityList{
         --this.count_non_empty;
     }
     /**
-     * @param {number} id 
-     * @returns {number}
+     * Helper function to determine the location of an entity in the list.
+     * @param {number} id ID to search for.
+     * @returns {number} Returns the index if found and -1 if not.
      */
     #find_by_id(id){
         for(var i = 0; i < this.#enemy_list.length; ++i){
@@ -2239,8 +2292,9 @@ class EntityList{
         return -1;
     }
     /**
-     * @param {Point} location 
-     * @param {Tile} entity 
+     * Moves a enemy or a player. Throwas an error if the type is something else or the entity is not in the list.
+     * @param {Point} location The new location.
+     * @param {Tile} entity The Tile to be moved
      */
     move_any(location, entity){
         if(entity.type === `player`){
@@ -2257,7 +2311,9 @@ class EntityList{
         }
     }
     /**
-     * @param {GameMap} map 
+     * Each enemy takes a turn in order.
+     * Throws an error if the player dies or is moved.
+     * @param {GameMap} map The map object which their actions will be performed on.
      */
     async enemy_turn(map){
         // Triggers each enemy's behavior.
@@ -2268,6 +2324,9 @@ class EntityList{
         }
         for(var i = 0; i < turn.length; ++i){
             var e = turn[i];
+            if(e.enemy.id === undefined){
+                throw new Error(`enemy has no id`);
+            }
             if(!(this.#find_by_id(e.enemy.id) === -1)){
                 try{
                     if(e.enemy.stun !== undefined && e.enemy.stun > 0){
@@ -2275,7 +2334,9 @@ class EntityList{
                     }
                     else{
                         try{
-                            e.enemy.behavior(e.location.copy(), this.#player_pos.minus(e.location), map, e.enemy);
+                            if(e.enemy.behavior !== undefined){
+                                e.enemy.behavior(e.location.copy(), this.get_player_pos().minus(e.location), map, e.enemy);
+                            }
                         }
                         catch(error){
                             if(!(error.message === `creature died`)){
@@ -2303,12 +2364,12 @@ const BOSS_FLOOR = [velociphile_floor, spider_queen_floor, lich_floor];
 
 
 /**
- * @callback FloorGenerator
- * @param {number} floor_number 
- * @param {Area} area 
- * @param {GameMap} map
+ * @callback FloorGenerator Function to populate a floor.
+ * @param {number} floor_number How many floors have they entered. Used to determine the combined difficulty of spawned enemies.
+ * @param {Area} area Which area of the dungeon are we in.
+ * @param {GameMap} map The gamemap which holds the floor.
  */
-/** @type {FloorGenerator}*/
+/** @type {FloorGenerator} The generator used by the default area to simulate no areas.*/
 function floor_generator(floor_num, area, map){
     if(!(floor_num % AREA_SIZE === 0) || Math.floor(floor_num / AREA_SIZE) - 1 >= BOSS_FLOOR.length){
         generate_normal_floor(floor_num, area, map);
@@ -2318,7 +2379,7 @@ function floor_generator(floor_num, area, map){
     }
 }
 
-/** @type {FloorGenerator}*/
+/** @type {FloorGenerator} The standard generator to add random enemies from the area whose combined difficulty scales based on the floor number.*/
 function generate_normal_floor(floor_num, area, map){
     var enemy_list = area.enemy_list;
     for(var i = floor_num * 2; i > 0;){
@@ -2377,18 +2438,26 @@ function generate_sanctum_floor(floor_num, area, map){
  */
 
 class GameMap{
-    #x_max; // Size of the grid's x axis.
-    #y_max; // Size of the grid's y axis.
-    #entity_list; // entity_list class makes keeping track of entity locations easier.
-    #grid; // Grid is a 2d list of tiles representing the entity in each location.
-    #floor_num; // The current floor number.
-    #turn_count; // How many turns the player has taken.
+    /** @type {number} Size of the grid's x axis.*/
+    #x_max;
+    /** @type {number} Size of the grid's y axis.*/
+    #y_max;
+    /** @type {EntityList} Used to keep track of non player entity locations and perform their turns.*/
+    #entity_list;
+    /** @type {Tile[][]} Grid representing the floor layout.*/
+    #grid;
+    /** @type {number} Which number floor this is.*/
+    #floor_num;
+    /** @type {number} Total number of turns that have elapsed.*/
+    #turn_count;
+    /** @type {MapEvent[]} Events that will happen at the end of the turn.*/
     #events;
+    /** @type {Area} The current area of the dungeon they are in.*/
     #area;
     /**
-     * @param {number} x_max 
-     * @param {number} y_max 
-     * @param {*} area 
+     * @param {number} x_max The x size of floors in this dungeon.
+     * @param {number} y_max The y size of floors in this dungeon.
+     * @param {Area} area The starting area.
      */
     constructor(x_max, y_max, area){
         this.#x_max = x_max;
@@ -2401,7 +2470,8 @@ class GameMap{
         this.erase()
     }
     /**
-     * @returns {number}
+     * Function to reset the floor so the next one can be generated,
+     * @returns {number} The updated floor number.
      */
     erase(){
         // Function to start a new floor by erasing the board and adding only the player and the exit.
@@ -2432,14 +2502,14 @@ class GameMap{
         return ++this.#floor_num;
     }
     /**
-     * @returns {Point}
+     * @returns {Point} A random space on the floor.
      */
     random_space(){
         // Returns a random space in the grid.
         return new Point(random_num(this.#x_max), random_num(this.#y_max));
     }
     /**
-     * @returns {Point}
+     * @returns {Point} A random empty space on the floor.
      */
     random_empty(){
         // Returns a random empty space in the grid.
@@ -2463,7 +2533,8 @@ class GameMap{
         throw new Error(`grid full`);
     }
     /**
-     * @param {Point} location 
+     * Thows an error if the provided point is out of bounds.
+     * @param {Point} location The point to check.
      */
     check_bounds(location){
         // Throws an error if x or y is out of bounds.
@@ -2475,7 +2546,9 @@ class GameMap{
         }
     }
     /**
-     * @param {Point} location 
+     * Checks if a location is in bounds and empty.
+     * @param {Point} location The point to check.
+     * @returns {boolean} Returns true if the location is both in bounds and empty and false otherwise.
      */
     check_empty(location){
         // returns true if the space at grid[x, y] is empty.
@@ -2489,7 +2562,9 @@ class GameMap{
         return this.#get_grid(location).type === `empty`;
     }
     /**
-     * @param {Point} location 
+     * Places an exit tile at the given location
+     * Throws an error if the location is out of bounds, the space is not empty or there is already an exit tile.
+     * @param {Point} location The location to set the exit at.
      */
     set_exit(location){
         // Places the exit.
@@ -2513,12 +2588,17 @@ class GameMap{
         this.#set_grid(location, exit_tile());
     }
     /**
-     * @param {Point} player_location
-     * @param {Tile} player
+     * Places the player at the given location.
+     * Throws an error if player is not a player, the location is out of bounds, the space is not empty or there is already a player tile.
+     * @param {Point} player_location The location to set the player at.
+     * @param {Tile} player The player tile to be placed,
      */
     set_player(player_location, player){
         // Places the player. If a non-negative value is given for the player's health, it will be set to that.
         // Throws an error is the space is occupied or out of bounds.
+        if(player.type !== `player`){
+            throw new Error(`tried to set non-player as player`)
+        }
         this.check_bounds(player_location);
         if(!this.check_empty(player_location)){
             throw new Error(`space not empty`);
@@ -2538,8 +2618,10 @@ class GameMap{
         this.#set_grid(player_location, player);
     }
     /**
-     * @param {Tile} tile
-     * @param {Point} [location = undefined]
+     * Function to add a tile to the map.
+     * @param {Tile} tile The tile to be added.
+     * @param {Point} [location = undefined] Optional location to place the tile. If the location is not empty, an error will be thrown.
+     *                                          If not provided, the location will be a random unoccupied one.
      */
     add_tile(tile, location = undefined){
         // Adds a new tile to a space.
@@ -2567,6 +2649,7 @@ class GameMap{
         return true;
     }
     /**
+     * Function to display the grid.
      * @returns {undefined}
      */
     display(){
@@ -2589,6 +2672,7 @@ class GameMap{
         this.clear_empty()
 	}
     /**
+     * Clears all hits and other alternate pics from empty tiles in the grid.
      * @returns {undefined}
      */
     clear_empty(){
@@ -2603,9 +2687,11 @@ class GameMap{
         }
     }
     /**
-     * @param {Point} start_point 
-     * @param {Point} end_point 
-     * @returns {boolean}
+     * Moves a tile.
+     * Throws errors if the player reaches the end of the floor or if the tile (player or not) dies.
+     * @param {Point} start_point The current location of the tile to be moved.
+     * @param {Point} end_point Where you want to move the tile to.
+     * @returns {boolean} Returns true if the tile is moved succesfully, false if it is not.
      */
     move(start_point, end_point){
         // Moves the tile at start_point to end_point if it is empty. 
@@ -2652,8 +2738,9 @@ class GameMap{
         return false;
     }
     /**
-     * @param {Point} direction 
-     * @returns {boolean}
+     * Moves the player relative to their current location.
+     * @param {Point} direction Relative movement.
+     * @returns {boolean} Returns true if the player is moved, false otherwise.
      */
     player_move(direction){
         // Moves the player the given relative distance.
@@ -2661,7 +2748,8 @@ class GameMap{
         return this.move(player_pos, player_pos.plus(direction));
     }
     /**
-     * @returns {Tile}
+     * Returns the player tile. Throws an error if there isn't one.
+     * @returns {Tile} The player tile.
      */
     get_player(){
         // Returns the player's health.
@@ -2669,9 +2757,10 @@ class GameMap{
         return this.#get_grid(pos);
     }
     /**
-     * @param {Point} location 
-     * @param {string} [hits = `all`]
-     * @returns {boolean}
+     * Attacks a point on the grid.
+     * @param {Point} location Where to attack.
+     * @param {string} [hits = `all`] Optional parameter for what type of tile the attack hits. By default it hits anything.
+     * @returns {boolean} Returns true if the attack hit.
      */
     attack(location, hits = `all`){
         // Attacks the specified square.
@@ -2724,8 +2813,9 @@ class GameMap{
         return false;
     }
     /**
-     * @param {Point} direction
-     * @returns {boolean}
+     * Attacks relative to the player's location.
+     * @param {Point} direction Relative direction of attack.
+     * @returns {boolean} Returns true if the attack hits and false otherwise.
      */
     player_attack(direction){
         // Attacks the given square relative to the player's current positon.
@@ -2738,7 +2828,9 @@ class GameMap{
         }
     }
     /**
-     * @returns {Promise<undefined>}
+     * Each enemy takes their turn.
+     * Throws an error if the player dies or is moved.
+     * @returns {Promise<undefined>} Resolves when their turn is done.
      */
     async enemy_turn(){
         // Causes each enemy to execute their behavior.
@@ -2746,13 +2838,16 @@ class GameMap{
         await this.#entity_list.enemy_turn(this);
     }
     /**
-     * @param {string} location 
+     * Displays the floor number and turn count.
+     * @param {string} location Where they should be displayed.
      */
     display_stats(location){
         // Shows the current floor and turn number.
         display.display_message(location, `Floor ${this.#floor_num} Turn: ${this.#turn_count}`);
     }
     /**
+     * Replaces the exit tile with a lock tile.
+     * Throws an error if there is no exit.
      * @returns {undefined}
      */
     lock(){
@@ -2761,23 +2856,26 @@ class GameMap{
         this.#set_grid(pos, lock_tile())
     }
     /**
+     * Replaces the lock tile with an exit one and heals the player to max.
+     * Throws an error if there is no lock or exit.
      * @returns {undefined}
      */
     unlock(){
-        // Unlocks the stairs after a boss fight.
-        // Fully heals the player
         var pos = this.#entity_list.get_exit_pos();
         this.#set_grid(pos, exit_tile());
         var player = this.get_player();
         player.health = player.max_health;
     }
     /**
-     * @param {MapEvent} event
+     * Schedules an event to happen at end of turn.
+     * @param {MapEvent} event The even to be added.
      */
     add_event(event){
         this.#events.push(event);
     }
     /**
+     * Executes and removed each scheduled event.
+     * Throws an error if one that isn't handled tries to happen or the player dies.
      * @returns {undefined}
      */
     resolve_events(){
@@ -2785,6 +2883,9 @@ class GameMap{
         for(var i = 0; i < this.#events.length; ++i){
             var event = this.#events[i];
             if(event.type === `earthquake`){
+                if(event.amount === undefined){
+                    throw new Error(`event is missing field`)
+                }
                 var rubble = [];
                 for(var j = 0; j < event.amount; ++j){
                     var space = this.random_empty();
@@ -2798,6 +2899,9 @@ class GameMap{
                 });
             }
             else if(event.type === `earthquake_rubble`){
+                if(event.rubble === undefined){
+                    throw new Error(`event is missing field`)
+                }
                 try{
                     for(var j = 0; j < event.rubble.length; ++j){
                         this.attack(event.rubble[j]);
@@ -2810,10 +2914,14 @@ class GameMap{
                     throw error;
                 }
             }
+            else{
+                throw new Error(`invalid event type`);
+            }
         }
         this.#events = new_events;
     }
     /**
+     * Clears the current floor and goes to the next one then generates it based on the current area.
      * @returns {undefined}
      */
     next_floor(){
@@ -2835,16 +2943,23 @@ class GameMap{
         display.display_message(ui_id.display_message, floor_description);
     }
     /**
-     * @returns {Tile}
+     * Gets a tile from a location on the grid.
+     * Throws an error if the location is out of bounds.
+     * @param {Point} location The location of the tile.
+     * @returns {Tile} The tile at that location
      */
     #get_grid(location){
+        this.check_bounds(location);
         return this.#grid[location.y][location.x];
     }
     /**
-     * @param {Point} location 
-     * @param {Tile} value 
+     * Puts a tile at the given location.
+     * t=Throws an error if the location is out of bounds.
+     * @param {Point} location Where to put the tile.
+     * @param {Tile} value The tile to place.
      */
     #set_grid(location, value){
+        this.check_bounds(location);
         this.#grid[location.y][location.x] = value;
     }
 }// ----------------GameState.js----------------
@@ -2852,12 +2967,18 @@ class GameMap{
 
 
 class GameState{
+    /** @type {GameMap} The map of the current floor.*/
     map;
+    /** @type {MoveDeck} The player's deck of cards.*/
     deck;
     constructor(){
+        // Starts the game on load.
         this.setup();
     }
-    /** @returns {void} */
+    /** 
+     * Function to set up or reset the game.
+     * @returns {void} 
+     */
     setup(){
         // Function ran on page load or on restart to set up the game.
         var start = STARTING_AREA();
@@ -2874,9 +2995,14 @@ class GameState{
         display.swap_screen(ui_id.stage);
     }
     /** 
-    * @param {PlayerCommand[]} behavior
-    * @param {number} hand_pos 
-    */
+     * Handles the effects of using a card, then passes to the enemies' turn.
+     * Takes the appropriate actions if
+     *      -The floor is completed
+     *      -The player dies
+     *      -The enemies' turn ends early
+     * @param {PlayerCommand[]} behavior A set of commands to be executed one by one.
+     * @param {number} hand_pos The position of the card that the player used in their hand.
+     */
     async player_turn(behavior, hand_pos){
         // Function to execute the outcome of the player's turn.
         display.display_message(ui_id.display_message, ``);
@@ -2914,7 +3040,9 @@ class GameState{
         }
     }
     /**
-     * @param {PlayerCommand} action 
+     * Handles an individual action of the player.
+     * Throws an error if a command of the wrong type is sent in.
+     * @param {PlayerCommand} action The command to be followed.
      */
     player_action(action){
         if(action.type === `attack`){
@@ -2927,7 +3055,10 @@ class GameState{
             throw new Error(`invalid action type`);
         }
     }
-    /** @returns {void} */
+    /** 
+     * Sets up the next floor then leaves the shop.
+     * @returns {void} 
+     */
     new_floor(){
         // Creates the next floor.
         this.map.next_floor();
@@ -2937,7 +3068,10 @@ class GameState{
         this.deck.display_hand(ui_id.hand_display);
         display.swap_screen(ui_id.stage);
     }
-    /** @returns {void} */
+    /** 
+     * Preps and swaps to the shop screen.
+     * @returns {void} 
+     */
     enter_shop(){
         // Gives the player the option to add or remove a card from their deck.
         // Their deck contents are also displayed.
@@ -2952,7 +3086,8 @@ class GameState{
         display.swap_screen(ui_id.shop);
     }
     /** 
-     * @param {string} table
+     * Creates the row of cards that can be added to the deck.
+     * @param {string} table The table where it should be displayed.
     */
     #generate_add_row(table){
         var add_list_generators = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
@@ -2960,7 +3095,7 @@ class GameState{
         for(var i = 0; i < add_list_generators.length; ++i){
             add_list[i] = add_list_generators[i]();
         }
-        add_list.unshift({pic: `${img_folder.other}plus.png`})
+        add_list.unshift(add_card_symbol())
         var make_add_card = function(gamestate){
             return function(card, position){
                 if(position > 0){
@@ -2972,15 +3107,16 @@ class GameState{
         display.add_tb_row(table, add_list, CARD_SCALE, make_add_card(this));
     }
     /** 
-     * @param {string} table
+     * Creates the row of cards that can be removed from the deck.
+     * @param {string} table The table where it should be displayed.
      * */
     #generate_remove_row(table){
         var remove_list = this.deck.get_rand_cards(REMOVE_CHOICE_COUNT);
-        if(remove_list){
-            remove_list.unshift({pic: `${img_folder.other}minus.png`});
+        if(remove_list.length > 0){
+            remove_list.unshift(remove_card_symbol());
         }
         else{
-            remove_list.unshift({pic: `${img_folder.other}x.png`});
+            remove_list.unshift(deck_at_minimum_symbol());
         }
         var make_remove_card = function(gamestate){
             return function(card, position){
@@ -2993,8 +3129,9 @@ class GameState{
         display.add_tb_row(table, remove_list, CARD_SCALE, make_remove_card(this));
     }
     /**
-    * @param {string} cause 
-    */
+     * Called when the player dies. Gives the option to restart.
+     * @param {string} cause Cause of death.
+     */
     game_over(cause){
         // Tells the user the game is over, prevents them fro m continuing, tells them the cause
         // and gives them the chance to retry.
@@ -3013,12 +3150,16 @@ class GameState{
         display.add_button_row(ui_id.move_buttons, restart_message, restart);
     }
     /**
-     * @param {Card} card 
+     * Adds a temporary card to the player's deck.
+     * @param {Card} card The card to be added.
      */
     give_temp_card(card){
         this.deck.add_temp(card);
     }
-    /** @returns {void} */
+    /** 
+     * Sets up the player's turn.
+     * @returns {void}
+     */
     prep_turn(){
         this.map.resolve_events();
         this.map.display();
@@ -3032,20 +3173,22 @@ class GameState{
 // File for utility functions not connected to any specific project.
 
 /**
- * @param {number} ms 
- * @returns {Promise<*>}
+ * Function to wait a set amount of time before continuing.
+ * @param {number} milliseconds How long to wait in milliseconds.
+ * @returns {Promise<*>} Resolves when the time is up.
  */
-function delay(ms){
+function delay(milliseconds){
     // Function to wait the given number of milliseconds.
     return new Promise(resolve =>{
-        setTimeout(resolve, ms);
+        setTimeout(resolve, milliseconds);
     })
 }
 /**
+ * Searches an array for an element.
  * @template T
- * @param {T} element 
- * @param {T[]} arr 
- * @returns {number}
+ * @param {T} element The element to find.
+ * @param {T[]} arr The array to search.
+ * @returns {number} The index of the element, or -1 if it isn't found.
  */
 function search(element, arr){
     for(var i = 0; i < arr.length; ++i){
@@ -3056,10 +3199,11 @@ function search(element, arr){
     return -1;
 }
 /**
+ * Creates a list from drawing random elements from another with no repeats.
  * @template T
- * @param {T[]} source 
- * @param {number} draws 
- * @returns {T[]}
+ * @param {T[]} source List to draw from.
+ * @param {number} draws Number of draws. If it is larger than source.length, then source.length will be used instead.
+ * @returns {T[]} List of random draws.
  */
 function rand_no_repeates(source, draws){
     var index_arr = [];
@@ -3077,10 +3221,12 @@ function rand_no_repeates(source, draws){
     return result;
 }
 /**
- * @param {string} message 
- * @param {number} wrap_length 
- * @param {string} [delimiter = undefined]
- * @returns {string}
+ * Wraps a string so each line has a maximum number of characters before automatically inserting a newline character.
+ * @param {string} message The string to be wrapped.
+ * @param {number} wrap_length How many characters maximum.
+ * @param {string} [delimiter = undefined] Optional parameter for the delimiter. 
+ *                                      If provided, then blocks of text in between delimiters will not be broken up.
+ * @returns {string} The wrapped string.
  */
 function wrap_str(message, wrap_length, delimiter = undefined){
     var new_message = ``;
@@ -3103,27 +3249,27 @@ function wrap_str(message, wrap_length, delimiter = undefined){
         }
     }
     else{
-        str_arr = message.split(` `);
+        str_arr = message.split(delimiter);
         var line = ``
         for(var i = 0; i < str_arr.length; ++i){
-            line = `${line}${str_arr[i]} `;
+            line = `${line}${str_arr[i]}${delimiter}`;
             if(line.length >= wrap_length){
-                new_message = `${new_message}${line.slice(0, -1)}\n`
+                new_message = `${new_message}${line.slice(0, -1 * delimiter.length)}\n`
                 line = ``;
             } 
         }
         if(line.length >= 0){
-            new_message = `${new_message}${line.slice(0, -1)}\n`
+            new_message = `${new_message}${line.slice(0, -1 * delimiter.length)}\n`
         } 
     }
     return new_message.slice(0, -1);
 }
 /**
- * @overload
+ * @overload Returns 1 if num is positive, -1 if it is negative, 0 if it is 0.
  * @param {number} num
  * @return {number}
  * 
- * @overload
+ * @overload Returns a new point with it's x and y the sign of the one passed in.
  * @param {Point} num
  * @return {Point}
  * 
@@ -3146,16 +3292,16 @@ function sign(num){
     }
 }
 /**
- * @returns {number}
+ * @returns {number} randomly returns 1 or -1.
  */
 function random_sign(){
-    // Randomly returns 1 or -1.
     return 2 * random_num(2) - 1;
 }
 /**
+ * Function to return a copy of a array with it's order randomized.
  * @template T
- * @param {T[]} arr 
- * @returns {T[]}
+ * @param {T[]} arr Array to randomize.
+ * @returns {T[]} Randomized copy.
  */
 function randomize_arr(arr){
     // Returns a copy of the given array with it's order randomized.
@@ -3169,10 +3315,11 @@ function randomize_arr(arr){
     }
     return random_arr;
 }
-/**
+/** 
+ * Function to return a copy of an array.
  * @template T
- * @param {T[]} arr 
- * @returns {T[]}
+ * @param {T[]} arr Array to copy.
+ * @returns {T[]} Copy of the array.
  */
 function copy_arr(arr){
     //returns a copy of the given array.
@@ -3183,9 +3330,10 @@ function copy_arr(arr){
     return arr2;
 }
 /**
+ * Function to return a copy of an array with it's order reversed.
  * @template T
- * @param {T[]} arr 
- * @returns {T[]}
+ * @param {T[]} arr Array to be reversed.
+ * @returns {T[]} Reversed array.
  */
 function reverse_arr(arr){
     var new_arr = [];
@@ -3195,16 +3343,18 @@ function reverse_arr(arr){
     return new_arr;
 }
 /**
- * @param {number} x 
- * @returns {number}
+ * Function to return a random integer 0 <= r < x
+ * @param {number} x The return should be less than this.
+ * @returns {number} The random number.
  */
 function random_num(x){
     return Math.floor(Math.random() * x);
 }
 /**
- * @param {[]} a1 
- * @param {[]} a2
- * @returns {boolean}
+ * Function to check if the contents of two arrays are ===.
+ * @param {[]} a1 The first array to be compared.
+ * @param {[]} a2 the second array to be compared.
+ * @returns {boolean} Returns true if the elements at each index in both arrays === the element at the same index of the other.
  */
 function array_equals(a1, a2){
     if(!(a1.length === a2.length)){
@@ -3220,6 +3370,7 @@ function array_equals(a1, a2){
 
 
 /**
+ * Initiates the game when the page is loaded.
  * @returns {undefined}
  */
 function initiate_game(){
@@ -3228,7 +3379,7 @@ function initiate_game(){
 
 
 // Deck Creation
-/** @returns {MoveDeck}*/
+/** @returns {MoveDeck} Returns a normal starting deck.*/
 function make_starting_deck(){
     var deck = new MoveDeck();
 
@@ -3245,7 +3396,7 @@ function make_starting_deck(){
     return deck;
 }
 // Makes a deck for testing new cards.
-/** @returns {MoveDeck}*/
+/** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
     var deck = new MoveDeck();
     var start = 40;
@@ -3259,14 +3410,11 @@ function make_test_deck(){
 
 
 
-
-
-
-
 // AI utility functions
 /**
- * @param {Tile} tile 
- * @param {number} [amount = 1]
+ * stuns a tile by incrementing it's stun property. Adds the property first if necessary.
+ * @param {Tile} tile The tile to stun.
+ * @param {number} [amount = 1] Optional parameter for the amount of stun to add. Default is 1.
  */
 function stun(tile, amount = 1){
     // Increases a tile's stun.
@@ -3276,8 +3424,9 @@ function stun(tile, amount = 1){
     tile.stun += amount;
 }
 /**
- * @param {Tile} tile 
- * @param {Point} direction 
+ * Used by a fireball tile to set the correct direction, rotation and picture.
+ * @param {Tile} tile The tile to set the direction of.
+ * @param {Point} direction Ehich way it should face.
  */
 function set_direction(tile, direction){
     if( tile.pic_arr === undefined ||
@@ -3298,7 +3447,7 @@ function set_direction(tile, direction){
     }
 }
 /**
- * @returns {Point[]}
+ * @returns {Point[]} Returns a randomized array of points around (0, 0).
  */
 function random_nearby(){
     // Returns an array of each point next to [0, 0] with it's order randomized.
@@ -3314,8 +3463,9 @@ function random_nearby(){
     return randomize_arr(cords);
 }
 /**
- * @param {Point} direction
- * @returns {Point[]}
+ * Gets a randomized array of points around (0, 0) ordered by how close they are to the given point.
+ * @param {Point} direction The point to sort by.
+ * @returns {Point[]} The resulting array.
  */
 function order_nearby(direction){
     // Returns an array with points ordered from the nearest to the furthest from the given direction. 
@@ -3382,10 +3532,11 @@ function order_nearby(direction){
 
 }
 /**
- * @param {Point} location 
- * @param {Point[]} nearby_arr 
- * @param {GameMap} map 
- * @returns {Point | undefined}
+ * Function to get the first non empty location near a given location.
+ * @param {Point} location The point to search around.
+ * @param {Point[]} nearby_arr The array of relative locations to search.
+ * @param {GameMap} map The map to search on.
+ * @returns {Point | undefined} Returns an empty location if one is found and undefined otherwise.
  */
 function get_empty_nearby(location, nearby_arr, map){
     for(var i = 0; i < nearby_arr.length; ++i){
@@ -3396,9 +3547,10 @@ function get_empty_nearby(location, nearby_arr, map){
     return undefined;
 }
 /**
- * @param {Point} location 
- * @param {GameMap} map 
- * @returns {number}
+ * Counts how many locations next to the given one are not empty.
+ * @param {Point} location The point to search around.
+ * @param {GameMap} map The map to search.
+ * @returns {number} The number of nearby occupied locations.
  */
 function count_nearby(location, map){
     var count = 0;
@@ -3411,11 +3563,13 @@ function count_nearby(location, map){
     return count;
 }
 /**
- * @param {GameMap} map 
- * @param {Tile} tile 
- * @param {Point} location 
- * @param {Point[]=} nearby 
- * @returns {Point | undefined}
+ * A function to add a Tile to the game map at a position next to this one.
+ * @param {GameMap} map The map to add the tile to.
+ * @param {Tile} tile The tile to add.
+ * @param {Point} location The point to spawn near.
+ * @param {Point[]=} nearby Array of relative locations to spawn from randomly.
+ *                            If not provided, it will choose from a randomized list of locations next to the given one.
+ * @returns {Point | undefined} Returns the location of the new tile if it was successfully added, or undefined if no spaces were available.
  */
 function spawn_nearby(map, tile, location, nearby = random_nearby()){
     // Attempts to spawn a <tile> at a space next to to the given cords.
@@ -3429,10 +3583,15 @@ function spawn_nearby(map, tile, location, nearby = random_nearby()){
 }
 
 
-// misc display
+// misc display functions
 /**
- * @param {Tile} tile 
- * @returns {string}
+ * Function to create the full description including
+ *      -stun amount
+ *      -health
+ *      -max health
+ * when appropriate.
+ * @param {Tile} tile Tile to make the description for.
+ * @returns {string} The formatted description.
  */
 function tile_description(tile){
     if(tile.description === undefined){
@@ -3452,8 +3611,9 @@ function tile_description(tile){
     return `${hp}${stunned}${tile.description}`;
 }
 /**
- * @param {Tile} player 
- * @param {number} scale 
+ * Function to display the player's current and max health.
+ * @param {Tile} player The player to get health from.
+ * @param {number} scale The size of the display images.
  */
 function display_health(player, scale){
     if(player.health === undefined || player.max_health === undefined){
@@ -3474,19 +3634,25 @@ function display_health(player, scale){
 // The MoveDeck class contains the player's current deck of move cards.
 
 class MoveDeck{
-    #list; // The list of all cards they have.
-    #library; // The list of cards in their draw pile.
-    #hand; // The list of cards curently usable.
-    #discard_pile; // The list of cards they have used since they reshuffled.
-    #id_count; // Used to give each card a unique id.
+    /** @type {Card[]} The list of all cards they have.*/
+    #decklist; // .
+    /** @type {Card[]} The list of cards in their draw pile.*/
+    #library; // 
+    /** @type {Card[]} The list of cards curently usable.*/
+    #hand; // 
+    /** @type {Card[]} The list of cards they have used since they reshuffled.*/
+    #discard_pile;
+    /** @type {number} Used to give each card a unique id.*/
+    #id_count;
     constructor(){
-        this.#list = [];
+        this.#decklist = [];
         this.#library = [];
         this.#hand = [];
         this.#discard_pile = [];
         this.#id_count = 0;
     }
     /**
+     * Resets the deck to the decklist then deals a new hand.
      * @returns {undefined}
      */
     deal(){
@@ -3494,16 +3660,20 @@ class MoveDeck{
         this.#library = [];
         this.#hand = [];
         this.#discard_pile = [];
-        for(var i = 0; i < this.#list.length; ++i){
-            this.#library.push(this.#list[i]);
+        for(var i = 0; i < this.#decklist.length; ++i){
+            this.#library.push(this.#decklist[i]);
         }
         this.#library = randomize_arr(this.#library);
         for(var i = 0; i < HAND_SIZE; ++i){
-            this.#hand.push(this.#library.pop());
+            var top_card = this.#library.pop();
+            if(top_card !== undefined){
+                this.#hand.push(top_card);
+            }
         }
     }
     /**
-     * @param {number} hand_pos 
+     * Discards the card at the given position in the hand, then draws a new one.
+     * @param {number} hand_pos The position of the card which should be discarded.
      */
     discard(hand_pos){
         // Makes player discard the card at position x from their hand and draw a new one. 
@@ -3513,38 +3683,47 @@ class MoveDeck{
             throw new Error(`hand out of bounds`);
         }
         if(this.#library.length === 0){
-            while(this.#discard_pile.length != 0){
-                this.#library.push(this.#discard_pile.pop());
+            var top_discard = this.#discard_pile.pop();
+            while(top_discard !== undefined){
+                this.#library.push(top_discard);
+                top_discard = this.#discard_pile.pop();
             }
             this.#library = randomize_arr(this.#library);
         }
         if(!(this.#hand[hand_pos].temp !== undefined && this.#hand[hand_pos].temp === true)){
             this.#discard_pile.push(this.#hand[hand_pos]);
         }
-        this.#hand[hand_pos] = this.#library.pop();
+        var top_card = this.#library.pop();
+        if(top_card !== undefined){
+            this.#hand[hand_pos] = top_card;
+        }
     }
     /**
-     * @param {Card} card 
+     * Adds a new card to the decklist.
+     * @param {Card} new_card Card to add.
      */
-    add(card){
+    add(new_card){
         // Adds a new card to the list.
-        card.id = this.#id_count;
+        new_card.id = this.#id_count;
         this.#id_count++;
-        this.#list.push(card);
+        this.#decklist.push(new_card);
     }
     /**
-     * @param {Card} card 
+     * Adds a new card to the library after giving it a temp tag.
+     * Temp cards are removed when deal is called (at the end of the floor) or when used.
+     * @param {Card} new_card Card to add.
      */
-    add_temp(card){
+    add_temp(new_card){
         // Adds a temp card which will be removed at the end of the floor by only adding it to the library, not the list
-        card.id = this.#id_count;
-        card.temp = true;
+        new_card.id = this.#id_count;
+        new_card.temp = true;
         this.#id_count++;
-        this.#library.push(card);
+        this.#library.push(new_card);
         this.#library = randomize_arr(this.#library);
     }
     /**
-     * @param {string} table 
+     * Displays the hand.
+     * @param {string} table Where it should be dispalyed.
      */
     display_hand(table){
         // Displays the hand to the given table.
@@ -3559,65 +3738,76 @@ class MoveDeck{
         display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this));
     }
     /**
-     * @param {string} table 
+     * Displays the whole deck
+     * @param {string} table Where it should be displayed.
      */
     display_all(table){
         // Displays the deck list to the given table.
         display.display_message(ui_id.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
-        for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
-            display.add_tb_row(table, this.#list.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH) ,CARD_SCALE)
+        for(var i = 0; i < Math.ceil(this.#decklist.length / DECK_DISPLAY_WIDTH); ++i){
+            display.add_tb_row(table, this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH) ,CARD_SCALE)
             
         }
     }
     /**
-     * @param {number} size 
-     * @returns {Card[]}
+     * Gets a random list of cards from the decklist with no repeats.
+     * If the decklist is at minimum size, returns an empty list instead.
+     * @param {number} size number of cards to get.
+     * @returns {Card[]} The list of random cards.
      */
     get_rand_cards(size){
-        if(this.#list.length <= MIN_DECK_SIZE){
+        if(this.#decklist.length <= MIN_DECK_SIZE){
             return [];
         }
-        return rand_no_repeates(this.#list, size);
+        return rand_no_repeates(this.#decklist, size);
     }
     /**
-     * @param {number} id 
-     * @returns {boolean}
+     * Removes a card from the list.
+     * @param {number} id The ID of the card to remove.
+     * @returns {boolean} Returns true if the card was removed and false otherwise.
      */
     remove(id){
         // Removes the card with the given id from the deck.
         // Returns false if it could not be found.
-        for(var i = 0; i < this.#list.length; ++i){
-            if(this.#list[i].id === id){
-                this.#list[i] = this.#list[this.#list.length - 1];
-                this.#list.pop();
+        for(var i = 0; i < this.#decklist.length; ++i){
+            if(this.#decklist[i].id === id){
+                this.#decklist[i] = this.#decklist[this.#decklist.length - 1];
+                this.#decklist.pop();
                 return true;
             }
         }
         return false;
     }
 }
+// ----------------Point.js----------------
+// File contains Point class and associated functions.
+
 /**
- * @callback PointOp
- * @param {Point | number}
- * @returns {Point}
+ * @callback PointOp Function that simulates a binary operation between this point a point or number passed in.
+ * @param {Point | number} p2 The other operand.
+ *                      If p2 is a Point, the operation will be performed by matching their respective x and y values,
+ *                      If p2 is a number, it will be used wherever either p2.x or p2.y would be used.
+ * @returns {Point} Returns the resulting point.
  */
 
 class Point{
+    /** @type {number} The x value of the point. */
     x;
+    /** @type {number} The y value of the point. */
     y;
     /**
-     * @param {number} x 
-     * @param {number} y 
+     * @param {number} x The x value of the new point.
+     * @param {number} y The y value of the new point.
      */
     constructor(x, y){
         this.x = x;
         this.y = y;
     }
-    /** @type {PointOp} */
+    /** @type {PointOp} Returns this + p2, which is a new point*/
     plus(p2){
         return this.copy().plus_equals(p2);
     }
-    /** @type {PointOp} */
+    /** @type {PointOp} Does this = this + p2, then returns this.*/
     plus_equals(p2){
         if(typeof p2 === `number`){
             this.x += p2;
@@ -3633,11 +3823,11 @@ class Point{
             throw Error(`invalid type`);
         }
     }
-    /** @type {PointOp} */
+    /** @type {PointOp} Returns this - p2, which is a new point*/
     minus(p2){
         return this.copy().minus_equals(p2);
     }
-    /** @type {PointOp} */
+    /** @type {PointOp} Does this = this - p2, then returns this.*/
     minus_equals(p2){
         if(typeof p2 === `number`){
             this.x -= p2;
@@ -3653,11 +3843,11 @@ class Point{
             throw Error(`invalid type`);
         }
     }
-    /** @type {PointOp} */
+    /** @type {PointOp} Returns this * p2, which is a new point*/
     times(p2){
         return this.copy().times_equals(p2);
     }
-    /** @type {PointOp} */
+    /** @type {PointOp} Does this = this * p2, then returns this.*/
     times_equals(p2){
         if(typeof p2 === `number`){
             this.x *= p2;
@@ -3674,24 +3864,24 @@ class Point{
         }
     }
     /**
-     * @param {number} radius
-     * @returns {boolean}
+     * Function to check if a point's x and y values both have an absolute value <= radius.
+     * @param {number} radius How far away from 0 x and y can be.
+     * @returns {boolean} If the point is <= radius far from (0, 0).
      */
     within_radius(radius){
         return Math.abs(this.x) <= radius && Math.abs(this.y) <= radius;
     }
-    /**
-     * @returns {Point}
-     */
+    /** @returns {Point} Returns a copy of this point.*/
     copy(){
         return new Point(this.x, this.y);
     }
 }
 
 /**
- * @param {Point} p1 
- * @param {Point} p2 
- * @returns  {boolean}
+ * Checks to see if 2 points are equal.
+ * @param {Point} p1 The first point to compare.
+ * @param {Point} p2 The second point to compare.
+ * @returns  {boolean} If the points are equal.
  */
 function point_equals(p1, p2){
     if(p1.x !== undefined && p1.y !== undefined && p2.x !== undefined && p2.y !== undefined){
@@ -3714,42 +3904,47 @@ function point_equals(p1, p2){
 //  description: info that will be displayed when the user clicks on the tile.
 
 /**
- * @typedef {object} Tile
+ * @typedef {object} Tile Information about the contents of a single square of a floor of the dungeon.
  * 
- * @property {string} type
- * @property {string} name
- * @property {string} pic
- * @property {string} description
+ * // Required properties //
+ * @property {string} type The type of thing this tile is (player, enemy, exit, etc).
+ * @property {string} name More specific than type. Used for mousover text.
+ * @property {string} pic The picture of the tile's contents.
+ * @property {string} description A description given when the tile is clicked on.
  * 
- * @property {number=} stun
- * @property {number=} id
+ * // Properties added later //
+ * @property {number=} stun When the tile is stunned, it's turn will be skipped.
+ * @property {number=} id Given a unique one when added to a entity list.
  * 
- * @property {number=} health
- * @property {number=} max_health
- * @property {number=} difficulty
+ * // Misc //
+ * @property {number=} health The amount of damage it can take before dying.
+ * @property {number=} max_health It can never be healed above this.
+ * @property {number=} difficulty Used to determine how many things can be spawned.
  * 
- * @property {string[]=} pic_arr
- * @property {number=} cycle
- * @property {Point=} direction
- * @property {number=} spin_direction
- * @property {number=} rotate
- * @property {boolean=} flip
+ * // Properties used to determing aesthetics //
+ * @property {string[]=} pic_arr Used when the tile sometimes changes images.
+ * @property {number=} rotate How much to rotate the image when displaying it. Must be in 90 degree increments.
+ * @property {boolean=} flip If the image should be horizontally flipped.
  * 
- * @property {AIFunction=} behavior
- * @property {AIFunction=} on_enter
- * @property {AIFunction=} on_hit
- * @property {AIFunction=} on_death
- * @property {string=} death_message
+ * // Functions controlling behavior. //
+ * @property {AIFunction=} behavior What it does on it's turn.
+ * @property {AIFunction=} on_enter What it does when something tries to move onto it.
+ * @property {AIFunction=} on_hit What it does when attacked.
+ * @property {AIFunction=} on_death What it does when killed.
  * 
- * 
- * @property {number=} spawn_timer
- * @property {number=} range
- * @property {Spell[]=} spells
- * @property {TileGenerator[]=} summons
+ * // Properties used by AI functions to determine behavior. //
+ * @property {number=} cycle Used when a tile's state must persist between turns.
+ * @property {number=} spawn_timer How many turns between spawning things.
+ * @property {number=} range How far away can it attack.
+ * @property {Point=} direction The relative direction is it moving.
+ * @property {number=} spin_direction The direction it is spinning.
+ * @property {string=} death_message Displayed on death.
+ * @property {Spell[]=} spells A list of behavior functions it can call along with their own descriptions and pictures.
+ * @property {TileGenerator[]=} summons A list of tiles it can spawn.
  */
 
 /**
- * @callback TileGenerator
+ * @callback TileGenerator Function used to create a tile.
  * @returns {Tile}
  */
 
@@ -3761,8 +3956,7 @@ const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, sh
     clay_golem_tile, vinesnare_bush_tile, rat_tile];
 
 // Non-Enemy tiles
-
-/** @type {TileGenerator} */
+/** @type {TileGenerator} Empty space.*/
 function empty_tile(){
     return {
         type: `empty`,
@@ -3771,7 +3965,7 @@ function empty_tile(){
         description: empty_description
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} The player must move here to complete the floor.*/
 function exit_tile(){
     return {
         type: `exit`,
@@ -3780,7 +3974,7 @@ function exit_tile(){
         description: exit_description
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} Must be unlocked to reveal the exit.*/
 function lock_tile(){
     return {
         type: `terrain`,
@@ -3789,7 +3983,7 @@ function lock_tile(){
         description: lock_description
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} The starting player.*/
 function player_tile(){
     return {
         type: `player`,
@@ -3801,7 +3995,7 @@ function player_tile(){
         
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} A hazardous pool of lava.*/
 function lava_pool_tile(){
     return {
         type: `terrain`,
@@ -3811,7 +4005,7 @@ function lava_pool_tile(){
         on_enter: hazard
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} A hazardous pool of slime that can be cleared by attacking.*/
 function corrosive_slime_tile(){
     return {
         type: `terrain`,
@@ -3822,7 +4016,7 @@ function corrosive_slime_tile(){
         on_enter: hazard
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} A sturdy wall.*/
 function wall_tile(){
     return {
         type: `terrain`,
@@ -3831,7 +4025,7 @@ function wall_tile(){
         description: wall_description
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} A damaged wall that might spawn something on death.*/
 function damaged_wall_tile(){
     var health = random_num(2) + 1;
     return {
@@ -3843,7 +4037,7 @@ function damaged_wall_tile(){
         on_death: wall_death
     }
 }
-/** @type {TileGenerator} */
+/** @type {TileGenerator} A fireball that travels in a straight line until it hits something.*/
 function fireball_tile(){
     var pic_arr = [`${img_folder.tiles}fireball_n.png`, `${img_folder.tiles}fireball_nw.png`];
     return {
@@ -4211,13 +4405,14 @@ function lich_tile(){
     }
 }
 /**
- * @typedef Spell
- * @property {AIFunction} behavior
- * @property {string} description
- * @property {string} pic
+ * @typedef Spell A set a behavior, description and pic used by the lich.
+ * @property {AIFunction} behavior Function performing the spell.
+ * @property {string} description A description of what the spell does.
+ * @property {string} pic A picture to help telegraph the spell.
  */
 
 /**
+ * Function to generate and return a spell with the fields provided as parameters.
  * @param {AIFunction} behavior 
  * @param {string} description 
  * @param {string} pic 
@@ -4232,10 +4427,14 @@ function spell_generator(behavior, description, pic){
 }
 
 
+// ----------------UIID.js----------------
+// File containing a library of ids used to retrieve elements of the ui for displaying.
+
 /**
- * 
- * @param {string} language 
- * @returns {ui_id_library}
+ * Function to get a set of uiids (Identifiers that can be used to retrieve the appropriate ui element) for the appropriate language.
+ * Throws an error if an invalid language is provided.
+ * @param {string} language The language to get uiids for.
+ * @returns {ui_id_library} The library of uiids for that language.
  */
 function get_ui_ids(language){
     // Factory function for the display classes (currently only html)
@@ -4249,27 +4448,27 @@ function get_ui_ids(language){
 
 /**
  * @typedef ui_id_library
- * @property {string} title
- * @property {string} stats
- * @property {string} game_screen
- * @property {string} stage
- * @property {string} map_display
- * @property {string} health_display
- * @property {string} hand_display
- * @property {string} move_buttons
- * @property {string} display_message
- * @property {string} shop
- * @property {string} shop_instructions
- * @property {string} add_card
- * @property {string} remove_card
- * @property {string} current_deck
- * @property {string} display_deck
- * @property {string} chest
- * @property {string} tutorial
+ * @property {string} title Displays the title of the game.
+ * @property {string} stats Displays the current stats.
+ * @property {string} game_screen Controls the visibility of the game itself.
+ *      @property {string} stage Controls the visibility of the current floor.
+ *          @property {string} map_display Displays the map of the floor.
+ *          @property {string} health_display Displays the player's health.
+ *          @property {string} hand_display Displays the player's hand of cards.
+ *          @property {string} move_buttons Displays the buttons for the last card clicked on.
+ *          @property {string} display_message Displays messages.
+ *      @property {string} shop Controls the visibility of the shop.
+ *          @property {string} shop_instructions Lets the player know they can add or remove a card.
+ *          @property {string} add_card Displays which cards that could be added to their deck.
+ *          @property {string} remove_card Displays which cards that could be removed from their deck.
+ *          @property {string} current_deck Tells them the next element is their current deck.
+ *          @property {string} display_deck Displays their entire deck.
+ *      @property {string} chest Controls the visibility of the chest contents.
+ * @property {string} tutorial Controls the visibility of the tutorial screen.
  */
 
 
-/** @type {ui_id_library}*/
+/** @type {ui_id_library} The uiid library for HTML.*/
 const HTML_UI_ID = {
     title: `title`,
     stats: `stats`,

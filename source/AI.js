@@ -12,7 +12,7 @@
 
 
 // Normal Enemy AIs
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by spiders and the Spider Queen.*/
 function spider_ai(location, difference, map, self){
     if(difference.within_radius(1)){
         // If the player is next to it, attack.
@@ -24,21 +24,21 @@ function spider_ai(location, difference, map, self){
         for(var i = 0; i < directions.length && !map.move(location, location.plus(directions[i])); ++i){}
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by turrets that shoot orthogonally.*/
 function turret_h_ai(location, difference, map, self){
     // Turret version that shoots orthogonally.
     if(difference.x === 0 || difference.y === 0){
         turret_fire_ai(location, difference, map, self);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by turrets that shoot diagonally.*/
 function turret_d_ai(location, difference, map, self){
     // Turret version that shoots diagonally.
     if(Math.abs(difference.x) === Math.abs(difference.y)){
         turret_fire_ai(location, difference, map, self);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by turrets that rotate.*/
 function turret_r_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.rotate === undefined || 
@@ -85,7 +85,7 @@ function turret_r_ai(location, difference, map, self){
         self.rotate = 90 * Math.floor(((self.cycle + 1) % 4) / 2);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by all turrets to fire towards the player.*/
 function turret_fire_ai(location, difference, map, self){
     // Fires a shot in the direction of the player.
     var direction = sign(difference)
@@ -100,7 +100,7 @@ function turret_fire_ai(location, difference, map, self){
         }
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by scythes.*/
 function scythe_ai(location, difference, map, self){
     if(self.rotate === undefined){
         throw new Error(`tile missing properties used by it's ai.`)
@@ -123,7 +123,7 @@ function scythe_ai(location, difference, map, self){
         map.attack(new Point(location.x, location.y - direction.y), `player`); 
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by shadow knights.*/
 function shadow_knight_ai(location, difference, map, self){
     // Moves in an L.
     if(Math.abs(difference.x) === 1 && Math.abs(difference.y) === 1){
@@ -154,7 +154,7 @@ function shadow_knight_ai(location, difference, map, self){
     }
     map.move(location, location.plus(new_dir));
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by spider webs.*/
 function spider_web_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.spawn_timer === undefined){
@@ -170,7 +170,7 @@ function spider_web_ai(location, difference, map, self){
         self.cycle = 0;
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by rams.*/
 function ram_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.pic_arr === undefined){
@@ -219,7 +219,7 @@ function ram_ai(location, difference, map, self){
         self.pic = self.pic_arr[self.cycle];
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by large porcuslimes.*/
 function large_porcuslime_ai(location, difference, map, self){
     if(self.health !== undefined && self.health === 2){
         // If health is 2, turns into the medium version.
@@ -238,7 +238,7 @@ function large_porcuslime_ai(location, difference, map, self){
     var direction = sign(difference);
     move_attack_ai(location, direction, map, self);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by medium porcuslimes.*/
 function medium_porcuslime_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.pic_arr === undefined){
@@ -263,7 +263,7 @@ function medium_porcuslime_ai(location, difference, map, self){
     self.cycle = 1 - self.cycle;
     self.pic = self.pic_arr[self.cycle];
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by small and medium porcuslimes when moving diagonally.*/
 function porcuslime_diagonal_ai(location, difference, map, self){
     // Small version which moves then attacks diagonally.
     var direction = order_nearby(difference);
@@ -278,7 +278,7 @@ function porcuslime_diagonal_ai(location, difference, map, self){
     }
     move_attack_ai(location, dir, map, self);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by small and medium porcuslimes when moving orthogonally.*/
 function porcuslime_horizontal_ai(location, difference, map, self){
     var direction = order_nearby(difference);
     var dir = undefined;
@@ -292,7 +292,7 @@ function porcuslime_horizontal_ai(location, difference, map, self){
     }
     move_attack_ai(location, dir, map, self);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used when a entity should move and attack in a direction (difference).*/
 function move_attack_ai(location, difference, map, self){
     if(point_equals(difference, new Point(0, 0))){
         return;
@@ -305,7 +305,7 @@ function move_attack_ai(location, difference, map, self){
         map.attack(location.plus(difference));
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by acid bugs.*/
 function acid_bug_ai(location, difference, map, self){
     // Moves 1 space towards the player.
     var directions = order_nearby(difference);
@@ -315,7 +315,7 @@ function acid_bug_ai(location, difference, map, self){
         && (self.health === undefined || self.health > 0);
         ++i){}
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used when acid bugs die to explode and harm everything around them.*/
 function acid_bug_death(location, difference, map, self){
     // On death, attacks each space next to it.
     var attacks = random_nearby();
@@ -323,7 +323,7 @@ function acid_bug_death(location, difference, map, self){
         map.attack(location.plus(attacks[i]));
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by brightlings.*/
 function brightling_ai(location, difference, map, self){
     if(self.cycle === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
@@ -353,7 +353,7 @@ function brightling_ai(location, difference, map, self){
         ++self.cycle;
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by corrosive catterpillars.*/
 function corrosive_caterpillar_ai(location, difference, map, self){
     var direction = get_empty_nearby(location, random_nearby(), map);
     if(!(direction === undefined)){
@@ -362,11 +362,11 @@ function corrosive_caterpillar_ai(location, difference, map, self){
         }
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used on corrosive catterpillar death to slime where they were.*/
 function corrosive_caterpillar_death(location, difference, map, self){
     map.add_tile(corrosive_slime_tile(), location);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by noxious toads.*/
 function noxious_toad_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.pic_arr === undefined){
@@ -398,7 +398,7 @@ function noxious_toad_ai(location, difference, map, self){
     }
     self.pic = self.pic_arr[self.cycle]
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by vampires.*/
 function vampire_ai(location, difference, map, self){
     var player_pos = location.plus(difference);
     var target_spaces = [new Point(player_pos.x + 1, player_pos.y + 1), 
@@ -430,14 +430,14 @@ function vampire_ai(location, difference, map, self){
         }
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used when a vampire is hit to teleport it away.*/
 function vampire_hit(location, difference, map, self){
     if(self.health !== undefined && self.health > 0){
         stun(self);
         teleport_spell(location, difference, map, self);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by clay golems.*/
 function clay_golem_ai(location, difference, map, self){
     if(self.cycle === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
@@ -457,7 +457,7 @@ function clay_golem_ai(location, difference, map, self){
         self.cycle = 1;
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used when clay golems are hit to stun them and reset their cycle.*/
 function clay_golem_hit(location, difference, map, self){
     if(self.cycle === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
@@ -465,7 +465,7 @@ function clay_golem_hit(location, difference, map, self){
     stun(self);
     self.cycle = 1;
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by vinesnare bushes.*/
 function vinesnare_bush_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.pic_arr === undefined ||
@@ -498,7 +498,7 @@ function vinesnare_bush_ai(location, difference, map, self){
         self.pic = self.pic_arr[1];
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by rats.*/
 function rat_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.flip === undefined){
@@ -535,7 +535,7 @@ function rat_ai(location, difference, map, self){
 
 
 // Boss AIs
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
 function boss_death(location, difference, map, self){
     if(self.death_message === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
@@ -543,7 +543,7 @@ function boss_death(location, difference, map, self){
     display.display_message(ui_id.display_message, `${self.death_message}\n${boss_death_description}`);
     map.unlock();
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by the Velociphile.*/
 function velociphile_ai(location, difference, map, self){
     // Moves towards the player 2/3 of the time, otherwise moves randomly.
     var directions = order_nearby(difference);
@@ -560,7 +560,7 @@ function velociphile_ai(location, difference, map, self){
         map.attack(location.plus(direction));
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used when the spider queen is hit to stun her and spawn a spider.*/
 function spider_queen_hit(location, difference, map, self){
     // Spawns a new spider nearby. Stuns it so it won't move right away.
     stun(self);
@@ -568,7 +568,7 @@ function spider_queen_hit(location, difference, map, self){
     stun(new_spider);
     spawn_nearby(map, new_spider, location);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} AI used by the Lich.*/
 function lich_ai(location, difference, map, self){
     if( self.cycle === undefined || 
         self.spells === undefined){
@@ -594,12 +594,12 @@ function lich_ai(location, difference, map, self){
 }
 
 // Spells
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which teleports the user to a random location.*/
 function teleport_spell(location, difference, map, self){
     var space = map.random_empty();
     map.move(location, space);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which summons a random thing from the user's summon list.*/
 function summon_spell(location, difference, map, self){
     if(self.summons === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
@@ -607,7 +607,7 @@ function summon_spell(location, difference, map, self){
     var tile = self.summons[random_num(self.summons.length)]();
     spawn_nearby(map, tile, location);
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which causes an earthquake causing debris to rain from the ceiling.*/
 function earthquake_spell(location, difference, map, self){
     var health = self.health;
     if( health === undefined){
@@ -618,7 +618,7 @@ function earthquake_spell(location, difference, map, self){
         amount: (5 - health) * 5 + random_num(4)
     });
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which creates a wave of fireballs aimed at the target.*/
 function flame_wave_spell(location, difference, map, self){
     var direction = get_empty_nearby(location, order_nearby(difference), map);
     var spawnpoints = [];
@@ -649,14 +649,14 @@ function flame_wave_spell(location, difference, map, self){
         map.add_tile(fireball, location.plus(spawnpoints[i]));
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which adds 2 random temporary debuff cards to the player's deck.*/
 function confusion_spell(location, difference, map, self){
     for(var i = 0; i < 2; ++i){
         var ran = random_num(CONFUSION_CARDS.length);
         GS.give_temp_card(CONFUSION_CARDS[ran]());
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which creates several lava pools between the user and their target.*/
 function lava_moat_spell(location, difference, map, self){
     var health = self.health;
     if( health === undefined){
@@ -668,16 +668,16 @@ function lava_moat_spell(location, difference, map, self){
         spawn_nearby(map, moat, location, nearby);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Spell which does nothing.*/
 function rest_spell(location, difference, map, self){}
 
 // Other AIs
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used when something moves onto this to harm that thing.*/
 function hazard(location, difference, map, self){
     // General on_move function to retaliate if something tries to move onto it.
     map.attack(location.plus(difference));
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used when a damaged wall is destroyed to potentially spawn something.*/
 function wall_death(location, difference, map, self){
     var spawn_list = [spider_tile, acid_bug_tile, spider_web_tile, rat_tile];
     if(random_num(10) < 7){
@@ -687,7 +687,7 @@ function wall_death(location, difference, map, self){
         map.add_tile(new_enemy, location);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction}  AI used by fireballs.*/
 function fireball_ai(location, difference, map, self){
     if(self.direction === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
@@ -698,7 +698,7 @@ function fireball_ai(location, difference, map, self){
         map.attack(location);
     }
 }
-/** @type {AIFunction}*/
+/** @type {AIFunction} Function used by fireballs to blow up when soemthing tries to move onto them.*/
 function fireball_on_enter(location, difference, map, self){
     hazard(location, difference, map, self);
     self.health = 1;

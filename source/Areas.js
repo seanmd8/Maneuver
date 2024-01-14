@@ -1,6 +1,7 @@
 // ----------------Areas.js----------------
 // File containing functions to generate area objects.
 
+// The structure of the dungeon. Each area can lead to a random one in the next numbered array.
 const area_end = [generate_default_area];
 const area1 = [generate_ruins_area];
 const area2 = [/*generate_sewers_area, */generate_basement_area];
@@ -11,18 +12,18 @@ const area5 = [generate_sanctum_area];
 
 
 /**
- * @typedef {object} Area
- * @property {string} background
- * @property {FloorGenerator} generate_floor
- * @property {TileGenerator[]} enemy_list
- * @property {FloorGenerator[]} boss_floor_list
- * @property {AreaGenerator[]} next_area_list
- * @property {string} description
+ * @typedef {object} Area A section of the dungeon that ends with a boss fight.
+ * @property {string} background The picture used as a background for this area.
+ * @property {FloorGenerator} generate_floor A function to generate a normal floor of the dungeon.
+ * @property {TileGenerator[]} enemy_list A list of which enemies can spawn here normally.
+ * @property {FloorGenerator[]} boss_floor_list A list of functions that create the floors of the bosses which can apear at the end.
+ * @property {AreaGenerator[]} next_area_list A list of the areas that can follow this one.
+ * @property {string} description A description given when entering this area.
  */
 
 /**
- * @callback AreaGenerator
- * @returns {Area}
+ * @callback AreaGenerator A function to create 
+ * @returns {Area}         and return an area object.
  */
 
 /** @type {AreaGenerator}*/

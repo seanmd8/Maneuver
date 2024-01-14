@@ -1,6 +1,7 @@
 
 
 /**
+ * Initiates the game when the page is loaded.
  * @returns {undefined}
  */
 function initiate_game(){
@@ -9,7 +10,7 @@ function initiate_game(){
 
 
 // Deck Creation
-/** @returns {MoveDeck}*/
+/** @returns {MoveDeck} Returns a normal starting deck.*/
 function make_starting_deck(){
     var deck = new MoveDeck();
 
@@ -26,7 +27,7 @@ function make_starting_deck(){
     return deck;
 }
 // Makes a deck for testing new cards.
-/** @returns {MoveDeck}*/
+/** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
     var deck = new MoveDeck();
     var start = 40;
@@ -40,14 +41,11 @@ function make_test_deck(){
 
 
 
-
-
-
-
 // AI utility functions
 /**
- * @param {Tile} tile 
- * @param {number} [amount = 1]
+ * stuns a tile by incrementing it's stun property. Adds the property first if necessary.
+ * @param {Tile} tile The tile to stun.
+ * @param {number} [amount = 1] Optional parameter for the amount of stun to add. Default is 1.
  */
 function stun(tile, amount = 1){
     // Increases a tile's stun.
@@ -57,8 +55,9 @@ function stun(tile, amount = 1){
     tile.stun += amount;
 }
 /**
- * @param {Tile} tile 
- * @param {Point} direction 
+ * Used by a fireball tile to set the correct direction, rotation and picture.
+ * @param {Tile} tile The tile to set the direction of.
+ * @param {Point} direction Ehich way it should face.
  */
 function set_direction(tile, direction){
     if( tile.pic_arr === undefined ||
@@ -79,7 +78,7 @@ function set_direction(tile, direction){
     }
 }
 /**
- * @returns {Point[]}
+ * @returns {Point[]} Returns a randomized array of points around (0, 0).
  */
 function random_nearby(){
     // Returns an array of each point next to [0, 0] with it's order randomized.
@@ -95,8 +94,9 @@ function random_nearby(){
     return randomize_arr(cords);
 }
 /**
- * @param {Point} direction
- * @returns {Point[]}
+ * Gets a randomized array of points around (0, 0) ordered by how close they are to the given point.
+ * @param {Point} direction The point to sort by.
+ * @returns {Point[]} The resulting array.
  */
 function order_nearby(direction){
     // Returns an array with points ordered from the nearest to the furthest from the given direction. 
@@ -163,10 +163,11 @@ function order_nearby(direction){
 
 }
 /**
- * @param {Point} location 
- * @param {Point[]} nearby_arr 
- * @param {GameMap} map 
- * @returns {Point | undefined}
+ * Function to get the first non empty location near a given location.
+ * @param {Point} location The point to search around.
+ * @param {Point[]} nearby_arr The array of relative locations to search.
+ * @param {GameMap} map The map to search on.
+ * @returns {Point | undefined} Returns an empty location if one is found and undefined otherwise.
  */
 function get_empty_nearby(location, nearby_arr, map){
     for(var i = 0; i < nearby_arr.length; ++i){
@@ -177,9 +178,10 @@ function get_empty_nearby(location, nearby_arr, map){
     return undefined;
 }
 /**
- * @param {Point} location 
- * @param {GameMap} map 
- * @returns {number}
+ * Counts how many locations next to the given one are not empty.
+ * @param {Point} location The point to search around.
+ * @param {GameMap} map The map to search.
+ * @returns {number} The number of nearby occupied locations.
  */
 function count_nearby(location, map){
     var count = 0;
@@ -192,11 +194,13 @@ function count_nearby(location, map){
     return count;
 }
 /**
- * @param {GameMap} map 
- * @param {Tile} tile 
- * @param {Point} location 
- * @param {Point[]=} nearby 
- * @returns {Point | undefined}
+ * A function to add a Tile to the game map at a position next to this one.
+ * @param {GameMap} map The map to add the tile to.
+ * @param {Tile} tile The tile to add.
+ * @param {Point} location The point to spawn near.
+ * @param {Point[]=} nearby Array of relative locations to spawn from randomly.
+ *                            If not provided, it will choose from a randomized list of locations next to the given one.
+ * @returns {Point | undefined} Returns the location of the new tile if it was successfully added, or undefined if no spaces were available.
  */
 function spawn_nearby(map, tile, location, nearby = random_nearby()){
     // Attempts to spawn a <tile> at a space next to to the given cords.
@@ -210,10 +214,15 @@ function spawn_nearby(map, tile, location, nearby = random_nearby()){
 }
 
 
-// misc display
+// misc display functions
 /**
- * @param {Tile} tile 
- * @returns {string}
+ * Function to create the full description including
+ *      -stun amount
+ *      -health
+ *      -max health
+ * when appropriate.
+ * @param {Tile} tile Tile to make the description for.
+ * @returns {string} The formatted description.
  */
 function tile_description(tile){
     if(tile.description === undefined){
@@ -233,8 +242,9 @@ function tile_description(tile){
     return `${hp}${stunned}${tile.description}`;
 }
 /**
- * @param {Tile} player 
- * @param {number} scale 
+ * Function to display the player's current and max health.
+ * @param {Tile} player The player to get health from.
+ * @param {number} scale The size of the display images.
  */
 function display_health(player, scale){
     if(player.health === undefined || player.max_health === undefined){

@@ -2,20 +2,22 @@
 // File for utility functions not connected to any specific project.
 
 /**
- * @param {number} ms 
- * @returns {Promise<*>}
+ * Function to wait a set amount of time before continuing.
+ * @param {number} milliseconds How long to wait in milliseconds.
+ * @returns {Promise<*>} Resolves when the time is up.
  */
-function delay(ms){
+function delay(milliseconds){
     // Function to wait the given number of milliseconds.
     return new Promise(resolve =>{
-        setTimeout(resolve, ms);
+        setTimeout(resolve, milliseconds);
     })
 }
 /**
+ * Searches an array for an element.
  * @template T
- * @param {T} element 
- * @param {T[]} arr 
- * @returns {number}
+ * @param {T} element The element to find.
+ * @param {T[]} arr The array to search.
+ * @returns {number} The index of the element, or -1 if it isn't found.
  */
 function search(element, arr){
     for(var i = 0; i < arr.length; ++i){
@@ -26,10 +28,11 @@ function search(element, arr){
     return -1;
 }
 /**
+ * Creates a list from drawing random elements from another with no repeats.
  * @template T
- * @param {T[]} source 
- * @param {number} draws 
- * @returns {T[]}
+ * @param {T[]} source List to draw from.
+ * @param {number} draws Number of draws. If it is larger than source.length, then source.length will be used instead.
+ * @returns {T[]} List of random draws.
  */
 function rand_no_repeates(source, draws){
     var index_arr = [];
@@ -47,10 +50,12 @@ function rand_no_repeates(source, draws){
     return result;
 }
 /**
- * @param {string} message 
- * @param {number} wrap_length 
- * @param {string} [delimiter = undefined]
- * @returns {string}
+ * Wraps a string so each line has a maximum number of characters before automatically inserting a newline character.
+ * @param {string} message The string to be wrapped.
+ * @param {number} wrap_length How many characters maximum.
+ * @param {string} [delimiter = undefined] Optional parameter for the delimiter. 
+ *                                      If provided, then blocks of text in between delimiters will not be broken up.
+ * @returns {string} The wrapped string.
  */
 function wrap_str(message, wrap_length, delimiter = undefined){
     var new_message = ``;
@@ -73,27 +78,27 @@ function wrap_str(message, wrap_length, delimiter = undefined){
         }
     }
     else{
-        str_arr = message.split(` `);
+        str_arr = message.split(delimiter);
         var line = ``
         for(var i = 0; i < str_arr.length; ++i){
-            line = `${line}${str_arr[i]} `;
+            line = `${line}${str_arr[i]}${delimiter}`;
             if(line.length >= wrap_length){
-                new_message = `${new_message}${line.slice(0, -1)}\n`
+                new_message = `${new_message}${line.slice(0, -1 * delimiter.length)}\n`
                 line = ``;
             } 
         }
         if(line.length >= 0){
-            new_message = `${new_message}${line.slice(0, -1)}\n`
+            new_message = `${new_message}${line.slice(0, -1 * delimiter.length)}\n`
         } 
     }
     return new_message.slice(0, -1);
 }
 /**
- * @overload
+ * @overload Returns 1 if num is positive, -1 if it is negative, 0 if it is 0.
  * @param {number} num
  * @return {number}
  * 
- * @overload
+ * @overload Returns a new point with it's x and y the sign of the one passed in.
  * @param {Point} num
  * @return {Point}
  * 
@@ -116,16 +121,16 @@ function sign(num){
     }
 }
 /**
- * @returns {number}
+ * @returns {number} randomly returns 1 or -1.
  */
 function random_sign(){
-    // Randomly returns 1 or -1.
     return 2 * random_num(2) - 1;
 }
 /**
+ * Function to return a copy of a array with it's order randomized.
  * @template T
- * @param {T[]} arr 
- * @returns {T[]}
+ * @param {T[]} arr Array to randomize.
+ * @returns {T[]} Randomized copy.
  */
 function randomize_arr(arr){
     // Returns a copy of the given array with it's order randomized.
@@ -139,10 +144,11 @@ function randomize_arr(arr){
     }
     return random_arr;
 }
-/**
+/** 
+ * Function to return a copy of an array.
  * @template T
- * @param {T[]} arr 
- * @returns {T[]}
+ * @param {T[]} arr Array to copy.
+ * @returns {T[]} Copy of the array.
  */
 function copy_arr(arr){
     //returns a copy of the given array.
@@ -153,9 +159,10 @@ function copy_arr(arr){
     return arr2;
 }
 /**
+ * Function to return a copy of an array with it's order reversed.
  * @template T
- * @param {T[]} arr 
- * @returns {T[]}
+ * @param {T[]} arr Array to be reversed.
+ * @returns {T[]} Reversed array.
  */
 function reverse_arr(arr){
     var new_arr = [];
@@ -165,16 +172,18 @@ function reverse_arr(arr){
     return new_arr;
 }
 /**
- * @param {number} x 
- * @returns {number}
+ * Function to return a random integer 0 <= r < x
+ * @param {number} x The return should be less than this.
+ * @returns {number} The random number.
  */
 function random_num(x){
     return Math.floor(Math.random() * x);
 }
 /**
- * @param {[]} a1 
- * @param {[]} a2
- * @returns {boolean}
+ * Function to check if the contents of two arrays are ===.
+ * @param {[]} a1 The first array to be compared.
+ * @param {[]} a2 the second array to be compared.
+ * @returns {boolean} Returns true if the elements at each index in both arrays === the element at the same index of the other.
  */
 function array_equals(a1, a2){
     if(!(a1.length === a2.length)){

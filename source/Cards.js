@@ -2,7 +2,7 @@
 // File containing the logic for each card.
 
 
-// List of the options that can be given on level up.
+// List of the options of cards that can be given on level up.
 const CARD_CHOICES = [
     short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
@@ -15,6 +15,7 @@ const CARD_CHOICES = [
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal
 ];
 
+// List of cards that can be given as a debuff.
 const CONFUSION_CARDS = [
     stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
     stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out
@@ -22,28 +23,27 @@ const CONFUSION_CARDS = [
 
 
 
-// command function generators
 /**
- * @typedef {object} PlayerCommand
- * @property {string} type
- * @property {Point} change
+ * @typedef {object} PlayerCommand A object used to give a command for a single action the player should do.
+ * @property {string} type What type of action it is (move, attack, etc.).
+ * @property {Point} change The location the action should be performed at relative to the current one.
  */
 
 /**
- * @callback PlayerCommandGenerator
- * @param {number} x
- * @param {number} y
- * @returns {PlayerCommand}
+ * @callback PlayerCommandGenerator Creates a PlayerCommand Object.
+ * @param {number} x The relative x location
+ * @param {number} y The relative y location
+ * @returns {PlayerCommand} The resulting command.
  */
 
-/** @type {PlayerCommandGenerator}*/
+/** @type {PlayerCommandGenerator} Function to create a move command.*/
 function pmove(x, y){
     return {
         type: "move",
         change: new Point(x, y)
     }
 }
-/** @type {PlayerCommandGenerator}*/
+/** @type {PlayerCommandGenerator} Function to create a attack command.*/
 function pattack(x, y){
     return {
         type: "attack",
@@ -52,17 +52,17 @@ function pattack(x, y){
 }
 // Cards
 /**
- * @typedef {Object} Card
- * @property {string} name
- * @property {string} pic
- * @property {ButtonGrid} options
+ * @typedef {Object} Card A card used by the player to perform actions on their turn.
+ * @property {string} name The name of the card which will be displayed as mouseover text.
+ * @property {string} pic The card's image.
+ * @property {ButtonGrid} options A button grid object which determines what actions the player can use the card to perform.
  * 
- * @property {number=} id
- * @property {boolean=} temp
+ * @property {number=} id A unique id that will be added to the card when it is added to the deck.
+ * @property {boolean=} temp Given true when the card is temporary and will be removed on use or on end of floor.
  */
 /**
- * @callback CardGenerator
- * @returns {Card}
+ * @callback CardGenerator A function that creates a card.
+ * @returns {Card} The resulting card.
  */
 
 // basic_horizontal,  basic_diagonal, and slice are unique to the starting deck.
@@ -760,6 +760,33 @@ function lash_out(){
         name: `lash out`,
         pic: `${img_folder.cards}lash_out.png`,
         options
+    }
+}
+
+
+// Card Dummy Images to be displayed in the same space
+/** @type {CardGenerator} Shown in shop to denote adding a card to your deck.*/
+function add_card_symbol(){
+    return{
+        name: `Add a card to your deck`,
+        pic: `${img_folder.other}plus.png`,
+        options: new ButtonGrid()
+    }
+}
+/** @type {CardGenerator} Shown in show to denote removing a card from your deck.*/
+function remove_card_symbol(){
+    return{
+        name: `Remove a card from your deck`,
+        pic: `${img_folder.other}minus.png`,
+        options: new ButtonGrid()
+    }
+}
+/** @type {CardGenerator} Shown in shop ind=stead of the remove symbol when your deck is at the minimum size.*/
+function deck_at_minimum_symbol(){
+    return{
+        name: `Your deck is at the minimum size`,
+        pic: `${img_folder.other}x.png`,
+        options: new ButtonGrid()
     }
 }
 

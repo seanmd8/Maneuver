@@ -10,18 +10,26 @@
  */
 
 class GameMap{
-    #x_max; // Size of the grid's x axis.
-    #y_max; // Size of the grid's y axis.
-    #entity_list; // entity_list class makes keeping track of entity locations easier.
-    #grid; // Grid is a 2d list of tiles representing the entity in each location.
-    #floor_num; // The current floor number.
-    #turn_count; // How many turns the player has taken.
+    /** @type {number} Size of the grid's x axis.*/
+    #x_max;
+    /** @type {number} Size of the grid's y axis.*/
+    #y_max;
+    /** @type {EntityList} Used to keep track of non player entity locations and perform their turns.*/
+    #entity_list;
+    /** @type {Tile[][]} Grid representing the floor layout.*/
+    #grid;
+    /** @type {number} Which number floor this is.*/
+    #floor_num;
+    /** @type {number} Total number of turns that have elapsed.*/
+    #turn_count;
+    /** @type {MapEvent[]} Events that will happen at the end of the turn.*/
     #events;
+    /** @type {Area} The current area of the dungeon they are in.*/
     #area;
     /**
-     * @param {number} x_max 
-     * @param {number} y_max 
-     * @param {*} area 
+     * @param {number} x_max The x size of floors in this dungeon.
+     * @param {number} y_max The y size of floors in this dungeon.
+     * @param {Area} area The starting area.
      */
     constructor(x_max, y_max, area){
         this.#x_max = x_max;
@@ -34,7 +42,8 @@ class GameMap{
         this.erase()
     }
     /**
-     * @returns {number}
+     * Function to reset the floor so the next one can be generated,
+     * @returns {number} The updated floor number.
      */
     erase(){
         // Function to start a new floor by erasing the board and adding only the player and the exit.
@@ -65,14 +74,14 @@ class GameMap{
         return ++this.#floor_num;
     }
     /**
-     * @returns {Point}
+     * @returns {Point} A random space on the floor.
      */
     random_space(){
         // Returns a random space in the grid.
         return new Point(random_num(this.#x_max), random_num(this.#y_max));
     }
     /**
-     * @returns {Point}
+     * @returns {Point} A random empty space on the floor.
      */
     random_empty(){
         // Returns a random empty space in the grid.
@@ -96,7 +105,8 @@ class GameMap{
         throw new Error(`grid full`);
     }
     /**
-     * @param {Point} location 
+     * Thows an error if the provided point is out of bounds.
+     * @param {Point} location The point to check.
      */
     check_bounds(location){
         // Throws an error if x or y is out of bounds.
@@ -108,7 +118,9 @@ class GameMap{
         }
     }
     /**
-     * @param {Point} location 
+     * Checks if a location is in bounds and empty.
+     * @param {Point} location The point to check.
+     * @returns {boolean} Returns true if the location is both in bounds and empty and false otherwise.
      */
     check_empty(location){
         // returns true if the space at grid[x, y] is empty.
@@ -122,7 +134,9 @@ class GameMap{
         return this.#get_grid(location).type === `empty`;
     }
     /**
-     * @param {Point} location 
+     * Places an exit tile at the given location
+     * Throws an error if the location is out of bounds, the space is not empty or there is already an exit tile.
+     * @param {Point} location The location to set the exit at.
      */
     set_exit(location){
         // Places the exit.
@@ -146,12 +160,17 @@ class GameMap{
         this.#set_grid(location, exit_tile());
     }
     /**
-     * @param {Point} player_location
-     * @param {Tile} player
+     * Places the player at the given location.
+     * Throws an error if player is not a player, the location is out of bounds, the space is not empty or there is already a player tile.
+     * @param {Point} player_location The location to set the player at.
+     * @param {Tile} player The player tile to be placed,
      */
     set_player(player_location, player){
         // Places the player. If a non-negative value is given for the player's health, it will be set to that.
         // Throws an error is the space is occupied or out of bounds.
+        if(player.type !== `player`){
+            throw new Error(`tried to set non-player as player`)
+        }
         this.check_bounds(player_location);
         if(!this.check_empty(player_location)){
             throw new Error(`space not empty`);
@@ -171,8 +190,10 @@ class GameMap{
         this.#set_grid(player_location, player);
     }
     /**
-     * @param {Tile} tile
-     * @param {Point} [location = undefined]
+     * Function to add a tile to the map.
+     * @param {Tile} tile The tile to be added.
+     * @param {Point} [location = undefined] Optional location to place the tile. If the location is not empty, an error will be thrown.
+     *                                          If not provided, the location will be a random unoccupied one.
      */
     add_tile(tile, location = undefined){
         // Adds a new tile to a space.
@@ -200,6 +221,7 @@ class GameMap{
         return true;
     }
     /**
+     * Function to display the grid.
      * @returns {undefined}
      */
     display(){
@@ -222,6 +244,7 @@ class GameMap{
         this.clear_empty()
 	}
     /**
+     * Clears all hits and other alternate pics from empty tiles in the grid.
      * @returns {undefined}
      */
     clear_empty(){
@@ -236,9 +259,11 @@ class GameMap{
         }
     }
     /**
-     * @param {Point} start_point 
-     * @param {Point} end_point 
-     * @returns {boolean}
+     * Moves a tile.
+     * Throws errors if the player reaches the end of the floor or if the tile (player or not) dies.
+     * @param {Point} start_point The current location of the tile to be moved.
+     * @param {Point} end_point Where you want to move the tile to.
+     * @returns {boolean} Returns true if the tile is moved succesfully, false if it is not.
      */
     move(start_point, end_point){
         // Moves the tile at start_point to end_point if it is empty. 
@@ -285,8 +310,9 @@ class GameMap{
         return false;
     }
     /**
-     * @param {Point} direction 
-     * @returns {boolean}
+     * Moves the player relative to their current location.
+     * @param {Point} direction Relative movement.
+     * @returns {boolean} Returns true if the player is moved, false otherwise.
      */
     player_move(direction){
         // Moves the player the given relative distance.
@@ -294,7 +320,8 @@ class GameMap{
         return this.move(player_pos, player_pos.plus(direction));
     }
     /**
-     * @returns {Tile}
+     * Returns the player tile. Throws an error if there isn't one.
+     * @returns {Tile} The player tile.
      */
     get_player(){
         // Returns the player's health.
@@ -302,9 +329,10 @@ class GameMap{
         return this.#get_grid(pos);
     }
     /**
-     * @param {Point} location 
-     * @param {string} [hits = `all`]
-     * @returns {boolean}
+     * Attacks a point on the grid.
+     * @param {Point} location Where to attack.
+     * @param {string} [hits = `all`] Optional parameter for what type of tile the attack hits. By default it hits anything.
+     * @returns {boolean} Returns true if the attack hit.
      */
     attack(location, hits = `all`){
         // Attacks the specified square.
@@ -357,8 +385,9 @@ class GameMap{
         return false;
     }
     /**
-     * @param {Point} direction
-     * @returns {boolean}
+     * Attacks relative to the player's location.
+     * @param {Point} direction Relative direction of attack.
+     * @returns {boolean} Returns true if the attack hits and false otherwise.
      */
     player_attack(direction){
         // Attacks the given square relative to the player's current positon.
@@ -371,7 +400,9 @@ class GameMap{
         }
     }
     /**
-     * @returns {Promise<undefined>}
+     * Each enemy takes their turn.
+     * Throws an error if the player dies or is moved.
+     * @returns {Promise<undefined>} Resolves when their turn is done.
      */
     async enemy_turn(){
         // Causes each enemy to execute their behavior.
@@ -379,13 +410,16 @@ class GameMap{
         await this.#entity_list.enemy_turn(this);
     }
     /**
-     * @param {string} location 
+     * Displays the floor number and turn count.
+     * @param {string} location Where they should be displayed.
      */
     display_stats(location){
         // Shows the current floor and turn number.
         display.display_message(location, `Floor ${this.#floor_num} Turn: ${this.#turn_count}`);
     }
     /**
+     * Replaces the exit tile with a lock tile.
+     * Throws an error if there is no exit.
      * @returns {undefined}
      */
     lock(){
@@ -394,23 +428,26 @@ class GameMap{
         this.#set_grid(pos, lock_tile())
     }
     /**
+     * Replaces the lock tile with an exit one and heals the player to max.
+     * Throws an error if there is no lock or exit.
      * @returns {undefined}
      */
     unlock(){
-        // Unlocks the stairs after a boss fight.
-        // Fully heals the player
         var pos = this.#entity_list.get_exit_pos();
         this.#set_grid(pos, exit_tile());
         var player = this.get_player();
         player.health = player.max_health;
     }
     /**
-     * @param {MapEvent} event
+     * Schedules an event to happen at end of turn.
+     * @param {MapEvent} event The even to be added.
      */
     add_event(event){
         this.#events.push(event);
     }
     /**
+     * Executes and removed each scheduled event.
+     * Throws an error if one that isn't handled tries to happen or the player dies.
      * @returns {undefined}
      */
     resolve_events(){
@@ -418,6 +455,9 @@ class GameMap{
         for(var i = 0; i < this.#events.length; ++i){
             var event = this.#events[i];
             if(event.type === `earthquake`){
+                if(event.amount === undefined){
+                    throw new Error(`event is missing field`)
+                }
                 var rubble = [];
                 for(var j = 0; j < event.amount; ++j){
                     var space = this.random_empty();
@@ -431,6 +471,9 @@ class GameMap{
                 });
             }
             else if(event.type === `earthquake_rubble`){
+                if(event.rubble === undefined){
+                    throw new Error(`event is missing field`)
+                }
                 try{
                     for(var j = 0; j < event.rubble.length; ++j){
                         this.attack(event.rubble[j]);
@@ -443,10 +486,14 @@ class GameMap{
                     throw error;
                 }
             }
+            else{
+                throw new Error(`invalid event type`);
+            }
         }
         this.#events = new_events;
     }
     /**
+     * Clears the current floor and goes to the next one then generates it based on the current area.
      * @returns {undefined}
      */
     next_floor(){
@@ -468,16 +515,23 @@ class GameMap{
         display.display_message(ui_id.display_message, floor_description);
     }
     /**
-     * @returns {Tile}
+     * Gets a tile from a location on the grid.
+     * Throws an error if the location is out of bounds.
+     * @param {Point} location The location of the tile.
+     * @returns {Tile} The tile at that location
      */
     #get_grid(location){
+        this.check_bounds(location);
         return this.#grid[location.y][location.x];
     }
     /**
-     * @param {Point} location 
-     * @param {Tile} value 
+     * Puts a tile at the given location.
+     * t=Throws an error if the location is out of bounds.
+     * @param {Point} location Where to put the tile.
+     * @param {Tile} value The tile to place.
      */
     #set_grid(location, value){
+        this.check_bounds(location);
         this.#grid[location.y][location.x] = value;
     }
 }

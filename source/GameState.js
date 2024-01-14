@@ -3,12 +3,18 @@
 
 
 class GameState{
+    /** @type {GameMap} The map of the current floor.*/
     map;
+    /** @type {MoveDeck} The player's deck of cards.*/
     deck;
     constructor(){
+        // Starts the game on load.
         this.setup();
     }
-    /** @returns {void} */
+    /** 
+     * Function to set up or reset the game.
+     * @returns {void} 
+     */
     setup(){
         // Function ran on page load or on restart to set up the game.
         var start = STARTING_AREA();
@@ -25,9 +31,14 @@ class GameState{
         display.swap_screen(ui_id.stage);
     }
     /** 
-    * @param {PlayerCommand[]} behavior
-    * @param {number} hand_pos 
-    */
+     * Handles the effects of using a card, then passes to the enemies' turn.
+     * Takes the appropriate actions if
+     *      -The floor is completed
+     *      -The player dies
+     *      -The enemies' turn ends early
+     * @param {PlayerCommand[]} behavior A set of commands to be executed one by one.
+     * @param {number} hand_pos The position of the card that the player used in their hand.
+     */
     async player_turn(behavior, hand_pos){
         // Function to execute the outcome of the player's turn.
         display.display_message(ui_id.display_message, ``);
@@ -65,7 +76,9 @@ class GameState{
         }
     }
     /**
-     * @param {PlayerCommand} action 
+     * Handles an individual action of the player.
+     * Throws an error if a command of the wrong type is sent in.
+     * @param {PlayerCommand} action The command to be followed.
      */
     player_action(action){
         if(action.type === `attack`){
@@ -78,7 +91,10 @@ class GameState{
             throw new Error(`invalid action type`);
         }
     }
-    /** @returns {void} */
+    /** 
+     * Sets up the next floor then leaves the shop.
+     * @returns {void} 
+     */
     new_floor(){
         // Creates the next floor.
         this.map.next_floor();
@@ -88,7 +104,10 @@ class GameState{
         this.deck.display_hand(ui_id.hand_display);
         display.swap_screen(ui_id.stage);
     }
-    /** @returns {void} */
+    /** 
+     * Preps and swaps to the shop screen.
+     * @returns {void} 
+     */
     enter_shop(){
         // Gives the player the option to add or remove a card from their deck.
         // Their deck contents are also displayed.
@@ -103,7 +122,8 @@ class GameState{
         display.swap_screen(ui_id.shop);
     }
     /** 
-     * @param {string} table
+     * Creates the row of cards that can be added to the deck.
+     * @param {string} table The table where it should be displayed.
     */
     #generate_add_row(table){
         var add_list_generators = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
@@ -111,7 +131,7 @@ class GameState{
         for(var i = 0; i < add_list_generators.length; ++i){
             add_list[i] = add_list_generators[i]();
         }
-        add_list.unshift({pic: `${img_folder.other}plus.png`})
+        add_list.unshift(add_card_symbol())
         var make_add_card = function(gamestate){
             return function(card, position){
                 if(position > 0){
@@ -123,15 +143,16 @@ class GameState{
         display.add_tb_row(table, add_list, CARD_SCALE, make_add_card(this));
     }
     /** 
-     * @param {string} table
+     * Creates the row of cards that can be removed from the deck.
+     * @param {string} table The table where it should be displayed.
      * */
     #generate_remove_row(table){
         var remove_list = this.deck.get_rand_cards(REMOVE_CHOICE_COUNT);
-        if(remove_list){
-            remove_list.unshift({pic: `${img_folder.other}minus.png`});
+        if(remove_list.length > 0){
+            remove_list.unshift(remove_card_symbol());
         }
         else{
-            remove_list.unshift({pic: `${img_folder.other}x.png`});
+            remove_list.unshift(deck_at_minimum_symbol());
         }
         var make_remove_card = function(gamestate){
             return function(card, position){
@@ -144,8 +165,9 @@ class GameState{
         display.add_tb_row(table, remove_list, CARD_SCALE, make_remove_card(this));
     }
     /**
-    * @param {string} cause 
-    */
+     * Called when the player dies. Gives the option to restart.
+     * @param {string} cause Cause of death.
+     */
     game_over(cause){
         // Tells the user the game is over, prevents them fro m continuing, tells them the cause
         // and gives them the chance to retry.
@@ -164,12 +186,16 @@ class GameState{
         display.add_button_row(ui_id.move_buttons, restart_message, restart);
     }
     /**
-     * @param {Card} card 
+     * Adds a temporary card to the player's deck.
+     * @param {Card} card The card to be added.
      */
     give_temp_card(card){
         this.deck.add_temp(card);
     }
-    /** @returns {void} */
+    /** 
+     * Sets up the player's turn.
+     * @returns {void}
+     */
     prep_turn(){
         this.map.resolve_events();
         this.map.display();

@@ -5,12 +5,12 @@ const BOSS_FLOOR = [velociphile_floor, spider_queen_floor, lich_floor];
 
 
 /**
- * @callback FloorGenerator
- * @param {number} floor_number 
- * @param {Area} area 
- * @param {GameMap} map
+ * @callback FloorGenerator Function to populate a floor.
+ * @param {number} floor_number How many floors have they entered. Used to determine the combined difficulty of spawned enemies.
+ * @param {Area} area Which area of the dungeon are we in.
+ * @param {GameMap} map The gamemap which holds the floor.
  */
-/** @type {FloorGenerator}*/
+/** @type {FloorGenerator} The generator used by the default area to simulate no areas.*/
 function floor_generator(floor_num, area, map){
     if(!(floor_num % AREA_SIZE === 0) || Math.floor(floor_num / AREA_SIZE) - 1 >= BOSS_FLOOR.length){
         generate_normal_floor(floor_num, area, map);
@@ -20,7 +20,7 @@ function floor_generator(floor_num, area, map){
     }
 }
 
-/** @type {FloorGenerator}*/
+/** @type {FloorGenerator} The standard generator to add random enemies from the area whose combined difficulty scales based on the floor number.*/
 function generate_normal_floor(floor_num, area, map){
     var enemy_list = area.enemy_list;
     for(var i = floor_num * 2; i > 0;){

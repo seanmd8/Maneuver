@@ -5,72 +5,72 @@
 // Standardizes how information is displayed making it easier to create new display elements.
 
 /**
- * @typedef {Object} CellInfo
- * @property {string} pic
- * @property {string=} name
- * @property {number=} rotate
- * @property {boolean=} flip
+ * @typedef {Object} CellInfo The info required to create a table cell with an image.
+ * @property {string} pic The image to be displayed in the cell.
+ * @property {string=} name If name is provided, it will be used as mouseover text.
+ * @property {number=} rotate If rotate is provided (in 90 degree increments) the image will be rotated by that amount.
+ * @property {boolean=} flip If flip is provided, the image will be flipped horizontally.
  */
 
 /**
- * @typedef {Object} ButtonInfo
- * @property {string} description
+ * @typedef {Object} ButtonInfo The info required to create a button table cell.
+ * @property {string} description The text to be displayed in the button.
  */
 
 /**
- * @callback OnClickFunction
- * @param {CellInfo} tile
- * @param {number} position
+ * @callback OnClickFunction A function to be called when an element is clicked.
+ * @param {CellInfo} tile The object used to create this element.
+ * @param {number} position The column number of the element.
  */
 
 /**
- * @callback add_tb_row
- * @param {string} location
- * @param {CellInfo[]} row_contents
- * @param {number} scale
- * @param {OnClickFunction} [on_click = undefined]
- * @param {string} [background = undefined]
+ * @callback add_tb_row A function to add a row of images to a table.
+ * @param {string} location The ID of the table to be added to.
+ * @param {CellInfo[]} row_contents The objects used to construct the row's contents.
+ * @param {number} scale The size of the images.
+ * @param {OnClickFunction} [on_click = undefined] Optional parameter which is used to give onclick functionality to the images.
+ * @param {string} [background = undefined] Optional parameter which specifies a image to be layered underneath each other one.
  */
 
 /**
- * @callback add_button_row
- * @param {string} location
- * @param {ButtonInfo[]} row_contents
- * @param {OnClickFunction} [on_click = undefined]
+ * @callback add_button_row A function to add a row of buttons to a table.
+ * @param {string} location The ID of the table to be added to.
+ * @param {ButtonInfo[]} row_contents The objects used to construct the row's contents.
+ * @param {OnClickFunction} [on_click = undefined] Optional parameter which is used to give onclick functionality to the buttons.
  */
 
 /**
- * @callback display_message
- * @param {string} location
- * @param {string} message
+ * @callback display_message A function to display a message to an element.
+ * @param {string} location The ID of the element to display the message to.
+ * @param {string} message The message to be displayed.
  */
 
 /**
- * @callback clear_tb
- * @param {string} location
+ * @callback clear_tb A function to remove all rows from a table.
+ * @param {string} location The ID of the table to remove rows from.
  */
 
 /**
- * @callback swap_screen
- * @param {string} screen
+ * @callback swap_screen A function to swap which div from a group is visible
+ * @param {string} screen The ID of the div to swap to.
  */
 
 /**
- * @callback select
- * @param {string} location
- * @param {number} row_num
- * @param {number} column_num
- * @param {number} [border = 3]
- * @param {number} [color = 555]
+ * @callback select A function to outline one image from a row of images in a table.
+ * @param {string} location The ID of the table.
+ * @param {number} row_num The row number of the image.
+ * @param {number} column_num The column number of the image.
+ * @param {number} [border = 3] Optional parameter to specify border thickness
+ * @param {number} [color = 555] Optional parameter to specify border color.
  */
 
 /**
- * @callback press
- * @param {KeyboardEvent} key_press
+ * @callback press A function to handle keyboard controls.
+ * @param {KeyboardEvent} key_press The keystroke to handle.
  */
 
 /**
- * @typedef {Object} DisplayLibrary
+ * @typedef {Object} DisplayLibrary The library of functions used to handle displaying things in a specific language.
  * @property {add_tb_row} add_tb_row
  * @property {add_button_row} add_button_row
  * @property {display_message} display_message
@@ -82,7 +82,8 @@
 
 
 /**
- * @param {string} language 
+ * A function to get the display library for a given language.
+ * @param {string} language The language to get the library for.
  * @returns {DisplayLibrary}
  */
 function get_display(language){
@@ -96,17 +97,16 @@ function get_display(language){
 }
 
 /**
- * @callback get_transformation
- * @param {CellInfo} to_display
- * @returns {string}
+ * @callback get_transformation A helper function to format all css transformation properties detailed by an object into a single string.
+ * @param {CellInfo} to_display The object that contains which transformations to perform.
+ * @returns {string} String that can be used to apply the appropriate transformations.
  */
 
 /**
- * 
- * @callback html_constructor
+ * @callback html_constructor Typedef for a HTMLElement constructor
  * @returns {*}
  * 
- * @overload
+ * @overload 
  * @param {string} location
  * @returns {HTMLElement}
  * 
@@ -115,25 +115,26 @@ function get_display(language){
  * @param {html_constructor} type
  * @returns {HTMLElement}
  * 
- * @callback get_element
- * @param {string} location
- * @param {function} [type = undefined]
- * @returns {*}
+ * @callback get_element Function to get a html element, make sure it's not void, and optionally make sure it is the correct type.
+ * @param {string} location The ID of the element to get.
+ * @param {function} [type = undefined] Optional constructor of the type of element it should be.
+ * @returns {*} Returns the element which is optionally guarenteed to be the right type.
  */
 
 /**
- * @typedef HTML_Helpers
+ * @typedef HTML_Helpers A list of which helper functions are used by the DisplayHTML library.
  * @property {get_transformation} get_transformation
  * @property {get_element} get_element
  */
 
 
 /**
+ * Library containing functions used to diplay things in HTML.
+ * Implements DisplayLibrary.
  * @type {DisplayLibrary & HTML_Helpers}
- * 
  */
 const DisplayHTML = {
-    // Required
+    // Required functions.
     add_tb_row: function(location, row_contents, scale, on_click, background = undefined){
         var table = DisplayHTML.get_element(location, HTMLTableElement);
         var row_num = table.rows.length;
@@ -271,7 +272,7 @@ const DisplayHTML = {
         }
     },
 
-    // Not Required helper function
+    // Non Required helper functions.
     get_transformation: function(to_display){
         var transformation = ``;
         if(to_display.rotate !== undefined){
@@ -295,5 +296,6 @@ const DisplayHTML = {
 }
 Object.freeze(DisplayHTML);
 
+// Set up the display library and the onkeydown function.
 const display = get_display(MARKUP_LANGUAGE);
 document.onkeydown = display.press;

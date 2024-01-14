@@ -2,19 +2,25 @@
 // The MoveDeck class contains the player's current deck of move cards.
 
 class MoveDeck{
-    #list; // The list of all cards they have.
-    #library; // The list of cards in their draw pile.
-    #hand; // The list of cards curently usable.
-    #discard_pile; // The list of cards they have used since they reshuffled.
-    #id_count; // Used to give each card a unique id.
+    /** @type {Card[]} The list of all cards they have.*/
+    #decklist; // .
+    /** @type {Card[]} The list of cards in their draw pile.*/
+    #library; // 
+    /** @type {Card[]} The list of cards curently usable.*/
+    #hand; // 
+    /** @type {Card[]} The list of cards they have used since they reshuffled.*/
+    #discard_pile;
+    /** @type {number} Used to give each card a unique id.*/
+    #id_count;
     constructor(){
-        this.#list = [];
+        this.#decklist = [];
         this.#library = [];
         this.#hand = [];
         this.#discard_pile = [];
         this.#id_count = 0;
     }
     /**
+     * Resets the deck to the decklist then deals a new hand.
      * @returns {undefined}
      */
     deal(){
@@ -22,16 +28,20 @@ class MoveDeck{
         this.#library = [];
         this.#hand = [];
         this.#discard_pile = [];
-        for(var i = 0; i < this.#list.length; ++i){
-            this.#library.push(this.#list[i]);
+        for(var i = 0; i < this.#decklist.length; ++i){
+            this.#library.push(this.#decklist[i]);
         }
         this.#library = randomize_arr(this.#library);
         for(var i = 0; i < HAND_SIZE; ++i){
-            this.#hand.push(this.#library.pop());
+            var top_card = this.#library.pop();
+            if(top_card !== undefined){
+                this.#hand.push(top_card);
+            }
         }
     }
     /**
-     * @param {number} hand_pos 
+     * Discards the card at the given position in the hand, then draws a new one.
+     * @param {number} hand_pos The position of the card which should be discarded.
      */
     discard(hand_pos){
         // Makes player discard the card at position x from their hand and draw a new one. 
@@ -41,38 +51,47 @@ class MoveDeck{
             throw new Error(`hand out of bounds`);
         }
         if(this.#library.length === 0){
-            while(this.#discard_pile.length != 0){
-                this.#library.push(this.#discard_pile.pop());
+            var top_discard = this.#discard_pile.pop();
+            while(top_discard !== undefined){
+                this.#library.push(top_discard);
+                top_discard = this.#discard_pile.pop();
             }
             this.#library = randomize_arr(this.#library);
         }
         if(!(this.#hand[hand_pos].temp !== undefined && this.#hand[hand_pos].temp === true)){
             this.#discard_pile.push(this.#hand[hand_pos]);
         }
-        this.#hand[hand_pos] = this.#library.pop();
+        var top_card = this.#library.pop();
+        if(top_card !== undefined){
+            this.#hand[hand_pos] = top_card;
+        }
     }
     /**
-     * @param {Card} card 
+     * Adds a new card to the decklist.
+     * @param {Card} new_card Card to add.
      */
-    add(card){
+    add(new_card){
         // Adds a new card to the list.
-        card.id = this.#id_count;
+        new_card.id = this.#id_count;
         this.#id_count++;
-        this.#list.push(card);
+        this.#decklist.push(new_card);
     }
     /**
-     * @param {Card} card 
+     * Adds a new card to the library after giving it a temp tag.
+     * Temp cards are removed when deal is called (at the end of the floor) or when used.
+     * @param {Card} new_card Card to add.
      */
-    add_temp(card){
+    add_temp(new_card){
         // Adds a temp card which will be removed at the end of the floor by only adding it to the library, not the list
-        card.id = this.#id_count;
-        card.temp = true;
+        new_card.id = this.#id_count;
+        new_card.temp = true;
         this.#id_count++;
-        this.#library.push(card);
+        this.#library.push(new_card);
         this.#library = randomize_arr(this.#library);
     }
     /**
-     * @param {string} table 
+     * Displays the hand.
+     * @param {string} table Where it should be dispalyed.
      */
     display_hand(table){
         // Displays the hand to the given table.
@@ -87,37 +106,41 @@ class MoveDeck{
         display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this));
     }
     /**
-     * @param {string} table 
+     * Displays the whole deck
+     * @param {string} table Where it should be displayed.
      */
     display_all(table){
         // Displays the deck list to the given table.
         display.display_message(ui_id.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
-        for(var i = 0; i < Math.ceil(this.#list.length / DECK_DISPLAY_WIDTH); ++i){
-            display.add_tb_row(table, this.#list.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH) ,CARD_SCALE)
+        for(var i = 0; i < Math.ceil(this.#decklist.length / DECK_DISPLAY_WIDTH); ++i){
+            display.add_tb_row(table, this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH) ,CARD_SCALE)
             
         }
     }
     /**
-     * @param {number} size 
-     * @returns {Card[]}
+     * Gets a random list of cards from the decklist with no repeats.
+     * If the decklist is at minimum size, returns an empty list instead.
+     * @param {number} size number of cards to get.
+     * @returns {Card[]} The list of random cards.
      */
     get_rand_cards(size){
-        if(this.#list.length <= MIN_DECK_SIZE){
+        if(this.#decklist.length <= MIN_DECK_SIZE){
             return [];
         }
-        return rand_no_repeates(this.#list, size);
+        return rand_no_repeates(this.#decklist, size);
     }
     /**
-     * @param {number} id 
-     * @returns {boolean}
+     * Removes a card from the list.
+     * @param {number} id The ID of the card to remove.
+     * @returns {boolean} Returns true if the card was removed and false otherwise.
      */
     remove(id){
         // Removes the card with the given id from the deck.
         // Returns false if it could not be found.
-        for(var i = 0; i < this.#list.length; ++i){
-            if(this.#list[i].id === id){
-                this.#list[i] = this.#list[this.#list.length - 1];
-                this.#list.pop();
+        for(var i = 0; i < this.#decklist.length; ++i){
+            if(this.#decklist[i].id === id){
+                this.#decklist[i] = this.#decklist[this.#decklist.length - 1];
+                this.#decklist.pop();
                 return true;
             }
         }
