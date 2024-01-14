@@ -532,6 +532,18 @@ function rat_ai(location, difference, map, self){
     }
     ++self.cycle;
 }
+/** @type {AIFunction} AI used by shadow scouts.*/
+function shadow_scout_ai(location, difference, map, self){
+    if( self.cycle === undefined || 
+        self.pic_arr === undefined ||
+        self.description_arr === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    self.cycle = 1 - self.cycle;
+    self.pic = self.pic_arr[self.cycle];
+    self.description = self.description_arr[self.cycle];
+    spider_ai(location, difference, map, self);
+}
 
 
 // Boss AIs

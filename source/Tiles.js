@@ -34,6 +34,7 @@
  * 
  * // Properties used to determing aesthetics //
  * @property {string[]=} pic_arr Used when the tile sometimes changes images.
+ * @property {string[]=} description_arr Used when the tile sometimes changes descriptions.
  * @property {number=} rotate How much to rotate the image when displaying it. Must be in 90 degree increments.
  * @property {boolean=} flip If the image should be horizontally flipped.
  * 
@@ -61,7 +62,7 @@
 const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, shadow_knight_tile, 
     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
-    clay_golem_tile, vinesnare_bush_tile, rat_tile];
+    clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile];
 
 // Non-Enemy tiles
 /** @type {TileGenerator} Empty space.*/
@@ -449,6 +450,23 @@ function rat_tile(){
         flip: random_num(2) === 0,
         cycle: 1
 
+    }
+}
+function shadow_scout_tile(){
+    var pic_arr = [`${img_folder.tiles}empty.png`, `${img_folder.tiles}shadow_scout.png`];
+    var description_arr = [empty_description, shadow_scout_description];
+    var starting_cycle = random_num(2);
+    return {
+        type: `enemy`,
+        name: `shadow scout`,
+        pic: pic_arr[1],
+        description: description_arr[1], 
+        health: 1,
+        difficulty: 3,
+        behavior: shadow_scout_ai,
+        pic_arr,
+        description_arr,
+        cycle: starting_cycle
     }
 }
 
