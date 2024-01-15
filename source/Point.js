@@ -110,3 +110,35 @@ function point_equals(p1, p2){
         throw Error(`invalid type`);
     }
 }
+
+/**
+ * Adds each element in one point array to each eelment in another or a number array.
+ * Throws an error if their length doesn't match.
+ * @param {Point[]} a1 The point array being added to.
+ * @param {Point[] | number[]} a2 The point or number array to add to it.
+ * @returns  {Point[]} The resulting point array.
+ */
+function add_point_arr(a1, a2){
+    if(a1.length != a2.length){
+        throw new Error(`unequal array lengths`);
+    }
+    var sum_arr = [];
+    for(var i = 0; i < a1.length; ++i){
+        sum_arr.push(a1[i].plus(a2[i]));
+    }
+    return sum_arr;
+}
+
+/**
+ * Adds a point or number to each element in a point array.
+ * @param {Point[]} arr The point array being added to.
+ * @param {Point | number} pt The point or number to add to it.
+ * @returns  {Point[]} The resulting point array.
+ */
+function add_to_point_arr(arr, pt){
+    var sum_arr = [];
+    for(var i = 0; i < arr.length; ++i){
+        sum_arr.push(arr[i].plus(pt));
+    }
+    return sum_arr;
+}

@@ -28,13 +28,14 @@
  * 
  * // Functions controlling behavior. //
  * @property {AIFunction=} behavior What it does on it's turn.
+ * @property {TelegraphFunction=} telegraph Used to show which squares it can attack on it's next turn.
  * @property {AIFunction=} on_enter What it does when something tries to move onto it.
  * @property {AIFunction=} on_hit What it does when attacked.
  * @property {AIFunction=} on_death What it does when killed.
  * 
  * // Properties used to determing aesthetics //
  * @property {string[]=} pic_arr Used when the tile sometimes changes images.
- * @property {string[]=} description_arr Used when the tile sometimes changes descriptions.
+ * @property {TileGenerator[]=} look_arr Used when the tile sometimes is disguised as another tile.
  * @property {number=} rotate How much to rotate the image when displaying it. Must be in 90 degree increments.
  * @property {boolean=} flip If the image should be horizontally flipped.
  * 
@@ -50,6 +51,7 @@
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
  * @property {number=} id Given a unique one when added to a EntityList.
+ * @property {string=} ishit Used to telegraph and show which spaces have been attacked.
  */
 
 /**
@@ -155,6 +157,7 @@ function fireball_tile(){
         pic: `${img_folder.tiles}fireball.png`,
         description: fireball_description,
         behavior: fireball_ai,
+        telegraph: fireball_telegraph,
         on_enter: fireball_on_enter,
         pic_arr,
         rotate: 0,
@@ -173,7 +176,8 @@ function spider_tile(){
         description: spider_description,
         health: 1,
         difficulty: 1,
-        behavior: spider_ai
+        behavior: spider_ai,
+        telegraph: spider_telegraph
     }
 }
 /** @type {TileGenerator} */
@@ -186,6 +190,7 @@ function turret_h_tile(){
         health: 1,
         difficulty: 2,
         behavior: turret_h_ai,
+        telegraph: turret_h_telegraph
     }
 }
 /** @type {TileGenerator} */
@@ -197,7 +202,8 @@ function turret_d_tile(){
         description: turret_d_description,
         health: 1,
         difficulty: 2,
-        behavior: turret_d_ai
+        behavior: turret_d_ai,
+        telegraph: turret_d_telegraph
     }
 }
 /** @type {TileGenerator} */
@@ -219,6 +225,7 @@ function turret_r_tile(){
         health: 1,
         difficulty: 2,
         behavior: turret_r_ai,
+        telegraph: turret_r_telegraph,
         pic_arr,
         rotate: starting_rotation,
         flip: (spin_direction === -1),
@@ -236,6 +243,7 @@ function scythe_tile(){
         health: 1,
         difficulty: 3,
         behavior: scythe_ai,
+        telegraph: scythe_telegraph,
         rotate: 90 * random_num(4)
     }
 }
@@ -249,6 +257,7 @@ function shadow_knight_tile(){
         health: 2,
         difficulty: 4,
         behavior: shadow_knight_ai,
+        telegraph: shadow_knight_telegraph
     }
 }
 /** @type {TileGenerator} */
@@ -278,6 +287,7 @@ function ram_tile(){
         health: 2,
         difficulty: 5,
         behavior: ram_ai,
+        telegraph: ram_telegraph,
         pic_arr,
         cycle: starting_cycle
     }
@@ -292,6 +302,7 @@ function large_porcuslime_tile(){
         health: 3,
         difficulty: 8,
         behavior: large_porcuslime_ai,
+        telegraph: large_porcuslime_telegraph
     }
 }
 /** @type {TileGenerator} */
@@ -306,6 +317,7 @@ function medium_porcuslime_tile(){
         health: 2,
         difficulty: 5,
         behavior: medium_porcuslime_ai,
+        telegraph: medium_porcuslime_telegraph,
         pic_arr,
         cycle: starting_cycle
     }
@@ -319,8 +331,9 @@ function small_h_porcuslime_tile(){
         description: small_h_porcuslime_description,
         health: 1,
         difficulty: 3,
-        behavior: porcuslime_horizontal_ai
-    }
+        behavior: porcuslime_horizontal_ai,
+        telegraph: porcuslime_horizontal_telegraph
+        }
 }
 /** @type {TileGenerator} */
 function small_d_porcuslime_tile(){
@@ -332,6 +345,7 @@ function small_d_porcuslime_tile(){
         health: 1,
         difficulty: 3,
         behavior: porcuslime_diagonal_ai,
+        telegraph: porcuslime_diagonal_telegraph,
     }
 }
 /** @type {TileGenerator} */
@@ -387,6 +401,7 @@ function noxious_toad_tile(){
         health: 1,
         difficulty: 4,
         behavior: noxious_toad_ai,
+        telegraph: noxious_toad_telegraph,
         pic_arr,
         cycle: starting_cycle
     }
@@ -402,6 +417,7 @@ function vampire_tile(){
         max_health: 2,
         difficulty: 5,
         behavior: vampire_ai,
+        telegraph: vampire_telegraph,
         on_hit: vampire_hit
     }
 }
@@ -415,6 +431,7 @@ function clay_golem_tile(){
         health: 3,
         difficulty: 4,
         behavior: clay_golem_ai,
+        telegraph: spider_telegraph,
         on_hit: clay_golem_hit,
         cycle: 1
     }
@@ -432,6 +449,7 @@ function vinesnare_bush_tile(){
         health: 1,
         difficulty: 4,
         behavior: vinesnare_bush_ai,
+        telegraph: spider_telegraph,
         pic_arr,
         cycle: starting_cycle,
         range
@@ -447,25 +465,26 @@ function rat_tile(){
         health: 1,
         difficulty: 2,
         behavior: rat_ai,
+        telegraph: rat_telegraph,
         flip: random_num(2) === 0,
         cycle: 1
 
     }
 }
+/** @type {TileGenerator} */
 function shadow_scout_tile(){
-    var pic_arr = [`${img_folder.tiles}empty.png`, `${img_folder.tiles}shadow_scout.png`];
-    var description_arr = [empty_description, shadow_scout_description];
+    var look_arr = [empty_tile, shadow_scout_tile];
     var starting_cycle = random_num(2);
     return {
         type: `enemy`,
         name: `shadow scout`,
-        pic: pic_arr[1],
-        description: description_arr[1], 
+        pic: `${img_folder.tiles}shadow_scout.png`,
+        description: shadow_scout_description, 
         health: 1,
         difficulty: 3,
         behavior: shadow_scout_ai,
-        pic_arr,
-        description_arr,
+        telegraph: spider_telegraph,
+        look_arr,
         cycle: starting_cycle
     }
 }
@@ -481,6 +500,7 @@ function velociphile_tile(){
         health: 3,
         death_message: velociphile_death_message,
         behavior: velociphile_ai,
+        telegraph: velociphile_telegraph,
         on_death: boss_death
     }
 }
@@ -494,6 +514,7 @@ function spider_queen_tile(){
         health: 3,
         death_message: spider_queen_death_message,
         behavior: spider_ai,
+        telegraph: spider_telegraph,
         on_hit: spider_queen_hit,
         on_death: boss_death
     }
@@ -510,13 +531,14 @@ function lich_tile(){
         spell_generator(rest_spell, rest_description, `${img_folder.tiles}lich_rest.png`)
     ];
     var summons = [
-        spider_tile,
+        shadow_scout_tile,
         scythe_tile,
         shadow_knight_tile,
         ram_tile,
         medium_porcuslime_tile,
         clay_golem_tile,
-        rat_tile
+        rat_tile,
+        vampire_tile
     ];
     var starting_cycle = 1;
     return{

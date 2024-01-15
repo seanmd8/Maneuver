@@ -96,8 +96,8 @@ class MoveDeck{
         display.clear_tb(table);
         var make_prep_move = function(deck){
             return function(card, hand_pos){
-                display.select(ui_id.hand_display, 0, hand_pos);
-                card.options.show_buttons(ui_id.move_buttons, hand_pos);
+                display.select(ui_id.hand_display, 0, hand_pos.x);
+                card.options.show_buttons(ui_id.move_buttons, hand_pos.x);
                 var deck = deck;
             }
         }
@@ -110,7 +110,7 @@ class MoveDeck{
     display_all(table){
         display.display_message(ui_id.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
         for(var i = 0; i < Math.ceil(this.#decklist.length / DECK_DISPLAY_WIDTH); ++i){
-            display.add_tb_row(table, this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH) ,CARD_SCALE)
+            display.add_tb_row(table, this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH), CARD_SCALE)
             
         }
     }

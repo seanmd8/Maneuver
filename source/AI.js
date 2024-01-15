@@ -535,13 +535,11 @@ function rat_ai(location, difference, map, self){
 /** @type {AIFunction} AI used by shadow scouts.*/
 function shadow_scout_ai(location, difference, map, self){
     if( self.cycle === undefined || 
-        self.pic_arr === undefined ||
-        self.description_arr === undefined){
+        self.look_arr === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
     self.cycle = 1 - self.cycle;
-    self.pic = self.pic_arr[self.cycle];
-    self.description = self.description_arr[self.cycle];
+    shapeshift(self, self.look_arr[self.cycle]);
     spider_ai(location, difference, map, self);
 }
 
@@ -599,7 +597,7 @@ function lich_ai(location, difference, map, self){
         self.cycle = 0;
     }
     else{
-        self.cycle = random_num(self.spells.length);
+        self.cycle = random_num(self.spells.length - 1) + 1;
     }
     self.description = `${lich_description}${self.spells[self.cycle].description}`;
     self.pic = self.spells[self.cycle].pic;

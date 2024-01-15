@@ -536,13 +536,11 @@ function rat_ai(location, difference, map, self){
 /** @type {AIFunction} AI used by shadow scouts.*/
 function shadow_scout_ai(location, difference, map, self){
     if( self.cycle === undefined || 
-        self.pic_arr === undefined ||
-        self.description_arr === undefined){
+        self.look_arr === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
     self.cycle = 1 - self.cycle;
-    self.pic = self.pic_arr[self.cycle];
-    self.description = self.description_arr[self.cycle];
+    shapeshift(self, self.look_arr[self.cycle]);
     spider_ai(location, difference, map, self);
 }
 
@@ -600,7 +598,7 @@ function lich_ai(location, difference, map, self){
         self.cycle = 0;
     }
     else{
-        self.cycle = random_num(self.spells.length);
+        self.cycle = random_num(self.spells.length - 1) + 1;
     }
     self.description = `${lich_description}${self.spells[self.cycle].description}`;
     self.pic = self.spells[self.cycle].pic;
@@ -933,7 +931,7 @@ class ButtonGrid{
         display.clear_tb(table_name);
 
         var make_press_button = function(hand_position){
-            return function(button){
+            return function(button, position){
                 if(button.behavior){
                     GS.player_turn(button.behavior, hand_position)
                 }
@@ -1819,7 +1817,7 @@ const turret_d_description = `Turret: Does not move. Fires beams diagonally that
 const turret_r_description = `Turret: Does not move. Fires beams in two directions hitting the first thing in their path. Rotates every turn.`;
 const scythe_description = `Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.`;
 const shadow_knight_description = `Shadow Knight: Moves in an L shape. If it tramples the player, it will move again.`;
-const spider_web_description = [`Spider Web: Does not move. Spawns a spider every `, ` turns.`];
+const spider_web_description = [`Spider Web: Does not move or attack. Spawns a spider every `, ` turns.`];
 const ram_description = `Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.`;
 const large_porcuslime_description = `Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when hit.`;
 const medium_porcuslime_description = `Medium Porcuslime: Moves towards the player 1 space and attacks in that direction. Alternates between orthoganal and diagonal movement. Splits when hit.`;
@@ -1915,7 +1913,14 @@ const C = `C`;
 /**
  * @callback OnClickFunction A function to be called when an element is clicked.
  * @param {CellInfo} tile The object used to create this element.
- * @param {number} position The column number of the element.
+ * @param {Point} position The row and column of the element.
+ */
+
+/**
+ * @callback BackgroundCreator A function to be called when an element is clicked.
+ * @param {CellInfo} tile The object used to create this element.
+ * @param {Point} position The row and column of the element.
+ * @returns {string[]} An array of the pictures to layer in the background.
  */
 
 /**
@@ -1924,7 +1929,7 @@ const C = `C`;
  * @param {CellInfo[]} row_contents The objects used to construct the row's contents.
  * @param {number} scale The size of the images.
  * @param {OnClickFunction} [on_click = undefined] Optional parameter which is used to give onclick functionality to the images.
- * @param {string} [background = undefined] Optional parameter which specifies a image to be layered underneath each other one.
+ * @param {BackgroundCreator} [background = undefined] Optional parameter which specifies a image to be layered underneath each other one.
  */
 
 /**
@@ -2048,21 +2053,25 @@ const DisplayHTML = {
             cell.style.height = `${scale}px`;
             cell.style.width = `${scale}px`;
             cell.classList.add(`relative`);
-            if(!(on_click === undefined)){
-                cell.onclick = make_on_click(to_display, i, on_click);
+            if(on_click !== undefined){
+                cell.onclick = make_on_click(to_display, new Point(i, row_num), on_click);
             }
             if(to_display.name !== undefined){
                 cell.title = to_display.name;
             }
-            if(!(background === undefined)){
-                var bottom_img = document.createElement(`img`);
-                bottom_img.id = `${location} ${row_num} ${i} background img`;
-                bottom_img.src = `${img_folder.src}${background}`;
-                bottom_img.height = scale;
-                bottom_img.width = scale;
-                bottom_img.classList.add(`absolute`);
-                bottom_img.style.position = `absolute`;
-                cell.append(bottom_img);
+            if(background !== undefined){
+                var background_arr = background(to_display, new Point(i, row_num));
+                for(var j = 0; j < background_arr.length; ++j){
+                    var bottom_img = document.createElement(`img`);
+                    bottom_img.id = `${location} ${row_num} ${i} background ${j} img`;
+                    bottom_img.src = `${img_folder.src}${background_arr[j]}`;
+                    bottom_img.height = scale;
+                    bottom_img.width = scale;
+                    bottom_img.classList.add(`absolute`);
+                    bottom_img.style.position = `absolute`;
+                    cell.append(bottom_img);
+                }
+                
             }
             var top_img = document.createElement(`img`);
             top_img.id = `${location} ${row_num} ${i} img`;
@@ -2091,7 +2100,7 @@ const DisplayHTML = {
             cell.type = `button`;
             cell.id = `${location} ${row_num} ${i}`;
             if(!(on_click === undefined)){
-                cell.onclick = make_on_click(row_contents[i], i, on_click);
+                cell.onclick = make_on_click(row_contents[i], new Point(i, row_num), on_click);
             }
             cell.value = row_contents[i].description;
             row.append(cell);
@@ -2539,6 +2548,21 @@ class GameMap{
         }
     }
     /**
+     * Checks if a point is within bounds.
+     * @param {Point} location The point to check.
+     * @returns {boolean} If the point is in bounds.
+     */
+    is_in_bounds(location){
+        // Throws an error if x or y is out of bounds.
+        if(location.x < 0 || location.x >= this.#x_max){
+            return false;
+        }
+        if(location.y < 0 || location.y >= this.#y_max){
+            return false;
+        }
+        return true;
+    }
+    /**
      * Checks if a location is in bounds and empty.
      * @param {Point} location The point to check.
      * @returns {boolean} Returns true if the location is both in bounds and empty and false otherwise.
@@ -2642,7 +2666,9 @@ class GameMap{
         return true;
     }
     /**
-     * Function to display the grid.
+     * Function to display the gamemap and the player's health.
+     * Clicking on a tile will give info about it.
+     * Resets tiles marked as hit afterwards.
      * @returns {undefined}
      */
     display(){
@@ -2651,31 +2677,41 @@ class GameMap{
         // Shows the player's remaining health below.
         display.clear_tb(ui_id.map_display);
         var make_on_click = function(gameMap){
-            return function(tile){
+            return function(tile, location){
                 var description = tile_description(tile);
                 display.display_message(ui_id.display_message, description);
-                var gameMap = gameMap;
+                gameMap.clear_telegraphs();
+                if(tile.telegraph !== undefined && !tile.stun){
+                    gameMap.display_telegraph(tile.telegraph(location, gameMap, tile));
+                }
+                gameMap.display();
             }
         }
-        for (var y = 0; y < this.#y_max; y++){
-            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), this.#area.background);
+        var make_background = function(area){
+            return function(tile, location){
+                var backgrounds = [area.background];
+                if(tile.ishit !== undefined){
+                    backgrounds.push(tile.ishit);
+                }
+                return backgrounds;
+            }
+        }        
+        for(var y = 0; y < this.#y_max; y++){
+            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), make_background(this.#area));
         }
         display.clear_tb(ui_id.health_display);
         display_health(this.get_player(), TILE_SCALE);
-        this.clear_empty()
+        this.clear_telegraphs()
 	}
     /**
      * Clears all hits and other alternate pics from empty tiles in the grid.
      * @returns {undefined}
      */
-    clear_empty(){
+    clear_telegraphs(){
         for(var y = 0; y < this.#y_max; ++y){
             for(var x = 0; x < this.#x_max; ++x){
                 var tile = this.#get_grid(new Point(x, y));
-                if(tile.type === `empty`){
-                    tile.pic = `${img_folder.tiles}empty.png`;
-                    tile.description = empty_description;
-                }
+                tile.ishit = undefined;
             }
         }
     }
@@ -2776,7 +2812,7 @@ class GameMap{
             }
             if(target.health <= 0){
                 this.#set_grid(location, empty_tile());
-                this.#get_grid(location).pic = `${img_folder.tiles}hit.png`;
+                this.#get_grid(location).ishit = `${img_folder.tiles}hit.png`;
                 if(target.type === `enemy`){
                     if(target.id === undefined){
                         throw new Error(`enemy missing id`)
@@ -2801,7 +2837,7 @@ class GameMap{
             return true;
         }
         if(target.type === `empty`){
-            target.pic = `${img_folder.tiles}hit.png`;
+            target.ishit = `${img_folder.tiles}hit.png`;
         }
         return false;
     }
@@ -2844,7 +2880,6 @@ class GameMap{
      * @returns {undefined}
      */
     lock(){
-        // Locks the stairs for a boss fight.
         var pos = this.#entity_list.get_exit_pos();
         this.#set_grid(pos, lock_tile())
     }
@@ -2883,7 +2918,7 @@ class GameMap{
                 for(var j = 0; j < event.amount; ++j){
                     var space = this.random_empty();
                     this.#get_grid(space).description = falling_rubble_description;
-                    this.#get_grid(space).pic = `${img_folder.tiles}falling_rubble.png`;
+                    this.#get_grid(space).ishit = `${img_folder.tiles}falling_rubble.png`;
                     rubble.push(space);
                 }
                 new_events.push({
@@ -2954,6 +2989,17 @@ class GameMap{
     #set_grid(location, value){
         this.check_bounds(location);
         this.#grid[location.y][location.x] = value;
+    }
+    /**
+     * Marks which positions an entity can attack during it's next turn.
+     * @param {Point[]} positions A list of positions to mark.
+     */
+    display_telegraph(positions){
+        for(var position of positions){
+            if(this.is_in_bounds(position)){
+                this.#get_grid(position).ishit = `${img_folder.tiles}hit_telegraph.png`;
+            }
+        }
     }
 }// ----------------GameState.js----------------
 // File containing a class to control the general flow of the game.
@@ -3091,7 +3137,7 @@ class GameState{
         add_list.unshift(add_card_symbol())
         var make_add_card = function(gamestate){
             return function(card, position){
-                if(position > 0){
+                if(position.x > 0){
                     gamestate.deck.add(card);
                     gamestate.new_floor();
                 }
@@ -3113,7 +3159,7 @@ class GameState{
         }
         var make_remove_card = function(gamestate){
             return function(card, position){
-                if(position > 0){
+                if(position.x > 0){
                     gamestate.deck.remove(card.id);
                     gamestate.new_floor();
                 }
@@ -3133,7 +3179,7 @@ class GameState{
         display.clear_tb(ui_id.move_buttons);
         display.display_message(ui_id.display_message, `${game_over_message}${cause}.`);
         display.clear_tb(ui_id.move_buttons);
-        var restart = function(){
+        var restart = function(message, position){
             display.clear_tb(ui_id.move_buttons);
             this.setup();
         };
@@ -3721,8 +3767,8 @@ class MoveDeck{
         display.clear_tb(table);
         var make_prep_move = function(deck){
             return function(card, hand_pos){
-                display.select(ui_id.hand_display, 0, hand_pos);
-                card.options.show_buttons(ui_id.move_buttons, hand_pos);
+                display.select(ui_id.hand_display, 0, hand_pos.x);
+                card.options.show_buttons(ui_id.move_buttons, hand_pos.x);
                 var deck = deck;
             }
         }
@@ -3735,7 +3781,7 @@ class MoveDeck{
     display_all(table){
         display.display_message(ui_id.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
         for(var i = 0; i < Math.ceil(this.#decklist.length / DECK_DISPLAY_WIDTH); ++i){
-            display.add_tb_row(table, this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH) ,CARD_SCALE)
+            display.add_tb_row(table, this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH), CARD_SCALE)
             
         }
     }
@@ -3880,7 +3926,274 @@ function point_equals(p1, p2){
     else{
         throw Error(`invalid type`);
     }
-}// ----------------Tiles.js----------------
+}
+
+/**
+ * Adds each element in one point array to each eelment in another or a number array.
+ * Throws an error if their length doesn't match.
+ * @param {Point[]} a1 The point array being added to.
+ * @param {Point[] | number[]} a2 The point or number array to add to it.
+ * @returns  {Point[]} The resulting point array.
+ */
+function add_point_arr(a1, a2){
+    if(a1.length != a2.length){
+        throw new Error(`unequal array lengths`);
+    }
+    var sum_arr = [];
+    for(var i = 0; i < a1.length; ++i){
+        sum_arr.push(a1[i].plus(a2[i]));
+    }
+    return sum_arr;
+}
+
+/**
+ * Adds a point or number to each element in a point array.
+ * @param {Point[]} arr The point array being added to.
+ * @param {Point | number} pt The point or number to add to it.
+ * @returns  {Point[]} The resulting point array.
+ */
+function add_to_point_arr(arr, pt){
+    var sum_arr = [];
+    for(var i = 0; i < arr.length; ++i){
+        sum_arr.push(arr[i].plus(pt));
+    }
+    return sum_arr;
+}// ----------------TelegraphAttacks.js----------------
+// Contains functions to get the points that a enemy could attack on it's next turn.
+
+const horizontal_directions = [new Point(1, 0), new Point(-1, 0), new Point(0, -1), new Point(0, 1)];
+const diagonal_directions = [new Point(1, 1), new Point(-1, 1), new Point(1, -1), new Point(-1, -1)];
+const all_directions = horizontal_directions.concat(diagonal_directions);
+
+/**
+ * @callback TelegraphFunction Function to get the points that a entity can attack on it's next turn.
+ * @param {Point} location Where the entity currently is.
+ * @param {GameMap} map The map it's in.
+ * @param {Tile} self Info about the entity.
+ * @returns {Point[]} An array of the points on the map it could currently attack.
+ */
+
+/** @type {TelegraphFunction} */
+function fireball_telegraph(location, map, self){
+    if(self.direction === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    return [location.plus(self.direction)];
+}
+/** @type {TelegraphFunction} */
+function spider_telegraph(location, map, self){
+    return add_to_point_arr(all_directions, location);
+}
+/** @type {TelegraphFunction} */
+function turret_h_telegraph(location, map, self){
+    var attacks = [];
+    for(var direction of horizontal_directions){
+        attacks = attacks.concat(get_points_in_direction(location, direction, map));
+    }
+    return attacks;
+}
+/** @type {TelegraphFunction} */
+function turret_d_telegraph(location, map, self){
+    var attacks = [];
+    for(var direction of diagonal_directions){
+        attacks = attacks.concat(get_points_in_direction(location, direction, map));
+    }
+    return attacks;
+}
+/** @type {TelegraphFunction} */
+function turret_r_telegraph(location, map, self){
+    if(self.cycle === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    var attacks = [];
+    
+    switch(self.cycle){
+        case 0:
+            // Adds N and S.
+            attacks = attacks.concat(get_points_in_direction(location, new Point(0, -1), map));
+            attacks = attacks.concat(get_points_in_direction(location, new Point(0, 1), map));
+            break;
+        case 1:
+            // Adds NE and SW.
+            attacks = attacks.concat(get_points_in_direction(location, new Point(1, -1), map));
+            attacks = attacks.concat(get_points_in_direction(location, new Point(-1, 1), map));
+            break;
+        case 2:
+            // Adds E and W.
+            attacks = attacks.concat(get_points_in_direction(location, new Point(-1, 0), map));
+            attacks = attacks.concat(get_points_in_direction(location, new Point(1, 0), map));
+            break;
+        case 3:
+            // Adds SE and NW.
+            attacks = attacks.concat(get_points_in_direction(location, new Point(1, 1), map));
+            attacks = attacks.concat(get_points_in_direction(location, new Point(-1, -1), map));
+            break;
+        default:
+            throw new Error(`Improper case for ${self.name}`);
+    }
+    return attacks;
+}
+/** @type {TelegraphFunction} */
+function scythe_telegraph(location, map, self){
+    var attacks = [];
+    for(var direction of diagonal_directions){
+        var current = location.copy();
+        for(var i = 0; i < 3 && map.check_empty(current.plus_equals(direction)); ++i){
+            attacks.push(current.plus(direction.times(new Point(-1, 0))));
+            attacks.push(current.plus(direction.times(new Point(0, -1))));
+        }
+    }
+    return attacks;
+}
+/** @type {TelegraphFunction} */
+function shadow_knight_telegraph(location, map, self){
+    var attacks = [];
+    var Ls = [new Point(1, 2), new Point(2, 1)];
+    for(var L of  Ls){
+        for(var transformation of diagonal_directions){
+            attacks.push(L.times(transformation).plus(location));
+        }
+    }
+    return attacks;
+}
+/** @type {TelegraphFunction} */
+function ram_telegraph(location, map, self){
+    if(self.cycle === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    if(self.cycle === 0){
+        return [];
+    }
+    return turret_h_telegraph(location, map, self);
+}
+/** @type {TelegraphFunction} */
+function large_porcuslime_telegraph(location, map, self){
+    return porcuslime_diagonal_telegraph(location, map, self).concat(porcuslime_horizontal_telegraph(location, map, self));
+}
+/** @type {TelegraphFunction} */
+function medium_porcuslime_telegraph(location, map, self){
+    if(self.cycle === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    if(self.cycle === 0){
+        return porcuslime_horizontal_telegraph(location, map, self);
+    }
+    return porcuslime_diagonal_telegraph(location, map, self);
+}
+/** @type {TelegraphFunction} */
+function porcuslime_diagonal_telegraph(location, map, self){
+    return move_attack_telegraph(location, map, diagonal_directions);
+}
+/** @type {TelegraphFunction} */
+function porcuslime_horizontal_telegraph(location, map, self){
+    return move_attack_telegraph(location, map, horizontal_directions);
+}
+/** @type {TelegraphFunction} */
+function noxious_toad_telegraph(location, map, self){
+    if(self.cycle === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    var attacks = [];
+    if(self.cycle === 1){
+        return attacks;
+    }
+    for(var direction of horizontal_directions){
+        var move = location.plus(direction.times(2));
+        if(map.check_empty(move)){
+            attacks = attacks.concat(spider_telegraph(move, map, self));
+        }
+        
+    }
+    return attacks;
+}
+/** @type {TelegraphFunction} */
+function vampire_telegraph(location, map, self){
+    var attacks = [];
+    for(var move_direction of horizontal_directions){
+        var move = location.plus(move_direction);
+        if(map.check_empty(move)){
+            for(var attack_direction of diagonal_directions){
+                attacks.push(move.plus(attack_direction));
+            }
+        }
+    }
+    return attacks;
+}
+/** @type {TelegraphFunction} */
+function rat_telegraph(location, map, self){
+    if(self.cycle === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    if(self.cycle >= 1){
+        return spider_telegraph(location, map, self);
+    }
+    return [];
+}
+/** @type {TelegraphFunction} */
+function velociphile_telegraph(location, map, self){
+    var attacks = [];
+    for(var direction of all_directions){
+        if(map.check_empty(location.plus(direction))){
+            attacks = attacks.concat(get_points_in_direction(location.plus(direction), direction, map));
+        }
+    }
+    return attacks;
+}
+
+
+
+
+
+
+
+
+
+/**
+ * Function to get all points from a location to and including the closest occupied space in a direction.
+ * @param {Point} location The starting location which should not be included.
+ * @param {Point} direction The relative direction to look from the starting location.
+ * @param {GameMap} map The gamemap to look on.
+ * @returns {Point[]} An array of the points in that direction up to the first occupied one.
+ */
+function get_points_in_direction(location, direction, map){
+    location = location.copy();
+    var points = [];
+    while(map.check_empty(location.plus_equals(direction))){
+        points.push(location.copy());
+    }
+    points.push(location);
+    return points;
+}
+/**
+ * Function that for an array of directions, attempts to move in a direction if possible, then attack in that direction.
+ * @param {Point} location The starting location
+ * @param {GameMap} map The map to look on.
+ * @param {Point[]} directions The directions to attempt to move and attack in.
+ * @returns {Point[]} Where moving then attacking in each of the chosen directions would hit.
+ */
+function move_attack_telegraph(location, map, directions){
+    var attacks = [];
+    for(var direction of directions){
+        if(map.check_empty(location.plus(direction))){
+            attacks.push(location.plus(direction.times(2)));
+        }
+        attacks.push(location.plus(direction));
+    }
+    return attacks;
+}
+/**
+ * Finction to let a tile disguise itself as another one.
+ * @param {Tile} tile The tile to disguise.
+ * @param {TileGenerator} tile_generator The generator for a default version of the tile to disguise as. 
+ */
+function shapeshift(tile, tile_generator){
+    var look = tile_generator();
+    tile.pic = look.pic;
+    tile.description = look.description;
+    tile.telegraph = look.telegraph;
+}
+
+// ----------------Tiles.js----------------
 // This file contains the functions to generate tiles representing things on the game_map.
 
 // Fields (not all are used by each tile):
@@ -3910,13 +4223,14 @@ function point_equals(p1, p2){
  * 
  * // Functions controlling behavior. //
  * @property {AIFunction=} behavior What it does on it's turn.
+ * @property {TelegraphFunction=} telegraph Used to show which squares it can attack on it's next turn.
  * @property {AIFunction=} on_enter What it does when something tries to move onto it.
  * @property {AIFunction=} on_hit What it does when attacked.
  * @property {AIFunction=} on_death What it does when killed.
  * 
  * // Properties used to determing aesthetics //
  * @property {string[]=} pic_arr Used when the tile sometimes changes images.
- * @property {string[]=} description_arr Used when the tile sometimes changes descriptions.
+ * @property {TileGenerator[]=} look_arr Used when the tile sometimes is disguised as another tile.
  * @property {number=} rotate How much to rotate the image when displaying it. Must be in 90 degree increments.
  * @property {boolean=} flip If the image should be horizontally flipped.
  * 
@@ -3932,6 +4246,7 @@ function point_equals(p1, p2){
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
  * @property {number=} id Given a unique one when added to a EntityList.
+ * @property {string=} ishit Used to telegraph and show which spaces have been attacked.
  */
 
 /**
@@ -4037,6 +4352,7 @@ function fireball_tile(){
         pic: `${img_folder.tiles}fireball.png`,
         description: fireball_description,
         behavior: fireball_ai,
+        telegraph: fireball_telegraph,
         on_enter: fireball_on_enter,
         pic_arr,
         rotate: 0,
@@ -4055,7 +4371,8 @@ function spider_tile(){
         description: spider_description,
         health: 1,
         difficulty: 1,
-        behavior: spider_ai
+        behavior: spider_ai,
+        telegraph: spider_telegraph
     }
 }
 /** @type {TileGenerator} */
@@ -4068,6 +4385,7 @@ function turret_h_tile(){
         health: 1,
         difficulty: 2,
         behavior: turret_h_ai,
+        telegraph: turret_h_telegraph
     }
 }
 /** @type {TileGenerator} */
@@ -4079,7 +4397,8 @@ function turret_d_tile(){
         description: turret_d_description,
         health: 1,
         difficulty: 2,
-        behavior: turret_d_ai
+        behavior: turret_d_ai,
+        telegraph: turret_d_telegraph
     }
 }
 /** @type {TileGenerator} */
@@ -4101,6 +4420,7 @@ function turret_r_tile(){
         health: 1,
         difficulty: 2,
         behavior: turret_r_ai,
+        telegraph: turret_r_telegraph,
         pic_arr,
         rotate: starting_rotation,
         flip: (spin_direction === -1),
@@ -4118,6 +4438,7 @@ function scythe_tile(){
         health: 1,
         difficulty: 3,
         behavior: scythe_ai,
+        telegraph: scythe_telegraph,
         rotate: 90 * random_num(4)
     }
 }
@@ -4131,6 +4452,7 @@ function shadow_knight_tile(){
         health: 2,
         difficulty: 4,
         behavior: shadow_knight_ai,
+        telegraph: shadow_knight_telegraph
     }
 }
 /** @type {TileGenerator} */
@@ -4160,6 +4482,7 @@ function ram_tile(){
         health: 2,
         difficulty: 5,
         behavior: ram_ai,
+        telegraph: ram_telegraph,
         pic_arr,
         cycle: starting_cycle
     }
@@ -4174,6 +4497,7 @@ function large_porcuslime_tile(){
         health: 3,
         difficulty: 8,
         behavior: large_porcuslime_ai,
+        telegraph: large_porcuslime_telegraph
     }
 }
 /** @type {TileGenerator} */
@@ -4188,6 +4512,7 @@ function medium_porcuslime_tile(){
         health: 2,
         difficulty: 5,
         behavior: medium_porcuslime_ai,
+        telegraph: medium_porcuslime_telegraph,
         pic_arr,
         cycle: starting_cycle
     }
@@ -4201,8 +4526,9 @@ function small_h_porcuslime_tile(){
         description: small_h_porcuslime_description,
         health: 1,
         difficulty: 3,
-        behavior: porcuslime_horizontal_ai
-    }
+        behavior: porcuslime_horizontal_ai,
+        telegraph: porcuslime_horizontal_telegraph
+        }
 }
 /** @type {TileGenerator} */
 function small_d_porcuslime_tile(){
@@ -4214,6 +4540,7 @@ function small_d_porcuslime_tile(){
         health: 1,
         difficulty: 3,
         behavior: porcuslime_diagonal_ai,
+        telegraph: porcuslime_diagonal_telegraph,
     }
 }
 /** @type {TileGenerator} */
@@ -4269,6 +4596,7 @@ function noxious_toad_tile(){
         health: 1,
         difficulty: 4,
         behavior: noxious_toad_ai,
+        telegraph: noxious_toad_telegraph,
         pic_arr,
         cycle: starting_cycle
     }
@@ -4284,6 +4612,7 @@ function vampire_tile(){
         max_health: 2,
         difficulty: 5,
         behavior: vampire_ai,
+        telegraph: vampire_telegraph,
         on_hit: vampire_hit
     }
 }
@@ -4297,6 +4626,7 @@ function clay_golem_tile(){
         health: 3,
         difficulty: 4,
         behavior: clay_golem_ai,
+        telegraph: spider_telegraph,
         on_hit: clay_golem_hit,
         cycle: 1
     }
@@ -4314,6 +4644,7 @@ function vinesnare_bush_tile(){
         health: 1,
         difficulty: 4,
         behavior: vinesnare_bush_ai,
+        telegraph: spider_telegraph,
         pic_arr,
         cycle: starting_cycle,
         range
@@ -4329,25 +4660,26 @@ function rat_tile(){
         health: 1,
         difficulty: 2,
         behavior: rat_ai,
+        telegraph: rat_telegraph,
         flip: random_num(2) === 0,
         cycle: 1
 
     }
 }
+/** @type {TileGenerator} */
 function shadow_scout_tile(){
-    var pic_arr = [`${img_folder.tiles}empty.png`, `${img_folder.tiles}shadow_scout.png`];
-    var description_arr = [empty_description, shadow_scout_description];
+    var look_arr = [empty_tile, shadow_scout_tile];
     var starting_cycle = random_num(2);
     return {
         type: `enemy`,
         name: `shadow scout`,
-        pic: pic_arr[1],
-        description: description_arr[1], 
+        pic: `${img_folder.tiles}shadow_scout.png`,
+        description: shadow_scout_description, 
         health: 1,
         difficulty: 3,
         behavior: shadow_scout_ai,
-        pic_arr,
-        description_arr,
+        telegraph: spider_telegraph,
+        look_arr,
         cycle: starting_cycle
     }
 }
@@ -4363,6 +4695,7 @@ function velociphile_tile(){
         health: 3,
         death_message: velociphile_death_message,
         behavior: velociphile_ai,
+        telegraph: velociphile_telegraph,
         on_death: boss_death
     }
 }
@@ -4376,6 +4709,7 @@ function spider_queen_tile(){
         health: 3,
         death_message: spider_queen_death_message,
         behavior: spider_ai,
+        telegraph: spider_telegraph,
         on_hit: spider_queen_hit,
         on_death: boss_death
     }
@@ -4392,13 +4726,14 @@ function lich_tile(){
         spell_generator(rest_spell, rest_description, `${img_folder.tiles}lich_rest.png`)
     ];
     var summons = [
-        spider_tile,
+        shadow_scout_tile,
         scythe_tile,
         shadow_knight_tile,
         ram_tile,
         medium_porcuslime_tile,
         clay_golem_tile,
-        rat_tile
+        rat_tile,
+        vampire_tile
     ];
     var starting_cycle = 1;
     return{

@@ -20,7 +20,14 @@
 /**
  * @callback OnClickFunction A function to be called when an element is clicked.
  * @param {CellInfo} tile The object used to create this element.
- * @param {number} position The column number of the element.
+ * @param {Point} position The row and column of the element.
+ */
+
+/**
+ * @callback BackgroundCreator A function to be called when an element is clicked.
+ * @param {CellInfo} tile The object used to create this element.
+ * @param {Point} position The row and column of the element.
+ * @returns {string[]} An array of the pictures to layer in the background.
  */
 
 /**
@@ -29,7 +36,7 @@
  * @param {CellInfo[]} row_contents The objects used to construct the row's contents.
  * @param {number} scale The size of the images.
  * @param {OnClickFunction} [on_click = undefined] Optional parameter which is used to give onclick functionality to the images.
- * @param {string} [background = undefined] Optional parameter which specifies a image to be layered underneath each other one.
+ * @param {BackgroundCreator} [background = undefined] Optional parameter which specifies a image to be layered underneath each other one.
  */
 
 /**
@@ -153,21 +160,25 @@ const DisplayHTML = {
             cell.style.height = `${scale}px`;
             cell.style.width = `${scale}px`;
             cell.classList.add(`relative`);
-            if(!(on_click === undefined)){
-                cell.onclick = make_on_click(to_display, i, on_click);
+            if(on_click !== undefined){
+                cell.onclick = make_on_click(to_display, new Point(i, row_num), on_click);
             }
             if(to_display.name !== undefined){
                 cell.title = to_display.name;
             }
-            if(!(background === undefined)){
-                var bottom_img = document.createElement(`img`);
-                bottom_img.id = `${location} ${row_num} ${i} background img`;
-                bottom_img.src = `${img_folder.src}${background}`;
-                bottom_img.height = scale;
-                bottom_img.width = scale;
-                bottom_img.classList.add(`absolute`);
-                bottom_img.style.position = `absolute`;
-                cell.append(bottom_img);
+            if(background !== undefined){
+                var background_arr = background(to_display, new Point(i, row_num));
+                for(var j = 0; j < background_arr.length; ++j){
+                    var bottom_img = document.createElement(`img`);
+                    bottom_img.id = `${location} ${row_num} ${i} background ${j} img`;
+                    bottom_img.src = `${img_folder.src}${background_arr[j]}`;
+                    bottom_img.height = scale;
+                    bottom_img.width = scale;
+                    bottom_img.classList.add(`absolute`);
+                    bottom_img.style.position = `absolute`;
+                    cell.append(bottom_img);
+                }
+                
             }
             var top_img = document.createElement(`img`);
             top_img.id = `${location} ${row_num} ${i} img`;
@@ -196,7 +207,7 @@ const DisplayHTML = {
             cell.type = `button`;
             cell.id = `${location} ${row_num} ${i}`;
             if(!(on_click === undefined)){
-                cell.onclick = make_on_click(row_contents[i], i, on_click);
+                cell.onclick = make_on_click(row_contents[i], new Point(i, row_num), on_click);
             }
             cell.value = row_contents[i].description;
             row.append(cell);

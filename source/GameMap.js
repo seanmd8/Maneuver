@@ -118,6 +118,21 @@ class GameMap{
         }
     }
     /**
+     * Checks if a point is within bounds.
+     * @param {Point} location The point to check.
+     * @returns {boolean} If the point is in bounds.
+     */
+    is_in_bounds(location){
+        // Throws an error if x or y is out of bounds.
+        if(location.x < 0 || location.x >= this.#x_max){
+            return false;
+        }
+        if(location.y < 0 || location.y >= this.#y_max){
+            return false;
+        }
+        return true;
+    }
+    /**
      * Checks if a location is in bounds and empty.
      * @param {Point} location The point to check.
      * @returns {boolean} Returns true if the location is both in bounds and empty and false otherwise.
@@ -221,7 +236,9 @@ class GameMap{
         return true;
     }
     /**
-     * Function to display the grid.
+     * Function to display the gamemap and the player's health.
+     * Clicking on a tile will give info about it.
+     * Resets tiles marked as hit afterwards.
      * @returns {undefined}
      */
     display(){
@@ -230,31 +247,41 @@ class GameMap{
         // Shows the player's remaining health below.
         display.clear_tb(ui_id.map_display);
         var make_on_click = function(gameMap){
-            return function(tile){
+            return function(tile, location){
                 var description = tile_description(tile);
                 display.display_message(ui_id.display_message, description);
-                var gameMap = gameMap;
+                gameMap.clear_telegraphs();
+                if(tile.telegraph !== undefined && !tile.stun){
+                    gameMap.display_telegraph(tile.telegraph(location, gameMap, tile));
+                }
+                gameMap.display();
             }
         }
-        for (var y = 0; y < this.#y_max; y++){
-            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), this.#area.background);
+        var make_background = function(area){
+            return function(tile, location){
+                var backgrounds = [area.background];
+                if(tile.ishit !== undefined){
+                    backgrounds.push(tile.ishit);
+                }
+                return backgrounds;
+            }
+        }        
+        for(var y = 0; y < this.#y_max; y++){
+            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), make_background(this.#area));
         }
         display.clear_tb(ui_id.health_display);
         display_health(this.get_player(), TILE_SCALE);
-        this.clear_empty()
+        this.clear_telegraphs()
 	}
     /**
      * Clears all hits and other alternate pics from empty tiles in the grid.
      * @returns {undefined}
      */
-    clear_empty(){
+    clear_telegraphs(){
         for(var y = 0; y < this.#y_max; ++y){
             for(var x = 0; x < this.#x_max; ++x){
                 var tile = this.#get_grid(new Point(x, y));
-                if(tile.type === `empty`){
-                    tile.pic = `${img_folder.tiles}empty.png`;
-                    tile.description = empty_description;
-                }
+                tile.ishit = undefined;
             }
         }
     }
@@ -355,7 +382,7 @@ class GameMap{
             }
             if(target.health <= 0){
                 this.#set_grid(location, empty_tile());
-                this.#get_grid(location).pic = `${img_folder.tiles}hit.png`;
+                this.#get_grid(location).ishit = `${img_folder.tiles}hit.png`;
                 if(target.type === `enemy`){
                     if(target.id === undefined){
                         throw new Error(`enemy missing id`)
@@ -380,7 +407,7 @@ class GameMap{
             return true;
         }
         if(target.type === `empty`){
-            target.pic = `${img_folder.tiles}hit.png`;
+            target.ishit = `${img_folder.tiles}hit.png`;
         }
         return false;
     }
@@ -423,7 +450,6 @@ class GameMap{
      * @returns {undefined}
      */
     lock(){
-        // Locks the stairs for a boss fight.
         var pos = this.#entity_list.get_exit_pos();
         this.#set_grid(pos, lock_tile())
     }
@@ -462,7 +488,7 @@ class GameMap{
                 for(var j = 0; j < event.amount; ++j){
                     var space = this.random_empty();
                     this.#get_grid(space).description = falling_rubble_description;
-                    this.#get_grid(space).pic = `${img_folder.tiles}falling_rubble.png`;
+                    this.#get_grid(space).ishit = `${img_folder.tiles}falling_rubble.png`;
                     rubble.push(space);
                 }
                 new_events.push({
@@ -533,5 +559,16 @@ class GameMap{
     #set_grid(location, value){
         this.check_bounds(location);
         this.#grid[location.y][location.x] = value;
+    }
+    /**
+     * Marks which positions an entity can attack during it's next turn.
+     * @param {Point[]} positions A list of positions to mark.
+     */
+    display_telegraph(positions){
+        for(var position of positions){
+            if(this.is_in_bounds(position)){
+                this.#get_grid(position).ishit = `${img_folder.tiles}hit_telegraph.png`;
+            }
+        }
     }
 }

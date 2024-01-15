@@ -7,6 +7,8 @@ def main():
     staple("./css", "ManeuverStyles.css")
 
 def staple(folder, destination, jsd_enabled = False):
+    # Concatonates each file in the given folder into one document which is saved as the destination. 
+    # If jsd enabled is true, enables it in the resulting document.
     source = os.listdir(folder)
     body = ""
     if(jsd_enabled):

@@ -134,7 +134,7 @@ class GameState{
         add_list.unshift(add_card_symbol())
         var make_add_card = function(gamestate){
             return function(card, position){
-                if(position > 0){
+                if(position.x > 0){
                     gamestate.deck.add(card);
                     gamestate.new_floor();
                 }
@@ -156,7 +156,7 @@ class GameState{
         }
         var make_remove_card = function(gamestate){
             return function(card, position){
-                if(position > 0){
+                if(position.x > 0){
                     gamestate.deck.remove(card.id);
                     gamestate.new_floor();
                 }
@@ -176,7 +176,7 @@ class GameState{
         display.clear_tb(ui_id.move_buttons);
         display.display_message(ui_id.display_message, `${game_over_message}${cause}.`);
         display.clear_tb(ui_id.move_buttons);
-        var restart = function(){
+        var restart = function(message, position){
             display.clear_tb(ui_id.move_buttons);
             this.setup();
         };
