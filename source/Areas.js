@@ -53,7 +53,7 @@ function generate_basement_area(){
     return {
         background: `${img_folder.backgrounds}basement.png`,
         generate_floor: generate_basement_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile],
+        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
         boss_floor_list: [spider_queen_floor],
         next_area_list: area3,
         description: basement_description
@@ -75,7 +75,7 @@ function generate_crypt_area(){
     return {
         background: `${img_folder.backgrounds}crypt.png`,
         generate_floor: generate_crypt_floor,
-        enemy_list: [shadow_knight_tile, spider_web_tile, vampire_tile, clay_golem_tile, rat_tile, spider_tile, turret_r_tile, brightling_tile, shadow_scout_tile],
+        enemy_list: [shadow_knight_tile, spider_web_tile, vampire_tile, clay_golem_tile, spider_tile, turret_r_tile, shadow_scout_tile, darkling_tile],
         boss_floor_list: [lich_floor],
         next_area_list: area4,
         description: crypt_description

@@ -1,16 +1,6 @@
 // ----------------Tiles.js----------------
 // This file contains the functions to generate tiles representing things on the game_map.
 
-// Fields (not all are used by each tile):
-//  type: the category this tile falls under (empty, exit, player, enemy, terrain)
-//  name: necessary if it can deal damage or the type has multiple tiles.
-//  pic: the picture representing this tile. May be an array if the picture changes.
-//  health: how many hits it takes to kill this tile.
-//  max_health: prevents healing from increasing health above here.
-//  difficulty: how much it costs the floor generator to spawn this.
-//  behavior: the logic for what this tile does on it's turn.
-//  description: info that will be displayed when the user clicks on the tile.
-
 /**
  * @typedef {object} Tile Information about the contents of a single square of a floor of the dungeon.
  * 
@@ -51,7 +41,8 @@
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
  * @property {number=} id Given a unique one when added to a EntityList.
- * @property {string=} ishit Used to telegraph and show which spaces have been attacked.
+ * @property {string=} is_hit Used to telegraph which spaces have been or might be attacked.
+ * @property {string=} event_happening Used to telegraph an event.
  */
 
 /**
@@ -162,6 +153,27 @@ function fireball_tile(){
         pic_arr,
         rotate: 0,
         direction: undefined
+    }
+}
+
+// Look tiles to give a specific name, background and description to an event.
+/** @type {TileGenerator} Used to show which location will have falling rubble next turn.*/
+function falling_rubble_look(){
+    return {
+        type: `look`,
+        name: `falling rubble`,
+        pic: `${img_folder.tiles}falling_rubble.png`,
+        description: falling_rubble_description
+    }
+}
+/** @type {TileGenerator} Used to show where a darkling will teleport next turn.*/
+function darkling_rift_look(){
+    return {
+        type: `look`,
+        name: `darkling rift`,
+        pic: `${img_folder.tiles}darkling_rift.png`,
+        description: darkling_rift_description,
+        telegraph: spider_telegraph
     }
 }
 
@@ -486,6 +498,18 @@ function shadow_scout_tile(){
         telegraph: spider_telegraph,
         look_arr,
         cycle: starting_cycle
+    }
+}
+function darkling_tile(){
+    return {
+        type: `enemy`,
+        name: `darkling`,
+        pic: `${img_folder.tiles}darkling.png`,
+        description: darkling_description, 
+        health: 1,
+        difficulty: 4,
+        behavior: darkling_ai,
+        telegraph: darkling_telegraph,
     }
 }
 

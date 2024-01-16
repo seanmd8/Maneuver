@@ -213,6 +213,17 @@ function spawn_nearby(map, tile, location, nearby = random_nearby()){
     return undefined;
 }
 
+/**
+ * Function to attack all spaces around the current location.
+ * @param {Point} location The square to attack around.
+ * @param {GameMap} map The map to make attacks using.
+ */
+function attack_around(location, map){
+    for(var direction of all_directions){
+        map.attack(location.plus(direction));
+    }
+}
+
 
 // misc display functions
 /**

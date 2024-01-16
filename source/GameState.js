@@ -42,6 +42,7 @@ class GameState{
     async player_turn(behavior, hand_pos){
         // Function to execute the outcome of the player's turn.
         display.display_message(ui_id.display_message, ``);
+        this.map.clear_marked();
         try{
             for(var i = 0; i < behavior.length; ++i){
                 // Does each valid command in the behavior array.
@@ -176,14 +177,16 @@ class GameState{
         display.clear_tb(ui_id.move_buttons);
         display.display_message(ui_id.display_message, `${game_over_message}${cause}.`);
         display.clear_tb(ui_id.move_buttons);
-        var restart = function(message, position){
-            display.clear_tb(ui_id.move_buttons);
-            this.setup();
-        };
+        var restart = function(game){
+            return function(message, position){
+                display.clear_tb(ui_id.move_buttons);
+                game.setup();
+            };
+        }
         var restart_message = [{
             description: retry_message
         }]
-        display.add_button_row(ui_id.move_buttons, restart_message, restart);
+        display.add_button_row(ui_id.move_buttons, restart_message, restart(this));
     }
     /**
      * Adds a temporary card to the player's deck.
@@ -194,10 +197,12 @@ class GameState{
     }
     /** 
      * Sets up the player's turn.
-     * @returns {void}
+     * @returns {Promise<void>}
      */
-    prep_turn(){
+    async prep_turn(){
         this.map.resolve_events();
+        this.map.display();
+        await delay(ANIMATION_DELAY);
         this.map.display();
         this.deck.display_hand(ui_id.hand_display);
         this.map.display_stats(ui_id.stats);

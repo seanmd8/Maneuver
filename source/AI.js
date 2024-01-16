@@ -387,9 +387,7 @@ function noxious_toad_ai(location, difference, map, self){
         if(moved){
             self.cycle = 1;
             if(difference.within_radius(1)){
-                for(var i = 0; i < directions.length; ++i){
-                    map.attack(location.plus(directions[i]));
-                }
+                attack_around(location, map);
             }
         }
     }
@@ -542,6 +540,23 @@ function shadow_scout_ai(location, difference, map, self){
     shapeshift(self, self.look_arr[self.cycle]);
     spider_ai(location, difference, map, self);
 }
+function darkling_ai(location, difference, map, self){
+    if(self.direction !== undefined){
+        var moved = map.move(location, self.direction);
+        if(moved){
+            attack_around(self.direction, map);
+        }
+        else{
+            map.attack(location);
+            return;
+        }
+    }
+    self.direction = map.random_empty();
+    var darkling_rift = function(map_to_use){
+        map_to_use.mark_tile(self.direction, darkling_rift_look);
+    }
+    map.add_event(darkling_rift);
+}
 
 
 // Boss AIs
@@ -623,10 +638,7 @@ function earthquake_spell(location, difference, map, self){
     if( health === undefined){
         health = 4;
     }
-    map.add_event({
-        type: `earthquake`,
-        amount: (5 - health) * 5 + random_num(4)
-    });
+    map.add_event(earthquake_event(map, (5 - health) * 5 + random_num(4)));
 }
 /** @type {AIFunction} Spell which creates a wave of fireballs aimed at the target.*/
 function flame_wave_spell(location, difference, map, self){
@@ -713,4 +725,37 @@ function fireball_on_enter(location, difference, map, self){
     hazard(location, difference, map, self);
     self.health = 1;
     map.attack(location);
+}
+
+
+
+function earthquake_event(map, amount){
+    var falling_debris = function(locations){
+        return function(map_to_use){
+            try{
+                for(var location of locations){
+                    map_to_use.attack(location);
+                }
+            }
+            catch(error){
+                if(error.message === `game over`){
+                    throw new Error(`game over`, {cause: new Error(`falling rubble`)});
+                }
+                throw error;
+            }
+        }
+    }
+    var earthquake = function(amount){
+        return function(map_to_use){
+            var rubble = [];
+            for(var j = 0; j < amount; ++j){
+                var space = map_to_use.random_empty();
+                map_to_use.mark_tile(space, falling_rubble_look);
+                rubble.push(space);
+            }
+            map_to_use.add_event(falling_debris(rubble));
+        }
+        
+    }
+    return earthquake(amount);
 }

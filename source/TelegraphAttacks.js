@@ -179,14 +179,15 @@ function velociphile_telegraph(location, map, self){
     }
     return attacks;
 }
+function darkling_telegraph(location, map, self){
+    if(self.direction === undefined){
+        return [];
+    }
+    return spider_telegraph(self.direction, map, self);
+}
 
 
-
-
-
-
-
-
+// Telegraph utility functions
 
 /**
  * Function to get all points from a location to and including the closest occupied space in a direction.
@@ -225,11 +226,17 @@ function move_attack_telegraph(location, map, directions){
  * Finction to let a tile disguise itself as another one.
  * @param {Tile} tile The tile to disguise.
  * @param {TileGenerator} tile_generator The generator for a default version of the tile to disguise as. 
+ * @param {boolean=} just_background If true, changes the is_hit field rather than the main image.
  */
-function shapeshift(tile, tile_generator){
+function shapeshift(tile, tile_generator, just_background){
     var look = tile_generator();
-    tile.pic = look.pic;
     tile.description = look.description;
     tile.telegraph = look.telegraph;
+    if(just_background){
+        tile.event_happening = look.pic;
+    }
+    else{
+        tile.pic = look.pic;
+    }
 }
 

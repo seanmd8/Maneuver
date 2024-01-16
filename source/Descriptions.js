@@ -34,6 +34,7 @@ const clay_golem_description = `Clay Golem: Will attack the player if it is next
 const vinesnare_bush_description = [`Vinesnare Bush: Does not move. Will attack if the player is close to it. Otherwise, it can drag the player closer with vines from up to `, ` spaces away.`];
 const rat_description = `Rat: Will attack the player if it is next to them. Otherwise it will move 2 spaces closer. After attacking, it will flee.`;
 const shadow_scout_description = `Shadow Scout: Will attack the player if it is next to them. Otherwise it will move 1 space closer. Can go invisible every other turn.`
+const darkling_description = `Darkling: Teleports around randomly hurting everything next to the location it arrives at. Blocking it's rift will destroy it.`
 
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
@@ -81,6 +82,8 @@ const damaged_wall_description = `A damaged wall. Something might live inside.`;
 const lock_description = `The exit is locked. Defeat the boss to continue.`;
 const fireball_description = `A fireball. Moves forwards until it comes into contact with something, then damages it.`;
 const falling_rubble_description = `Watch out, something is about to fall here.`;
+const darkling_rift_description = `If this space isn't blocked, a darkling will teleport here next turn damaging everything nearby.`
+
 
 
 // Cardinal Directions.

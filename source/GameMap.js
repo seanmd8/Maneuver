@@ -2,11 +2,8 @@
 // GameMap class holds the information on the current floor and everything on it.
 
 /**
- * @typedef {Object} MapEvent
- * @property {string} type
- * 
- * @property {number=} amount
- * @property {Point[]=} rubble
+ * @callback MapEventFunction Function to exicute an event on the map at the end of the enemies' turn.
+ * @param {GameMap} map Function controlling behavior of the event.
  */
 
 class GameMap{
@@ -22,7 +19,7 @@ class GameMap{
     #floor_num;
     /** @type {number} Total number of turns that have elapsed.*/
     #turn_count;
-    /** @type {MapEvent[]} Events that will happen at the end of the turn.*/
+    /** @type {MapEventFunction[]} Events that will happen at the end of the turn.*/
     #events;
     /** @type {Area} The current area of the dungeon they are in.*/
     #area;
@@ -260,8 +257,11 @@ class GameMap{
         var make_background = function(area){
             return function(tile, location){
                 var backgrounds = [area.background];
-                if(tile.ishit !== undefined){
-                    backgrounds.push(tile.ishit);
+                if(tile.is_hit !== undefined){
+                    backgrounds.push(tile.is_hit);
+                }
+                if(tile.event_happening !== undefined){
+                    backgrounds.push(tile.event_happening);
                 }
                 return backgrounds;
             }
@@ -273,18 +273,6 @@ class GameMap{
         display_health(this.get_player(), TILE_SCALE);
         this.clear_telegraphs()
 	}
-    /**
-     * Clears all hits and other alternate pics from empty tiles in the grid.
-     * @returns {undefined}
-     */
-    clear_telegraphs(){
-        for(var y = 0; y < this.#y_max; ++y){
-            for(var x = 0; x < this.#x_max; ++x){
-                var tile = this.#get_grid(new Point(x, y));
-                tile.ishit = undefined;
-            }
-        }
-    }
     /**
      * Moves a tile.
      * Throws errors if the player reaches the end of the floor or if the tile (player or not) dies.
@@ -382,7 +370,7 @@ class GameMap{
             }
             if(target.health <= 0){
                 this.#set_grid(location, empty_tile());
-                this.#get_grid(location).ishit = `${img_folder.tiles}hit.png`;
+                this.#get_grid(location).is_hit = `${img_folder.tiles}hit.png`;
                 if(target.type === `enemy`){
                     if(target.id === undefined){
                         throw new Error(`enemy missing id`)
@@ -407,7 +395,7 @@ class GameMap{
             return true;
         }
         if(target.type === `empty`){
-            target.ishit = `${img_folder.tiles}hit.png`;
+            target.is_hit = `${img_folder.tiles}hit.png`;
         }
         return false;
     }
@@ -466,57 +454,22 @@ class GameMap{
     }
     /**
      * Schedules an event to happen at end of turn.
-     * @param {MapEvent} event The even to be added.
+     * @param {MapEventFunction} event The even to be added.
      */
     add_event(event){
         this.#events.push(event);
     }
     /**
-     * Executes and removed each scheduled event.
+     * Executes and removes each scheduled event.
      * Throws an error if one that isn't handled tries to happen or the player dies.
      * @returns {undefined}
      */
     resolve_events(){
-        var new_events = [];
-        for(var i = 0; i < this.#events.length; ++i){
-            var event = this.#events[i];
-            if(event.type === `earthquake`){
-                if(event.amount === undefined){
-                    throw new Error(`event is missing field`)
-                }
-                var rubble = [];
-                for(var j = 0; j < event.amount; ++j){
-                    var space = this.random_empty();
-                    this.#get_grid(space).description = falling_rubble_description;
-                    this.#get_grid(space).ishit = `${img_folder.tiles}falling_rubble.png`;
-                    rubble.push(space);
-                }
-                new_events.push({
-                    type: `earthquake_rubble`,
-                    rubble
-                });
-            }
-            else if(event.type === `earthquake_rubble`){
-                if(event.rubble === undefined){
-                    throw new Error(`event is missing field`)
-                }
-                try{
-                    for(var j = 0; j < event.rubble.length; ++j){
-                        this.attack(event.rubble[j]);
-                    }
-                }
-                catch(error){
-                    if(error.message === `game over`){
-                        throw new Error(`game over`, {cause: new Error(`falling rubble`)});
-                    }
-                    throw error;
-                }
-            }
-            else{
-                throw new Error(`invalid event type`);
-            }
+        var current_events = this.#events;
+        this.#events = [];
+        for(var event of current_events){
+            event(this);
         }
-        this.#events = new_events;
     }
     /**
      * Clears the current floor and goes to the next one then generates it based on the current area.
@@ -567,7 +520,43 @@ class GameMap{
     display_telegraph(positions){
         for(var position of positions){
             if(this.is_in_bounds(position)){
-                this.#get_grid(position).ishit = `${img_folder.tiles}hit_telegraph.png`;
+                this.#get_grid(position).is_hit = `${img_folder.tiles}hit_telegraph.png`;
+            }
+        }
+    }
+    /**
+     * Clears all hits and other alternate pics from empty tiles in the grid.
+     * @returns {undefined}
+     */
+    clear_telegraphs(){
+        for(var y = 0; y < this.#y_max; ++y){
+            for(var x = 0; x < this.#x_max; ++x){
+                var tile = this.#get_grid(new Point(x, y));
+                tile.is_hit = undefined;
+            }
+        }
+    }
+    /**
+     * Function to mark a tile with a specific name, description and background.
+     * @param {Point} location The location of the tile to mark.
+     * @param {TileGenerator} mark Contains the fields to use.
+     */
+    mark_tile(location, mark){
+        if(this.is_in_bounds(location)){
+            shapeshift(this.#get_grid(location), mark, true);
+        }
+    }
+    /**
+     * Function to clear all marked empty tiles.
+     * @returns {undefined}
+     */
+    clear_marked(){
+        for(var y = 0; y < this.#y_max; ++y){
+            for(var x = 0; x < this.#x_max; ++x){
+                var tile = this.#get_grid(new Point(x, y));
+                if(tile.type === `empty`){
+                    shapeshift(tile, empty_tile, true);
+                }
             }
         }
     }

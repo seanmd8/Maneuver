@@ -388,9 +388,7 @@ function noxious_toad_ai(location, difference, map, self){
         if(moved){
             self.cycle = 1;
             if(difference.within_radius(1)){
-                for(var i = 0; i < directions.length; ++i){
-                    map.attack(location.plus(directions[i]));
-                }
+                attack_around(location, map);
             }
         }
     }
@@ -543,6 +541,23 @@ function shadow_scout_ai(location, difference, map, self){
     shapeshift(self, self.look_arr[self.cycle]);
     spider_ai(location, difference, map, self);
 }
+function darkling_ai(location, difference, map, self){
+    if(self.direction !== undefined){
+        var moved = map.move(location, self.direction);
+        if(moved){
+            attack_around(self.direction, map);
+        }
+        else{
+            map.attack(location);
+            return;
+        }
+    }
+    self.direction = map.random_empty();
+    var darkling_rift = function(map_to_use){
+        map_to_use.mark_tile(self.direction, darkling_rift_look);
+    }
+    map.add_event(darkling_rift);
+}
 
 
 // Boss AIs
@@ -624,10 +639,7 @@ function earthquake_spell(location, difference, map, self){
     if( health === undefined){
         health = 4;
     }
-    map.add_event({
-        type: `earthquake`,
-        amount: (5 - health) * 5 + random_num(4)
-    });
+    map.add_event(earthquake_event(map, (5 - health) * 5 + random_num(4)));
 }
 /** @type {AIFunction} Spell which creates a wave of fireballs aimed at the target.*/
 function flame_wave_spell(location, difference, map, self){
@@ -715,6 +727,39 @@ function fireball_on_enter(location, difference, map, self){
     self.health = 1;
     map.attack(location);
 }
+
+
+
+function earthquake_event(map, amount){
+    var falling_debris = function(locations){
+        return function(map_to_use){
+            try{
+                for(var location of locations){
+                    map_to_use.attack(location);
+                }
+            }
+            catch(error){
+                if(error.message === `game over`){
+                    throw new Error(`game over`, {cause: new Error(`falling rubble`)});
+                }
+                throw error;
+            }
+        }
+    }
+    var earthquake = function(amount){
+        return function(map_to_use){
+            var rubble = [];
+            for(var j = 0; j < amount; ++j){
+                var space = map_to_use.random_empty();
+                map_to_use.mark_tile(space, falling_rubble_look);
+                rubble.push(space);
+            }
+            map_to_use.add_event(falling_debris(rubble));
+        }
+        
+    }
+    return earthquake(amount);
+}
 // ----------------Areas.js----------------
 // File containing functions to generate area objects.
 
@@ -770,7 +815,7 @@ function generate_basement_area(){
     return {
         background: `${img_folder.backgrounds}basement.png`,
         generate_floor: generate_basement_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile],
+        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
         boss_floor_list: [spider_queen_floor],
         next_area_list: area3,
         description: basement_description
@@ -792,7 +837,7 @@ function generate_crypt_area(){
     return {
         background: `${img_folder.backgrounds}crypt.png`,
         generate_floor: generate_crypt_floor,
-        enemy_list: [shadow_knight_tile, spider_web_tile, vampire_tile, clay_golem_tile, rat_tile, spider_tile, turret_r_tile, brightling_tile, shadow_scout_tile],
+        enemy_list: [shadow_knight_tile, spider_web_tile, vampire_tile, clay_golem_tile, spider_tile, turret_r_tile, shadow_scout_tile, darkling_tile],
         boss_floor_list: [lich_floor],
         next_area_list: area4,
         description: crypt_description
@@ -1832,6 +1877,7 @@ const clay_golem_description = `Clay Golem: Will attack the player if it is next
 const vinesnare_bush_description = [`Vinesnare Bush: Does not move. Will attack if the player is close to it. Otherwise, it can drag the player closer with vines from up to `, ` spaces away.`];
 const rat_description = `Rat: Will attack the player if it is next to them. Otherwise it will move 2 spaces closer. After attacking, it will flee.`;
 const shadow_scout_description = `Shadow Scout: Will attack the player if it is next to them. Otherwise it will move 1 space closer. Can go invisible every other turn.`
+const darkling_description = `Darkling: Teleports around randomly hurting everything next to the location it arrives at. Blocking it's rift will destroy it.`
 
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
@@ -1879,6 +1925,8 @@ const damaged_wall_description = `A damaged wall. Something might live inside.`;
 const lock_description = `The exit is locked. Defeat the boss to continue.`;
 const fireball_description = `A fireball. Moves forwards until it comes into contact with something, then damages it.`;
 const falling_rubble_description = `Watch out, something is about to fall here.`;
+const darkling_rift_description = `If this space isn't blocked, a darkling will teleport here next turn damaging everything nearby.`
+
 
 
 // Cardinal Directions.
@@ -2432,11 +2480,8 @@ function generate_sanctum_floor(floor_num, area, map){
 // GameMap class holds the information on the current floor and everything on it.
 
 /**
- * @typedef {Object} MapEvent
- * @property {string} type
- * 
- * @property {number=} amount
- * @property {Point[]=} rubble
+ * @callback MapEventFunction Function to exicute an event on the map at the end of the enemies' turn.
+ * @param {GameMap} map Function controlling behavior of the event.
  */
 
 class GameMap{
@@ -2452,7 +2497,7 @@ class GameMap{
     #floor_num;
     /** @type {number} Total number of turns that have elapsed.*/
     #turn_count;
-    /** @type {MapEvent[]} Events that will happen at the end of the turn.*/
+    /** @type {MapEventFunction[]} Events that will happen at the end of the turn.*/
     #events;
     /** @type {Area} The current area of the dungeon they are in.*/
     #area;
@@ -2690,8 +2735,11 @@ class GameMap{
         var make_background = function(area){
             return function(tile, location){
                 var backgrounds = [area.background];
-                if(tile.ishit !== undefined){
-                    backgrounds.push(tile.ishit);
+                if(tile.is_hit !== undefined){
+                    backgrounds.push(tile.is_hit);
+                }
+                if(tile.event_happening !== undefined){
+                    backgrounds.push(tile.event_happening);
                 }
                 return backgrounds;
             }
@@ -2703,18 +2751,6 @@ class GameMap{
         display_health(this.get_player(), TILE_SCALE);
         this.clear_telegraphs()
 	}
-    /**
-     * Clears all hits and other alternate pics from empty tiles in the grid.
-     * @returns {undefined}
-     */
-    clear_telegraphs(){
-        for(var y = 0; y < this.#y_max; ++y){
-            for(var x = 0; x < this.#x_max; ++x){
-                var tile = this.#get_grid(new Point(x, y));
-                tile.ishit = undefined;
-            }
-        }
-    }
     /**
      * Moves a tile.
      * Throws errors if the player reaches the end of the floor or if the tile (player or not) dies.
@@ -2812,7 +2848,7 @@ class GameMap{
             }
             if(target.health <= 0){
                 this.#set_grid(location, empty_tile());
-                this.#get_grid(location).ishit = `${img_folder.tiles}hit.png`;
+                this.#get_grid(location).is_hit = `${img_folder.tiles}hit.png`;
                 if(target.type === `enemy`){
                     if(target.id === undefined){
                         throw new Error(`enemy missing id`)
@@ -2837,7 +2873,7 @@ class GameMap{
             return true;
         }
         if(target.type === `empty`){
-            target.ishit = `${img_folder.tiles}hit.png`;
+            target.is_hit = `${img_folder.tiles}hit.png`;
         }
         return false;
     }
@@ -2896,57 +2932,22 @@ class GameMap{
     }
     /**
      * Schedules an event to happen at end of turn.
-     * @param {MapEvent} event The even to be added.
+     * @param {MapEventFunction} event The even to be added.
      */
     add_event(event){
         this.#events.push(event);
     }
     /**
-     * Executes and removed each scheduled event.
+     * Executes and removes each scheduled event.
      * Throws an error if one that isn't handled tries to happen or the player dies.
      * @returns {undefined}
      */
     resolve_events(){
-        var new_events = [];
-        for(var i = 0; i < this.#events.length; ++i){
-            var event = this.#events[i];
-            if(event.type === `earthquake`){
-                if(event.amount === undefined){
-                    throw new Error(`event is missing field`)
-                }
-                var rubble = [];
-                for(var j = 0; j < event.amount; ++j){
-                    var space = this.random_empty();
-                    this.#get_grid(space).description = falling_rubble_description;
-                    this.#get_grid(space).ishit = `${img_folder.tiles}falling_rubble.png`;
-                    rubble.push(space);
-                }
-                new_events.push({
-                    type: `earthquake_rubble`,
-                    rubble
-                });
-            }
-            else if(event.type === `earthquake_rubble`){
-                if(event.rubble === undefined){
-                    throw new Error(`event is missing field`)
-                }
-                try{
-                    for(var j = 0; j < event.rubble.length; ++j){
-                        this.attack(event.rubble[j]);
-                    }
-                }
-                catch(error){
-                    if(error.message === `game over`){
-                        throw new Error(`game over`, {cause: new Error(`falling rubble`)});
-                    }
-                    throw error;
-                }
-            }
-            else{
-                throw new Error(`invalid event type`);
-            }
+        var current_events = this.#events;
+        this.#events = [];
+        for(var event of current_events){
+            event(this);
         }
-        this.#events = new_events;
     }
     /**
      * Clears the current floor and goes to the next one then generates it based on the current area.
@@ -2997,7 +2998,43 @@ class GameMap{
     display_telegraph(positions){
         for(var position of positions){
             if(this.is_in_bounds(position)){
-                this.#get_grid(position).ishit = `${img_folder.tiles}hit_telegraph.png`;
+                this.#get_grid(position).is_hit = `${img_folder.tiles}hit_telegraph.png`;
+            }
+        }
+    }
+    /**
+     * Clears all hits and other alternate pics from empty tiles in the grid.
+     * @returns {undefined}
+     */
+    clear_telegraphs(){
+        for(var y = 0; y < this.#y_max; ++y){
+            for(var x = 0; x < this.#x_max; ++x){
+                var tile = this.#get_grid(new Point(x, y));
+                tile.is_hit = undefined;
+            }
+        }
+    }
+    /**
+     * Function to mark a tile with a specific name, description and background.
+     * @param {Point} location The location of the tile to mark.
+     * @param {TileGenerator} mark Contains the fields to use.
+     */
+    mark_tile(location, mark){
+        if(this.is_in_bounds(location)){
+            shapeshift(this.#get_grid(location), mark, true);
+        }
+    }
+    /**
+     * Function to clear all marked empty tiles.
+     * @returns {undefined}
+     */
+    clear_marked(){
+        for(var y = 0; y < this.#y_max; ++y){
+            for(var x = 0; x < this.#x_max; ++x){
+                var tile = this.#get_grid(new Point(x, y));
+                if(tile.type === `empty`){
+                    shapeshift(tile, empty_tile, true);
+                }
             }
         }
     }
@@ -3045,6 +3082,7 @@ class GameState{
     async player_turn(behavior, hand_pos){
         // Function to execute the outcome of the player's turn.
         display.display_message(ui_id.display_message, ``);
+        this.map.clear_marked();
         try{
             for(var i = 0; i < behavior.length; ++i){
                 // Does each valid command in the behavior array.
@@ -3179,14 +3217,16 @@ class GameState{
         display.clear_tb(ui_id.move_buttons);
         display.display_message(ui_id.display_message, `${game_over_message}${cause}.`);
         display.clear_tb(ui_id.move_buttons);
-        var restart = function(message, position){
-            display.clear_tb(ui_id.move_buttons);
-            this.setup();
-        };
+        var restart = function(game){
+            return function(message, position){
+                display.clear_tb(ui_id.move_buttons);
+                game.setup();
+            };
+        }
         var restart_message = [{
             description: retry_message
         }]
-        display.add_button_row(ui_id.move_buttons, restart_message, restart);
+        display.add_button_row(ui_id.move_buttons, restart_message, restart(this));
     }
     /**
      * Adds a temporary card to the player's deck.
@@ -3197,10 +3237,12 @@ class GameState{
     }
     /** 
      * Sets up the player's turn.
-     * @returns {void}
+     * @returns {Promise<void>}
      */
-    prep_turn(){
+    async prep_turn(){
         this.map.resolve_events();
+        this.map.display();
+        await delay(ANIMATION_DELAY);
         this.map.display();
         this.deck.display_hand(ui_id.hand_display);
         this.map.display_stats(ui_id.stats);
@@ -3619,6 +3661,17 @@ function spawn_nearby(map, tile, location, nearby = random_nearby()){
         }
     }
     return undefined;
+}
+
+/**
+ * Function to attack all spaces around the current location.
+ * @param {Point} location The square to attack around.
+ * @param {GameMap} map The map to make attacks using.
+ */
+function attack_around(location, map){
+    for(var direction of all_directions){
+        map.attack(location.plus(direction));
+    }
 }
 
 
@@ -4139,14 +4192,15 @@ function velociphile_telegraph(location, map, self){
     }
     return attacks;
 }
+function darkling_telegraph(location, map, self){
+    if(self.direction === undefined){
+        return [];
+    }
+    return spider_telegraph(self.direction, map, self);
+}
 
 
-
-
-
-
-
-
+// Telegraph utility functions
 
 /**
  * Function to get all points from a location to and including the closest occupied space in a direction.
@@ -4185,26 +4239,22 @@ function move_attack_telegraph(location, map, directions){
  * Finction to let a tile disguise itself as another one.
  * @param {Tile} tile The tile to disguise.
  * @param {TileGenerator} tile_generator The generator for a default version of the tile to disguise as. 
+ * @param {boolean=} just_background If true, changes the is_hit field rather than the main image.
  */
-function shapeshift(tile, tile_generator){
+function shapeshift(tile, tile_generator, just_background){
     var look = tile_generator();
-    tile.pic = look.pic;
     tile.description = look.description;
     tile.telegraph = look.telegraph;
+    if(just_background){
+        tile.event_happening = look.pic;
+    }
+    else{
+        tile.pic = look.pic;
+    }
 }
 
 // ----------------Tiles.js----------------
 // This file contains the functions to generate tiles representing things on the game_map.
-
-// Fields (not all are used by each tile):
-//  type: the category this tile falls under (empty, exit, player, enemy, terrain)
-//  name: necessary if it can deal damage or the type has multiple tiles.
-//  pic: the picture representing this tile. May be an array if the picture changes.
-//  health: how many hits it takes to kill this tile.
-//  max_health: prevents healing from increasing health above here.
-//  difficulty: how much it costs the floor generator to spawn this.
-//  behavior: the logic for what this tile does on it's turn.
-//  description: info that will be displayed when the user clicks on the tile.
 
 /**
  * @typedef {object} Tile Information about the contents of a single square of a floor of the dungeon.
@@ -4246,7 +4296,8 @@ function shapeshift(tile, tile_generator){
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
  * @property {number=} id Given a unique one when added to a EntityList.
- * @property {string=} ishit Used to telegraph and show which spaces have been attacked.
+ * @property {string=} is_hit Used to telegraph which spaces have been or might be attacked.
+ * @property {string=} event_happening Used to telegraph an event.
  */
 
 /**
@@ -4357,6 +4408,27 @@ function fireball_tile(){
         pic_arr,
         rotate: 0,
         direction: undefined
+    }
+}
+
+// Look tiles to give a specific name, background and description to an event.
+/** @type {TileGenerator} Used to show which location will have falling rubble next turn.*/
+function falling_rubble_look(){
+    return {
+        type: `look`,
+        name: `falling rubble`,
+        pic: `${img_folder.tiles}falling_rubble.png`,
+        description: falling_rubble_description
+    }
+}
+/** @type {TileGenerator} Used to show where a darkling will teleport next turn.*/
+function darkling_rift_look(){
+    return {
+        type: `look`,
+        name: `darkling rift`,
+        pic: `${img_folder.tiles}darkling_rift.png`,
+        description: darkling_rift_description,
+        telegraph: spider_telegraph
     }
 }
 
@@ -4681,6 +4753,18 @@ function shadow_scout_tile(){
         telegraph: spider_telegraph,
         look_arr,
         cycle: starting_cycle
+    }
+}
+function darkling_tile(){
+    return {
+        type: `enemy`,
+        name: `darkling`,
+        pic: `${img_folder.tiles}darkling.png`,
+        description: darkling_description, 
+        health: 1,
+        difficulty: 4,
+        behavior: darkling_ai,
+        telegraph: darkling_telegraph,
     }
 }
 
