@@ -82,14 +82,18 @@ class GameState{
      * @param {PlayerCommand} action The command to be followed.
      */
     player_action(action){
-        if(action.type === `attack`){
-            this.map.player_attack(action.change);
-        }
-        else if(action.type === `move`){
-            this.map.player_move(action.change);
-        }
-        else{
-            throw new Error(`invalid action type`);
+        switch(action.type){
+            case `attack`:
+                this.map.player_attack(action.change);
+                break;
+            case `move`:
+                this.map.player_move(action.change);
+                break;
+            case `teleport`:
+                this.map.player_teleport(action.change);
+                break;
+            default:
+                throw new Error(`invalid player action type`);
         }
     }
     /** 

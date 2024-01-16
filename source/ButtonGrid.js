@@ -68,6 +68,9 @@ class ButtonGrid{
                 return i + 1;
             }
         }
+        if(direction === SPIN){
+            return 5;
+        }
         return -1;
     }
 }

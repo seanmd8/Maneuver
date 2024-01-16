@@ -999,6 +999,9 @@ class ButtonGrid{
                 return i + 1;
             }
         }
+        if(direction === SPIN){
+            return 5;
+        }
         return -1;
     }
 }// ----------------Cards.js----------------
@@ -1010,12 +1013,13 @@ const CARD_CHOICES = [
     short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
     sprint, trident, whack_horizontal, spin_attack, butterfly, 
-    retreat, force, side_attack, clear_behind, spear_slice, 
+    retreat, force, side_attack, clear_behind, clear_in_front, 
     jab, overcome, hit_and_run, push_back, fork,
     explosion, breakthrough, flanking_diagonal, flanking_sideways, flanking_straight,
     pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
     thwack, overcome_sideways, y_leap, diamond_slice, spearhead,
-    alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal
+    alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal,
+    diamond_attack, teleport
 ];
 
 // Cards that can be given as a debuff.
@@ -1042,14 +1046,21 @@ const CONFUSION_CARDS = [
 /** @type {PlayerCommandGenerator} Function to create a move command.*/
 function pmove(x, y){
     return {
-        type: "move",
+        type: `move`,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to create a attack command.*/
 function pattack(x, y){
     return {
-        type: "attack",
+        type: `attack`,
+        change: new Point(x, y)
+    }
+}
+/** @type {PlayerCommandGenerator} Function to create a teleport command.*/
+function pteleport(x, y){
+    return {
+        type: `teleport`,
         change: new Point(x, y)
     }
 }
@@ -1243,6 +1254,7 @@ function trident(){
     options.add_button(N, [pattack(1, -2), pattack(0, -2), pattack(-1, -2)]);
     options.add_button(E, [pattack(2, 1), pattack(2, 0), pattack(2, -1)]);
     options.add_button(W, [pattack(-2, 1), pattack(-2, 0), pattack(-2, -1)]);
+    options.add_button(S, [pattack(1, 2), pattack(0, 2), pattack(-1, 2)]);
     return{
         name: `trident`,
         pic: `${img_folder.cards}trident.png`,
@@ -1273,7 +1285,7 @@ function spin_attack(){
                 pattack(-1, 1),
                 pattack(-1, 0),
                 pattack(-1, -1)]
-    options.add_button(`Spin`, spin, 5);
+    options.add_button(SPIN, spin);
     return{
         name: `spin attack`,
         pic: `${img_folder.cards}spin_attack.png`,
@@ -1329,7 +1341,8 @@ function side_attack(){
 /** @type {CardGenerator}*/
 function clear_behind(){
     var options = new ButtonGrid();
-    options.add_button(C, [pattack(1, 1), pattack(0, 1), pattack(-1, 1), pattack(1, 2), pattack(0, 2), pattack(-1, 2)]);
+    options.add_button(S, [pattack(2, 1), pattack(1, 1), pattack(0, 1), pattack(-1, 1), pattack(-2, 1), 
+                           pattack(2, 2), pattack(1, 2), pattack(0, 2), pattack(-1, 2), pattack(-2, 2)]);
     return{
         name: `clear behind`,
         pic: `${img_folder.cards}clear_behind.png`,
@@ -1337,12 +1350,13 @@ function clear_behind(){
     }
 }
 /** @type {CardGenerator}*/
-function spear_slice(){
+function clear_in_front(){
     var options = new ButtonGrid();
-    options.add_button(C, [pattack(1, -1), pattack(-1, -1), pattack(1, -2), pattack(0, -2), pattack(-1, -2)]);
+    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1), 
+                           pattack(1, -2), pattack(0, -2), pattack(-1, -2)]);
     return{
-        name: `spear slice`,
-        pic: `${img_folder.cards}spear_slice.png`,
+        name: `clear in front`,
+        pic: `${img_folder.cards}clear_in_front.png`,
         options
     }
 }
@@ -1452,6 +1466,7 @@ function explosion(){
 function breakthrough(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);
+    options.add_button(S, [pmove(0, 1), pattack(1, 0), pattack(-1, 0), pattack(0, 1)]);
     return{
         name: `breakthrough`,
         pic: `${img_folder.cards}breakthrough.png`,
@@ -1497,6 +1512,8 @@ function pike(){
     options.add_button(N, [pattack(0, -2), pattack(1, -3), pattack(0, -3), pattack(-1, -3)]);
     options.add_button(E, [pattack(2, 0), pattack(3, 1), pattack(3, 0), pattack(3, -1)]);
     options.add_button(W, [pattack(-2, 0), pattack(-3, 1), pattack(-3, 0), pattack(-3, -1)]);
+    options.add_button(S, [pattack(0, 2), pattack(1, 3), pattack(0, 3), pattack(-1, 3)]);
+
     return{
         name: `pike`,
         pic: `${img_folder.cards}pike.png`,
@@ -1571,7 +1588,7 @@ function diamond_slice(){
                 pattack(-1, 1),
                 pattack(-2, 0),
                 pattack(-1, -1)]
-    options.add_button(`Spin`, spin, 5);
+    options.add_button(SPIN, spin);
     return{
         name: `diamond slice`,
         pic: `${img_folder.cards}diamond_slice.png`,
@@ -1654,6 +1671,33 @@ function jab_diagonal(){
         options
     }
 }
+/** @type {CardGenerator}*/
+function diamond_attack(){
+    var options = new ButtonGrid();
+    options.add_button(SPIN, [pattack(0, -1), pattack(1, 0), pattack(0, 1), pattack(-1, 0)]);
+    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    return{
+        name: `diamond attack`,
+        pic: `${img_folder.cards}diamond_attack.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function teleport(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pteleport(0, 0)]);
+    return{
+        name: `teleport`,
+        pic: `${img_folder.cards}teleport.png`,
+        options
+    }
+}
+
+
+
+
+
 
 // Cards given to the player as debuffs
 /** @type {CardGenerator}*/
@@ -1939,6 +1983,7 @@ const S = `S`;
 const SW = `SW`;
 const W = `W`;
 const C = `C`;
+const SPIN = `Spin`;
 // ----------------Display.js----------------
 // File containing the display class which interacts with wherever the game is being displayed. 
 // Currently the only way to display is via HTML, but if I wanted to port the game, this should
@@ -2813,6 +2858,17 @@ class GameMap{
         return this.move(player_pos, player_pos.plus(direction));
     }
     /**
+     * Teleports something at a space relative to the player to a random location.
+     * @param {Point} target Relative location.
+     * @returns {boolean} Returns true if something was teleported, false otherwise.
+     */
+    player_teleport(target){
+        // Moves the player the given relative distance.
+        var player_pos = this.#entity_list.get_player_pos();
+        var destination = this.random_empty();
+        return this.move(player_pos.plus(target), destination);
+    }
+    /**
      * Returns the player tile. Throws an error if there isn't one.
      * @returns {Tile} The player tile.
      */
@@ -2888,7 +2944,10 @@ class GameMap{
         try{
             return this.attack(pos.plus(direction), `all`);
         }
-        catch{
+        catch (error){
+            if(error.message !== `game over`){
+                throw error;
+            }
             throw new Error(`game over`, {cause: new Error(`player`)});
         }
     }
@@ -3122,14 +3181,18 @@ class GameState{
      * @param {PlayerCommand} action The command to be followed.
      */
     player_action(action){
-        if(action.type === `attack`){
-            this.map.player_attack(action.change);
-        }
-        else if(action.type === `move`){
-            this.map.player_move(action.change);
-        }
-        else{
-            throw new Error(`invalid action type`);
+        switch(action.type){
+            case `attack`:
+                this.map.player_attack(action.change);
+                break;
+            case `move`:
+                this.map.player_move(action.change);
+                break;
+            case `teleport`:
+                this.map.player_teleport(action.change);
+                break;
+            default:
+                throw new Error(`invalid player action type`);
         }
     }
     /** 

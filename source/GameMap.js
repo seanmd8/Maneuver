@@ -335,6 +335,17 @@ class GameMap{
         return this.move(player_pos, player_pos.plus(direction));
     }
     /**
+     * Teleports something at a space relative to the player to a random location.
+     * @param {Point} target Relative location.
+     * @returns {boolean} Returns true if something was teleported, false otherwise.
+     */
+    player_teleport(target){
+        // Moves the player the given relative distance.
+        var player_pos = this.#entity_list.get_player_pos();
+        var destination = this.random_empty();
+        return this.move(player_pos.plus(target), destination);
+    }
+    /**
      * Returns the player tile. Throws an error if there isn't one.
      * @returns {Tile} The player tile.
      */
@@ -410,7 +421,10 @@ class GameMap{
         try{
             return this.attack(pos.plus(direction), `all`);
         }
-        catch{
+        catch (error){
+            if(error.message !== `game over`){
+                throw error;
+            }
             throw new Error(`game over`, {cause: new Error(`player`)});
         }
     }

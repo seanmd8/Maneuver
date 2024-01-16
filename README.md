@@ -4,7 +4,13 @@ It is a roguelike dungeon crawler where your movement is based on a deck of card
 
 If you want to try it, download it as a zip file using the "<>Code" button, unpack it, then run Maneuver.html
 
+
+
 Gameplay Changelog:
+
+1/16/24
+- Added 2 new cards.
+- Buffed several cards.
 
 1/15/24
 - Added new enemy: Darkling.
