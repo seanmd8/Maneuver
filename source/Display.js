@@ -32,7 +32,7 @@
 
 /**
  * @callback NormalCallback A function with no args or returns.
- * @returns {undefined}
+ * @returns {void}
  */
 
 /**
@@ -320,7 +320,6 @@ const DisplayHTML = {
         var body_text = document.createElement(`p`);
         body_text.id = `${body_div_id} text`;
         body_text.innerText = wrap_str(body, TEXT_WRAP_WIDTH, ` `);;
-        body_text.style = `line-height: 1;`
         body_div.append(body_text);
     },
     create_dropdown(location, options_arr){

@@ -236,7 +236,7 @@ class GameMap{
      * Function to display the gamemap and the player's health.
      * Clicking on a tile will give info about it.
      * Resets tiles marked as hit afterwards.
-     * @returns {undefined}
+     * @returns {void}
      */
     display(){
         // Diplays the gamemap. Each element shows it's description and hp (if applicable) when clicked.
@@ -449,7 +449,7 @@ class GameMap{
     /**
      * Replaces the exit tile with a lock tile.
      * Throws an error if there is no exit.
-     * @returns {undefined}
+     * @returns {void}
      */
     lock(){
         var pos = this.#entity_list.get_exit_pos();
@@ -458,7 +458,7 @@ class GameMap{
     /**
      * Replaces the lock tile with an exit one and heals the player to max.
      * Throws an error if there is no lock or exit.
-     * @returns {undefined}
+     * @returns {void}
      */
     unlock(){
         var pos = this.#entity_list.get_exit_pos();
@@ -476,7 +476,7 @@ class GameMap{
     /**
      * Executes and removes each scheduled event.
      * Throws an error if one that isn't handled tries to happen or the player dies.
-     * @returns {undefined}
+     * @returns {void}
      */
     resolve_events(){
         var current_events = this.#events;
@@ -487,7 +487,7 @@ class GameMap{
     }
     /**
      * Clears the current floor and goes to the next one then generates it based on the current area.
-     * @returns {undefined}
+     * @returns {void}
      */
     next_floor(){
         this.erase();
@@ -540,7 +540,7 @@ class GameMap{
     }
     /**
      * Clears all hits and other alternate pics from empty tiles in the grid.
-     * @returns {undefined}
+     * @returns {void}
      */
     clear_telegraphs(){
         for(var y = 0; y < this.#y_max; ++y){
@@ -562,7 +562,7 @@ class GameMap{
     }
     /**
      * Function to clear all marked empty tiles.
-     * @returns {undefined}
+     * @returns {void}
      */
     clear_marked(){
         for(var y = 0; y < this.#y_max; ++y){

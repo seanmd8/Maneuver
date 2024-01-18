@@ -2,7 +2,7 @@
 
 /**
  * Initiates the game when the page is loaded.
- * @returns {undefined}
+ * @returns {void}
  */
 function initiate_game(){
     display.display_message(UIIDS.title, `${game_title}    `);

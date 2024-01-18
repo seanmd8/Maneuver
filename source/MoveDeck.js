@@ -21,7 +21,7 @@ class MoveDeck{
     }
     /**
      * Resets the deck to the decklist then deals a new hand.
-     * @returns {undefined}
+     * @returns {void}
      */
     deal(){
         // Shuffles all cards together then deals a new hand.
