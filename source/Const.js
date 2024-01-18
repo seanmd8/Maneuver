@@ -27,7 +27,7 @@ const CARD_SCALE = 90;
 const TILE_SCALE = 30;
 const ANIMATION_DELAY = 300;
 const DECK_DISPLAY_WIDTH = 4;
-const TEXT_WRAP_WIDTH = 45;
+const TEXT_WRAP_WIDTH = 65;
 const MARKUP_LANGUAGE = `html`;
 
 

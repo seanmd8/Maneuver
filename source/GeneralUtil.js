@@ -60,13 +60,13 @@ function rand_no_repeates(source, draws){
 function wrap_str(message, wrap_length, delimiter = undefined){
     var new_message = ``;
     var str_arr = [];
-    if(message.indexOf(`\n`) > -1){
+    if(message.indexOf(`\n`) > -1){ // If it already has new line characters, 
         str_arr = message.split(`\n`);
         for(var i = 0; i < str_arr.length; ++i){
             new_message = `${new_message}${wrap_str(str_arr[i], wrap_length, delimiter)}\n`
         }
     }
-    else if(delimiter === undefined){
+    else if(delimiter === undefined){ // if there is no delimiter
         var start = 0;
         while(start < message.length){
             var end = Math.min(message.length, start + wrap_length);
@@ -77,17 +77,17 @@ function wrap_str(message, wrap_length, delimiter = undefined){
             new_message = `${new_message}${str_arr[i]}\n`
         }
     }
-    else{
+    else{ // if there is a delimiter
         str_arr = message.split(delimiter);
         var line = ``
         for(var i = 0; i < str_arr.length; ++i){
             line = `${line}${str_arr[i]}${delimiter}`;
-            if(line.length >= wrap_length){
+            if(line.length > wrap_length){
                 new_message = `${new_message}${line.slice(0, -1 * delimiter.length)}\n`
                 line = ``;
             } 
         }
-        if(line.length >= 0){
+        if(line.length > 0){
             new_message = `${new_message}${line.slice(0, -1 * delimiter.length)}\n`
         } 
     }

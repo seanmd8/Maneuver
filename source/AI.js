@@ -565,7 +565,7 @@ function boss_death(location, difference, map, self){
     if(self.death_message === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
-    display.display_message(ui_id.display_message, `${self.death_message}\n${boss_death_description}`);
+    display.display_message(UIIDS.display_message, `${self.death_message}\n${boss_death_description}`);
     map.unlock();
 }
 /** @type {AIFunction} AI used by the Velociphile.*/

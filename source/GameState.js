@@ -18,17 +18,16 @@ class GameState{
     setup(){
         // Function ran on page load or on restart to set up the game.
         var start = STARTING_AREA();
-        display.display_message(ui_id.title, game_title);
-        display.display_message(ui_id.display_message, `${start.description}\n${welcome_message}`);
+        display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
         this.map.add_tile(STARTING_ENEMY());
         this.map.display();
-        this.map.display_stats(ui_id.stats);
+        this.map.display_stats(UIIDS.stats);
         this.deck = STARTING_DECK();
-        this.deck.display_hand(ui_id.hand_display);
-        display.display_message(ui_id.shop_instructions, mod_deck);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.game_screen);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.stage);
+        this.deck.display_hand(UIIDS.hand_display);
+        display.display_message(UIIDS.shop_instructions, mod_deck);
+        display.swap_screen(DISPLAY_DIVISIONS, UIIDS.game_screen);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
     }
     /** 
      * Handles the effects of using a card, then passes to the enemies' turn.
@@ -41,14 +40,14 @@ class GameState{
      */
     async player_turn(behavior, hand_pos){
         // Function to execute the outcome of the player's turn.
-        display.display_message(ui_id.display_message, ``);
+        display.display_message(UIIDS.display_message, ``);
         this.map.clear_marked();
         try{
             for(var i = 0; i < behavior.length; ++i){
                 // Does each valid command in the behavior array.
                 this.player_action(behavior[i]);
             }
-            display.clear_tb(ui_id.move_buttons);
+            display.clear_tb(UIIDS.move_buttons);
             this.deck.discard(hand_pos);
             this.map.display();
             await delay(ANIMATION_DELAY);
@@ -59,7 +58,7 @@ class GameState{
             var m = error.message;
             if(m === `floor complete`){
                 // If the player has reached the end of the floor.
-                this.map.display_stats(ui_id.stats);
+                this.map.display_stats(UIIDS.stats);
                 this.enter_shop();
             }
             else if(m === `game over`){
@@ -103,11 +102,11 @@ class GameState{
     new_floor(){
         // Creates the next floor.
         this.map.next_floor();
-        this.map.display_stats(ui_id.stats);
+        this.map.display_stats(UIIDS.stats);
         this.map.display();
         this.deck.deal();
-        this.deck.display_hand(ui_id.hand_display);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.stage);
+        this.deck.display_hand(UIIDS.hand_display);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
     }
     /** 
      * Preps and swaps to the shop screen.
@@ -117,14 +116,14 @@ class GameState{
         // Gives the player the option to add or remove a card from their deck.
         // Their deck contents are also displayed.
         // Options to remove cards will not be displayed if the deck is at the minimum size already.
-        display.clear_tb(ui_id.move_buttons);
-        display.clear_tb(ui_id.add_card);
-        display.clear_tb(ui_id.remove_card);
-        display.clear_tb(ui_id.display_deck);
-        this.deck.display_all(ui_id.display_deck);
-        this.#generate_add_row(ui_id.add_card);
-        this.#generate_remove_row(ui_id.remove_card);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.shop);
+        display.clear_tb(UIIDS.move_buttons);
+        display.clear_tb(UIIDS.add_card);
+        display.clear_tb(UIIDS.remove_card);
+        display.clear_tb(UIIDS.display_deck);
+        this.deck.display_all(UIIDS.display_deck);
+        this.#generate_add_row(UIIDS.add_card);
+        this.#generate_remove_row(UIIDS.remove_card);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.shop);
     }
     /** 
      * Creates the row of cards that can be added to the deck.
@@ -177,20 +176,20 @@ class GameState{
         // Tells the user the game is over, prevents them fro m continuing, tells them the cause
         // and gives them the chance to retry.
         this.map.display();
-        display.clear_tb(ui_id.hand_display);
-        display.clear_tb(ui_id.move_buttons);
-        display.display_message(ui_id.display_message, `${game_over_message}${cause}.`);
-        display.clear_tb(ui_id.move_buttons);
+        display.clear_tb(UIIDS.hand_display);
+        display.clear_tb(UIIDS.move_buttons);
+        display.display_message(UIIDS.display_message, `${game_over_message}${cause}.`);
+        display.clear_tb(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
-                display.clear_tb(ui_id.move_buttons);
+                display.clear_tb(UIIDS.move_buttons);
                 game.setup();
             };
         }
         var restart_message = [{
             description: retry_message
         }]
-        display.add_button_row(ui_id.move_buttons, restart_message, restart(this));
+        display.add_button_row(UIIDS.move_buttons, restart_message, restart(this));
     }
     /**
      * Adds a temporary card to the player's deck.
@@ -208,8 +207,8 @@ class GameState{
         this.map.display();
         await delay(ANIMATION_DELAY);
         this.map.display();
-        this.deck.display_hand(ui_id.hand_display);
-        this.map.display_stats(ui_id.stats);
+        this.deck.display_hand(UIIDS.hand_display);
+        this.map.display_stats(UIIDS.stats);
     }
 }
 

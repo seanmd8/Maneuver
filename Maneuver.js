@@ -566,7 +566,7 @@ function boss_death(location, difference, map, self){
     if(self.death_message === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
-    display.display_message(ui_id.display_message, `${self.death_message}\n${boss_death_description}`);
+    display.display_message(UIIDS.display_message, `${self.death_message}\n${boss_death_description}`);
     map.unlock();
 }
 /** @type {AIFunction} AI used by the Velociphile.*/
@@ -793,7 +793,7 @@ function generate_ruins_area(){
     return {
         background: `${img_folder.backgrounds}ruins.png`,
         generate_floor: generate_ruins_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, ram_tile, rat_tile, acid_bug_tile, shadow_knight_tile],
+        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, ram_tile, rat_tile, acid_bug_tile, shadow_knight_tile, vinesnare_bush_tile],
         boss_floor_list: [velociphile_floor],
         next_area_list: area2,
         description: ruins_description
@@ -1866,7 +1866,7 @@ const CARD_SCALE = 90;
 const TILE_SCALE = 30;
 const ANIMATION_DELAY = 300;
 const DECK_DISPLAY_WIDTH = 4;
-const TEXT_WRAP_WIDTH = 45;
+const TEXT_WRAP_WIDTH = 65;
 const MARKUP_LANGUAGE = `html`;
 
 
@@ -1898,6 +1898,8 @@ const floor_message = `Welcome to floor `;
 const game_over_message = `Game Over. You were killed by a `;
 const retry_message = `Retry?`;
 const stunned_msg = `Stunned x`;
+const gameplay_screen_name = `Gameplay`;
+const guide_screen_name = `Guidebook`;
 
 // Normal Enemy Descriptions.
 const spider_description = `Spider: Will attack the player if it is next to them. Otherwise it will move 1 space closer.`;
@@ -2017,6 +2019,17 @@ const SPIN = `Spin`;
  */
 
 /**
+ * @callback NormalCallback A function with no args or returns.
+ * @returns {undefined}
+ */
+
+/**
+ * @typedef {Object} DropdownOption
+ * @property {string} label The label that should be displayed in the dropdown menu.
+ * @property {NormalCallback} on_change The function executed when this option is chosen.
+ */
+
+/**
  * @callback add_tb_row A function to add a row of images to a table.
  * @param {string} location The ID of the table to be added to.
  * @param {CellInfo[]} row_contents The objects used to construct the row's contents.
@@ -2064,6 +2077,19 @@ const SPIN = `Spin`;
  */
 
 /**
+ * @callback create_visibility_toggle A function to create a section of text that can be minimized with the press of a button.location, header, body
+ * @param {string} location Where to create the section.
+ * @param {string} header What the section is called.
+ * @param {string} body The text to display in the section.
+ */
+
+/**
+ * @callback create_dropdown A function to create a dropdown menu where the user can select an option.
+ * @param {string} location Where the dropdown menu should be added to.
+ * @param {DropdownOption[]} options_arr An array of each label and associated function that make up the dropdown menu.
+ */
+
+/**
  * @typedef {Object} DisplayLibrary The library of functions used to handle displaying things in a specific language.
  * @property {add_tb_row} add_tb_row
  * @property {add_button_row} add_button_row
@@ -2072,6 +2098,8 @@ const SPIN = `Spin`;
  * @property {swap_screen} swap_screen
  * @property {select} select
  * @property {press} press
+ * @property {create_visibility_toggle} create_visibility_toggle
+ * @property {create_dropdown} create_dropdown
  */
 
 
@@ -2231,7 +2259,7 @@ const DisplayHTML = {
         var key_num = search(key_press.key, controls.directional);
         if(key_num >= 0){
             try{
-                DisplayHTML.get_element(`${ui_id.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
+                DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
             }
             catch(error){
                 if(error.message !== `failed to retrieve html element`){
@@ -2243,9 +2271,74 @@ const DisplayHTML = {
         // Select card via keyboard.
         key_num = search(key_press.key, controls.card);
         if(key_num >= 0){
-            var element = DisplayHTML.get_element(`${ui_id.hand_display} 0 ${key_num}`);
+            var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
             element && element.click();
         }
+    },
+    create_visibility_toggle: function(location, header, body){
+        var toggle_visible = function(button_table_id, body_id, header_txt, visible){
+            return function(tile, position){
+                var vis_str = visible ? `Hide` : `Show`;
+                var callback = toggle_visible(tb_id, body_id, header_txt, !visible);
+                DisplayHTML.clear_tb(button_table_id);
+                DisplayHTML.add_button_row(button_table_id, [{description: `${vis_str} ${header_txt}`}], callback);
+                var vis_style = visible ? `block` : `none`;
+                DisplayHTML.get_element(body_id).style.display = vis_style;
+            }
+        }
+
+        var section = DisplayHTML.get_element(location);
+        var table = document.createElement(`table`);
+        var tb_id = `${location} ${header} table`;
+        table.id = tb_id;
+        section.append(table);
+
+        var body_div = document.createElement(`div`);
+        var body_div_id = `${location} ${header} section`;
+        body_div.id = body_div_id;
+        body_div.style.display = `none`;
+        section.append(body_div);
+        DisplayHTML.add_button_row(tb_id, [{description: `Show ${header}`}], toggle_visible(tb_id, body_div_id, header, true));
+
+        var body_header = document.createElement(`h2`);
+        body_header.id = `${body_div_id} header`;
+        body_header.innerText = `${header}:`;
+        body_div.append(body_header);
+
+        var body_text = document.createElement(`p`);
+        body_text.id = `${body_div_id} text`;
+        body_text.innerText = wrap_str(body, TEXT_WRAP_WIDTH, ` `);;
+        body_text.style = `line-height: 1;`
+        body_div.append(body_text);
+    },
+    create_dropdown(location, options_arr){
+        var doc_location = this.get_element(location);
+        var select_button = document.createElement(`select`);
+        var select_id = `${location} select`
+        select_button.id = select_id;
+        var select_func = function(options, select_id){
+            var option_func_map = new Map()
+            for(var option of options){
+                option_func_map.set(option.label, option.on_change);
+            }
+            return function(){
+                var select_element = DisplayHTML.get_element(select_id, HTMLSelectElement);
+                var label = select_element.value;
+                var chosen_option = option_func_map.get(label);
+                if(chosen_option === undefined){
+                    throw new Error("unrecognized value in select element");
+                }
+                chosen_option();
+            }
+        }
+        select_button.onchange = select_func(options_arr, select_id);
+        for(var option_data of options_arr){
+            var option = document.createElement(`option`);
+            option.value = option_data.label;
+            option.innerText = option_data.label;
+            select_button.append(option);
+        }
+        doc_location.append(select_button);
     },
 
     // Non Required helper functions.
@@ -2765,11 +2858,11 @@ class GameMap{
         // Diplays the gamemap. Each element shows it's description and hp (if applicable) when clicked.
         // If any empty tiles have been marked as hit, it resets the pic to empty.
         // Shows the player's remaining health below.
-        display.clear_tb(ui_id.map_display);
+        display.clear_tb(UIIDS.map_display);
         var make_on_click = function(gameMap){
             return function(tile, location){
                 var description = tile_description(tile);
-                display.display_message(ui_id.display_message, description);
+                display.display_message(UIIDS.display_message, description);
                 gameMap.clear_telegraphs();
                 if(tile.telegraph !== undefined && !tile.stun){
                     gameMap.display_telegraph(tile.telegraph(location, gameMap, tile));
@@ -2790,9 +2883,9 @@ class GameMap{
             }
         }        
         for(var y = 0; y < this.#y_max; y++){
-            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), make_background(this.#area));
+            display.add_tb_row(UIIDS.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), make_background(this.#area));
         }
-        display.clear_tb(ui_id.health_display);
+        display.clear_tb(UIIDS.health_display);
         display_health(this.get_player(), TILE_SCALE);
         this.clear_telegraphs()
 	}
@@ -3028,7 +3121,7 @@ class GameMap{
         else{
             this.#area.generate_floor(this.#floor_num, this.#area, this);
         }
-        display.display_message(ui_id.display_message, floor_description);
+        display.display_message(UIIDS.display_message, floor_description);
     }
     /**
      * Gets a tile from a location on the grid.
@@ -3117,17 +3210,16 @@ class GameState{
     setup(){
         // Function ran on page load or on restart to set up the game.
         var start = STARTING_AREA();
-        display.display_message(ui_id.title, game_title);
-        display.display_message(ui_id.display_message, `${start.description}\n${welcome_message}`);
+        display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
         this.map.add_tile(STARTING_ENEMY());
         this.map.display();
-        this.map.display_stats(ui_id.stats);
+        this.map.display_stats(UIIDS.stats);
         this.deck = STARTING_DECK();
-        this.deck.display_hand(ui_id.hand_display);
-        display.display_message(ui_id.shop_instructions, mod_deck);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.game_screen);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.stage);
+        this.deck.display_hand(UIIDS.hand_display);
+        display.display_message(UIIDS.shop_instructions, mod_deck);
+        display.swap_screen(DISPLAY_DIVISIONS, UIIDS.game_screen);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
     }
     /** 
      * Handles the effects of using a card, then passes to the enemies' turn.
@@ -3140,14 +3232,14 @@ class GameState{
      */
     async player_turn(behavior, hand_pos){
         // Function to execute the outcome of the player's turn.
-        display.display_message(ui_id.display_message, ``);
+        display.display_message(UIIDS.display_message, ``);
         this.map.clear_marked();
         try{
             for(var i = 0; i < behavior.length; ++i){
                 // Does each valid command in the behavior array.
                 this.player_action(behavior[i]);
             }
-            display.clear_tb(ui_id.move_buttons);
+            display.clear_tb(UIIDS.move_buttons);
             this.deck.discard(hand_pos);
             this.map.display();
             await delay(ANIMATION_DELAY);
@@ -3158,7 +3250,7 @@ class GameState{
             var m = error.message;
             if(m === `floor complete`){
                 // If the player has reached the end of the floor.
-                this.map.display_stats(ui_id.stats);
+                this.map.display_stats(UIIDS.stats);
                 this.enter_shop();
             }
             else if(m === `game over`){
@@ -3202,11 +3294,11 @@ class GameState{
     new_floor(){
         // Creates the next floor.
         this.map.next_floor();
-        this.map.display_stats(ui_id.stats);
+        this.map.display_stats(UIIDS.stats);
         this.map.display();
         this.deck.deal();
-        this.deck.display_hand(ui_id.hand_display);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.stage);
+        this.deck.display_hand(UIIDS.hand_display);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
     }
     /** 
      * Preps and swaps to the shop screen.
@@ -3216,14 +3308,14 @@ class GameState{
         // Gives the player the option to add or remove a card from their deck.
         // Their deck contents are also displayed.
         // Options to remove cards will not be displayed if the deck is at the minimum size already.
-        display.clear_tb(ui_id.move_buttons);
-        display.clear_tb(ui_id.add_card);
-        display.clear_tb(ui_id.remove_card);
-        display.clear_tb(ui_id.display_deck);
-        this.deck.display_all(ui_id.display_deck);
-        this.#generate_add_row(ui_id.add_card);
-        this.#generate_remove_row(ui_id.remove_card);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, ui_id.shop);
+        display.clear_tb(UIIDS.move_buttons);
+        display.clear_tb(UIIDS.add_card);
+        display.clear_tb(UIIDS.remove_card);
+        display.clear_tb(UIIDS.display_deck);
+        this.deck.display_all(UIIDS.display_deck);
+        this.#generate_add_row(UIIDS.add_card);
+        this.#generate_remove_row(UIIDS.remove_card);
+        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.shop);
     }
     /** 
      * Creates the row of cards that can be added to the deck.
@@ -3276,20 +3368,20 @@ class GameState{
         // Tells the user the game is over, prevents them fro m continuing, tells them the cause
         // and gives them the chance to retry.
         this.map.display();
-        display.clear_tb(ui_id.hand_display);
-        display.clear_tb(ui_id.move_buttons);
-        display.display_message(ui_id.display_message, `${game_over_message}${cause}.`);
-        display.clear_tb(ui_id.move_buttons);
+        display.clear_tb(UIIDS.hand_display);
+        display.clear_tb(UIIDS.move_buttons);
+        display.display_message(UIIDS.display_message, `${game_over_message}${cause}.`);
+        display.clear_tb(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
-                display.clear_tb(ui_id.move_buttons);
+                display.clear_tb(UIIDS.move_buttons);
                 game.setup();
             };
         }
         var restart_message = [{
             description: retry_message
         }]
-        display.add_button_row(ui_id.move_buttons, restart_message, restart(this));
+        display.add_button_row(UIIDS.move_buttons, restart_message, restart(this));
     }
     /**
      * Adds a temporary card to the player's deck.
@@ -3307,8 +3399,8 @@ class GameState{
         this.map.display();
         await delay(ANIMATION_DELAY);
         this.map.display();
-        this.deck.display_hand(ui_id.hand_display);
-        this.map.display_stats(ui_id.stats);
+        this.deck.display_hand(UIIDS.hand_display);
+        this.map.display_stats(UIIDS.stats);
     }
 }
 
@@ -3375,13 +3467,13 @@ function rand_no_repeates(source, draws){
 function wrap_str(message, wrap_length, delimiter = undefined){
     var new_message = ``;
     var str_arr = [];
-    if(message.indexOf(`\n`) > -1){
+    if(message.indexOf(`\n`) > -1){ // If it already has new line characters, 
         str_arr = message.split(`\n`);
         for(var i = 0; i < str_arr.length; ++i){
             new_message = `${new_message}${wrap_str(str_arr[i], wrap_length, delimiter)}\n`
         }
     }
-    else if(delimiter === undefined){
+    else if(delimiter === undefined){ // if there is no delimiter
         var start = 0;
         while(start < message.length){
             var end = Math.min(message.length, start + wrap_length);
@@ -3392,17 +3484,17 @@ function wrap_str(message, wrap_length, delimiter = undefined){
             new_message = `${new_message}${str_arr[i]}\n`
         }
     }
-    else{
+    else{ // if there is a delimiter
         str_arr = message.split(delimiter);
         var line = ``
         for(var i = 0; i < str_arr.length; ++i){
             line = `${line}${str_arr[i]}${delimiter}`;
-            if(line.length >= wrap_length){
+            if(line.length > wrap_length){
                 new_message = `${new_message}${line.slice(0, -1 * delimiter.length)}\n`
                 line = ``;
             } 
         }
-        if(line.length >= 0){
+        if(line.length > 0){
             new_message = `${new_message}${line.slice(0, -1 * delimiter.length)}\n`
         } 
     }
@@ -3511,6 +3603,72 @@ function array_equals(a1, a2){
     }
     return true;
 }
+// ----------------GuideText.js----------------
+// This file contains the headers and text for the guide / tutorial section.
+
+const GUIDE_HEADERS = {
+    basics: `The Basics`,
+    cards: `Playing Your Cards`,
+    enemies: `Dealing With Enemies`,
+    shop: `The Shop`,
+    bosses: `Bosses`,
+}
+Object.freeze(GUIDE_HEADERS);
+
+const GUIDE_TEXT = {
+    basics: `Welcome to Maneuver. The goal of the game is to progress as deep into the dungeon as possible by completing each floor. `
+            +`To finish a floor, you need to reach the stairs that lead down to the next one. Enemies will spawn on each floor which will `
+            +`try to stop you from continuing. You do not need to defeat everything on the current floor to continue, but will often need to `
+            +`fight most of them to survive. Read more about controlling your character in the next section. Good luck!\n`,
+
+    cards: `To control your character's actions, you have a deck of cards. Each card gives you 1-4 options for a set of actions `
+            +`to take. The actions on the card will be performed relative to your current location (the black dot). Clicking on a card will `
+            +`bring up a grid of buttons which will let you use it. When you use a card, it will be discarded and replaced with another from your `
+            +`deck. Then everything else on the floor will get a chance to act (read more in the next section). When your deck runs out, your `
+            +`discard pile will be shuffled back into it.\n`
+            +`\n`
+            +`Colors and Symbols:\n`
+            +`Red: You will attack this space.\n`
+            +`Blue: You will move to this space.\n`
+            +`Grey Line: Each action the line goes through will be performed. If it has an arrow, they will be performed in that order.\n`
+            +`Black Slash: Multiple actions will be performed on this space. Attacks will be performed before moves.\n`
+            +`\n`
+            +`In addition to clicking on cards to use them, if you are on a computer you can use\n`
+            +`\n`
+            +`| h | j | k |\n`
+            +`\n`
+            +`to select a card and\n`
+            +`\n`
+            +`| q | w | e |\n`
+            +`| a | s | d |\n`
+            +`| z | x | c |\n`
+            +`\n`
+            +`to use it.\n`
+            +`\n`
+            +`Moving into a wall or an occupied space will generally have no effect unless one is specified in it's description, so it is a `
+            +`great option if you want to skip your turn. If other actions are performed after a failed move, they will be performed where `
+            +`you are rather than where you would have been.\n`,
+
+    enemies: `As you travel through the dungeon, you will encounter various other creatures, many of whom want to kill you. Each creature has `
+            +`different patterns of attack and movement and many of them have other unique abilities. Click on a tile to learn more about it. `
+            +`Clicking will show you a description of it, how much health it has, and which squares it might be able to attack on it's next `
+            +`turn. Some enemies also have the ability to move you during their turn. When this happens, you will get the chance to respond. `
+            +`Remember that you do not need to kill everything to go to the next stage. Sometimes it's better to run past an enemy than to `
+            +`fight it and risk getting surrounded or cornered. There may also be some creatures you encounter that are more helpful than `
+            +`harmful.\n`,
+
+    shop: `When you complete a floor, you will enter a shop where you must either add or remove a card from your deck. You will get `
+            +`${ADD_CHOICE_COUNT} options of random cards to add, and ${REMOVE_CHOICE_COUNT} options of random cards from your deck to remove. `
+            +`You will also be able to see the current contents of your deck to help you make your choice. There is a minimum deck size of `
+            +`${MIN_DECK_SIZE}, so if you reach it you will not be able to remove more cards.\n`,
+
+    bosses: `Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be locked until you defeat it's `
+            +`powerful occupant. When you defeat the boss, in addition to unlocking the stairs, you will be fully healed. When leaving the floor `
+            +`you will enter a new area of the dungeon with a different pool of inhabitants and a new boss at the end.`,
+}
+Object.freeze(GUIDE_TEXT);
+
+
 
 
 /**
@@ -3518,6 +3676,9 @@ function array_equals(a1, a2){
  * @returns {undefined}
  */
 function initiate_game(){
+    display.display_message(UIIDS.title, `${game_title}    `);
+    create_main_dropdown(UIIDS.title);
+    display_guide(UIIDS.guide);
     GS = new GameState();
 }
 
@@ -3781,9 +3942,42 @@ function display_health(player, scale){
     for(var i = 0; i < (player.max_health - player.health); ++i){
         health.push({pic: `${img_folder.other}heart_broken.png`});
     }
-    display.add_tb_row(ui_id.health_display, health, scale);
+    display.add_tb_row(UIIDS.health_display, health, scale);
 }
-
+/**
+ * Function to create a dropdown menu capable of switching between the game and guide screens.
+ * @param {string} location Where to create it.
+ */
+function create_main_dropdown(location){
+    var options = [];
+    var make_on_change = function(screens, screen){
+        return function(){
+            display.swap_screen(screens, screen);
+        }
+    }
+    if(DISPLAY_DIVISION_NAMES.length !== DISPLAY_DIVISIONS.length){
+        throw new Error("list length mismatch");
+    }
+    for(var i = 0; i < DISPLAY_DIVISIONS.length; ++i){
+        var option = {
+            label: DISPLAY_DIVISION_NAMES[i],
+            on_change: make_on_change(DISPLAY_DIVISIONS, DISPLAY_DIVISIONS[i])
+        }
+        options.push(option);
+    }
+    display.create_dropdown(location, options);
+}
+/**
+ * Function to display the guide.
+ * @param {string} location Where to display it to.
+ */
+function display_guide(location){
+    display.create_visibility_toggle(location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses);
+}
 
 // ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.
@@ -3883,8 +4077,8 @@ class MoveDeck{
         display.clear_tb(table);
         var make_prep_move = function(deck){
             return function(card, hand_pos){
-                display.select(ui_id.hand_display, 0, hand_pos.x);
-                card.options.show_buttons(ui_id.move_buttons, hand_pos.x);
+                display.select(UIIDS.hand_display, 0, hand_pos.x);
+                card.options.show_buttons(UIIDS.move_buttons, hand_pos.x);
                 var deck = deck;
             }
         }
@@ -3895,7 +4089,7 @@ class MoveDeck{
      * @param {string} table Where it should be displayed.
      */
     display_all(table){
-        display.display_message(ui_id.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
+        display.display_message(UIIDS.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
         for(var i = 0; i < Math.ceil(this.#decklist.length / DECK_DISPLAY_WIDTH); ++i){
             display.add_tb_row(table, this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH), CARD_SCALE)
             
@@ -4927,20 +5121,20 @@ function spell_generator(behavior, description, pic){
  * Function to get a set of uiids (Identifiers that can be used to retrieve the appropriate ui element) for the appropriate language.
  * Throws an error if an invalid language is provided.
  * @param {string} language The language to get uiids for.
- * @returns {ui_id_library} The library of uiids for that language.
+ * @returns {uiid_library} The library of uiids for that language.
  */
-function get_ui_ids(language){
+function get_uiids(language){
     // Factory function for the display classes (currently only html)
     switch(language){
         case `html`:
-            return HTML_UI_ID;
+            return HTML_UIIDS;
         default:
             throw new Error(`invalid display language`);
     }
 }
 
 /**
- * @typedef ui_id_library
+ * @typedef uiid_library
  * @property {string} title Displays the title of the game.
  * @property {string} stats Displays the current stats.
  * @property {string} game_screen Controls the visibility of the game itself.
@@ -4957,12 +5151,12 @@ function get_ui_ids(language){
  *          @property {string} current_deck Tells them the next element is their current deck.
  *          @property {string} display_deck Displays their entire deck.
  *      @property {string} chest Controls the visibility of the chest contents.
- * @property {string} tutorial Controls the visibility of the tutorial screen.
+ * @property {string} guide Controls the visibility of the guide screen.
  */
 
 
-/** @type {ui_id_library} The uiid library for HTML.*/
-const HTML_UI_ID = {
+/** @type {uiid_library} The uiid library for HTML.*/
+const HTML_UIIDS = {
     title: `title`,
     stats: `stats`,
     game_screen: `gameScreen`,
@@ -4979,11 +5173,12 @@ const HTML_UI_ID = {
     current_deck: `currentDeck`,
     display_deck: `displayDeck`,
     chest: `chest`,
-    tutorial: `tutorial`
+    guide: `guide`,
 }
-Object.freeze(HTML_UI_ID);
+Object.freeze(HTML_UIIDS);
 
-const ui_id = get_ui_ids(MARKUP_LANGUAGE);
+const UIIDS = get_uiids(MARKUP_LANGUAGE);
 
-const GAME_SCREEN_DIVISIONS = [ui_id.stage, ui_id.shop, ui_id.chest];
-const DISPLAY_DIVISIONS = [ui_id.game_screen, ui_id.tutorial];
+const GAME_SCREEN_DIVISIONS = [UIIDS.stage, UIIDS.shop, UIIDS.chest];
+const DISPLAY_DIVISIONS = [UIIDS.game_screen, UIIDS.guide];
+const DISPLAY_DIVISION_NAMES = [gameplay_screen_name, guide_screen_name];

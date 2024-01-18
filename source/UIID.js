@@ -5,20 +5,20 @@
  * Function to get a set of uiids (Identifiers that can be used to retrieve the appropriate ui element) for the appropriate language.
  * Throws an error if an invalid language is provided.
  * @param {string} language The language to get uiids for.
- * @returns {ui_id_library} The library of uiids for that language.
+ * @returns {uiid_library} The library of uiids for that language.
  */
-function get_ui_ids(language){
+function get_uiids(language){
     // Factory function for the display classes (currently only html)
     switch(language){
         case `html`:
-            return HTML_UI_ID;
+            return HTML_UIIDS;
         default:
             throw new Error(`invalid display language`);
     }
 }
 
 /**
- * @typedef ui_id_library
+ * @typedef uiid_library
  * @property {string} title Displays the title of the game.
  * @property {string} stats Displays the current stats.
  * @property {string} game_screen Controls the visibility of the game itself.
@@ -35,12 +35,12 @@ function get_ui_ids(language){
  *          @property {string} current_deck Tells them the next element is their current deck.
  *          @property {string} display_deck Displays their entire deck.
  *      @property {string} chest Controls the visibility of the chest contents.
- * @property {string} tutorial Controls the visibility of the tutorial screen.
+ * @property {string} guide Controls the visibility of the guide screen.
  */
 
 
-/** @type {ui_id_library} The uiid library for HTML.*/
-const HTML_UI_ID = {
+/** @type {uiid_library} The uiid library for HTML.*/
+const HTML_UIIDS = {
     title: `title`,
     stats: `stats`,
     game_screen: `gameScreen`,
@@ -57,11 +57,12 @@ const HTML_UI_ID = {
     current_deck: `currentDeck`,
     display_deck: `displayDeck`,
     chest: `chest`,
-    tutorial: `tutorial`
+    guide: `guide`,
 }
-Object.freeze(HTML_UI_ID);
+Object.freeze(HTML_UIIDS);
 
-const ui_id = get_ui_ids(MARKUP_LANGUAGE);
+const UIIDS = get_uiids(MARKUP_LANGUAGE);
 
-const GAME_SCREEN_DIVISIONS = [ui_id.stage, ui_id.shop, ui_id.chest];
-const DISPLAY_DIVISIONS = [ui_id.game_screen, ui_id.tutorial];
+const GAME_SCREEN_DIVISIONS = [UIIDS.stage, UIIDS.shop, UIIDS.chest];
+const DISPLAY_DIVISIONS = [UIIDS.game_screen, UIIDS.guide];
+const DISPLAY_DIVISION_NAMES = [gameplay_screen_name, guide_screen_name];

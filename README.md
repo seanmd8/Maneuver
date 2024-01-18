@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+1/17/24
+- Added guidebook tab.
+
 1/16/24
 - Added 2 new cards.
 - Buffed several cards.

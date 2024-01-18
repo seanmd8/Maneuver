@@ -31,6 +31,17 @@
  */
 
 /**
+ * @callback NormalCallback A function with no args or returns.
+ * @returns {undefined}
+ */
+
+/**
+ * @typedef {Object} DropdownOption
+ * @property {string} label The label that should be displayed in the dropdown menu.
+ * @property {NormalCallback} on_change The function executed when this option is chosen.
+ */
+
+/**
  * @callback add_tb_row A function to add a row of images to a table.
  * @param {string} location The ID of the table to be added to.
  * @param {CellInfo[]} row_contents The objects used to construct the row's contents.
@@ -78,6 +89,19 @@
  */
 
 /**
+ * @callback create_visibility_toggle A function to create a section of text that can be minimized with the press of a button.location, header, body
+ * @param {string} location Where to create the section.
+ * @param {string} header What the section is called.
+ * @param {string} body The text to display in the section.
+ */
+
+/**
+ * @callback create_dropdown A function to create a dropdown menu where the user can select an option.
+ * @param {string} location Where the dropdown menu should be added to.
+ * @param {DropdownOption[]} options_arr An array of each label and associated function that make up the dropdown menu.
+ */
+
+/**
  * @typedef {Object} DisplayLibrary The library of functions used to handle displaying things in a specific language.
  * @property {add_tb_row} add_tb_row
  * @property {add_button_row} add_button_row
@@ -86,6 +110,8 @@
  * @property {swap_screen} swap_screen
  * @property {select} select
  * @property {press} press
+ * @property {create_visibility_toggle} create_visibility_toggle
+ * @property {create_dropdown} create_dropdown
  */
 
 
@@ -245,7 +271,7 @@ const DisplayHTML = {
         var key_num = search(key_press.key, controls.directional);
         if(key_num >= 0){
             try{
-                DisplayHTML.get_element(`${ui_id.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
+                DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
             }
             catch(error){
                 if(error.message !== `failed to retrieve html element`){
@@ -257,9 +283,74 @@ const DisplayHTML = {
         // Select card via keyboard.
         key_num = search(key_press.key, controls.card);
         if(key_num >= 0){
-            var element = DisplayHTML.get_element(`${ui_id.hand_display} 0 ${key_num}`);
+            var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
             element && element.click();
         }
+    },
+    create_visibility_toggle: function(location, header, body){
+        var toggle_visible = function(button_table_id, body_id, header_txt, visible){
+            return function(tile, position){
+                var vis_str = visible ? `Hide` : `Show`;
+                var callback = toggle_visible(tb_id, body_id, header_txt, !visible);
+                DisplayHTML.clear_tb(button_table_id);
+                DisplayHTML.add_button_row(button_table_id, [{description: `${vis_str} ${header_txt}`}], callback);
+                var vis_style = visible ? `block` : `none`;
+                DisplayHTML.get_element(body_id).style.display = vis_style;
+            }
+        }
+
+        var section = DisplayHTML.get_element(location);
+        var table = document.createElement(`table`);
+        var tb_id = `${location} ${header} table`;
+        table.id = tb_id;
+        section.append(table);
+
+        var body_div = document.createElement(`div`);
+        var body_div_id = `${location} ${header} section`;
+        body_div.id = body_div_id;
+        body_div.style.display = `none`;
+        section.append(body_div);
+        DisplayHTML.add_button_row(tb_id, [{description: `Show ${header}`}], toggle_visible(tb_id, body_div_id, header, true));
+
+        var body_header = document.createElement(`h2`);
+        body_header.id = `${body_div_id} header`;
+        body_header.innerText = `${header}:`;
+        body_div.append(body_header);
+
+        var body_text = document.createElement(`p`);
+        body_text.id = `${body_div_id} text`;
+        body_text.innerText = wrap_str(body, TEXT_WRAP_WIDTH, ` `);;
+        body_text.style = `line-height: 1;`
+        body_div.append(body_text);
+    },
+    create_dropdown(location, options_arr){
+        var doc_location = this.get_element(location);
+        var select_button = document.createElement(`select`);
+        var select_id = `${location} select`
+        select_button.id = select_id;
+        var select_func = function(options, select_id){
+            var option_func_map = new Map()
+            for(var option of options){
+                option_func_map.set(option.label, option.on_change);
+            }
+            return function(){
+                var select_element = DisplayHTML.get_element(select_id, HTMLSelectElement);
+                var label = select_element.value;
+                var chosen_option = option_func_map.get(label);
+                if(chosen_option === undefined){
+                    throw new Error("unrecognized value in select element");
+                }
+                chosen_option();
+            }
+        }
+        select_button.onchange = select_func(options_arr, select_id);
+        for(var option_data of options_arr){
+            var option = document.createElement(`option`);
+            option.value = option_data.label;
+            option.innerText = option_data.label;
+            select_button.append(option);
+        }
+        doc_location.append(select_button);
     },
 
     // Non Required helper functions.

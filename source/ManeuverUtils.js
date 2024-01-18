@@ -5,6 +5,9 @@
  * @returns {undefined}
  */
 function initiate_game(){
+    display.display_message(UIIDS.title, `${game_title}    `);
+    create_main_dropdown(UIIDS.title);
+    display_guide(UIIDS.guide);
     GS = new GameState();
 }
 
@@ -268,7 +271,40 @@ function display_health(player, scale){
     for(var i = 0; i < (player.max_health - player.health); ++i){
         health.push({pic: `${img_folder.other}heart_broken.png`});
     }
-    display.add_tb_row(ui_id.health_display, health, scale);
+    display.add_tb_row(UIIDS.health_display, health, scale);
 }
-
+/**
+ * Function to create a dropdown menu capable of switching between the game and guide screens.
+ * @param {string} location Where to create it.
+ */
+function create_main_dropdown(location){
+    var options = [];
+    var make_on_change = function(screens, screen){
+        return function(){
+            display.swap_screen(screens, screen);
+        }
+    }
+    if(DISPLAY_DIVISION_NAMES.length !== DISPLAY_DIVISIONS.length){
+        throw new Error("list length mismatch");
+    }
+    for(var i = 0; i < DISPLAY_DIVISIONS.length; ++i){
+        var option = {
+            label: DISPLAY_DIVISION_NAMES[i],
+            on_change: make_on_change(DISPLAY_DIVISIONS, DISPLAY_DIVISIONS[i])
+        }
+        options.push(option);
+    }
+    display.create_dropdown(location, options);
+}
+/**
+ * Function to display the guide.
+ * @param {string} location Where to display it to.
+ */
+function display_guide(location){
+    display.create_visibility_toggle(location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses);
+}
 

@@ -242,11 +242,11 @@ class GameMap{
         // Diplays the gamemap. Each element shows it's description and hp (if applicable) when clicked.
         // If any empty tiles have been marked as hit, it resets the pic to empty.
         // Shows the player's remaining health below.
-        display.clear_tb(ui_id.map_display);
+        display.clear_tb(UIIDS.map_display);
         var make_on_click = function(gameMap){
             return function(tile, location){
                 var description = tile_description(tile);
-                display.display_message(ui_id.display_message, description);
+                display.display_message(UIIDS.display_message, description);
                 gameMap.clear_telegraphs();
                 if(tile.telegraph !== undefined && !tile.stun){
                     gameMap.display_telegraph(tile.telegraph(location, gameMap, tile));
@@ -267,9 +267,9 @@ class GameMap{
             }
         }        
         for(var y = 0; y < this.#y_max; y++){
-            display.add_tb_row(ui_id.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), make_background(this.#area));
+            display.add_tb_row(UIIDS.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), make_background(this.#area));
         }
-        display.clear_tb(ui_id.health_display);
+        display.clear_tb(UIIDS.health_display);
         display_health(this.get_player(), TILE_SCALE);
         this.clear_telegraphs()
 	}
@@ -505,7 +505,7 @@ class GameMap{
         else{
             this.#area.generate_floor(this.#floor_num, this.#area, this);
         }
-        display.display_message(ui_id.display_message, floor_description);
+        display.display_message(UIIDS.display_message, floor_description);
     }
     /**
      * Gets a tile from a location on the grid.
