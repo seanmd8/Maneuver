@@ -18,25 +18,41 @@ const guide_screen_name = `Guidebook`;
 const spider_description = `Spider: Will attack the player if it is next to them. Otherwise it will move 1 space closer.`;
 const turret_h_description = `Turret: Does not move. Fires beams orthogonally that hit the first thing in their path.`;
 const turret_d_description = `Turret: Does not move. Fires beams diagonally that hit the first thing in their path.`;
-const turret_r_description = `Turret: Does not move. Fires beams in two directions hitting the first thing in their path. Rotates every turn.`;
-const scythe_description = `Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. Can only see diagonally.`;
+const turret_r_description = `Turret: Does not move. Fires beams in two directions hitting the first thing in their path. `
+                            +`Rotates every turn.`;
+const scythe_description = `Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. `
+                            +`Can only see diagonally.`;
 const shadow_knight_description = `Shadow Knight: Moves in an L shape. If it tramples the player, it will move again.`;
 const spider_web_description = [`Spider Web: Does not move or attack. Spawns a spider every `, ` turns.`];
 const ram_description = `Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.`;
-const large_porcuslime_description = `Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when hit.`;
-const medium_porcuslime_description = `Medium Porcuslime: Moves towards the player 1 space and attacks in that direction. Alternates between orthoganal and diagonal movement. Splits when hit.`;
-const small_h_porcuslime_description = `Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction.`;
-const small_d_porcuslime_description = `Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction.`;
-const acid_bug_description = `Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting everything next to it.`;
-const brightling_description = `Brightling: Is not aggressive. Will occasionally teleport the player close to it before teleoprting away the next turn.`;
-const corrosive_caterpillar_description = `Corrosive Caterpillar: Is not aggressive. Leaves a trail of corrosive slime behind it when it moves or dies.`;
-const noxious_toad_description = `Noxious Toad: Every other turn it will hop over a space orthogonally. If it lands near the player, it will damage everything next to it.`;
-const vampire_description = `Vampire: Moves orthogonally then will attempt to attack diagonally. When it hits the player, it will heal itself. Teleports away and is stunned when hit.`;
-const clay_golem_description = `Clay Golem: Will attack the player if it is next to them. Otherwise it will move 1 space closer. Taking damage will stun it and it cannot move two turns in a row.`;
-const vinesnare_bush_description = [`Vinesnare Bush: Does not move. Will attack if the player is close to it. Otherwise, it can drag the player closer with vines from up to `, ` spaces away.`];
-const rat_description = `Rat: Will attack the player if it is next to them. Otherwise it will move 2 spaces closer. After attacking, it will flee.`;
-const shadow_scout_description = `Shadow Scout: Will attack the player if it is next to them. Otherwise it will move 1 space closer. Can go invisible every other turn.`
-const darkling_description = `Darkling: Teleports around randomly hurting everything next to the location it arrives at. Blocking it's rift will destroy it.`
+const large_porcuslime_description = `Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when `
+                            +`hit. It's spikes make it painful to touch.`;
+const medium_porcuslime_description = `Medium Porcuslime: Moves towards the player 1 space and attacks in that direction. Alternates `
+                            +`between orthoganal and diagonal movement. Splits when hit. It's spikes make it painful to touch.`;
+const small_h_porcuslime_description = `Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction. `
+                            +`It's spikes make it painful to touch.`;
+const small_d_porcuslime_description = `Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction. `
+                            +`It's spikes make it painful to touch.`;
+const acid_bug_description = `Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting `
+                            +`everything next to it.`;
+const brightling_description = `Brightling: Is not aggressive. Will occasionally teleport the player close to it before teleoprting `
+                            +`away the next turn.`;
+const corrosive_caterpillar_description = `Corrosive Caterpillar: Is not aggressive. Leaves a trail of corrosive slime behind it when `
+                            +`it moves or dies.`;
+const noxious_toad_description = `Noxious Toad: Every other turn it will hop over a space orthogonally. If it lands near the player, it `
+                            +`will damage everything next to it.`;
+const vampire_description = `Vampire: Moves orthogonally then will attempt to attack diagonally. When it hits the player, it will heal `
+                            +`itself. Teleports away and is stunned when hit.`;
+const clay_golem_description = `Clay Golem: Will attack the player if it is next to them. Otherwise it will move 1 space closer. Taking `
+                            +`damage will stun it and it cannot move two turns in a row.`;
+const vinesnare_bush_description = [`Vinesnare Bush: Does not move. Will attack if the player is close to it. Otherwise, it can drag `
+                            +`the player closer with vines from up to `, ` spaces away.`];
+const rat_description = `Rat: Will attack the player if it is next to them. Otherwise it will move 2 spaces closer. After attacking, `
+                            +`it will flee.`;
+const shadow_scout_description = `Shadow Scout: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
+                            +`Can go invisible every other turn.`
+const darkling_description = `Darkling: Teleports around randomly hurting everything next to the location it arrives at. Blocking `
+                            +`it's rift will destroy it.`;
 
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
@@ -47,16 +63,19 @@ const crypt_description = `You have entered the crypt.`;
 const forest_description = `You have entered the subteranean forest.`;
 const library_description = `You have entered the library.`;
 const sanctum_description = `You have entered the sanctum.`;
-const default_area_description = `You have reached the end of the current content. Floors will continue to generate but there will be no more boss fights. Good luck.`;
+const default_area_description = `You have reached the end of the current content. Floors will continue to generate but there will `
+                                +`be no more boss fights. Good luck.`;
 
 // Boss Descriptions.
 const boss_death_description = `The exit opens.\n`
-                                + `You feel your wounds begin to heal.`;
+                                +`You feel your wounds begin to heal.`;
 const velociphile_floor_message = `You hear a deafening shriek.`;
-const velociphile_description = `Velociphile (Boss): A rolling ball of mouths and hate. Moves in straight lines. Must build up speed to ram you.`;
+const velociphile_description = `Velociphile (Boss): A rolling ball of mouths and hate. Moves in straight lines. Must build up speed `
+                                +`to ram you.`;
 const velociphile_death_message = `The wailing falls silent as the Velociphile is defeated.`;
 const spider_queen_floor_message = `The floor is thick with webs.`;
-const spider_queen_description = `Spider Queen (Boss): Moves like a normal spider. Taking damage will stun her, but will also spawn spiders.`;
+const spider_queen_description = `Spider Queen (Boss): Moves like a normal spider. Taking damage will stun her, but will also spawn `
+                                +`spiders.`;
 const spider_queen_death_message = `As the Spider Queen falls to the floor, the last of her children emerge.`;
 const lich_floor_message = `Dust and dark magic swirl in the air.`;
 const lich_description = `Lich (Boss): An undead wielder of dark magic. Each turn it will move away 1 space and then cast a spell.\n`

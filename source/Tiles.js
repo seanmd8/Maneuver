@@ -314,7 +314,8 @@ function large_porcuslime_tile(){
         health: 3,
         difficulty: 8,
         behavior: large_porcuslime_ai,
-        telegraph: large_porcuslime_telegraph
+        telegraph: large_porcuslime_telegraph,
+        on_enter: hazard
     }
 }
 /** @type {TileGenerator} */
@@ -330,6 +331,7 @@ function medium_porcuslime_tile(){
         difficulty: 5,
         behavior: medium_porcuslime_ai,
         telegraph: medium_porcuslime_telegraph,
+        on_enter: hazard,
         pic_arr,
         cycle: starting_cycle
     }
@@ -344,7 +346,8 @@ function small_h_porcuslime_tile(){
         health: 1,
         difficulty: 3,
         behavior: porcuslime_horizontal_ai,
-        telegraph: porcuslime_horizontal_telegraph
+        telegraph: porcuslime_horizontal_telegraph,
+        on_enter: hazard
         }
 }
 /** @type {TileGenerator} */
@@ -358,6 +361,7 @@ function small_d_porcuslime_tile(){
         difficulty: 3,
         behavior: porcuslime_diagonal_ai,
         telegraph: porcuslime_diagonal_telegraph,
+        on_enter: hazard
     }
 }
 /** @type {TileGenerator} */
