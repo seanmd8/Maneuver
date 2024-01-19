@@ -9,6 +9,7 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 Gameplay Changelog:
 
 1/18/24
+- Enemies spawned at the start of each floor will no longer spawn with you in their attack range.
 - Added images to guidebook tab.
 
 1/17/24

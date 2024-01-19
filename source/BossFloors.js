@@ -3,7 +3,7 @@
 
 /** @type {FloorGenerator} Generates the floor where the Velociphile appears.*/
 function velociphile_floor(floor_num,  area, map){
-    map.add_tile(velociphile_tile());
+    map.spawn_safely(velociphile_tile(), SAFE_SPAWN_ATTEMPTS, true);
     map.lock();
     for(var i = 0; i < 8; ++i){
         map.add_tile(wall_tile());
@@ -13,7 +13,7 @@ function velociphile_floor(floor_num,  area, map){
 }
 /** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){
-    map.add_tile(spider_queen_tile());
+    map.spawn_safely(spider_queen_tile(), SAFE_SPAWN_ATTEMPTS, true);
     map.lock();
     for(var i = 0; i < 4; ++i){
         map.add_tile(wall_tile());
@@ -35,7 +35,7 @@ function lich_floor(floor_num,  area, map){
     for(var i = 0; i < locations.length; ++i){
         map.add_tile(damaged_wall_tile(), locations[i]);
     }
-    map.add_tile(lich_tile());
+    map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
     map.lock();
     return lich_floor_message;
 }

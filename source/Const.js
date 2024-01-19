@@ -21,6 +21,7 @@ const STARTING_AREA = generate_ruins_area;
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
 const AREA_SIZE = 5;
+const SAFE_SPAWN_ATTEMPTS = 5;
 
 // Visual and animation settings.
 const CARD_SCALE = 90;

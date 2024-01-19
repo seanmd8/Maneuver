@@ -206,6 +206,7 @@ class GameMap{
      * @param {Tile} tile The tile to be added.
      * @param {Point} [location = undefined] Optional location to place the tile. If the location is not empty, an error will be thrown.
      *                                          If not provided, the location will be a random unoccupied one.
+     * @returns {Point | void} If it successfully adds the tile, return sthe location. Otherwise, returns void.
      */
     add_tile(tile, location = undefined){
         // Adds a new tile to a space.
@@ -221,7 +222,7 @@ class GameMap{
             }
         }
         catch(error){
-            return false;
+            return;
         }
         this.#set_grid(location, tile);
         if(tile.type === `enemy`){
@@ -230,7 +231,33 @@ class GameMap{
         else if(!(tile.type === `empty`)){
             ++this.#entity_list.count_non_empty;
         }
-        return true;
+        return location.copy();
+    }
+    /**
+     * Makes a number of attempts to spawn the given enemy at a location where it can't immediately attack the player.
+     * @param {Tile} tile The tile to be added.
+     * @param {number} tries The number of attempts
+     * @param {boolean} force If true, the enemy will be spawned randomly using add_tile after all tries are exhausted. 
+     * @returns {Point | void} If the tile is added, it returns the location. Otherwise it returns void.
+     */
+    spawn_safely(tile, tries, force){
+        var attacks = [];
+        var player_location = this.#entity_list.get_player_pos();
+        if(!player_location){
+            throw new Error(`player doesn't exist`);
+        }
+        for(var i = 0; i < tries; ++i){
+            var location = this.random_empty();
+            if(tile.telegraph){
+                attacks = tile.telegraph(location, this, tile);
+            }
+            if(!attacks.find((element) => point_equals(element, player_location))){
+                return this.add_tile(tile, location);
+            }
+        }
+        if(force){
+            return this.add_tile(tile);
+        }
     }
     /**
      * Function to display the gamemap and the player's health.

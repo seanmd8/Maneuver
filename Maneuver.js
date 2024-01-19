@@ -892,7 +892,7 @@ function generate_default_area(){
 
 /** @type {FloorGenerator} Generates the floor where the Velociphile appears.*/
 function velociphile_floor(floor_num,  area, map){
-    map.add_tile(velociphile_tile());
+    map.spawn_safely(velociphile_tile(), SAFE_SPAWN_ATTEMPTS, true);
     map.lock();
     for(var i = 0; i < 8; ++i){
         map.add_tile(wall_tile());
@@ -902,7 +902,7 @@ function velociphile_floor(floor_num,  area, map){
 }
 /** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){
-    map.add_tile(spider_queen_tile());
+    map.spawn_safely(spider_queen_tile(), SAFE_SPAWN_ATTEMPTS, true);
     map.lock();
     for(var i = 0; i < 4; ++i){
         map.add_tile(wall_tile());
@@ -924,7 +924,7 @@ function lich_floor(floor_num,  area, map){
     for(var i = 0; i < locations.length; ++i){
         map.add_tile(damaged_wall_tile(), locations[i]);
     }
-    map.add_tile(lich_tile());
+    map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
     map.lock();
     return lich_floor_message;
 }
@@ -1860,6 +1860,7 @@ const STARTING_AREA = generate_ruins_area;
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
 const AREA_SIZE = 5;
+const SAFE_SPAWN_ATTEMPTS = 5;
 
 // Visual and animation settings.
 const CARD_SCALE = 90;
@@ -2640,8 +2641,9 @@ function generate_normal_floor(floor_num, area, map){
         var choice = random_num(enemy_list.length);
         var new_enemy = enemy_list[choice]();
         if(new_enemy.difficulty !== undefined && new_enemy.difficulty <= i){
-            map.add_tile(new_enemy);
-            i -= new_enemy.difficulty;
+            if(map.spawn_safely(new_enemy, SAFE_SPAWN_ATTEMPTS, false)){
+                i -= new_enemy.difficulty;
+            };
         }
     }
 }
@@ -2888,6 +2890,7 @@ class GameMap{
      * @param {Tile} tile The tile to be added.
      * @param {Point} [location = undefined] Optional location to place the tile. If the location is not empty, an error will be thrown.
      *                                          If not provided, the location will be a random unoccupied one.
+     * @returns {Point | void} If it successfully adds the tile, return sthe location. Otherwise, returns void.
      */
     add_tile(tile, location = undefined){
         // Adds a new tile to a space.
@@ -2903,7 +2906,7 @@ class GameMap{
             }
         }
         catch(error){
-            return false;
+            return;
         }
         this.#set_grid(location, tile);
         if(tile.type === `enemy`){
@@ -2912,7 +2915,33 @@ class GameMap{
         else if(!(tile.type === `empty`)){
             ++this.#entity_list.count_non_empty;
         }
-        return true;
+        return location.copy();
+    }
+    /**
+     * Makes a number of attempts to spawn the given enemy at a location where it can't immediately attack the player.
+     * @param {Tile} tile The tile to be added.
+     * @param {number} tries The number of attempts
+     * @param {boolean} force If true, the enemy will be spawned randomly using add_tile after all tries are exhausted. 
+     * @returns {Point | void} If the tile is added, it returns the location. Otherwise it returns void.
+     */
+    spawn_safely(tile, tries, force){
+        var attacks = [];
+        var player_location = this.#entity_list.get_player_pos();
+        if(!player_location){
+            throw new Error(`player doesn't exist`);
+        }
+        for(var i = 0; i < tries; ++i){
+            var location = this.random_empty();
+            if(tile.telegraph){
+                attacks = tile.telegraph(location, this, tile);
+            }
+            if(!attacks.find((element) => point_equals(element, player_location))){
+                return this.add_tile(tile, location);
+            }
+        }
+        if(force){
+            return this.add_tile(tile);
+        }
     }
     /**
      * Function to display the gamemap and the player's health.
@@ -3278,7 +3307,7 @@ class GameState{
         var start = STARTING_AREA();
         display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
-        this.map.add_tile(STARTING_ENEMY());
+        this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
         this.map.display();
         this.map.display_stats(UIIDS.stats);
         this.deck = STARTING_DECK();

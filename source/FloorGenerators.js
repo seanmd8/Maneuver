@@ -27,8 +27,9 @@ function generate_normal_floor(floor_num, area, map){
         var choice = random_num(enemy_list.length);
         var new_enemy = enemy_list[choice]();
         if(new_enemy.difficulty !== undefined && new_enemy.difficulty <= i){
-            map.add_tile(new_enemy);
-            i -= new_enemy.difficulty;
+            if(map.spawn_safely(new_enemy, SAFE_SPAWN_ATTEMPTS, false)){
+                i -= new_enemy.difficulty;
+            };
         }
     }
 }
