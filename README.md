@@ -10,7 +10,7 @@ Gameplay Changelog:
 
 1/18/24
 - Moving onto porcuslimes now hurts.
-- Enemies spawned at the start of each floor will no longer spawn with you in their attack range.
+- You will no longer spawn in the attack range of enemies.
 - Added images to guidebook tab.
 
 1/17/24
