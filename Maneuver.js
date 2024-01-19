@@ -697,7 +697,7 @@ function rest_spell(location, difference, map, self){}
 // Other AIs
 /** @type {AIFunction} Function used when something moves onto this to harm that thing.*/
 function hazard(location, difference, map, self){
-    // General on_move function to retaliate if something tries to move onto it.
+    // General on_enter function to retaliate if something tries to move onto it.
     map.attack(location.plus(difference));
 }
 /** @type {AIFunction} Function used when a damaged wall is destroyed to potentially spawn something.*/
@@ -1986,7 +1986,7 @@ const rest_description = `Nothing.`;
 const empty_description = `There is nothing here.`;
 const exit_description = `Stairs to the next floor.`;
 const player_description = `You.`;
-const lava_pool_description = `Lava Pool: Attempting to move through this will hurt.`;
+const lava_pool_description = `Lava Pool: Attempting to move here will hurt.`;
 const corrosive_slime_description = `Corrosive Slime: Trying to walk in this will hurt. Clear it out by attacking.`;
 const wall_description = `A wall. It seems sturdy.`;
 const damaged_wall_description = `A damaged wall. Something might live inside.`;
@@ -3012,7 +3012,7 @@ class GameMap{
      */
     move(start_point, end_point){
         // Moves the tile at start_point to end_point if it is empty. 
-        // Triggers the attempted destination's on_move if applicable.
+        // Triggers the attempted destination's on_enter if applicable.
         // Throws an error if the starting location is out of bounds.
         // Returns true if the move was successful.
         // Also throws errors if the player reaches the end of the floor or dies.
@@ -4445,7 +4445,7 @@ function fireball_telegraph(location, map, self){
     if(self.direction === undefined){
         throw new Error(`tile missing properties used to telegraph it's attacks.`);
     }
-    return [location.plus(self.direction)];
+    return [location.plus(self.direction)].concat(hazard_telegraph(location, map, self));
 }
 /** @type {TelegraphFunction} */
 function spider_telegraph(location, map, self){
@@ -4549,11 +4549,11 @@ function medium_porcuslime_telegraph(location, map, self){
 }
 /** @type {TelegraphFunction} */
 function porcuslime_diagonal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, diagonal_directions);
+    return move_attack_telegraph(location, map, diagonal_directions).concat(hazard_telegraph(location, map, self));
 }
 /** @type {TelegraphFunction} */
 function porcuslime_horizontal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, horizontal_directions);
+    return move_attack_telegraph(location, map, horizontal_directions).concat(hazard_telegraph(location, map, self));
 }
 /** @type {TelegraphFunction} */
 function noxious_toad_telegraph(location, map, self){
@@ -4606,11 +4606,16 @@ function velociphile_telegraph(location, map, self){
     }
     return attacks;
 }
+/** @type {TelegraphFunction} */
 function darkling_telegraph(location, map, self){
     if(self.direction === undefined){
         return [];
     }
     return spider_telegraph(self.direction, map, self);
+}
+/** @type {TelegraphFunction} */
+function hazard_telegraph(location, map, self){
+    return [location];
 }
 
 
@@ -4773,6 +4778,7 @@ function lava_pool_tile(){
         name: `lava pool`,
         pic: `${img_folder.tiles}lava_pool.png`,
         description: lava_pool_description,
+        telegraph: hazard_telegraph,
         on_enter: hazard
     }
 }
@@ -4784,6 +4790,7 @@ function corrosive_slime_tile(){
         pic: `${img_folder.tiles}corrosive_slime.png`,
         description: corrosive_slime_description,
         health: 1,
+        telegraph: hazard_telegraph,
         on_enter: hazard
     }
 }

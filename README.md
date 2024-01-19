@@ -9,6 +9,7 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 Gameplay Changelog:
 
 1/18/24
+- Hazards are now telegraphed.
 - Moving onto porcuslimes now hurts.
 - You will no longer spawn in the attack range of enemies.
 - Added images to guidebook tab.

@@ -104,6 +104,7 @@ function lava_pool_tile(){
         name: `lava pool`,
         pic: `${img_folder.tiles}lava_pool.png`,
         description: lava_pool_description,
+        telegraph: hazard_telegraph,
         on_enter: hazard
     }
 }
@@ -115,6 +116,7 @@ function corrosive_slime_tile(){
         pic: `${img_folder.tiles}corrosive_slime.png`,
         description: corrosive_slime_description,
         health: 1,
+        telegraph: hazard_telegraph,
         on_enter: hazard
     }
 }

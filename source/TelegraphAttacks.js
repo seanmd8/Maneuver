@@ -18,7 +18,7 @@ function fireball_telegraph(location, map, self){
     if(self.direction === undefined){
         throw new Error(`tile missing properties used to telegraph it's attacks.`);
     }
-    return [location.plus(self.direction)];
+    return [location.plus(self.direction)].concat(hazard_telegraph(location, map, self));
 }
 /** @type {TelegraphFunction} */
 function spider_telegraph(location, map, self){
@@ -122,11 +122,11 @@ function medium_porcuslime_telegraph(location, map, self){
 }
 /** @type {TelegraphFunction} */
 function porcuslime_diagonal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, diagonal_directions);
+    return move_attack_telegraph(location, map, diagonal_directions).concat(hazard_telegraph(location, map, self));
 }
 /** @type {TelegraphFunction} */
 function porcuslime_horizontal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, horizontal_directions);
+    return move_attack_telegraph(location, map, horizontal_directions).concat(hazard_telegraph(location, map, self));
 }
 /** @type {TelegraphFunction} */
 function noxious_toad_telegraph(location, map, self){
@@ -179,11 +179,16 @@ function velociphile_telegraph(location, map, self){
     }
     return attacks;
 }
+/** @type {TelegraphFunction} */
 function darkling_telegraph(location, map, self){
     if(self.direction === undefined){
         return [];
     }
     return spider_telegraph(self.direction, map, self);
+}
+/** @type {TelegraphFunction} */
+function hazard_telegraph(location, map, self){
+    return [location];
 }
 
 

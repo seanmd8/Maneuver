@@ -696,7 +696,7 @@ function rest_spell(location, difference, map, self){}
 // Other AIs
 /** @type {AIFunction} Function used when something moves onto this to harm that thing.*/
 function hazard(location, difference, map, self){
-    // General on_move function to retaliate if something tries to move onto it.
+    // General on_enter function to retaliate if something tries to move onto it.
     map.attack(location.plus(difference));
 }
 /** @type {AIFunction} Function used when a damaged wall is destroyed to potentially spawn something.*/

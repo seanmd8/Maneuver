@@ -309,7 +309,7 @@ class GameMap{
      */
     move(start_point, end_point){
         // Moves the tile at start_point to end_point if it is empty. 
-        // Triggers the attempted destination's on_move if applicable.
+        // Triggers the attempted destination's on_enter if applicable.
         // Throws an error if the starting location is out of bounds.
         // Returns true if the move was successful.
         // Also throws errors if the player reaches the end of the floor or dies.
