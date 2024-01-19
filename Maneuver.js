@@ -3753,7 +3753,9 @@ const GUIDE_TEXT = {
     shop: [`When you complete a floor, you will enter a shop where you must either add or remove a card from your deck. You will get `
             +`${ADD_CHOICE_COUNT} options of random cards to add, and ${REMOVE_CHOICE_COUNT} options of random cards from your deck to remove. `
             +`The current contents of your deck will be shown to help you choose. There is a minimum deck size of ${MIN_DECK_SIZE}, `
-            +`so if you reach it you will not be able to remove more cards.\n\n`],
+            +`so if you reach it you will not be able to remove more cards.\n`
+            +`Some enemies or effects may add temporary cards to your deck. They will go away after you play them or go to the next `
+            +`floor.\n\n`],
 
     bosses: [`Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be locked until you defeat it's `
             +`powerful occupant. When you defeat the boss, in addition to unlocking the stairs, you will be fully healed. When leaving the floor `
