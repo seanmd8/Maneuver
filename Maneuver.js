@@ -3103,8 +3103,9 @@ class GameMap{
             return false;
         }
         var target = this.#get_grid(location);
-        if(target.health !== undefined && !(target.type === `player`) && (hits === `enemy` || hits === `all`)){
+        if(target.health !== undefined && target.type !== `player` && (hits === `enemy` || hits === `all`)){
             target.health -= 1;
+            this.#get_grid(location).is_hit = `${img_folder.tiles}hit.png`;
             if(target.on_hit !== undefined){
                 var player_pos = this.#entity_list.get_player_pos();
                 target.on_hit(location, player_pos.minus(location), this, target);
@@ -3114,9 +3115,9 @@ class GameMap{
                 this.#get_grid(location).is_hit = `${img_folder.tiles}hit.png`;
                 if(target.type === `enemy`){
                     if(target.id === undefined){
-                        throw new Error(`enemy missing id`)
+                        throw new Error(`enemy missing id`);
                     }
-                    this.#entity_list.remove_enemy(target.id)
+                    this.#entity_list.remove_enemy(target.id);
                 }
                 if(target.on_death !== undefined){
                     var player_pos = this.#entity_list.get_player_pos();
@@ -3130,6 +3131,7 @@ class GameMap{
                 throw new Error(`player missing health`);
             }
             target.health -= 1;
+            this.#get_grid(location).is_hit = `${img_folder.tiles}hit.png`;
             if(target.health === 0){
                 throw new Error(`game over`)
             }
@@ -3327,6 +3329,10 @@ class GameState{
         display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
         this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
+        this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
+        this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
+        this.map.spawn_safely(scythe_tile(), SAFE_SPAWN_ATTEMPTS, true);
+
         this.map.display();
         this.map.display_stats(UIIDS.stats);
         this.deck = STARTING_DECK();
