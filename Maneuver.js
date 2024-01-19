@@ -1864,9 +1864,10 @@ const AREA_SIZE = 5;
 // Visual and animation settings.
 const CARD_SCALE = 90;
 const TILE_SCALE = 30;
+const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 300;
 const DECK_DISPLAY_WIDTH = 4;
-const TEXT_WRAP_WIDTH = 65;
+const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
 
 
@@ -1880,10 +1881,11 @@ Object.freeze(controls);
 // Image folder file structure.
 const img_folder = {
     src: `images/`,
+    backgrounds: `backgrounds/`,
     cards: `cards/`,
     other: `other/`,
-    tiles: `tiles/`,
-    backgrounds: `backgrounds/`
+    symbols: `symbols/`,
+    tiles: `tiles/`
 }
 Object.freeze(img_folder);// ----------------Descriptions.js----------------
 // Contains text that will be displayed.
@@ -2080,13 +2082,37 @@ const SPIN = `Spin`;
  * @callback create_visibility_toggle A function to create a section of text that can be minimized with the press of a button.location, header, body
  * @param {string} location Where to create the section.
  * @param {string} header What the section is called.
- * @param {string} body The text to display in the section.
+ * @param {HTMLElement} body_elemnt The text to display in the section.
  */
 
 /**
  * @callback create_dropdown A function to create a dropdown menu where the user can select an option.
  * @param {string} location Where the dropdown menu should be added to.
  * @param {DropdownOption[]} options_arr An array of each label and associated function that make up the dropdown menu.
+ */
+
+/**
+ * @callback create_alternating_text_section A function to create a section of interspersed text with images and other elements.
+ * @param {string} header The header to give the section. The div id will be of the form `${header} section`.
+ * @param {string[]} par_arr An array of the strings which other elements should be placed between.
+ * @param {HTMLElement[]} inline_arr An array of other elements to be added inline inbetween the strings. 
+ *                                  It's length should be 1 or 0 less than par_arr's.
+ * @returns {HTMLDivElement} The div including the mix of text and other elements.
+ */
+
+/**
+ * @callback create_button Creates and returns a button element.
+ * @param {string} label The button text.
+ * @param {string} id The element id.
+ * @param {NormalCallback=} on_click If provided, called when it is clicked.
+ * @returns {HTMLInputElement} The created button.
+ */
+/**
+ * @callback create_image Creates and returns an image eleemnt.
+ * @param {string} src The pic to display.
+ * @param {string} id The element id
+ * @param {number | Point} size How largethe pic should be.
+ * @returns {HTMLImageElement} The created image.
  */
 
 /**
@@ -2100,6 +2126,9 @@ const SPIN = `Spin`;
  * @property {press} press
  * @property {create_visibility_toggle} create_visibility_toggle
  * @property {create_dropdown} create_dropdown
+ * @property {create_alternating_text_section} create_alternating_text_section
+ * @property {create_button} create_button
+ * @property {create_image} create_image
  */
 
 
@@ -2217,14 +2246,11 @@ const DisplayHTML = {
             }
         }
         for(var i = 0; i < row_contents.length; ++i){
-            var cell = document.createElement(`input`);
-            cell.type = `button`;
-            cell.id = `${location} ${row_num} ${i}`;
-            if(!(on_click === undefined)){
-                cell.onclick = make_on_click(row_contents[i], new Point(i, row_num), on_click);
+            var button_on_click = undefined;
+            if(on_click !== undefined){
+                button_on_click = make_on_click(row_contents[i], new Point(i, row_num), on_click);
             }
-            cell.value = row_contents[i].description;
-            row.append(cell);
+            row.append(DisplayHTML.create_button(row_contents[i].description, `${location} ${row_num} ${i}`, button_on_click));
         }
         table.append(row);
     },
@@ -2275,7 +2301,7 @@ const DisplayHTML = {
             element && element.click();
         }
     },
-    create_visibility_toggle: function(location, header, body){
+    create_visibility_toggle: function(location, header, body_element){
         var toggle_visible = function(button_table_id, body_id, header_txt, visible){
             return function(tile, position){
                 var vis_str = visible ? `Hide` : `Show`;
@@ -2289,28 +2315,15 @@ const DisplayHTML = {
 
         var section = DisplayHTML.get_element(location);
         var table = document.createElement(`table`);
-        var tb_id = `${location} ${header} table`;
+        var tb_id = `${header} button table`;
         table.id = tb_id;
         section.append(table);
 
-        var body_div = document.createElement(`div`);
-        var body_div_id = `${location} ${header} section`;
-        body_div.id = body_div_id;
-        body_div.style.display = `none`;
-        section.append(body_div);
-        DisplayHTML.add_button_row(tb_id, [{description: `Show ${header}`}], toggle_visible(tb_id, body_div_id, header, true));
-
-        var body_header = document.createElement(`h2`);
-        body_header.id = `${body_div_id} header`;
-        body_header.innerText = `${header}:`;
-        body_div.append(body_header);
-
-        var body_text = document.createElement(`p`);
-        body_text.id = `${body_div_id} text`;
-        body_text.innerText = wrap_str(body, TEXT_WRAP_WIDTH, ` `);;
-        body_div.append(body_text);
+        body_element.style.display = `none`;
+        section.append(body_element);
+        DisplayHTML.add_button_row(tb_id, [{description: `Show ${header}`}], toggle_visible(tb_id, body_element.id, header, true));
     },
-    create_dropdown(location, options_arr){
+    create_dropdown: function(location, options_arr){
         var doc_location = this.get_element(location);
         var select_button = document.createElement(`select`);
         var select_id = `${location} select`
@@ -2338,6 +2351,60 @@ const DisplayHTML = {
             select_button.append(option);
         }
         doc_location.append(select_button);
+    },
+    create_alternating_text_section: function(header, par_arr, inline_arr){
+        if(par_arr.length !== inline_arr.length && par_arr.length !== inline_arr.length + 1){
+            throw new Error(`array size mismatch`);
+        }
+        var body_div = document.createElement(`div`);
+        var body_div_id = `${header} section`;
+        body_div.id = body_div_id;
+        body_div.style.display = `none`;
+
+
+        var body_header = document.createElement(`h2`);
+        body_header.id = `${body_div_id} header`;
+        body_header.innerText = `${header}:`;
+        body_div.append(body_header);
+
+        for(var i = 0; i < par_arr.length; ++i){
+            var body_text = document.createElement(`p`);
+            body_text.id = `${body_div_id} text ${i}`;
+            body_text.innerText = wrap_str(par_arr[i], TEXT_WRAP_WIDTH, ` `);
+            body_text.style.display = `inline`;
+            body_div.append(body_text);
+            if(i < inline_arr.length){
+                inline_arr[i].id = `${body_div_id} non-text ${i}`
+                inline_arr[i].style.display = `inline`;
+                body_div.append(inline_arr[i]);
+            }
+        }
+        
+        return body_div;
+    },
+    create_button: function(label, id, on_click = undefined){
+        var button = document.createElement(`input`);
+        button.type = `button`;
+        button.id = id;
+        if(on_click !== undefined){
+            button.onclick = on_click;
+        }
+        button.value = label;
+        return button;
+    },
+    create_image: function(src, id, size){
+        var image = document.createElement(`img`);
+        image.src = `${img_folder.src}${src}`;
+        image.id = id;
+        if(typeof size === `number`){
+            image.width = size;
+            image.height = size;
+        }
+        else{
+            image.width = size.x;
+            image.height = size.y;
+        }
+        return image;
     },
 
     // Non Required helper functions.
@@ -3615,57 +3682,65 @@ const GUIDE_HEADERS = {
 Object.freeze(GUIDE_HEADERS);
 
 const GUIDE_TEXT = {
-    basics: `Welcome to Maneuver. The goal of the game is to progress as deep into the dungeon as possible by completing each floor. `
+    basics: [`Welcome to Maneuver. The goal of the game is to progress as deep into the dungeon as possible by completing each floor. `
             +`To finish a floor, you need to reach the stairs that lead down to the next one. Enemies will spawn on each floor which will `
             +`try to stop you from continuing. You do not need to defeat everything on the current floor to continue, but will often need to `
-            +`fight most of them to survive. Read more about controlling your character in the next section. Good luck!\n`,
+            +`fight most of them to survive. Read more about controlling your character in the next section. Good luck!\n\n`],
 
-    cards: `To control your character's actions, you have a deck of cards. Each card gives you 1-4 options for a set of actions `
+    cards: [`To control your character's actions, you have a deck of cards. Each card gives you 1-4 options for a set of actions `
             +`to take. The actions on the card will be performed relative to your current location (the black dot). Clicking on a card will `
             +`bring up a grid of buttons which will let you use it. When you use a card, it will be discarded and replaced with another from your `
             +`deck. Then everything else on the floor will get a chance to act (read more in the next section). When your deck runs out, your `
             +`discard pile will be shuffled back into it.\n`
             +`\n`
-            +`Colors and Symbols:\n`
-            +`Red: You will attack this space.\n`
-            +`Blue: You will move to this space.\n`
-            +`Grey Line: Each action the line goes through will be performed. If it has an arrow, they will be performed in that order.\n`
-            +`Black Slash: Multiple actions will be performed on this space. Attacks will be performed before moves.\n`
+            +`Colors and symbols that make up a card:\n`,
+                ` Your relative starting location.\n`,
+                ` You will attack this space.\n`,
+                ` You will move to this space.\n`,
+                ` Each action the line goes through will be performed.\n`,
+                ` Multiple actions will be performed in a specific order.\n`,
+                `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`
             +`\n`
-            +`In addition to clicking on cards to use them, if you are on a computer you can use\n`
-            +`\n`
-            +`| h | j | k |\n`
-            +`\n`
-            +`to select a card and\n`
-            +`\n`
-            +`| q | w | e |\n`
-            +`| a | s | d |\n`
-            +`| z | x | c |\n`
-            +`\n`
+            +`In addition to clicking on cards to use them, you can use the keys\n`,
+                ` `, ` `, `\n`
+            +`to select a card and\n`,
+                ` `, ` `, `\n`,
+                ` `, ` `, `\n`,
+                ` `, ` `, `\n`
             +`to use it.\n`
             +`\n`
-            +`Moving into a wall or an occupied space will generally have no effect unless one is specified in it's description, so it is a `
-            +`great option if you want to skip your turn. If other actions are performed after a failed move, they will be performed where `
-            +`you are rather than where you would have been.\n`,
+            +`Moving into a wall or an occupied space has no effect unless it is specified in the description of the destination space. `
+            +`If other actions are performed after a failed move, they will be performed where you are rather than where you would have `
+            +`been.\n\n`],
 
-    enemies: `As you travel through the dungeon, you will encounter various other creatures, many of whom want to kill you. Each creature has `
+    enemies: [`As you travel through the dungeon, you will encounter various other creatures, many of whom want to kill you. Each creature has `
             +`different patterns of attack and movement and many of them have other unique abilities. Click on a tile to learn more about it. `
             +`Clicking will show you a description of it, how much health it has, and which squares it might be able to attack on it's next `
             +`turn. Some enemies also have the ability to move you during their turn. When this happens, you will get the chance to respond. `
             +`Remember that you do not need to kill everything to go to the next stage. Sometimes it's better to run past an enemy than to `
             +`fight it and risk getting surrounded or cornered. There may also be some creatures you encounter that are more helpful than `
-            +`harmful.\n`,
+            +`harmful.\n\n`],
 
-    shop: `When you complete a floor, you will enter a shop where you must either add or remove a card from your deck. You will get `
+    shop: [`When you complete a floor, you will enter a shop where you must either add or remove a card from your deck. You will get `
             +`${ADD_CHOICE_COUNT} options of random cards to add, and ${REMOVE_CHOICE_COUNT} options of random cards from your deck to remove. `
-            +`You will also be able to see the current contents of your deck to help you make your choice. There is a minimum deck size of `
-            +`${MIN_DECK_SIZE}, so if you reach it you will not be able to remove more cards.\n`,
+            +`The current contents of your deck will be shown to help you choose. There is a minimum deck size of ${MIN_DECK_SIZE}, `
+            +`so if you reach it you will not be able to remove more cards.\n\n`],
 
-    bosses: `Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be locked until you defeat it's `
+    bosses: [`Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be locked until you defeat it's `
             +`powerful occupant. When you defeat the boss, in addition to unlocking the stairs, you will be fully healed. When leaving the floor `
-            +`you will enter a new area of the dungeon with a different pool of inhabitants and a new boss at the end.`,
+            +`you will enter a new area of the dungeon with a different pool of inhabitants and a new boss at the end.\n\n`],
 }
 Object.freeze(GUIDE_TEXT);
+
+const CARD_SYMBOLS = [
+    {src: `${img_folder.symbols}you.png`,               x: 1, y: 1},
+    {src: `${img_folder.symbols}attack.png`,            x: 1, y: 1},
+    {src: `${img_folder.symbols}move.png`,              x: 1, y: 1},
+    {src: `${img_folder.symbols}multiple.png`,          x: 3, y: 1},
+    {src: `${img_folder.symbols}multiple_ordered.png`,  x: 3, y: 1},
+    {src: `${img_folder.symbols}attack_move.png`,       x: 1, y: 1},
+    {src: `${img_folder.symbols}triple_attack.png`,     x: 1, y: 1}
+];
 
 
 
@@ -3971,13 +4046,46 @@ function create_main_dropdown(location){
  * @param {string} location Where to display it to.
  */
 function display_guide(location){
-    display.create_visibility_toggle(location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses);
+    var cards_symbol_arr = get_card_symbols();
+    var ctrl_symbol_arr = get_control_symbols();
+    var cards_inline_arr = cards_symbol_arr.concat(ctrl_symbol_arr)
+
+    var basics_section = display.create_alternating_text_section(GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
+    var cards_section = display.create_alternating_text_section(GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_inline_arr);
+    var enemies_section = display.create_alternating_text_section(GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
+    var shop_section = display.create_alternating_text_section(GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
+    var bosses_section = display.create_alternating_text_section(GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
+
+    display.create_visibility_toggle(location, GUIDE_HEADERS.basics, basics_section);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.cards, cards_section);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.enemies, enemies_section);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.shop, shop_section);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.bosses, bosses_section);
 }
 
+/**
+ * Function to get an array of images for the card symbols to use when displaying the guide..
+ * @returns {HTMLElement[]} The array of images.
+ */
+function get_card_symbols(){
+    var images = [];
+    for(var img of CARD_SYMBOLS){
+        images.push(display.create_image(img.src, `${img.src} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE)));
+    }
+    return images;
+}
+/**
+ * Function to get an array of buttons with the keys used for controls as the velue to use when displaying the guide.
+ * @returns {HTMLElement[]} The array of buttons.
+ */
+function get_control_symbols(){
+    var button_symbols = controls.card.concat(controls.directional);
+    var buttons = [];
+    for(var symbol of button_symbols){
+        buttons.push(display.create_button(symbol, `${symbol} key`));
+    }
+    return buttons;
+}
 // ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.
 

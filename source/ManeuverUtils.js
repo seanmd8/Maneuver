@@ -301,10 +301,43 @@ function create_main_dropdown(location){
  * @param {string} location Where to display it to.
  */
 function display_guide(location){
-    display.create_visibility_toggle(location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses);
+    var cards_symbol_arr = get_card_symbols();
+    var ctrl_symbol_arr = get_control_symbols();
+    var cards_inline_arr = cards_symbol_arr.concat(ctrl_symbol_arr)
+
+    var basics_section = display.create_alternating_text_section(GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
+    var cards_section = display.create_alternating_text_section(GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_inline_arr);
+    var enemies_section = display.create_alternating_text_section(GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
+    var shop_section = display.create_alternating_text_section(GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
+    var bosses_section = display.create_alternating_text_section(GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
+
+    display.create_visibility_toggle(location, GUIDE_HEADERS.basics, basics_section);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.cards, cards_section);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.enemies, enemies_section);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.shop, shop_section);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.bosses, bosses_section);
 }
 
+/**
+ * Function to get an array of images for the card symbols to use when displaying the guide..
+ * @returns {HTMLElement[]} The array of images.
+ */
+function get_card_symbols(){
+    var images = [];
+    for(var img of CARD_SYMBOLS){
+        images.push(display.create_image(img.src, `${img.src} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE)));
+    }
+    return images;
+}
+/**
+ * Function to get an array of buttons with the keys used for controls as the velue to use when displaying the guide.
+ * @returns {HTMLElement[]} The array of buttons.
+ */
+function get_control_symbols(){
+    var button_symbols = controls.card.concat(controls.directional);
+    var buttons = [];
+    for(var symbol of button_symbols){
+        buttons.push(display.create_button(symbol, `${symbol} key`));
+    }
+    return buttons;
+}

@@ -92,13 +92,37 @@
  * @callback create_visibility_toggle A function to create a section of text that can be minimized with the press of a button.location, header, body
  * @param {string} location Where to create the section.
  * @param {string} header What the section is called.
- * @param {string} body The text to display in the section.
+ * @param {HTMLElement} body_elemnt The text to display in the section.
  */
 
 /**
  * @callback create_dropdown A function to create a dropdown menu where the user can select an option.
  * @param {string} location Where the dropdown menu should be added to.
  * @param {DropdownOption[]} options_arr An array of each label and associated function that make up the dropdown menu.
+ */
+
+/**
+ * @callback create_alternating_text_section A function to create a section of interspersed text with images and other elements.
+ * @param {string} header The header to give the section. The div id will be of the form `${header} section`.
+ * @param {string[]} par_arr An array of the strings which other elements should be placed between.
+ * @param {HTMLElement[]} inline_arr An array of other elements to be added inline inbetween the strings. 
+ *                                  It's length should be 1 or 0 less than par_arr's.
+ * @returns {HTMLDivElement} The div including the mix of text and other elements.
+ */
+
+/**
+ * @callback create_button Creates and returns a button element.
+ * @param {string} label The button text.
+ * @param {string} id The element id.
+ * @param {NormalCallback=} on_click If provided, called when it is clicked.
+ * @returns {HTMLInputElement} The created button.
+ */
+/**
+ * @callback create_image Creates and returns an image eleemnt.
+ * @param {string} src The pic to display.
+ * @param {string} id The element id
+ * @param {number | Point} size How largethe pic should be.
+ * @returns {HTMLImageElement} The created image.
  */
 
 /**
@@ -112,6 +136,9 @@
  * @property {press} press
  * @property {create_visibility_toggle} create_visibility_toggle
  * @property {create_dropdown} create_dropdown
+ * @property {create_alternating_text_section} create_alternating_text_section
+ * @property {create_button} create_button
+ * @property {create_image} create_image
  */
 
 
@@ -229,14 +256,11 @@ const DisplayHTML = {
             }
         }
         for(var i = 0; i < row_contents.length; ++i){
-            var cell = document.createElement(`input`);
-            cell.type = `button`;
-            cell.id = `${location} ${row_num} ${i}`;
-            if(!(on_click === undefined)){
-                cell.onclick = make_on_click(row_contents[i], new Point(i, row_num), on_click);
+            var button_on_click = undefined;
+            if(on_click !== undefined){
+                button_on_click = make_on_click(row_contents[i], new Point(i, row_num), on_click);
             }
-            cell.value = row_contents[i].description;
-            row.append(cell);
+            row.append(DisplayHTML.create_button(row_contents[i].description, `${location} ${row_num} ${i}`, button_on_click));
         }
         table.append(row);
     },
@@ -287,7 +311,7 @@ const DisplayHTML = {
             element && element.click();
         }
     },
-    create_visibility_toggle: function(location, header, body){
+    create_visibility_toggle: function(location, header, body_element){
         var toggle_visible = function(button_table_id, body_id, header_txt, visible){
             return function(tile, position){
                 var vis_str = visible ? `Hide` : `Show`;
@@ -301,28 +325,15 @@ const DisplayHTML = {
 
         var section = DisplayHTML.get_element(location);
         var table = document.createElement(`table`);
-        var tb_id = `${location} ${header} table`;
+        var tb_id = `${header} button table`;
         table.id = tb_id;
         section.append(table);
 
-        var body_div = document.createElement(`div`);
-        var body_div_id = `${location} ${header} section`;
-        body_div.id = body_div_id;
-        body_div.style.display = `none`;
-        section.append(body_div);
-        DisplayHTML.add_button_row(tb_id, [{description: `Show ${header}`}], toggle_visible(tb_id, body_div_id, header, true));
-
-        var body_header = document.createElement(`h2`);
-        body_header.id = `${body_div_id} header`;
-        body_header.innerText = `${header}:`;
-        body_div.append(body_header);
-
-        var body_text = document.createElement(`p`);
-        body_text.id = `${body_div_id} text`;
-        body_text.innerText = wrap_str(body, TEXT_WRAP_WIDTH, ` `);;
-        body_div.append(body_text);
+        body_element.style.display = `none`;
+        section.append(body_element);
+        DisplayHTML.add_button_row(tb_id, [{description: `Show ${header}`}], toggle_visible(tb_id, body_element.id, header, true));
     },
-    create_dropdown(location, options_arr){
+    create_dropdown: function(location, options_arr){
         var doc_location = this.get_element(location);
         var select_button = document.createElement(`select`);
         var select_id = `${location} select`
@@ -350,6 +361,60 @@ const DisplayHTML = {
             select_button.append(option);
         }
         doc_location.append(select_button);
+    },
+    create_alternating_text_section: function(header, par_arr, inline_arr){
+        if(par_arr.length !== inline_arr.length && par_arr.length !== inline_arr.length + 1){
+            throw new Error(`array size mismatch`);
+        }
+        var body_div = document.createElement(`div`);
+        var body_div_id = `${header} section`;
+        body_div.id = body_div_id;
+        body_div.style.display = `none`;
+
+
+        var body_header = document.createElement(`h2`);
+        body_header.id = `${body_div_id} header`;
+        body_header.innerText = `${header}:`;
+        body_div.append(body_header);
+
+        for(var i = 0; i < par_arr.length; ++i){
+            var body_text = document.createElement(`p`);
+            body_text.id = `${body_div_id} text ${i}`;
+            body_text.innerText = wrap_str(par_arr[i], TEXT_WRAP_WIDTH, ` `);
+            body_text.style.display = `inline`;
+            body_div.append(body_text);
+            if(i < inline_arr.length){
+                inline_arr[i].id = `${body_div_id} non-text ${i}`
+                inline_arr[i].style.display = `inline`;
+                body_div.append(inline_arr[i]);
+            }
+        }
+        
+        return body_div;
+    },
+    create_button: function(label, id, on_click = undefined){
+        var button = document.createElement(`input`);
+        button.type = `button`;
+        button.id = id;
+        if(on_click !== undefined){
+            button.onclick = on_click;
+        }
+        button.value = label;
+        return button;
+    },
+    create_image: function(src, id, size){
+        var image = document.createElement(`img`);
+        image.src = `${img_folder.src}${src}`;
+        image.id = id;
+        if(typeof size === `number`){
+            image.width = size;
+            image.height = size;
+        }
+        else{
+            image.width = size.x;
+            image.height = size.y;
+        }
+        return image;
     },
 
     // Non Required helper functions.

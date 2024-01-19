@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+1/18/24
+- Added images to guidebook tab.
+
 1/17/24
 - Added guidebook tab.
 

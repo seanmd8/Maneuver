@@ -25,9 +25,10 @@ const AREA_SIZE = 5;
 // Visual and animation settings.
 const CARD_SCALE = 90;
 const TILE_SCALE = 30;
+const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 300;
 const DECK_DISPLAY_WIDTH = 4;
-const TEXT_WRAP_WIDTH = 65;
+const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
 
 
@@ -41,9 +42,10 @@ Object.freeze(controls);
 // Image folder file structure.
 const img_folder = {
     src: `images/`,
+    backgrounds: `backgrounds/`,
     cards: `cards/`,
     other: `other/`,
-    tiles: `tiles/`,
-    backgrounds: `backgrounds/`
+    symbols: `symbols/`,
+    tiles: `tiles/`
 }
 Object.freeze(img_folder);
