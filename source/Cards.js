@@ -13,8 +13,15 @@ const CARD_CHOICES = [
     pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
     thwack, overcome_sideways, y_leap, diamond_slice, spearhead,
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal,
-    diamond_attack, teleport
+    diamond_attack, slice_twice
 ];
+
+const RARE_CARD_CHOICES = [
+    teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
+    sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
+    punch_diagonal
+
+]
 
 // Cards that can be given as a debuff.
 const CONFUSION_CARDS = [
@@ -56,6 +63,13 @@ function pteleport(x, y){
     return {
         type: `teleport`,
         change: new Point(x, y)
+    }
+}
+/** @type {PlayerCommandGenerator} Function to declare the previous commands as instant.*/
+function pinstant(x, y){
+    return {
+        type: `instant`,
+        change: new Point(x, y) // In this case, this point does nothing.
     }
 }
 // Cards
@@ -687,7 +701,122 @@ function teleport(){
         options
     }
 }
-
+/** @type {CardGenerator}*/
+function sidestep_w(){
+    var options = new ButtonGrid();
+    options.add_button(W, [pmove(-1, 0), pinstant(0, 0)]);
+    return{
+        name: `sidestep west`,
+        pic: `${img_folder.cards}sidestep_w.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_e(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0), pinstant(0, 0)]);
+    return{
+        name: `sidestep east`,
+        pic: `${img_folder.cards}sidestep_e.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_n(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1), pinstant(0, 0)]);
+    return{
+        name: `sidestep north`,
+        pic: `${img_folder.cards}sidestep_n.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_s(){
+    var options = new ButtonGrid();
+    options.add_button(S, [pmove(0, 1), pinstant(0, 0)]);
+    return{
+        name: `sidestep south`,
+        pic: `${img_folder.cards}sidestep_s.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NW, [pmove(-1, -1), pinstant(0, 0)]);
+    return{
+        name: `sidestep nw`,
+        pic: `${img_folder.cards}sidestep_nw.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(1, -1), pinstant(0, 0)]);
+    return{
+        name: `sidestep ne`,
+        pic: `${img_folder.cards}sidestep_ne.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_se(){
+    var options = new ButtonGrid();
+    options.add_button(SE, [pmove(1, 1), pinstant(0, 0)]);
+    return{
+        name: `sidestep se`,
+        pic: `${img_folder.cards}sidestep_se.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_sw(){
+    var options = new ButtonGrid();
+    options.add_button(SW, [pmove(-1, 1), pinstant(0, 0)]);
+    return{
+        name: `sidestep sw`,
+        pic: `${img_folder.cards}sidestep_sw.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function punch_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(0, -1), pinstant(0, 0)]);
+    options.add_button(E, [pattack(1, 0), pinstant(0, 0)]);
+    options.add_button(S, [pattack(0, 1), pinstant(0, 0)]);
+    options.add_button(W, [pattack(-1, 0), pinstant(0, 0)]);
+    return{
+        name: `punch orthogonal`,
+        pic: `${img_folder.cards}punch_orthogonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function punch_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack(1, -1), pinstant(0, 0)]);
+    options.add_button(SE, [pattack(1, 1), pinstant(0, 0)]);
+    options.add_button(SW, [pattack(-1, 1), pinstant(0, 0)]);
+    options.add_button(NW, [pattack(-1, -1), pinstant(0, 0)]);
+    return{
+        name: `punch diagonal`,
+        pic: `${img_folder.cards}punch_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function slice_twice(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(1, -1), pattack(1, -1), pattack(0, -1), pattack(0, -1), pattack(-1, -1), pattack(-1, -1)]);
+    return{
+        name: `slice twice`,
+        pic: `${img_folder.cards}slice_twice.png`,
+        options
+    }
+}
 
 
 
@@ -803,6 +932,7 @@ function lash_out(){
         options
     }
 }
+
 
 
 // Card Dummy Images to be displayed in the same space

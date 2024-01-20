@@ -1019,8 +1019,15 @@ const CARD_CHOICES = [
     pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
     thwack, overcome_sideways, y_leap, diamond_slice, spearhead,
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal,
-    diamond_attack, teleport
+    diamond_attack, slice_twice
 ];
+
+const RARE_CARD_CHOICES = [
+    teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
+    sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
+    punch_diagonal
+
+]
 
 // Cards that can be given as a debuff.
 const CONFUSION_CARDS = [
@@ -1062,6 +1069,13 @@ function pteleport(x, y){
     return {
         type: `teleport`,
         change: new Point(x, y)
+    }
+}
+/** @type {PlayerCommandGenerator} Function to declare the previous commands as instant.*/
+function pinstant(x, y){
+    return {
+        type: `instant`,
+        change: new Point(x, y) // In this case, this point does nothing.
     }
 }
 // Cards
@@ -1693,7 +1707,122 @@ function teleport(){
         options
     }
 }
-
+/** @type {CardGenerator}*/
+function sidestep_w(){
+    var options = new ButtonGrid();
+    options.add_button(W, [pmove(-1, 0), pinstant(0, 0)]);
+    return{
+        name: `sidestep west`,
+        pic: `${img_folder.cards}sidestep_w.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_e(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0), pinstant(0, 0)]);
+    return{
+        name: `sidestep east`,
+        pic: `${img_folder.cards}sidestep_e.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_n(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1), pinstant(0, 0)]);
+    return{
+        name: `sidestep north`,
+        pic: `${img_folder.cards}sidestep_n.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_s(){
+    var options = new ButtonGrid();
+    options.add_button(S, [pmove(0, 1), pinstant(0, 0)]);
+    return{
+        name: `sidestep south`,
+        pic: `${img_folder.cards}sidestep_s.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NW, [pmove(-1, -1), pinstant(0, 0)]);
+    return{
+        name: `sidestep nw`,
+        pic: `${img_folder.cards}sidestep_nw.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(1, -1), pinstant(0, 0)]);
+    return{
+        name: `sidestep ne`,
+        pic: `${img_folder.cards}sidestep_ne.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_se(){
+    var options = new ButtonGrid();
+    options.add_button(SE, [pmove(1, 1), pinstant(0, 0)]);
+    return{
+        name: `sidestep se`,
+        pic: `${img_folder.cards}sidestep_se.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_sw(){
+    var options = new ButtonGrid();
+    options.add_button(SW, [pmove(-1, 1), pinstant(0, 0)]);
+    return{
+        name: `sidestep sw`,
+        pic: `${img_folder.cards}sidestep_sw.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function punch_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(0, -1), pinstant(0, 0)]);
+    options.add_button(E, [pattack(1, 0), pinstant(0, 0)]);
+    options.add_button(S, [pattack(0, 1), pinstant(0, 0)]);
+    options.add_button(W, [pattack(-1, 0), pinstant(0, 0)]);
+    return{
+        name: `punch orthogonal`,
+        pic: `${img_folder.cards}punch_orthogonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function punch_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack(1, -1), pinstant(0, 0)]);
+    options.add_button(SE, [pattack(1, 1), pinstant(0, 0)]);
+    options.add_button(SW, [pattack(-1, 1), pinstant(0, 0)]);
+    options.add_button(NW, [pattack(-1, -1), pinstant(0, 0)]);
+    return{
+        name: `punch diagonal`,
+        pic: `${img_folder.cards}punch_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function slice_twice(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(1, -1), pattack(1, -1), pattack(0, -1), pattack(0, -1), pattack(-1, -1), pattack(-1, -1)]);
+    return{
+        name: `slice twice`,
+        pic: `${img_folder.cards}slice_twice.png`,
+        options
+    }
+}
 
 
 
@@ -1809,6 +1938,7 @@ function lash_out(){
         options
     }
 }
+
 
 
 // Card Dummy Images to be displayed in the same space
@@ -3351,14 +3481,21 @@ class GameState{
         display.display_message(UIIDS.display_message, ``);
         this.map.clear_marked();
         try{
+            var is_instant = false;
             for(var i = 0; i < behavior.length; ++i){
                 // Does each valid command in the behavior array.
-                this.player_action(behavior[i]);
+                is_instant = this.player_action(behavior[i]);
             }
             display.clear_tb(UIIDS.move_buttons);
             this.deck.discard(hand_pos);
             this.map.display();
             await delay(ANIMATION_DELAY);
+            if(is_instant){
+                this.deck.display_hand(UIIDS.hand_display);
+                this.map.display_stats(UIIDS.stats);
+                this.map.display();
+                return;
+            }
             await this.map.enemy_turn();
             this.prep_turn();
         }
@@ -3387,6 +3524,7 @@ class GameState{
      * Handles an individual action of the player.
      * Throws an error if a command of the wrong type is sent in.
      * @param {PlayerCommand} action The command to be followed.
+     * @returns {boolean} returns true if the action was instant, false otherwise.
      */
     player_action(action){
         switch(action.type){
@@ -3399,9 +3537,12 @@ class GameState{
             case `teleport`:
                 this.map.player_teleport(action.change);
                 break;
+            case `instant`:
+                return true;
             default:
                 throw new Error(`invalid player action type`);
         }
+        return false;
     }
     /** 
      * Sets up the next floor then leaves the shop.
@@ -3439,6 +3580,11 @@ class GameState{
     */
     #generate_add_row(table){
         var add_list_generators = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
+        var chance_of_rare = random_num(4);
+        if(chance_of_rare < add_list_generators.length){
+            var rare = rand_no_repeates(RARE_CARD_CHOICES, 1);
+            add_list_generators[chance_of_rare] = rare[0];
+        }
         var add_list = [];
         for(var i = 0; i < add_list_generators.length; ++i){
             add_list[i] = add_list_generators[i]();
@@ -3750,6 +3896,7 @@ const GUIDE_TEXT = {
                 ` Each action the line goes through will be performed.\n`,
                 ` Multiple actions will be performed in a specific order.\n`,
                 `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
+                ` A card with a purple grid will be performed instantly.\n`,
                 ` A card with a yellow background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`
             +`\n`
             +`In addition to clicking on cards to use them, you can use the keys\n`,
@@ -3793,6 +3940,7 @@ const CARD_SYMBOLS = [
     {src: `${img_folder.symbols}multiple_ordered.png`,  x: 3, y: 1},
     {src: `${img_folder.symbols}attack_move.png`,       x: 1, y: 1},
     {src: `${img_folder.symbols}triple_attack.png`,     x: 1, y: 1},
+    {src: `${img_folder.symbols}instant.png`,         x: 2, y: 2},
     {src: `${img_folder.symbols}temporary.png`,         x: 2, y: 2}
 ];
 
@@ -3832,11 +3980,14 @@ function make_starting_deck(){
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
     var deck = new MoveDeck();
-    var start = 40;
+    var start = 11 * 5;
     for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
         deck.add(CARD_CHOICES[i]());
     }
     deck.add(basic_horizontal());
+    deck.add(basic_horizontal());
+    deck.add(basic_horizontal());
+
     deck.deal();
     return deck;
 }
@@ -4216,6 +4367,8 @@ class MoveDeck{
         new_card.id = this.#id_count;
         this.#id_count++;
         this.#decklist.push(new_card);
+        this.#library.push(new_card);
+        this.#library = randomize_arr(this.#library);
     }
     /**
      * Adds a new card to the library after giving it a temp tag.

@@ -33,11 +33,14 @@ function make_starting_deck(){
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
     var deck = new MoveDeck();
-    var start = 40;
+    var start = 11 * 5;
     for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
         deck.add(CARD_CHOICES[i]());
     }
     deck.add(basic_horizontal());
+    deck.add(basic_horizontal());
+    deck.add(basic_horizontal());
+
     deck.deal();
     return deck;
 }

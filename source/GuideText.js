@@ -29,6 +29,7 @@ const GUIDE_TEXT = {
                 ` Each action the line goes through will be performed.\n`,
                 ` Multiple actions will be performed in a specific order.\n`,
                 `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
+                ` A card with a purple grid will be performed instantly.\n`,
                 ` A card with a yellow background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`
             +`\n`
             +`In addition to clicking on cards to use them, you can use the keys\n`,
@@ -72,6 +73,7 @@ const CARD_SYMBOLS = [
     {src: `${img_folder.symbols}multiple_ordered.png`,  x: 3, y: 1},
     {src: `${img_folder.symbols}attack_move.png`,       x: 1, y: 1},
     {src: `${img_folder.symbols}triple_attack.png`,     x: 1, y: 1},
+    {src: `${img_folder.symbols}instant.png`,         x: 2, y: 2},
     {src: `${img_folder.symbols}temporary.png`,         x: 2, y: 2}
 ];
 

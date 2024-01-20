@@ -74,6 +74,8 @@ class MoveDeck{
         new_card.id = this.#id_count;
         this.#id_count++;
         this.#decklist.push(new_card);
+        this.#library.push(new_card);
+        this.#library = randomize_arr(this.#library);
     }
     /**
      * Adds a new card to the library after giving it a temp tag.

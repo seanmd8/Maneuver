@@ -43,14 +43,21 @@ class GameState{
         display.display_message(UIIDS.display_message, ``);
         this.map.clear_marked();
         try{
+            var is_instant = false;
             for(var i = 0; i < behavior.length; ++i){
                 // Does each valid command in the behavior array.
-                this.player_action(behavior[i]);
+                is_instant = this.player_action(behavior[i]);
             }
             display.clear_tb(UIIDS.move_buttons);
             this.deck.discard(hand_pos);
             this.map.display();
             await delay(ANIMATION_DELAY);
+            if(is_instant){
+                this.deck.display_hand(UIIDS.hand_display);
+                this.map.display_stats(UIIDS.stats);
+                this.map.display();
+                return;
+            }
             await this.map.enemy_turn();
             this.prep_turn();
         }
@@ -79,6 +86,7 @@ class GameState{
      * Handles an individual action of the player.
      * Throws an error if a command of the wrong type is sent in.
      * @param {PlayerCommand} action The command to be followed.
+     * @returns {boolean} returns true if the action was instant, false otherwise.
      */
     player_action(action){
         switch(action.type){
@@ -91,9 +99,12 @@ class GameState{
             case `teleport`:
                 this.map.player_teleport(action.change);
                 break;
+            case `instant`:
+                return true;
             default:
                 throw new Error(`invalid player action type`);
         }
+        return false;
     }
     /** 
      * Sets up the next floor then leaves the shop.
@@ -131,6 +142,11 @@ class GameState{
     */
     #generate_add_row(table){
         var add_list_generators = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
+        var chance_of_rare = random_num(4);
+        if(chance_of_rare < add_list_generators.length){
+            var rare = rand_no_repeates(RARE_CARD_CHOICES, 1);
+            add_list_generators[chance_of_rare] = rare[0];
+        }
         var add_list = [];
         for(var i = 0; i < add_list_generators.length; ++i){
             add_list[i] = add_list_generators[i]();
