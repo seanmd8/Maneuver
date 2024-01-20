@@ -3329,10 +3329,6 @@ class GameState{
         display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
         this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
-        this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
-        this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
-        this.map.spawn_safely(scythe_tile(), SAFE_SPAWN_ATTEMPTS, true);
-
         this.map.display();
         this.map.display_stats(UIIDS.stats);
         this.deck = STARTING_DECK();
@@ -3753,7 +3749,8 @@ const GUIDE_TEXT = {
                 ` You will move to this space.\n`,
                 ` Each action the line goes through will be performed.\n`,
                 ` Multiple actions will be performed in a specific order.\n`,
-                `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`
+                `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
+                ` A card with a yellow background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`
             +`\n`
             +`In addition to clicking on cards to use them, you can use the keys\n`,
                 ` `, ` `, `\n`
@@ -3795,7 +3792,8 @@ const CARD_SYMBOLS = [
     {src: `${img_folder.symbols}multiple.png`,          x: 3, y: 1},
     {src: `${img_folder.symbols}multiple_ordered.png`,  x: 3, y: 1},
     {src: `${img_folder.symbols}attack_move.png`,       x: 1, y: 1},
-    {src: `${img_folder.symbols}triple_attack.png`,     x: 1, y: 1}
+    {src: `${img_folder.symbols}triple_attack.png`,     x: 1, y: 1},
+    {src: `${img_folder.symbols}temporary.png`,         x: 2, y: 2}
 ];
 
 
@@ -4245,7 +4243,14 @@ class MoveDeck{
                 var deck = deck;
             }
         }
-        display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this));
+        var card_background = function(tile, location){
+            var backgrounds = [];
+            if(tile.temp){
+                backgrounds.push(`${img_folder.other}temporary_background.png`)
+            }
+            return backgrounds;
+        }
+        display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this), card_background);
     }
     /**
      * Displays the whole decklist

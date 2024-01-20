@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+1/19/24
+- Temporary cards now have a yellow background.
+
 1/18/24
 - Hitting the player and enemies with more than 1 hp now correctly shows the attacks.
 - Hazards are now telegraphed.

@@ -101,7 +101,14 @@ class MoveDeck{
                 var deck = deck;
             }
         }
-        display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this));
+        var card_background = function(tile, location){
+            var backgrounds = [];
+            if(tile.temp){
+                backgrounds.push(`${img_folder.other}temporary_background.png`)
+            }
+            return backgrounds;
+        }
+        display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this), card_background);
     }
     /**
      * Displays the whole decklist
