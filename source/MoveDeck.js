@@ -106,6 +106,9 @@ class MoveDeck{
             if(tile.temp){
                 backgrounds.push(`${img_folder.other}temporary_background.png`)
             }
+            else{
+                backgrounds.push(`${img_folder.other}default_card_background.png`)
+            }
             return backgrounds;
         }
         display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this), card_background);
