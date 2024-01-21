@@ -3,6 +3,8 @@
 // File containing the logic for the behavior of non player entities.
 
 
+
+
 /**
  * @callback AIFunction
  * @param {Point} location The current location of this entity.
@@ -541,6 +543,7 @@ function shadow_scout_ai(location, difference, map, self){
     shapeshift(self, self.look_arr[self.cycle]);
     spider_ai(location, difference, map, self);
 }
+/** @type {AIFunction} AI used by shadow scouts.*/
 function darkling_ai(location, difference, map, self){
     if(self.direction !== undefined){
         var moved = map.move(location, self.direction);
@@ -565,6 +568,14 @@ function darkling_ai(location, difference, map, self){
 function boss_death(location, difference, map, self){
     if(self.death_message === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
+    }
+    if(self.card_drops !== undefined && self.card_drops.length > 0){
+        if(random_num(CHEST_CHANCE) === 0){
+            var chest = chest_tile();
+            var card = rand_no_repeates(self.card_drops, 1)[0];
+            add_card_to_chest(chest, card());
+            map.add_tile(chest, location);
+        }
     }
     display.display_message(UIIDS.display_message, `${self.death_message}\n${boss_death_description}`);
     map.unlock();
@@ -726,6 +737,39 @@ function fireball_on_enter(location, difference, map, self){
     hazard(location, difference, map, self);
     self.health = 1;
     map.attack(location);
+}
+function chest_on_enter(location, difference, map, self){
+    self.health = 1;
+    map.attack(location);
+    var leave_chest = function(){
+        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        display.display_message(UIIDS.chest_instructions, ``);
+        display.clear_tb(UIIDS.chest_confirm_row);
+        display.display_message(UIIDS.content_description, ``);
+    }
+    var abandon_button = {
+        description: abandon_chest
+    };
+    var take_or_leave =  function(button, position){
+        if(button.on_choose !== undefined){
+            button.on_choose();
+        }
+        leave_chest();
+    }
+    var click_content = function(content, position){
+        var confirm_button = {
+            description: take_from_chest,
+            on_choose: content.on_choose
+        };
+        display.display_message(UIIDS.content_description, content.description);
+        display.clear_tb(UIIDS.chest_confirm_row);
+        display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button], take_or_leave);
+        display.select(UIIDS.contents, position.y, position.x);
+    }
+    display.display_message(UIIDS.chest_instructions, chest_inner_discription);
+    display.add_tb_row(UIIDS.contents, self.contents, CHEST_CONTENTS_SIZE, click_content);
+    display.add_button_row(UIIDS.chest_confirm_row, [abandon_button], take_or_leave);
+    display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.chest);
 }
 
 
@@ -1977,12 +2021,11 @@ const HAND_SIZE = 3;
 const ADD_CHOICE_COUNT = 3;
 const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
-const BUFF_CHOICE_COUNT = 2;
-const BUFF_SPAWN_DENOMINATOR = 4;
+const CHEST_CHANCE = -1;
 
 
 // Initialization settings.
-const STARTING_ENEMY = spider_tile;
+const STARTING_ENEMY = velociphile_tile;
 const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = generate_ruins_area;
 
@@ -1994,6 +2037,7 @@ const SAFE_SPAWN_ATTEMPTS = 5;
 
 // Visual and animation settings.
 const CARD_SCALE = 90;
+const CHEST_CONTENTS_SIZE = 120;
 const TILE_SCALE = 30;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 300;
@@ -2033,6 +2077,8 @@ const retry_message = `Retry?`;
 const stunned_msg = `Stunned x`;
 const gameplay_screen_name = `Gameplay`;
 const guide_screen_name = `Guidebook`;
+const take_from_chest = `Take`;
+const abandon_chest = `Abandon`;
 
 // Normal Enemy Descriptions.
 const spider_description = `Spider: Will attack the player if it is next to them. Otherwise it will move 1 space closer.`;
@@ -2123,8 +2169,12 @@ const damaged_wall_description = `A damaged wall. Something might live inside.`;
 const lock_description = `The exit is locked. Defeat the boss to continue.`;
 const fireball_description = `A fireball. Moves forwards until it comes into contact with something, then damages it.`;
 const falling_rubble_description = `Watch out, something is about to fall here.`;
-const darkling_rift_description = `If this space isn't blocked, a darkling will teleport here next turn damaging everything nearby.`
+const darkling_rift_description = `If this space isn't blocked, a darkling will teleport here next turn damaging everything nearby.`;
+const chest_description = `A chest. It might have something useful inside.`;
+const chest_inner_discription = `Choose up to one reward:`;
 
+// Chest loot descriptions.
+const add_card_description = `Add this card to your deck.`
 
 
 // Cardinal Directions.
@@ -3917,7 +3967,9 @@ const GUIDE_TEXT = {
             +`turn. Some enemies also have the ability to move you during their turn. When this happens, you will get the chance to respond. `
             +`Remember that you do not need to kill everything to go to the next stage. Sometimes it's better to run past an enemy than to `
             +`fight it and risk getting surrounded or cornered. There may also be some creatures you encounter that are more helpful than `
-            +`harmful.\n\n`],
+            +`harmful.\n`
+            +`Some effects will cause an enemy to become stunned. Stunned enemies will skip their next turn. Multiple instances of stun `
+            +`will cause multiple turns to get skipped.\n\n`],
 
     shop: [`When you complete a floor, you will enter a shop where you must either add or remove a card from your deck. You will get `
             +`${ADD_CHOICE_COUNT} options of random cards to add, and ${REMOVE_CHOICE_COUNT} options of random cards from your deck to remove. `
@@ -4290,6 +4342,17 @@ function get_control_symbols(){
         buttons.push(display.create_button(symbol, `${symbol} key`));
     }
     return buttons;
+}
+function add_card_to_chest(chest, card){
+    var content = {
+        pic: card.pic,
+        on_choose: function(){
+            GS.deck.add(card);
+        },
+        description: add_card_description
+    }
+    chest.contents.push(content);
+
 }
 // ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.
@@ -4878,6 +4941,8 @@ function shapeshift(tile, tile_generator, just_background){
  * @property {number=} spin_direction The direction it is spinning.
  * @property {Spell[]=} spells A array of behavior functions it can call along with their own descriptions and pictures.
  * @property {TileGenerator[]=} summons A array of tiles it can spawn.
+ * @property {[]=} contents The contents of a chest.
+ * @property {CardGenerator[]=} card_drops The cards a boss can drop on death.
  * 
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
@@ -4982,7 +5047,7 @@ function damaged_wall_tile(){
         on_death: wall_death
     }
 }
-/** @type {TileGenerator} A fireball that travels in a straight line until it hits something.*/
+/** @type {TileGenerator} A fireball that travels in a straight line until it hits something. Direction is not yet set.*/
 function fireball_tile(){
     var pic_arr = [`${img_folder.tiles}fireball_n.png`, `${img_folder.tiles}fireball_nw.png`];
     return {
@@ -4998,6 +5063,19 @@ function fireball_tile(){
         direction: undefined
     }
 }
+/** @type {TileGenerator} A chest letting the user choose a reward. Currently empty.*/
+function chest_tile(){
+    return {
+        type: `chest`,
+        name: `chest`,
+        pic: `${img_folder.tiles}chest.png`,
+        description: chest_description,
+        health: 1,
+        on_enter: chest_on_enter,
+        contents: []
+    }
+}
+
 
 // Look tiles to give a specific name, background and description to an event.
 /** @type {TileGenerator} Used to show which location will have falling rubble next turn.*/
@@ -5372,7 +5450,8 @@ function velociphile_tile(){
         death_message: velociphile_death_message,
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,
-        on_death: boss_death
+        on_death: boss_death,
+        card_drops: []
     }
 }
 /** @type {TileGenerator} */
@@ -5387,7 +5466,8 @@ function spider_queen_tile(){
         behavior: spider_ai,
         telegraph: spider_telegraph,
         on_hit: spider_queen_hit,
-        on_death: boss_death
+        on_death: boss_death,
+        card_drops: []
     }
 }
 /** @type {TileGenerator} */
@@ -5424,6 +5504,7 @@ function lich_tile(){
         cycle: starting_cycle,
         spells,
         summons,
+        card_drops: []
     }
 }
 /**
@@ -5471,8 +5552,8 @@ function get_uiids(language){
 /**
  * @typedef uiid_library
  * @property {string} title Displays the title of the game.
- * @property {string} stats Displays the current stats.
  * @property {string} game_screen Controls the visibility of the game itself.
+ *      @property {string} stats Displays the current stats.
  *      @property {string} stage Controls the visibility of the current floor.
  *          @property {string} map_display Displays the map of the floor.
  *          @property {string} health_display Displays the player's health.
@@ -5486,6 +5567,10 @@ function get_uiids(language){
  *          @property {string} current_deck Tells them the next element is their current deck.
  *          @property {string} display_deck Displays their entire deck.
  *      @property {string} chest Controls the visibility of the chest contents.
+ *          @property {string} chest_instructions: A description of the contents of the chest.
+ *          @property {string} contents The images associated with the contents.
+ *          @property {string} chest_confirm_row: Buttons allowing you to confirm your pick or skip the reward.
+ *          @property {string} content_description: A description of whichever one of the contents you last clicked on.
  * @property {string} guide Controls the visibility of the guide screen.
  */
 
@@ -5493,21 +5578,25 @@ function get_uiids(language){
 /** @type {uiid_library} The uiid library for HTML.*/
 const HTML_UIIDS = {
     title: `title`,
-    stats: `stats`,
     game_screen: `gameScreen`,
-    stage: `stage`,
-    map_display: `mapDisplay`,
-    health_display: `healthDisplay`,
-    hand_display: `handDisplay`,
-    move_buttons: `moveButtons`,
-    display_message: `displayMessage`,
-    shop: `shop`,
-    shop_instructions: `shopInstructions`,
-    add_card: `addCard`,
-    remove_card: `removeCard`,
-    current_deck: `currentDeck`,
-    display_deck: `displayDeck`,
-    chest: `chest`,
+        stats: `stats`,
+        stage: `stage`,
+            map_display: `mapDisplay`,
+            health_display: `healthDisplay`,
+            hand_display: `handDisplay`,
+            move_buttons: `moveButtons`,
+            display_message: `displayMessage`,
+        shop: `shop`,
+            shop_instructions: `shopInstructions`,
+            add_card: `addCard`,
+            remove_card: `removeCard`,
+            current_deck: `currentDeck`,
+            display_deck: `displayDeck`,
+        chest: `chest`,
+            chest_instructions: `chestInstructions`,
+            contents: `contents`,
+            chest_confirm_row: `chestConfirmRow`,
+            content_description: `contentDescription`,
     guide: `guide`,
 }
 Object.freeze(HTML_UIIDS);

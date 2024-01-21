@@ -37,6 +37,8 @@
  * @property {number=} spin_direction The direction it is spinning.
  * @property {Spell[]=} spells A array of behavior functions it can call along with their own descriptions and pictures.
  * @property {TileGenerator[]=} summons A array of tiles it can spawn.
+ * @property {[]=} contents The contents of a chest.
+ * @property {CardGenerator[]=} card_drops The cards a boss can drop on death.
  * 
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
@@ -141,7 +143,7 @@ function damaged_wall_tile(){
         on_death: wall_death
     }
 }
-/** @type {TileGenerator} A fireball that travels in a straight line until it hits something.*/
+/** @type {TileGenerator} A fireball that travels in a straight line until it hits something. Direction is not yet set.*/
 function fireball_tile(){
     var pic_arr = [`${img_folder.tiles}fireball_n.png`, `${img_folder.tiles}fireball_nw.png`];
     return {
@@ -157,6 +159,19 @@ function fireball_tile(){
         direction: undefined
     }
 }
+/** @type {TileGenerator} A chest letting the user choose a reward. Currently empty.*/
+function chest_tile(){
+    return {
+        type: `chest`,
+        name: `chest`,
+        pic: `${img_folder.tiles}chest.png`,
+        description: chest_description,
+        health: 1,
+        on_enter: chest_on_enter,
+        contents: []
+    }
+}
+
 
 // Look tiles to give a specific name, background and description to an event.
 /** @type {TileGenerator} Used to show which location will have falling rubble next turn.*/
@@ -531,7 +546,8 @@ function velociphile_tile(){
         death_message: velociphile_death_message,
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,
-        on_death: boss_death
+        on_death: boss_death,
+        card_drops: []
     }
 }
 /** @type {TileGenerator} */
@@ -546,7 +562,8 @@ function spider_queen_tile(){
         behavior: spider_ai,
         telegraph: spider_telegraph,
         on_hit: spider_queen_hit,
-        on_death: boss_death
+        on_death: boss_death,
+        card_drops: []
     }
 }
 /** @type {TileGenerator} */
@@ -583,6 +600,7 @@ function lich_tile(){
         cycle: starting_cycle,
         spells,
         summons,
+        card_drops: []
     }
 }
 /**

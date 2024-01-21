@@ -8,12 +8,11 @@ const HAND_SIZE = 3;
 const ADD_CHOICE_COUNT = 3;
 const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
-const BUFF_CHOICE_COUNT = 2;
-const BUFF_SPAWN_DENOMINATOR = 4;
+const CHEST_CHANCE = -1;
 
 
 // Initialization settings.
-const STARTING_ENEMY = spider_tile;
+const STARTING_ENEMY = velociphile_tile;
 const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = generate_ruins_area;
 
@@ -25,6 +24,7 @@ const SAFE_SPAWN_ATTEMPTS = 5;
 
 // Visual and animation settings.
 const CARD_SCALE = 90;
+const CHEST_CONTENTS_SIZE = 120;
 const TILE_SCALE = 30;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 300;

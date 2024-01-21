@@ -344,3 +344,14 @@ function get_control_symbols(){
     }
     return buttons;
 }
+function add_card_to_chest(chest, card){
+    var content = {
+        pic: card.pic,
+        on_choose: function(){
+            GS.deck.add(card);
+        },
+        description: add_card_description
+    }
+    chest.contents.push(content);
+
+}

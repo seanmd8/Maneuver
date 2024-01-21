@@ -13,6 +13,8 @@ const retry_message = `Retry?`;
 const stunned_msg = `Stunned x`;
 const gameplay_screen_name = `Gameplay`;
 const guide_screen_name = `Guidebook`;
+const take_from_chest = `Take`;
+const abandon_chest = `Abandon`;
 
 // Normal Enemy Descriptions.
 const spider_description = `Spider: Will attack the player if it is next to them. Otherwise it will move 1 space closer.`;
@@ -103,8 +105,12 @@ const damaged_wall_description = `A damaged wall. Something might live inside.`;
 const lock_description = `The exit is locked. Defeat the boss to continue.`;
 const fireball_description = `A fireball. Moves forwards until it comes into contact with something, then damages it.`;
 const falling_rubble_description = `Watch out, something is about to fall here.`;
-const darkling_rift_description = `If this space isn't blocked, a darkling will teleport here next turn damaging everything nearby.`
+const darkling_rift_description = `If this space isn't blocked, a darkling will teleport here next turn damaging everything nearby.`;
+const chest_description = `A chest. It might have something useful inside.`;
+const chest_inner_discription = `Choose up to one reward:`;
 
+// Chest loot descriptions.
+const add_card_description = `Add this card to your deck.`
 
 
 // Cardinal Directions.

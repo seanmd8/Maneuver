@@ -2,6 +2,8 @@
 // File containing the logic for the behavior of non player entities.
 
 
+
+
 /**
  * @callback AIFunction
  * @param {Point} location The current location of this entity.
@@ -540,6 +542,7 @@ function shadow_scout_ai(location, difference, map, self){
     shapeshift(self, self.look_arr[self.cycle]);
     spider_ai(location, difference, map, self);
 }
+/** @type {AIFunction} AI used by shadow scouts.*/
 function darkling_ai(location, difference, map, self){
     if(self.direction !== undefined){
         var moved = map.move(location, self.direction);
@@ -564,6 +567,14 @@ function darkling_ai(location, difference, map, self){
 function boss_death(location, difference, map, self){
     if(self.death_message === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
+    }
+    if(self.card_drops !== undefined && self.card_drops.length > 0){
+        if(random_num(CHEST_CHANCE) === 0){
+            var chest = chest_tile();
+            var card = rand_no_repeates(self.card_drops, 1)[0];
+            add_card_to_chest(chest, card());
+            map.add_tile(chest, location);
+        }
     }
     display.display_message(UIIDS.display_message, `${self.death_message}\n${boss_death_description}`);
     map.unlock();
@@ -725,6 +736,39 @@ function fireball_on_enter(location, difference, map, self){
     hazard(location, difference, map, self);
     self.health = 1;
     map.attack(location);
+}
+function chest_on_enter(location, difference, map, self){
+    self.health = 1;
+    map.attack(location);
+    var leave_chest = function(){
+        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        display.display_message(UIIDS.chest_instructions, ``);
+        display.clear_tb(UIIDS.chest_confirm_row);
+        display.display_message(UIIDS.content_description, ``);
+    }
+    var abandon_button = {
+        description: abandon_chest
+    };
+    var take_or_leave =  function(button, position){
+        if(button.on_choose !== undefined){
+            button.on_choose();
+        }
+        leave_chest();
+    }
+    var click_content = function(content, position){
+        var confirm_button = {
+            description: take_from_chest,
+            on_choose: content.on_choose
+        };
+        display.display_message(UIIDS.content_description, content.description);
+        display.clear_tb(UIIDS.chest_confirm_row);
+        display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button], take_or_leave);
+        display.select(UIIDS.contents, position.y, position.x);
+    }
+    display.display_message(UIIDS.chest_instructions, chest_inner_discription);
+    display.add_tb_row(UIIDS.contents, self.contents, CHEST_CONTENTS_SIZE, click_content);
+    display.add_button_row(UIIDS.chest_confirm_row, [abandon_button], take_or_leave);
+    display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.chest);
 }
 
 

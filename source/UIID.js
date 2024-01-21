@@ -20,8 +20,8 @@ function get_uiids(language){
 /**
  * @typedef uiid_library
  * @property {string} title Displays the title of the game.
- * @property {string} stats Displays the current stats.
  * @property {string} game_screen Controls the visibility of the game itself.
+ *      @property {string} stats Displays the current stats.
  *      @property {string} stage Controls the visibility of the current floor.
  *          @property {string} map_display Displays the map of the floor.
  *          @property {string} health_display Displays the player's health.
@@ -35,6 +35,10 @@ function get_uiids(language){
  *          @property {string} current_deck Tells them the next element is their current deck.
  *          @property {string} display_deck Displays their entire deck.
  *      @property {string} chest Controls the visibility of the chest contents.
+ *          @property {string} chest_instructions: A description of the contents of the chest.
+ *          @property {string} contents The images associated with the contents.
+ *          @property {string} chest_confirm_row: Buttons allowing you to confirm your pick or skip the reward.
+ *          @property {string} content_description: A description of whichever one of the contents you last clicked on.
  * @property {string} guide Controls the visibility of the guide screen.
  */
 
@@ -42,21 +46,25 @@ function get_uiids(language){
 /** @type {uiid_library} The uiid library for HTML.*/
 const HTML_UIIDS = {
     title: `title`,
-    stats: `stats`,
     game_screen: `gameScreen`,
-    stage: `stage`,
-    map_display: `mapDisplay`,
-    health_display: `healthDisplay`,
-    hand_display: `handDisplay`,
-    move_buttons: `moveButtons`,
-    display_message: `displayMessage`,
-    shop: `shop`,
-    shop_instructions: `shopInstructions`,
-    add_card: `addCard`,
-    remove_card: `removeCard`,
-    current_deck: `currentDeck`,
-    display_deck: `displayDeck`,
-    chest: `chest`,
+        stats: `stats`,
+        stage: `stage`,
+            map_display: `mapDisplay`,
+            health_display: `healthDisplay`,
+            hand_display: `handDisplay`,
+            move_buttons: `moveButtons`,
+            display_message: `displayMessage`,
+        shop: `shop`,
+            shop_instructions: `shopInstructions`,
+            add_card: `addCard`,
+            remove_card: `removeCard`,
+            current_deck: `currentDeck`,
+            display_deck: `displayDeck`,
+        chest: `chest`,
+            chest_instructions: `chestInstructions`,
+            contents: `contents`,
+            chest_confirm_row: `chestConfirmRow`,
+            content_description: `contentDescription`,
     guide: `guide`,
 }
 Object.freeze(HTML_UIIDS);

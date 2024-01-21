@@ -50,7 +50,9 @@ const GUIDE_TEXT = {
             +`turn. Some enemies also have the ability to move you during their turn. When this happens, you will get the chance to respond. `
             +`Remember that you do not need to kill everything to go to the next stage. Sometimes it's better to run past an enemy than to `
             +`fight it and risk getting surrounded or cornered. There may also be some creatures you encounter that are more helpful than `
-            +`harmful.\n\n`],
+            +`harmful.\n`
+            +`Some effects will cause an enemy to become stunned. Stunned enemies will skip their next turn. Multiple instances of stun `
+            +`will cause multiple turns to get skipped.\n\n`],
 
     shop: [`When you complete a floor, you will enter a shop where you must either add or remove a card from your deck. You will get `
             +`${ADD_CHOICE_COUNT} options of random cards to add, and ${REMOVE_CHOICE_COUNT} options of random cards from your deck to remove. `
