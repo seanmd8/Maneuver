@@ -12,7 +12,7 @@ const CHEST_CHANCE = -1;
 
 
 // Initialization settings.
-const STARTING_ENEMY = velociphile_tile;
+const STARTING_ENEMY = spider_tile;
 const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = generate_ruins_area;
 
