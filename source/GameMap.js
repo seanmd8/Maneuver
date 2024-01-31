@@ -329,7 +329,15 @@ class GameMap{
         if(end.on_enter !== undefined){
             // If the destination does something if moved onto, call it.
             try{
-                end.on_enter(end_point, start_point.minus(end_point), this, end);
+                var entity_entered = {
+                    tile: end,
+                    location: end_point
+                }
+                var mover_info = {
+                    tile: start,
+                    difference: start_point.minus(end_point)
+                }
+                end.on_enter(entity_entered, mover_info, this);
             }
             catch(error){
                 if(error.message === `game over`){
@@ -405,7 +413,15 @@ class GameMap{
             this.#get_grid(location).is_hit = `${img_folder.tiles}hit.png`;
             if(target.on_hit !== undefined){
                 var player_pos = this.#entity_list.get_player_pos();
-                target.on_hit(location, player_pos.minus(location), this, target);
+                var hit_entity = {
+                    tile: target,
+                    location: location
+                }
+                var aggressor_info = { // TODO: when damage source is implemented, use that instead.
+                    tile: this.get_player(),
+                    difference: player_pos.minus(location)
+                }
+                target.on_hit(hit_entity, aggressor_info, this);
             }
             if(target.health <= 0){
                 this.#set_grid(location, empty_tile());
@@ -418,7 +434,15 @@ class GameMap{
                 }
                 if(target.on_death !== undefined){
                     var player_pos = this.#entity_list.get_player_pos();
-                    target.on_death(location, player_pos.minus(location), this, target);
+                    var dying_entity = {
+                        tile: target,
+                        location: location
+                    }
+                    var player_info = {
+                        tile: this.get_player(),
+                        difference: player_pos.minus(location)
+                    }
+                    target.on_death(dying_entity, player_info, this);
                 }
             }
             return true;

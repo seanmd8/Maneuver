@@ -154,7 +154,15 @@ class EntityList{
                     else{
                         try{
                             if(e.enemy.behavior !== undefined){
-                                e.enemy.behavior(e.location.copy(), this.get_player_pos().minus(e.location), map, e.enemy);
+                                var self = {
+                                    tile: e.enemy,
+                                    location: e.location.copy()
+                                }
+                                var target = {
+                                    tile: map.get_player(),
+                                    difference: this.get_player_pos().minus(e.location)
+                                }
+                                e.enemy.behavior(self, target, map);
                             }
                         }
                         catch(error){

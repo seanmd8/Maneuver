@@ -17,11 +17,11 @@
  * @property {string=} death_message Displayed on death.
  * 
  * // Functions controlling behavior. //
- * @property {AIFunction=} behavior What it does on it's turn.
+ * @property {AIFunction=} behavior What it does on it's turn. Targets the player.
  * @property {TelegraphFunction=} telegraph Used to show which squares it can attack on it's next turn.
- * @property {AIFunction=} on_enter What it does when something tries to move onto it.
- * @property {AIFunction=} on_hit What it does when attacked.
- * @property {AIFunction=} on_death What it does when killed.
+ * @property {AIFunction=} on_enter What it does when something tries to move onto it. Targets whatever touched it.
+ * @property {AIFunction=} on_hit What it does when attacked. Targets what attacked it.
+ * @property {AIFunction=} on_death What it does when killed. Targets the player.
  * 
  * // Properties used to determing aesthetics //
  * @property {string[]=} pic_arr Used when the tile sometimes changes images.
@@ -140,7 +140,8 @@ function damaged_wall_tile(){
         pic: `${img_folder.tiles}damaged_wall.png`,
         description: damaged_wall_description,
         health,
-        on_death: wall_death
+        on_death: wall_death,
+        summons: [spider_tile, acid_bug_tile, spider_web_tile, rat_tile]
     }
 }
 /** @type {TileGenerator} A fireball that travels in a straight line until it hits something. Direction is not yet set.*/
@@ -390,7 +391,7 @@ function acid_bug_tile(){
         description: acid_bug_description,
         health: 1,
         difficulty: 3,
-        behavior: acid_bug_ai,
+        behavior: move_closer_ai,
         on_death: acid_bug_death,
     }
 }

@@ -94,6 +94,9 @@ class Point{
     copy(){
         return new Point(this.x, this.y);
     }
+    taxicab_distance(){
+        return Math.abs(this.x) + Math.abs(this.y);
+    }
 }
 
 /**
