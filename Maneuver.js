@@ -4195,8 +4195,10 @@ const GUIDE_TEXT = {
             +`floor.\n\n`],
 
     bosses: [`Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be locked until you defeat it's `
-            +`powerful occupant. When you defeat the boss, in addition to unlocking the stairs, you will be fully healed. When leaving the floor `
-            +`you will enter a new area of the dungeon with a different pool of inhabitants and a new boss at the end.\n\n`],
+            +`powerful occupant. When you defeat the boss, the stairs will be unlocked, you will be fully healed, and it might drop a chest `
+            +`containing a powerful new card as a reward.\n`
+            +`When leaving the floor, you will enter a new area of the dungeon with a different pool of inhabitants and a new boss at `
+            +`the end.\n\n`],
 }
 Object.freeze(GUIDE_TEXT);
 
