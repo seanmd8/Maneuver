@@ -101,6 +101,12 @@ class GameState{
                 break;
             case `instant`:
                 return true;
+            case `stun`:
+                this.map.player_stun(action.change);
+                break;
+            case `move_until`:
+                while(this.map.player_move(action.change)){};
+                break;
             default:
                 throw new Error(`invalid player action type`);
         }

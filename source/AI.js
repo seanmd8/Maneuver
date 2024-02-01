@@ -719,6 +719,9 @@ function hazard(self, target, map){
 }
 /** @type {AIFunction} Function used when a damaged wall is destroyed to potentially spawn something.*/
 function wall_death(self, target, map){
+    if(self.tile.summons === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     if(random_num(10) < 7){
         var ran = random_num(self.tile.summons.length);
         var new_enemy = self.tile.summons[ran]();
@@ -744,8 +747,9 @@ function fireball_on_enter(self, target, map){
     self.tile.health = 1;
     map.attack(self.location);
 }
+/** @type {AIFunction} Function to open a chest when the player moves onto it.*/
 function chest_on_enter(self, target, map){
-    if(target.type !== `player`){
+    if(target.tile.type !== `player`){
         return;
     }
     self.tile.health = 1;
@@ -754,6 +758,7 @@ function chest_on_enter(self, target, map){
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
         display.display_message(UIIDS.chest_instructions, ``);
         display.clear_tb(UIIDS.chest_confirm_row);
+        display.clear_tb(UIIDS.contents);
         display.display_message(UIIDS.content_description, ``);
     }
     var abandon_button = {

@@ -43,7 +43,6 @@ class ButtonGrid{
         // Displays the 3x3 grid to the given table.
         // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
         display.clear_tb(table_name);
-
         var make_press_button = function(hand_position){
             return function(button, position){
                 if(button.behavior){

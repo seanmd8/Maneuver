@@ -8,7 +8,7 @@ const HAND_SIZE = 3;
 const ADD_CHOICE_COUNT = 3;
 const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
-const CHEST_CHANCE = -1;
+const CHEST_CHANCE = 2;
 
 
 // Initialization settings.

@@ -469,7 +469,6 @@ class GameMap{
      * @returns {boolean} Returns true if the attack hits and false otherwise.
      */
     player_attack(direction){
-        // Attacks the given square relative to the player's current positon.
         var pos = this.#entity_list.get_player_pos();
         try{
             return this.attack(pos.plus(direction), `all`);
@@ -626,5 +625,35 @@ class GameMap{
                 }
             }
         }
+    }
+    /**
+     * Function to stun the enemy at a given location.
+     * @param {Point} location The location of the tile to stun.
+     * @returns {boolean} If something was stunned.
+     */
+    stun_tile(location){
+        try{
+            var tile = this.#get_grid(location);
+        }
+        catch(error){
+            if(error.message === `x out of bounds` || error.message === `y out of bounds`){
+                return false;
+            }
+            throw error;
+        }
+        if(tile.type === `enemy`){
+            stun(tile);
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Function to stun the enemy at a place releative to the player.
+     * @param {Point} direction The location of the tile to stun relative to the player.
+     * @returns {boolean} If something was stunned.
+     */
+    player_stun(direction){
+        var pos = this.#entity_list.get_player_pos();
+        return this.stun_tile(pos.plus(direction));
     }
 }

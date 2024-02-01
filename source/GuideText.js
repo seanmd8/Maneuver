@@ -26,11 +26,13 @@ const GUIDE_TEXT = {
                 ` Your relative starting location.\n`,
                 ` You will attack this space.\n`,
                 ` You will move to this space.\n`,
+                ` You will stun the enemy on this space.\n`,
                 ` Each action the line goes through will be performed.\n`,
                 ` Multiple actions will be performed in a specific order.\n`,
+                ` Multiple actions of the same stype will be performed until one fails.\n`,
                 `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
                 ` A card with a purple grid will be performed instantly.\n`,
-                ` A card with a yellow background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`
+                ` A card with a this background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`
             +`\n`
             +`In addition to clicking on cards to use them, you can use the keys\n`,
                 ` `, ` `, `\n`
@@ -47,7 +49,7 @@ const GUIDE_TEXT = {
     enemies: [`As you travel through the dungeon, you will encounter various other creatures, many of whom want to kill you. Each creature has `
             +`different patterns of attack and movement and many of them have other unique abilities. Click on a tile to learn more about it. `
             +`Clicking will show you a description of it, how much health it has, and which squares it might be able to attack on it's next `
-            +`turn. Some enemies also have the ability to move you during their turn. When this happens, you will get the chance to respond. `
+            +`turn. Some enemies also have the ability to move you during their turn. When this happens, you will get the chance to respond.\n`
             +`Remember that you do not need to kill everything to go to the next stage. Sometimes it's better to run past an enemy than to `
             +`fight it and risk getting surrounded or cornered. There may also be some creatures you encounter that are more helpful than `
             +`harmful.\n`
@@ -71,8 +73,10 @@ const CARD_SYMBOLS = [
     {src: `${img_folder.symbols}you.png`,               x: 1, y: 1},
     {src: `${img_folder.symbols}attack.png`,            x: 1, y: 1},
     {src: `${img_folder.symbols}move.png`,              x: 1, y: 1},
+    {src: `${img_folder.symbols}stun.png`,              x: 1, y: 1},
     {src: `${img_folder.symbols}multiple.png`,          x: 3, y: 1},
     {src: `${img_folder.symbols}multiple_ordered.png`,  x: 3, y: 1},
+    {src: `${img_folder.symbols}move_until.png`,  x: 4, y: 1},
     {src: `${img_folder.symbols}attack_move.png`,       x: 1, y: 1},
     {src: `${img_folder.symbols}triple_attack.png`,     x: 1, y: 1},
     {src: `${img_folder.symbols}instant.png`,         x: 2, y: 2},

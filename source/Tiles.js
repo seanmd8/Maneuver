@@ -548,7 +548,7 @@ function velociphile_tile(){
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,
         on_death: boss_death,
-        card_drops: []
+        card_drops: [roll_nesw, roll_nwse, roll_ew]
     }
 }
 /** @type {TileGenerator} */
@@ -564,7 +564,7 @@ function spider_queen_tile(){
         telegraph: spider_telegraph,
         on_hit: spider_queen_hit,
         on_death: boss_death,
-        card_drops: []
+        card_drops: [skitter, bite]
     }
 }
 /** @type {TileGenerator} */
@@ -601,7 +601,7 @@ function lich_tile(){
         cycle: starting_cycle,
         spells,
         summons,
-        card_drops: []
+        card_drops: [instant_teleport, debilitating_confusion]
     }
 }
 /**

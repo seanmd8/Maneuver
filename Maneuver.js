@@ -720,6 +720,9 @@ function hazard(self, target, map){
 }
 /** @type {AIFunction} Function used when a damaged wall is destroyed to potentially spawn something.*/
 function wall_death(self, target, map){
+    if(self.tile.summons === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     if(random_num(10) < 7){
         var ran = random_num(self.tile.summons.length);
         var new_enemy = self.tile.summons[ran]();
@@ -745,8 +748,9 @@ function fireball_on_enter(self, target, map){
     self.tile.health = 1;
     map.attack(self.location);
 }
+/** @type {AIFunction} Function to open a chest when the player moves onto it.*/
 function chest_on_enter(self, target, map){
-    if(target.type !== `player`){
+    if(target.tile.type !== `player`){
         return;
     }
     self.tile.health = 1;
@@ -755,6 +759,7 @@ function chest_on_enter(self, target, map){
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
         display.display_message(UIIDS.chest_instructions, ``);
         display.clear_tb(UIIDS.chest_confirm_row);
+        display.clear_tb(UIIDS.contents);
         display.display_message(UIIDS.content_description, ``);
     }
     var abandon_button = {
@@ -1049,7 +1054,6 @@ class ButtonGrid{
         // Displays the 3x3 grid to the given table.
         // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
         display.clear_tb(table_name);
-
         var make_press_button = function(hand_position){
             return function(button, position){
                 if(button.behavior){
@@ -1151,6 +1155,20 @@ function pinstant(x, y){
     return {
         type: `instant`,
         change: new Point(x, y) // In this case, this point does nothing.
+    }
+}
+/** @type {PlayerCommandGenerator} Function to stun any enemies at the given location.*/
+function pstun(x, y){
+    return {
+        type: `stun`,
+        change: new Point(x, y)
+    }
+}
+/** @type {PlayerCommandGenerator} Function to move in a direction until you hit something.*/
+function pmove_until(x, y){
+    return {
+        type: `move_until`,
+        change: new Point(x, y)
     }
 }
 // Cards
@@ -2014,6 +2032,104 @@ function lash_out(){
     }
 }
 
+// Cards dropped by bosses
+/** @type {CardGenerator}*/
+function roll_nesw(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove_until(1, -1), pattack(1, -1)]);
+    options.add_button(SW, [pmove_until(-1, 1), pattack(-1, 1)]);
+    return{
+        name: `roll NE SW`,
+        pic: `${img_folder.cards}roll_nesw.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function roll_nwse(){
+    var options = new ButtonGrid();
+    options.add_button(SE, [pmove_until(1, 1), pattack(1, 1)]);
+    options.add_button(NW, [pmove_until(-1, -1), pattack(-1, -1)]);
+    return{
+        name: `roll NW SE`,
+        pic: `${img_folder.cards}roll_nwse.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function roll_ew(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove_until(1, 0), pattack(1, 0)]);
+    options.add_button(W, [pmove_until(-1, 0), pattack(-1, 0)]);
+    return{
+        name: `roll E W`,
+        pic: `${img_folder.cards}roll_ew.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function bite(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(0, -1), pinstant(0, 0)]);
+    options.add_button(E, [pattack(1, 0), pinstant(0, 0)]);
+    options.add_button(S, [pattack(0, 1), pinstant(0, 0)]);
+    options.add_button(W, [pattack(-1, 0), pinstant(0, 0)]);
+    options.add_button(NE, [pattack(1, -1), pinstant(0, 0)]);
+    options.add_button(SE, [pattack(1, 1), pinstant(0, 0)]);
+    options.add_button(SW, [pattack(-1, 1), pinstant(0, 0)]);
+    options.add_button(NW, [pattack(-1, -1), pinstant(0, 0)]);
+    return{
+        name: `bite`,
+        pic: `${img_folder.cards}bite.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function skitter(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1)]);
+    options.add_button(E, [pmove(1, 0)]);
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(W, [pmove(-1, 0)]);
+    options.add_button(NE, [pmove(1, -1)]);
+    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    options.add_button(NW, [pmove(-1, -1)]);
+    return{
+        name: `skitter`,
+        pic: `${img_folder.cards}skitter.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function instant_teleport(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pteleport(0, 0), pinstant(0, 0)]);
+    return{
+        name: `instant teleport`,
+        pic: `${img_folder.cards}instant_teleport.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function debilitating_confusion(){
+    var options = new ButtonGrid();
+    var spin = [pstun(1, 1),
+                pstun(1, 0),
+                pstun(1, -1),
+                pstun(0, 1),
+                pstun(0, -1),
+                pstun(-1, 1),
+                pstun(-1, 0),
+                pstun(-1, -1)];
+    options.add_button(SPIN, spin.concat(spin));
+    return{
+        name: `debilitating confusion`,
+        pic: `${img_folder.cards}debilitating_confusion.png`,
+        options
+    }
+}
+
+
 
 
 // Card Dummy Images to be displayed in the same space
@@ -2052,7 +2168,7 @@ const HAND_SIZE = 3;
 const ADD_CHOICE_COUNT = 3;
 const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
-const CHEST_CHANCE = -1;
+const CHEST_CHANCE = 2;
 
 
 // Initialization settings.
@@ -3391,7 +3507,6 @@ class GameMap{
      * @returns {boolean} Returns true if the attack hits and false otherwise.
      */
     player_attack(direction){
-        // Attacks the given square relative to the player's current positon.
         var pos = this.#entity_list.get_player_pos();
         try{
             return this.attack(pos.plus(direction), `all`);
@@ -3549,6 +3664,36 @@ class GameMap{
             }
         }
     }
+    /**
+     * Function to stun the enemy at a given location.
+     * @param {Point} location The location of the tile to stun.
+     * @returns {boolean} If something was stunned.
+     */
+    stun_tile(location){
+        try{
+            var tile = this.#get_grid(location);
+        }
+        catch(error){
+            if(error.message === `x out of bounds` || error.message === `y out of bounds`){
+                return false;
+            }
+            throw error;
+        }
+        if(tile.type === `enemy`){
+            stun(tile);
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Function to stun the enemy at a place releative to the player.
+     * @param {Point} direction The location of the tile to stun relative to the player.
+     * @returns {boolean} If something was stunned.
+     */
+    player_stun(direction){
+        var pos = this.#entity_list.get_player_pos();
+        return this.stun_tile(pos.plus(direction));
+    }
 }// ----------------GameState.js----------------
 // File containing a class to control the general flow of the game.
 
@@ -3652,6 +3797,12 @@ class GameState{
                 break;
             case `instant`:
                 return true;
+            case `stun`:
+                this.map.player_stun(action.change);
+                break;
+            case `move_until`:
+                while(this.map.player_move(action.change)){};
+                break;
             default:
                 throw new Error(`invalid player action type`);
         }
@@ -4006,11 +4157,13 @@ const GUIDE_TEXT = {
                 ` Your relative starting location.\n`,
                 ` You will attack this space.\n`,
                 ` You will move to this space.\n`,
+                ` You will stun the enemy on this space.\n`,
                 ` Each action the line goes through will be performed.\n`,
                 ` Multiple actions will be performed in a specific order.\n`,
+                ` Multiple actions of the same stype will be performed until one fails.\n`,
                 `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
                 ` A card with a purple grid will be performed instantly.\n`,
-                ` A card with a yellow background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`
+                ` A card with a this background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`
             +`\n`
             +`In addition to clicking on cards to use them, you can use the keys\n`,
                 ` `, ` `, `\n`
@@ -4027,7 +4180,7 @@ const GUIDE_TEXT = {
     enemies: [`As you travel through the dungeon, you will encounter various other creatures, many of whom want to kill you. Each creature has `
             +`different patterns of attack and movement and many of them have other unique abilities. Click on a tile to learn more about it. `
             +`Clicking will show you a description of it, how much health it has, and which squares it might be able to attack on it's next `
-            +`turn. Some enemies also have the ability to move you during their turn. When this happens, you will get the chance to respond. `
+            +`turn. Some enemies also have the ability to move you during their turn. When this happens, you will get the chance to respond.\n`
             +`Remember that you do not need to kill everything to go to the next stage. Sometimes it's better to run past an enemy than to `
             +`fight it and risk getting surrounded or cornered. There may also be some creatures you encounter that are more helpful than `
             +`harmful.\n`
@@ -4051,8 +4204,10 @@ const CARD_SYMBOLS = [
     {src: `${img_folder.symbols}you.png`,               x: 1, y: 1},
     {src: `${img_folder.symbols}attack.png`,            x: 1, y: 1},
     {src: `${img_folder.symbols}move.png`,              x: 1, y: 1},
+    {src: `${img_folder.symbols}stun.png`,              x: 1, y: 1},
     {src: `${img_folder.symbols}multiple.png`,          x: 3, y: 1},
     {src: `${img_folder.symbols}multiple_ordered.png`,  x: 3, y: 1},
+    {src: `${img_folder.symbols}move_until.png`,  x: 4, y: 1},
     {src: `${img_folder.symbols}attack_move.png`,       x: 1, y: 1},
     {src: `${img_folder.symbols}triple_attack.png`,     x: 1, y: 1},
     {src: `${img_folder.symbols}instant.png`,         x: 2, y: 2},
@@ -4099,7 +4254,14 @@ function make_test_deck(){
     for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
         deck.add(CARD_CHOICES[i]());
     }
-    deck.add(basic_horizontal());
+    deck.add(bite());
+    deck.add(skitter());
+    deck.add(instant_teleport());
+    deck.add(debilitating_confusion());
+    deck.add(roll_ew());
+    deck.add(roll_nesw());
+    deck.add(roll_nwse());
+
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
 
@@ -5518,7 +5680,7 @@ function velociphile_tile(){
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,
         on_death: boss_death,
-        card_drops: []
+        card_drops: [roll_nesw, roll_nwse, roll_ew]
     }
 }
 /** @type {TileGenerator} */
@@ -5534,7 +5696,7 @@ function spider_queen_tile(){
         telegraph: spider_telegraph,
         on_hit: spider_queen_hit,
         on_death: boss_death,
-        card_drops: []
+        card_drops: [skitter, bite]
     }
 }
 /** @type {TileGenerator} */
@@ -5571,7 +5733,7 @@ function lich_tile(){
         cycle: starting_cycle,
         spells,
         summons,
-        card_drops: []
+        card_drops: [instant_teleport, debilitating_confusion]
     }
 }
 /**
