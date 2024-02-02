@@ -559,6 +559,20 @@ function darkling_ai(self, target, map){
     }
     map.add_event(darkling_rift);
 }
+/** @type {AIFunction} AI used by shadow scouts.*/
+function orb_of_insanity_ai(self, target, map){
+    if( self.tile.range === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    if(target.difference.within_radius(self.tile.range)){
+        var ran = random_num(CONFUSION_CARDS.length);
+        GS.give_temp_card(CONFUSION_CARDS[ran]());
+        self.tile.pic = self.tile.pic_arr[1];
+    }
+    else{
+        self.tile.pic = self.tile.pic_arr[0];
+    }
+}
 
 
 // Boss AIs

@@ -560,6 +560,20 @@ function darkling_ai(self, target, map){
     }
     map.add_event(darkling_rift);
 }
+/** @type {AIFunction} AI used by shadow scouts.*/
+function orb_of_insanity_ai(self, target, map){
+    if( self.tile.range === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    if(target.difference.within_radius(self.tile.range)){
+        var ran = random_num(CONFUSION_CARDS.length);
+        GS.give_temp_card(CONFUSION_CARDS[ran]());
+        self.tile.pic = self.tile.pic_arr[1];
+    }
+    else{
+        self.tile.pic = self.tile.pic_arr[0];
+    }
+}
 
 
 // Boss AIs
@@ -917,7 +931,7 @@ function generate_crypt_area(){
     return {
         background: `${img_folder.backgrounds}crypt.png`,
         generate_floor: generate_crypt_floor,
-        enemy_list: [shadow_knight_tile, spider_web_tile, vampire_tile, clay_golem_tile, spider_tile, turret_r_tile, shadow_scout_tile, darkling_tile],
+        enemy_list: [shadow_knight_tile, vampire_tile, clay_golem_tile, turret_r_tile, shadow_scout_tile, darkling_tile, orb_of_insanity_tile],
         boss_floor_list: [lich_floor],
         next_area_list: area4,
         description: crypt_description
@@ -2266,6 +2280,9 @@ const shadow_scout_description = `Shadow Scout: Will attack the player if it is 
                             +`Can go invisible every other turn.`
 const darkling_description = `Darkling: Teleports around randomly hurting everything next to the location it arrives at. Blocking `
                             +`it's rift will destroy it.`;
+const orb_of_insanity_description = [`Orb of Insanity: Does not move or attack. If the player is within `, ` spaces of it, it will `
+                            +`pollute their deck with a bad temporary card.`]
+
 
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
@@ -2300,7 +2317,7 @@ const teleport_spell_description = `Teleport: The user moves to a random square 
 const summon_spell_description = `Summon: Summons a random enemy`;
 const earthquake_spell_description = `Earthquake: Causes chunks of the ceiling to rain down. Intensity increases at low health.`;
 const flame_wave_spell_description = `Flame Wave: Creates 3 fireballs which will move forwards until they hit something.`;
-const confusion_spell_description = `Confusion: Pollutes your deck with 2 temporary cards which will disapear after they are used.`;
+const confusion_spell_description = `Confusion: Pollutes your deck with 2 bad temporary cards.`;
 const lava_moat_spell_description = `Lava Moat: Creates pools of molten lava to shield the user. Creates more at high health.`;
 const rest_description = `Nothing.`;
 
@@ -5665,7 +5682,22 @@ function darkling_tile(){
         health: 1,
         difficulty: 4,
         behavior: darkling_ai,
-        telegraph: darkling_telegraph,
+        telegraph: darkling_telegraph
+    }
+}
+function orb_of_insanity_tile(){
+    var range = 2;
+    var pic_arr = [`${img_folder.tiles}orb_of_insanity_off.png`, `${img_folder.tiles}orb_of_insanity_on.png`];
+    return {
+        type: `enemy`,
+        name: `orb of insanity`,
+        pic: pic_arr[0],
+        description: `${orb_of_insanity_description[0]}${range}${orb_of_insanity_description[1]}`, 
+        health: 1,
+        difficulty: 3,
+        behavior: orb_of_insanity_ai,
+        pic_arr,
+        range
     }
 }
 

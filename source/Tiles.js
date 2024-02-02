@@ -531,7 +531,22 @@ function darkling_tile(){
         health: 1,
         difficulty: 4,
         behavior: darkling_ai,
-        telegraph: darkling_telegraph,
+        telegraph: darkling_telegraph
+    }
+}
+function orb_of_insanity_tile(){
+    var range = 2;
+    var pic_arr = [`${img_folder.tiles}orb_of_insanity_off.png`, `${img_folder.tiles}orb_of_insanity_on.png`];
+    return {
+        type: `enemy`,
+        name: `orb of insanity`,
+        pic: pic_arr[0],
+        description: `${orb_of_insanity_description[0]}${range}${orb_of_insanity_description[1]}`, 
+        health: 1,
+        difficulty: 3,
+        behavior: orb_of_insanity_ai,
+        pic_arr,
+        range
     }
 }
 

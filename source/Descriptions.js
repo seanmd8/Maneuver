@@ -55,6 +55,9 @@ const shadow_scout_description = `Shadow Scout: Will attack the player if it is 
                             +`Can go invisible every other turn.`
 const darkling_description = `Darkling: Teleports around randomly hurting everything next to the location it arrives at. Blocking `
                             +`it's rift will destroy it.`;
+const orb_of_insanity_description = [`Orb of Insanity: Does not move or attack. If the player is within `, ` spaces of it, it will `
+                            +`pollute their deck with a bad temporary card.`]
+
 
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
@@ -89,7 +92,7 @@ const teleport_spell_description = `Teleport: The user moves to a random square 
 const summon_spell_description = `Summon: Summons a random enemy`;
 const earthquake_spell_description = `Earthquake: Causes chunks of the ceiling to rain down. Intensity increases at low health.`;
 const flame_wave_spell_description = `Flame Wave: Creates 3 fireballs which will move forwards until they hit something.`;
-const confusion_spell_description = `Confusion: Pollutes your deck with 2 temporary cards which will disapear after they are used.`;
+const confusion_spell_description = `Confusion: Pollutes your deck with 2 bad temporary cards.`;
 const lava_moat_spell_description = `Lava Moat: Creates pools of molten lava to shield the user. Creates more at high health.`;
 const rest_description = `Nothing.`;
 
