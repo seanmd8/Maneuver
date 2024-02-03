@@ -569,7 +569,8 @@ function darkling_ai(self, target, map){
 }
 /** @type {AIFunction} AI used by shadow scouts.*/
 function orb_of_insanity_ai(self, target, map){
-    if( self.tile.range === undefined){
+    if( self.tile.range === undefined ||
+        self.tile.pic_arr === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
     if(target.difference.within_radius(self.tile.range)){
@@ -771,6 +772,9 @@ function fireball_on_enter(self, target, map){
 }
 /** @type {AIFunction} Function to open a chest when the player moves onto it.*/
 function chest_on_enter(self, target, map){
+    if(self.tile.contents === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     if(target.tile.type !== `player`){
         return;
     }
