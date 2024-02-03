@@ -47,8 +47,8 @@ const vampire_description = `Vampire: Moves orthogonally then will attempt to at
                             +`itself. Teleports away and is stunned when hit.`;
 const clay_golem_description = `Clay Golem: Will attack the player if it is next to them. Otherwise it will move 1 space closer. Taking `
                             +`damage will stun it and it cannot move two turns in a row.`;
-const vinesnare_bush_description = [`Vinesnare Bush: Does not move. Will attack if the player is close to it. Otherwise, it can drag `
-                            +`the player closer with vines from up to `, ` spaces away.`];
+const vinesnare_bush_description = [`Vinesnare Bush: Does not move. Can drag the player towards it using it's vines from up to `,
+                            ` spaces away. It can then lash out at the player if they are still nearby next turn.`];
 const rat_description = `Rat: Will attack the player if it is next to them. Otherwise it will move 2 spaces closer. After attacking, `
                             +`it will flee.`;
 const shadow_scout_description = `Shadow Scout: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `

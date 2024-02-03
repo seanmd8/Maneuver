@@ -10,6 +10,7 @@ Gameplay Changelog:
 
 2/2/24
 - Added new enemy: Orb of Insanity.
+- Clicking on a tile will now telegraph targeted effects other than attacks.
 
 2/1/24
 - Bosses now have a 50% chance to drop one of a set of cards unique to each boss upon death.

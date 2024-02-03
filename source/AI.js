@@ -464,12 +464,18 @@ function vinesnare_bush_ai(self, target, map){
         self.tile.range === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
-    var moved = false;
     if(target.difference.within_radius(1)){
-        // If the player is next to it, attack.
-        map.attack(self.location.plus(target.difference), `player`);
+        // If 1 away, attack if not rooted, otherwise uproot.
+        if(self.tile.cycle === 0){
+            map.attack(self.location.plus(target.difference), `player`);
+            return;
+        }
+        self.tile.cycle = 0;
+        self.tile.pic = self.tile.pic_arr[0];
+        return;
     }
-    else if(self.tile.cycle > 0 && target.difference.within_radius(self.tile.range)){
+    var moved = false;
+    if(self.tile.cycle > 0 && target.difference.within_radius(self.tile.range)){
         var direction = sign(target.difference);
         if(target.difference.x === 0 || target.difference.y === 0 || Math.abs(target.difference.x) === Math.abs(target.difference.y)){
             // If the player is orthogonal or diagonal and within range, drag them closer.
@@ -482,12 +488,13 @@ function vinesnare_bush_ai(self, target, map){
         }
     }
     if(moved){
-        // If the player was moved, pass the turn to them.
+        // If the player was moved, uproot and pass the turn to them.
         self.tile.cycle = 0;
         self.tile.pic = self.tile.pic_arr[0];
         throw new Error(`pass to player`);
     }
     if(++self.tile.cycle > 0){
+        // Otherwise, root.
         self.tile.pic = self.tile.pic_arr[1];
     }
 }

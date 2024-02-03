@@ -278,6 +278,9 @@ class GameMap{
                 if(tile.telegraph !== undefined && !tile.stun){
                     gameMap.display_telegraph(tile.telegraph(location, gameMap, tile));
                 }
+                if(tile.telegraph_other !== undefined && !tile.stun){
+                    gameMap.display_telegraph(tile.telegraph_other(location, gameMap, tile), `${img_folder.tiles}telegraph_other.png`);
+                }
                 gameMap.display();
             }
         }
@@ -582,11 +585,12 @@ class GameMap{
     /**
      * Marks which positions an entity can attack during it's next turn.
      * @param {Point[]} positions A list of positions to mark.
+     * @param {string=} pic If provided, it will telegraph that rather than a hit.
      */
-    display_telegraph(positions){
+    display_telegraph(positions, pic = `${img_folder.tiles}hit_telegraph.png`){
         for(var position of positions){
             if(this.is_in_bounds(position)){
-                this.#get_grid(position).is_hit = `${img_folder.tiles}hit_telegraph.png`;
+                this.#get_grid(position).is_hit = pic;
             }
         }
     }

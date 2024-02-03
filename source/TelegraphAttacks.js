@@ -160,6 +160,33 @@ function vampire_telegraph(location, map, self){
     return attacks;
 }
 /** @type {TelegraphFunction} */
+function vinesnare_bush_telegraph(location, map, self){
+    if( self.cycle === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    if(self.cycle === 0){
+        return spider_telegraph(location, map, self);
+    }
+    return [];
+}
+/** @type {TelegraphFunction} */
+function vinesnare_bush_telegraph_other(location, map, self){
+    if( self.cycle === undefined ||
+        self.range === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    var vines = []
+    if(self.cycle === 0){
+        return vines;
+    }
+    for(var direction of all_directions){
+        for(var i = 2; i <= self.range; ++i){
+            vines.push(location.plus(direction.times(i)));
+        }
+    }
+    return vines;
+}
+/** @type {TelegraphFunction} */
 function rat_telegraph(location, map, self){
     if(self.cycle === undefined){
         throw new Error(`tile missing properties used to telegraph it's attacks.`);
@@ -187,9 +214,25 @@ function darkling_telegraph(location, map, self){
     return spider_telegraph(self.direction, map, self);
 }
 /** @type {TelegraphFunction} */
+function orb_of_insanity_telegraph_other(location, map, self){
+    if(self.range === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    var area = [];
+    for(var i = -1 * self.range; i <= self.range; ++i){
+        for(var j = -1 * self.range; j <= self.range; ++j){
+            if(i !== 0 || j !== 0){
+                area.push(location.plus(new Point(i, j)));
+            }
+        }
+    }
+    return area;
+}
+/** @type {TelegraphFunction} */
 function hazard_telegraph(location, map, self){
     return [location];
 }
+
 
 
 // Telegraph utility functions

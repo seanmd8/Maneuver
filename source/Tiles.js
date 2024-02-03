@@ -19,6 +19,7 @@
  * // Functions controlling behavior. //
  * @property {AIFunction=} behavior What it does on it's turn. Targets the player.
  * @property {TelegraphFunction=} telegraph Used to show which squares it can attack on it's next turn.
+ * @property {TelegraphFunction=} telegraph_other Used to show squares that can be affected by something other than an attack.
  * @property {AIFunction=} on_enter What it does when something tries to move onto it. Targets whatever touched it.
  * @property {AIFunction=} on_hit What it does when attacked. Targets what attacked it.
  * @property {AIFunction=} on_death What it does when killed. Targets the player.
@@ -483,7 +484,8 @@ function vinesnare_bush_tile(){
         health: 1,
         difficulty: 4,
         behavior: vinesnare_bush_ai,
-        telegraph: spider_telegraph,
+        telegraph: vinesnare_bush_telegraph,
+        telegraph_other: vinesnare_bush_telegraph_other,
         pic_arr,
         cycle: starting_cycle,
         range
@@ -545,6 +547,7 @@ function orb_of_insanity_tile(){
         health: 1,
         difficulty: 3,
         behavior: orb_of_insanity_ai,
+        telegraph_other: orb_of_insanity_telegraph_other,
         pic_arr,
         range
     }

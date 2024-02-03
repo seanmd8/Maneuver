@@ -25,7 +25,7 @@ const SAFE_SPAWN_ATTEMPTS = 5;
 // Visual and animation settings.
 const CARD_SCALE = 90;
 const CHEST_CONTENTS_SIZE = 120;
-const TILE_SCALE = 30;
+const TILE_SCALE = 35;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 300;
 const DECK_DISPLAY_WIDTH = 4;

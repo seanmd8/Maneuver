@@ -465,12 +465,18 @@ function vinesnare_bush_ai(self, target, map){
         self.tile.range === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
-    var moved = false;
     if(target.difference.within_radius(1)){
-        // If the player is next to it, attack.
-        map.attack(self.location.plus(target.difference), `player`);
+        // If 1 away, attack if not rooted, otherwise uproot.
+        if(self.tile.cycle === 0){
+            map.attack(self.location.plus(target.difference), `player`);
+            return;
+        }
+        self.tile.cycle = 0;
+        self.tile.pic = self.tile.pic_arr[0];
+        return;
     }
-    else if(self.tile.cycle > 0 && target.difference.within_radius(self.tile.range)){
+    var moved = false;
+    if(self.tile.cycle > 0 && target.difference.within_radius(self.tile.range)){
         var direction = sign(target.difference);
         if(target.difference.x === 0 || target.difference.y === 0 || Math.abs(target.difference.x) === Math.abs(target.difference.y)){
             // If the player is orthogonal or diagonal and within range, drag them closer.
@@ -483,12 +489,13 @@ function vinesnare_bush_ai(self, target, map){
         }
     }
     if(moved){
-        // If the player was moved, pass the turn to them.
+        // If the player was moved, uproot and pass the turn to them.
         self.tile.cycle = 0;
         self.tile.pic = self.tile.pic_arr[0];
         throw new Error(`pass to player`);
     }
     if(++self.tile.cycle > 0){
+        // Otherwise, root.
         self.tile.pic = self.tile.pic_arr[1];
     }
 }
@@ -2199,7 +2206,7 @@ const SAFE_SPAWN_ATTEMPTS = 5;
 // Visual and animation settings.
 const CARD_SCALE = 90;
 const CHEST_CONTENTS_SIZE = 120;
-const TILE_SCALE = 30;
+const TILE_SCALE = 35;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 300;
 const DECK_DISPLAY_WIDTH = 4;
@@ -2272,8 +2279,8 @@ const vampire_description = `Vampire: Moves orthogonally then will attempt to at
                             +`itself. Teleports away and is stunned when hit.`;
 const clay_golem_description = `Clay Golem: Will attack the player if it is next to them. Otherwise it will move 1 space closer. Taking `
                             +`damage will stun it and it cannot move two turns in a row.`;
-const vinesnare_bush_description = [`Vinesnare Bush: Does not move. Will attack if the player is close to it. Otherwise, it can drag `
-                            +`the player closer with vines from up to `, ` spaces away.`];
+const vinesnare_bush_description = [`Vinesnare Bush: Does not move. Can drag the player towards it using it's vines from up to `,
+                            ` spaces away. It can then lash out at the player if they are still nearby next turn.`];
 const rat_description = `Rat: Will attack the player if it is next to them. Otherwise it will move 2 spaces closer. After attacking, `
                             +`it will flee.`;
 const shadow_scout_description = `Shadow Scout: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
@@ -3333,6 +3340,9 @@ class GameMap{
                 if(tile.telegraph !== undefined && !tile.stun){
                     gameMap.display_telegraph(tile.telegraph(location, gameMap, tile));
                 }
+                if(tile.telegraph_other !== undefined && !tile.stun){
+                    gameMap.display_telegraph(tile.telegraph_other(location, gameMap, tile), `${img_folder.tiles}telegraph_other.png`);
+                }
                 gameMap.display();
             }
         }
@@ -3637,11 +3647,12 @@ class GameMap{
     /**
      * Marks which positions an entity can attack during it's next turn.
      * @param {Point[]} positions A list of positions to mark.
+     * @param {string=} pic If provided, it will telegraph that rather than a hit.
      */
-    display_telegraph(positions){
+    display_telegraph(positions, pic = `${img_folder.tiles}hit_telegraph.png`){
         for(var position of positions){
             if(this.is_in_bounds(position)){
-                this.#get_grid(position).is_hit = `${img_folder.tiles}hit_telegraph.png`;
+                this.#get_grid(position).is_hit = pic;
             }
         }
     }
@@ -5064,6 +5075,33 @@ function vampire_telegraph(location, map, self){
     return attacks;
 }
 /** @type {TelegraphFunction} */
+function vinesnare_bush_telegraph(location, map, self){
+    if( self.cycle === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    if(self.cycle === 0){
+        return spider_telegraph(location, map, self);
+    }
+    return [];
+}
+/** @type {TelegraphFunction} */
+function vinesnare_bush_telegraph_other(location, map, self){
+    if( self.cycle === undefined ||
+        self.range === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    var vines = []
+    if(self.cycle === 0){
+        return vines;
+    }
+    for(var direction of all_directions){
+        for(var i = 2; i <= self.range; ++i){
+            vines.push(location.plus(direction.times(i)));
+        }
+    }
+    return vines;
+}
+/** @type {TelegraphFunction} */
 function rat_telegraph(location, map, self){
     if(self.cycle === undefined){
         throw new Error(`tile missing properties used to telegraph it's attacks.`);
@@ -5091,9 +5129,25 @@ function darkling_telegraph(location, map, self){
     return spider_telegraph(self.direction, map, self);
 }
 /** @type {TelegraphFunction} */
+function orb_of_insanity_telegraph_other(location, map, self){
+    if(self.range === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    var area = [];
+    for(var i = -1 * self.range; i <= self.range; ++i){
+        for(var j = -1 * self.range; j <= self.range; ++j){
+            if(i !== 0 || j !== 0){
+                area.push(location.plus(new Point(i, j)));
+            }
+        }
+    }
+    return area;
+}
+/** @type {TelegraphFunction} */
 function hazard_telegraph(location, map, self){
     return [location];
 }
+
 
 
 // Telegraph utility functions
@@ -5170,6 +5224,7 @@ function shapeshift(tile, tile_generator, just_background){
  * // Functions controlling behavior. //
  * @property {AIFunction=} behavior What it does on it's turn. Targets the player.
  * @property {TelegraphFunction=} telegraph Used to show which squares it can attack on it's next turn.
+ * @property {TelegraphFunction=} telegraph_other Used to show squares that can be affected by something other than an attack.
  * @property {AIFunction=} on_enter What it does when something tries to move onto it. Targets whatever touched it.
  * @property {AIFunction=} on_hit What it does when attacked. Targets what attacked it.
  * @property {AIFunction=} on_death What it does when killed. Targets the player.
@@ -5634,7 +5689,8 @@ function vinesnare_bush_tile(){
         health: 1,
         difficulty: 4,
         behavior: vinesnare_bush_ai,
-        telegraph: spider_telegraph,
+        telegraph: vinesnare_bush_telegraph,
+        telegraph_other: vinesnare_bush_telegraph_other,
         pic_arr,
         cycle: starting_cycle,
         range
@@ -5696,6 +5752,7 @@ function orb_of_insanity_tile(){
         health: 1,
         difficulty: 3,
         behavior: orb_of_insanity_ai,
+        telegraph_other: orb_of_insanity_telegraph_other,
         pic_arr,
         range
     }
