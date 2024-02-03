@@ -56,9 +56,10 @@
 
 // This is a array of all the enemies that can be spawned on a normal floor.
 const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, shadow_knight_tile, 
-    scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
-    acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
-    clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile];
+                    scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
+                    acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
+                    clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
+                    orb_of_insanity_tile];
 
 // Non-Enemy tiles
 /** @type {TileGenerator} Empty space.*/
