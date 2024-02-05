@@ -6,7 +6,8 @@ const game_title = `Maneuver`;
 const mod_deck = `Choose one card to add or remove:`;
 const current_deck = `Current Deck (minimum `;
 const welcome_message = `Use cards to move (blue) and attack (red).\n` 
-                        + `Click on things to learn more about them.`;
+                        + `Click on things to learn more about them.\n`
+                        + `Refer to the guidebook if you need more information.`;
 const floor_message = `Welcome to floor `;
 const game_over_message = `Game Over. You were killed by a `;
 const retry_message = `Retry?`;

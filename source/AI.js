@@ -562,7 +562,9 @@ function darkling_ai(self, target, map){
     // Create a new rift for next turn.
     self.tile.direction = map.random_empty();
     var darkling_rift = function(map_to_use){
-        map_to_use.mark_tile(self.tile.direction, darkling_rift_look);
+        if(self.tile.health === undefined || self.tile.health > 0){
+            map_to_use.mark_tile(self.tile.direction, darkling_rift_look);
+        }
     }
     map.add_event(darkling_rift);
 }

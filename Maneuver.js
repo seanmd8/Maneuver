@@ -563,7 +563,9 @@ function darkling_ai(self, target, map){
     // Create a new rift for next turn.
     self.tile.direction = map.random_empty();
     var darkling_rift = function(map_to_use){
-        map_to_use.mark_tile(self.tile.direction, darkling_rift_look);
+        if(self.tile.health === undefined || self.tile.health > 0){
+            map_to_use.mark_tile(self.tile.direction, darkling_rift_look);
+        }
     }
     map.add_event(darkling_rift);
 }
@@ -898,7 +900,8 @@ function generate_ruins_area(){
     return {
         background: `${img_folder.backgrounds}ruins.png`,
         generate_floor: generate_ruins_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, ram_tile, rat_tile, acid_bug_tile, shadow_knight_tile, vinesnare_bush_tile],
+        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, 
+                    ram_tile, rat_tile, acid_bug_tile, shadow_knight_tile, vinesnare_bush_tile],
         boss_floor_list: [velociphile_floor],
         next_area_list: area2,
         description: ruins_description
@@ -909,7 +912,8 @@ function generate_sewers_area(){
     return {
         background: `${img_folder.backgrounds}sewers.png`,
         generate_floor: generate_sewers_floor,
-        enemy_list: [rat_tile, turret_h_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile],
+        enemy_list: [rat_tile, turret_h_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, 
+                    corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile],
         boss_floor_list: [],
         next_area_list: area3,
         description: sewers_description
@@ -920,7 +924,8 @@ function generate_basement_area(){
     return {
         background: `${img_folder.backgrounds}basement.png`,
         generate_floor: generate_basement_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
+        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, 
+                    spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
         boss_floor_list: [spider_queen_floor],
         next_area_list: area3,
         description: basement_description
@@ -942,7 +947,8 @@ function generate_crypt_area(){
     return {
         background: `${img_folder.backgrounds}crypt.png`,
         generate_floor: generate_crypt_floor,
-        enemy_list: [shadow_knight_tile, vampire_tile, clay_golem_tile, turret_r_tile, shadow_scout_tile, darkling_tile, orb_of_insanity_tile],
+        enemy_list: [shadow_knight_tile, vampire_tile, clay_golem_tile, turret_r_tile, shadow_scout_tile, 
+                    darkling_tile, orb_of_insanity_tile],
         boss_floor_list: [lich_floor],
         next_area_list: area4,
         description: crypt_description
@@ -2198,6 +2204,7 @@ const CHEST_CHANCE = 2;
 
 // Initialization settings.
 const STARTING_ENEMY = spider_tile;
+const STARTING_ENEMY_AMOUNT = 1;
 const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = generate_ruins_area;
 
@@ -2242,7 +2249,8 @@ const game_title = `Maneuver`;
 const mod_deck = `Choose one card to add or remove:`;
 const current_deck = `Current Deck (minimum `;
 const welcome_message = `Use cards to move (blue) and attack (red).\n` 
-                        + `Click on things to learn more about them.`;
+                        + `Click on things to learn more about them.\n`
+                        + `Refer to the guidebook if you need more information.`;
 const floor_message = `Welcome to floor `;
 const game_over_message = `Game Over. You were killed by a `;
 const retry_message = `Retry?`;
@@ -3748,7 +3756,9 @@ class GameState{
         var start = STARTING_AREA();
         display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
-        this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
+        for(var i = 0; i < STARTING_ENEMY_AMOUNT; ++i){
+            this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
+        }
         this.map.display();
         this.map.display_stats(UIIDS.stats);
         this.deck = STARTING_DECK();

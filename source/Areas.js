@@ -31,7 +31,8 @@ function generate_ruins_area(){
     return {
         background: `${img_folder.backgrounds}ruins.png`,
         generate_floor: generate_ruins_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, ram_tile, rat_tile, acid_bug_tile, shadow_knight_tile, vinesnare_bush_tile],
+        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, 
+                    ram_tile, rat_tile, acid_bug_tile, shadow_knight_tile, vinesnare_bush_tile],
         boss_floor_list: [velociphile_floor],
         next_area_list: area2,
         description: ruins_description
@@ -42,7 +43,8 @@ function generate_sewers_area(){
     return {
         background: `${img_folder.backgrounds}sewers.png`,
         generate_floor: generate_sewers_floor,
-        enemy_list: [rat_tile, turret_h_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile],
+        enemy_list: [rat_tile, turret_h_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, 
+                    corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile],
         boss_floor_list: [],
         next_area_list: area3,
         description: sewers_description
@@ -53,7 +55,8 @@ function generate_basement_area(){
     return {
         background: `${img_folder.backgrounds}basement.png`,
         generate_floor: generate_basement_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
+        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, 
+                    spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
         boss_floor_list: [spider_queen_floor],
         next_area_list: area3,
         description: basement_description
@@ -75,7 +78,8 @@ function generate_crypt_area(){
     return {
         background: `${img_folder.backgrounds}crypt.png`,
         generate_floor: generate_crypt_floor,
-        enemy_list: [shadow_knight_tile, vampire_tile, clay_golem_tile, turret_r_tile, shadow_scout_tile, darkling_tile, orb_of_insanity_tile],
+        enemy_list: [shadow_knight_tile, vampire_tile, clay_golem_tile, turret_r_tile, shadow_scout_tile, 
+                    darkling_tile, orb_of_insanity_tile],
         boss_floor_list: [lich_floor],
         next_area_list: area4,
         description: crypt_description

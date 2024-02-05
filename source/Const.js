@@ -13,6 +13,7 @@ const CHEST_CHANCE = 2;
 
 // Initialization settings.
 const STARTING_ENEMY = spider_tile;
+const STARTING_ENEMY_AMOUNT = 1;
 const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = generate_ruins_area;
 

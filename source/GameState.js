@@ -20,7 +20,9 @@ class GameState{
         var start = STARTING_AREA();
         display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
-        this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
+        for(var i = 0; i < STARTING_ENEMY_AMOUNT; ++i){
+            this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
+        }
         this.map.display();
         this.map.display_stats(UIIDS.stats);
         this.deck = STARTING_DECK();
