@@ -621,7 +621,7 @@ function lich_tile(){
         ram_tile,
         medium_porcuslime_tile,
         clay_golem_tile,
-        carrion_fly_tile,
+        carrion_flies_tile,
         vampire_tile,
     ];
     var starting_cycle = 1;

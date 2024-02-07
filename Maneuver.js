@@ -937,7 +937,7 @@ function generate_sewers_area(){
         background: `${img_folder.backgrounds}sewers.png`,
         generate_floor: generate_sewers_floor,
         enemy_list: [rat_tile, turret_h_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, 
-                    corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile, carrion_fly_tile],
+                    corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile, carrion_flies_tile],
         boss_floor_list: [],
         next_area_list: area3,
         description: sewers_description
@@ -983,7 +983,7 @@ function generate_forest_area(){
     return {
         background: `${img_folder.backgrounds}forest.png`,
         generate_floor: generate_forest_floor,
-        enemy_list: [vinesnare_bush_tile, carrion_fly_tile],
+        enemy_list: [vinesnare_bush_tile, carrion_flies_tile],
         boss_floor_list: [],
         next_area_list: area5,
         description: forest_description
@@ -5866,7 +5866,7 @@ function lich_tile(){
         ram_tile,
         medium_porcuslime_tile,
         clay_golem_tile,
-        carrion_fly_tile,
+        carrion_flies_tile,
         vampire_tile,
     ];
     var starting_cycle = 1;
