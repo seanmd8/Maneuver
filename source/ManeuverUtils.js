@@ -344,7 +344,7 @@ function get_card_symbols(){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var button_symbols = controls.card.concat(controls.directional);
+    var button_symbols = CONTROLS.card.concat(CONTROLS.directional);
     var buttons = [];
     for(var symbol of button_symbols){
         buttons.push(display.create_button(symbol, `${symbol} key`));

@@ -59,7 +59,7 @@ const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, sh
                     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
                     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
                     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
-                    orb_of_insanity_tile];
+                    orb_of_insanity_tile, carrion_flies_tile];
 
 // Non-Enemy tiles
 /** @type {TileGenerator} Empty space.*/
@@ -525,6 +525,7 @@ function shadow_scout_tile(){
         cycle: starting_cycle
     }
 }
+/** @type {TileGenerator} */
 function darkling_tile(){
     return {
         type: `enemy`,
@@ -537,6 +538,7 @@ function darkling_tile(){
         telegraph: darkling_telegraph
     }
 }
+/** @type {TileGenerator} */
 function orb_of_insanity_tile(){
     var range = 2;
     var pic_arr = [`${img_folder.tiles}orb_of_insanity_off.png`, `${img_folder.tiles}orb_of_insanity_on.png`];
@@ -551,6 +553,21 @@ function orb_of_insanity_tile(){
         telegraph_other: orb_of_insanity_telegraph_other,
         pic_arr,
         range
+    }
+}
+/** @type {TileGenerator} */
+function carrion_flies_tile(){
+    return {
+        type: `enemy`,
+        name: `carrion flies`,
+        pic: `${img_folder.tiles}carrion_flies.png`,
+        description: carrion_flies_description,
+        health: 1,
+        difficulty: 6,
+        behavior: carrion_flies_ai,
+        telegraph: spider_telegraph,
+        cycle: 0,
+        spawn_timer: 2
     }
 }
 
@@ -604,8 +621,8 @@ function lich_tile(){
         ram_tile,
         medium_porcuslime_tile,
         clay_golem_tile,
-        rat_tile,
-        vampire_tile
+        carrion_fly_tile,
+        vampire_tile,
     ];
     var starting_cycle = 1;
     return{

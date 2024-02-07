@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+2/7/24
+- Added new Enemy: Carrion Flies.
+
 2/2/24
 - Added new enemy: Orb of Insanity.
 - Clicking on a tile will now telegraph targeted effects other than attacks.

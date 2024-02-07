@@ -35,11 +35,11 @@ const MARKUP_LANGUAGE = `html`;
 
 
 // Keyboard controls.
-const controls = {
+const CONTROLS = {
     directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
     card: [`h`, `j`, `k`]
 }
-Object.freeze(controls);
+Object.freeze(CONTROLS);
 
 // Image folder file structure.
 const img_folder = {

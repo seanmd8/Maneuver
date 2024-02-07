@@ -58,6 +58,8 @@ const darkling_description = `Darkling: Teleports around randomly hurting everyt
                             +`it's rift will destroy it.`;
 const orb_of_insanity_description = [`Orb of Insanity: Does not move or attack. If the player is within `, ` spaces of it, it will `
                             +`pollute their deck with a bad temporary card.`]
+const carrion_flies_description = `Carrion Flies: Will only attack if the player is nearby. Otherwise they will wander aimlessly. `
+                            +`Over time they will multiply.`;
 
 
 // Area Descriptions.

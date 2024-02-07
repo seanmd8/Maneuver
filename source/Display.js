@@ -292,7 +292,7 @@ const DisplayHTML = {
     },
     press: function(key_press){
         // Pick direction via keyboard.
-        var key_num = search(key_press.key, controls.directional);
+        var key_num = search(key_press.key, CONTROLS.directional);
         if(key_num >= 0){
             try{
                 DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
@@ -305,7 +305,7 @@ const DisplayHTML = {
             
         }
         // Select card via keyboard.
-        key_num = search(key_press.key, controls.card);
+        key_num = search(key_press.key, CONTROLS.card);
         if(key_num >= 0){
             var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
             element && element.click();

@@ -584,6 +584,30 @@ function orb_of_insanity_ai(self, target, map){
         self.tile.pic = self.tile.pic_arr[0];
     }
 }
+/** @type {AIFunction} AI used by shadow scouts.*/
+function carrion_flies_ai(self, target, map){
+    if( self.tile.cycle === undefined ||
+        self.tile.spawn_timer === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    ++self.tile.cycle;
+    if(self.tile.cycle === self.tile.spawn_timer){
+        // When the cycle reaches the spawn timer, spawn and reset it while increasing the time until the next one.
+        self.tile.spawn_timer += 2;
+        self.tile.cycle = 0;
+        spawn_nearby(map, carrion_flies_tile(), self.location);
+    }
+    if(target.difference.within_radius(1)){
+        // Attack the player if they are close.
+        map.attack(self.location.plus(target.difference));
+    }
+    else{
+        // Move randomly.
+        var near_points = random_nearby();
+        for(var i = 0; i < near_points.length && !map.move(self.location, self.location.plus(near_points[i])); ++i){}
+    }
+}
+
 
 
 // Boss AIs
@@ -913,7 +937,7 @@ function generate_sewers_area(){
         background: `${img_folder.backgrounds}sewers.png`,
         generate_floor: generate_sewers_floor,
         enemy_list: [rat_tile, turret_h_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, 
-                    corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile],
+                    corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile, carrion_fly_tile],
         boss_floor_list: [],
         next_area_list: area3,
         description: sewers_description
@@ -959,7 +983,7 @@ function generate_forest_area(){
     return {
         background: `${img_folder.backgrounds}forest.png`,
         generate_floor: generate_forest_floor,
-        enemy_list: [],
+        enemy_list: [vinesnare_bush_tile, carrion_fly_tile],
         boss_floor_list: [],
         next_area_list: area5,
         description: forest_description
@@ -2226,11 +2250,11 @@ const MARKUP_LANGUAGE = `html`;
 
 
 // Keyboard controls.
-const controls = {
+const CONTROLS = {
     directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
     card: [`h`, `j`, `k`]
 }
-Object.freeze(controls);
+Object.freeze(CONTROLS);
 
 // Image folder file structure.
 const img_folder = {
@@ -2301,6 +2325,8 @@ const darkling_description = `Darkling: Teleports around randomly hurting everyt
                             +`it's rift will destroy it.`;
 const orb_of_insanity_description = [`Orb of Insanity: Does not move or attack. If the player is within `, ` spaces of it, it will `
                             +`pollute their deck with a bad temporary card.`]
+const carrion_flies_description = `Carrion Flies: Will only attack if the player is nearby. Otherwise they will wander aimlessly. `
+                            +`Over time they will multiply.`;
 
 
 // Area Descriptions.
@@ -2665,7 +2691,7 @@ const DisplayHTML = {
     },
     press: function(key_press){
         // Pick direction via keyboard.
-        var key_num = search(key_press.key, controls.directional);
+        var key_num = search(key_press.key, CONTROLS.directional);
         if(key_num >= 0){
             try{
                 DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
@@ -2678,7 +2704,7 @@ const DisplayHTML = {
             
         }
         // Select card via keyboard.
-        key_num = search(key_press.key, controls.card);
+        key_num = search(key_press.key, CONTROLS.card);
         if(key_num >= 0){
             var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
             element && element.click();
@@ -4605,7 +4631,7 @@ function get_card_symbols(){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var button_symbols = controls.card.concat(controls.directional);
+    var button_symbols = CONTROLS.card.concat(CONTROLS.directional);
     var buttons = [];
     for(var symbol of button_symbols){
         buttons.push(display.create_button(symbol, `${symbol} key`));
@@ -5278,7 +5304,7 @@ const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, sh
                     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
                     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
                     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
-                    orb_of_insanity_tile];
+                    orb_of_insanity_tile, carrion_flies_tile];
 
 // Non-Enemy tiles
 /** @type {TileGenerator} Empty space.*/
@@ -5744,6 +5770,7 @@ function shadow_scout_tile(){
         cycle: starting_cycle
     }
 }
+/** @type {TileGenerator} */
 function darkling_tile(){
     return {
         type: `enemy`,
@@ -5756,6 +5783,7 @@ function darkling_tile(){
         telegraph: darkling_telegraph
     }
 }
+/** @type {TileGenerator} */
 function orb_of_insanity_tile(){
     var range = 2;
     var pic_arr = [`${img_folder.tiles}orb_of_insanity_off.png`, `${img_folder.tiles}orb_of_insanity_on.png`];
@@ -5770,6 +5798,21 @@ function orb_of_insanity_tile(){
         telegraph_other: orb_of_insanity_telegraph_other,
         pic_arr,
         range
+    }
+}
+/** @type {TileGenerator} */
+function carrion_flies_tile(){
+    return {
+        type: `enemy`,
+        name: `carrion flies`,
+        pic: `${img_folder.tiles}carrion_flies.png`,
+        description: carrion_flies_description,
+        health: 1,
+        difficulty: 6,
+        behavior: carrion_flies_ai,
+        telegraph: spider_telegraph,
+        cycle: 0,
+        spawn_timer: 2
     }
 }
 
@@ -5823,8 +5866,8 @@ function lich_tile(){
         ram_tile,
         medium_porcuslime_tile,
         clay_golem_tile,
-        rat_tile,
-        vampire_tile
+        carrion_fly_tile,
+        vampire_tile,
     ];
     var starting_cycle = 1;
     return{
