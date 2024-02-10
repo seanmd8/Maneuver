@@ -9,13 +9,22 @@ def main():
 def staple(folder, destination, jsd_enabled = False):
     # Concatonates each file in the given folder into one document which is saved as the destination. 
     # If jsd enabled is true, enables it in the resulting document.
-    source = os.listdir(folder)
     body = ""
     if(jsd_enabled):
         body = "// @ts-check\n"
-    for i in range(len(source)):
-        body += read_file(folder + "/" + source[i])
+    body += read_files_recursively(folder)
     write_file(destination, body)
+
+def read_files_recursively(folder):
+    source = os.listdir(folder)
+    body = ""
+    for i in range(len(source)):
+        contents_path = folder + "/" + source[i]
+        if(os.path.isfile(contents_path)):
+            body += read_file(contents_path)
+        if(os.path.isdir(contents_path)):
+            body += read_files_recursively(contents_path)
+    return body
 
 def read_file(file_name):
     # Reads the given file and returns it's text.
