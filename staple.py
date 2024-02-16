@@ -22,6 +22,7 @@ def read_files_recursively(folder):
         contents_path = folder + "/" + source[i]
         if(os.path.isfile(contents_path)):
             body += read_file(contents_path)
+            body += "\n"
         if(os.path.isdir(contents_path)):
             body += read_files_recursively(contents_path)
     return body
