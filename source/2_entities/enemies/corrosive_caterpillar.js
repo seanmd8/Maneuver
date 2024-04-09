@@ -14,10 +14,13 @@ function corrosive_caterpillar_tile(){
 
 /** @type {AIFunction} AI used by corrosive catterpillars.*/
 function corrosive_caterpillar_ai(self, target, map){
-    var direction = get_empty_nearby(self.location, random_nearby(), map);
-    if(!(direction === undefined)){
-        if(map.move(self.location, self.location.plus(direction))){
-            map.add_tile(corrosive_slime_tile(), self.location);
+    for(var i = 0; i < 2; ++i){
+        var direction = get_empty_nearby(self.location, random_nearby(), map);
+        if(!(direction === undefined)){
+            if(map.move(self.location, self.location.plus(direction))){
+                map.add_tile(corrosive_slime_tile(), self.location);
+            }
+            self.location.plus_equals(direction);
         }
     }
 }

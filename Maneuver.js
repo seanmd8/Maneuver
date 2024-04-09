@@ -360,8 +360,8 @@ const CHEST_CHANCE = 2;
 
 
 // Initialization settings.
-const STARTING_ENEMY = spider_tile;
-const STARTING_ENEMY_AMOUNT = 1;
+const STARTING_ENEMY = corrosive_caterpillar_tile;
+const STARTING_ENEMY_AMOUNT = 2;
 const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = generate_ruins_area;
 
@@ -1893,10 +1893,13 @@ function corrosive_caterpillar_tile(){
 
 /** @type {AIFunction} AI used by corrosive catterpillars.*/
 function corrosive_caterpillar_ai(self, target, map){
-    var direction = get_empty_nearby(self.location, random_nearby(), map);
-    if(!(direction === undefined)){
-        if(map.move(self.location, self.location.plus(direction))){
-            map.add_tile(corrosive_slime_tile(), self.location);
+    for(var i = 0; i < 2; ++i){
+        var direction = get_empty_nearby(self.location, random_nearby(), map);
+        if(!(direction === undefined)){
+            if(map.move(self.location, self.location.plus(direction))){
+                map.add_tile(corrosive_slime_tile(), self.location);
+            }
+            self.location.plus_equals(direction);
         }
     }
 }

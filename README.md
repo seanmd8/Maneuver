@@ -12,6 +12,7 @@ Gameplay Changelog:
 - Added alternate area 2: The Sewers.
 - Added Sewer Boss: Two Headed Serpent.
 - Balance change: Porcuslimes no longer hurt you if you move into them.
+- Balance change: Corrosive caterpillars now move twice each turn.
 
 2/7/24
 - Added new Enemy: Carrion Flies.
