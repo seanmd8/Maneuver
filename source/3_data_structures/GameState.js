@@ -7,6 +7,7 @@ class GameState{
     map;
     /** @type {MoveDeck} The player's deck of cards.*/
     deck;
+    #player_turn_lock;
     constructor(){
         // Starts the game on load.
         this.setup();
@@ -30,6 +31,7 @@ class GameState{
         display.display_message(UIIDS.shop_instructions, mod_deck);
         display.swap_screen(DISPLAY_DIVISIONS, UIIDS.game_screen);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        this.#player_turn_lock = true;
     }
     /** 
      * Handles the effects of using a card, then passes to the enemies' turn.
@@ -42,6 +44,9 @@ class GameState{
      */
     async player_turn(behavior, hand_pos){
         // Function to execute the outcome of the player's turn.
+        if(!this.lock_player_turn()){
+            return;
+        }
         display.display_message(UIIDS.display_message, ``);
         this.map.clear_marked();
         try{
@@ -233,6 +238,31 @@ class GameState{
         this.map.display();
         this.deck.display_hand(UIIDS.hand_display);
         this.map.display_stats(UIIDS.stats);
+        this.unlock_player_turn();
+    }
+    /** 
+     * Ensures the player can't make moves during the enemies' turn using a lock.
+     * @returns {Boolean} True if the lock hasn't been used yet, false otherwise.
+     */
+    lock_player_turn(){
+        if(this.#player_turn_lock){
+            this.#player_turn_lock = false;
+            return true;
+        }
+        return false;
+    }
+    /** 
+     * Returns the lock so the player can take their turn.
+     */
+    unlock_player_turn(){
+        this.#player_turn_lock = true;
+    }
+    /** 
+     * Ensures the player can't make moves during the enemies' turn.
+     * @returns {Boolean} True if the lock hasn't been used yet, false otherwise.
+     */
+    check_lock_player_turn(){
+        return this.#player_turn_lock;
     }
 }
 

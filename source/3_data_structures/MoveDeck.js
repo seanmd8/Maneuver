@@ -98,6 +98,9 @@ class MoveDeck{
         display.clear_tb(table);
         var make_prep_move = function(deck){
             return function(card, hand_pos){
+                if(!GS.check_lock_player_turn()){
+                    return;
+                }
                 display.select(UIIDS.hand_display, 0, hand_pos.x);
                 card.options.show_buttons(UIIDS.move_buttons, hand_pos.x);
                 var deck = deck;
