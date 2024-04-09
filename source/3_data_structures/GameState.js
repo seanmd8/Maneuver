@@ -131,6 +131,7 @@ class GameState{
         this.deck.deal();
         this.deck.display_hand(UIIDS.hand_display);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        this.unlock_player_turn();
     }
     /** 
      * Preps and swaps to the shop screen.

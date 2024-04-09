@@ -360,8 +360,8 @@ const CHEST_CHANCE = 2;
 
 
 // Initialization settings.
-const STARTING_ENEMY = corrosive_caterpillar_tile;
-const STARTING_ENEMY_AMOUNT = 2;
+const STARTING_ENEMY = spider_tile;
+const STARTING_ENEMY_AMOUNT = 1;
 const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = generate_ruins_area;
 
@@ -4728,6 +4728,7 @@ class GameState{
         this.deck.deal();
         this.deck.display_hand(UIIDS.hand_display);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        this.unlock_player_turn();
     }
     /** 
      * Preps and swaps to the shop screen.
