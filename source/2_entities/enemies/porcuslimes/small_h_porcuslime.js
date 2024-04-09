@@ -9,6 +9,5 @@ function small_h_porcuslime_tile(){
         difficulty: 3,
         behavior: porcuslime_horizontal_ai,
         telegraph: porcuslime_horizontal_telegraph,
-        on_enter: hazard
         }
 }

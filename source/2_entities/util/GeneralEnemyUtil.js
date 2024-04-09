@@ -35,6 +35,7 @@
  * @property {number=} spawn_timer How many turns between spawning things.
  * @property {number=} range How far away can it attack.
  * @property {Point=} direction The relative direction is it moving.
+ * @property {(Point | undefined)[]=} segment_list A 2 element array with the relative positions of the two adjacent segments of this entity.
  * @property {number=} spin_direction The direction it is spinning.
  * @property {Spell[]=} spells A array of behavior functions it can call along with their own descriptions and pictures.
  * @property {TileGenerator[]=} summons A array of tiles it can spawn.

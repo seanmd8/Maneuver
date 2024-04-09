@@ -11,7 +11,6 @@ function medium_porcuslime_tile(){
         difficulty: 5,
         behavior: medium_porcuslime_ai,
         telegraph: medium_porcuslime_telegraph,
-        on_enter: hazard,
         pic_arr,
         cycle: starting_cycle
     }

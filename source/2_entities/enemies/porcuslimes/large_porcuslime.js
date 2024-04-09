@@ -8,8 +8,7 @@ function large_porcuslime_tile(){
         health: 3,
         difficulty: 8,
         behavior: large_porcuslime_ai,
-        telegraph: large_porcuslime_telegraph,
-        on_enter: hazard
+        telegraph: large_porcuslime_telegraph
     }
 }
 

@@ -8,6 +8,11 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+4/8/24
+- Added alternate area 2: The Sewers.
+- Added Sewer Boss: Two Headed Serpent.
+- Balance change: Porcuslimes no longer hurt you if you move into them.
+
 2/7/24
 - Added new Enemy: Carrion Flies.
 

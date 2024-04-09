@@ -28,13 +28,11 @@ const shadow_knight_description = `Shadow Knight: Moves in an L shape. If it tra
 const spider_web_description = [`Spider Web: Does not move or attack. Spawns a spider every `, ` turns.`];
 const ram_description = `Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.`;
 const large_porcuslime_description = `Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when `
-                            +`hit. It's spikes make it painful to touch.`;
+                            +`hit.`;
 const medium_porcuslime_description = `Medium Porcuslime: Moves towards the player 1 space and attacks in that direction. Alternates `
-                            +`between orthoganal and diagonal movement. Splits when hit. It's spikes make it painful to touch.`;
-const small_h_porcuslime_description = `Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction. `
-                            +`It's spikes make it painful to touch.`;
-const small_d_porcuslime_description = `Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction. `
-                            +`It's spikes make it painful to touch.`;
+                            +`between orthoganal and diagonal movement. Splits when hit.`;
+const small_h_porcuslime_description = `Small Porcuslime: Moves towards the player 1 space orthogonally and attacks in that direction.`;
+const small_d_porcuslime_description = `Small Porcuslime: Moves towards the player 1 space diagonally and attacks in that direction.`;
 const acid_bug_description = `Acid bug: Moves towards the player 1 space. Has no normal attack, but will spray acid upon death hurting `
                             +`everything next to it.`;
 const brightling_description = `Brightling: Is not aggressive. Will occasionally teleport the player close to it before teleoprting `
@@ -75,18 +73,30 @@ const default_area_description = `You have reached the end of the current conten
 
 // Boss Descriptions.
 const boss_death_description = `The exit opens.\n`
-                                +`You feel your wounds begin to heal.`;
+                    +`You feel your wounds begin to heal.`;
+
 const velociphile_floor_message = `You hear a deafening shriek.`;
 const velociphile_description = `Velociphile (Boss): A rolling ball of mouths and hate. Moves in straight lines. Must build up speed `
-                                +`to ram you.`;
+                    +`to ram you.`;
 const velociphile_death_message = `The wailing falls silent as the Velociphile is defeated.`;
+
 const spider_queen_floor_message = `The floor is thick with webs.`;
 const spider_queen_description = `Spider Queen (Boss): Moves like a normal spider. Taking damage will stun her, but will also spawn `
-                                +`spiders.`;
+                    +`spiders.`;
 const spider_queen_death_message = `As the Spider Queen falls to the floor, the last of her children emerge.`;
+
+const two_headed_serpent_floor_message = `The discarded skin of a massive creature litters the floor.`;
+const two_headed_serpent_awake_description = `Two Headed Serpent (Boss): Moves then attacks 1 square orthogonally. When damaged, the neck `
+                    +`will instantly grow a new head.`;
+const two_headed_serpent_asleep_description = `Two Headed Serpent (Boss): This head is sleeping. When damaged, the neck will grow a new head, `
+                    +`which will spend it's turn waking up. The other head will then fall asleep.`;
+const two_headed_serpent_body_description = `Two Headed Serpent (Boss): The scales on the body are too tough to pierce. `;
+const two_headed_serpent_death_message = `It's body too small to regenerate any further, all four of the serpent's eyes close for `
+                    +`the final time`;
+
 const lich_floor_message = `Dust and dark magic swirl in the air.`;
 const lich_description = `Lich (Boss): An undead wielder of dark magic. Each turn it will move away 1 space and then cast a spell.\n`
-                        + `The Lich is currently preparing to cast:\n`;
+                    +`The Lich is currently preparing to cast:\n`;
 const lich_death_message = `The Lich's body crumbles to dust.`;
 
 // Lich Spell Descriptions.

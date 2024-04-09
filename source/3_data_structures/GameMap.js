@@ -91,7 +91,7 @@ class GameMap{
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
                 var pos = new Point(x, y)
-                if(this.#get_grid(pos).type === `empty`){
+                if(this.get_grid(pos).type === `empty`){
                     if(rand === 0){
                         return pos;
                     }
@@ -143,7 +143,7 @@ class GameMap{
         catch{
             return false;
         }
-        return this.#get_grid(location).type === `empty`;
+        return this.get_grid(location).type === `empty`;
     }
     /**
      * Places an exit tile at the given location
@@ -206,11 +206,11 @@ class GameMap{
      * @param {Tile} tile The tile to be added.
      * @param {Point} [location = undefined] Optional location to place the tile. If the location is not empty, an error will be thrown.
      *                                          If not provided, the location will be a random unoccupied one.
-     * @returns {Point | void} If it successfully adds the tile, return sthe location. Otherwise, returns void.
+     * @returns {Point | void} If it successfully adds the tile, return sthe location. Otherwise, throws an error.
      */
     add_tile(tile, location = undefined){
         // Adds a new tile to a space.
-        // Returns true if it was added successfuly.
+        // Returns the point if added successfully.
         // If x or y aren't provided, it will select a random empty space.
         try{
             if(location === undefined){
@@ -323,8 +323,8 @@ class GameMap{
         catch{
             return false;
         }
-        var start = this.#get_grid(start_point);
-        var end = this.#get_grid(end_point);
+        var start = this.get_grid(start_point);
+        var end = this.get_grid(end_point);
         if(start.type === `player` && end.type === `exit`){
             ++this.#turn_count;
             throw new Error(`floor complete`);
@@ -354,7 +354,7 @@ class GameMap{
                 throw new Error(`creature died`);
             }
         }
-        if(end.type === `empty` && this.#get_grid(start_point) === start){
+        if(end.type === `empty` && this.get_grid(start_point) === start){
             this.#entity_list.move_any(end_point, start);
             this.#set_grid(end_point, start);
             this.#set_grid(start_point, empty_tile());
@@ -390,7 +390,7 @@ class GameMap{
     get_player(){
         // Returns the player's health.
         var pos = this.#entity_list.get_player_pos();
-        return this.#get_grid(pos);
+        return this.get_grid(pos);
     }
     /**
      * Attacks a point on the grid.
@@ -410,10 +410,10 @@ class GameMap{
         catch(error){
             return false;
         }
-        var target = this.#get_grid(location);
+        var target = this.get_grid(location);
         if(target.health !== undefined && target.type !== `player` && (hits === `enemy` || hits === `all`)){
             target.health -= 1;
-            this.#get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
+            this.get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
             if(target.on_hit !== undefined){
                 var player_pos = this.#entity_list.get_player_pos();
                 var hit_entity = {
@@ -428,7 +428,7 @@ class GameMap{
             }
             if(target.health <= 0){
                 this.#set_grid(location, empty_tile());
-                this.#get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
+                this.get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
                 if(target.type === `enemy`){
                     if(target.id === undefined){
                         throw new Error(`enemy missing id`);
@@ -455,7 +455,7 @@ class GameMap{
                 throw new Error(`player missing health`);
             }
             target.health -= 1;
-            this.#get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
+            this.get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
             if(target.health === 0){
                 throw new Error(`game over`)
             }
@@ -568,7 +568,7 @@ class GameMap{
      * @param {Point} location The location of the tile.
      * @returns {Tile} The tile at that location
      */
-    #get_grid(location){
+    get_grid(location){
         this.check_bounds(location);
         return this.#grid[location.y][location.x];
     }
@@ -590,7 +590,7 @@ class GameMap{
     display_telegraph(positions, pic = `${IMG_FOLDER.tiles}hit_telegraph.png`){
         for(var position of positions){
             if(this.is_in_bounds(position)){
-                this.#get_grid(position).is_hit = pic;
+                this.get_grid(position).is_hit = pic;
             }
         }
     }
@@ -601,7 +601,7 @@ class GameMap{
     clear_telegraphs(){
         for(var y = 0; y < this.#y_max; ++y){
             for(var x = 0; x < this.#x_max; ++x){
-                var tile = this.#get_grid(new Point(x, y));
+                var tile = this.get_grid(new Point(x, y));
                 tile.is_hit = undefined;
             }
         }
@@ -613,7 +613,7 @@ class GameMap{
      */
     mark_tile(location, mark){
         if(this.is_in_bounds(location)){
-            shapeshift(this.#get_grid(location), mark, true);
+            shapeshift(this.get_grid(location), mark, true);
         }
     }
     /**
@@ -623,7 +623,7 @@ class GameMap{
     clear_marked(){
         for(var y = 0; y < this.#y_max; ++y){
             for(var x = 0; x < this.#x_max; ++x){
-                var tile = this.#get_grid(new Point(x, y));
+                var tile = this.get_grid(new Point(x, y));
                 if(tile.type === `empty`){
                     shapeshift(tile, empty_tile, true);
                 }
@@ -637,7 +637,7 @@ class GameMap{
      */
     stun_tile(location){
         try{
-            var tile = this.#get_grid(location);
+            var tile = this.get_grid(location);
         }
         catch(error){
             if(error.message === `x out of bounds` || error.message === `y out of bounds`){

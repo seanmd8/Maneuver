@@ -70,7 +70,7 @@ class EntityList{
      */
     add_enemy(location, enemy){
         enemy.id = this.next_id();
-        this.#enemy_list.push({location, enemy});
+        this.#enemy_list.push({location: location.copy(), enemy});
         ++this.count_non_empty;
     }
     /**
