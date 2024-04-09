@@ -29,6 +29,7 @@ function orb_of_insanity_ai(self, target, map){
     }
     else{
         self.tile.pic = self.tile.pic_arr[0];
+        throw new Error(`skip animation delay`);
     }
 }
 

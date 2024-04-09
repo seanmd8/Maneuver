@@ -18,6 +18,9 @@ function turret_h_ai(self, target, map){
     if(target.difference.x === 0 || target.difference.y === 0){
         turret_fire_ai(self, target, map);
     }
+    else{
+        throw new Error(`skip animation delay`);
+    }
 }
 
 /** @type {TelegraphFunction} */

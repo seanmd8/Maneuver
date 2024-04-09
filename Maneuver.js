@@ -1230,7 +1230,7 @@ const GUIDE_TEXT = {
     bosses: [`Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be locked until you defeat it's `
             +`powerful occupant. When you defeat the boss, the stairs will be unlocked, you will be fully healed, and it might drop a chest `
             +`containing a powerful new card as a reward.\n`
-            +`When leaving the floor, you will enter a new area of the dungeon with a different pool of inhabitants and a new boss at `
+            +`When leaving the floor, you will enter a new area of the dungeon with a different set of inhabitants and a new boss at `
             +`the end.\n\n`],
 }
 Object.freeze(GUIDE_TEXT);
@@ -1449,7 +1449,7 @@ function two_headed_serpent_ai(self, target, map){
         throw new Error(`tile missing properties used by it's ai.`);
     }
     if(self.tile.cycle !== 1){
-        return;
+        throw new Error(`skip animation delay`);
     }
     var moved = false;
     var index = serpent_get_direction(self.tile);
@@ -2061,6 +2061,7 @@ function orb_of_insanity_ai(self, target, map){
     }
     else{
         self.tile.pic = self.tile.pic_arr[0];
+        throw new Error(`skip animation delay`);
     }
 }
 
@@ -2568,6 +2569,7 @@ function spider_web_ai(self, target, map){
     if(self.tile.cycle < self.tile.spawn_timer){
         // If the cycle hasn't reached the spawn timer, increments it.
         ++self.tile.cycle;
+        throw new Error(`skip animation delay`);
     }
     else{
         // Attempts to spawn a spider nearby and resets cycle.
@@ -2610,6 +2612,9 @@ function turret_d_ai(self, target, map){
     if(Math.abs(target.difference.x) === Math.abs(target.difference.y)){
         turret_fire_ai(self, target, map);
     }
+    else{
+        throw new Error(`skip animation delay`);
+    }
 }
 
 /** @type {TelegraphFunction} */
@@ -2639,6 +2644,9 @@ function turret_h_ai(self, target, map){
     // Turret version that shoots orthogonally.
     if(target.difference.x === 0 || target.difference.y === 0){
         turret_fire_ai(self, target, map);
+    }
+    else{
+        throw new Error(`skip animation delay`);
     }
 }
 
@@ -2888,6 +2896,7 @@ function vinesnare_bush_ai(self, target, map){
     if(++self.tile.cycle > 0){
         // Otherwise, root.
         self.tile.pic = self.tile.pic_arr[1];
+        throw new Error(`skip animation delay`);
     }
 }
 
@@ -3881,6 +3890,7 @@ class EntityList{
                         --e.enemy.stun;
                     }
                     else{
+                        var do_delay = true;
                         try{
                             if(e.enemy.behavior !== undefined){
                                 var self = {
@@ -3895,12 +3905,17 @@ class EntityList{
                             }
                         }
                         catch(error){
-                            if(!(error.message === `creature died`)){
+                            if(error.message === `skip animation delay`){
+                                do_delay = false;
+                            }
+                            else if(!(error.message === `creature died`)){
                                 throw error
                             }
                         }
                         map.display();
-                        await delay(ANIMATION_DELAY);
+                        if(do_delay){
+                            await delay(ANIMATION_DELAY);
+                        }
                     }
                 }
                 catch(error){

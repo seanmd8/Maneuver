@@ -58,6 +58,7 @@ function vinesnare_bush_ai(self, target, map){
     if(++self.tile.cycle > 0){
         // Otherwise, root.
         self.tile.pic = self.tile.pic_arr[1];
+        throw new Error(`skip animation delay`);
     }
 }
 

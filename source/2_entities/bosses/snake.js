@@ -36,7 +36,7 @@ function two_headed_serpent_ai(self, target, map){
         throw new Error(`tile missing properties used by it's ai.`);
     }
     if(self.tile.cycle !== 1){
-        return;
+        throw new Error(`skip animation delay`);
     }
     var moved = false;
     var index = serpent_get_direction(self.tile);

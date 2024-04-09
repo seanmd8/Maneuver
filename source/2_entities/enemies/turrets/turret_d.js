@@ -18,6 +18,9 @@ function turret_d_ai(self, target, map){
     if(Math.abs(target.difference.x) === Math.abs(target.difference.y)){
         turret_fire_ai(self, target, map);
     }
+    else{
+        throw new Error(`skip animation delay`);
+    }
 }
 
 /** @type {TelegraphFunction} */

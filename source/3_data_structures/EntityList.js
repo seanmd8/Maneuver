@@ -152,6 +152,7 @@ class EntityList{
                         --e.enemy.stun;
                     }
                     else{
+                        var do_delay = true;
                         try{
                             if(e.enemy.behavior !== undefined){
                                 var self = {
@@ -166,12 +167,17 @@ class EntityList{
                             }
                         }
                         catch(error){
-                            if(!(error.message === `creature died`)){
+                            if(error.message === `skip animation delay`){
+                                do_delay = false;
+                            }
+                            else if(!(error.message === `creature died`)){
                                 throw error
                             }
                         }
                         map.display();
-                        await delay(ANIMATION_DELAY);
+                        if(do_delay){
+                            await delay(ANIMATION_DELAY);
+                        }
                     }
                 }
                 catch(error){
