@@ -2431,6 +2431,9 @@ function scythe_telegraph(location, map, self){
     }
     return attacks;
 }
+const L_SHAPES = [new Point(1, 2), new Point(-1, 2), new Point(1, -2), new Point(-1, -2),
+                  new Point(2, 1), new Point(-2, 1), new Point(2, -1), new Point(-2, -1)];
+
 /** @type {TileGenerator} */
 function shadow_knight_tile(){
     return{
@@ -2450,10 +2453,10 @@ function shadow_knight_ai(self, target, map){
     // Moves in an L.
     if(Math.abs(target.difference.x) === 1 && Math.abs(target.difference.y) === 1){
         // If the player is next to it diagonally, attempty to reposition to attack them next turn.
-        if(!map.move(self.location, self.location.plus(sign(target.difference).times(new Point(2, -1))))){
-            map.move(self.location, self.location.plus(sign(target.difference).times(new Point(-1, 2))));
+        if(map.move(self.location, self.location.plus(sign(target.difference).times(new Point(2, -1)))) ||
+           map.move(self.location, self.location.plus(sign(target.difference).times(new Point(-1, 2))))){
+            return;
         }
-        return;
     }
     if((Math.abs(target.difference.x) === 1 || Math.abs(target.difference.y) === 1) && target.difference.taxicab_distance() === 3){
         // If the player is a L away, attack them then try to move past them.
@@ -2474,7 +2477,15 @@ function shadow_knight_ai(self, target, map){
     if(target.difference.y < 0){
         new_dir.y *= -1;
     }
-    map.move(self.location, self.location.plus(new_dir));
+    if(!map.move(self.location, self.location.plus(new_dir))){
+        var directions = randomize_arr(L_SHAPES);
+        for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health > 0); ++i){
+            if(map.move(self.location, self.location.plus(directions[i]))){
+                self.location.plus_equals(directions[i]);
+                return;
+            }
+        }
+    }
 }
 
 /** @type {TelegraphFunction} */
