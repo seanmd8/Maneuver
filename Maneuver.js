@@ -4715,6 +4715,7 @@ class GameState{
                 this.map.player_teleport(action.change);
                 break;
             case `instant`:
+                this.unlock_player_turn();
                 return true;
             case `stun`:
                 this.map.player_stun(action.change);
