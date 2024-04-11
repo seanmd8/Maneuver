@@ -4663,7 +4663,7 @@ class GameMap{
             return false;
         }
         // If no amount is specified, sets health to max.
-        if(tile.amount === undefined){
+        if(amount === undefined){
             if(tile.max_health === undefined){
                 throw new Error(`healed with no amount`);
             }
@@ -5676,7 +5676,7 @@ function pheal(x, y){
  * 
  * @property {number=} id A unique id that will be added to the card when it is added to the deck.
  * @property {boolean=} temp Given true when the card is temporary and will be removed on use or on end of floor.
- * @property {CardGenerator} per_floor Provided to make temporary copies of a card if it can only be used once per floor.
+ * @property {CardGenerator=} per_floor Provided to make temporary copies of a card if it can only be used once per floor.
  */
 /**
  * @callback CardGenerator A function that creates a card.

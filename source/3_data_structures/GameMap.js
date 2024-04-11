@@ -691,7 +691,7 @@ class GameMap{
             return false;
         }
         // If no amount is specified, sets health to max.
-        if(tile.amount === undefined){
+        if(amount === undefined){
             if(tile.max_health === undefined){
                 throw new Error(`healed with no amount`);
             }
