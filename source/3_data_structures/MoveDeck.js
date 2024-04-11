@@ -29,7 +29,14 @@ class MoveDeck{
         this.#hand = [];
         this.#discard_pile = [];
         for(var i = 0; i < this.#decklist.length; ++i){
-            this.#library.push(this.#decklist[i]);
+            var card = this.#decklist[i]
+            if(card.per_floor !== undefined){
+                card = card.per_floor();
+                this.add_temp(card);
+            }
+            else{
+                this.#library.push(card);
+            }
         }
         this.#library = randomize_arr(this.#library);
         for(var i = 0; i < HAND_SIZE; ++i){

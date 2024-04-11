@@ -899,16 +899,13 @@ function make_test_deck(){
     for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
         deck.add(CARD_CHOICES[i]());
     }
-    deck.add(bite());
-    deck.add(skitter());
-    deck.add(instant_teleport());
-    deck.add(debilitating_confusion());
-    deck.add(roll_ew());
-    deck.add(roll_nesw());
-    deck.add(roll_nwse());
+    deck.add(fangs());
+    deck.add(regenerate());
 
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
+    deck.add(basic_horizontal());
+
 
     deck.deal();
     return deck;
@@ -1208,7 +1205,8 @@ const GUIDE_TEXT = {
                 ` Multiple actions of the same stype will be performed until one fails.\n`,
                 `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
                 ` A card with a purple grid will be performed instantly.\n`,
-                ` A card with a this background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`
+                ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
+                ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
             +`\n`
             +`In addition to clicking on cards to use them, you can use the keys\n`,
                 ` `, ` `, `\n`
@@ -1258,7 +1256,8 @@ const CARD_SYMBOLS = [
     {src: `${IMG_FOLDER.symbols}attack_move.png`,       x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}triple_attack.png`,     x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}instant.png`,         x: 2, y: 2},
-    {src: `${IMG_FOLDER.symbols}temporary.png`,         x: 2, y: 2}
+    {src: `${IMG_FOLDER.symbols}temporary.png`,         x: 2, y: 2},
+    {src: `${IMG_FOLDER.symbols}per_floor.png`,         x: 2, y: 2},
 ];
 
 
@@ -1439,7 +1438,7 @@ function two_headed_serpent_tile(){
         pic_arr,
         cycle: 1,
         segment_list: [undefined, undefined],
-        card_drops: []
+        card_drops: [regenerate, fangs]
     }
 }
 /** @type {TileGenerator} */
@@ -4098,7 +4097,6 @@ class GameMap{
      * @returns {boolean} If the point is in bounds.
      */
     is_in_bounds(location){
-        // Throws an error if x or y is out of bounds.
         if(location.x < 0 || location.x >= this.#x_max){
             return false;
         }
@@ -4649,6 +4647,56 @@ class GameMap{
         var pos = this.#entity_list.get_player_pos();
         return this.stun_tile(pos.plus(direction));
     }
+    /**
+     * Function to heal the tile at the given location.
+     * @param {Point} location The location of the tile to heal.
+     * @param {number=} amount Provides the amount to heal for. If not given, instead heals to max.
+     * @returns {boolean} if healing was performed.
+     */
+    heal(location, amount=undefined){
+        if(!this.is_in_bounds(location)){
+            return false;
+        }
+        var tile = this.get_grid(location);
+        if(tile.health === undefined){
+            // No health to heal.
+            return false;
+        }
+        // If no amount is specified, sets health to max.
+        if(tile.amount === undefined){
+            if(tile.max_health === undefined){
+                throw new Error(`healed with no amount`);
+            }
+            var healed = tile.health < tile.max_health;
+            tile.health = tile.max_health;
+            return healed;
+        }
+        // If no max health is specified, heals by the given amount.
+        if(tile.max_health === undefined){
+            tile.health += amount;
+            return true;
+        }
+        // Otherwise, only heals up to the max.
+        if(tile.health === tile.max_health){
+            return false;
+        }
+        if(amount > 0){
+            ++tile.health;
+            this.heal(location, amount - 1)
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Function to heal a tile at a location relative to the player.
+     * @param {Point} difference The relative location of the tile to heal.
+     * @param {number=} amount Provides the amount to heal for. If not given, instead heals to max.
+     * @returns {boolean} if healing was performed.
+     */
+    player_heal(difference, amount=undefined){
+        var pos = this.#entity_list.get_player_pos();
+        return this.heal(pos.plus(difference), amount);
+    }
 }
 // ----------------GameState.js----------------
 // File containing a class to control the general flow of the game.
@@ -4766,6 +4814,9 @@ class GameState{
                 break;
             case `move_until`:
                 while(this.map.player_move(action.change)){};
+                break;
+            case `heal`:
+                this.map.player_heal(action.change);
                 break;
             default:
                 throw new Error(`invalid player action type`);
@@ -4953,7 +5004,14 @@ class MoveDeck{
         this.#hand = [];
         this.#discard_pile = [];
         for(var i = 0; i < this.#decklist.length; ++i){
-            this.#library.push(this.#decklist[i]);
+            var card = this.#decklist[i]
+            if(card.per_floor !== undefined){
+                card = card.per_floor();
+                this.add_temp(card);
+            }
+            else{
+                this.#library.push(card);
+            }
         }
         this.#library = randomize_arr(this.#library);
         for(var i = 0; i < HAND_SIZE; ++i){
@@ -5492,6 +5550,29 @@ function debilitating_confusion(){
         options
     }
 }
+function regenerate(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pheal(0, 0)]);
+    return{
+        name: `regenerate`,
+        pic: `${IMG_FOLDER.cards}regenerate.png`,
+        options,
+        per_floor: regenerate
+    }
+}
+
+function fangs(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);
+    options.add_button(E, [pmove(1, 0), pattack(1, 0), pattack(0, 1), pattack(0, -1)]);
+    options.add_button(S, [pmove(0, 1), pattack(1, 0), pattack(-1, 0), pattack(0, 1)]);
+    options.add_button(W, [pmove(-1, 0), pattack(-1, 0), pattack(0, 1), pattack(0, -1)]);
+    return{
+        name: `fangs`,
+        pic: `${IMG_FOLDER.cards}fangs.png`,
+        options
+    }
+}
 // ----------------CardUtils.js----------------
 // File containing utility functions used by cards.
 
@@ -5579,6 +5660,13 @@ function pmove_until(x, y){
         change: new Point(x, y)
     }
 }
+/** @type {PlayerCommandGenerator} Function to heal the thing at the specified spot by a specific amount.*/
+function pheal(x, y){
+    return {
+        type: `heal`,
+        change: new Point(x, y)
+    }
+}
 // Cards
 /**
  * @typedef {Object} Card A card used by the player to perform actions on their turn.
@@ -5588,6 +5676,7 @@ function pmove_until(x, y){
  * 
  * @property {number=} id A unique id that will be added to the card when it is added to the deck.
  * @property {boolean=} temp Given true when the card is temporary and will be removed on use or on end of floor.
+ * @property {CardGenerator} per_floor Provided to make temporary copies of a card if it can only be used once per floor.
  */
 /**
  * @callback CardGenerator A function that creates a card.

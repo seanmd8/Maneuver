@@ -125,7 +125,6 @@ class GameMap{
      * @returns {boolean} If the point is in bounds.
      */
     is_in_bounds(location){
-        // Throws an error if x or y is out of bounds.
         if(location.x < 0 || location.x >= this.#x_max){
             return false;
         }
@@ -675,5 +674,55 @@ class GameMap{
     player_stun(direction){
         var pos = this.#entity_list.get_player_pos();
         return this.stun_tile(pos.plus(direction));
+    }
+    /**
+     * Function to heal the tile at the given location.
+     * @param {Point} location The location of the tile to heal.
+     * @param {number=} amount Provides the amount to heal for. If not given, instead heals to max.
+     * @returns {boolean} if healing was performed.
+     */
+    heal(location, amount=undefined){
+        if(!this.is_in_bounds(location)){
+            return false;
+        }
+        var tile = this.get_grid(location);
+        if(tile.health === undefined){
+            // No health to heal.
+            return false;
+        }
+        // If no amount is specified, sets health to max.
+        if(tile.amount === undefined){
+            if(tile.max_health === undefined){
+                throw new Error(`healed with no amount`);
+            }
+            var healed = tile.health < tile.max_health;
+            tile.health = tile.max_health;
+            return healed;
+        }
+        // If no max health is specified, heals by the given amount.
+        if(tile.max_health === undefined){
+            tile.health += amount;
+            return true;
+        }
+        // Otherwise, only heals up to the max.
+        if(tile.health === tile.max_health){
+            return false;
+        }
+        if(amount > 0){
+            ++tile.health;
+            this.heal(location, amount - 1)
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Function to heal a tile at a location relative to the player.
+     * @param {Point} difference The relative location of the tile to heal.
+     * @param {number=} amount Provides the amount to heal for. If not given, instead heals to max.
+     * @returns {boolean} if healing was performed.
+     */
+    player_heal(difference, amount=undefined){
+        var pos = this.#entity_list.get_player_pos();
+        return this.heal(pos.plus(difference), amount);
     }
 }

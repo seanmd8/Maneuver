@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+4/11/24
+- Added card rewards for defeating the Two Headed Serpent.
+
 4/8/24
 - Added alternate second area: The Sewers.
 - Added Sewer Boss: Two Headed Serpent.

@@ -32,7 +32,8 @@ const GUIDE_TEXT = {
                 ` Multiple actions of the same stype will be performed until one fails.\n`,
                 `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
                 ` A card with a purple grid will be performed instantly.\n`,
-                ` A card with a this background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`
+                ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
+                ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
             +`\n`
             +`In addition to clicking on cards to use them, you can use the keys\n`,
                 ` `, ` `, `\n`
@@ -82,7 +83,8 @@ const CARD_SYMBOLS = [
     {src: `${IMG_FOLDER.symbols}attack_move.png`,       x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}triple_attack.png`,     x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}instant.png`,         x: 2, y: 2},
-    {src: `${IMG_FOLDER.symbols}temporary.png`,         x: 2, y: 2}
+    {src: `${IMG_FOLDER.symbols}temporary.png`,         x: 2, y: 2},
+    {src: `${IMG_FOLDER.symbols}per_floor.png`,         x: 2, y: 2},
 ];
 
 

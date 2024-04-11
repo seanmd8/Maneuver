@@ -115,6 +115,9 @@ class GameState{
             case `move_until`:
                 while(this.map.player_move(action.change)){};
                 break;
+            case `heal`:
+                this.map.player_heal(action.change);
+                break;
             default:
                 throw new Error(`invalid player action type`);
         }

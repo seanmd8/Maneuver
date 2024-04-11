@@ -38,16 +38,13 @@ function make_test_deck(){
     for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
         deck.add(CARD_CHOICES[i]());
     }
-    deck.add(bite());
-    deck.add(skitter());
-    deck.add(instant_teleport());
-    deck.add(debilitating_confusion());
-    deck.add(roll_ew());
-    deck.add(roll_nesw());
-    deck.add(roll_nwse());
+    deck.add(fangs());
+    deck.add(regenerate());
 
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
+    deck.add(basic_horizontal());
+
 
     deck.deal();
     return deck;
