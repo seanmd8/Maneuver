@@ -380,7 +380,7 @@ const STARTING_AREA = generate_ruins_area;
 // Dungeon generation settings.
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
-const AREA_SIZE = 2;
+const AREA_SIZE = 5;
 const SAFE_SPAWN_ATTEMPTS = 5;
 
 // Visual and animation settings.
@@ -1902,13 +1902,9 @@ function clay_golem_ai(self, target, map){
         self.tile.cycle = 1;
     }
 }
-/** @type {AIFunction} Function used when clay golems are hit to stun them and reset their cycle.*/
+/** @type {AIFunction} Function used when clay golems are hit to stun them.*/
 function clay_golem_hit(self, target, map){
-    if(self.tile.cycle === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
-    }
     stun(self.tile);
-    self.tile.cycle = 1;
 }
 /** @type {TileGenerator} */
 function corrosive_caterpillar_tile(){
@@ -5108,7 +5104,7 @@ function generate_ruins_area(){
         generate_floor: generate_ruins_floor,
         enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, 
                     ram_tile, rat_tile, acid_bug_tile, shadow_knight_tile, vinesnare_bush_tile],
-        boss_floor_list: [two_headed_serpent_floor],
+        boss_floor_list: [velociphile_floor],
         next_area_list: area2,
         description: ruins_description
     }

@@ -34,11 +34,7 @@ function clay_golem_ai(self, target, map){
         self.tile.cycle = 1;
     }
 }
-/** @type {AIFunction} Function used when clay golems are hit to stun them and reset their cycle.*/
+/** @type {AIFunction} Function used when clay golems are hit to stun them.*/
 function clay_golem_hit(self, target, map){
-    if(self.tile.cycle === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
-    }
     stun(self.tile);
-    self.tile.cycle = 1;
 }
