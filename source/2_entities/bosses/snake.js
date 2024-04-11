@@ -48,6 +48,9 @@ function two_headed_serpent_ai(self, target, map){
                 if(moved){
                     // Create segment where the head was.
                     var neck = two_headed_serpent_body_tile();
+                    if(neck.segment_list === undefined){
+                        throw new Error(`tile missing properties used by it's ai.`);
+                    }
                     neck.segment_list[1 - index] = dir[i];
                     neck.segment_list[index] = self.tile.segment_list[index]
                     serpent_rotate(neck);
@@ -59,8 +62,14 @@ function two_headed_serpent_ai(self, target, map){
                     serpent_rotate(self.tile);
                     // Drag tail
                     var tail = serpent_other_end(self, index, map);
-                    var last_segment_location = tail.location.plus(tail.tile.segment_list[1 - index]);
+                    if(tail.tile.segment_list === undefined){
+                        throw new Error(`tile missing properties used by it's ai.`);
+                    }
+                    var last_segment_location = tail.location.plus(ifexists(tail.tile.segment_list[1 - index]));
                     var last_segment = map.get_grid(last_segment_location);
+                    if(last_segment.segment_list === undefined){
+                        throw new Error(`tile missing properties used by it's ai.`);
+                    }
                     tail.tile.segment_list[1 - index] = last_segment.segment_list[1 - index];
                     last_segment.health = 1;
                     map.attack(last_segment_location);
@@ -93,10 +102,11 @@ function serpent_other_end(self, index, map){
     if(self.tile.segment_list === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
-    if(self.tile.segment_list[index] === undefined){
+    var p = self.tile.segment_list[index];
+    if(p === undefined){
         return self;
     }
-    var next_location = self.location.plus(self.tile.segment_list[index]);
+    var next_location = self.location.plus(p);
     var next = {
         location: next_location,
         tile: map.get_grid(next_location)
@@ -125,7 +135,7 @@ function serpent_rotate(tile){
     }
     var index = serpent_get_direction(tile);
     if(index === 0 || index === 1){
-        var p = tile.segment_list[index];
+        var p = ifexists(tile.segment_list[index]);
         tile.rotate = 1 - p.x + p.y;
         if(p.y === 0){
             ++tile.rotate;
@@ -133,18 +143,20 @@ function serpent_rotate(tile){
         tile.rotate *= 90;
     }
     else if(index === 2){
-        if(tile.segment_list[0].x === tile.segment_list[1].x){
+        var p0 = ifexists(tile.segment_list[0]);
+        var p1 = ifexists(tile.segment_list[1]);
+        if(p0.x === p1.x){
             tile.pic = tile.pic_arr[0];
             tile.rotate = 0;
         }
-        else if(tile.segment_list[0].y === tile.segment_list[1].y){
+        else if(p0.y === p1.y){
             tile.pic = tile.pic_arr[0];
             tile.rotate = 90;
         }
         else{
             tile.pic = tile.pic_arr[1];
-            var x = tile.segment_list[0].x + tile.segment_list[1].x;
-            var y = tile.segment_list[0].y + tile.segment_list[1].y;
+            var x = p0.x + p1.x;
+            var y = p0.y + p1.y;
             tile.rotate = (x + y + 2) / 2;
             if(x < 0 && y > 0){
                 tile.rotate = 3;
@@ -189,16 +201,23 @@ function serpent_toggle(tile, cycle){
  * it will then be destroyed.
  */
 function two_headed_serpent_hurt(self, target, map){
-    if(self.tile.segment_list === undefined){
+    if( self.tile.cycle === undefined || 
+        self.tile.segment_list === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
     // New head replaces neck segment
     var index = serpent_get_direction(self.tile);
-    var neck_location = self.location.plus(self.tile.segment_list[index]);
+    var neck_location = self.location.plus(ifexists(self.tile.segment_list[index]));
     var neck = map.get_grid(neck_location);
+    if(neck.segment_list === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     var regrow = {
         tile: two_headed_serpent_tile(),
         location: neck_location
+    }
+    if(regrow.tile.segment_list === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
     }
     regrow.tile.segment_list[index] = neck.segment_list[index];
     serpent_rotate(regrow.tile);
@@ -210,7 +229,7 @@ function two_headed_serpent_hurt(self, target, map){
     }
     serpent_wake(regrow, map);
     // If no segments remain, it dies.
-    neck_location = regrow.location.plus(regrow.tile.segment_list[index]);
+    neck_location = regrow.location.plus(ifexists(regrow.tile.segment_list[index]));
     neck = map.get_grid(neck_location);
     if(neck.name === `two headed serpent head`){
         neck.on_death = undefined;
@@ -222,16 +241,19 @@ function two_headed_serpent_hurt(self, target, map){
 }
 /** @type {TelegraphFunction} */
 function two_headed_serpent_telegraph(location, map, self){
+    if( self.cycle === undefined || 
+        self.segment_list === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     var attacks = [];
     if(self.cycle === 0){
         return attacks;
     }
-    var index = serpent_get_direction(self);
     for(var direction of horizontal_directions){
         attacks.push(location.plus(direction));
     }
     for(var move of horizontal_directions){
-        if(!point_equals(move, self.segment_list[index]) && map.check_empty(location.plus(move))){
+        if(map.check_empty(location.plus(move))){
             for(var direction of horizontal_directions){
                 attacks.push(location.plus(move).plus(direction));
             }
@@ -239,4 +261,3 @@ function two_headed_serpent_telegraph(location, map, self){
     }
     return attacks;
 }
-

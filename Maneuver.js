@@ -197,6 +197,18 @@ function array_equals(a1, a2){
     }
     return true;
 }
+/**
+ * Function to make sure a value is not undefined.
+ * @template A
+ * @param {A | undefined} exists 
+ * @returns {A}
+ */
+function ifexists(exists){
+    if(exists === undefined){
+        throw new Error(`Value is undefined.`)
+    }
+    return exists;
+}
 
 // ----------------Point.js----------------
 // File contains Point class and associated functions.
@@ -368,7 +380,7 @@ const STARTING_AREA = generate_ruins_area;
 // Dungeon generation settings.
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
-const AREA_SIZE = 5;
+const AREA_SIZE = 2;
 const SAFE_SPAWN_ATTEMPTS = 5;
 
 // Visual and animation settings.
@@ -1461,6 +1473,9 @@ function two_headed_serpent_ai(self, target, map){
                 if(moved){
                     // Create segment where the head was.
                     var neck = two_headed_serpent_body_tile();
+                    if(neck.segment_list === undefined){
+                        throw new Error(`tile missing properties used by it's ai.`);
+                    }
                     neck.segment_list[1 - index] = dir[i];
                     neck.segment_list[index] = self.tile.segment_list[index]
                     serpent_rotate(neck);
@@ -1472,8 +1487,14 @@ function two_headed_serpent_ai(self, target, map){
                     serpent_rotate(self.tile);
                     // Drag tail
                     var tail = serpent_other_end(self, index, map);
-                    var last_segment_location = tail.location.plus(tail.tile.segment_list[1 - index]);
+                    if(tail.tile.segment_list === undefined){
+                        throw new Error(`tile missing properties used by it's ai.`);
+                    }
+                    var last_segment_location = tail.location.plus(ifexists(tail.tile.segment_list[1 - index]));
                     var last_segment = map.get_grid(last_segment_location);
+                    if(last_segment.segment_list === undefined){
+                        throw new Error(`tile missing properties used by it's ai.`);
+                    }
                     tail.tile.segment_list[1 - index] = last_segment.segment_list[1 - index];
                     last_segment.health = 1;
                     map.attack(last_segment_location);
@@ -1506,10 +1527,11 @@ function serpent_other_end(self, index, map){
     if(self.tile.segment_list === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
-    if(self.tile.segment_list[index] === undefined){
+    var p = self.tile.segment_list[index];
+    if(p === undefined){
         return self;
     }
-    var next_location = self.location.plus(self.tile.segment_list[index]);
+    var next_location = self.location.plus(p);
     var next = {
         location: next_location,
         tile: map.get_grid(next_location)
@@ -1538,7 +1560,7 @@ function serpent_rotate(tile){
     }
     var index = serpent_get_direction(tile);
     if(index === 0 || index === 1){
-        var p = tile.segment_list[index];
+        var p = ifexists(tile.segment_list[index]);
         tile.rotate = 1 - p.x + p.y;
         if(p.y === 0){
             ++tile.rotate;
@@ -1546,18 +1568,20 @@ function serpent_rotate(tile){
         tile.rotate *= 90;
     }
     else if(index === 2){
-        if(tile.segment_list[0].x === tile.segment_list[1].x){
+        var p0 = ifexists(tile.segment_list[0]);
+        var p1 = ifexists(tile.segment_list[1]);
+        if(p0.x === p1.x){
             tile.pic = tile.pic_arr[0];
             tile.rotate = 0;
         }
-        else if(tile.segment_list[0].y === tile.segment_list[1].y){
+        else if(p0.y === p1.y){
             tile.pic = tile.pic_arr[0];
             tile.rotate = 90;
         }
         else{
             tile.pic = tile.pic_arr[1];
-            var x = tile.segment_list[0].x + tile.segment_list[1].x;
-            var y = tile.segment_list[0].y + tile.segment_list[1].y;
+            var x = p0.x + p1.x;
+            var y = p0.y + p1.y;
             tile.rotate = (x + y + 2) / 2;
             if(x < 0 && y > 0){
                 tile.rotate = 3;
@@ -1602,16 +1626,23 @@ function serpent_toggle(tile, cycle){
  * it will then be destroyed.
  */
 function two_headed_serpent_hurt(self, target, map){
-    if(self.tile.segment_list === undefined){
+    if( self.tile.cycle === undefined || 
+        self.tile.segment_list === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
     // New head replaces neck segment
     var index = serpent_get_direction(self.tile);
-    var neck_location = self.location.plus(self.tile.segment_list[index]);
+    var neck_location = self.location.plus(ifexists(self.tile.segment_list[index]));
     var neck = map.get_grid(neck_location);
+    if(neck.segment_list === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     var regrow = {
         tile: two_headed_serpent_tile(),
         location: neck_location
+    }
+    if(regrow.tile.segment_list === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
     }
     regrow.tile.segment_list[index] = neck.segment_list[index];
     serpent_rotate(regrow.tile);
@@ -1623,7 +1654,7 @@ function two_headed_serpent_hurt(self, target, map){
     }
     serpent_wake(regrow, map);
     // If no segments remain, it dies.
-    neck_location = regrow.location.plus(regrow.tile.segment_list[index]);
+    neck_location = regrow.location.plus(ifexists(regrow.tile.segment_list[index]));
     neck = map.get_grid(neck_location);
     if(neck.name === `two headed serpent head`){
         neck.on_death = undefined;
@@ -1635,16 +1666,19 @@ function two_headed_serpent_hurt(self, target, map){
 }
 /** @type {TelegraphFunction} */
 function two_headed_serpent_telegraph(location, map, self){
+    if( self.cycle === undefined || 
+        self.segment_list === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     var attacks = [];
     if(self.cycle === 0){
         return attacks;
     }
-    var index = serpent_get_direction(self);
     for(var direction of horizontal_directions){
         attacks.push(location.plus(direction));
     }
     for(var move of horizontal_directions){
-        if(!point_equals(move, self.segment_list[index]) && map.check_empty(location.plus(move))){
+        if(map.check_empty(location.plus(move))){
             for(var direction of horizontal_directions){
                 attacks.push(location.plus(move).plus(direction));
             }
@@ -1652,7 +1686,6 @@ function two_headed_serpent_telegraph(location, map, self){
     }
     return attacks;
 }
-
 
 /** @type {TileGenerator} */
 function spider_queen_tile(){
@@ -5075,7 +5108,7 @@ function generate_ruins_area(){
         generate_floor: generate_ruins_floor,
         enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, 
                     ram_tile, rat_tile, acid_bug_tile, shadow_knight_tile, vinesnare_bush_tile],
-        boss_floor_list: [velociphile_floor],
+        boss_floor_list: [two_headed_serpent_floor],
         next_area_list: area2,
         description: ruins_description
     }
@@ -5204,7 +5237,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     var serpent_length = 8;
     var finished = false;
     // Finds enough adjacent empty spaces to spawn the serpent in.
-    while(!finished){
+    do{
         finished = true;
         var locations = [];
         var start = map.random_empty();
@@ -5223,15 +5256,21 @@ function two_headed_serpent_floor(floor_num, area, map){
                 finished = false;
             }
         }
-    }
+    }while(!finished)
     // Add sleeping head.
     var head = two_headed_serpent_tile();
+    if(head.segment_list === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     head.segment_list[0] = locations[0].copy();
     serpent_rotate(head);
     map.add_tile(head, start);
     // Add body segments.
     for(var i = 0; i < locations.length - 1; ++i){
         var segment = two_headed_serpent_body_tile();
+        if(segment.segment_list === undefined){
+            throw new Error(`tile missing properties used by it's ai.`);
+        }
         segment.segment_list[0] = locations[i + 1];
         segment.segment_list[1] = locations[i].times(-1);
         serpent_rotate(segment);
@@ -5240,6 +5279,9 @@ function two_headed_serpent_floor(floor_num, area, map){
     }
     // Add awake head.
     var tail = two_headed_serpent_tile();
+    if(tail.segment_list === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     tail.segment_list[1] = locations[locations.length - 1].times(-1);
     serpent_rotate(tail);
     start.plus_equals(locations[locations.length - 1]);

@@ -196,3 +196,15 @@ function array_equals(a1, a2){
     }
     return true;
 }
+/**
+ * Function to make sure a value is not undefined.
+ * @template A
+ * @param {A | undefined} exists 
+ * @returns {A}
+ */
+function ifexists(exists){
+    if(exists === undefined){
+        throw new Error(`Value is undefined.`)
+    }
+    return exists;
+}

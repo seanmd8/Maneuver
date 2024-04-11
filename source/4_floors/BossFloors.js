@@ -30,7 +30,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     var serpent_length = 8;
     var finished = false;
     // Finds enough adjacent empty spaces to spawn the serpent in.
-    while(!finished){
+    do{
         finished = true;
         var locations = [];
         var start = map.random_empty();
@@ -49,15 +49,21 @@ function two_headed_serpent_floor(floor_num, area, map){
                 finished = false;
             }
         }
-    }
+    }while(!finished)
     // Add sleeping head.
     var head = two_headed_serpent_tile();
+    if(head.segment_list === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     head.segment_list[0] = locations[0].copy();
     serpent_rotate(head);
     map.add_tile(head, start);
     // Add body segments.
     for(var i = 0; i < locations.length - 1; ++i){
         var segment = two_headed_serpent_body_tile();
+        if(segment.segment_list === undefined){
+            throw new Error(`tile missing properties used by it's ai.`);
+        }
         segment.segment_list[0] = locations[i + 1];
         segment.segment_list[1] = locations[i].times(-1);
         serpent_rotate(segment);
@@ -66,6 +72,9 @@ function two_headed_serpent_floor(floor_num, area, map){
     }
     // Add awake head.
     var tail = two_headed_serpent_tile();
+    if(tail.segment_list === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
     tail.segment_list[1] = locations[locations.length - 1].times(-1);
     serpent_rotate(tail);
     start.plus_equals(locations[locations.length - 1]);
