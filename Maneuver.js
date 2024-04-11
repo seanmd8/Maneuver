@@ -1513,7 +1513,7 @@ function two_headed_serpent_ai(self, target, map){
         var wake_up = function(map_to_use){
             serpent_wake(tail, map_to_use);
         }
-        map.add_event(wake_up);
+        map.add_event({name: `Wake Up`, behavior: wake_up});
     }
 }
 /**
@@ -1982,7 +1982,7 @@ function darkling_ai(self, target, map){
             map_to_use.mark_tile(self.tile.direction, darkling_rift_look);
         }
     }
-    map.add_event(darkling_rift);
+    map.add_event({name: `Darkling Rift`, behavior: darkling_rift});
 }
 
 /** @type {TelegraphFunction} */
@@ -3079,18 +3079,10 @@ function falling_rubble_look(){
  * @returns {MapEventFunction} The earthquake event.
  */
 function earthquake_event(amount){
-    var falling_debris = function(locations){
+    var falling_rubble = function(locations){
         return function(map_to_use){
-            try{
-                for(var location of locations){
-                    map_to_use.attack(location);
-                }
-            }
-            catch(error){
-                if(error.message === `game over`){
-                    throw new Error(`game over`, {cause: new Error(`falling rubble`)});
-                }
-                throw error;
+            for(var location of locations){
+                map_to_use.attack(location);
             }
         }
     }
@@ -3102,7 +3094,7 @@ function earthquake_event(amount){
                 map_to_use.mark_tile(space, falling_rubble_look);
                 rubble.push(space);
             }
-            map_to_use.add_event(falling_debris(rubble));
+            map_to_use.add_event({name: `Falling Rubble`, behavior: falling_rubble(rubble)});
         }
         
     }
@@ -3155,8 +3147,15 @@ function set_direction(tile, direction){
         throw new Error(`tile missing properties used by it's ai.`);
     }
     tile.direction = direction;
-    if(direction.within_radius(0)){
-        tile.rotate = 90 * (Math.abs((direction.x * -2 + 1)) + direction.y);
+    if(direction.x === 0 || direction.y === 0){
+        
+        tile.rotate = 0;
+        if(direction.x < 0 || direction.y > 0){
+            tile.rotate = 2*90;
+        }
+        if(direction.y === 0){
+            tile.rotate += 90;
+        }
         tile.pic = tile.pic_arr[0];
     }
     else{
@@ -3595,7 +3594,7 @@ function earthquake_spell(self, target, map){
     if( health === undefined){
         health = 4;
     }
-    map.add_event(earthquake_event((5 - health) * 5 + random_num(4)));
+    map.add_event({name: `Earthquake`, behavior: earthquake_event((5 - health) * 5 + random_num(4))});
 }
 /** @type {AIFunction} Spell which creates a wave of fireballs aimed at the target.*/
 function flame_wave_spell(self, target, map){
@@ -3976,8 +3975,13 @@ class EntityList{
 // GameMap class holds the information on the current floor and everything on it.
 
 /**
- * @callback MapEventFunction Function to exicute an event on the map at the end of the enemies' turn.
+ * @callback MapEventFunction Function to execute an event on the map at the end of the enemies' turn.
  * @param {GameMap} map Function controlling behavior of the event.
+ */
+/**
+ * @typedef MapEvent An object representing an event that will happen at the end of the enemies' turn.
+ * @property {String} name The name of the event.
+ * @property {MapEventFunction} behavior The event's behavior.
  */
 
 class GameMap{
@@ -4511,8 +4515,19 @@ class GameMap{
         var current_events = this.#events;
         this.#events = [];
         for(var event of current_events){
-            event(this);
+            try{
+                event.behavior(this);
+            }
+            catch(error){
+                if(error.message === `game over`){
+                    throw new Error(`game over`, {cause: new Error(event.name)});
+                }
+                throw error;
+            }
+            
         }
+        
+        
     }
     /**
      * Clears the current floor and goes to the next one then generates it based on the current area.
@@ -4703,7 +4718,7 @@ class GameState{
                 return;
             }
             await this.map.enemy_turn();
-            this.prep_turn();
+            await this.prep_turn();
         }
         catch (error){
             var m = error.message;
@@ -5103,7 +5118,7 @@ function generate_ruins_area(){
         background: `${IMG_FOLDER.backgrounds}ruins.png`,
         generate_floor: generate_ruins_floor,
         enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, 
-                    ram_tile, rat_tile, acid_bug_tile, shadow_knight_tile, vinesnare_bush_tile],
+                    ram_tile, rat_tile, shadow_knight_tile, vinesnare_bush_tile],
         boss_floor_list: [velociphile_floor],
         next_area_list: area2,
         description: ruins_description

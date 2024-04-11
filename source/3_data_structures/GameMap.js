@@ -2,8 +2,13 @@
 // GameMap class holds the information on the current floor and everything on it.
 
 /**
- * @callback MapEventFunction Function to exicute an event on the map at the end of the enemies' turn.
+ * @callback MapEventFunction Function to execute an event on the map at the end of the enemies' turn.
  * @param {GameMap} map Function controlling behavior of the event.
+ */
+/**
+ * @typedef MapEvent An object representing an event that will happen at the end of the enemies' turn.
+ * @property {String} name The name of the event.
+ * @property {MapEventFunction} behavior The event's behavior.
  */
 
 class GameMap{
@@ -537,8 +542,19 @@ class GameMap{
         var current_events = this.#events;
         this.#events = [];
         for(var event of current_events){
-            event(this);
+            try{
+                event.behavior(this);
+            }
+            catch(error){
+                if(error.message === `game over`){
+                    throw new Error(`game over`, {cause: new Error(event.name)});
+                }
+                throw error;
+            }
+            
         }
+        
+        
     }
     /**
      * Clears the current floor and goes to the next one then generates it based on the current area.

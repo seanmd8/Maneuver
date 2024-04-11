@@ -46,7 +46,7 @@ function earthquake_spell(self, target, map){
     if( health === undefined){
         health = 4;
     }
-    map.add_event(earthquake_event((5 - health) * 5 + random_num(4)));
+    map.add_event({name: `Earthquake`, behavior: earthquake_event((5 - health) * 5 + random_num(4))});
 }
 /** @type {AIFunction} Spell which creates a wave of fireballs aimed at the target.*/
 function flame_wave_spell(self, target, map){

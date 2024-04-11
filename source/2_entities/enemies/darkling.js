@@ -44,7 +44,7 @@ function darkling_ai(self, target, map){
             map_to_use.mark_tile(self.tile.direction, darkling_rift_look);
         }
     }
-    map.add_event(darkling_rift);
+    map.add_event({name: `Darkling Rift`, behavior: darkling_rift});
 }
 
 /** @type {TelegraphFunction} */

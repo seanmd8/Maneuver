@@ -66,7 +66,7 @@ class GameState{
                 return;
             }
             await this.map.enemy_turn();
-            this.prep_turn();
+            await this.prep_turn();
         }
         catch (error){
             var m = error.message;

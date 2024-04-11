@@ -44,8 +44,15 @@ function set_direction(tile, direction){
         throw new Error(`tile missing properties used by it's ai.`);
     }
     tile.direction = direction;
-    if(direction.within_radius(0)){
-        tile.rotate = 90 * (Math.abs((direction.x * -2 + 1)) + direction.y);
+    if(direction.x === 0 || direction.y === 0){
+        
+        tile.rotate = 0;
+        if(direction.x < 0 || direction.y > 0){
+            tile.rotate = 2*90;
+        }
+        if(direction.y === 0){
+            tile.rotate += 90;
+        }
         tile.pic = tile.pic_arr[0];
     }
     else{

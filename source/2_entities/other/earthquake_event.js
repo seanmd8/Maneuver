@@ -14,18 +14,10 @@ function falling_rubble_look(){
  * @returns {MapEventFunction} The earthquake event.
  */
 function earthquake_event(amount){
-    var falling_debris = function(locations){
+    var falling_rubble = function(locations){
         return function(map_to_use){
-            try{
-                for(var location of locations){
-                    map_to_use.attack(location);
-                }
-            }
-            catch(error){
-                if(error.message === `game over`){
-                    throw new Error(`game over`, {cause: new Error(`falling rubble`)});
-                }
-                throw error;
+            for(var location of locations){
+                map_to_use.attack(location);
             }
         }
     }
@@ -37,7 +29,7 @@ function earthquake_event(amount){
                 map_to_use.mark_tile(space, falling_rubble_look);
                 rubble.push(space);
             }
-            map_to_use.add_event(falling_debris(rubble));
+            map_to_use.add_event({name: `Falling Rubble`, behavior: falling_rubble(rubble)});
         }
         
     }
