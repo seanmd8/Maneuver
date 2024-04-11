@@ -3997,7 +3997,7 @@ class GameMap{
     #floor_num;
     /** @type {number} Total number of turns that have elapsed.*/
     #turn_count;
-    /** @type {MapEventFunction[]} Events that will happen at the end of the turn.*/
+    /** @type {MapEvent[]} Events that will happen at the end of the turn.*/
     #events;
     /** @type {Area} The current area of the dungeon they are in.*/
     #area;
@@ -4501,7 +4501,7 @@ class GameMap{
     }
     /**
      * Schedules an event to happen at end of turn.
-     * @param {MapEventFunction} event The even to be added.
+     * @param {MapEvent} event The even to be added.
      */
     add_event(event){
         this.#events.push(event);
