@@ -57,6 +57,7 @@ const orb_of_insanity_description = [`Orb of Insanity: Does not move or attack. 
                             +`pollute their deck with a bad temporary card.`]
 const carrion_flies_description = `Carrion Flies: Will only attack if the player is nearby. Otherwise they will wander aimlessly. `
                             +`Over time they will multiply.`;
+const magma_spewer_description = `Magma Spewer: Alternates between firing magma into the air and retreating.`
 
 
 // Area Descriptions.

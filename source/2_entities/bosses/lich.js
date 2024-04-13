@@ -14,7 +14,6 @@ function lich_tile(){
         scythe_tile,
         shadow_knight_tile,
         ram_tile,
-        medium_porcuslime_tile,
         clay_golem_tile,
         carrion_flies_tile,
         vampire_tile,

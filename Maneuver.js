@@ -1085,6 +1085,7 @@ const orb_of_insanity_description = [`Orb of Insanity: Does not move or attack. 
                             +`pollute their deck with a bad temporary card.`]
 const carrion_flies_description = `Carrion Flies: Will only attack if the player is nearby. Otherwise they will wander aimlessly. `
                             +`Over time they will multiply.`;
+const magma_spewer_description = `Magma Spewer: Alternates between firing magma into the air and retreating.`
 
 
 // Area Descriptions.
@@ -1372,7 +1373,6 @@ function lich_tile(){
         scythe_tile,
         shadow_knight_tile,
         ram_tile,
-        medium_porcuslime_tile,
         clay_golem_tile,
         carrion_flies_tile,
         vampire_tile,
@@ -1990,6 +1990,55 @@ function darkling_telegraph(location, map, self){
         return [];
     }
     return spider_telegraph(self.direction, map, self);
+}
+/** @type {TileGenerator} */
+function magma_spewer_tile(){
+    var pic_arr = [`${IMG_FOLDER.tiles}magma_spewer.png`, `${IMG_FOLDER.tiles}magma_spewer_firing.png`];
+    var starting_cycle = random_num(pic_arr.length);
+    return {
+        type: `enemy`,
+        name: `magma spewer`,
+        pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
+        description: magma_spewer_description,
+        health: 1,
+        difficulty: 4,
+        behavior: magma_spewer_ai,
+        pic_arr,
+        cycle: starting_cycle
+    }
+}
+
+/** @type {AIFunction} AI used by magma spewers.*/
+function magma_spewer_ai(self, target, map){
+    if( self.tile.cycle === undefined || 
+        self.tile.pic_arr === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
+    if(self.tile.cycle === 0){
+        // Move away.
+        var directions = order_nearby(target.difference.times(-1));
+        var moved = false;
+        for(var i = 0; i < directions.length && !moved; ++i){
+            if(map.check_empty(self.location.plus(directions[i]))){
+                map.move(self.location, self.location.plus(directions[i]));
+                self.location.plus_equals(directions[i]);
+                moved = true;
+            }
+        }
+    }
+    else{
+        // Spew Magma.
+        var locations = [];
+        var center = self.location.plus(target.difference);
+        for(var i = -2; i <= 2; ++i){
+            for(var j = -2; j <= 2; ++j){
+                locations.push(center.plus(new Point(i, j)));
+            }
+        }
+        map.add_event({name: `Falling Magma`, behavior: earthquake_event(4, locations)})
+    }
+    self.tile.cycle = 1 - self.tile.cycle;
+    self.tile.pic = self.tile.pic_arr[self.tile.cycle];
 }
 /** @type {TileGenerator} */
 function noxious_toad_tile(){
@@ -3075,9 +3124,10 @@ function falling_rubble_look(){
 /**
  * Function to create an event function representing an earthquake.
  * @param {number} amount The amount of falling debris that should be created.
+ * @param {Point[]=} locations An optional grid of locations to pick from.
  * @returns {MapEventFunction} The earthquake event.
  */
-function earthquake_event(amount){
+function earthquake_event(amount, locations = undefined){
     var falling_rubble = function(locations){
         return function(map_to_use){
             for(var location of locations){
@@ -3088,14 +3138,26 @@ function earthquake_event(amount){
     var earthquake = function(amount){
         return function(map_to_use){
             var rubble = [];
-            for(var j = 0; j < amount; ++j){
-                var space = map_to_use.random_empty();
-                map_to_use.mark_tile(space, falling_rubble_look);
-                rubble.push(space);
+            var space;
+            if(locations === undefined){
+                for(var j = 0; j < amount; ++j){
+                    space = map_to_use.random_empty();
+                    map_to_use.mark_tile(space, falling_rubble_look);
+                    rubble.push(space);
+                }
+            }
+            else{
+                var spaces = rand_no_repeates(locations, amount);
+                for(var i = 0; i < amount; ++i){
+                    space = spaces[i];
+                    if(map_to_use.check_empty(space)){
+                        map_to_use.mark_tile(space, falling_rubble_look);
+                        rubble.push(space);
+                    }
+                }
             }
             map_to_use.add_event({name: `Falling Rubble`, behavior: falling_rubble(rubble)});
         }
-        
     }
     return earthquake(amount);
 }
