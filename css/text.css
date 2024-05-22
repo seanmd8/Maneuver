@@ -1,0 +1,8 @@
+.no-margins {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+.selected-element {
+    box-shadow: 0 0 0 3px black;
+}
+

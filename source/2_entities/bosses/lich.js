@@ -15,7 +15,6 @@ function lich_tile(){
         shadow_knight_tile,
         ram_tile,
         clay_golem_tile,
-        carrion_flies_tile,
         vampire_tile,
     ];
     var starting_cycle = 1;

@@ -79,8 +79,6 @@
  * @param {string} location The ID of the table.
  * @param {number} row_num The row number of the image.
  * @param {number} column_num The column number of the image.
- * @param {number} [border = 3] Optional parameter to specify border thickness
- * @param {number} [color = 555] Optional parameter to specify border color.
  */
 
 /**
@@ -282,13 +280,13 @@ const DisplayHTML = {
             DisplayHTML.get_element(screen, HTMLDivElement).style.display = `block`;
         }
     },
-    select: function(location, row_num, column_num, border = 3, color = 555){
+    select: function(location, row_num, column_num){
         var row = DisplayHTML.get_element(`${location} row ${row_num}`, HTMLTableRowElement);
         var column_count = row.cells.length;
         for(var i = 0; i < column_count; ++i){
-            DisplayHTML.get_element(`${location} ${row_num} ${i} img`, HTMLImageElement).border = ``;
+            DisplayHTML.get_element(`${location} ${row_num} ${i} img`, HTMLImageElement).classList.remove("selected-element");
         }
-        DisplayHTML.get_element(`${location} ${row_num} ${column_num} img`, HTMLImageElement).border = `${border}px solid #${color}`;
+        DisplayHTML.get_element(`${location} ${row_num} ${column_num} img`, HTMLImageElement).classList.add("selected-element");
     },
     press: function(key_press){
         // Pick direction via keyboard.
