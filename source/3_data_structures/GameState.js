@@ -20,6 +20,8 @@ class GameState{
         // Function ran on page load or on restart to set up the game.
         var start = STARTING_AREA();
         display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
+        display.display_message(UIIDS.hand_label, `${hand_label_text}`);
+        display.display_message(UIIDS.move_label, `${move_label_text}`);
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
         for(var i = 0; i < STARTING_ENEMY_AMOUNT; ++i){
             this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);

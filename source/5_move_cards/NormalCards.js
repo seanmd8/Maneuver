@@ -377,7 +377,7 @@ function explosion(){
         }
     }
     var options = new ButtonGrid();
-    options.add_button(`Explode!`, area, 5);
+    options.add_button(SPIN, area, 5);
     return{
         name: `explosion`,
         pic: `${IMG_FOLDER.cards}explosion.png`,

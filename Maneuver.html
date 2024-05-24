@@ -10,15 +10,21 @@
         <h2 id= "stats" class="no-margins"></h2>
 
         <div id= "stage">
-            <table id="mapDisplay"></table>
-            <table id="healthDisplay"></table>
-            <table id="handDisplay"></table>
-            <table id="moveButtons"></table>
+            <table id="mapDisplay" class="gamemap-box"></table>
+            <table id="healthDisplay" class="health-box"></table>
+            <fieldset class="hand-box">
+                <legend id="handLabel"></legend>
+                <table id="handDisplay"></table>
+            </fieldset>
+            <fieldset class="hand-box move-button-box">
+                <legend id="moveLabel"></legend>
+                <table id="moveButtons"></table>
+            </fieldset>
             <h3 id= "displayMessage" class="no-margins"></h3>
         </div>
         
         <div id= "shop">
-            <h3 id= "shopInstructions"></h3>
+            <h3 id= "shopInstructions" style="margin-bottom: 0px;"></h3>
             <table id="addCard"></table>
             <table id="removeCard"></table>
             <h3 id= "currentDeck" style="margin-bottom: 0px;"></h4>

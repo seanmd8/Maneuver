@@ -84,7 +84,7 @@ function stumble_sw(){
 /** @type {CardGenerator}*/
 function freeze_up(){
     var options = new ButtonGrid();
-    options.add_button(`Freeze Up`, [], 5);
+    options.add_button(C, [], 5);
     return{
         name: `freeze up`,
         pic: `${IMG_FOLDER.cards}freeze_up.png`,
@@ -103,7 +103,7 @@ function lash_out(){
                 pattack(-1, 1),
                 pattack(-1, 0),
                 pattack(-1, -1)]
-    options.add_button(`Lash Out`, spin, 5);
+    options.add_button(SPIN, spin, 5);
     return{
         name: `lash out`,
         pic: `${IMG_FOLDER.cards}lash_out.png`,

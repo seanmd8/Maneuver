@@ -25,6 +25,7 @@ function get_uiids(language){
  *      @property {string} stage Controls the visibility of the current floor.
  *          @property {string} map_display Displays the map of the floor.
  *          @property {string} health_display Displays the player's health.
+ *          @property {string} hand_label Labels the hand_display.
  *          @property {string} hand_display Displays the player's hand of cards.
  *          @property {string} move_buttons Displays the buttons for the last card clicked on.
  *          @property {string} display_message Displays messages.
@@ -51,7 +52,9 @@ const HTML_UIIDS = {
         stage: `stage`,
             map_display: `mapDisplay`,
             health_display: `healthDisplay`,
+            hand_label: `handLabel`,
             hand_display: `handDisplay`,
+            move_label: `moveLabel`,
             move_buttons: `moveButtons`,
             display_message: `displayMessage`,
         shop: `shop`,

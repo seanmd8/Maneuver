@@ -1,13 +1,3 @@
-.relative {
-    left: 0px; 
-    top: 0px;
-    position: relative;
-}
-.absolute {
-    left: 0px; 
-    top: 0px; 
-    position: absolute;
-}
 .no-margins {
     margin-top: 0px;
     margin-bottom: 0px;
@@ -60,6 +50,5 @@
     padding-left: 0;
     padding-right: 0;
 }
-
 
 

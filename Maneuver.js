@@ -897,13 +897,10 @@ function make_test_deck(){
     for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
         deck.add(CARD_CHOICES[i]());
     }
-    deck.add(fangs());
-    deck.add(regenerate());
 
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
-
 
     deck.deal();
     return deck;
@@ -1029,6 +1026,8 @@ function get_control_symbols(){
 
 // General.
 const game_title = `Maneuver`;
+const hand_label_text = `Hand of cards`;
+const move_label_text = `Move`;
 const mod_deck = `Choose one card to add or remove:`;
 const current_deck = `Current Deck (minimum `;
 const welcome_message = `Use cards to move (blue) and attack (red).\n` 
@@ -1288,6 +1287,7 @@ function get_uiids(language){
  *      @property {string} stage Controls the visibility of the current floor.
  *          @property {string} map_display Displays the map of the floor.
  *          @property {string} health_display Displays the player's health.
+ *          @property {string} hand_label Labels the hand_display.
  *          @property {string} hand_display Displays the player's hand of cards.
  *          @property {string} move_buttons Displays the buttons for the last card clicked on.
  *          @property {string} display_message Displays messages.
@@ -1314,7 +1314,9 @@ const HTML_UIIDS = {
         stage: `stage`,
             map_display: `mapDisplay`,
             health_display: `healthDisplay`,
+            hand_label: `handLabel`,
             hand_display: `handDisplay`,
+            move_label: `moveLabel`,
             move_buttons: `moveButtons`,
             display_message: `displayMessage`,
         shop: `shop`,
@@ -4779,6 +4781,8 @@ class GameState{
         // Function ran on page load or on restart to set up the game.
         var start = STARTING_AREA();
         display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
+        display.display_message(UIIDS.hand_label, `${hand_label_text}`);
+        display.display_message(UIIDS.move_label, `${move_label_text}`);
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
         for(var i = 0; i < STARTING_ENEMY_AMOUNT; ++i){
             this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
@@ -5827,7 +5831,7 @@ function stumble_sw(){
 /** @type {CardGenerator}*/
 function freeze_up(){
     var options = new ButtonGrid();
-    options.add_button(`Freeze Up`, [], 5);
+    options.add_button(C, [], 5);
     return{
         name: `freeze up`,
         pic: `${IMG_FOLDER.cards}freeze_up.png`,
@@ -5846,7 +5850,7 @@ function lash_out(){
                 pattack(-1, 1),
                 pattack(-1, 0),
                 pattack(-1, -1)]
-    options.add_button(`Lash Out`, spin, 5);
+    options.add_button(SPIN, spin, 5);
     return{
         name: `lash out`,
         pic: `${IMG_FOLDER.cards}lash_out.png`,
@@ -6233,7 +6237,7 @@ function explosion(){
         }
     }
     var options = new ButtonGrid();
-    options.add_button(`Explode!`, area, 5);
+    options.add_button(SPIN, area, 5);
     return{
         name: `explosion`,
         pic: `${IMG_FOLDER.cards}explosion.png`,
