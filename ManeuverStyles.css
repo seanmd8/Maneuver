@@ -46,16 +46,16 @@
     border-width: 2px;
 }
 .move-button-box {
-    width: 110px;
+    width: 140px;
 }
 .move-button-box table {
-    width: 100px;
+    width: 95%;
     height: 100px;
     margin: auto;
 }
 .move-button-box table tr input {
     height: 30px;
-    width: 30px;
+    width: 33%;
     text-align: center;
     padding-left: 0;
     padding-right: 0;

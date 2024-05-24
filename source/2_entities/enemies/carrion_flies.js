@@ -10,7 +10,7 @@ function carrion_flies_tile(){
         behavior: carrion_flies_ai,
         telegraph: spider_telegraph,
         cycle: 0,
-        spawn_timer: 2
+        spawn_timer: 3
     }
 }
 
