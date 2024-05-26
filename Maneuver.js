@@ -783,6 +783,7 @@ const DisplayHTML = {
         var body_div_id = `${header} section`;
         body_div.id = body_div_id;
         body_div.style.display = `none`;
+        body_div.classList.add(`guidebook-section`)
 
 
         var body_header = document.createElement(`h2`);
@@ -1319,6 +1320,7 @@ const HTML_UIIDS = {
             move_label: `moveLabel`,
             move_buttons: `moveButtons`,
             display_message: `displayMessage`,
+            retry_button: `retryButton`,
         shop: `shop`,
             shop_instructions: `shopInstructions`,
             add_card: `addCard`,
@@ -1326,10 +1328,12 @@ const HTML_UIIDS = {
             current_deck: `currentDeck`,
             display_deck: `displayDeck`,
         chest: `chest`,
-            chest_instructions: `chestInstructions`,
-            contents: `contents`,
-            chest_confirm_row: `chestConfirmRow`,
-            content_description: `contentDescription`,
+            chest_lid: `chestLid`,
+                chest_instructions: `chestInstructions`,
+            chest_body: `chestBody`,
+                contents: `contents`,
+                chest_confirm_row: `chestConfirmRow`,
+                content_description: `contentDescription`,
     guide: `guide`,
 }
 Object.freeze(HTML_UIIDS);
@@ -4979,14 +4983,14 @@ class GameState{
         display.clear_tb(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
-                display.clear_tb(UIIDS.move_buttons);
+                display.clear_tb(UIIDS.retry_button);
                 game.setup();
             };
         }
         var restart_message = [{
             description: retry_message
         }]
-        display.add_button_row(UIIDS.move_buttons, restart_message, restart(this));
+        display.add_button_row(UIIDS.retry_button, restart_message, restart(this));
     }
     /**
      * Adds a temporary card to the player's deck.

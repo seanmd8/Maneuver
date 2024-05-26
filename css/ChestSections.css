@@ -1,0 +1,82 @@
+/* File containing styles for the chest screen. */
+
+/* Styles the section designed to look like the lid of a chest. */
+.chest-lid-box {
+    border-style: solid;
+    border-width: 5px;
+    border-radius: 850px 850px 0% 0% / 700px;
+    border-color: saddlebrown;
+    background-color: chocolate;
+    width: 600px;
+}
+
+/* Styles the section designed to look like the non-lid part of a chest. */
+.chest-body-box {
+    border-style: solid;
+    border-width: 5px;
+    border-color: saddlebrown;
+    background-color: chocolate;
+    width: 600px;
+    height: fit-content
+}
+.chest-body-box hr {
+    width: 95%;
+    color: gray;
+}
+
+/* Styles the section telling the user to take up to one item from the chest. */
+.chest-instruction-text {
+    width: fit-content;
+    text-align: center;
+    margin: 15px auto 15px auto;
+    padding: 3px;
+    border-width: 3px;
+    border-style: solid;
+    border-color: black;
+    background-color:burlywood;
+}
+
+/* Styles the contents of the chest that they can choose from. */
+.chest-contents {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+}
+.chest-contents tr td {
+    width: fit-content
+}
+.chest-contents tr td img {
+    background-color: white;
+}
+
+/* Styles the buttons that let them take something or leave everything. */
+.chest-buttons {
+    width: 100%;
+    text-align: center;
+}
+.chest-buttons tr input {
+    border-width: 5px;
+    border-style: solid;
+    border-radius: 15px / 50%;
+    padding: 5px 8px;
+    margin: 0px 10px;
+    background-color: burlywood;
+}
+.chest-buttons tr input:hover {
+    background-color: brown;
+    color: burlywood;
+}
+
+/* Styles the description of the currently selected item. */
+.chest-discription-text {
+    margin: 20px 40px;
+    padding: 10px;
+    border-width: 3px;
+    border-radius: 10px;
+    border-style: solid;
+    border-color: black;
+    background-color:burlywood;
+    height: fit-content;
+    min-height: 23px;
+}

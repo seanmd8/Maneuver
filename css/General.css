@@ -1,0 +1,12 @@
+/* File containing assorted styles used in multiple places. */
+
+/* Class to remove the space between certain elements. */
+.no-margins {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+/* Class to outline a card or chest item that the user currently has selected. */
+.selected-element {
+    box-shadow: 0 0 0 3px black;
+}

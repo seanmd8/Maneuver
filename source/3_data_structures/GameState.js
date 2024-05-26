@@ -218,14 +218,14 @@ class GameState{
         display.clear_tb(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
-                display.clear_tb(UIIDS.move_buttons);
+                display.clear_tb(UIIDS.retry_button);
                 game.setup();
             };
         }
         var restart_message = [{
             description: retry_message
         }]
-        display.add_button_row(UIIDS.move_buttons, restart_message, restart(this));
+        display.add_button_row(UIIDS.retry_button, restart_message, restart(this));
     }
     /**
      * Adds a temporary card to the player's deck.

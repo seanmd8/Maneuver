@@ -21,6 +21,7 @@
                 <table id="moveButtons"></table>
             </fieldset>
             <h3 id= "displayMessage" class="no-margins"></h3>
+            <table id="retryButton" class="retry-button-box"></table>
         </div>
         
         <div id= "shop">
@@ -37,14 +38,20 @@
         </div>
         
         <div id= "chest">
-            <h2 id= "chestInstructions"></h3>
-            <table id="contents"></table>
-            <table id= "chestConfirmRow"></table>
-            <h3 id= "contentDescription" style="margin-top: 0px;"></h3>
+            <div id="chestLid" class="chest-lid-box">
+                <h2 id= "chestInstructions" class="chest-instruction-text"></h3>
+            </div>
+            <div id="chestBody" class="chest-body-box">
+                <table id="contents" class="chest-contents"></table>
+                <hr>
+                <table id= "chestConfirmRow" class="chest-buttons"></table>
+                <hr>
+                <h3 id= "contentDescription" class="chest-discription-text"></h3>
+            </div>
         </div>
     </div>
     
-    <div id= "guide">
+    <div id= "guide" class="guide-style">
     </div>
     
     <body onload="initiate_game()"></body>

@@ -1,3 +1,6 @@
+/* File containing styles used to layer images. */
+
+/* Pair of classes used to layer images on top of each other. */
 .relative {
     left: 0px; 
     top: 0px;

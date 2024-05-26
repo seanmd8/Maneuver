@@ -1,0 +1,25 @@
+/* File containing styles used by the guidebook screen. */
+
+/* Styles a whole section of the guidebook. */
+.guide-style {
+    padding-left: 20px;
+    /*
+    border-left-style: ridge;
+    border-left-width: 30px;
+    border-radius: 10%;
+    */
+}
+
+/* Styles the header of a guidebook section. */
+.guidebook-section h2 {
+    margin-bottom: 5px;
+    margin-top: 10px;
+    font-family: Copperplate, Copperplate Gothic Light, fantasy;
+    font-size: 30px;
+    text-decoration: underline;
+}
+
+/* Styles the body of a guidebook section. */
+.guidebook-section p {
+    font-size: 20px;
+}

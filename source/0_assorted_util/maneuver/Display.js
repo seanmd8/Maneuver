@@ -368,6 +368,7 @@ const DisplayHTML = {
         var body_div_id = `${header} section`;
         body_div.id = body_div_id;
         body_div.style.display = `none`;
+        body_div.classList.add(`guidebook-section`)
 
 
         var body_header = document.createElement(`h2`);
