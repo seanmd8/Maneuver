@@ -96,6 +96,7 @@ function debilitating_confusion(){
         options
     }
 }
+/** @type {CardGenerator} Dropped by the two headed serpent*/
 function regenerate(){
     var options = new ButtonGrid();
     options.add_button(C, [pheal(0, 0)]);
@@ -106,7 +107,7 @@ function regenerate(){
         per_floor: regenerate
     }
 }
-
+/** @type {CardGenerator} Dropped by the two headed serpent*/
 function fangs(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);

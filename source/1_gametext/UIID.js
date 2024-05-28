@@ -25,10 +25,15 @@ function get_uiids(language){
  *      @property {string} stage Controls the visibility of the current floor.
  *          @property {string} map_display Displays the map of the floor.
  *          @property {string} health_display Displays the player's health.
- *          @property {string} hand_label Labels the hand_display.
+ *          @property {string} remaining_deck Shows how many cards are left in the player's deck.
+ *              @property {string} deck_image Deck icon in the background.
+ *              @property {string} deck_count # of cards in the foreground.
+ *          @property {string} hand_label Labels the hand box.
  *          @property {string} hand_display Displays the player's hand of cards.
+ *          @property {string} move_label Labels the move button box.
  *          @property {string} move_buttons Displays the buttons for the last card clicked on.
  *          @property {string} display_message Displays messages.
+ *          @property {string} retry_button: A button to allow them to reset after they die.
  *      @property {string} shop Controls the visibility of the shop.
  *          @property {string} shop_instructions Lets the player know they can add or remove a card.
  *          @property {string} add_card Displays which cards that could be added to their deck.
@@ -36,10 +41,12 @@ function get_uiids(language){
  *          @property {string} current_deck Tells them the next element is their current deck.
  *          @property {string} display_deck Displays their entire deck.
  *      @property {string} chest Controls the visibility of the chest contents.
- *          @property {string} chest_instructions: A description of the contents of the chest.
- *          @property {string} contents The images associated with the contents.
- *          @property {string} chest_confirm_row: Buttons allowing you to confirm your pick or skip the reward.
- *          @property {string} content_description: A description of whichever one of the contents you last clicked on.
+ *          @property {string} chest_lid: Creates the lid of the chest.
+ *              @property {string} chest_instructions: A description of the contents of the chest.
+ *          @property {string} chest_body: Created the body of the chest.
+ *              @property {string} contents The images associated with the contents.
+ *              @property {string} chest_confirm_row: Buttons allowing you to confirm your pick or skip the reward.
+ *              @property {string} content_description: A description of whichever one of the contents you last clicked on.
  * @property {string} guide Controls the visibility of the guide screen.
  */
 
