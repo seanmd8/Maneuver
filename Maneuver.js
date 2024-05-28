@@ -894,9 +894,9 @@ function make_starting_deck(){
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
     var deck = new MoveDeck();
-    var start = 11 * 5;
-    for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
-        deck.add(CARD_CHOICES[i]());
+    cards_to_test = [reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport]
+    for(var card of cards_to_test){
+        deck.add(card());
     }
 
     deck.add(basic_horizontal());
@@ -1021,7 +1021,13 @@ function get_control_symbols(){
     }
     return buttons;
 }
-
+/**
+ * Function to add a random temporary debuff card to the player's deck.
+ */
+function confuse_player(){
+    var ran = random_num(CONFUSION_CARDS.length);
+    GS.give_temp_card(CONFUSION_CARDS[ran]());
+}
 // ----------------Descriptions.js----------------
 // Contains text that will be displayed.
 
@@ -1198,7 +1204,7 @@ const GUIDE_TEXT = {
                 ` Your relative starting location.\n`,
                 ` You will attack this space.\n`,
                 ` You will move to this space.\n`,
-                ` You will stun the enemy on this space.\n`,
+                ` You will stun the enemy on this space. If applied to the player, it will instead add a temporary debuff card to your deck.\n`,
                 ` Each action the line goes through will be performed.\n`,
                 ` Multiple actions will be performed in a specific order.\n`,
                 ` Multiple actions of the same stype will be performed until one fails.\n`,
@@ -2148,8 +2154,7 @@ function orb_of_insanity_ai(self, target, map){
         throw new Error(`tile missing properties used by it's ai.`);
     }
     if(target.difference.within_radius(self.tile.range)){
-        var ran = random_num(CONFUSION_CARDS.length);
-        GS.give_temp_card(CONFUSION_CARDS[ran]());
+        confuse_player();
         self.tile.pic = self.tile.pic_arr[1];
     }
     else{
@@ -3704,8 +3709,7 @@ function flame_wave_spell(self, target, map){
 /** @type {AIFunction} Spell which adds 2 random temporary debuff cards to the player's deck.*/
 function confusion_spell(self, target, map){
     for(var i = 0; i < 2; ++i){
-        var ran = random_num(CONFUSION_CARDS.length);
-        GS.give_temp_card(CONFUSION_CARDS[ran]());
+        confuse_player();
     }
 }
 /** @type {AIFunction} Spell which creates several lava pools between the user and their target.*/
@@ -4887,7 +4891,12 @@ class GameState{
                 this.unlock_player_turn();
                 return true;
             case `stun`:
-                this.map.player_stun(action.change);
+                if(point_equals(action.change, new Point(0, 0))){
+                    confuse_player();
+                }
+                else{
+                    this.map.player_stun(action.change);
+                }
                 break;
             case `move_until`:
                 while(this.map.player_move(action.change)){};
@@ -5670,8 +5679,7 @@ const CARD_CHOICES = [
 const RARE_CARD_CHOICES = [
     teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
     sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
-    punch_diagonal
-
+    punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport
 ]
 
 // Cards that can be given as a debuff.
@@ -6480,12 +6488,33 @@ function diamond_attack(){
     }
 }
 /** @type {CardGenerator}*/
+function slice_twice(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(1, -1), pattack(1, -1), pattack(0, -1), pattack(0, -1), pattack(-1, -1), pattack(-1, -1)]);
+    return{
+        name: `slice twice`,
+        pic: `${IMG_FOLDER.cards}slice_twice.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
 function teleport(){
     var options = new ButtonGrid();
     options.add_button(C, [pteleport(0, 0)]);
     return{
         name: `teleport`,
         pic: `${IMG_FOLDER.cards}teleport.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_teleport(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pstun(0, 0), pstun(0, 0), pteleport(0, 0), pinstant(0, 0)]);
+    return{
+        name: `reckless teleport`,
+        pic: `${IMG_FOLDER.cards}reckless_teleport.png`,
         options
     }
 }
@@ -6596,15 +6625,41 @@ function punch_diagonal(){
     }
 }
 /** @type {CardGenerator}*/
-function slice_twice(){
+function reckless_attack_right(){
     var options = new ButtonGrid();
-    options.add_button(N, [pattack(1, -1), pattack(1, -1), pattack(0, -1), pattack(0, -1), pattack(-1, -1), pattack(-1, -1)]);
+    options.add_button(E, [pstun(0, 0), pattack(0, 1), pattack(0, 1), pattack(0, -1), pattack(0, -1),
+        pattack(1, 0), pattack(1, 0), pattack(1, 1), pattack(1, 1), pattack(1, -1), pattack(1, -1)]);
     return{
-        name: `slice twice`,
-        pic: `${IMG_FOLDER.cards}slice_twice.png`,
+        name: `reckless attack right`,
+        pic: `${IMG_FOLDER.cards}reckless_attack_right.png`,
         options
     }
 }
+/** @type {CardGenerator}*/
+function reckless_attack_left(){
+    var options = new ButtonGrid();
+    options.add_button(W, [pstun(0, 0), pattack(0, 1), pattack(0, 1), pattack(0, -1), pattack(0, -1),
+        pattack(-1, 0), pattack(-1, 0), pattack(-1, 1), pattack(-1, 1), pattack(-1, -1), pattack(-1, -1)]);
+    return{
+        name: `reckless attack left`,
+        pic: `${IMG_FOLDER.cards}reckless_attack_left.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_sprint(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pmove(0, -1), pmove(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pstun(0, 0), pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 0), pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pstun(0, 0), pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
+    return{
+        name: `reckless sprint`,
+        pic: `${IMG_FOLDER.cards}reckless_sprint.png`,
+        options
+    }
+}
+
 
 // ----------------ShopImages.js----------------
 // File containing cards used soley to display images in card rows of the shop.

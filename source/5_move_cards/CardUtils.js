@@ -18,8 +18,7 @@ const CARD_CHOICES = [
 const RARE_CARD_CHOICES = [
     teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
     sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
-    punch_diagonal
-
+    punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport
 ]
 
 // Cards that can be given as a debuff.

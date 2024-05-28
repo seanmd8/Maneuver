@@ -82,8 +82,7 @@ function flame_wave_spell(self, target, map){
 /** @type {AIFunction} Spell which adds 2 random temporary debuff cards to the player's deck.*/
 function confusion_spell(self, target, map){
     for(var i = 0; i < 2; ++i){
-        var ran = random_num(CONFUSION_CARDS.length);
-        GS.give_temp_card(CONFUSION_CARDS[ran]());
+        confuse_player();
     }
 }
 /** @type {AIFunction} Spell which creates several lava pools between the user and their target.*/

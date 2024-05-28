@@ -112,7 +112,12 @@ class GameState{
                 this.unlock_player_turn();
                 return true;
             case `stun`:
-                this.map.player_stun(action.change);
+                if(point_equals(action.change, new Point(0, 0))){
+                    confuse_player();
+                }
+                else{
+                    this.map.player_stun(action.change);
+                }
                 break;
             case `move_until`:
                 while(this.map.player_move(action.change)){};

@@ -34,9 +34,9 @@ function make_starting_deck(){
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
     var deck = new MoveDeck();
-    var start = 11 * 5;
-    for(var i = start; i < start + 5 && i < CARD_CHOICES.length; ++i){
-        deck.add(CARD_CHOICES[i]());
+    cards_to_test = [reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport]
+    for(var card of cards_to_test){
+        deck.add(card());
     }
 
     deck.add(basic_horizontal());
@@ -160,4 +160,11 @@ function get_control_symbols(){
         buttons.push(display.create_button(symbol, `${symbol} key`));
     }
     return buttons;
+}
+/**
+ * Function to add a random temporary debuff card to the player's deck.
+ */
+function confuse_player(){
+    var ran = random_num(CONFUSION_CARDS.length);
+    GS.give_temp_card(CONFUSION_CARDS[ran]());
 }

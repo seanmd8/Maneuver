@@ -26,7 +26,7 @@ const GUIDE_TEXT = {
                 ` Your relative starting location.\n`,
                 ` You will attack this space.\n`,
                 ` You will move to this space.\n`,
-                ` You will stun the enemy on this space.\n`,
+                ` You will stun the enemy on this space. If applied to the player, it will instead add a temporary debuff card to your deck.\n`,
                 ` Each action the line goes through will be performed.\n`,
                 ` Multiple actions will be performed in a specific order.\n`,
                 ` Multiple actions of the same stype will be performed until one fails.\n`,
