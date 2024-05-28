@@ -246,7 +246,7 @@
     font-weight: bold;
 }
 .retry-button-box tr input:hover {
-    background-color: darkgoldenrod;
+    background-color: gold;
     color: blue;
     border-color: orangered;
     border-style: dotted;

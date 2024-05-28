@@ -3,7 +3,6 @@
 
 const BOSS_FLOOR = [velociphile_floor, spider_queen_floor, lich_floor];
 
-
 /**
  * @callback FloorGenerator Function to populate a floor.
  * @param {number} floor_number How many floors have they entered. Used to determine the combined difficulty of spawned enemies.
@@ -38,6 +37,7 @@ function generate_normal_floor(floor_num, area, map){
 function generate_ruins_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
 }
+
 /** @type {FloorGenerator}*/
 function generate_sewers_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
@@ -46,6 +46,7 @@ function generate_sewers_floor(floor_num, area, map){
 function generate_basement_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
 }
+
 /** @type {FloorGenerator}*/
 function generate_magma_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
@@ -54,6 +55,7 @@ function generate_magma_floor(floor_num, area, map){
 function generate_crypt_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
 }
+
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
@@ -62,6 +64,7 @@ function generate_forest_floor(floor_num, area, map){
 function generate_library_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
 }
+
 /** @type {FloorGenerator}*/
 function generate_sanctum_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);

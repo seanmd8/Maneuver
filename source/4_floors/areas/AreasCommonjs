@@ -1,5 +1,5 @@
 // ----------------Areas.js----------------
-// File containing functions to generate area objects.
+// File containing functions used by areas.
 
 // The structure of the dungeon. Each area can lead to a random one in the next numbered array.
 const area_end = [generate_default_area];
@@ -8,8 +8,6 @@ const area2 = [generate_sewers_area, generate_basement_area];
 const area3 = [/*generate_magma_area, */generate_crypt_area];
 const area4 = area_end;//[generate_forest_area, generate_library_area];
 const area5 = [generate_sanctum_area];
-
-
 
 /**
  * @typedef {object} Area A section of the dungeon that ends with a boss fight.
@@ -26,42 +24,8 @@ const area5 = [generate_sanctum_area];
  * @returns {Area}         and return an area object.
  */
 
-/** @type {AreaGenerator}*/
-function generate_ruins_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}ruins.png`,
-        generate_floor: generate_ruins_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, 
-                    ram_tile, rat_tile, shadow_knight_tile, vinesnare_bush_tile],
-        boss_floor_list: [velociphile_floor],
-        next_area_list: area2,
-        description: ruins_description
-    }
-}
-/** @type {AreaGenerator}*/
-function generate_sewers_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}sewers.png`,
-        generate_floor: generate_sewers_floor,
-        enemy_list: [rat_tile, turret_h_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, 
-                    corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile, carrion_flies_tile],
-        boss_floor_list: [two_headed_serpent_floor],
-        next_area_list: area3,
-        description: sewers_description
-    }
-}
-/** @type {AreaGenerator}*/
-function generate_basement_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}basement.png`,
-        generate_floor: generate_basement_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, 
-                    spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
-        boss_floor_list: [spider_queen_floor],
-        next_area_list: area3,
-        description: basement_description
-    }
-}
+// ---Unfinished Areas---
+
 /** @type {AreaGenerator}*/
 function generate_magma_area(){
     return {
@@ -71,18 +35,6 @@ function generate_magma_area(){
         boss_floor_list: [],
         next_area_list: area4,
         description: magma_description
-    }
-}
-/** @type {AreaGenerator}*/
-function generate_crypt_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}crypt.png`,
-        generate_floor: generate_crypt_floor,
-        enemy_list: [shadow_knight_tile, vampire_tile, clay_golem_tile, turret_r_tile, shadow_scout_tile, 
-                    darkling_tile, orb_of_insanity_tile],
-        boss_floor_list: [lich_floor],
-        next_area_list: area4,
-        description: crypt_description
     }
 }
 /** @type {AreaGenerator}*/

@@ -5214,7 +5214,7 @@ class MoveDeck{
 }
 
 // ----------------Areas.js----------------
-// File containing functions to generate area objects.
+// File containing functions used by areas.
 
 // The structure of the dungeon. Each area can lead to a random one in the next numbered array.
 const area_end = [generate_default_area];
@@ -5241,42 +5241,9 @@ const area5 = [generate_sanctum_area];
  * @returns {Area}         and return an area object.
  */
 
-/** @type {AreaGenerator}*/
-function generate_ruins_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}ruins.png`,
-        generate_floor: generate_ruins_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, 
-                    ram_tile, rat_tile, shadow_knight_tile, vinesnare_bush_tile],
-        boss_floor_list: [velociphile_floor],
-        next_area_list: area2,
-        description: ruins_description
-    }
-}
-/** @type {AreaGenerator}*/
-function generate_sewers_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}sewers.png`,
-        generate_floor: generate_sewers_floor,
-        enemy_list: [rat_tile, turret_h_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, 
-                    corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile, carrion_flies_tile],
-        boss_floor_list: [two_headed_serpent_floor],
-        next_area_list: area3,
-        description: sewers_description
-    }
-}
-/** @type {AreaGenerator}*/
-function generate_basement_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}basement.png`,
-        generate_floor: generate_basement_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, 
-                    spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
-        boss_floor_list: [spider_queen_floor],
-        next_area_list: area3,
-        description: basement_description
-    }
-}
+
+
+
 /** @type {AreaGenerator}*/
 function generate_magma_area(){
     return {
@@ -5288,18 +5255,7 @@ function generate_magma_area(){
         description: magma_description
     }
 }
-/** @type {AreaGenerator}*/
-function generate_crypt_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}crypt.png`,
-        generate_floor: generate_crypt_floor,
-        enemy_list: [shadow_knight_tile, vampire_tile, clay_golem_tile, turret_r_tile, shadow_scout_tile, 
-                    darkling_tile, orb_of_insanity_tile],
-        boss_floor_list: [lich_floor],
-        next_area_list: area4,
-        description: crypt_description
-    }
-}
+
 /** @type {AreaGenerator}*/
 function generate_forest_area(){
     return {
@@ -5345,18 +5301,68 @@ function generate_default_area(){
         description: default_area_description
     }
 }
-// ----------------BossFloors.js----------------
-// File containing functions to generate boss floors.
-
-/** @type {FloorGenerator} Generates the floor where the Velociphile appears.*/
-function velociphile_floor(floor_num,  area, map){
-    map.spawn_safely(velociphile_tile(), SAFE_SPAWN_ATTEMPTS, true);
-    map.lock();
-    for(var i = 0; i < 8; ++i){
-        map.add_tile(wall_tile());
-        map.add_tile(damaged_wall_tile());
+/** @type {AreaGenerator}*/
+function generate_basement_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}basement.png`,
+        generate_floor: generate_basement_floor,
+        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, 
+                    spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
+        boss_floor_list: [spider_queen_floor],
+        next_area_list: area3,
+        description: basement_description
     }
-    return velociphile_floor_message;
+}
+/** @type {AreaGenerator}*/
+function generate_crypt_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}crypt.png`,
+        generate_floor: generate_crypt_floor,
+        enemy_list: [shadow_knight_tile, vampire_tile, clay_golem_tile, turret_r_tile, shadow_scout_tile, 
+                    darkling_tile, orb_of_insanity_tile],
+        boss_floor_list: [lich_floor],
+        next_area_list: area4,
+        description: crypt_description
+    }
+}
+/** @type {AreaGenerator}*/
+function generate_ruins_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}ruins.png`,
+        generate_floor: generate_ruins_floor,
+        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, 
+                    ram_tile, rat_tile, shadow_knight_tile, vinesnare_bush_tile],
+        boss_floor_list: [velociphile_floor],
+        next_area_list: area2,
+        description: ruins_description
+    }
+}
+/** @type {AreaGenerator}*/
+function generate_sewers_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}sewers.png`,
+        generate_floor: generate_sewers_floor,
+        enemy_list: [rat_tile, turret_h_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, 
+                    corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile, carrion_flies_tile],
+        boss_floor_list: [two_headed_serpent_floor],
+        next_area_list: area3,
+        description: sewers_description
+    }
+}
+/** @type {FloorGenerator} Generates the floor where the Lich appears.*/
+function lich_floor(floor_num,  area, map){
+    var locations = [
+        new Point(FLOOR_WIDTH - 2, FLOOR_HEIGHT - 2),
+        new Point(1, FLOOR_HEIGHT - 2),
+        new Point(FLOOR_WIDTH - 2, 1),
+        new Point(1, 1)
+    ]
+    for(var i = 0; i < locations.length; ++i){
+        map.add_tile(damaged_wall_tile(), locations[i]);
+    }
+    map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
+    map.lock();
+    return lich_floor_message;
 }
 /** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){
@@ -5435,23 +5441,16 @@ function two_headed_serpent_floor(floor_num, area, map){
     }
     return two_headed_serpent_floor_message;
 }
-/** @type {FloorGenerator} Generates the floor where the Lich appears.*/
-function lich_floor(floor_num,  area, map){
-    var locations = [
-        new Point(FLOOR_WIDTH - 2, FLOOR_HEIGHT - 2),
-        new Point(1, FLOOR_HEIGHT - 2),
-        new Point(FLOOR_WIDTH - 2, 1),
-        new Point(1, 1)
-    ]
-    for(var i = 0; i < locations.length; ++i){
-        map.add_tile(damaged_wall_tile(), locations[i]);
-    }
-    map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
+/** @type {FloorGenerator} Generates the floor where the Velociphile appears.*/
+function velociphile_floor(floor_num,  area, map){
+    map.spawn_safely(velociphile_tile(), SAFE_SPAWN_ATTEMPTS, true);
     map.lock();
-    return lich_floor_message;
+    for(var i = 0; i < 8; ++i){
+        map.add_tile(wall_tile());
+        map.add_tile(damaged_wall_tile());
+    }
+    return velociphile_floor_message;
 }
-
-
 // ----------------Floors.js----------------
 // File containing the functions for generating new floors.
 
@@ -5492,6 +5491,7 @@ function generate_normal_floor(floor_num, area, map){
 function generate_ruins_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
 }
+
 /** @type {FloorGenerator}*/
 function generate_sewers_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
@@ -5500,6 +5500,7 @@ function generate_sewers_floor(floor_num, area, map){
 function generate_basement_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
 }
+
 /** @type {FloorGenerator}*/
 function generate_magma_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
@@ -5508,6 +5509,7 @@ function generate_magma_floor(floor_num, area, map){
 function generate_crypt_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
 }
+
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
@@ -5516,6 +5518,7 @@ function generate_forest_floor(floor_num, area, map){
 function generate_library_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
 }
+
 /** @type {FloorGenerator}*/
 function generate_sanctum_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
