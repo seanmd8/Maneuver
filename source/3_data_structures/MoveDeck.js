@@ -57,6 +57,9 @@ class MoveDeck{
         if(hand_pos >= this.#hand.length || hand_pos < 0){
             throw new Error(`hand out of bounds`);
         }
+        if(!(this.#hand[hand_pos].temp !== undefined && this.#hand[hand_pos].temp === true)){
+            this.#discard_pile.push(this.#hand[hand_pos]);
+        }
         if(this.#library.length === 0){
             var top_discard = this.#discard_pile.pop();
             while(top_discard !== undefined){
@@ -64,9 +67,6 @@ class MoveDeck{
                 top_discard = this.#discard_pile.pop();
             }
             this.#library = randomize_arr(this.#library);
-        }
-        if(!(this.#hand[hand_pos].temp !== undefined && this.#hand[hand_pos].temp === true)){
-            this.#discard_pile.push(this.#hand[hand_pos]);
         }
         var top_card = this.#library.pop();
         if(top_card !== undefined){
@@ -124,6 +124,7 @@ class MoveDeck{
             return backgrounds;
         }
         display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this), card_background);
+        display.display_message(UIIDS.deck_count, `${this.#library.length}`);
     }
     /**
      * Displays the whole decklist

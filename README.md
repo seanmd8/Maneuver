@@ -8,8 +8,11 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+5/27/24
+- Added icon to show remaining cards before your deck gets reshuffled.
+
 5/22/24
-- Balance Change: Lich can no longer summon Carrion Flies
+- Balance Change: Lich can no longer summon Carrion Flies.
 
 4/11/24
 - Added card rewards for defeating the Two Headed Serpent.
