@@ -9,7 +9,8 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 Gameplay Changelog:
 
 5/28/24
-- Added 5 new cards with powerful abilities at a cost.
+- Added 6 new cards with powerful abilities at a cost.
+- Added 1 more debuff card.
 
 5/27/24
 - Added icon to show remaining cards before your deck gets reshuffled.

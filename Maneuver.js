@@ -894,7 +894,7 @@ function make_starting_deck(){
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
     var deck = new MoveDeck();
-    cards_to_test = [reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport]
+    cards_to_test = [reckless_diagonal, reckless_horizontal]
     for(var card of cards_to_test){
         deck.add(card());
     }
@@ -902,6 +902,8 @@ function make_test_deck(){
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
+    deck.add(basic_horizontal());
+
 
     deck.deal();
     return deck;
@@ -5679,13 +5681,15 @@ const CARD_CHOICES = [
 const RARE_CARD_CHOICES = [
     teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
     sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
-    punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport
+    punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport,
+    reckless_horizontal, reckless_diagonal
 ]
 
 // Cards that can be given as a debuff.
 const CONFUSION_CARDS = [
     stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
-    stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out
+    stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out,
+    lightheaded
 ]
 
 
@@ -5879,6 +5883,17 @@ function lash_out(){
         options
     }
 }
+/** @type {CardGenerator}*/
+function lightheaded(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pstun(0, 0), pstun(0, 0), pinstant(0, 0)], 5);
+    return{
+        name: `lightheaded`,
+        pic: `${IMG_FOLDER.cards}lightheaded.png`,
+        options
+    }
+}
+
 
 // ----------------NormalCards.js----------------
 // File containing both basic cards and all cards that can be gained from the shop.
@@ -6659,7 +6674,32 @@ function reckless_sprint(){
         options
     }
 }
-
+/** @type {CardGenerator}*/
+function reckless_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pmove(0, -1), pinstant(0, 0)]);
+    options.add_button(E, [pstun(0, 0), pmove(1, 0), pinstant(0, 0)]);
+    options.add_button(S, [pstun(0, 0), pmove(0, 1), pinstant(0, 0)]);
+    options.add_button(W, [pstun(0, 0), pmove(-1, 0), pinstant(0, 0)]);
+    return{
+        name: `reckless horizontal`,
+        pic: `${IMG_FOLDER.cards}reckless_horizontal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(0, 0), pmove(1, -1), pinstant(0, 0)]);
+    options.add_button(SE, [pstun(0, 0), pmove(1, 1), pinstant(0, 0)]);
+    options.add_button(SW, [pstun(0, 0), pmove(-1, 1), pinstant(0, 0)]);
+    options.add_button(NW, [pstun(0, 0), pmove(-1, -1), pinstant(0, 0)]);
+    return{
+        name: `reckless diagonal`,
+        pic: `${IMG_FOLDER.cards}reckless_diagonal.png`,
+        options
+    }
+}
 
 // ----------------ShopImages.js----------------
 // File containing cards used soley to display images in card rows of the shop.

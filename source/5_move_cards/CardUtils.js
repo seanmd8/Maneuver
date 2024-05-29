@@ -18,13 +18,15 @@ const CARD_CHOICES = [
 const RARE_CARD_CHOICES = [
     teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
     sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
-    punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport
+    punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport,
+    reckless_horizontal, reckless_diagonal
 ]
 
 // Cards that can be given as a debuff.
 const CONFUSION_CARDS = [
     stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
-    stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out
+    stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out,
+    lightheaded
 ]
 
 
