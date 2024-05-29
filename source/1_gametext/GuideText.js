@@ -16,17 +16,17 @@ const GUIDE_TEXT = {
             +`try to stop you from continuing. You do not need to defeat everything on the current floor to continue, but will often need to `
             +`fight most of them to survive. Read more about controlling your character in the next section. Good luck!\n\n`],
 
-    cards: [`To control your character's actions, you have a deck of cards. Each card gives you 1-4 options for a set of actions `
+    cards: [`To control your character's actions, you have a deck of cards. Each card gives you several options for a set of actions `
             +`to take. The actions on the card will be performed relative to your current location (the black dot). Clicking on a card will `
-            +`bring up a grid of buttons which will let you use it. When you use a card, it will be discarded and replaced with another from your `
-            +`deck. Then everything else on the floor will get a chance to act (read more in the next section). When your deck runs out, your `
-            +`discard pile will be shuffled back into it.\n`
+            +`bring up a grid of buttons which will let you use it. When you finish using a card, it will be discarded and replaced with another `
+            +`from your deck, then everything else on the floor will get a chance to act (read more in the next section). When your deck runs out, `
+            +`your discard pile will be shuffled back into it. The amount of cards remaining in your deck is shown next to your health bar.\n`
             +`\n`
             +`Colors and symbols that make up a card:\n`,
                 ` Your relative starting location.\n`,
                 ` You will attack this space.\n`,
                 ` You will move to this space.\n`,
-                ` You will stun the enemy on this space. If applied to the player, it will instead add a temporary debuff card to your deck.\n`,
+                ` If applied to an enemy, it will stun them. If applied to the player, it will instead add a temporary debuff card to your deck.\n`,
                 ` Each action the line goes through will be performed.\n`,
                 ` Multiple actions will be performed in a specific order.\n`,
                 ` Multiple actions of the same stype will be performed until one fails.\n`,
@@ -79,10 +79,10 @@ const CARD_SYMBOLS = [
     {src: `${IMG_FOLDER.symbols}stun.png`,              x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}multiple.png`,          x: 3, y: 1},
     {src: `${IMG_FOLDER.symbols}multiple_ordered.png`,  x: 3, y: 1},
-    {src: `${IMG_FOLDER.symbols}move_until.png`,  x: 4, y: 1},
+    {src: `${IMG_FOLDER.symbols}move_until.png`,        x: 4, y: 1},
     {src: `${IMG_FOLDER.symbols}attack_move.png`,       x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}triple_attack.png`,     x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}instant.png`,         x: 2, y: 2},
+    {src: `${IMG_FOLDER.symbols}instant.png`,           x: 2, y: 2},
     {src: `${IMG_FOLDER.symbols}temporary.png`,         x: 2, y: 2},
     {src: `${IMG_FOLDER.symbols}per_floor.png`,         x: 2, y: 2},
 ];
