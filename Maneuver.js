@@ -368,7 +368,7 @@ const HAND_SIZE = 3;
 const ADD_CHOICE_COUNT = 3;
 const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
-const CHEST_CHANCE = 2;
+const CHEST_CHANCE = 2; // 1/n
 
 
 // Initialization settings.
@@ -5539,76 +5539,9 @@ function generate_sanctum_floor(floor_num, area, map){
 
 
 
-// ----------------BossCards.js----------------
-// File containing cards that can be dropped as rewards for defeating bosses.
+// ----------------lich_cards.js----------------
+// File containing cards that can be dropped as rewards for defeating the lich.
 
-/** @type {CardGenerator} Dropped by the velociphile*/
-function roll_nesw(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pmove_until(1, -1), pattack(1, -1)]);
-    options.add_button(SW, [pmove_until(-1, 1), pattack(-1, 1)]);
-    return{
-        name: `roll NE SW`,
-        pic: `${IMG_FOLDER.cards}roll_nesw.png`,
-        options
-    }
-}
-/** @type {CardGenerator} Dropped by the velociphile*/
-function roll_nwse(){
-    var options = new ButtonGrid();
-    options.add_button(SE, [pmove_until(1, 1), pattack(1, 1)]);
-    options.add_button(NW, [pmove_until(-1, -1), pattack(-1, -1)]);
-    return{
-        name: `roll NW SE`,
-        pic: `${IMG_FOLDER.cards}roll_nwse.png`,
-        options
-    }
-}
-/** @type {CardGenerator} Dropped by the velociphile*/
-function roll_ew(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pmove_until(1, 0), pattack(1, 0)]);
-    options.add_button(W, [pmove_until(-1, 0), pattack(-1, 0)]);
-    return{
-        name: `roll E W`,
-        pic: `${IMG_FOLDER.cards}roll_ew.png`,
-        options
-    }
-}
-/** @type {CardGenerator} Dropped by the spider queen*/
-function bite(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1), pinstant(0, 0)]);
-    options.add_button(E, [pattack(1, 0), pinstant(0, 0)]);
-    options.add_button(S, [pattack(0, 1), pinstant(0, 0)]);
-    options.add_button(W, [pattack(-1, 0), pinstant(0, 0)]);
-    options.add_button(NE, [pattack(1, -1), pinstant(0, 0)]);
-    options.add_button(SE, [pattack(1, 1), pinstant(0, 0)]);
-    options.add_button(SW, [pattack(-1, 1), pinstant(0, 0)]);
-    options.add_button(NW, [pattack(-1, -1), pinstant(0, 0)]);
-    return{
-        name: `bite`,
-        pic: `${IMG_FOLDER.cards}bite.png`,
-        options
-    }
-}
-/** @type {CardGenerator} Dropped by the spider queen*/
-function skitter(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1)]);
-    options.add_button(E, [pmove(1, 0)]);
-    options.add_button(S, [pmove(0, 1)]);
-    options.add_button(W, [pmove(-1, 0)]);
-    options.add_button(NE, [pmove(1, -1)]);
-    options.add_button(SE, [pmove(1, 1)]);
-    options.add_button(SW, [pmove(-1, 1)]);
-    options.add_button(NW, [pmove(-1, -1)]);
-    return{
-        name: `skitter`,
-        pic: `${IMG_FOLDER.cards}skitter.png`,
-        options
-    }
-}
 /** @type {CardGenerator} Dropped by the lich*/
 function instant_teleport(){
     var options = new ButtonGrid();
@@ -5619,6 +5552,7 @@ function instant_teleport(){
         options
     }
 }
+
 /** @type {CardGenerator} Dropped by the lich*/
 function debilitating_confusion(){
     var options = new ButtonGrid();
@@ -5637,6 +5571,47 @@ function debilitating_confusion(){
         options
     }
 }
+// ----------------spider_queen_cards.js----------------
+// File containing cards that can be dropped as rewards for defeating the spider queen.
+
+/** @type {CardGenerator} Dropped by the spider queen*/
+function bite(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(0, -1), pinstant(0, 0)]);
+    options.add_button(E, [pattack(1, 0), pinstant(0, 0)]);
+    options.add_button(S, [pattack(0, 1), pinstant(0, 0)]);
+    options.add_button(W, [pattack(-1, 0), pinstant(0, 0)]);
+    options.add_button(NE, [pattack(1, -1), pinstant(0, 0)]);
+    options.add_button(SE, [pattack(1, 1), pinstant(0, 0)]);
+    options.add_button(SW, [pattack(-1, 1), pinstant(0, 0)]);
+    options.add_button(NW, [pattack(-1, -1), pinstant(0, 0)]);
+    return{
+        name: `bite`,
+        pic: `${IMG_FOLDER.cards}bite.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the spider queen*/
+function skitter(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1)]);
+    options.add_button(E, [pmove(1, 0)]);
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(W, [pmove(-1, 0)]);
+    options.add_button(NE, [pmove(1, -1)]);
+    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    options.add_button(NW, [pmove(-1, -1)]);
+    return{
+        name: `skitter`,
+        pic: `${IMG_FOLDER.cards}skitter.png`,
+        options
+    }
+}
+// ----------------two_headed_serpent_cards.js----------------
+// File containing cards that can be dropped as rewards for defeating the two headed serpent.
+
 /** @type {CardGenerator} Dropped by the two headed serpent*/
 function regenerate(){
     var options = new ButtonGrid();
@@ -5648,6 +5623,7 @@ function regenerate(){
         per_floor: regenerate
     }
 }
+
 /** @type {CardGenerator} Dropped by the two headed serpent*/
 function fangs(){
     var options = new ButtonGrid();
@@ -5658,6 +5634,44 @@ function fangs(){
     return{
         name: `fangs`,
         pic: `${IMG_FOLDER.cards}fangs.png`,
+        options
+    }
+}
+// ----------------velociphile_cards.js----------------
+// File containing cards that can be dropped as rewards for defeating the velociphile.
+
+/** @type {CardGenerator} Dropped by the velociphile*/
+function roll_nesw(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove_until(1, -1), pattack(1, -1)]);
+    options.add_button(SW, [pmove_until(-1, 1), pattack(-1, 1)]);
+    return{
+        name: `roll NE SW`,
+        pic: `${IMG_FOLDER.cards}roll_nesw.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the velociphile*/
+function roll_nwse(){
+    var options = new ButtonGrid();
+    options.add_button(SE, [pmove_until(1, 1), pattack(1, 1)]);
+    options.add_button(NW, [pmove_until(-1, -1), pattack(-1, -1)]);
+    return{
+        name: `roll NW SE`,
+        pic: `${IMG_FOLDER.cards}roll_nwse.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the velociphile*/
+function roll_ew(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove_until(1, 0), pattack(1, 0)]);
+    options.add_button(W, [pmove_until(-1, 0), pattack(-1, 0)]);
+    return{
+        name: `roll E W`,
+        pic: `${IMG_FOLDER.cards}roll_ew.png`,
         options
     }
 }
@@ -5690,7 +5704,6 @@ const CONFUSION_CARDS = [
     stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out,
     lightheaded
 ]
-
 
 
 /**
@@ -5755,6 +5768,7 @@ function pheal(x, y){
         change: new Point(x, y)
     }
 }
+
 // Cards
 /**
  * @typedef {Object} Card A card used by the player to perform actions on their turn.

@@ -29,7 +29,6 @@ const CONFUSION_CARDS = [
 ]
 
 
-
 /**
  * @typedef {object} PlayerCommand A object used to give a command for a single action the player should do.
  * @property {string} type What type of action it is (move, attack, etc.).
@@ -92,6 +91,7 @@ function pheal(x, y){
         change: new Point(x, y)
     }
 }
+
 // Cards
 /**
  * @typedef {Object} Card A card used by the player to perform actions on their turn.
