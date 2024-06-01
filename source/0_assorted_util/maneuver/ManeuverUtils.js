@@ -34,7 +34,7 @@ function make_starting_deck(){
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
     var deck = new MoveDeck();
-    cards_to_test = [reckless_diagonal, reckless_horizontal]
+    var cards_to_test = [reckless_diagonal, reckless_horizontal]
     for(var card of cards_to_test){
         deck.add(card());
     }
