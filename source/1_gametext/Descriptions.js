@@ -84,8 +84,8 @@ const velociphile_description = `Velociphile (Boss): A rolling ball of mouths an
 const velociphile_death_message = `The wailing falls silent as the Velociphile is defeated.`;
 
 const spider_queen_floor_message = `The floor is thick with webs.`;
-const spider_queen_description = `Spider Queen (Boss): Moves like a normal spider. Taking damage will stun her, but will also spawn `
-                    +`spiders.`;
+const spider_queen_description = `Spider Queen (Boss): Her back crawls with her young. Moves like a normal spider. Taking damage `
+                    +`will stun her, but will also spawn a spider.`;
 const spider_queen_death_message = `As the Spider Queen falls to the floor, the last of her children emerge.`;
 
 const two_headed_serpent_floor_message = `The discarded skin of a massive creature litters the floor.`;
@@ -101,6 +101,12 @@ const lich_floor_message = `Dust and dark magic swirl in the air.`;
 const lich_description = `Lich (Boss): An undead wielder of dark magic. Each turn it will move away 1 space and then cast a spell.\n`
                     +`The Lich is currently preparing to cast:\n`;
 const lich_death_message = `The Lich's body crumbles to dust.`;
+
+const young_dragon_floor_message = `The air burns in your lungs.`;
+const young_dragon_description_arr = [`Young Dragon (Boss): Alternates between gliding short distances and breathing fire.\n`
+                    + `The Dragon is currently `, `preparing to fly a short distance.`, `preparing to aim it's fire breath.`,
+                      `preparing to breath fire in a cone of length `]; // Todo
+const young_dragon_death_message = `Scales so soft are easily pierced. The Young Dragon's fire goes out.`;
 
 // Lich Spell Descriptions.
 const teleport_spell_description = `Teleport: The user moves to a random square on the map`;

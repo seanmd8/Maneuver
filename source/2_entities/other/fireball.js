@@ -33,36 +33,6 @@ function fireball_on_enter(self, target, map){
     self.tile.health = 1;
     map.attack(self.location);
 }
-/**
- * Used by a fireball tile to set the correct direction, rotation and picture.
- * @param {Tile} tile The tile to set the direction of.
- * @param {Point} direction Ehich way it should face.
- */
-function set_direction(tile, direction){
-    if( tile.pic_arr === undefined ||
-        tile.rotate === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
-    }
-    tile.direction = direction;
-    if(direction.x === 0 || direction.y === 0){
-        
-        tile.rotate = 0;
-        if(direction.x < 0 || direction.y > 0){
-            tile.rotate = 2*90;
-        }
-        if(direction.y === 0){
-            tile.rotate += 90;
-        }
-        tile.pic = tile.pic_arr[0];
-    }
-    else{
-        tile.rotate= 90 * ((direction.x + direction.y) / 2 + 1);
-        if(direction.x === -1 && direction.y === 1){
-            tile.rotate = 90 * 3;
-        }
-        tile.pic = tile.pic_arr[1];
-    }
-}
 
 /** @type {TelegraphFunction} */
 function fireball_telegraph(location, map, self){
@@ -70,4 +40,16 @@ function fireball_telegraph(location, map, self){
         throw new Error(`tile missing properties used to telegraph it's attacks.`);
     }
     return [location.plus(self.direction)].concat(hazard_telegraph(location, map, self));
+}
+
+/**
+ * Function to create a fireball and point it in the right direction.
+ * @param {Point} direction Where it's headed.
+ * @returns {Tile} The new fireball.
+ */
+function shoot_fireball(direction){
+    var fireball = fireball_tile();
+    fireball.direction = direction;
+    fireball.pic = ifexists(fireball.pic_arr)[set_rotation(fireball)];
+    return fireball;
 }

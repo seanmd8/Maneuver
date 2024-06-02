@@ -74,8 +74,7 @@ function flame_wave_spell(self, target, map){
         spawnpoints.push(new Point(0, direction.y));
     }
     for(var i = 0; i < spawnpoints.length; ++i){
-        var fireball = fireball_tile();
-        set_direction(fireball, direction);
+        var fireball = shoot_fireball(direction);
         map.add_tile(fireball, self.location.plus(spawnpoints[i]));
     }
 }

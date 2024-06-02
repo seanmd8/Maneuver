@@ -94,8 +94,26 @@ class Point{
     copy(){
         return new Point(this.x, this.y);
     }
+    /**
+     * @returns {number} The taxicab distance away from the origin.
+     */
     taxicab_distance(){
         return Math.abs(this.x) + Math.abs(this.y);
+    }
+    /**
+     * Rotates a point by a multiple of 90 degrees around the origin.
+     * @param {number} degrees How many degrees it should be rotated by. Must be a multiple of 90.
+     * @returns {Point} A rotated copy of the point.
+     */
+    rotate(degrees){
+        if(degrees % 90 !== 0){
+            throw new Error(`invalid rotation amount.`);
+        }
+        degrees = degrees % 360;
+        if(degrees === 0){
+            return this.copy();
+        }
+        return new Point(this.y * -1, this.x).rotate(degrees - 90);
     }
 }
 

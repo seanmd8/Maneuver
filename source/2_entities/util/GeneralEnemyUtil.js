@@ -26,6 +26,7 @@
  * 
  * // Properties used to determing aesthetics //
  * @property {string[]=} pic_arr Used when the tile sometimes changes images.
+ * @property {string[]=} description_arr Used when the tile sometimes changes descriptions.
  * @property {TileGenerator[]=} look_arr Used when the tile sometimes is disguised as another tile.
  * @property {number=} rotate How much to rotate the image when displaying it. Must be in 90 degree increments.
  * @property {boolean=} flip If the image should be horizontally flipped.
@@ -234,5 +235,96 @@ function shapeshift(tile, tile_generator, just_background){
     }
     else{
         tile.pic = look.pic;
+    }
+}
+
+/**
+ * Sets the rotation of a tile based on it's direction.
+ * @param {Tile} tile The tile to set the direction of.
+ * @returns {number} Returns 1 if the direction is diagonal, 0 if it's orthogonal.
+ */
+function set_rotation(tile){
+    /*  
+        NW = (-1, -1) -> 0
+        N  = ( 0, -1) -> 0
+        NE = ( 1, -1) -> 90
+        E  = ( 1,  0) -> 90
+        SE = ( 1,  1) -> 180
+        S  = ( 0,  1) -> 180
+        SW = (-1,  1) -> 270
+        W  = (-1,  0) -> 270 
+    */
+    if( tile.direction === undefined ||
+        tile.rotate === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    var direction = tile.direction
+    if(direction.x === 0 || direction.y === 0){
+        tile.rotate = 0;
+        if(direction.x < 0 || direction.y > 0){
+            tile.rotate = 2*90;
+        }
+        if(direction.y === 0){
+            tile.rotate += 90;
+        }
+        var diagonal = 0;
+    }
+    else{
+        tile.rotate= 90 * ((direction.x + direction.y) / 2 + 1);
+        if(direction.x === -1 && direction.y === 1){
+            tile.rotate = 90 * 3;
+        }
+        var diagonal = 1;
+    }
+    return diagonal;
+}
+
+/** @type {TileGenerator} Function to act as a starting point for making new enemies. */
+function generic_tile(){
+    return {
+        // Required properties //
+        type: ``,
+        name: ``,
+        pic: ``,
+        description: ``,
+
+        // Misc //
+        health: 1,
+        max_health: 1,
+        difficulty: 1,
+        death_message: ``,
+
+        // Functions controlling behavior. //
+        behavior: undefined,
+        telegraph: undefined,
+        telegraph_other: undefined,
+        on_enter: undefined,
+        on_hit: undefined,
+        on_death: undefined,
+
+        // Properties used to determing aesthetics //
+        pic_arr: [],
+        description_arr: [],
+        look_arr: [],
+        rotate: 0,
+        flip: false,
+
+        // Properties used by AI functions to determine behavior. //
+        cycle: 0,
+        spawn_timer: 0,
+        range: 1,
+        direction: new Point(0, 0),
+        segment_list: [],
+        spin_direction: 1,
+        spells: [],
+        summons: [],
+        contents: [],
+        card_drops: [],
+
+        // Properties added later //
+        stun: undefined,
+        id: undefined,
+        is_hit: undefined,
+        event_happening: undefined
     }
 }

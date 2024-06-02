@@ -306,8 +306,26 @@ class Point{
     copy(){
         return new Point(this.x, this.y);
     }
+    /**
+     * @returns {number} The taxicab distance away from the origin.
+     */
     taxicab_distance(){
         return Math.abs(this.x) + Math.abs(this.y);
+    }
+    /**
+     * Rotates a point by a multiple of 90 degrees around the origin.
+     * @param {number} degrees How many degrees it should be rotated by. Must be a multiple of 90.
+     * @returns {Point} A rotated copy of the point.
+     */
+    rotate(degrees){
+        if(degrees % 90 !== 0){
+            throw new Error(`invalid rotation amount.`);
+        }
+        degrees = degrees % 360;
+        if(degrees === 0){
+            return this.copy();
+        }
+        return new Point(this.y * -1, this.x).rotate(degrees - 90);
     }
 }
 
@@ -1116,8 +1134,8 @@ const velociphile_description = `Velociphile (Boss): A rolling ball of mouths an
 const velociphile_death_message = `The wailing falls silent as the Velociphile is defeated.`;
 
 const spider_queen_floor_message = `The floor is thick with webs.`;
-const spider_queen_description = `Spider Queen (Boss): Moves like a normal spider. Taking damage will stun her, but will also spawn `
-                    +`spiders.`;
+const spider_queen_description = `Spider Queen (Boss): Her back crawls with her young. Moves like a normal spider. Taking damage `
+                    +`will stun her, but will also spawn a spider.`;
 const spider_queen_death_message = `As the Spider Queen falls to the floor, the last of her children emerge.`;
 
 const two_headed_serpent_floor_message = `The discarded skin of a massive creature litters the floor.`;
@@ -1133,6 +1151,12 @@ const lich_floor_message = `Dust and dark magic swirl in the air.`;
 const lich_description = `Lich (Boss): An undead wielder of dark magic. Each turn it will move away 1 space and then cast a spell.\n`
                     +`The Lich is currently preparing to cast:\n`;
 const lich_death_message = `The Lich's body crumbles to dust.`;
+
+const young_dragon_floor_message = `The air burns in your lungs.`;
+const young_dragon_description_arr = [`Young Dragon (Boss): Alternates between gliding short distances and breathing fire.\n`
+                    + `The Dragon is currently `, `preparing to fly a short distance.`, `preparing to aim it's fire breath.`,
+                      `preparing to breath fire in a cone of length `]; // Todo
+const young_dragon_death_message = `Scales so soft are easily pierced. The Young Dragon's fire goes out.`;
 
 // Lich Spell Descriptions.
 const teleport_spell_description = `Teleport: The user moves to a random square on the map`;
@@ -1776,6 +1800,171 @@ function velociphile_telegraph(location, map, self){
     }
     return attacks;
 }
+/** @type {TileGenerator} */
+function young_dragon_tile(){
+    var pic_arr = [ `${IMG_FOLDER.tiles}young_dragon_flight.png`, 
+                    `${IMG_FOLDER.tiles}young_dragon_diagonal_flight.png`,
+                    `${IMG_FOLDER.tiles}young_dragon_walk.png`,
+                    `${IMG_FOLDER.tiles}young_dragon_diagonal_walk.png`,
+                    `${IMG_FOLDER.tiles}young_dragon_breath.png`,
+                    `${IMG_FOLDER.tiles}young_dragon_diagonal_breath.png`];
+
+    return {
+        type: `enemy`,
+        name: `young dragon`,
+        pic: pic_arr[0],
+        description: `${young_dragon_description_arr[0]}${young_dragon_description_arr[1]}`,
+        health: 5,
+        difficulty: 1,
+        death_message: young_dragon_death_message,
+        behavior: young_dragon_behavior,
+        telegraph: young_dragon_telegraph,
+        on_death: boss_death,
+        pic_arr,
+        description_arr: young_dragon_description_arr,
+        rotate: 180,
+        cycle: 0,
+        range: 3,
+        direction: new Point(0, 1),
+        card_drops: []
+    }
+}
+
+/** @type {AIFunction} AI used by the Young Dragon.*/
+function young_dragon_behavior(self, target, map){
+    if( self.tile.pic_arr === undefined ||
+        self.tile.description_arr === undefined ||
+        self.tile.rotate === undefined ||
+        self.tile.cycle === undefined ||
+        self.tile.range === undefined ||
+        self.tile.direction === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    if(self.tile.cycle === 0){
+        // Flight
+        var spaces = [new Point(3, 0), new Point(3, 1), new Point(3, -1), new Point(2, 2),]; 
+        spaces = spaces.concat(spaces.map((p) => p.rotate(90)));
+        spaces = spaces.concat(spaces.map((p) => p.rotate(180))); // All rotations of the original are included.
+        spaces = randomize_arr(spaces);
+        var moved = false;
+        var preffered_distance = [4, 3, 5];
+        for(var radius of preffered_distance){
+            for(var space of spaces){
+                if(moved){
+                    break;
+                }
+                // Tries to move to a space the appropriate taxicab distance away from the player.
+                var taxi = target.difference.minus(space).taxicab_distance();
+                var destination = self.location.plus(space)
+                if(!moved && taxi === radius && map.check_empty(destination)){
+                    moved = map.move(self.location, destination);
+                    self.tile.direction = sign(space);
+                }
+            }
+        }
+        for(var space of spaces){
+            if(moved){
+                break;
+            }
+            // Instead tries to move to a space that isn't next to the player.
+            var next_to = target.difference.minus(space).within_radius(1);
+            var destination = self.location.plus(space)
+            if(!moved && !(next_to) && map.check_empty(destination)){
+                moved = map.move(self.location, destination);
+                self.tile.direction = sign(space);
+            }
+        }
+        if(moved){
+            ++self.tile.cycle;
+            self.tile.pic = self.tile.pic_arr[2 * self.tile.cycle + set_rotation(self.tile)];
+            self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[self.tile.cycle + 1]}`;
+        }
+        return;
+    }
+    if(self.tile.cycle === 1 && target.difference.taxicab_distance() <= self.tile.range + 1){
+        // Aims it's breath.
+        self.tile.direction =  order_nearby(target.difference)[0];
+        ++self.tile.cycle;
+        self.tile.pic = self.tile.pic_arr[2 * self.tile.cycle + set_rotation(self.tile)];
+        self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[self.tile.cycle + 1]}${self.tile.range}.`;
+        return;
+    }
+    else if(self.tile.cycle === 2){
+        // Breathe fire.
+        var horizontal_cone = [];
+        for(var i = 1; i <= self.tile.range; ++i){
+            for(var j = -(i - 1); j < i; ++j){
+                // Creates the horizontal cone pattern pointing North.
+                horizontal_cone.push(new Point(j, -1 * i));
+            }
+        }
+        var diagonal_cone = [];
+        for(var i = 1; i <= self.tile.range; ++i){
+            for(var j = 0; j < i; ++j){
+                // Creates the diagonal cone pattern ponting North West.
+                diagonal_cone.push(new Point(j - i, -1 - j));
+            }
+        }
+        // Choose breath cone for the direction we are facing.
+        var cone = diagonal_cone;
+        if(self.tile.direction.x === 0 || self.tile.direction.y === 0){
+            cone = horizontal_cone;
+        }
+        // Rotate cone.
+        cone = cone.map((p) => p.rotate(ifexists(self.tile.rotate)));
+        // Breath attack.
+        for(var space of cone){
+            map.attack(self.location.plus(space));
+        }
+    }
+    // Prep Flight.
+    // Happens when it fails to aim fire breath or after it uses it. 
+    var nearby = order_nearby(target.difference)
+    if(target.difference.within_radius(2)){
+        nearby = nearby.reverse();
+    }
+    self.tile.direction = nearby[0];
+    self.tile.cycle = 0;
+    self.tile.pic = self.tile.pic_arr[2 * self.tile.cycle + set_rotation(self.tile)];
+    self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[self.tile.cycle + 1]}`;
+    return;
+}
+
+/** @type {TelegraphFunction} */
+function young_dragon_telegraph(location, map, self){
+    if( self.rotate === undefined ||
+        self.cycle === undefined ||
+        self.range === undefined ||
+        self.direction === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    if(self.cycle !== 2){
+        return [];
+    }
+    var horizontal_cone = [];
+    for(var i = 1; i <= self.range; ++i){
+        for(var j = -(i - 1); j < i; ++j){
+            // Creates the horizontal cone pattern pointing North.
+            horizontal_cone.push(new Point(j, -1 * i));
+        }
+    }
+    var diagonal_cone = [];
+    for(var i = 1; i <= self.range; ++i){
+        for(var j = 0; j < i; ++j){
+            // Creates the diagonal cone pattern ponting North West.
+            diagonal_cone.push(new Point(j - i, -1 - j));
+        }
+    }
+    // Choose breath cone for the direction we are facing.
+    var cone = diagonal_cone;
+    if(self.direction.x === 0 || self.direction.y === 0){
+        cone = horizontal_cone;
+    }
+    // Rotate cone.
+    cone = cone.map((p) => p.rotate(ifexists(self.rotate)).plus(location));
+    return cone;
+}
+
 /** @type {TileGenerator} */
 function acid_bug_tile(){
     return {
@@ -3217,36 +3406,6 @@ function fireball_on_enter(self, target, map){
     self.tile.health = 1;
     map.attack(self.location);
 }
-/**
- * Used by a fireball tile to set the correct direction, rotation and picture.
- * @param {Tile} tile The tile to set the direction of.
- * @param {Point} direction Ehich way it should face.
- */
-function set_direction(tile, direction){
-    if( tile.pic_arr === undefined ||
-        tile.rotate === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
-    }
-    tile.direction = direction;
-    if(direction.x === 0 || direction.y === 0){
-        
-        tile.rotate = 0;
-        if(direction.x < 0 || direction.y > 0){
-            tile.rotate = 2*90;
-        }
-        if(direction.y === 0){
-            tile.rotate += 90;
-        }
-        tile.pic = tile.pic_arr[0];
-    }
-    else{
-        tile.rotate= 90 * ((direction.x + direction.y) / 2 + 1);
-        if(direction.x === -1 && direction.y === 1){
-            tile.rotate = 90 * 3;
-        }
-        tile.pic = tile.pic_arr[1];
-    }
-}
 
 /** @type {TelegraphFunction} */
 function fireball_telegraph(location, map, self){
@@ -3254,6 +3413,18 @@ function fireball_telegraph(location, map, self){
         throw new Error(`tile missing properties used to telegraph it's attacks.`);
     }
     return [location.plus(self.direction)].concat(hazard_telegraph(location, map, self));
+}
+
+/**
+ * Function to create a fireball and point it in the right direction.
+ * @param {Point} direction Where it's headed.
+ * @returns {Tile} The new fireball.
+ */
+function shoot_fireball(direction){
+    var fireball = fireball_tile();
+    fireball.direction = direction;
+    fireball.pic = ifexists(fireball.pic_arr)[set_rotation(fireball)];
+    return fireball;
 }
 /** @type {TileGenerator} A hazardous pool of lava.*/
 function lava_pool_tile(){
@@ -3429,6 +3600,7 @@ function move_attack_ai(self, target, map){
  * 
  * // Properties used to determing aesthetics //
  * @property {string[]=} pic_arr Used when the tile sometimes changes images.
+ * @property {string[]=} description_arr Used when the tile sometimes changes descriptions.
  * @property {TileGenerator[]=} look_arr Used when the tile sometimes is disguised as another tile.
  * @property {number=} rotate How much to rotate the image when displaying it. Must be in 90 degree increments.
  * @property {boolean=} flip If the image should be horizontally flipped.
@@ -3640,6 +3812,96 @@ function shapeshift(tile, tile_generator, just_background){
     }
 }
 
+/**
+ * Sets the rotation of a tile based on it's direction.
+ * @param {Tile} tile The tile to set the direction of.
+ * @returns {number} Returns 1 if the direction is diagonal, 0 if it's orthogonal.
+ */
+function set_rotation(tile){
+    /*  
+        NW = (-1, -1) -> 0
+        N  = ( 0, -1) -> 0
+        NE = ( 1, -1) -> 90
+        E  = ( 1,  0) -> 90
+        SE = ( 1,  1) -> 180
+        S  = ( 0,  1) -> 180
+        SW = (-1,  1) -> 270
+        W  = (-1,  0) -> 270 
+    */
+    if( tile.direction === undefined ||
+        tile.rotate === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    var direction = tile.direction
+    if(direction.x === 0 || direction.y === 0){
+        tile.rotate = 0;
+        if(direction.x < 0 || direction.y > 0){
+            tile.rotate = 2*90;
+        }
+        if(direction.y === 0){
+            tile.rotate += 90;
+        }
+        var diagonal = 0;
+    }
+    else{
+        tile.rotate= 90 * ((direction.x + direction.y) / 2 + 1);
+        if(direction.x === -1 && direction.y === 1){
+            tile.rotate = 90 * 3;
+        }
+        var diagonal = 1;
+    }
+    return diagonal;
+}
+
+/** @type {TileGenerator} Function to act as a starting point for making new enemies. */
+function generic_tile(){
+    return {
+        // Required properties //
+        type: ``,
+        name: ``,
+        pic: ``,
+        description: ``,
+
+        // Misc //
+        health: 1,
+        max_health: 1,
+        difficulty: 1,
+        death_message: ``,
+
+        // Functions controlling behavior. //
+        behavior: undefined,
+        telegraph: undefined,
+        telegraph_other: undefined,
+        on_enter: undefined,
+        on_hit: undefined,
+        on_death: undefined,
+
+        // Properties used to determing aesthetics //
+        pic_arr: [],
+        description_arr: [],
+        look_arr: [],
+        rotate: 0,
+        flip: false,
+
+        // Properties used by AI functions to determine behavior. //
+        cycle: 0,
+        spawn_timer: 0,
+        range: 1,
+        direction: new Point(0, 0),
+        segment_list: [],
+        spin_direction: 1,
+        spells: [],
+        summons: [],
+        contents: [],
+        card_drops: [],
+
+        // Properties added later //
+        stun: undefined,
+        id: undefined,
+        is_hit: undefined,
+        event_happening: undefined
+    }
+}
 // ----------------Spells.js----------------
 // File for spell ai functions.
 
@@ -3716,8 +3978,7 @@ function flame_wave_spell(self, target, map){
         spawnpoints.push(new Point(0, direction.y));
     }
     for(var i = 0; i < spawnpoints.length; ++i){
-        var fireball = fireball_tile();
-        set_direction(fireball, direction);
+        var fireball = shoot_fireball(direction);
         map.add_tile(fireball, self.location.plus(spawnpoints[i]));
     }
 }
