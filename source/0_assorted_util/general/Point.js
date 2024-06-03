@@ -115,6 +115,18 @@ class Point{
         }
         return new Point(this.y * -1, this.x).rotate(degrees - 90);
     }
+    /**
+     * @returns true if the point is on the x or y axis, false otherwise.
+     */
+    on_axis(){
+        return this.x === 0 || this.y === 0;
+    }
+    /**
+     * @returns true if the point is on the lines y = x or y = -x, false otherwise.
+     */
+    on_diagonal(){
+        return this.x === this.y;
+    }
 }
 
 /**

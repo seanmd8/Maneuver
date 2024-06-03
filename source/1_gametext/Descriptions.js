@@ -52,14 +52,21 @@ const vinesnare_bush_description = [`Vinesnare Bush: Does not move. Can drag the
 const rat_description = `Rat: Will attack the player if it is next to them. Otherwise it will move 2 spaces closer. After attacking, `
                             +`it will flee.`;
 const shadow_scout_description = `Shadow Scout: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
-                            +`Can go invisible every other turn.`
+                            +`Can go invisible every other turn.`;
 const darkling_description = `Darkling: Teleports around randomly hurting everything next to the location it arrives at. Blocking `
                             +`it's rift will destroy it.`;
 const orb_of_insanity_description = [`Orb of Insanity: Does not move or attack. If the player is within `, ` spaces of it, it will `
-                            +`pollute their deck with a bad temporary card.`]
+                            +`pollute their deck with a bad temporary card.`];
 const carrion_flies_description = `Carrion Flies: Will only attack if the player is nearby. Otherwise they will wander aimlessly. `
                             +`Over time they will multiply.`;
-const magma_spewer_description = `Magma Spewer: Alternates between firing magma into the air and retreating.`
+const magma_spewer_description = `Magma Spewer: Fires magma into the air every other turn. Retreats when you get close.`
+const boulder_elemental_description = `Boulder Elemental: Wakes up stunned when something touches it. Each turn, it samages anyone that is `
+                            +`close to it, then moves 1 space closer to the player. After 3 turns of failing to hit anything, it will go `
+                            +`back to sleep.`;
+const pheonix_description = `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. Everything it flies over will be `
+                            +`damaged and set on fire. When it dies, it drops a pile of ashes from which it will eventually be reborn.`;
+const igneous_crab_description = `Igneous Crab: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
+                                +`When damaged, it will spend the next 2 turns fleeing.`
 
 
 // Area Descriptions.
@@ -120,17 +127,21 @@ const rest_description = `Nothing.`;
 
 // Other Tile Descriptions.
 const empty_description = `There is nothing here.`;
-const exit_description = `Stairs to the next floor.`;
-const player_description = `You.`;
+const exit_description = `Stairs: Takes you to the next floor.`;
+const player_description = `You: Click a card to move.`;
 const lava_pool_description = `Lava Pool: Attempting to move here will hurt.`;
 const corrosive_slime_description = `Corrosive Slime: Trying to walk in this will hurt. Clear it out by attacking.`;
-const wall_description = `A wall. It seems sturdy.`;
-const damaged_wall_description = `A damaged wall. Something might live inside.`;
-const lock_description = `The exit is locked. Defeat the boss to continue.`;
-const fireball_description = `A fireball. Moves forwards until it comes into contact with something, then damages it.`;
+const wall_description = `Wall: It seems sturdy.`;
+const damaged_wall_description = `Damaged Wall: Something might live inside.`;
+const lock_description = `Locked Exit: Defeat the boss to continue.`;
+const fireball_description = `Fireball: Moves forwards until it comes into contact with something, then damages it.`;
 const falling_rubble_description = `Watch out, something is about to fall here.`;
 const darkling_rift_description = `If this space isn't blocked, a darkling will teleport here next turn damaging everything nearby.`;
-const chest_description = `A chest. It might have something useful inside. Breaking it might damage the contents.`;
+const chest_description = `Chest: It might have something useful inside. Breaking it will damage the contents.`;
+const magmatic_boulder_description = `Magmatic Boulder: The light reflecting off of it gives you the feeling of being watched.`;
+const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, `turns unless you scatter the ashes by attacking `
+                        +`them or moving onto them.`];
+const raging_fire_description = `Raging Fire: The very ground here is burning. It will go out in a turn, but it's not safe to move through.`;
 
 
 // Chest descriptions.
@@ -140,7 +151,7 @@ const abandon_chest = `Abandon`;
 const add_card_description = `Add this card to your deck.`
 
 
-// Cardinal Directions.
+// Button Options.
 const NW = `NW`;
 const N = `N`;
 const NE = `NE`;

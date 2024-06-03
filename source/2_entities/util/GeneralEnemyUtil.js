@@ -61,7 +61,8 @@ const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, sh
     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
-    orb_of_insanity_tile, carrion_flies_tile];
+    orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, boulder_elemental_tile,
+    pheonix_tile];
 
 /**
  * stuns a tile by incrementing it's stun property. Adds the property first if necessary.

@@ -22,16 +22,19 @@ function magma_spewer_ai(self, target, map){
         throw new Error(`tile missing properties used by it's ai.`)
     }
     if(self.tile.cycle === 0){
-        // Move away.
-        var directions = order_nearby(target.difference.times(-1));
-        var moved = false;
-        for(var i = 0; i < directions.length && !moved; ++i){
-            if(map.check_empty(self.location.plus(directions[i]))){
-                map.move(self.location, self.location.plus(directions[i]));
-                self.location.plus_equals(directions[i]);
-                moved = true;
+        // Move away if the player gets close.
+        if(target.difference.within_radius(2)){
+            var directions = order_nearby(target.difference.times(-1));
+            var moved = false;
+            for(var i = 0; i < directions.length && !moved; ++i){
+                if(map.check_empty(self.location.plus(directions[i]))){
+                    map.move(self.location, self.location.plus(directions[i]));
+                    self.location.plus_equals(directions[i]);
+                    moved = true;
+                }
             }
         }
+        
     }
     else{
         // Spew Magma.

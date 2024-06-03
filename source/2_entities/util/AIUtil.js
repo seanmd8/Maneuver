@@ -25,6 +25,10 @@ function hazard(self, target, map){
     // General on_enter function to retaliate if something tries to move onto it.
     map.attack(self.location.plus(target.difference));
 }
+/** @type {AIFunction}  AI used by entities that decay over time or when moved onto.*/
+function decay_ai(self, target, map){
+    map.attack(self.location);
+}
 /** @type {AIFunction} Attempts to move 1 space closer to the user until it succesfully moves or it dies.*/
 function move_closer_ai(self, target, map){
     var directions = order_nearby(target.difference);

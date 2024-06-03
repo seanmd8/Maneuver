@@ -465,6 +465,20 @@ class GameMap{
             }
             return true;
         }
+        if(target.health === undefined && target.on_hit !== undefined){
+            this.get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
+            var player_pos = this.#entity_list.get_player_pos();
+            var hit_entity = {
+                tile: target,
+                location: location
+            }
+            var aggressor_info = { // TODO: when damage source is implemented, use that instead.
+                tile: this.get_player(),
+                difference: player_pos.minus(location)
+            }
+            target.on_hit(hit_entity, aggressor_info, this);
+            return true;
+        }
         if(target.type === `empty`){
             target.is_hit = `${IMG_FOLDER.tiles}hit.png`;
         }

@@ -50,7 +50,7 @@ function rat_ai(self, target, map){
     ++self.tile.cycle;
 }
 
-/** @type {TelegraphFunction} */
+/** @type {TelegraphFunction} Function to telegraph rat attacks.*/
 function rat_telegraph(location, map, self){
     if(self.cycle === undefined){
         throw new Error(`tile missing properties used to telegraph it's attacks.`);

@@ -31,7 +31,8 @@ function generate_magma_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}magma.png`,
         generate_floor: generate_magma_floor,
-        enemy_list: [],
+        enemy_list: [magma_spewer, turret_r_tile, brightling_tile, igneous_crab_tile, boulder_elemental_tile,
+                    pheonix_tile],
         boss_floor_list: [],
         next_area_list: area4,
         description: magma_description
@@ -42,7 +43,7 @@ function generate_forest_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}forest.png`,
         generate_floor: generate_forest_floor,
-        enemy_list: [vinesnare_bush_tile, carrion_flies_tile],
+        enemy_list: [vinesnare_bush_tile, carrion_flies_tile, ram_tile, noxious_toad_tile],
         boss_floor_list: [],
         next_area_list: area5,
         description: forest_description

@@ -327,6 +327,18 @@ class Point{
         }
         return new Point(this.y * -1, this.x).rotate(degrees - 90);
     }
+    /**
+     * @returns true if the point is on the x or y axis, false otherwise.
+     */
+    on_axis(){
+        return this.x === 0 || this.y === 0;
+    }
+    /**
+     * @returns true if the point is on the lines y = x or y = -x, false otherwise.
+     */
+    on_diagonal(){
+        return this.x === this.y;
+    }
 }
 
 /**
@@ -404,7 +416,7 @@ const SAFE_SPAWN_ATTEMPTS = 5;
 // Visual and animation settings.
 const CARD_SCALE = 90;
 const CHEST_CONTENTS_SIZE = 120;
-const TILE_SCALE = 35;
+const TILE_SCALE = 40;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 200;
 const DECK_DISPLAY_WIDTH = 4;
@@ -1102,14 +1114,21 @@ const vinesnare_bush_description = [`Vinesnare Bush: Does not move. Can drag the
 const rat_description = `Rat: Will attack the player if it is next to them. Otherwise it will move 2 spaces closer. After attacking, `
                             +`it will flee.`;
 const shadow_scout_description = `Shadow Scout: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
-                            +`Can go invisible every other turn.`
+                            +`Can go invisible every other turn.`;
 const darkling_description = `Darkling: Teleports around randomly hurting everything next to the location it arrives at. Blocking `
                             +`it's rift will destroy it.`;
 const orb_of_insanity_description = [`Orb of Insanity: Does not move or attack. If the player is within `, ` spaces of it, it will `
-                            +`pollute their deck with a bad temporary card.`]
+                            +`pollute their deck with a bad temporary card.`];
 const carrion_flies_description = `Carrion Flies: Will only attack if the player is nearby. Otherwise they will wander aimlessly. `
                             +`Over time they will multiply.`;
-const magma_spewer_description = `Magma Spewer: Alternates between firing magma into the air and retreating.`
+const magma_spewer_description = `Magma Spewer: Fires magma into the air every other turn. Retreats when you get close.`
+const boulder_elemental_description = `Boulder Elemental: Wakes up stunned when something touches it. Each turn, it samages anyone that is `
+                            +`close to it, then moves 1 space closer to the player. After 3 turns of failing to hit anything, it will go `
+                            +`back to sleep.`;
+const pheonix_description = `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. Everything it flies over will be `
+                            +`damaged and set on fire. When it dies, it drops a pile of ashes from which it will eventually be reborn.`;
+const igneous_crab_description = `Igneous Crab: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
+                                +`When damaged, it will spend the next 2 turns fleeing.`
 
 
 // Area Descriptions.
@@ -1170,17 +1189,21 @@ const rest_description = `Nothing.`;
 
 // Other Tile Descriptions.
 const empty_description = `There is nothing here.`;
-const exit_description = `Stairs to the next floor.`;
-const player_description = `You.`;
+const exit_description = `Stairs: Takes you to the next floor.`;
+const player_description = `You: Click a card to move.`;
 const lava_pool_description = `Lava Pool: Attempting to move here will hurt.`;
 const corrosive_slime_description = `Corrosive Slime: Trying to walk in this will hurt. Clear it out by attacking.`;
-const wall_description = `A wall. It seems sturdy.`;
-const damaged_wall_description = `A damaged wall. Something might live inside.`;
-const lock_description = `The exit is locked. Defeat the boss to continue.`;
-const fireball_description = `A fireball. Moves forwards until it comes into contact with something, then damages it.`;
+const wall_description = `Wall: It seems sturdy.`;
+const damaged_wall_description = `Damaged Wall: Something might live inside.`;
+const lock_description = `Locked Exit: Defeat the boss to continue.`;
+const fireball_description = `Fireball: Moves forwards until it comes into contact with something, then damages it.`;
 const falling_rubble_description = `Watch out, something is about to fall here.`;
 const darkling_rift_description = `If this space isn't blocked, a darkling will teleport here next turn damaging everything nearby.`;
-const chest_description = `A chest. It might have something useful inside. Breaking it might damage the contents.`;
+const chest_description = `Chest: It might have something useful inside. Breaking it will damage the contents.`;
+const magmatic_boulder_description = `Magmatic Boulder: The light reflecting off of it gives you the feeling of being watched.`;
+const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, `turns unless you scatter the ashes by attacking `
+                        +`them or moving onto them.`];
+const raging_fire_description = `Raging Fire: The very ground here is burning. It will go out in a turn, but it's not safe to move through.`;
 
 
 // Chest descriptions.
@@ -1190,7 +1213,7 @@ const abandon_chest = `Abandon`;
 const add_card_description = `Add this card to your deck.`
 
 
-// Cardinal Directions.
+// Button Options.
 const NW = `NW`;
 const N = `N`;
 const NE = `NE`;
@@ -1987,6 +2010,67 @@ function acid_bug_death(self, target, map){
         map.attack(self.location.plus(attacks[i]));
     }
 }
+/** @type {TileGenerator} Generates a camoflauged boulder elemental. */
+function boulder_elemental_tile(){
+    var tile = boulder_elemental_look();
+    shapeshift(tile, tile.look_arr[0]);
+    return tile;
+}
+
+/** @type {TileGenerator} Generates an uncomoflauged boulder elemental. */
+function boulder_elemental_look(){
+    return {
+        type: `enemy`,
+        name: `boulder elemental`,
+        pic: `${IMG_FOLDER.tiles}boulder_elemental.png`,
+        description: boulder_elemental_description,
+        difficulty: 3,
+        behavior: boulder_elemental_ai,
+        telegraph: spider_telegraph,
+        on_enter: boulder_elemental_wake_up,
+        on_hit: boulder_elemental_wake_up,
+        look_arr: [magmatic_boulder_tile, boulder_elemental_look],
+        cycle: 0
+    }
+}
+
+
+/** @type {AIFunction} AI used by boulder elementals.*/
+function boulder_elemental_ai(self, target, map){
+    if( self.tile.cycle === undefined || 
+        self.tile.look_arr === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
+    if(self.tile.cycle === 0){
+        return;
+    }
+    var nearby = order_nearby(target.difference);
+    var hit = false;
+    for(space of nearby){
+        // Attacks everything nearby.
+        hit = hit ||  map.attack(self.location.plus(space));
+    }
+    if(!hit){
+        // If nothing was nearby, gets sleepier.
+        --self.tile.cycle;
+    }
+    if(self.tile.cycle <= 0){
+        // Falls asleep.
+        shapeshift(self.tile, self.tile.look_arr[0]);
+    }
+    else if(!target.difference.within_radius(1)){
+        // If not asleep, moves towards the player.
+        move_closer_ai(self, target, map);
+    }
+}
+/** @type {AIFunction} boulder elemental wakes up when touched.*/
+function boulder_elemental_wake_up(self, target, map){
+    stun(self.tile);
+    self.tile.cycle = 3;
+    shapeshift(self.tile, self.tile.look_arr[1]);
+}
+
+
 /** @type {TileGenerator} */
 function brightling_tile(){
     var starting_cycle = 0;
@@ -2201,6 +2285,55 @@ function darkling_telegraph(location, map, self){
     }
     return spider_telegraph(self.direction, map, self);
 }
+/** @type {TileGenerator} A crab which flees when hit. */
+function igneous_crab_tile(){
+    return {
+        type: `enemy`,
+        name: `igneous crab`,
+        pic: `${IMG_FOLDER.tiles}igneous_crab.png`,
+        description: igneous_crab_description,
+        health: 2,
+        difficulty: 3,
+        behavior: igneous_crab_ai,
+        telegraph: igneous_crab_telegraph,
+        on_hit: igneous_crab_hit,
+        cycle: 0
+    }
+}
+
+/** @type {AIFunction} AI used by igneous crabs.*/
+function igneous_crab_ai(self, target, map){
+    if(self.tile.cycle === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
+    if(self.tile.cycle > 0){
+        var directions = reverse_arr(order_nearby(target.difference));
+        for(i = 0; i < directions.length && !map.move(self.location, self.location.plus(directions[i])); ++i){}
+        --self.tile.cycle;
+    }
+    else{
+        spider_ai(self, target, map);
+    }
+}
+/** @type {AIFunction} Used to cause igneous crabs to flee when damaged.*/
+function igneous_crab_hit(self, target, map){
+    if(self.tile.cycle === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
+    self.tile.cycle += 2;
+}
+/** @type {TelegraphFunction} Function to telegraph igneous crab attacks.*/
+function igneous_crab_telegraph(location, map, self){
+    if(self.cycle === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    if(self.cycle > 0){
+        return [];
+    }
+    return spider_telegraph(location, map, self);
+}
+
+
 /** @type {TileGenerator} */
 function magma_spewer_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}magma_spewer.png`, `${IMG_FOLDER.tiles}magma_spewer_firing.png`];
@@ -2225,16 +2358,19 @@ function magma_spewer_ai(self, target, map){
         throw new Error(`tile missing properties used by it's ai.`)
     }
     if(self.tile.cycle === 0){
-        // Move away.
-        var directions = order_nearby(target.difference.times(-1));
-        var moved = false;
-        for(var i = 0; i < directions.length && !moved; ++i){
-            if(map.check_empty(self.location.plus(directions[i]))){
-                map.move(self.location, self.location.plus(directions[i]));
-                self.location.plus_equals(directions[i]);
-                moved = true;
+        // Move away if the player gets close.
+        if(target.difference.within_radius(2)){
+            var directions = order_nearby(target.difference.times(-1));
+            var moved = false;
+            for(var i = 0; i < directions.length && !moved; ++i){
+                if(map.check_empty(self.location.plus(directions[i]))){
+                    map.move(self.location, self.location.plus(directions[i]));
+                    self.location.plus_equals(directions[i]);
+                    moved = true;
+                }
             }
         }
+        
     }
     else{
         // Spew Magma.
@@ -2369,6 +2505,82 @@ function orb_of_insanity_telegraph_other(location, map, self){
     }
     return area;
 }
+/** @type {TileGenerator} Function to act as a starting point for making new enemies. */
+function pheonix_tile(){
+    return {
+        type: `enemy`,
+        name: `pheonix`,
+        pic: `${IMG_FOLDER.tiles}pheonix.png`,
+        description: pheonix_description,
+        health: 1,
+        difficulty: 5,
+        behavior: pheonix_ai,
+        telegraph: pheonix_telegraph,
+        on_death: pheonix_death
+    }
+}
+
+
+/** @type {AIFunction} AI used by pheonixes.*/
+function pheonix_ai(self, target, map){
+    var direction = new Point(0, 0);
+    var distance = 0;
+    if((target.difference.on_axis() || target.difference.on_diagonal()) && target.difference.within_radius(2)){
+        // Sees the player and tries to attack them.
+        var direction = sign(target.difference);
+        if(map.check_empty(self.location.plus(direction.times(3)))){
+            distance = 3;
+        }
+        else if(map.check_empty(self.location.plus(direction.times(2)))){
+            distance = 2;
+        }
+        
+    }
+    var directions = order_nearby(target.difference);
+    for(var i = 0; i < directions.length && distance === 0; ++i){
+        // otherwise it flies towards them.
+        direction = directions[i];
+        for(var j = 3; j > 1 && distance === 0; --j){
+            if(map.check_empty(self.location.plus(direction.times(j)))){
+                distance = j;
+            }
+        }
+    }
+    if(distance > 0){
+        map.move(self.location, self.location.plus(direction.times(distance)));
+        for(var i = 0; i < distance; ++i){
+            var space = self.location.plus(direction.times(i))
+            map.attack(space);
+            if(map.check_empty(space)){
+                map.add_tile(raging_fire_tile(), space);
+            }
+        }
+        self.location.plus_equals(direction.times(distance));
+    }
+}
+/** @type {AIFunction} Spawns smoldering ashes on death.*/
+function pheonix_death(self, target, map){
+    map.add_tile(smoldering_ashes_tile(), self.location);
+}
+/** @type {TelegraphFunction} Function to telegraph pheonix attacks.*/
+function pheonix_telegraph(location, map, self){
+    var nearby = random_nearby();
+    var telegraph = [];
+    for(var direction of nearby){
+        var distance = 0
+        for(var j = 3; j > 1 && distance === 0; --j){
+            if(map.check_empty(location.plus(direction.times(j)))){
+                distance = j;
+            }
+        }
+        for(var i = 0; i < distance; ++i){
+            telegraph.push(location.plus(direction.times(i)));
+        }
+    }
+    return telegraph;
+}
+
+
 /** @type {TileGenerator} */
 function large_porcuslime_tile(){
     return {
@@ -2656,7 +2868,7 @@ function rat_ai(self, target, map){
     ++self.tile.cycle;
 }
 
-/** @type {TelegraphFunction} */
+/** @type {TelegraphFunction} Function to telegraph rat attacks.*/
 function rat_telegraph(location, map, self){
     if(self.cycle === undefined){
         throw new Error(`tile missing properties used to telegraph it's attacks.`);
@@ -3438,6 +3650,68 @@ function lava_pool_tile(){
     }
 }
 
+/** @type {TileGenerator} A sturdy wall.*/
+function magmatic_boulder_tile(){
+    return {
+        type: `terrain`,
+        name: `magmatic boulder`,
+        pic: `${IMG_FOLDER.tiles}magmatic_boulder.png`,
+        description: magmatic_boulder_description
+    }
+}
+/** @type {TileGenerator} A fire which goes away over time. */
+function raging_fire_tile(){
+    return {
+        type: `enemy`,
+        name: `raging fire`,
+        pic: `${IMG_FOLDER.tiles}raging_fire.png`,
+        description: raging_fire_description,
+        health: 1,
+        behavior: decay_ai,
+        telegraph: hazard_telegraph,
+        on_enter: hazard
+    }
+}
+
+
+
+/** @type {TileGenerator} Dropped by Pheonixes to respawn them. */
+function smoldering_ashes_tile(){
+    var spawn_timer = 2;
+    return {
+        type: `enemy`,
+        name: `smoldering_ashes`,
+        pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
+        description: `${smoldering_ashes_description[0]}${spawn_timer}${smoldering_ashes_description[1]}`,
+        health: 1,
+        behavior: smoldering_ashes_ai,
+        on_enter: decay_ai,
+        description_arr: smoldering_ashes_description,
+        cycle: 0,
+        spawn_timer
+    }
+}
+
+/** @type {AIFunction} AI used by smoldering ashes.*/
+function smoldering_ashes_ai(self, target, map){
+    if( self.tile.cycle === undefined || 
+        self.tile.spawn_timer === undefined ||
+        self.tile.description_arr === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
+    if(self.tile.cycle < self.tile.spawn_timer){
+        // If the cycle hasn't reached the spawn timer, increments it.
+        ++self.tile.cycle;
+        self.tile.description = `${self.tile.description_arr[0]}${self.tile.spawn_timer - self.tile.cycle}${self.tile.description_arr[1]}`
+        throw new Error(`skip animation delay`);
+    }
+    else{
+        // Dies and spawns a pheonix.
+        map.attack(self.location);
+        map.add_tile(pheonix_tile(), self.location);
+    }
+}
+
 /** @type {TileGenerator} A damaged wall that might spawn something on death.*/
 function damaged_wall_tile(){
     var health = random_num(2) + 1;
@@ -3451,7 +3725,7 @@ function damaged_wall_tile(){
         on_hit: damaged_wall_on_hit,
         on_death: damaged_wall_death,
         pic_arr,
-        summons: [spider_tile, acid_bug_tile, spider_web_tile, rat_tile, carrion_flies_tile]
+        summons: [spider_tile, acid_bug_tile, spider_web_tile, rat_tile, carrion_flies_tile, scythe_tile]
     }
 }
 
@@ -3552,6 +3826,10 @@ function hazard(self, target, map){
     // General on_enter function to retaliate if something tries to move onto it.
     map.attack(self.location.plus(target.difference));
 }
+/** @type {AIFunction}  AI used by entities that decay over time or when moved onto.*/
+function decay_ai(self, target, map){
+    map.attack(self.location);
+}
 /** @type {AIFunction} Attempts to move 1 space closer to the user until it succesfully moves or it dies.*/
 function move_closer_ai(self, target, map){
     var directions = order_nearby(target.difference);
@@ -3635,7 +3913,8 @@ const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, sh
     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
-    orb_of_insanity_tile, carrion_flies_tile];
+    orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, boulder_elemental_tile,
+    pheonix_tile];
 
 /**
  * stuns a tile by incrementing it's stun property. Adds the property first if necessary.
@@ -4792,6 +5071,20 @@ class GameMap{
             }
             return true;
         }
+        if(target.health === undefined && target.on_hit !== undefined){
+            this.get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
+            var player_pos = this.#entity_list.get_player_pos();
+            var hit_entity = {
+                tile: target,
+                location: location
+            }
+            var aggressor_info = { // TODO: when damage source is implemented, use that instead.
+                tile: this.get_player(),
+                difference: player_pos.minus(location)
+            }
+            target.on_hit(hit_entity, aggressor_info, this);
+            return true;
+        }
         if(target.type === `empty`){
             target.is_hit = `${IMG_FOLDER.tiles}hit.png`;
         }
@@ -5538,7 +5831,8 @@ function generate_magma_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}magma.png`,
         generate_floor: generate_magma_floor,
-        enemy_list: [],
+        enemy_list: [magma_spewer, turret_r_tile, brightling_tile, igneous_crab_tile, boulder_elemental_tile,
+                    pheonix_tile],
         boss_floor_list: [],
         next_area_list: area4,
         description: magma_description
@@ -5549,7 +5843,7 @@ function generate_forest_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}forest.png`,
         generate_floor: generate_forest_floor,
-        enemy_list: [vinesnare_bush_tile, carrion_flies_tile],
+        enemy_list: [vinesnare_bush_tile, carrion_flies_tile, ram_tile, noxious_toad_tile],
         boss_floor_list: [],
         next_area_list: area5,
         description: forest_description
