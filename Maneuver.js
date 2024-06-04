@@ -931,7 +931,7 @@ function make_starting_deck(){
 function make_test_deck(){
     var deck = new MoveDeck();
     var cards_to_test = [
-        firebreathing_horizontal, firebreathing_vertical, firebreathing_ne, firebreathing_nw
+        lunge_left, lunge_right
     ]
     for(var card of cards_to_test){
         deck.add(card());
@@ -1269,7 +1269,7 @@ const GUIDE_TEXT = {
                 ` You will heal the creature on this space if it's health is less than it's max health.\n`,
                 ` Each action the line goes through will be performed.\n`,
                 ` Multiple actions will be performed in a specific order.\n`,
-                ` Multiple actions of the same stype will be performed until one fails.\n`,
+                ` Multiple actions of the same type will be performed until you hit something.\n`,
                 `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
                 ` A card with a purple grid will be performed instantly.\n`,
                 ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
@@ -6738,6 +6738,8 @@ function horsemanship(){
 function lunge_left(){
     var options = new ButtonGrid();
     options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    options.add_button(NE, [pmove(1, -1)]);
     options.add_button(NW, [pmove(-1, -1), pmove(-1, -1), pattack(-1, -1)]);
     return{
         name: `lunge left`,
@@ -6749,6 +6751,8 @@ function lunge_left(){
 function lunge_right(){
     var options = new ButtonGrid();
     options.add_button(SW, [pmove(-1, 1)]);
+    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(NW, [pmove(-1, -1)]);
     options.add_button(NE, [pmove(1, -1), pmove(1, -1), pattack(1, -1)]);
     return{
         name: `lunge right`,

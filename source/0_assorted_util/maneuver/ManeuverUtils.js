@@ -35,7 +35,7 @@ function make_starting_deck(){
 function make_test_deck(){
     var deck = new MoveDeck();
     var cards_to_test = [
-        firebreathing_horizontal, firebreathing_vertical, firebreathing_ne, firebreathing_nw
+        lunge_left, lunge_right
     ]
     for(var card of cards_to_test){
         deck.add(card());

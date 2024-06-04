@@ -30,7 +30,7 @@ const GUIDE_TEXT = {
                 ` You will heal the creature on this space if it's health is less than it's max health.\n`,
                 ` Each action the line goes through will be performed.\n`,
                 ` Multiple actions will be performed in a specific order.\n`,
-                ` Multiple actions of the same stype will be performed until one fails.\n`,
+                ` Multiple actions of the same type will be performed until you hit something.\n`,
                 `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
                 ` A card with a purple grid will be performed instantly.\n`,
                 ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
