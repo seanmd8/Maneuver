@@ -16,6 +16,10 @@ function vampire_tile(){
 
 /** @type {AIFunction} AI used by vampires.*/
 function vampire_ai(self, target, map){
+    if( self.tile.health === undefined || 
+        self.tile.max_health === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
     var player_pos = self.location.plus(target.difference);
     var target_spaces = [new Point(player_pos.x + 1, player_pos.y + 1), 
                         new Point(player_pos.x - 1, player_pos.y + 1), 
@@ -24,9 +28,10 @@ function vampire_ai(self, target, map){
     target_spaces = randomize_arr(target_spaces);
     var moved = false;
     for(var i = 0; i < target_spaces.length && !moved; ++i){
+        // Tries to move to a nearby space from which it can attack the player.
         var space = target_spaces[i];
         var target_distance = space.minus(self.location);
-        if(Math.abs(target_distance.x) + Math.abs(target_distance.y) === 1){
+        if(target_distance.taxicab_distance() === 1){
             moved = map.move(self.location, space);
         }
     }
@@ -36,10 +41,11 @@ function vampire_ai(self, target, map){
         ++self.tile.health; // heal.
     }
     if(!moved){
+        // If it hasn't moved yet, just moves closer to the player.
         var directions = order_nearby(target.difference);
         for(var i = 0; i < directions.length && !moved; ++i){
             var direction = directions[i]
-            if(direction.x === 0 || direction.y === 0){
+            if(direction.on_axis()){
                 moved = map.move(self.location, self.location.plus(direction));
             }
             

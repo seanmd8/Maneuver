@@ -27,7 +27,7 @@ function noxious_toad_ai(self, target, map){
         var moved = false;
         for(var i = 0; i < directions.length && !moved; ++i){
             // Leap orthogonally closer.
-            if(directions[i].x === 0 || directions[i].y === 0){
+            if(directions[i].on_axis()){
                 moved = map.move(self.location, self.location.plus(directions[i].times(2)));
                 if(moved){
                     self.location.plus_equals(directions[i].times(2));

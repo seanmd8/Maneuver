@@ -39,7 +39,7 @@ function vinesnare_bush_ai(self, target, map){
     var moved = false;
     if(self.tile.cycle > 0 && target.difference.within_radius(self.tile.range)){
         var direction = sign(target.difference);
-        if(target.difference.x === 0 || target.difference.y === 0 || Math.abs(target.difference.x) === Math.abs(target.difference.y)){
+        if(target.difference.on_axis() || target.difference.on_diagonal()){
             // If the player is orthogonal or diagonal and within range, drag them closer.
             for(var i = Math.max(Math.abs(target.difference.x), Math.abs(target.difference.y));
                 i > 1 && map.move(self.location.plus(direction.times(i)), self.location.plus(direction.times(i - 1)));

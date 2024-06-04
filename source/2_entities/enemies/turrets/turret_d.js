@@ -15,7 +15,7 @@ function turret_d_tile(){
 /** @type {AIFunction} AI used by turrets that shoot diagonally.*/
 function turret_d_ai(self, target, map){
     // Turret version that shoots diagonally.
-    if(Math.abs(target.difference.x) === Math.abs(target.difference.y)){
+    if(target.difference.on_diagonal()){
         turret_fire_ai(self, target, map);
     }
     else{

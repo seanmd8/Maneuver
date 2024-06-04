@@ -129,7 +129,7 @@ class Point{
      */
     on_diagonal(){
         var is_origin = point_equals(this, new Point(0, 0));
-        return (this.x === this.y || this.x === -1 * this.y) && !is_origin;
+        return Math.abs(this.x) === Math.abs(this.y) && !is_origin;
     }
 }
 

@@ -18,14 +18,14 @@ function shadow_knight_tile(){
 /** @type {AIFunction} AI used by shadow knights.*/
 function shadow_knight_ai(self, target, map){
     // Moves in an L.
-    if(Math.abs(target.difference.x) === 1 && Math.abs(target.difference.y) === 1){
+    if(target.difference.on_diagonal() && target.difference.within_radius(1)){
         // If the player is next to it diagonally, attempty to reposition to attack them next turn.
         if(map.move(self.location, self.location.plus(sign(target.difference).times(new Point(2, -1)))) ||
            map.move(self.location, self.location.plus(sign(target.difference).times(new Point(-1, 2))))){
             return;
         }
     }
-    if((Math.abs(target.difference.x) === 1 || Math.abs(target.difference.y) === 1) && target.difference.taxicab_distance() === 3){
+    if(target.difference.taxicab_distance() === 3 && !target.difference.on_axis()){
         // If the player is a L away, attack them then try to move past them.
         map.attack(self.location.plus(target.difference), `player`);
         map.move(self.location, self.location.plus(target.difference.times(new Point(2, 2))));

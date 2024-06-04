@@ -20,7 +20,7 @@ function scythe_ai(self, target, map){
     }
     var distance = 3;
     var direction = sign(target.difference);
-    if(direction.x === 0 || direction.y === 0){
+    if(direction.on_axis()){
         // If the player is orthogonal, moves randomly.
         direction = new Point(random_sign(), random_sign());
     }

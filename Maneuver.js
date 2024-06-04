@@ -341,7 +341,7 @@ class Point{
      */
     on_diagonal(){
         var is_origin = point_equals(this, new Point(0, 0));
-        return (this.x === this.y || this.x === -1 * this.y) && !is_origin;
+        return Math.abs(this.x) === Math.abs(this.y) && !is_origin;
     }
 }
 
@@ -1536,10 +1536,10 @@ function two_headed_serpent_ai(self, target, map){
     }
     var moved = false;
     var index = serpent_get_direction(self.tile);
-    if(!(target.difference.within_radius(1) && (target.difference.x === 0 || target.difference.y === 0))){
+    if(!(target.difference.within_radius(1) && target.difference.on_axis())){
         var dir = order_nearby(target.difference);
         for(var i = 0; i < dir.length && !moved; ++i){
-            if(dir[i].x === 0 || dir[i].y === 0){
+            if(dir[i].on_axis()){
                 moved = map.move(self.location, self.location.plus(dir[i]));
                 if(moved){
                     // Create segment where the head was.
@@ -1575,7 +1575,7 @@ function two_headed_serpent_ai(self, target, map){
             }
         } 
     }
-    if(target.difference.within_radius(1) && (target.difference.x === 0 || target.difference.y === 0)){
+    if(target.difference.within_radius(1) && target.difference.on_axis()){
         map.attack(self.location.plus(target.difference));
     }
     else if(!moved){
@@ -2448,7 +2448,7 @@ function noxious_toad_ai(self, target, map){
         var moved = false;
         for(var i = 0; i < directions.length && !moved; ++i){
             // Leap orthogonally closer.
-            if(directions[i].x === 0 || directions[i].y === 0){
+            if(directions[i].on_axis()){
                 moved = map.move(self.location, self.location.plus(directions[i].times(2)));
                 if(moved){
                     self.location.plus_equals(directions[i].times(2));
@@ -2713,7 +2713,7 @@ function porcuslime_diagonal_ai(self, target, map){
     var direction = undefined;
     for(var i = 0; i < directions.length && direction === undefined; ++i){
         // Finds the first diagonal direction.
-        if(Math.abs(directions[i].x) === 1 && Math.abs(directions[i].y) === 1){
+        if(directions[i].on_diagonal()){
             direction = directions[i];
         }
     }
@@ -2727,7 +2727,8 @@ function porcuslime_horizontal_ai(self, target, map){
     var directions = order_nearby(target.difference);
     var direction = undefined;
     for(var i = 0; i < directions.length && direction === undefined; ++i){
-        if(directions[i].x === 0 || directions[i].y === 0){
+        // Finds the first orthogonal direction.
+        if(directions[i].on_axis()){
             direction = directions[i];
         }
     }
@@ -2933,7 +2934,7 @@ function scythe_ai(self, target, map){
     }
     var distance = 3;
     var direction = sign(target.difference);
-    if(direction.x === 0 || direction.y === 0){
+    if(direction.on_axis()){
         // If the player is orthogonal, moves randomly.
         direction = new Point(random_sign(), random_sign());
     }
@@ -2982,14 +2983,14 @@ function shadow_knight_tile(){
 /** @type {AIFunction} AI used by shadow knights.*/
 function shadow_knight_ai(self, target, map){
     // Moves in an L.
-    if(Math.abs(target.difference.x) === 1 && Math.abs(target.difference.y) === 1){
+    if(target.difference.on_diagonal() && target.difference.within_radius(1)){
         // If the player is next to it diagonally, attempty to reposition to attack them next turn.
         if(map.move(self.location, self.location.plus(sign(target.difference).times(new Point(2, -1)))) ||
            map.move(self.location, self.location.plus(sign(target.difference).times(new Point(-1, 2))))){
             return;
         }
     }
-    if((Math.abs(target.difference.x) === 1 || Math.abs(target.difference.y) === 1) && target.difference.taxicab_distance() === 3){
+    if(target.difference.taxicab_distance() === 3 && !target.difference.on_axis()){
         // If the player is a L away, attack them then try to move past them.
         map.attack(self.location.plus(target.difference), `player`);
         map.move(self.location, self.location.plus(target.difference.times(new Point(2, 2))));
@@ -3154,7 +3155,7 @@ function turret_d_tile(){
 /** @type {AIFunction} AI used by turrets that shoot diagonally.*/
 function turret_d_ai(self, target, map){
     // Turret version that shoots diagonally.
-    if(Math.abs(target.difference.x) === Math.abs(target.difference.y)){
+    if(target.difference.on_diagonal()){
         turret_fire_ai(self, target, map);
     }
     else{
@@ -3187,7 +3188,7 @@ function turret_h_tile(){
 /** @type {AIFunction} AI used by turrets that shoot orthogonally.*/
 function turret_h_ai(self, target, map){
     // Turret version that shoots orthogonally.
-    if(target.difference.x === 0 || target.difference.y === 0){
+    if(target.difference.on_axis()){
         turret_fire_ai(self, target, map);
     }
     else{
@@ -3330,6 +3331,10 @@ function vampire_tile(){
 
 /** @type {AIFunction} AI used by vampires.*/
 function vampire_ai(self, target, map){
+    if( self.tile.health === undefined || 
+        self.tile.max_health === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
     var player_pos = self.location.plus(target.difference);
     var target_spaces = [new Point(player_pos.x + 1, player_pos.y + 1), 
                         new Point(player_pos.x - 1, player_pos.y + 1), 
@@ -3338,9 +3343,10 @@ function vampire_ai(self, target, map){
     target_spaces = randomize_arr(target_spaces);
     var moved = false;
     for(var i = 0; i < target_spaces.length && !moved; ++i){
+        // Tries to move to a nearby space from which it can attack the player.
         var space = target_spaces[i];
         var target_distance = space.minus(self.location);
-        if(Math.abs(target_distance.x) + Math.abs(target_distance.y) === 1){
+        if(target_distance.taxicab_distance() === 1){
             moved = map.move(self.location, space);
         }
     }
@@ -3350,10 +3356,11 @@ function vampire_ai(self, target, map){
         ++self.tile.health; // heal.
     }
     if(!moved){
+        // If it hasn't moved yet, just moves closer to the player.
         var directions = order_nearby(target.difference);
         for(var i = 0; i < directions.length && !moved; ++i){
             var direction = directions[i]
-            if(direction.x === 0 || direction.y === 0){
+            if(direction.on_axis()){
                 moved = map.move(self.location, self.location.plus(direction));
             }
             
@@ -3422,7 +3429,7 @@ function vinesnare_bush_ai(self, target, map){
     var moved = false;
     if(self.tile.cycle > 0 && target.difference.within_radius(self.tile.range)){
         var direction = sign(target.difference);
-        if(target.difference.x === 0 || target.difference.y === 0 || Math.abs(target.difference.x) === Math.abs(target.difference.y)){
+        if(target.difference.on_axis() || target.difference.on_diagonal()){
             // If the player is orthogonal or diagonal and within range, drag them closer.
             for(var i = Math.max(Math.abs(target.difference.x), Math.abs(target.difference.y));
                 i > 1 && map.move(self.location.plus(direction.times(i)), self.location.plus(direction.times(i - 1)));
@@ -4145,8 +4152,8 @@ function set_rotation(tile){
         tile.rotate === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
-    var direction = tile.direction
-    if(direction.x === 0 || direction.y === 0){
+    var direction = tile.direction;
+    if(direction.on_axis()){
         tile.rotate = 0;
         if(direction.x < 0 || direction.y > 0){
             tile.rotate = 2*90;

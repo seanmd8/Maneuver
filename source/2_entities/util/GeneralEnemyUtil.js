@@ -259,8 +259,8 @@ function set_rotation(tile){
         tile.rotate === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
-    var direction = tile.direction
-    if(direction.x === 0 || direction.y === 0){
+    var direction = tile.direction;
+    if(direction.on_axis()){
         tile.rotate = 0;
         if(direction.x < 0 || direction.y > 0){
             tile.rotate = 2*90;

@@ -15,7 +15,7 @@ function turret_h_tile(){
 /** @type {AIFunction} AI used by turrets that shoot orthogonally.*/
 function turret_h_ai(self, target, map){
     // Turret version that shoots orthogonally.
-    if(target.difference.x === 0 || target.difference.y === 0){
+    if(target.difference.on_axis()){
         turret_fire_ai(self, target, map);
     }
     else{

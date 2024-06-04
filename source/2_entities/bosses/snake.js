@@ -40,10 +40,10 @@ function two_headed_serpent_ai(self, target, map){
     }
     var moved = false;
     var index = serpent_get_direction(self.tile);
-    if(!(target.difference.within_radius(1) && (target.difference.x === 0 || target.difference.y === 0))){
+    if(!(target.difference.within_radius(1) && target.difference.on_axis())){
         var dir = order_nearby(target.difference);
         for(var i = 0; i < dir.length && !moved; ++i){
-            if(dir[i].x === 0 || dir[i].y === 0){
+            if(dir[i].on_axis()){
                 moved = map.move(self.location, self.location.plus(dir[i]));
                 if(moved){
                     // Create segment where the head was.
@@ -79,7 +79,7 @@ function two_headed_serpent_ai(self, target, map){
             }
         } 
     }
-    if(target.difference.within_radius(1) && (target.difference.x === 0 || target.difference.y === 0)){
+    if(target.difference.within_radius(1) && target.difference.on_axis()){
         map.attack(self.location.plus(target.difference));
     }
     else if(!moved){
