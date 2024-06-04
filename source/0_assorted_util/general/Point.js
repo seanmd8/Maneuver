@@ -117,15 +117,19 @@ class Point{
     }
     /**
      * @returns true if the point is on the x or y axis, false otherwise.
+     * (0, 0) returns false.
      */
     on_axis(){
-        return this.x === 0 || this.y === 0;
+        var is_origin = point_equals(this, new Point(0, 0));
+        return (this.x === 0 || this.y === 0) && !is_origin;
     }
     /**
      * @returns true if the point is on the lines y = x or y = -x, false otherwise.
+     * (0, 0) returns false.
      */
     on_diagonal(){
-        return this.x === this.y;
+        var is_origin = point_equals(this, new Point(0, 0));
+        return (this.x === this.y || this.x === -1 * this.y) && !is_origin;
     }
 }
 

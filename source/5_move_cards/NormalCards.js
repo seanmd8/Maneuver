@@ -470,6 +470,7 @@ function whack_diagonal(){
 function thwack(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(0, -1), pattack(0, -1), pattack(0, -1)]);
+    options.add_button(S, [pattack(0, 1), pattack(0, 1), pattack(0, 1)]);
     return{
         name: `thwack`,
         pic: `${IMG_FOLDER.cards}thwack.png`,
@@ -638,6 +639,138 @@ function reckless_diagonal(){
     return{
         name: `reckless diagonal`,
         pic: `${IMG_FOLDER.cards}reckless_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function advance(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1), pmove(0, -1)]);
+    options.add_button(NE, [pmove(1, -1)]);
+    options.add_button(NW, [pmove(-1, -1)]);
+    return{
+        name: `advance`,
+        pic: `${IMG_FOLDER.cards}advance.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function bounding_retreat(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1)]);
+    options.add_button(SE, [pmove(2, 2), pmove(1, 1)]);
+    options.add_button(SW, [pmove(-2, 2), pmove(-1, 1)]);
+    return{
+        name: `bounding retreat`,
+        pic: `${IMG_FOLDER.cards}bounding_retreat.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function leap_left(){
+    var options = new ButtonGrid();
+    options.add_button(NW, [pmove(-2, -2)]);
+    options.add_button(W, [pmove(-2, 0)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+
+    return{
+        name: `leap left`,
+        pic: `${IMG_FOLDER.cards}leap_left.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function leap_right(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(E, [pmove(2, 0)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    return{
+        name: `leap right`,
+        pic: `${IMG_FOLDER.cards}leap_right.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function short_charge_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(1, -1), pattack(1, -1)]);
+    options.add_button(SE, [pmove(1, 1), pattack(1, 1)]);
+    options.add_button(SW, [pmove(-1, 1), pattack(-1, 1)]);
+    options.add_button(NW, [pmove(-1, -1), pattack(-1, -1)]);
+    return{
+        name: `short charge diagonal`,
+        pic: `${IMG_FOLDER.cards}short_charge_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function side_sprint(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
+    options.add_button(W, [pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
+    return{
+        name: `side sprint`,
+        pic: `${IMG_FOLDER.cards}side_sprint.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function slash_step_forwards(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1), pattack(0, -1), pattack(1, -1), pattack(-1, -1), pattack(1, 0), pattack(-1, 0)]);
+    options.add_button(S, [pmove(0, 1)]);
+    return{
+        name: `slash step forwards`,
+        pic: `${IMG_FOLDER.cards}slash_step_forwards.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function slash_step_left(){
+    var options = new ButtonGrid();
+    options.add_button(W, [pmove(-1, 0), pattack(-1, 0), pattack(-1, 1), pattack(-1, -1), pattack(0, 1), 
+                           pattack(0, -1), pattack(1, 1), pattack(1, -1),]);
+    return{
+        name: `slash step left`,
+        pic: `${IMG_FOLDER.cards}slash_step_left.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function slash_step_right(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0), pattack(1, 0), pattack(1, 1), pattack(1, -1), pattack(0, 1), 
+                           pattack(0, -1), pattack(-1, 1), pattack(-1, -1)]);
+    return{
+        name: `slash step right`,
+        pic: `${IMG_FOLDER.cards}slash_step_right.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function slip_through_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pattack(0, 1), pattack(1, 0), pmove(1, 1)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pattack(0, -1), pattack(-1, 0), pmove(-1, -1)]);
+    return{
+        name: `slip through ne`,
+        pic: `${IMG_FOLDER.cards}slip_through_ne.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function slip_through_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack(0, -1), pattack(1, 0), pmove(1, -1)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pattack(0, 1), pattack(-1, 0), pmove(-1, 1)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    return{
+        name: `slip through nw`,
+        pic: `${IMG_FOLDER.cards}slip_through_nw.png`,
         options
     }
 }

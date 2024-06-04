@@ -34,7 +34,9 @@ function make_starting_deck(){
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
     var deck = new MoveDeck();
-    var cards_to_test = [reckless_diagonal, reckless_horizontal]
+    var cards_to_test = [
+        firebreathing_horizontal, firebreathing_vertical, firebreathing_ne, firebreathing_nw
+    ]
     for(var card of cards_to_test){
         deck.add(card());
     }
@@ -42,8 +44,6 @@ function make_test_deck(){
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
-    deck.add(basic_horizontal());
-
 
     deck.deal();
     return deck;

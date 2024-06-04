@@ -31,7 +31,7 @@ function generate_magma_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}magma.png`,
         generate_floor: generate_magma_floor,
-        enemy_list: [magma_spewer, turret_r_tile, brightling_tile, igneous_crab_tile, boulder_elemental_tile,
+        enemy_list: [magma_spewer_tile, turret_r_tile, brightling_tile, igneous_crab_tile, boulder_elemental_tile,
                     pheonix_tile],
         boss_floor_list: [],
         next_area_list: area4,

@@ -21,7 +21,7 @@ function igneous_crab_ai(self, target, map){
     }
     if(self.tile.cycle > 0){
         var directions = reverse_arr(order_nearby(target.difference));
-        for(i = 0; i < directions.length && !map.move(self.location, self.location.plus(directions[i])); ++i){}
+        for(var i = 0; i < directions.length && !map.move(self.location, self.location.plus(directions[i])); ++i){}
         --self.tile.cycle;
     }
     else{

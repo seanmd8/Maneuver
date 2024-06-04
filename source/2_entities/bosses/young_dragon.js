@@ -24,7 +24,8 @@ function young_dragon_tile(){
         cycle: 0,
         range: 3,
         direction: new Point(0, 1),
-        card_drops: []
+        card_drops: [firebreathing_horizontal, firebreathing_vertical, firebreathing_ne, firebreathing_nw, glide,
+                     soar]
     }
 }
 
@@ -46,8 +47,8 @@ function young_dragon_behavior(self, target, map){
         spaces = randomize_arr(spaces);
         var moved = false;
         var preffered_distance = [4, 3, 5];
-        for(var radius of preffered_distance){
-            for(var space of spaces){
+        for(let radius of preffered_distance){
+            for(let space of spaces){
                 if(moved){
                     break;
                 }
@@ -60,7 +61,7 @@ function young_dragon_behavior(self, target, map){
                 }
             }
         }
-        for(var space of spaces){
+        for(let space of spaces){
             if(moved){
                 break;
             }
@@ -87,7 +88,7 @@ function young_dragon_behavior(self, target, map){
         self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[self.tile.cycle + 1]}${self.tile.range}.`;
         return;
     }
-    else if(self.tile.cycle === 2){
+    if(self.tile.cycle === 2){
         // Breathe fire.
         var horizontal_cone = [];
         for(var i = 1; i <= self.tile.range; ++i){
@@ -97,22 +98,29 @@ function young_dragon_behavior(self, target, map){
             }
         }
         var diagonal_cone = [];
-        for(var i = 1; i <= self.tile.range; ++i){
-            for(var j = 0; j < i; ++j){
+        for(let i = 1; i <= self.tile.range; ++i){
+            for(let j = 0; j < i; ++j){
                 // Creates the diagonal cone pattern ponting North West.
                 diagonal_cone.push(new Point(j - i, -1 - j));
             }
         }
         // Choose breath cone for the direction we are facing.
-        var cone = diagonal_cone;
-        if(self.tile.direction.x === 0 || self.tile.direction.y === 0){
-            cone = horizontal_cone;
+        var cone = [];
+        if(self.tile.direction.on_axis()){
+            cone = create_orthogonal_cone(self.tile.rotate, self.tile.range);
         }
-        // Rotate cone.
-        cone = cone.map((p) => p.rotate(ifexists(self.tile.rotate)));
+        else if(self.tile.direction.on_diagonal()){
+            cone = create_diagonal_cone(self.tile.rotate, self.tile.range);
+        }
         // Breath attack.
-        for(var space of cone){
-            map.attack(self.location.plus(space));
+        for(let space of cone){
+            var target_space = self.location.plus(space)
+            map.attack(target_space);
+            if(map.check_empty(target_space)){
+                var fire = raging_fire_tile();
+                fire.health = 2;
+                map.add_tile(fire, target_space);
+            }
         }
     }
     // Prep Flight.
@@ -139,26 +147,43 @@ function young_dragon_telegraph(location, map, self){
     if(self.cycle !== 2){
         return [];
     }
-    var horizontal_cone = [];
-    for(var i = 1; i <= self.range; ++i){
+    var cone = [];
+    if(self.direction.on_axis()){
+        cone = create_orthogonal_cone(self.rotate, self.range);
+    }
+    else if(self.direction.on_diagonal()){
+        cone = create_diagonal_cone(self.rotate, self.range);
+    }
+    cone = cone.map((p) => p.plus(location));
+    return cone;
+}
+/**
+ * Function to create a orthogonal cone of points potruding from the origin.
+ * @param {number} rotation A multiple of 90 degrees indicating how much the cone should be rotated from North.
+ * @param {number} range The height of the cone.
+ * @returns {Point[]} The resulting cone.
+ */
+function create_orthogonal_cone(rotation, range){
+    var cone = [];
+    for(var i = 1; i <= range; ++i){
         for(var j = -(i - 1); j < i; ++j){
-            // Creates the horizontal cone pattern pointing North.
-            horizontal_cone.push(new Point(j, -1 * i));
+            cone.push((new Point(j, -1 * i)).rotate(rotation));
         }
     }
-    var diagonal_cone = [];
-    for(var i = 1; i <= self.range; ++i){
+    return cone;
+}
+/**
+ * Function to create a diagonal cone of points potruding from the origin.
+ * @param {number} rotation A multiple of 90 degrees indicating how much the cone should be rotated from North West.
+ * @param {number} range The height of the cone.
+ * @returns {Point[]} The resulting cone.
+ */
+function create_diagonal_cone(rotation, range){
+    var cone = [];
+    for(var i = 1; i <= range; ++i){
         for(var j = 0; j < i; ++j){
-            // Creates the diagonal cone pattern ponting North West.
-            diagonal_cone.push(new Point(j - i, -1 - j));
+            cone.push((new Point(j - i, -1 - j)).rotate(rotation));
         }
     }
-    // Choose breath cone for the direction we are facing.
-    var cone = diagonal_cone;
-    if(self.direction.x === 0 || self.direction.y === 0){
-        cone = horizontal_cone;
-    }
-    // Rotate cone.
-    cone = cone.map((p) => p.rotate(ifexists(self.rotate)).plus(location));
     return cone;
 }

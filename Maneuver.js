@@ -329,15 +329,19 @@ class Point{
     }
     /**
      * @returns true if the point is on the x or y axis, false otherwise.
+     * (0, 0) returns false.
      */
     on_axis(){
-        return this.x === 0 || this.y === 0;
+        var is_origin = point_equals(this, new Point(0, 0));
+        return (this.x === 0 || this.y === 0) && !is_origin;
     }
     /**
      * @returns true if the point is on the lines y = x or y = -x, false otherwise.
+     * (0, 0) returns false.
      */
     on_diagonal(){
-        return this.x === this.y;
+        var is_origin = point_equals(this, new Point(0, 0));
+        return (this.x === this.y || this.x === -1 * this.y) && !is_origin;
     }
 }
 
@@ -924,7 +928,9 @@ function make_starting_deck(){
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
     var deck = new MoveDeck();
-    var cards_to_test = [reckless_diagonal, reckless_horizontal]
+    var cards_to_test = [
+        firebreathing_horizontal, firebreathing_vertical, firebreathing_ne, firebreathing_nw
+    ]
     for(var card of cards_to_test){
         deck.add(card());
     }
@@ -932,8 +938,6 @@ function make_test_deck(){
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
-    deck.add(basic_horizontal());
-
 
     deck.deal();
     return deck;
@@ -1849,7 +1853,8 @@ function young_dragon_tile(){
         cycle: 0,
         range: 3,
         direction: new Point(0, 1),
-        card_drops: []
+        card_drops: [firebreathing_horizontal, firebreathing_vertical, firebreathing_ne, firebreathing_nw, glide,
+                     soar]
     }
 }
 
@@ -1871,8 +1876,8 @@ function young_dragon_behavior(self, target, map){
         spaces = randomize_arr(spaces);
         var moved = false;
         var preffered_distance = [4, 3, 5];
-        for(var radius of preffered_distance){
-            for(var space of spaces){
+        for(let radius of preffered_distance){
+            for(let space of spaces){
                 if(moved){
                     break;
                 }
@@ -1885,7 +1890,7 @@ function young_dragon_behavior(self, target, map){
                 }
             }
         }
-        for(var space of spaces){
+        for(let space of spaces){
             if(moved){
                 break;
             }
@@ -1912,7 +1917,7 @@ function young_dragon_behavior(self, target, map){
         self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[self.tile.cycle + 1]}${self.tile.range}.`;
         return;
     }
-    else if(self.tile.cycle === 2){
+    if(self.tile.cycle === 2){
         // Breathe fire.
         var horizontal_cone = [];
         for(var i = 1; i <= self.tile.range; ++i){
@@ -1922,22 +1927,29 @@ function young_dragon_behavior(self, target, map){
             }
         }
         var diagonal_cone = [];
-        for(var i = 1; i <= self.tile.range; ++i){
-            for(var j = 0; j < i; ++j){
+        for(let i = 1; i <= self.tile.range; ++i){
+            for(let j = 0; j < i; ++j){
                 // Creates the diagonal cone pattern ponting North West.
                 diagonal_cone.push(new Point(j - i, -1 - j));
             }
         }
         // Choose breath cone for the direction we are facing.
-        var cone = diagonal_cone;
-        if(self.tile.direction.x === 0 || self.tile.direction.y === 0){
-            cone = horizontal_cone;
+        var cone = [];
+        if(self.tile.direction.on_axis()){
+            cone = create_orthogonal_cone(self.tile.rotate, self.tile.range);
         }
-        // Rotate cone.
-        cone = cone.map((p) => p.rotate(ifexists(self.tile.rotate)));
+        else if(self.tile.direction.on_diagonal()){
+            cone = create_diagonal_cone(self.tile.rotate, self.tile.range);
+        }
         // Breath attack.
-        for(var space of cone){
-            map.attack(self.location.plus(space));
+        for(let space of cone){
+            var target_space = self.location.plus(space)
+            map.attack(target_space);
+            if(map.check_empty(target_space)){
+                var fire = raging_fire_tile();
+                fire.health = 2;
+                map.add_tile(fire, target_space);
+            }
         }
     }
     // Prep Flight.
@@ -1964,30 +1976,46 @@ function young_dragon_telegraph(location, map, self){
     if(self.cycle !== 2){
         return [];
     }
-    var horizontal_cone = [];
-    for(var i = 1; i <= self.range; ++i){
-        for(var j = -(i - 1); j < i; ++j){
-            // Creates the horizontal cone pattern pointing North.
-            horizontal_cone.push(new Point(j, -1 * i));
-        }
+    var cone = [];
+    if(self.direction.on_axis()){
+        cone = create_orthogonal_cone(self.rotate, self.range);
     }
-    var diagonal_cone = [];
-    for(var i = 1; i <= self.range; ++i){
-        for(var j = 0; j < i; ++j){
-            // Creates the diagonal cone pattern ponting North West.
-            diagonal_cone.push(new Point(j - i, -1 - j));
-        }
+    else if(self.direction.on_diagonal()){
+        cone = create_diagonal_cone(self.rotate, self.range);
     }
-    // Choose breath cone for the direction we are facing.
-    var cone = diagonal_cone;
-    if(self.direction.x === 0 || self.direction.y === 0){
-        cone = horizontal_cone;
-    }
-    // Rotate cone.
-    cone = cone.map((p) => p.rotate(ifexists(self.rotate)).plus(location));
+    cone = cone.map((p) => p.plus(location));
     return cone;
 }
-
+/**
+ * Function to create a orthogonal cone of points potruding from the origin.
+ * @param {number} rotation A multiple of 90 degrees indicating how much the cone should be rotated from North.
+ * @param {number} range The height of the cone.
+ * @returns {Point[]} The resulting cone.
+ */
+function create_orthogonal_cone(rotation, range){
+    var cone = [];
+    for(var i = 1; i <= range; ++i){
+        for(var j = -(i - 1); j < i; ++j){
+            cone.push((new Point(j, -1 * i)).rotate(rotation));
+        }
+    }
+    return cone;
+}
+/**
+ * Function to create a diagonal cone of points potruding from the origin.
+ * @param {number} rotation A multiple of 90 degrees indicating how much the cone should be rotated from North West.
+ * @param {number} range The height of the cone.
+ * @returns {Point[]} The resulting cone.
+ */
+function create_diagonal_cone(rotation, range){
+    var cone = [];
+    for(var i = 1; i <= range; ++i){
+        for(var j = 0; j < i; ++j){
+            cone.push((new Point(j - i, -1 - j)).rotate(rotation));
+        }
+    }
+    return cone;
+}
 /** @type {TileGenerator} */
 function acid_bug_tile(){
     return {
@@ -2013,7 +2041,7 @@ function acid_bug_death(self, target, map){
 /** @type {TileGenerator} Generates a camoflauged boulder elemental. */
 function boulder_elemental_tile(){
     var tile = boulder_elemental_look();
-    shapeshift(tile, tile.look_arr[0]);
+    shapeshift(tile, ifexists(tile.look_arr)[0]);
     return tile;
 }
 
@@ -2042,11 +2070,12 @@ function boulder_elemental_ai(self, target, map){
         throw new Error(`tile missing properties used by it's ai.`)
     }
     if(self.tile.cycle === 0){
-        return;
+        // Asleep.
+        throw new Error(`skip animation delay`);
     }
     var nearby = order_nearby(target.difference);
     var hit = false;
-    for(space of nearby){
+    for(let space of nearby){
         // Attacks everything nearby.
         hit = hit ||  map.attack(self.location.plus(space));
     }
@@ -2065,6 +2094,10 @@ function boulder_elemental_ai(self, target, map){
 }
 /** @type {AIFunction} boulder elemental wakes up when touched.*/
 function boulder_elemental_wake_up(self, target, map){
+    if( self.tile.cycle === undefined || 
+        self.tile.look_arr === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
     stun(self.tile);
     self.tile.cycle = 3;
     shapeshift(self.tile, self.tile.look_arr[1]);
@@ -2308,7 +2341,7 @@ function igneous_crab_ai(self, target, map){
     }
     if(self.tile.cycle > 0){
         var directions = reverse_arr(order_nearby(target.difference));
-        for(i = 0; i < directions.length && !map.move(self.location, self.location.plus(directions[i])); ++i){}
+        for(var i = 0; i < directions.length && !map.move(self.location, self.location.plus(directions[i])); ++i){}
         --self.tile.cycle;
     }
     else{
@@ -3829,6 +3862,7 @@ function hazard(self, target, map){
 /** @type {AIFunction}  AI used by entities that decay over time or when moved onto.*/
 function decay_ai(self, target, map){
     map.attack(self.location);
+    throw new Error(`skip animation delay`);
 }
 /** @type {AIFunction} Attempts to move 1 space closer to the user until it succesfully moves or it dies.*/
 function move_closer_ai(self, target, map){
@@ -5831,7 +5865,7 @@ function generate_magma_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}magma.png`,
         generate_floor: generate_magma_floor,
-        enemy_list: [magma_spewer, turret_r_tile, brightling_tile, igneous_crab_tile, boulder_elemental_tile,
+        enemy_list: [magma_spewer_tile, turret_r_tile, brightling_tile, igneous_crab_tile, boulder_elemental_tile,
                     pheonix_tile],
         boss_floor_list: [],
         next_area_list: area4,
@@ -6243,6 +6277,106 @@ function roll_ew(){
         options
     }
 }
+// ----------------young_dragon_cards.js----------------
+// File containing cards that can be dropped as rewards for defeating the young dragon.
+
+/** @type {CardGenerator}*/
+function firebreathing_horizontal(){
+    var options = new ButtonGrid();
+
+    var e_cone_points = create_orthogonal_cone(90, 3);
+    var e_cone = e_cone_points.map((p) => pattack(p.x, p.y));
+    var w_cone_points = create_orthogonal_cone(270, 3);
+    var w_cone = w_cone_points.map((p) => pattack(p.x, p.y));
+
+    options.add_button(E, e_cone);
+    options.add_button(W, w_cone);
+    return{
+        name: `firebreathing horizontal`,
+        pic: `${IMG_FOLDER.cards}firebreathing_horizontal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function firebreathing_vertical(){
+    var options = new ButtonGrid();
+
+    var n_cone_points = create_orthogonal_cone(0, 3);
+    var n_cone = n_cone_points.map((p) => pattack(p.x, p.y));
+    var s_cone_points = create_orthogonal_cone(180, 3);
+    var s_cone = s_cone_points.map((p) => pattack(p.x, p.y));
+
+    options.add_button(N, n_cone);
+    options.add_button(S, s_cone);
+    return{
+        name: `firebreathing vertical`,
+        pic: `${IMG_FOLDER.cards}firebreathing_vertical.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function firebreathing_ne(){
+    var options = new ButtonGrid();
+
+    var ne_cone_points = create_diagonal_cone(90, 3);
+    var ne_cone = ne_cone_points.map((p) => pattack(p.x, p.y));
+    var sw_cone_points = create_diagonal_cone(270, 3);
+    var sw_cone = sw_cone_points.map((p) => pattack(p.x, p.y));
+
+    options.add_button(NE, ne_cone);
+    options.add_button(SW, sw_cone);
+    return{
+        name: `firebreathing ne`,
+        pic: `${IMG_FOLDER.cards}firebreathing_ne.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function firebreathing_nw(){
+    var options = new ButtonGrid();
+
+    var nw_cone_points = create_diagonal_cone(0, 3);
+    var nw_cone = nw_cone_points.map((p) => pattack(p.x, p.y));
+    var se_cone_points = create_diagonal_cone(180, 3);
+    var se_cone = se_cone_points.map((p) => pattack(p.x, p.y));
+
+    options.add_button(NW, nw_cone);
+    options.add_button(SE, se_cone);
+    return{
+        name: `firebreathing nw`,
+        pic: `${IMG_FOLDER.cards}firebreathing_nw.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function glide(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -1)]);
+    options.add_button(E, [pmove(3, 0)]);
+    options.add_button(SE, [pmove(2, 1)]);
+    options.add_button(NW, [pmove(-2, -1)]);
+    options.add_button(W, [pmove(-3, 0)]);
+    options.add_button(SW, [pmove(-2, 1)]);
+    return{
+        name: `glide`,
+        pic: `${IMG_FOLDER.cards}glide.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function soar(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(3, -1)]);
+    options.add_button(SE, [pmove(3, 1)]);
+    options.add_button(NW, [pmove(-3, -1)]);
+    options.add_button(SW, [pmove(-3, 1)]);
+    return{
+        name: `soar`,
+        pic: `${IMG_FOLDER.cards}soar.png`,
+        options
+    }
+}
+
 // ----------------CardUtils.js----------------
 // File containing utility functions used by cards.
 
@@ -6257,7 +6391,9 @@ const CARD_CHOICES = [
     pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
     thwack, overcome_sideways, y_leap, diamond_slice, spearhead,
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal,
-    diamond_attack, slice_twice, reckless_horizontal, reckless_diagonal
+    diamond_attack, slice_twice, reckless_horizontal, reckless_diagonal, advance,
+    bounding_retreat, leap_left, leap_right, short_charge_diagonal, side_sprint,
+    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw
 ];
 
 const RARE_CARD_CHOICES = [
@@ -6948,6 +7084,7 @@ function whack_diagonal(){
 function thwack(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(0, -1), pattack(0, -1), pattack(0, -1)]);
+    options.add_button(S, [pattack(0, 1), pattack(0, 1), pattack(0, 1)]);
     return{
         name: `thwack`,
         pic: `${IMG_FOLDER.cards}thwack.png`,
@@ -7116,6 +7253,138 @@ function reckless_diagonal(){
     return{
         name: `reckless diagonal`,
         pic: `${IMG_FOLDER.cards}reckless_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function advance(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1), pmove(0, -1)]);
+    options.add_button(NE, [pmove(1, -1)]);
+    options.add_button(NW, [pmove(-1, -1)]);
+    return{
+        name: `advance`,
+        pic: `${IMG_FOLDER.cards}advance.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function bounding_retreat(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1)]);
+    options.add_button(SE, [pmove(2, 2), pmove(1, 1)]);
+    options.add_button(SW, [pmove(-2, 2), pmove(-1, 1)]);
+    return{
+        name: `bounding retreat`,
+        pic: `${IMG_FOLDER.cards}bounding_retreat.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function leap_left(){
+    var options = new ButtonGrid();
+    options.add_button(NW, [pmove(-2, -2)]);
+    options.add_button(W, [pmove(-2, 0)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+
+    return{
+        name: `leap left`,
+        pic: `${IMG_FOLDER.cards}leap_left.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function leap_right(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(E, [pmove(2, 0)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    return{
+        name: `leap right`,
+        pic: `${IMG_FOLDER.cards}leap_right.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function short_charge_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(1, -1), pattack(1, -1)]);
+    options.add_button(SE, [pmove(1, 1), pattack(1, 1)]);
+    options.add_button(SW, [pmove(-1, 1), pattack(-1, 1)]);
+    options.add_button(NW, [pmove(-1, -1), pattack(-1, -1)]);
+    return{
+        name: `short charge diagonal`,
+        pic: `${IMG_FOLDER.cards}short_charge_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function side_sprint(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
+    options.add_button(W, [pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
+    return{
+        name: `side sprint`,
+        pic: `${IMG_FOLDER.cards}side_sprint.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function slash_step_forwards(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1), pattack(0, -1), pattack(1, -1), pattack(-1, -1), pattack(1, 0), pattack(-1, 0)]);
+    options.add_button(S, [pmove(0, 1)]);
+    return{
+        name: `slash step forwards`,
+        pic: `${IMG_FOLDER.cards}slash_step_forwards.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function slash_step_left(){
+    var options = new ButtonGrid();
+    options.add_button(W, [pmove(-1, 0), pattack(-1, 0), pattack(-1, 1), pattack(-1, -1), pattack(0, 1), 
+                           pattack(0, -1), pattack(1, 1), pattack(1, -1),]);
+    return{
+        name: `slash step left`,
+        pic: `${IMG_FOLDER.cards}slash_step_left.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function slash_step_right(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0), pattack(1, 0), pattack(1, 1), pattack(1, -1), pattack(0, 1), 
+                           pattack(0, -1), pattack(-1, 1), pattack(-1, -1)]);
+    return{
+        name: `slash step right`,
+        pic: `${IMG_FOLDER.cards}slash_step_right.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function slip_through_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pattack(0, 1), pattack(1, 0), pmove(1, 1)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pattack(0, -1), pattack(-1, 0), pmove(-1, -1)]);
+    return{
+        name: `slip through ne`,
+        pic: `${IMG_FOLDER.cards}slip_through_ne.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function slip_through_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack(0, -1), pattack(1, 0), pmove(1, -1)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pattack(0, 1), pattack(-1, 0), pmove(-1, 1)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    return{
+        name: `slip through nw`,
+        pic: `${IMG_FOLDER.cards}slip_through_nw.png`,
         options
     }
 }

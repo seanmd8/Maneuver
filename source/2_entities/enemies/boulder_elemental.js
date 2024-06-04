@@ -1,7 +1,7 @@
 /** @type {TileGenerator} Generates a camoflauged boulder elemental. */
 function boulder_elemental_tile(){
     var tile = boulder_elemental_look();
-    shapeshift(tile, tile.look_arr[0]);
+    shapeshift(tile, ifexists(tile.look_arr)[0]);
     return tile;
 }
 
@@ -30,11 +30,12 @@ function boulder_elemental_ai(self, target, map){
         throw new Error(`tile missing properties used by it's ai.`)
     }
     if(self.tile.cycle === 0){
-        return;
+        // Asleep.
+        throw new Error(`skip animation delay`);
     }
     var nearby = order_nearby(target.difference);
     var hit = false;
-    for(space of nearby){
+    for(let space of nearby){
         // Attacks everything nearby.
         hit = hit ||  map.attack(self.location.plus(space));
     }
@@ -53,6 +54,10 @@ function boulder_elemental_ai(self, target, map){
 }
 /** @type {AIFunction} boulder elemental wakes up when touched.*/
 function boulder_elemental_wake_up(self, target, map){
+    if( self.tile.cycle === undefined || 
+        self.tile.look_arr === undefined){
+        throw new Error(`tile missing properties used by it's ai.`)
+    }
     stun(self.tile);
     self.tile.cycle = 3;
     shapeshift(self.tile, self.tile.look_arr[1]);

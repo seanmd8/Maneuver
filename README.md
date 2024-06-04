@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+6/3/24
+- Added 11 new cards
+
 5/28/24
 - Added 6 new cards with powerful abilities at a cost.
 - Added 1 more debuff card.

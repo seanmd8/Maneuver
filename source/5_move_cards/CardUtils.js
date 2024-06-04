@@ -12,7 +12,9 @@ const CARD_CHOICES = [
     pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
     thwack, overcome_sideways, y_leap, diamond_slice, spearhead,
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal,
-    diamond_attack, slice_twice, reckless_horizontal, reckless_diagonal
+    diamond_attack, slice_twice, reckless_horizontal, reckless_diagonal, advance,
+    bounding_retreat, leap_left, leap_right, short_charge_diagonal, side_sprint,
+    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw
 ];
 
 const RARE_CARD_CHOICES = [
