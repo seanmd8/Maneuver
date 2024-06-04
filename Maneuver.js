@@ -687,6 +687,9 @@ const DisplayHTML = {
             top_img.width = scale;
             top_img.classList.add(`absolute`);
             top_img.style.transform = DisplayHTML.get_transformation(to_display);
+            if(to_display.name !== undefined){
+                top_img.alt = to_display.name;
+            }
             cell.append(top_img);
             row.append(cell);
         }
@@ -982,10 +985,16 @@ function display_health(player, scale){
     }
     var health = [];
     for(var i = 0; i < player.health; ++i){
-        health.push({pic: `${IMG_FOLDER.other}heart.png`});
+        health.push({
+            pic: `${IMG_FOLDER.other}heart.png`, 
+            name: `heart`
+        });
     }
     for(var i = 0; i < (player.max_health - player.health); ++i){
-        health.push({pic: `${IMG_FOLDER.other}heart_broken.png`});
+        health.push({
+            pic: `${IMG_FOLDER.other}heart_broken.png`, 
+            name: `broken heart`
+        });
     }
     display.add_tb_row(UIIDS.health_display, health, scale);
 }
@@ -1304,18 +1313,18 @@ const GUIDE_TEXT = {
 Object.freeze(GUIDE_TEXT);
 
 const CARD_SYMBOLS = [
-    {src: `${IMG_FOLDER.symbols}you.png`,               x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}attack.png`,            x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}move.png`,              x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}stun.png`,              x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}multiple.png`,          x: 3, y: 1},
-    {src: `${IMG_FOLDER.symbols}multiple_ordered.png`,  x: 3, y: 1},
-    {src: `${IMG_FOLDER.symbols}move_until.png`,        x: 4, y: 1},
-    {src: `${IMG_FOLDER.symbols}attack_move.png`,       x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}triple_attack.png`,     x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}instant.png`,           x: 2, y: 2},
-    {src: `${IMG_FOLDER.symbols}temporary.png`,         x: 2, y: 2},
-    {src: `${IMG_FOLDER.symbols}per_floor.png`,         x: 2, y: 2},
+    {src: `${IMG_FOLDER.symbols}you.png`,               name: `you`,                x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}attack.png`,            name: `attack`,             x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}move.png`,              name: `move`,               x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}stun.png`,              name: `stun`,               x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}multiple.png`,          name: `multiple actions`,   x: 3, y: 1},
+    {src: `${IMG_FOLDER.symbols}multiple_ordered.png`,  name: `actions in order`,   x: 3, y: 1},
+    {src: `${IMG_FOLDER.symbols}move_until.png`,        name: `move until`,         x: 4, y: 1},
+    {src: `${IMG_FOLDER.symbols}attack_move.png`,       name: `attack then move`,   x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}triple_attack.png`,     name: `tripple attack`,     x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}instant.png`,           name: `instant`,            x: 2, y: 2},
+    {src: `${IMG_FOLDER.symbols}temporary.png`,         name: `temporary`,          x: 2, y: 2},
+    {src: `${IMG_FOLDER.symbols}per_floor.png`,         name: `once per floor`,     x: 2, y: 2},
 ];
 
 

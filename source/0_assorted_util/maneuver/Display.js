@@ -238,6 +238,9 @@ const DisplayHTML = {
             top_img.width = scale;
             top_img.classList.add(`absolute`);
             top_img.style.transform = DisplayHTML.get_transformation(to_display);
+            if(to_display.name !== undefined){
+                top_img.alt = to_display.name;
+            }
             cell.append(top_img);
             row.append(cell);
         }
