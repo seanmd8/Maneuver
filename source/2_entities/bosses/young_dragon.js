@@ -118,7 +118,6 @@ function young_dragon_behavior(self, target, map){
             map.attack(target_space);
             if(map.check_empty(target_space)){
                 var fire = raging_fire_tile();
-                fire.health = 2;
                 map.add_tile(fire, target_space);
             }
         }

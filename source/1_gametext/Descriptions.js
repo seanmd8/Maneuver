@@ -141,7 +141,7 @@ const chest_description = `Chest: It might have something useful inside. Breakin
 const magmatic_boulder_description = `Magmatic Boulder: The light reflecting off of it gives you the feeling of being watched.`;
 const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, `turns unless you scatter the ashes by attacking `
                         +`them or moving onto them.`];
-const raging_fire_description = `Raging Fire: The very ground here is burning. It will go out in a turn, but it's not safe to move through.`;
+const raging_fire_description = `Raging Fire: The very ground here is burning. It will grow weaker every turn, but it's not safe to move through.`;
 
 
 // Chest descriptions.

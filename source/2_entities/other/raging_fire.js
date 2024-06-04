@@ -1,15 +1,31 @@
 /** @type {TileGenerator} A fire which goes away over time. */
 function raging_fire_tile(){
+    var pic_arr = [`${IMG_FOLDER.tiles}raging_fire_weak.png`, `${IMG_FOLDER.tiles}raging_fire.png`];
+    var health = 2;
     return {
         type: `enemy`,
         name: `raging fire`,
-        pic: `${IMG_FOLDER.tiles}raging_fire.png`,
+        pic: pic_arr[health - 1],
         description: raging_fire_description,
-        health: 1,
+        health,
         behavior: decay_ai,
         telegraph: hazard_telegraph,
-        on_enter: hazard
+        on_enter: hazard,
+        on_hit: raging_fire_hit,
+        pic_arr
     }
 }
 
+/** @type {AIFunction}  AI used by fireballs.*/
+function raging_fire_hit(self, target, map){
+    if( self.tile.health === undefined ||
+        self.tile.pic_arr === undefined
+    ){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    var intensity = Math.min(self.tile.health - 1, self.tile.pic_arr.length);
+    if(intensity >= 0){
+        self.tile.pic = self.tile.pic_arr[intensity];
+    }
+}
 

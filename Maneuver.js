@@ -1215,7 +1215,7 @@ const chest_description = `Chest: It might have something useful inside. Breakin
 const magmatic_boulder_description = `Magmatic Boulder: The light reflecting off of it gives you the feeling of being watched.`;
 const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, `turns unless you scatter the ashes by attacking `
                         +`them or moving onto them.`];
-const raging_fire_description = `Raging Fire: The very ground here is burning. It will go out in a turn, but it's not safe to move through.`;
+const raging_fire_description = `Raging Fire: The very ground here is burning. It will grow weaker every turn, but it's not safe to move through.`;
 
 
 // Chest descriptions.
@@ -1955,7 +1955,6 @@ function young_dragon_behavior(self, target, map){
             map.attack(target_space);
             if(map.check_empty(target_space)){
                 var fire = raging_fire_tile();
-                fire.health = 2;
                 map.add_tile(fire, target_space);
             }
         }
@@ -3656,18 +3655,34 @@ function magmatic_boulder_tile(){
 }
 /** @type {TileGenerator} A fire which goes away over time. */
 function raging_fire_tile(){
+    var pic_arr = [`${IMG_FOLDER.tiles}raging_fire_weak.png`, `${IMG_FOLDER.tiles}raging_fire.png`];
+    var health = 2;
     return {
         type: `enemy`,
         name: `raging fire`,
-        pic: `${IMG_FOLDER.tiles}raging_fire.png`,
+        pic: pic_arr[health - 1],
         description: raging_fire_description,
-        health: 1,
+        health,
         behavior: decay_ai,
         telegraph: hazard_telegraph,
-        on_enter: hazard
+        on_enter: hazard,
+        on_hit: raging_fire_hit,
+        pic_arr
     }
 }
 
+/** @type {AIFunction}  AI used by fireballs.*/
+function raging_fire_hit(self, target, map){
+    if( self.tile.health === undefined ||
+        self.tile.pic_arr === undefined
+    ){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    var intensity = Math.min(self.tile.health - 1, self.tile.pic_arr.length);
+    if(intensity >= 0){
+        self.tile.pic = self.tile.pic_arr[intensity];
+    }
+}
 
 
 /** @type {TileGenerator} Dropped by Pheonixes to respawn them. */
@@ -4951,6 +4966,9 @@ class GameMap{
             catch(error){
                 if(error.message === `game over`){
                     throw new Error(`game over`, {cause: new Error(end.name)});
+                }
+                if(error.message === `skip animation delay`){
+                    // Do nothing
                 }
                 else{
                     throw error;

@@ -350,6 +350,9 @@ class GameMap{
                 if(error.message === `game over`){
                     throw new Error(`game over`, {cause: new Error(end.name)});
                 }
+                if(error.message === `skip animation delay`){
+                    // Do nothing
+                }
                 else{
                     throw error;
                 }
