@@ -19,21 +19,19 @@ function scythe_ai(self, target, map){
         throw new Error(`tile missing properties used by it's ai.`)
     }
     var distance = 3;
-    var direction = sign(target.difference);
-    if(direction.on_axis()){
+    self.tile.direction = sign(target.difference);
+    if(self.tile.direction.on_axis()){
         // If the player is orthogonal, moves randomly.
-        direction = new Point(random_sign(), random_sign());
+        self.tile.direction = new Point(random_sign(), random_sign());
     }
     // Rotate image based on direction.
-    self.tile.rotate = 90 * (direction.x + direction.y + 2) / 2;
-    if(direction.x === -1 && direction.y === 1){
-        self.tile.rotate = 90 * 3;
-    }
+    var direction = self.tile.direction;
+    set_rotation(self.tile);
     for(var i = 0; i < distance && map.move(self.location, self.location.plus(direction)) ; ++i){
-        // moves <distance> spaces attacking each space it passes next to.
+        // moves <distance> spaces attacking each space it passes next to. Stops when blocked.
         self.location.plus_equals(direction);
-        map.attack(new Point(self.location.x - direction.x, self.location.y), `player`);
-        map.attack(new Point(self.location.x, self.location.y - direction.y), `player`); 
+        map.attack(self.location.minus(new Point(direction.x, 0)), `player`);
+        map.attack(self.location.minus(new Point(0, direction.y)), `player`); 
     }
 }
 

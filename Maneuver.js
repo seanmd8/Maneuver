@@ -675,7 +675,6 @@ const DisplayHTML = {
                     bottom_img.height = scale;
                     bottom_img.width = scale;
                     bottom_img.classList.add(`absolute`);
-                    bottom_img.style.position = `absolute`;
                     cell.append(bottom_img);
                 }
                 
@@ -2942,21 +2941,19 @@ function scythe_ai(self, target, map){
         throw new Error(`tile missing properties used by it's ai.`)
     }
     var distance = 3;
-    var direction = sign(target.difference);
-    if(direction.on_axis()){
+    self.tile.direction = sign(target.difference);
+    if(self.tile.direction.on_axis()){
         // If the player is orthogonal, moves randomly.
-        direction = new Point(random_sign(), random_sign());
+        self.tile.direction = new Point(random_sign(), random_sign());
     }
     // Rotate image based on direction.
-    self.tile.rotate = 90 * (direction.x + direction.y + 2) / 2;
-    if(direction.x === -1 && direction.y === 1){
-        self.tile.rotate = 90 * 3;
-    }
+    var direction = self.tile.direction;
+    set_rotation(self.tile);
     for(var i = 0; i < distance && map.move(self.location, self.location.plus(direction)) ; ++i){
-        // moves <distance> spaces attacking each space it passes next to.
+        // moves <distance> spaces attacking each space it passes next to. Stops when blocked.
         self.location.plus_equals(direction);
-        map.attack(new Point(self.location.x - direction.x, self.location.y), `player`);
-        map.attack(new Point(self.location.x, self.location.y - direction.y), `player`); 
+        map.attack(self.location.minus(new Point(direction.x, 0)), `player`);
+        map.attack(self.location.minus(new Point(0, direction.y)), `player`); 
     }
 }
 
@@ -3215,112 +3212,61 @@ function turret_h_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function turret_r_tile(){
-    var pic_arr = [`${IMG_FOLDER.tiles}turret_r_N_S.png`, `${IMG_FOLDER.tiles}turret_r_NE_SW.png`];
-    var starting_cycle = random_num(4);
-    var spin_direction = random_sign();
-    if(spin_direction > 0){
-        var starting_rotation = 90 * Math.floor(starting_cycle / 2);
-    }
-    else{
-        var starting_rotation = 90 * Math.floor(((starting_cycle + 1) % 4) / 2);
-    }
-    return {
+    var tile = {
         type: `enemy`,
         name: `rotary turret`,
-        pic: pic_arr[starting_cycle % 2],
+        pic: ``,
         description: turret_r_description,
         health: 1,
         difficulty: 2,
         behavior: turret_r_ai,
         telegraph: turret_r_telegraph,
-        pic_arr,
-        rotate: starting_rotation,
-        flip: (spin_direction === -1),
-        cycle: starting_cycle,
-        spin_direction
+        pic_arr: [
+            `${IMG_FOLDER.tiles}turret_r_N_S_counterclockwise.png`,
+            `${IMG_FOLDER.tiles}turret_r_NW_SE_counterclockwise.png`,
+            `${IMG_FOLDER.tiles}turret_r_N_S.png`, 
+            `${IMG_FOLDER.tiles}turret_r_NW_SE.png`
+        ],
+        rotate: 0,
+        direction: random_nearby()[0],
+        spin_direction: random_sign()
     }
+    tile.pic = tile.pic_arr[1 + tile.spin_direction + set_rotation(tile)];
+    return tile;
 }
 
 /** @type {AIFunction} AI used by turrets that rotate.*/
 function turret_r_ai(self, target, map){
-    if( self.tile.cycle === undefined || 
-        self.tile.rotate === undefined || 
-        self.tile.flip === undefined || 
-        self.tile.spin_direction === undefined || 
-        self.tile.pic_arr === undefined){
+    if( self.tile.rotate === undefined || 
+        self.tile.pic_arr === undefined || 
+        self.tile.direction === undefined || 
+        self.tile.spin_direction === undefined){
         throw new Error(`tile missing properties used by it's ai.`)
     }
-    switch(self.tile.cycle){
-        case 0:
-            if(target.difference.x === 0){
-                // Fires N and S.
-                turret_fire_ai(self, target, map);
-            }
-            break;
-        case 1:
-            if(target.difference.x === -1 * target.difference.y){
-                // Fires NE and SW.
-                turret_fire_ai(self, target, map);
-            }
-            break;
-        case 2:
-            if(target.difference.y === 0){
-                // Fires E and W.
-                turret_fire_ai(self, target, map);
-            }
-            break;
-        case 3:
-            if(target.difference.x === target.difference.y){
-                // Fires SE and NW.
-                turret_fire_ai(self, target, map);
-            }
-            break;
-        default:
-            throw new Error(`Improper case for ${self.tile.name}`);
+    if((target.difference.on_axis() || target.difference.on_diagonal())){
+        // Shoot if player is along the line of the old direction or it's opposite.
+        if(point_equals(self.tile.direction, sign(target.difference))){
+            turret_fire_ai(self, target, map);
+        }
+        else if(point_equals(self.tile.direction.times(-1), sign(target.difference))){
+            self.tile.direction = self.tile.direction.times(-1);
+            turret_fire_ai(self, target, map);
+            self.tile.direction = self.tile.direction.times(-1);
+        }
     }
-    // Rotate.
-    self.tile.cycle = (self.tile.cycle + self.tile.spin_direction + 4) % 4;
-    self.tile.pic = self.tile.pic_arr[self.tile.cycle % 2];
-    if(!self.tile.flip){
-        self.tile.rotate = 90 * Math.floor(self.tile.cycle / 2);
-    }
-    else{
-        self.tile.rotate = 90 * Math.floor(((self.tile.cycle + 1) % 4) / 2);
-    }
+    // Rotate 45 degrees in the correct direction.
+    self.tile.direction = sign(self.tile.direction.plus(self.tile.direction.rotate(90 * self.tile.spin_direction)));
+    self.tile.pic = self.tile.pic_arr[1 + self.tile.spin_direction + set_rotation(self.tile)];
+
 }
 
 /** @type {TelegraphFunction} */
 function turret_r_telegraph(location, map, self){
-    if(self.cycle === undefined){
+    if(self.direction === undefined){
         throw new Error(`tile missing properties used to telegraph it's attacks.`);
     }
-    var attacks = [];
-    
-    switch(self.cycle){
-        case 0:
-            // Adds N and S.
-            attacks = attacks.concat(get_points_in_direction(location, new Point(0, -1), map));
-            attacks = attacks.concat(get_points_in_direction(location, new Point(0, 1), map));
-            break;
-        case 1:
-            // Adds NE and SW.
-            attacks = attacks.concat(get_points_in_direction(location, new Point(1, -1), map));
-            attacks = attacks.concat(get_points_in_direction(location, new Point(-1, 1), map));
-            break;
-        case 2:
-            // Adds E and W.
-            attacks = attacks.concat(get_points_in_direction(location, new Point(-1, 0), map));
-            attacks = attacks.concat(get_points_in_direction(location, new Point(1, 0), map));
-            break;
-        case 3:
-            // Adds SE and NW.
-            attacks = attacks.concat(get_points_in_direction(location, new Point(1, 1), map));
-            attacks = attacks.concat(get_points_in_direction(location, new Point(-1, -1), map));
-            break;
-        default:
-            throw new Error(`Improper case for ${self.name}`);
-    }
-    return attacks;
+    var attacks = get_points_in_direction(location, self.direction, map);
+    return attacks.concat(get_points_in_direction(location, self.direction.times(-1), map));
 }
 /** @type {TileGenerator} */
 function vampire_tile(){

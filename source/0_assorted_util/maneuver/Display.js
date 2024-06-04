@@ -226,7 +226,6 @@ const DisplayHTML = {
                     bottom_img.height = scale;
                     bottom_img.width = scale;
                     bottom_img.classList.add(`absolute`);
-                    bottom_img.style.position = `absolute`;
                     cell.append(bottom_img);
                 }
                 
