@@ -142,7 +142,8 @@ const magmatic_boulder_description = `Magmatic Boulder: The light reflecting off
 const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, `turns unless you scatter the ashes by attacking `
                         +`them or moving onto them.`];
 const raging_fire_description = `Raging Fire: The very ground here is burning. It will grow weaker every turn, but it's not safe to move through.`;
-
+const coffin_description = `Coffin: There is no telling whether whatever is inside is still alive or not. Disturb at your own risk.`;
+const sewer_grate_description = `Sewer Grate: It's clogged. Corrosive slime is oozing out.`;
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;

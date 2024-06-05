@@ -10,3 +10,16 @@ function generate_crypt_area(){
         description: crypt_description
     }
 }
+
+/** @type {FloorGenerator}*/
+function generate_crypt_floor(floor_num, area, map){
+    coffin_terrain(floor_num, area, map);
+    generate_normal_floor(floor_num, area, map);
+}
+/** @type {FloorGenerator}*/
+function coffin_terrain(floor_num, area, map){
+    var coffin_amount = Math.min(random_num(4), random_num(4));
+    for(var i = 0; i < coffin_amount; ++i){
+        map.spawn_safely(coffin_tile(), SAFE_SPAWN_ATTEMPTS, false)
+    }
+}

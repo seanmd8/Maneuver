@@ -8,6 +8,11 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+6/5/24
+- Areas now generate terrain. 
+- Added new Terrain: Coffin
+- Added new Terrain: Sewer Grate
+
 6/3/24
 - Added 11 new cards
 

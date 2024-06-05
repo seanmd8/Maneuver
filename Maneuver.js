@@ -1216,7 +1216,8 @@ const magmatic_boulder_description = `Magmatic Boulder: The light reflecting off
 const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, `turns unless you scatter the ashes by attacking `
                         +`them or moving onto them.`];
 const raging_fire_description = `Raging Fire: The very ground here is burning. It will grow weaker every turn, but it's not safe to move through.`;
-
+const coffin_description = `Coffin: There is no telling whether whatever is inside is still alive or not. Disturb at your own risk.`;
+const sewer_grate_description = `Sewer Grate: It's clogged. Corrosive slime is oozing out.`;
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;
@@ -3516,6 +3517,39 @@ function add_card_to_chest(chest, card){
 
 }
 
+/** @type {TileGenerator} A damaged wall that might spawn something on death.*/
+function coffin_tile(){
+    return {
+        type: `terrain`,
+        name: `coffin`,
+        pic: `${IMG_FOLDER.tiles}coffin.png`,
+        description: coffin_description,
+        health: 1,
+        on_enter: decay_ai,
+        on_death: coffin_tile_death,
+        summons: [rat_tile, carrion_flies_tile, vampire_tile, shadow_scout_tile, chest_tile],
+        card_drops: RARE_CARD_CHOICES
+    }
+}
+
+/** @type {AIFunction} Function used when a coffin is disturbed to potentially spawn something.*/
+function coffin_tile_death(self, target, map){
+    if( self.tile.summons === undefined ||
+        self.tile.card_drops === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    var new_enemy = self.tile.summons[random_num(self.tile.summons.length)]();
+    if(new_enemy.type === `chest`){
+        var cards = rand_no_repeates(self.tile.card_drops, random_num(2) + 1);
+        for(let card of cards){
+            add_card_to_chest(new_enemy, card());
+        }
+    }
+    else{
+        stun(new_enemy);
+    }
+    map.add_tile(new_enemy, self.location);
+}
 /** @type {TileGenerator} A hazardous pool of slime that can be cleared by attacking.*/
 function corrosive_slime_tile(){
     return {
@@ -3687,6 +3721,21 @@ function raging_fire_hit(self, target, map){
 }
 
 
+/** @type {TileGenerator} */
+function sewer_grate_tile(){
+    return{
+        type: `enemy`,
+        name: `sewer grate`,
+        pic: `${IMG_FOLDER.tiles}sewer_grate.png`,
+        description: sewer_grate_description,
+        behavior: sewer_grate_ai,
+    }
+}
+
+/** @type {AIFunction} AI used by spider webs.*/
+function sewer_grate_ai(self, target, map){
+    spawn_nearby(map, corrosive_slime_tile(), self.location);
+}
 /** @type {TileGenerator} Dropped by Pheonixes to respawn them. */
 function smoldering_ashes_tile(){
     var spawn_timer = 2;
@@ -5818,7 +5867,7 @@ class MoveDeck{
 // File containing functions used by areas.
 
 // The structure of the dungeon. Each area can lead to a random one in the next numbered array.
-const area_end = [generate_default_area];
+const area_end = [generate_default_area]; // Once they have finished the completed areas, they go here.
 const area1 = [generate_ruins_area];
 const area2 = [generate_sewers_area, generate_basement_area];
 const area3 = [/*generate_magma_area, */generate_crypt_area];
@@ -5911,6 +5960,20 @@ function generate_basement_area(){
         description: basement_description
     }
 }
+
+/** @type {FloorGenerator}*/
+function generate_basement_floor(floor_num, area, map){
+    wall_terrain(floor_num, area, map)
+    generate_normal_floor(floor_num, area, map);
+}
+/** @type {FloorGenerator}*/
+function wall_terrain(floor_num, area, map){
+    var wall_amount = Math.min(random_num(8), random_num(8));
+    for(var i = 0; i < wall_amount; ++i){
+        map.spawn_safely(damaged_wall_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(wall_tile(), SAFE_SPAWN_ATTEMPTS, false)
+    }
+}
 /** @type {AreaGenerator}*/
 function generate_crypt_area(){
     return {
@@ -5921,6 +5984,19 @@ function generate_crypt_area(){
         boss_floor_list: [lich_floor],
         next_area_list: area4,
         description: crypt_description
+    }
+}
+
+/** @type {FloorGenerator}*/
+function generate_crypt_floor(floor_num, area, map){
+    coffin_terrain(floor_num, area, map);
+    generate_normal_floor(floor_num, area, map);
+}
+/** @type {FloorGenerator}*/
+function coffin_terrain(floor_num, area, map){
+    var coffin_amount = Math.min(random_num(4), random_num(4));
+    for(var i = 0; i < coffin_amount; ++i){
+        map.spawn_safely(coffin_tile(), SAFE_SPAWN_ATTEMPTS, false)
     }
 }
 /** @type {AreaGenerator}*/
@@ -5935,6 +6011,12 @@ function generate_ruins_area(){
         description: ruins_description
     }
 }
+
+/** @type {FloorGenerator}*/
+function generate_ruins_floor(floor_num, area, map){
+    // gives a little extra difficulty since it's the first area and there isn't any terrain.
+    generate_normal_floor(floor_num + 1, area, map);
+}
 /** @type {AreaGenerator}*/
 function generate_sewers_area(){
     return {
@@ -5945,6 +6027,28 @@ function generate_sewers_area(){
         boss_floor_list: [two_headed_serpent_floor],
         next_area_list: area3,
         description: sewers_description
+    }
+}
+
+/** @type {FloorGenerator}*/
+function generate_sewers_floor(floor_num, area, map){
+    var terrains = [slime_terrain, grate_terrain];
+    terrains[random_num(terrains.length)](floor_num, area, map);
+    generate_normal_floor(floor_num, area, map);
+}
+
+/** @type {FloorGenerator}*/
+function slime_terrain(floor_num, area, map){
+    var slime_amount = random_num(4);
+    for(var i = 0; i < slime_amount; ++i){
+        map.spawn_safely(corrosive_slime_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+}
+/** @type {FloorGenerator}*/
+function grate_terrain(floor_num, area, map){
+    var grate_amount = random_num(3);
+    for(var i = 0; i < grate_amount; ++i){
+        map.spawn_safely(sewer_grate_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
 /** @type {FloorGenerator} Generates the floor where the Lich appears.*/
@@ -6060,7 +6164,7 @@ const BOSS_FLOOR = [velociphile_floor, spider_queen_floor, lich_floor];
  * @param {Area} area Which area of the dungeon are we in.
  * @param {GameMap} map The gamemap which holds the floor.
  */
-/** @type {FloorGenerator} The generator used by the default area to simulate no areas.*/
+/** @type {FloorGenerator} The generator ONLY used by the default area if they have finished all the content.*/
 function floor_generator(floor_num, area, map){
     if(!(floor_num % AREA_SIZE === 0) || Math.floor(floor_num / AREA_SIZE) - 1 >= BOSS_FLOOR.length){
         generate_normal_floor(floor_num, area, map);
@@ -6069,7 +6173,6 @@ function floor_generator(floor_num, area, map){
         BOSS_FLOOR[Math.floor(floor_num / AREA_SIZE) - 1](floor_num, area, map);
     }
 }
-
 /** @type {FloorGenerator} The standard generator to add random enemies from the area whose combined difficulty scales based on the floor number.*/
 function generate_normal_floor(floor_num, area, map){
     var enemy_list = area.enemy_list;
@@ -6079,33 +6182,27 @@ function generate_normal_floor(floor_num, area, map){
         if(new_enemy.difficulty !== undefined){
             if(map.spawn_safely(new_enemy, SAFE_SPAWN_ATTEMPTS, false)){
                 i -= new_enemy.difficulty;
-            };
+            }
+            else{
+                --i;
+            }
         }
     }
 }
 
 /** @type {FloorGenerator}*/
-function generate_ruins_floor(floor_num, area, map){
-    generate_normal_floor(floor_num, area, map);
-}
-
-/** @type {FloorGenerator}*/
-function generate_sewers_floor(floor_num, area, map){
-    generate_normal_floor(floor_num, area, map);
-}
-/** @type {FloorGenerator}*/
-function generate_basement_floor(floor_num, area, map){
-    generate_normal_floor(floor_num, area, map);
-}
-
-/** @type {FloorGenerator}*/
 function generate_magma_floor(floor_num, area, map){
+    var lava_amount = random_num(20) + 5;
+    for(var i = 0; i < lava_amount; ++i){
+        map.spawn_safely(lava_pool_tile(), SAFE_SPAWN_ATTEMPTS, false)
+    }
+    var boulder_amount = random_num(3);
+    for(var i = 0; i < boulder_amount; ++i){
+        map.spawn_safely(magmatic_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false)
+    }
     generate_normal_floor(floor_num, area, map);
 }
-/** @type {FloorGenerator}*/
-function generate_crypt_floor(floor_num, area, map){
-    generate_normal_floor(floor_num, area, map);
-}
+
 
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){

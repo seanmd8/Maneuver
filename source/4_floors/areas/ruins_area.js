@@ -10,3 +10,9 @@ function generate_ruins_area(){
         description: ruins_description
     }
 }
+
+/** @type {FloorGenerator}*/
+function generate_ruins_floor(floor_num, area, map){
+    // gives a little extra difficulty since it's the first area and there isn't any terrain.
+    generate_normal_floor(floor_num + 1, area, map);
+}

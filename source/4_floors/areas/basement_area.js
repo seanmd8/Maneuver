@@ -10,3 +10,17 @@ function generate_basement_area(){
         description: basement_description
     }
 }
+
+/** @type {FloorGenerator}*/
+function generate_basement_floor(floor_num, area, map){
+    wall_terrain(floor_num, area, map)
+    generate_normal_floor(floor_num, area, map);
+}
+/** @type {FloorGenerator}*/
+function wall_terrain(floor_num, area, map){
+    var wall_amount = Math.min(random_num(8), random_num(8));
+    for(var i = 0; i < wall_amount; ++i){
+        map.spawn_safely(damaged_wall_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(wall_tile(), SAFE_SPAWN_ATTEMPTS, false)
+    }
+}

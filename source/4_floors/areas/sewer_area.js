@@ -10,3 +10,25 @@ function generate_sewers_area(){
         description: sewers_description
     }
 }
+
+/** @type {FloorGenerator}*/
+function generate_sewers_floor(floor_num, area, map){
+    var terrains = [slime_terrain, grate_terrain];
+    terrains[random_num(terrains.length)](floor_num, area, map);
+    generate_normal_floor(floor_num, area, map);
+}
+
+/** @type {FloorGenerator}*/
+function slime_terrain(floor_num, area, map){
+    var slime_amount = random_num(4);
+    for(var i = 0; i < slime_amount; ++i){
+        map.spawn_safely(corrosive_slime_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+}
+/** @type {FloorGenerator}*/
+function grate_terrain(floor_num, area, map){
+    var grate_amount = random_num(3);
+    for(var i = 0; i < grate_amount; ++i){
+        map.spawn_safely(sewer_grate_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+}
