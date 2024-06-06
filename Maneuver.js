@@ -410,6 +410,7 @@ const STARTING_ENEMY = spider_tile;
 const STARTING_ENEMY_AMOUNT = 1;
 const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = generate_ruins_area;
+const CARDS_TO_TEST = []
 
 // Dungeon generation settings.
 const FLOOR_WIDTH = 8;
@@ -944,17 +945,14 @@ function make_starting_deck(){
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
     var deck = new MoveDeck();
-    var cards_to_test = [
-        bite, bounding_retreat, debilitating_confusion, diamond_attack, lash_out, 
-        force, freeze_up, teleport, lightheaded, reckless_diagonal, regenerate, roll_ew, thwack
-    ]
-    for(var card of cards_to_test){
+    for(var card of CARDS_TO_TEST){
         deck.add(card());
     }
-
-    deck.add(basic_horizontal());
-    deck.add(basic_horizontal());
-
+    var size = CARDS_TO_TEST.length;
+    for(var i = 0; i < Math.max(4 - size, 1); ++i){
+        deck.add(basic_horizontal());
+    }
+    deck.add(slice());
     deck.deal();
     return deck;
 }
@@ -1274,7 +1272,9 @@ const move_types = {
     heal: `Heal`,
     instant: `Take another turn`,
     you: `you`,
-    nothing: `Do nothing`
+    nothing: `Do nothing`,
+    per_floor_card_message: `This card can only be used once per floor.`,
+    temp_card_message: `This card is temporary. It will be removed from your deck when used or at the end of the floor.`
 }
 Object.freeze(move_types);
 
@@ -4477,9 +4477,10 @@ class ButtonGrid{
     /**
      * A function to display the grid of buttons to a table.
      * @param {string} table_name The location where the buttons should be displayed.
-     * @param {number} hand_pos the position of the card in hand that these buttons belong to.
+     * @param {number} hand_pos The position of the card in hand that these buttons belong to.
+     * @param {string=} extra_info Optional extra information to display when the card info button is clicked.
      */
-    show_buttons(table_name, hand_pos){
+    show_buttons(table_name, hand_pos, extra_info = ``){
         // Displays the 3x3 grid to the given table.
         // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
         display.clear_tb(table_name);
@@ -4491,8 +4492,8 @@ class ButtonGrid{
                 }
             }
         }
-        var explain_moves = function(card){
-            var text = card.explain_card()
+        var explain_moves = function(extra_text, card){
+            var text = `${extra_text}${card.explain_card()}`;
             return function(){
                 display.display_message(UIIDS.display_message, text);
             }
@@ -4502,7 +4503,7 @@ class ButtonGrid{
         for(var i = 0; i < this.#buttons.length; ++i){
             display.add_button_row(table_name, this.#buttons[i], press_button)
         }
-        display.add_on_click(UIIDS.move_info, explain_moves(this));
+        display.add_on_click(UIIDS.move_info, explain_moves(extra_info, this));
     }
     /**
      * Creates an explanation of what each button does.
@@ -5605,7 +5606,7 @@ class GameState{
                 while(this.map.player_move(action.change)){};
                 break;
             case `heal`:
-                this.map.player_heal(action.change);
+                this.map.player_heal(action.change, 1);
                 break;
             default:
                 throw new Error(`invalid player action type`);
@@ -5845,7 +5846,14 @@ class MoveDeck{
         new_card.id = this.#id_count;
         this.#id_count++;
         this.#decklist.push(new_card);
-        this.#library.push(new_card);
+        if(new_card.per_floor !== undefined){
+            // If the card can only be used once per floor, add a temp copy instead.
+            var temp_card = new_card.per_floor();
+            this.add_temp(temp_card);
+        }
+        else{
+            this.#library.push(new_card);
+        }
         this.#library = randomize_arr(this.#library);
     }
     /**
@@ -5872,8 +5880,9 @@ class MoveDeck{
                 if(!GS.check_lock_player_turn()){
                     return;
                 }
+                var extra_info = temp_card_info(card);
                 display.select(UIIDS.hand_display, 0, hand_pos.x);
-                card.options.show_buttons(UIIDS.move_buttons, hand_pos.x);
+                card.options.show_buttons(UIIDS.move_buttons, hand_pos.x, extra_info);
                 var deck = deck;
             }
         }
@@ -5934,6 +5943,21 @@ class MoveDeck{
         }
         return false;
     }
+}
+
+/**
+ * Function to give the correct messages if a card is temporary or only usable once per floor.
+ * @param {Card} card The card to check.
+ * @returns {String} The correct string message.
+ */
+function temp_card_info(card){
+    if(card.per_floor !== undefined){
+        return `${move_types.per_floor_card_message}\n`;
+    }
+    if(card.temp){
+        return `${move_types.temp_card_message}\n`;
+    }
+    return ``;
 }
 
 /** @type {AreaGenerator}*/

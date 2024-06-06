@@ -81,7 +81,14 @@ class MoveDeck{
         new_card.id = this.#id_count;
         this.#id_count++;
         this.#decklist.push(new_card);
-        this.#library.push(new_card);
+        if(new_card.per_floor !== undefined){
+            // If the card can only be used once per floor, add a temp copy instead.
+            var temp_card = new_card.per_floor();
+            this.add_temp(temp_card);
+        }
+        else{
+            this.#library.push(new_card);
+        }
         this.#library = randomize_arr(this.#library);
     }
     /**
@@ -108,8 +115,9 @@ class MoveDeck{
                 if(!GS.check_lock_player_turn()){
                     return;
                 }
+                var extra_info = temp_card_info(card);
                 display.select(UIIDS.hand_display, 0, hand_pos.x);
-                card.options.show_buttons(UIIDS.move_buttons, hand_pos.x);
+                card.options.show_buttons(UIIDS.move_buttons, hand_pos.x, extra_info);
                 var deck = deck;
             }
         }
@@ -170,4 +178,19 @@ class MoveDeck{
         }
         return false;
     }
+}
+
+/**
+ * Function to give the correct messages if a card is temporary or only usable once per floor.
+ * @param {Card} card The card to check.
+ * @returns {String} The correct string message.
+ */
+function temp_card_info(card){
+    if(card.per_floor !== undefined){
+        return `${move_types.per_floor_card_message}\n`;
+    }
+    if(card.temp){
+        return `${move_types.temp_card_message}\n`;
+    }
+    return ``;
 }

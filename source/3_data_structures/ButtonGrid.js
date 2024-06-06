@@ -37,9 +37,10 @@ class ButtonGrid{
     /**
      * A function to display the grid of buttons to a table.
      * @param {string} table_name The location where the buttons should be displayed.
-     * @param {number} hand_pos the position of the card in hand that these buttons belong to.
+     * @param {number} hand_pos The position of the card in hand that these buttons belong to.
+     * @param {string=} extra_info Optional extra information to display when the card info button is clicked.
      */
-    show_buttons(table_name, hand_pos){
+    show_buttons(table_name, hand_pos, extra_info = ``){
         // Displays the 3x3 grid to the given table.
         // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
         display.clear_tb(table_name);
@@ -51,8 +52,8 @@ class ButtonGrid{
                 }
             }
         }
-        var explain_moves = function(card){
-            var text = card.explain_card()
+        var explain_moves = function(extra_text, card){
+            var text = `${extra_text}${card.explain_card()}`;
             return function(){
                 display.display_message(UIIDS.display_message, text);
             }
@@ -62,7 +63,7 @@ class ButtonGrid{
         for(var i = 0; i < this.#buttons.length; ++i){
             display.add_button_row(table_name, this.#buttons[i], press_button)
         }
-        display.add_on_click(UIIDS.move_info, explain_moves(this));
+        display.add_on_click(UIIDS.move_info, explain_moves(extra_info, this));
     }
     /**
      * Creates an explanation of what each button does.

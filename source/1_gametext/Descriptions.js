@@ -186,6 +186,8 @@ const move_types = {
     heal: `Heal`,
     instant: `Take another turn`,
     you: `you`,
-    nothing: `Do nothing`
+    nothing: `Do nothing`,
+    per_floor_card_message: `This card can only be used once per floor.`,
+    temp_card_message: `This card is temporary. It will be removed from your deck when used or at the end of the floor.`
 }
 Object.freeze(move_types);
