@@ -8,14 +8,16 @@ const HAND_SIZE = 3;
 const ADD_CHOICE_COUNT = 3;
 const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
-const CHEST_CHANCE = 2; // 1/n
-
 
 // Initialization settings.
 const STARTING_ENEMY = spider_tile;
 const STARTING_ENEMY_AMOUNT = 1;
 const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = generate_ruins_area;
+
+// Settings just used for testing.
+const SECOND_STARTING_ENEMY = lava_pool_tile;
+const SECOND_STARTING_ENEMY_AMOUNT = 0
 const CARDS_TO_TEST = []
 
 // Dungeon generation settings.

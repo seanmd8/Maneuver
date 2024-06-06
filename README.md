@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+6/6/24
+- Chance for bosses to drop a card upped to 100%.
+
 6/5/24
 - Areas now generate terrain. 
 - Added new Terrain: Coffin

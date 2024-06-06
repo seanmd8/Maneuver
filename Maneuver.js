@@ -402,14 +402,16 @@ const HAND_SIZE = 3;
 const ADD_CHOICE_COUNT = 3;
 const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
-const CHEST_CHANCE = 2; // 1/n
-
 
 // Initialization settings.
 const STARTING_ENEMY = spider_tile;
 const STARTING_ENEMY_AMOUNT = 1;
 const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = generate_ruins_area;
+
+// Settings just used for testing.
+const SECOND_STARTING_ENEMY = lava_pool_tile;
+const SECOND_STARTING_ENEMY_AMOUNT = 0
 const CARDS_TO_TEST = []
 
 // Dungeon generation settings.
@@ -1470,13 +1472,11 @@ function boss_death(self, target, map){
         throw new Error(`tile missing properties used by it's ai.`);
     }
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
-        if(random_num(CHEST_CHANCE) === 0){
-            // Create a chest containing a random card from it's loot table.
-            var chest = chest_tile();
-            var card = rand_no_repeates(self.tile.card_drops, 1)[0];
-            add_card_to_chest(chest, card());
-            map.add_tile(chest, self.location);
-        }
+        // Create a chest containing a random card from it's loot table.
+        var chest = chest_tile();
+        var card = rand_no_repeates(self.tile.card_drops, 1)[0];
+        add_card_to_chest(chest, card());
+        map.add_tile(chest, self.location);
     }
     display.display_message(UIIDS.display_message, `${self.tile.death_message}\n${boss_death_description}`);
     map.unlock();
@@ -3175,16 +3175,7 @@ function spider_web_ai(self, target, map){
 function turret_fire_ai(self, target, map){
     // Fires a shot in the direction of the player.
     var direction = sign(target.difference)
-    try{
-        for(var i = 1; !map.attack(self.location.plus(direction.times(i))); ++i){ 
-            map.check_bounds(self.location.plus(direction.times(i)));
-        }
-    }
-    catch(error){
-        if(!(error.message === `x out of bounds` || error.message === `y out of bounds`)){
-            throw error;
-        }
-    }
+    for(var space = self.location.plus(direction); !map.attack(space) && map.check_empty(space); space.plus_equals(direction)){}
 }
 /** @type {TileGenerator} */
 function turret_d_tile(){
@@ -5508,6 +5499,9 @@ class GameState{
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
         for(var i = 0; i < STARTING_ENEMY_AMOUNT; ++i){
             this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
+        }
+        for(var i = 0; i < SECOND_STARTING_ENEMY_AMOUNT; ++i){
+            this.map.spawn_safely(SECOND_STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
         }
         this.map.display();
         this.map.display_stats(UIIDS.stats);

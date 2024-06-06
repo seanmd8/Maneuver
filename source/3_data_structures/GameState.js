@@ -26,6 +26,9 @@ class GameState{
         for(var i = 0; i < STARTING_ENEMY_AMOUNT; ++i){
             this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
         }
+        for(var i = 0; i < SECOND_STARTING_ENEMY_AMOUNT; ++i){
+            this.map.spawn_safely(SECOND_STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
+        }
         this.map.display();
         this.map.display_stats(UIIDS.stats);
         this.deck = STARTING_DECK();
