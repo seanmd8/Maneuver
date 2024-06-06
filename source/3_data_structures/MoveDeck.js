@@ -123,8 +123,12 @@ class MoveDeck{
             }
             return backgrounds;
         }
+        var explain_blank_moves = function(){
+            display.display_message(UIIDS.display_message, blank_moves_message);
+        }
         display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this), card_background);
         display.display_message(UIIDS.deck_count, `${this.#library.length}`);
+        display.add_on_click(UIIDS.move_info, explain_blank_moves);
     }
     /**
      * Displays the whole decklist

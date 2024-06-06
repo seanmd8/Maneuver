@@ -564,12 +564,19 @@ Object.freeze(IMG_FOLDER);
  * @param {NormalCallback=} on_click If provided, called when it is clicked.
  * @returns {HTMLInputElement} The created button.
  */
+
 /**
  * @callback create_image Creates and returns an image eleemnt.
  * @param {string} src The pic to display.
  * @param {string} id The element id
  * @param {number | Point} size How largethe pic should be.
  * @returns {HTMLImageElement} The created image.
+ */
+
+/**
+ * @callback add_on_click Adds an on_click function to an element.
+ * @param {string} location The id of the element to add an on_click to.
+ * @param {function} on_click The function to call when the element is clicked on.
  */
 
 /**
@@ -586,6 +593,7 @@ Object.freeze(IMG_FOLDER);
  * @property {create_alternating_text_section} create_alternating_text_section
  * @property {create_button} create_button
  * @property {create_image} create_image
+ * @property {add_on_click} add_on_click
  */
 
 
@@ -714,7 +722,7 @@ const DisplayHTML = {
         table.append(row);
     },
     display_message: function(location, message){
-        var output = wrap_str(message, TEXT_WRAP_WIDTH, ` `);
+        var output = message;//wrap_str(message, TEXT_WRAP_WIDTH, ` `);
         DisplayHTML.get_element(location).innerText = output;
     },
     clear_tb: function(location){
@@ -866,6 +874,10 @@ const DisplayHTML = {
         }
         return image;
     },
+    add_on_click: function(location, on_click){
+        var element = DisplayHTML.get_element(location);
+        element.onclick = on_click;
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -894,6 +906,8 @@ Object.freeze(DisplayHTML);
 // Set up the display library and the onkeydown function.
 const display = get_display(MARKUP_LANGUAGE);
 document.onkeydown = display.press;
+
+const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.
 // ----------------ManeuverUtil.js----------------
 // File for utility functions used throughout the program.
 
@@ -931,13 +945,13 @@ function make_starting_deck(){
 function make_test_deck(){
     var deck = new MoveDeck();
     var cards_to_test = [
-        lunge_left, lunge_right
+        bite, bounding_retreat, debilitating_confusion, diamond_attack, lash_out, 
+        force, freeze_up, teleport, lightheaded, reckless_diagonal, regenerate, roll_ew, thwack
     ]
     for(var card of cards_to_test){
         deck.add(card());
     }
 
-    deck.add(basic_horizontal());
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
 
@@ -1084,6 +1098,7 @@ const current_deck = `Current Deck (minimum `;
 const welcome_message = `Use cards to move (blue) and attack (red).\n` 
                         + `Click on things to learn more about them.\n`
                         + `Refer to the guidebook if you need more information.`;
+const blank_moves_message = `Before choosing what move to make, you must first select a card to use.`;
 const floor_message = `Welcome to floor `;
 const game_over_message = `Game Over. You were killed by a `;
 const retry_message = `Retry?`;
@@ -1227,6 +1242,7 @@ const add_card_description = `Add this card to your deck.`
 
 
 // Button Options.
+const null_move_button = `--`;
 const NW = `NW`;
 const N = `N`;
 const NE = `NE`;
@@ -1237,6 +1253,30 @@ const SW = `SW`;
 const W = `W`;
 const C = `C`;
 const SPIN = `Spin`;
+
+// Directions.
+const four_directions = {
+    up: `Up`,
+    down: `Down`,
+    left: `Left`,
+    right: `Right`
+}
+
+
+// Move types.
+const move_types = {
+    attack: `Attack`,
+    move: `Move`,
+    teleport: `Teleport you to a random space`,
+    stun: `Stun`,
+    confuse: `Confuse: you`,
+    move_until: `Keep Moving`,
+    heal: `Heal`,
+    instant: `Take another turn`,
+    you: `you`,
+    nothing: `Do nothing`
+}
+Object.freeze(move_types);
 
 // ----------------GuideText.js----------------
 // This file contains the headers and text for the guide / tutorial section.
@@ -1276,17 +1316,15 @@ const GUIDE_TEXT = {
                 ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
                 ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
             +`\n`
+            +`You can use the (?) button next to your move options to learn exactly what a selected card does.\n`
+            +`\n`
             +`In addition to clicking on cards to use them, you can use the keys\n`,
                 ` `, ` `, `\n`
             +`to select a card and\n`,
                 ` `, ` `, `\n`,
                 ` `, ` `, `\n`,
                 ` `, ` `, `\n`
-            +`to use it.\n`
-            +`\n`
-            +`Moving into a wall or an occupied space has no effect unless it is specified in the description of the destination space. `
-            +`If other actions are performed after a failed move, they will be performed where you are rather than where you would have `
-            +`been.\n\n`],
+            +`to use it.\n\n`],
 
     enemies: [`As you travel through the dungeon, you will encounter various other creatures, many of whom want to kill you. Each creature has `
             +`different patterns of attack and movement and many of them have other unique abilities. Click on a tile to learn more about it. `
@@ -1364,6 +1402,7 @@ function get_uiids(language){
  *          @property {string} hand_label Labels the hand box.
  *          @property {string} hand_display Displays the player's hand of cards.
  *          @property {string} move_label Labels the move button box.
+ *          @property {string} move_info Info icon for move buttons.
  *          @property {string} move_buttons Displays the buttons for the last card clicked on.
  *          @property {string} display_message Displays messages.
  *          @property {string} retry_button: A button to allow them to reset after they die.
@@ -1398,6 +1437,7 @@ const HTML_UIIDS = {
             hand_label: `handLabel`,
             hand_display: `handDisplay`,
             move_label: `moveLabel`,
+            move_info: `moveInfo`,
             move_buttons: `moveButtons`,
             display_message: `displayMessage`,
             retry_button: `retryButton`,
@@ -4405,7 +4445,7 @@ class ButtonGrid{
     #buttons; // A 3x3 2d array used to store the options.
     constructor(){
         var initial = {
-            description: `--`
+            description: null_move_button
         }
         this.#buttons = [[initial, initial, initial],
                         [initial, initial, initial], 
@@ -4443,6 +4483,7 @@ class ButtonGrid{
         // Displays the 3x3 grid to the given table.
         // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
         display.clear_tb(table_name);
+        display.display_message(UIIDS.display_message, ``);
         var make_press_button = function(hand_position){
             return function(button, position){
                 if(button.behavior){
@@ -4450,10 +4491,38 @@ class ButtonGrid{
                 }
             }
         }
+        var explain_moves = function(card){
+            var text = card.explain_card()
+            return function(){
+                display.display_message(UIIDS.display_message, text);
+            }
+        }
+        
         var press_button = make_press_button(hand_pos);
         for(var i = 0; i < this.#buttons.length; ++i){
             display.add_button_row(table_name, this.#buttons[i], press_button)
         }
+        display.add_on_click(UIIDS.move_info, explain_moves(this));
+    }
+    /**
+     * Creates an explanation of what each button does.
+     * @returns {String} The explanation.
+     */
+    explain_card(){
+        var explanation = `Move Options (actions will be performed in order):\n`;
+        for(let row of this.#buttons){
+            for(let button of row){
+                if(button.description !== null_move_button){
+                    var commands = button.behavior.map((b) => `(${explain_action(b)})`);
+                    if(commands.length === 0){
+                        commands = [`(${move_types.nothing})`];
+                    }
+                    var command_str = commands.join(`, ${NBS}`); // Non breaking spaces used so they won't be collapsed.
+                    explanation = explanation.concat(`${NBS}${NBS}${NBS}${NBS}-${button.description}: ${command_str}\n`);
+                }
+            }
+        }
+        return explanation;
     }
     /**
      * A helper function to infer the number (1-9) on the 3x3 button grid where a new button should go.
@@ -5818,8 +5887,12 @@ class MoveDeck{
             }
             return backgrounds;
         }
+        var explain_blank_moves = function(){
+            display.display_message(UIIDS.display_message, blank_moves_message);
+        }
         display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this), card_background);
         display.display_message(UIIDS.deck_count, `${this.#library.length}`);
+        display.add_on_click(UIIDS.move_info, explain_blank_moves);
     }
     /**
      * Displays the whole decklist
@@ -5863,91 +5936,6 @@ class MoveDeck{
     }
 }
 
-// ----------------Areas.js----------------
-// File containing functions used by areas.
-
-// The structure of the dungeon. Each area can lead to a random one in the next numbered array.
-const area_end = [generate_default_area]; // Once they have finished the completed areas, they go here.
-const area1 = [generate_ruins_area];
-const area2 = [generate_sewers_area, generate_basement_area];
-const area3 = [/*generate_magma_area, */generate_crypt_area];
-const area4 = area_end;//[generate_forest_area, generate_library_area];
-const area5 = [generate_sanctum_area];
-
-/**
- * @typedef {object} Area A section of the dungeon that ends with a boss fight.
- * @property {string} background The picture used as a background for this area.
- * @property {FloorGenerator} generate_floor A function to generate a normal floor of the dungeon.
- * @property {TileGenerator[]} enemy_list An array of which enemies can spawn here.
- * @property {FloorGenerator[]} boss_floor_list An array of functions that can create a boss floor at the end of the area.
- * @property {AreaGenerator[]} next_area_list An array of the areas that can follow this one.
- * @property {string} description A description given when entering this area.
- */
-
-/**
- * @callback AreaGenerator A function to create 
- * @returns {Area}         and return an area object.
- */
-
-// ---Unfinished Areas---
-
-/** @type {AreaGenerator}*/
-function generate_magma_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}magma.png`,
-        generate_floor: generate_magma_floor,
-        enemy_list: [magma_spewer_tile, turret_r_tile, brightling_tile, igneous_crab_tile, boulder_elemental_tile,
-                    pheonix_tile],
-        boss_floor_list: [],
-        next_area_list: area4,
-        description: magma_description
-    }
-}
-/** @type {AreaGenerator}*/
-function generate_forest_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}forest.png`,
-        generate_floor: generate_forest_floor,
-        enemy_list: [vinesnare_bush_tile, carrion_flies_tile, ram_tile, noxious_toad_tile],
-        boss_floor_list: [],
-        next_area_list: area5,
-        description: forest_description
-    }
-}
-/** @type {AreaGenerator}*/
-function generate_library_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}library.png`,
-        generate_floor: generate_library_floor,
-        enemy_list: [],
-        boss_floor_list: [],
-        next_area_list: area5,
-        description: ruins_description
-    }
-}
-/** @type {AreaGenerator}*/
-function generate_sanctum_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}sanctum.png`,
-        generate_floor: generate_sanctum_floor,
-        enemy_list: [],
-        boss_floor_list: [],
-        next_area_list: [generate_default_area],
-        description: sanctum_description
-    }
-}
-
-/** @type {AreaGenerator}*/
-function generate_default_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}default.png`,
-        generate_floor: floor_generator,
-        enemy_list: ENEMY_LIST,
-        boss_floor_list: [],
-        next_area_list: [generate_default_area],
-        description: default_area_description
-    }
-}
 /** @type {AreaGenerator}*/
 function generate_basement_area(){
     return {
@@ -6049,6 +6037,91 @@ function grate_terrain(floor_num, area, map){
     var grate_amount = random_num(3);
     for(var i = 0; i < grate_amount; ++i){
         map.spawn_safely(sewer_grate_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+}
+// ----------------Areas.js----------------
+// File containing functions used by areas.
+
+// The structure of the dungeon. Each area can lead to a random one in the next numbered array.
+const area_end = [generate_default_area]; // Once they have finished the completed areas, they go here.
+const area1 = [generate_ruins_area];
+const area2 = [generate_sewers_area, generate_basement_area];
+const area3 = [/*generate_magma_area, */generate_crypt_area];
+const area4 = area_end;//[generate_forest_area, generate_library_area];
+const area5 = [generate_sanctum_area];
+
+/**
+ * @typedef {object} Area A section of the dungeon that ends with a boss fight.
+ * @property {string} background The picture used as a background for this area.
+ * @property {FloorGenerator} generate_floor A function to generate a normal floor of the dungeon.
+ * @property {TileGenerator[]} enemy_list An array of which enemies can spawn here.
+ * @property {FloorGenerator[]} boss_floor_list An array of functions that can create a boss floor at the end of the area.
+ * @property {AreaGenerator[]} next_area_list An array of the areas that can follow this one.
+ * @property {string} description A description given when entering this area.
+ */
+
+/**
+ * @callback AreaGenerator A function to create 
+ * @returns {Area}         and return an area object.
+ */
+
+// ---Unfinished Areas---
+
+/** @type {AreaGenerator}*/
+function generate_magma_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}magma.png`,
+        generate_floor: generate_magma_floor,
+        enemy_list: [magma_spewer_tile, turret_r_tile, brightling_tile, igneous_crab_tile, boulder_elemental_tile,
+                    pheonix_tile],
+        boss_floor_list: [],
+        next_area_list: area4,
+        description: magma_description
+    }
+}
+/** @type {AreaGenerator}*/
+function generate_forest_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}forest.png`,
+        generate_floor: generate_forest_floor,
+        enemy_list: [vinesnare_bush_tile, carrion_flies_tile, ram_tile, noxious_toad_tile],
+        boss_floor_list: [],
+        next_area_list: area5,
+        description: forest_description
+    }
+}
+/** @type {AreaGenerator}*/
+function generate_library_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}library.png`,
+        generate_floor: generate_library_floor,
+        enemy_list: [],
+        boss_floor_list: [],
+        next_area_list: area5,
+        description: ruins_description
+    }
+}
+/** @type {AreaGenerator}*/
+function generate_sanctum_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}sanctum.png`,
+        generate_floor: generate_sanctum_floor,
+        enemy_list: [],
+        boss_floor_list: [],
+        next_area_list: [generate_default_area],
+        description: sanctum_description
+    }
+}
+
+/** @type {AreaGenerator}*/
+function generate_default_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}default.png`,
+        generate_floor: floor_generator,
+        enemy_list: ENEMY_LIST,
+        boss_floor_list: [],
+        next_area_list: [generate_default_area],
+        description: default_area_description
     }
 }
 /** @type {FloorGenerator} Generates the floor where the Lich appears.*/
@@ -6567,6 +6640,61 @@ function pheal(x, y){
  * @callback CardGenerator A function that creates a card.
  * @returns {Card} The resulting card.
  */
+
+
+
+/**
+ * Function to explain an individual player action.
+ * @param {PlayerCommand} action The command to explain.
+ * @returns {String} An explanation for the player of what the action does.
+ */
+function explain_action(action){
+    var target = explain_point(action.change);
+    switch(action.type){
+        case `attack`:
+            return `${move_types.attack}: ${target}`;
+        case `move`:
+            return `${move_types.move}: ${target}`;
+        case `teleport`:
+            return move_types.teleport
+        case `instant`:
+            return move_types.instant;
+        case `stun`:
+            if(point_equals(action.change, new Point(0, 0))){
+                return move_types.confuse;
+            }
+            return `${move_types.stun}: ${target}`
+        case `move_until`:
+            return `${move_types.move_until}: ${target}`
+        case `heal`:
+            return `${move_types.heal}: ${target}`;
+        default:
+            throw new Error(`invalid player action type`);
+    }
+}
+
+/**
+ * Converts a point to an explanation of where it is relative to the player.
+ * @param {Point} p The point to explain.
+ * @returns {String} The location of the point explained in relation to the player.
+ */
+function explain_point(p){
+    var direction = sign(p);
+    var vertical = [four_directions.up, undefined, four_directions.down][direction.y + 1];
+    var horizontal = [four_directions.left, undefined, four_directions.right][direction.x + 1];
+    if(vertical === undefined && horizontal === undefined){
+        return move_types.you;
+    }
+    else if(vertical === undefined){
+        return `${horizontal} ${Math.abs(p.x)}`;
+    }
+    else if(horizontal === undefined){
+        return `${vertical} ${Math.abs(p.y)}`;
+    }
+    else{
+        return `${horizontal} ${Math.abs(p.x)}, ${vertical} ${Math.abs(p.y)}`;
+    }
+}
 // ----------------ConfusionCards.js----------------
 // File containing cards that can be given to the player as a debuff.
 

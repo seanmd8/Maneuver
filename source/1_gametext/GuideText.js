@@ -36,17 +36,15 @@ const GUIDE_TEXT = {
                 ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
                 ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
             +`\n`
+            +`You can use the (?) button next to your move options to learn exactly what a selected card does.\n`
+            +`\n`
             +`In addition to clicking on cards to use them, you can use the keys\n`,
                 ` `, ` `, `\n`
             +`to select a card and\n`,
                 ` `, ` `, `\n`,
                 ` `, ` `, `\n`,
                 ` `, ` `, `\n`
-            +`to use it.\n`
-            +`\n`
-            +`Moving into a wall or an occupied space has no effect unless it is specified in the description of the destination space. `
-            +`If other actions are performed after a failed move, they will be performed where you are rather than where you would have `
-            +`been.\n\n`],
+            +`to use it.\n\n`],
 
     enemies: [`As you travel through the dungeon, you will encounter various other creatures, many of whom want to kill you. Each creature has `
             +`different patterns of attack and movement and many of them have other unique abilities. Click on a tile to learn more about it. `

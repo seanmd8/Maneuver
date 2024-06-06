@@ -5,7 +5,7 @@ class ButtonGrid{
     #buttons; // A 3x3 2d array used to store the options.
     constructor(){
         var initial = {
-            description: `--`
+            description: null_move_button
         }
         this.#buttons = [[initial, initial, initial],
                         [initial, initial, initial], 
@@ -43,6 +43,7 @@ class ButtonGrid{
         // Displays the 3x3 grid to the given table.
         // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
         display.clear_tb(table_name);
+        display.display_message(UIIDS.display_message, ``);
         var make_press_button = function(hand_position){
             return function(button, position){
                 if(button.behavior){
@@ -50,10 +51,38 @@ class ButtonGrid{
                 }
             }
         }
+        var explain_moves = function(card){
+            var text = card.explain_card()
+            return function(){
+                display.display_message(UIIDS.display_message, text);
+            }
+        }
+        
         var press_button = make_press_button(hand_pos);
         for(var i = 0; i < this.#buttons.length; ++i){
             display.add_button_row(table_name, this.#buttons[i], press_button)
         }
+        display.add_on_click(UIIDS.move_info, explain_moves(this));
+    }
+    /**
+     * Creates an explanation of what each button does.
+     * @returns {String} The explanation.
+     */
+    explain_card(){
+        var explanation = `Move Options (actions will be performed in order):\n`;
+        for(let row of this.#buttons){
+            for(let button of row){
+                if(button.description !== null_move_button){
+                    var commands = button.behavior.map((b) => `(${explain_action(b)})`);
+                    if(commands.length === 0){
+                        commands = [`(${move_types.nothing})`];
+                    }
+                    var command_str = commands.join(`, ${NBS}`); // Non breaking spaces used so they won't be collapsed.
+                    explanation = explanation.concat(`${NBS}${NBS}${NBS}${NBS}-${button.description}: ${command_str}\n`);
+                }
+            }
+        }
+        return explanation;
     }
     /**
      * A helper function to infer the number (1-9) on the 3x3 button grid where a new button should go.

@@ -31,6 +31,7 @@ function get_uiids(language){
  *          @property {string} hand_label Labels the hand box.
  *          @property {string} hand_display Displays the player's hand of cards.
  *          @property {string} move_label Labels the move button box.
+ *          @property {string} move_info Info icon for move buttons.
  *          @property {string} move_buttons Displays the buttons for the last card clicked on.
  *          @property {string} display_message Displays messages.
  *          @property {string} retry_button: A button to allow them to reset after they die.
@@ -65,6 +66,7 @@ const HTML_UIIDS = {
             hand_label: `handLabel`,
             hand_display: `handDisplay`,
             move_label: `moveLabel`,
+            move_info: `moveInfo`,
             move_buttons: `moveButtons`,
             display_message: `displayMessage`,
             retry_button: `retryButton`,

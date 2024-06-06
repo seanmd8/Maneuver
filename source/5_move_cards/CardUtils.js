@@ -109,3 +109,58 @@ function pheal(x, y){
  * @callback CardGenerator A function that creates a card.
  * @returns {Card} The resulting card.
  */
+
+
+
+/**
+ * Function to explain an individual player action.
+ * @param {PlayerCommand} action The command to explain.
+ * @returns {String} An explanation for the player of what the action does.
+ */
+function explain_action(action){
+    var target = explain_point(action.change);
+    switch(action.type){
+        case `attack`:
+            return `${move_types.attack}: ${target}`;
+        case `move`:
+            return `${move_types.move}: ${target}`;
+        case `teleport`:
+            return move_types.teleport
+        case `instant`:
+            return move_types.instant;
+        case `stun`:
+            if(point_equals(action.change, new Point(0, 0))){
+                return move_types.confuse;
+            }
+            return `${move_types.stun}: ${target}`
+        case `move_until`:
+            return `${move_types.move_until}: ${target}`
+        case `heal`:
+            return `${move_types.heal}: ${target}`;
+        default:
+            throw new Error(`invalid player action type`);
+    }
+}
+
+/**
+ * Converts a point to an explanation of where it is relative to the player.
+ * @param {Point} p The point to explain.
+ * @returns {String} The location of the point explained in relation to the player.
+ */
+function explain_point(p){
+    var direction = sign(p);
+    var vertical = [four_directions.up, undefined, four_directions.down][direction.y + 1];
+    var horizontal = [four_directions.left, undefined, four_directions.right][direction.x + 1];
+    if(vertical === undefined && horizontal === undefined){
+        return move_types.you;
+    }
+    else if(vertical === undefined){
+        return `${horizontal} ${Math.abs(p.x)}`;
+    }
+    else if(horizontal === undefined){
+        return `${vertical} ${Math.abs(p.y)}`;
+    }
+    else{
+        return `${horizontal} ${Math.abs(p.x)}, ${vertical} ${Math.abs(p.y)}`;
+    }
+}

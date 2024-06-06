@@ -35,13 +35,13 @@ function make_starting_deck(){
 function make_test_deck(){
     var deck = new MoveDeck();
     var cards_to_test = [
-        lunge_left, lunge_right
+        bite, bounding_retreat, debilitating_confusion, diamond_attack, lash_out, 
+        force, freeze_up, teleport, lightheaded, reckless_diagonal, regenerate, roll_ew, thwack
     ]
     for(var card of cards_to_test){
         deck.add(card());
     }
 
-    deck.add(basic_horizontal());
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
 

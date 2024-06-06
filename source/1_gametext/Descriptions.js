@@ -10,6 +10,7 @@ const current_deck = `Current Deck (minimum `;
 const welcome_message = `Use cards to move (blue) and attack (red).\n` 
                         + `Click on things to learn more about them.\n`
                         + `Refer to the guidebook if you need more information.`;
+const blank_moves_message = `Before choosing what move to make, you must first select a card to use.`;
 const floor_message = `Welcome to floor `;
 const game_over_message = `Game Over. You were killed by a `;
 const retry_message = `Retry?`;
@@ -153,6 +154,7 @@ const add_card_description = `Add this card to your deck.`
 
 
 // Button Options.
+const null_move_button = `--`;
 const NW = `NW`;
 const N = `N`;
 const NE = `NE`;
@@ -163,3 +165,27 @@ const SW = `SW`;
 const W = `W`;
 const C = `C`;
 const SPIN = `Spin`;
+
+// Directions.
+const four_directions = {
+    up: `Up`,
+    down: `Down`,
+    left: `Left`,
+    right: `Right`
+}
+
+
+// Move types.
+const move_types = {
+    attack: `Attack`,
+    move: `Move`,
+    teleport: `Teleport you to a random space`,
+    stun: `Stun`,
+    confuse: `Confuse: you`,
+    move_until: `Keep Moving`,
+    heal: `Heal`,
+    instant: `Take another turn`,
+    you: `you`,
+    nothing: `Do nothing`
+}
+Object.freeze(move_types);

@@ -115,12 +115,19 @@
  * @param {NormalCallback=} on_click If provided, called when it is clicked.
  * @returns {HTMLInputElement} The created button.
  */
+
 /**
  * @callback create_image Creates and returns an image eleemnt.
  * @param {string} src The pic to display.
  * @param {string} id The element id
  * @param {number | Point} size How largethe pic should be.
  * @returns {HTMLImageElement} The created image.
+ */
+
+/**
+ * @callback add_on_click Adds an on_click function to an element.
+ * @param {string} location The id of the element to add an on_click to.
+ * @param {function} on_click The function to call when the element is clicked on.
  */
 
 /**
@@ -137,6 +144,7 @@
  * @property {create_alternating_text_section} create_alternating_text_section
  * @property {create_button} create_button
  * @property {create_image} create_image
+ * @property {add_on_click} add_on_click
  */
 
 
@@ -265,7 +273,7 @@ const DisplayHTML = {
         table.append(row);
     },
     display_message: function(location, message){
-        var output = wrap_str(message, TEXT_WRAP_WIDTH, ` `);
+        var output = message;//wrap_str(message, TEXT_WRAP_WIDTH, ` `);
         DisplayHTML.get_element(location).innerText = output;
     },
     clear_tb: function(location){
@@ -417,6 +425,10 @@ const DisplayHTML = {
         }
         return image;
     },
+    add_on_click: function(location, on_click){
+        var element = DisplayHTML.get_element(location);
+        element.onclick = on_click;
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -445,3 +457,5 @@ Object.freeze(DisplayHTML);
 // Set up the display library and the onkeydown function.
 const display = get_display(MARKUP_LANGUAGE);
 document.onkeydown = display.press;
+
+const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.

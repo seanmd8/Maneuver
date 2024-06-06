@@ -12,6 +12,7 @@ Gameplay Changelog:
 - Areas now generate terrain. 
 - Added new Terrain: Coffin
 - Added new Terrain: Sewer Grate
+- You can now click a button to see what a card will do.
 
 6/3/24
 - Added 11 new cards
