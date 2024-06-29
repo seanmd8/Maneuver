@@ -13,7 +13,7 @@ const MIN_DECK_SIZE = 5;
 const STARTING_ENEMY = spider_tile;
 const STARTING_ENEMY_AMOUNT = 1;
 const STARTING_DECK = make_starting_deck;
-const STARTING_AREA = generate_ruins_area;
+const STARTING_AREA = [generate_ruins_area];
 
 // Settings just used for testing.
 const SECOND_STARTING_ENEMY = lava_pool_tile;

@@ -3,9 +3,9 @@
 
 // The structure of the dungeon. Each area can lead to a random one in the next numbered array.
 const area_end = [generate_default_area]; // Once they have finished the completed areas, they go here.
-const area1 = [generate_ruins_area];
+const area1 = STARTING_AREA;
 const area2 = [generate_sewers_area, generate_basement_area];
-const area3 = [/*generate_magma_area, */generate_crypt_area];
+const area3 = [generate_magma_area, generate_crypt_area];
 const area4 = area_end;//[generate_forest_area, generate_library_area];
 const area5 = [generate_sanctum_area];
 
@@ -26,18 +26,7 @@ const area5 = [generate_sanctum_area];
 
 // ---Unfinished Areas---
 
-/** @type {AreaGenerator}*/
-function generate_magma_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}magma.png`,
-        generate_floor: generate_magma_floor,
-        enemy_list: [magma_spewer_tile, turret_r_tile, brightling_tile, igneous_crab_tile, boulder_elemental_tile,
-                    pheonix_tile],
-        boss_floor_list: [],
-        next_area_list: area4,
-        description: magma_description
-    }
-}
+
 /** @type {AreaGenerator}*/
 function generate_forest_area(){
     return {

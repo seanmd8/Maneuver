@@ -8,13 +8,24 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+6/29/24
+- Added alternate third area: Magmatic Caves
+- Added Magmatic Caves Boss: Young Dragon
+- Added new enemy: Magma Spewer
+- Added new enemy: Igneous Crab
+- Added new enemy: Strider
+- Added new enemy: Pheonix
+- Added new enemy: Boulder Elemental
+- Added new terrain: Repulsor
+- Added new terrain: Magmatic Boulder
+
 6/6/24
 - Chance for bosses to drop a card upped to 100%.
 
 6/5/24
 - Areas now generate terrain. 
-- Added new Terrain: Coffin
-- Added new Terrain: Sewer Grate
+- Added new terrain: Coffin
+- Added new terrain: Sewer Grate
 - You can now click a button to see what a card will do.
 
 6/3/24

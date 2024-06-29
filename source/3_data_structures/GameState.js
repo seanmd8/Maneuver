@@ -18,7 +18,7 @@ class GameState{
      */
     setup(){
         // Function ran on page load or on restart to set up the game.
-        var start = STARTING_AREA();
+        var start = randomize_arr(STARTING_AREA)[0]();
         display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
         display.display_message(UIIDS.hand_label, `${hand_label_text}`);
         display.display_message(UIIDS.move_label, `${move_label_text}`);

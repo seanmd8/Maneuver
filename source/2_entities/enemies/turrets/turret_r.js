@@ -6,7 +6,7 @@ function turret_r_tile(){
         pic: ``,
         description: turret_r_description,
         health: 1,
-        difficulty: 2,
+        difficulty: 3,
         behavior: turret_r_ai,
         telegraph: turret_r_telegraph,
         pic_arr: [

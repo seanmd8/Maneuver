@@ -407,7 +407,7 @@ const MIN_DECK_SIZE = 5;
 const STARTING_ENEMY = spider_tile;
 const STARTING_ENEMY_AMOUNT = 1;
 const STARTING_DECK = make_starting_deck;
-const STARTING_AREA = generate_ruins_area;
+const STARTING_AREA = [generate_ruins_area];
 
 // Settings just used for testing.
 const SECOND_STARTING_ENEMY = lava_pool_tile;
@@ -1149,13 +1149,14 @@ const orb_of_insanity_description = [`Orb of Insanity: Does not move or attack. 
 const carrion_flies_description = `Carrion Flies: Will only attack if the player is nearby. Otherwise they will wander aimlessly. `
                             +`Over time they will multiply.`;
 const magma_spewer_description = `Magma Spewer: Fires magma into the air every other turn. Retreats when you get close.`
-const boulder_elemental_description = `Boulder Elemental: Wakes up stunned when something touches it. Each turn, it samages anyone that is `
+const boulder_elemental_description = `Boulder Elemental: Wakes up stunned when something touches it. Each turn, it damages anyone `
                             +`close to it, then moves 1 space closer to the player. After 3 turns of failing to hit anything, it will go `
                             +`back to sleep.`;
 const pheonix_description = `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. Everything it flies over will be `
                             +`damaged and set on fire. When it dies, it drops a pile of ashes from which it will eventually be reborn.`;
 const igneous_crab_description = `Igneous Crab: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
-                                +`When damaged, it will spend the next 2 turns fleeing.`
+                                +`When damaged, it will spend the next 2 turns fleeing.`;
+const strider_description = `Strider: Attacks then moves 2 spaces away in one direction.`;
 
 
 // Area Descriptions.
@@ -1231,8 +1232,9 @@ const magmatic_boulder_description = `Magmatic Boulder: The light reflecting off
 const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, `turns unless you scatter the ashes by attacking `
                         +`them or moving onto them.`];
 const raging_fire_description = `Raging Fire: The very ground here is burning. It will grow weaker every turn, but it's not safe to move through.`;
-const coffin_description = `Coffin: There is no telling whether whatever is inside is still alive or not. Disturb at your own risk.`;
+const coffin_description = `Coffin: There is no telling whether whatever is inside is still alive or not. Touch it at your own risk.`;
 const sewer_grate_description = `Sewer Grate: It's clogged. Corrosive slime is oozing out.`;
+const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes a turn to recharge afterwards.`;
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;
@@ -1892,7 +1894,7 @@ function young_dragon_tile(){
         name: `young dragon`,
         pic: pic_arr[0],
         description: `${young_dragon_description_arr[0]}${young_dragon_description_arr[1]}`,
-        health: 5,
+        health: 4,
         difficulty: 1,
         death_message: young_dragon_death_message,
         behavior: young_dragon_behavior,
@@ -2102,7 +2104,6 @@ function boulder_elemental_look(){
         name: `boulder elemental`,
         pic: `${IMG_FOLDER.tiles}boulder_elemental.png`,
         description: boulder_elemental_description,
-        difficulty: 3,
         behavior: boulder_elemental_ai,
         telegraph: spider_telegraph,
         on_enter: boulder_elemental_wake_up,
@@ -2127,7 +2128,7 @@ function boulder_elemental_ai(self, target, map){
     var hit = false;
     for(let space of nearby){
         // Attacks everything nearby.
-        hit = hit ||  map.attack(self.location.plus(space));
+        hit = map.attack(self.location.plus(space)) || hit;
     }
     if(!hit){
         // If nothing was nearby, gets sleepier.
@@ -2427,7 +2428,7 @@ function magma_spewer_tile(){
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
         description: magma_spewer_description,
         health: 1,
-        difficulty: 4,
+        difficulty: 3,
         behavior: magma_spewer_ai,
         pic_arr,
         cycle: starting_cycle
@@ -2464,7 +2465,7 @@ function magma_spewer_ai(self, target, map){
                 locations.push(center.plus(new Point(i, j)));
             }
         }
-        map.add_event({name: `Falling Magma`, behavior: earthquake_event(4, locations)})
+        map.add_event({name: `Falling Magma`, behavior: earthquake_event(random_num(4) + 3, locations)})
     }
     self.tile.cycle = 1 - self.tile.cycle;
     self.tile.pic = self.tile.pic_arr[self.tile.cycle];
@@ -3171,6 +3172,48 @@ function spider_web_ai(self, target, map){
         self.tile.cycle = 0;
     }
 }
+/** @type {TileGenerator} */
+function strider_tile(){
+    return{
+        type: `enemy`,
+        name: `strider`,
+        pic: `${IMG_FOLDER.tiles}strider.png`,
+        description: strider_description,
+        health: 2,
+        difficulty: 5,
+        behavior: strider_ai,
+        telegraph: strider_telegraph
+    }
+}
+
+/** @type {AIFunction} AI used by shadow knights.*/
+function strider_ai(self, target, map){
+    if(random_num(2) === 0){
+        var moves = random_nearby();
+    }
+    else{
+        var moves = order_nearby(target.difference);
+    }
+    moves = moves.map(move => move.times(2));
+    for(let move of moves){
+        if(point_equals(move, target.difference)){
+            map.attack(self.location.plus(target.difference));
+        }
+    }
+    var moved = false;
+    for(var i = 0; i < moves.length && !moved; ++i){
+        var destination = self.location.plus(moves[i]);
+        if(map.check_empty(destination)){
+            moved = map.move(self.location, destination);
+        }
+    }
+}
+
+/** @type {TelegraphFunction} */
+function strider_telegraph(location, map, self){
+    var attacks = random_nearby();
+    return attacks.map(attack => location.plus(attack.times(2)));
+}
 /** @type {AIFunction} AI used by all turrets to fire towards the player.*/
 function turret_fire_ai(self, target, map){
     // Fires a shot in the direction of the player.
@@ -3251,7 +3294,7 @@ function turret_r_tile(){
         pic: ``,
         description: turret_r_description,
         health: 1,
-        difficulty: 2,
+        difficulty: 3,
         behavior: turret_r_ai,
         telegraph: turret_r_telegraph,
         pic_arr: [
@@ -3752,7 +3795,97 @@ function raging_fire_hit(self, target, map){
 }
 
 
-/** @type {TileGenerator} */
+/** @type {TileGenerator} Pushes things away.*/
+function repulsor_tile(){
+    var pic_arr = [`${IMG_FOLDER.tiles}repulsor.png`, `${IMG_FOLDER.tiles}repulsor_reloading.png`];
+    var starting_cycle = 0;
+    return {
+        type: `enemy`,
+        name: `repulsor`,
+        pic: pic_arr[starting_cycle],
+        description: repulsor_description,
+        behavior: repulsor_ai,
+        telegraph_other: repulsor_telegraph_other,
+        on_enter: repulsor_push_ai,
+        on_hit: repulsor_push_ai,
+        pic_arr,
+        cycle: starting_cycle,
+    }
+}
+
+/** @type {AIFunction} Pushes nearby creatures away.*/
+function repulsor_push_ai(self, target, map){
+    if( self.tile.cycle === undefined || 
+        self.tile.pic_arr === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    if(self.tile.cycle > 0){
+        return;
+    }
+    var player_was_moved = false;
+    var activated = false;
+    var spaces = random_nearby();
+    for(var space of spaces){
+        var target_space = self.location.plus(space);
+        if(map.is_in_bounds(target_space)){
+            var target_tile = map.get_grid(target_space);
+            if(target_tile.type === `player`){
+                player_was_moved = true;
+            }
+            if(target_tile.health !== undefined){
+                activated = true;
+                try {
+                    // Push the creature away.
+                    for(var i = 0; i < 2 && map.move(target_space, target_space.plus(space)); ++i){
+                        target_space.plus_equals(space);
+                    }
+                } catch (error) {
+                    // Catches `pass to player` errors to prevent ping pong between 2.
+                    if(error.message !== `pass to player`){
+                        throw error;
+                    }
+                }
+            }
+        }
+    }
+    if(activated){
+        self.tile.cycle = 1;
+        self.tile.pic = self.tile.pic_arr[self.tile.cycle];
+    }
+    if(player_was_moved){
+        throw new Error(`pass to player`);
+    }
+
+}
+
+/** @type {AIFunction} AI used by smoldering ashes.*/
+function repulsor_ai(self, target, map){
+    if( self.tile.cycle === undefined || 
+        self.tile.pic_arr === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    if(self.tile.cycle > 0){
+        self.tile.cycle = 0;
+        self.tile.pic = self.tile.pic_arr[self.tile.cycle];
+        return;
+    }
+    repulsor_push_ai(self, target, map);
+}
+/** @type {TelegraphFunction} */
+function repulsor_telegraph_other(location, map, self){
+    if( self.cycle === undefined){
+        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+    }
+    var spaces = [];
+    if(self.cycle === 0){
+        spaces = random_nearby();
+        spaces = spaces.map((space) => space.plus(location));
+        spaces.push(location);
+    }
+    return spaces;
+}
+
+/** @type {TileGenerator} Spawns corrosive slime nearby.*/
 function sewer_grate_tile(){
     return{
         type: `enemy`,
@@ -3789,7 +3922,7 @@ function smoldering_ashes_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.spawn_timer === undefined ||
         self.tile.description_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(`tile missing properties used by it's ai.`);
     }
     if(self.tile.cycle < self.tile.spawn_timer){
         // If the cycle hasn't reached the spawn timer, increments it.
@@ -5335,7 +5468,7 @@ class GameMap{
     }
     /**
      * Puts a tile at the given location.
-     * t=Throws an error if the location is out of bounds.
+     * Throws an error if the location is out of bounds.
      * @param {Point} location Where to put the tile.
      * @param {Tile} value The tile to place.
      */
@@ -5492,7 +5625,7 @@ class GameState{
      */
     setup(){
         // Function ran on page load or on restart to set up the game.
-        var start = STARTING_AREA();
+        var start = randomize_arr(STARTING_AREA)[0]();
         display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
         display.display_message(UIIDS.hand_label, `${hand_label_text}`);
         display.display_message(UIIDS.move_label, `${move_label_text}`);
@@ -6006,12 +6139,80 @@ function coffin_terrain(floor_num, area, map){
     }
 }
 /** @type {AreaGenerator}*/
+function generate_magma_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}magma.png`,
+        generate_floor: generate_magma_floor,
+        enemy_list: [magma_spewer_tile, turret_r_tile, brightling_tile, igneous_crab_tile, strider_tile,
+                    pheonix_tile],
+        boss_floor_list: [young_dragon_floor],
+        next_area_list: area4,
+        description: magma_description
+    }
+}
+/** @type {FloorGenerator}*/
+function generate_magma_floor(floor_num, area, map){
+    if(random_num(4) === 0){
+        magma_border_terrain(floor_num, area, map);
+    }
+    else{
+        magma_terrain(floor_num, area, map);
+    }
+    repulsor_terrain(floor_num, area, map);
+    boulder_terrain(floor_num, area, map)
+    generate_normal_floor(floor_num - 3, area, map);
+}
+/** @type {FloorGenerator}*/
+function magma_border_terrain(floor_num, area, map){
+    for(var x = 0; x < FLOOR_WIDTH; ++x){
+        try{map.add_tile(lava_pool_tile(), new Point(x, 0))}
+        catch{}
+    }
+    for(var y = 0; y < FLOOR_HEIGHT; ++y){
+        try{map.add_tile(lava_pool_tile(), new Point(0, y))}
+        catch{}
+        try{map.add_tile(lava_pool_tile(), new Point(FLOOR_WIDTH - 1, y))}
+        catch{}
+    }
+}
+/** @type {FloorGenerator}*/
+function magma_terrain(floor_num, area, map){
+    var magma_amount = random_num(20) + 5;
+    for(var i = 0; i < magma_amount; ++i){
+        map.spawn_safely(lava_pool_tile(), SAFE_SPAWN_ATTEMPTS, false)
+    }
+}
+/** @type {FloorGenerator}*/
+function repulsor_terrain(floor_num, area, map){
+    var repulsor_amount = 0;
+    for(var i = 0; i < 3; ++i){
+        if(random_num(4) === 0){
+            ++repulsor_amount;
+        }
+    }
+    for(var i = 0; i < repulsor_amount; ++i){
+        map.spawn_safely(repulsor_tile(), SAFE_SPAWN_ATTEMPTS, false)
+    }
+}
+/** @type {FloorGenerator}*/
+function boulder_terrain(floor_num, area, map){
+    var boulder_amount = random_num(6) - 2;
+    for(var i = 0; i < boulder_amount; ++i){
+        map.spawn_safely(magmatic_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false)
+    }
+    boulder_amount = random_num(6) - 2;
+    for(var i = 0; i < boulder_amount; ++i){
+        map.spawn_safely(boulder_elemental_tile(), SAFE_SPAWN_ATTEMPTS, false)
+    }
+
+}
+/** @type {AreaGenerator}*/
 function generate_ruins_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}ruins.png`,
         generate_floor: generate_ruins_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, spider_web_tile, 
-                    ram_tile, rat_tile, shadow_knight_tile, vinesnare_bush_tile],
+        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, vinesnare_bush_tile, 
+                    ram_tile, rat_tile, shadow_knight_tile],
         boss_floor_list: [velociphile_floor],
         next_area_list: area2,
         description: ruins_description
@@ -6062,9 +6263,9 @@ function grate_terrain(floor_num, area, map){
 
 // The structure of the dungeon. Each area can lead to a random one in the next numbered array.
 const area_end = [generate_default_area]; // Once they have finished the completed areas, they go here.
-const area1 = [generate_ruins_area];
+const area1 = STARTING_AREA;
 const area2 = [generate_sewers_area, generate_basement_area];
-const area3 = [/*generate_magma_area, */generate_crypt_area];
+const area3 = [generate_magma_area, generate_crypt_area];
 const area4 = area_end;//[generate_forest_area, generate_library_area];
 const area5 = [generate_sanctum_area];
 
@@ -6085,18 +6286,7 @@ const area5 = [generate_sanctum_area];
 
 // ---Unfinished Areas---
 
-/** @type {AreaGenerator}*/
-function generate_magma_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}magma.png`,
-        generate_floor: generate_magma_floor,
-        enemy_list: [magma_spewer_tile, turret_r_tile, brightling_tile, igneous_crab_tile, boulder_elemental_tile,
-                    pheonix_tile],
-        boss_floor_list: [],
-        next_area_list: area4,
-        description: magma_description
-    }
-}
+
 /** @type {AreaGenerator}*/
 function generate_forest_area(){
     return {
@@ -6244,6 +6434,15 @@ function velociphile_floor(floor_num,  area, map){
     }
     return velociphile_floor_message;
 }
+/** @type {FloorGenerator} Generates the floor where the Young Dragon appears.*/
+function young_dragon_floor(floor_num,  area, map){
+    map.spawn_safely(young_dragon_tile(), SAFE_SPAWN_ATTEMPTS, true);
+    map.lock();
+    for(var i = 0; i < 25; ++i){
+        map.add_tile(lava_pool_tile());
+    }
+    return young_dragon_floor_message;
+}
 // ----------------Floors.js----------------
 // File containing the functions for generating new floors.
 
@@ -6279,19 +6478,6 @@ function generate_normal_floor(floor_num, area, map){
             }
         }
     }
-}
-
-/** @type {FloorGenerator}*/
-function generate_magma_floor(floor_num, area, map){
-    var lava_amount = random_num(20) + 5;
-    for(var i = 0; i < lava_amount; ++i){
-        map.spawn_safely(lava_pool_tile(), SAFE_SPAWN_ATTEMPTS, false)
-    }
-    var boulder_amount = random_num(3);
-    for(var i = 0; i < boulder_amount; ++i){
-        map.spawn_safely(magmatic_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false)
-    }
-    generate_normal_floor(floor_num, area, map);
 }
 
 

@@ -20,7 +20,7 @@ function smoldering_ashes_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.spawn_timer === undefined ||
         self.tile.description_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(`tile missing properties used by it's ai.`);
     }
     if(self.tile.cycle < self.tile.spawn_timer){
         // If the cycle hasn't reached the spawn timer, increments it.

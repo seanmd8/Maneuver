@@ -1,4 +1,4 @@
-/** @type {TileGenerator} */
+/** @type {TileGenerator} Spawns corrosive slime nearby.*/
 function sewer_grate_tile(){
     return{
         type: `enemy`,

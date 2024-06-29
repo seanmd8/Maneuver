@@ -35,19 +35,6 @@ function generate_normal_floor(floor_num, area, map){
     }
 }
 
-/** @type {FloorGenerator}*/
-function generate_magma_floor(floor_num, area, map){
-    var lava_amount = random_num(20) + 5;
-    for(var i = 0; i < lava_amount; ++i){
-        map.spawn_safely(lava_pool_tile(), SAFE_SPAWN_ATTEMPTS, false)
-    }
-    var boulder_amount = random_num(3);
-    for(var i = 0; i < boulder_amount; ++i){
-        map.spawn_safely(magmatic_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false)
-    }
-    generate_normal_floor(floor_num, area, map);
-}
-
 
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){

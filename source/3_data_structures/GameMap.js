@@ -606,7 +606,7 @@ class GameMap{
     }
     /**
      * Puts a tile at the given location.
-     * t=Throws an error if the location is out of bounds.
+     * Throws an error if the location is out of bounds.
      * @param {Point} location Where to put the tile.
      * @param {Tile} value The tile to place.
      */

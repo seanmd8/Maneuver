@@ -61,13 +61,14 @@ const orb_of_insanity_description = [`Orb of Insanity: Does not move or attack. 
 const carrion_flies_description = `Carrion Flies: Will only attack if the player is nearby. Otherwise they will wander aimlessly. `
                             +`Over time they will multiply.`;
 const magma_spewer_description = `Magma Spewer: Fires magma into the air every other turn. Retreats when you get close.`
-const boulder_elemental_description = `Boulder Elemental: Wakes up stunned when something touches it. Each turn, it samages anyone that is `
+const boulder_elemental_description = `Boulder Elemental: Wakes up stunned when something touches it. Each turn, it damages anyone `
                             +`close to it, then moves 1 space closer to the player. After 3 turns of failing to hit anything, it will go `
                             +`back to sleep.`;
 const pheonix_description = `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. Everything it flies over will be `
                             +`damaged and set on fire. When it dies, it drops a pile of ashes from which it will eventually be reborn.`;
 const igneous_crab_description = `Igneous Crab: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
-                                +`When damaged, it will spend the next 2 turns fleeing.`
+                                +`When damaged, it will spend the next 2 turns fleeing.`;
+const strider_description = `Strider: Attacks then moves 2 spaces away in one direction.`;
 
 
 // Area Descriptions.
@@ -143,8 +144,9 @@ const magmatic_boulder_description = `Magmatic Boulder: The light reflecting off
 const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, `turns unless you scatter the ashes by attacking `
                         +`them or moving onto them.`];
 const raging_fire_description = `Raging Fire: The very ground here is burning. It will grow weaker every turn, but it's not safe to move through.`;
-const coffin_description = `Coffin: There is no telling whether whatever is inside is still alive or not. Disturb at your own risk.`;
+const coffin_description = `Coffin: There is no telling whether whatever is inside is still alive or not. Touch it at your own risk.`;
 const sewer_grate_description = `Sewer Grate: It's clogged. Corrosive slime is oozing out.`;
+const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes a turn to recharge afterwards.`;
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;

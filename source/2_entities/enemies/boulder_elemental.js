@@ -12,7 +12,6 @@ function boulder_elemental_look(){
         name: `boulder elemental`,
         pic: `${IMG_FOLDER.tiles}boulder_elemental.png`,
         description: boulder_elemental_description,
-        difficulty: 3,
         behavior: boulder_elemental_ai,
         telegraph: spider_telegraph,
         on_enter: boulder_elemental_wake_up,
@@ -37,7 +36,7 @@ function boulder_elemental_ai(self, target, map){
     var hit = false;
     for(let space of nearby){
         // Attacks everything nearby.
-        hit = hit ||  map.attack(self.location.plus(space));
+        hit = map.attack(self.location.plus(space)) || hit;
     }
     if(!hit){
         // If nothing was nearby, gets sleepier.
