@@ -22,7 +22,7 @@ function rat_ai(self, target, map){
     }
     if(self.tile.cycle >= 1 && target.difference.within_radius(1)){
         // If the player is next to it, attack.
-        map.attack(self.location.plus(target.difference), `player`);
+        map.attack(self.location.plus(target.difference));
         self.tile.cycle = -1;
     }
     // Move 2 spaces.

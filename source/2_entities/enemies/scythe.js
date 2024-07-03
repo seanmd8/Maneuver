@@ -30,8 +30,13 @@ function scythe_ai(self, target, map){
     for(var i = 0; i < distance && map.move(self.location, self.location.plus(direction)) ; ++i){
         // moves <distance> spaces attacking each space it passes next to. Stops when blocked.
         self.location.plus_equals(direction);
-        map.attack(self.location.minus(new Point(direction.x, 0)), `player`);
-        map.attack(self.location.minus(new Point(0, direction.y)), `player`); 
+        target.difference.minus_equals(direction);
+        var passed = [new Point(direction.x, 0), new Point(0, direction.y)];
+        for(var p of passed){
+            if(point_equals(target.difference, p.times(-1)) || map.check_empty(self.location.minus(p))){
+                map.attack(self.location.minus(p));
+            }
+        }
     }
 }
 

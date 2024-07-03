@@ -410,9 +410,9 @@ const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = [generate_ruins_area];
 
 // Settings just used for testing.
-const SECOND_STARTING_ENEMY = lava_pool_tile;
-const SECOND_STARTING_ENEMY_AMOUNT = 0
-const CARDS_TO_TEST = []
+const SECOND_STARTING_ENEMY = scythe_tile;
+const SECOND_STARTING_ENEMY_AMOUNT = 0;
+const CARDS_TO_TEST = [];
 
 // Dungeon generation settings.
 const FLOOR_WIDTH = 8;
@@ -2297,7 +2297,7 @@ function clay_golem_ai(self, target, map){
     }
     if(target.difference.within_radius(1)){
         // If the player is next to it, attack.
-        map.attack(self.location.plus(target.difference), `player`);
+        map.attack(self.location.plus(target.difference));
         self.tile.cycle = 1;
     }
     else if(self.tile.cycle === 1){
@@ -2956,7 +2956,7 @@ function rat_ai(self, target, map){
     }
     if(self.tile.cycle >= 1 && target.difference.within_radius(1)){
         // If the player is next to it, attack.
-        map.attack(self.location.plus(target.difference), `player`);
+        map.attack(self.location.plus(target.difference));
         self.tile.cycle = -1;
     }
     // Move 2 spaces.
@@ -3026,8 +3026,13 @@ function scythe_ai(self, target, map){
     for(var i = 0; i < distance && map.move(self.location, self.location.plus(direction)) ; ++i){
         // moves <distance> spaces attacking each space it passes next to. Stops when blocked.
         self.location.plus_equals(direction);
-        map.attack(self.location.minus(new Point(direction.x, 0)), `player`);
-        map.attack(self.location.minus(new Point(0, direction.y)), `player`); 
+        target.difference.minus_equals(direction);
+        var passed = [new Point(direction.x, 0), new Point(0, direction.y)];
+        for(var p of passed){
+            if(point_equals(target.difference, p.times(-1)) || map.check_empty(self.location.minus(p))){
+                map.attack(self.location.minus(p));
+            }
+        }
     }
 }
 
@@ -3072,7 +3077,7 @@ function shadow_knight_ai(self, target, map){
     }
     if(target.difference.taxicab_distance() === 3 && !target.difference.on_axis()){
         // If the player is a L away, attack them then try to move past them.
-        map.attack(self.location.plus(target.difference), `player`);
+        map.attack(self.location.plus(target.difference));
         map.move(self.location, self.location.plus(target.difference.times(new Point(2, 2))));
         return;
     }
@@ -3158,7 +3163,7 @@ function spider_tile(){
 function spider_ai(self, target, map){
     if(target.difference.within_radius(1)){
         // If the player is next to it, attack.
-        map.attack(self.location.plus(target.difference), `player`);
+        map.attack(self.location.plus(target.difference));
     }
     else{
         // Otherwise, move closer.
@@ -3481,7 +3486,7 @@ function vinesnare_bush_ai(self, target, map){
     if(target.difference.within_radius(1)){
         // If 1 away, attack if not rooted, otherwise uproot.
         if(self.tile.cycle === 0){
-            map.attack(self.location.plus(target.difference), `player`);
+            map.attack(self.location.plus(target.difference));
             return;
         }
         self.tile.cycle = 0;
@@ -5392,10 +5397,9 @@ class GameMap{
     /**
      * Attacks a point on the grid.
      * @param {Point} location Where to attack.
-     * @param {string} [hits = `all`] Optional parameter for what type of tile the attack hits. By default it hits anything.
      * @returns {boolean} Returns true if the attack hit.
      */
-    attack(location, hits = `all`){
+    attack(location){
         // Attacks the specified square.
         // hits specifes if the attacks only hits enemy, player or all tiles.
         // If an enemy dies, it's on_death effect will be triggered if applicable.
@@ -5408,7 +5412,7 @@ class GameMap{
             return false;
         }
         var target = this.get_grid(location);
-        if(target.health !== undefined && target.type !== `player` && (hits === `enemy` || hits === `all`)){
+        if(target.health !== undefined && target.type !== `player`){
             target.health -= 1;
             this.get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
             if(target.on_hit !== undefined){
@@ -5447,7 +5451,7 @@ class GameMap{
             }
             return true;
         }
-        if(target.type === `player` && (hits === `player` || hits === `all`)){
+        if(target.type === `player`){
             if(target.health === undefined){
                 throw new Error(`player missing health`);
             }

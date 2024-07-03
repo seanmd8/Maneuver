@@ -400,10 +400,9 @@ class GameMap{
     /**
      * Attacks a point on the grid.
      * @param {Point} location Where to attack.
-     * @param {string} [hits = `all`] Optional parameter for what type of tile the attack hits. By default it hits anything.
      * @returns {boolean} Returns true if the attack hit.
      */
-    attack(location, hits = `all`){
+    attack(location){
         // Attacks the specified square.
         // hits specifes if the attacks only hits enemy, player or all tiles.
         // If an enemy dies, it's on_death effect will be triggered if applicable.
@@ -416,7 +415,7 @@ class GameMap{
             return false;
         }
         var target = this.get_grid(location);
-        if(target.health !== undefined && target.type !== `player` && (hits === `enemy` || hits === `all`)){
+        if(target.health !== undefined && target.type !== `player`){
             target.health -= 1;
             this.get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
             if(target.on_hit !== undefined){
@@ -455,7 +454,7 @@ class GameMap{
             }
             return true;
         }
-        if(target.type === `player` && (hits === `player` || hits === `all`)){
+        if(target.type === `player`){
             if(target.health === undefined){
                 throw new Error(`player missing health`);
             }

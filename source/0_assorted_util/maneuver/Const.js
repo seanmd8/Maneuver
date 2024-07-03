@@ -16,9 +16,9 @@ const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = [generate_ruins_area];
 
 // Settings just used for testing.
-const SECOND_STARTING_ENEMY = lava_pool_tile;
-const SECOND_STARTING_ENEMY_AMOUNT = 0
-const CARDS_TO_TEST = []
+const SECOND_STARTING_ENEMY = scythe_tile;
+const SECOND_STARTING_ENEMY_AMOUNT = 0;
+const CARDS_TO_TEST = [];
 
 // Dungeon generation settings.
 const FLOOR_WIDTH = 8;

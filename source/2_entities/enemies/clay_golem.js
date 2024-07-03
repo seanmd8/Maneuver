@@ -21,7 +21,7 @@ function clay_golem_ai(self, target, map){
     }
     if(target.difference.within_radius(1)){
         // If the player is next to it, attack.
-        map.attack(self.location.plus(target.difference), `player`);
+        map.attack(self.location.plus(target.difference));
         self.tile.cycle = 1;
     }
     else if(self.tile.cycle === 1){

@@ -16,7 +16,7 @@ function spider_tile(){
 function spider_ai(self, target, map){
     if(target.difference.within_radius(1)){
         // If the player is next to it, attack.
-        map.attack(self.location.plus(target.difference), `player`);
+        map.attack(self.location.plus(target.difference));
     }
     else{
         // Otherwise, move closer.

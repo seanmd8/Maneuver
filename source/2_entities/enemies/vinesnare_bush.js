@@ -29,7 +29,7 @@ function vinesnare_bush_ai(self, target, map){
     if(target.difference.within_radius(1)){
         // If 1 away, attack if not rooted, otherwise uproot.
         if(self.tile.cycle === 0){
-            map.attack(self.location.plus(target.difference), `player`);
+            map.attack(self.location.plus(target.difference));
             return;
         }
         self.tile.cycle = 0;
