@@ -139,8 +139,6 @@ class GameMap{
      * @returns {boolean} Returns true if the location is both in bounds and empty and false otherwise.
      */
     check_empty(location){
-        // returns true if the space at grid[x, y] is empty.
-        // throws an error if the space is out of bounds.
         try{
             this.check_bounds(location);
         }

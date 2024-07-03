@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+7/2/24
+- Improved Lich AI and added a new spell.
+
 6/29/24
 - Added alternate third area: Magmatic Caves
 - Added Magmatic Caves Boss: Young Dragon

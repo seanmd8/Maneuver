@@ -1195,24 +1195,26 @@ const two_headed_serpent_death_message = `It's body too small to regenerate any 
                     +`the final time`;
 
 const lich_floor_message = `Dust and dark magic swirl in the air.`;
-const lich_description = `Lich (Boss): An undead wielder of dark magic. Each turn it will move away 1 space and then cast a spell.\n`
+const lich_description = `Lich (Boss): An undead wielder of dark magic. Alternates between moving one space away from you and casting a spell.\n`
                     +`The Lich is currently preparing to cast:\n`;
+const lich_announcement = `The Lich is currently preparing to cast:\n`;
 const lich_death_message = `The Lich's body crumbles to dust.`;
 
 const young_dragon_floor_message = `The air burns in your lungs.`;
 const young_dragon_description_arr = [`Young Dragon (Boss): Alternates between gliding short distances and breathing fire.\n`
                     + `The Dragon is currently `, `preparing to fly a short distance.`, `preparing to aim it's fire breath.`,
-                      `preparing to breath fire in a cone of length `]; // Todo
+                      `preparing to breath fire in a cone of length `];
 const young_dragon_death_message = `Scales so soft are easily pierced. The Young Dragon's fire goes out.`;
 
 // Lich Spell Descriptions.
 const teleport_spell_description = `Teleport: The user moves to a random square on the map`;
 const summon_spell_description = `Summon: Summons a random enemy`;
-const earthquake_spell_description = `Earthquake: Causes chunks of the ceiling to rain down. Intensity increases at low health.`;
-const flame_wave_spell_description = `Flame Wave: Creates 3 fireballs which will move forwards until they hit something.`;
+const earthquake_spell_description = `Earthquake: Causes chunks of the ceiling to rain down.`;
+const flame_wave_spell_description = `Flame Wave: Shoots 3 explosive fireballs towards the target.`;
 const confusion_spell_description = `Confusion: Pollutes your deck with 2 bad temporary cards.`;
-const lava_moat_spell_description = `Lava Moat: Creates pools of molten lava to shield the user. Creates more at high health.`;
-const rest_description = `Nothing.`;
+const lava_moat_spell_description = `Lava Moat: Creates pools of molten lava to shield the user.`;
+const piercing_beam_spell_description = `Piercing Beam: Fires a piercing beam in the direction closest to the target.`;
+const rest_spell_description = `Nothing.`;
 
 
 // Other Tile Descriptions.
@@ -1486,13 +1488,14 @@ function boss_death(self, target, map){
 /** @type {TileGenerator} */
 function lich_tile(){
     var spells = [
-        spell_generator(teleport_spell, teleport_spell_description, `${IMG_FOLDER.tiles}lich_teleport.png`), 
-        spell_generator(summon_spell, summon_spell_description, `${IMG_FOLDER.tiles}lich_summon.png`), 
-        spell_generator(earthquake_spell, earthquake_spell_description, `${IMG_FOLDER.tiles}lich_earthquake.png`), 
-        spell_generator(flame_wave_spell, flame_wave_spell_description, `${IMG_FOLDER.tiles}lich_flame_wave.png`),
-        spell_generator(confusion_spell, confusion_spell_description, `${IMG_FOLDER.tiles}lich_confusion.png`),
-        spell_generator(lava_moat_spell, lava_moat_spell_description, `${IMG_FOLDER.tiles}lich_lava_moat.png`),
-        spell_generator(rest_spell, rest_description, `${IMG_FOLDER.tiles}lich_rest.png`)
+        rest_spell_generator(),
+        teleport_spell_generator(), 
+        summon_spell_generator(), 
+        earthquake_spell_generator(), 
+        flame_wave_spell_generator(),
+        confusion_spell_generator(),
+        lava_moat_spell_generator(),
+        piercing_beam_spell_generator(),
     ];
     var summons = [
         shadow_scout_tile,
@@ -1501,16 +1504,21 @@ function lich_tile(){
         ram_tile,
         clay_golem_tile,
         vampire_tile,
+        medium_porcuslime_tile,
+        pheonix_tile,
+        darkling_tile,
     ];
-    var starting_cycle = 1;
+    var starting_cycle = 0;
     return{
         type: `enemy`,
         name: `lich`,
         pic: spells[starting_cycle].pic,
         description: `${lich_description}${spells[starting_cycle].description}`,
-        health: 4,
+        health: 3,
         death_message: lich_death_message,
         behavior: lich_ai,
+        telegraph: lich_telegraph,
+        on_hit: lich_hit,
         on_death: boss_death,
         cycle: starting_cycle,
         spells,
@@ -1525,25 +1533,48 @@ function lich_ai(self, target, map){
         self.tile.spells === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
-    var player_close = (target.difference.within_radius(1));
-    var moves = reverse_arr(order_nearby(target.difference));
-    var i;
-    // Move 1 space away from the player.
-    for(i = 0; i < moves.length && !map.move(self.location, self.location.plus(moves[i])); ++i){}
-    if(i < moves.length){
-        self.location.plus_equals(moves[i]);
-        target.difference.minus_equals(moves[i]);
-    }
-    // Cast the current spell.
-    self.tile.spells[self.tile.cycle].behavior(self, target, map);
-    if(player_close){
-        // If the player was next to it, prepare to teleport next turn.
-        self.tile.cycle = 0;
+    if(self.tile.cycle === 0){
+        // Move away and prepare the next spell.
+        var player_close = (target.difference.within_radius(1));
+        var moves = reverse_arr(order_nearby(target.difference));
+        for(var i = 0; i < moves.length && !map.check_empty(self.location.plus(moves[i])); ++i){}
+        if(i < moves.length){
+            map.move(self.location, self.location.plus(moves[i]));
+        }
+        if(self.tile.cycle === 0){
+            self.tile.cycle = random_num(self.tile.spells.length - 2) + 2;
+        }
+        if(player_close || i >= moves.length){
+            self.tile.cycle = 1;
+        }
     }
     else{
-        // Otherwise prep a random spell other than teleport.
-        self.tile.cycle = random_num(self.tile.spells.length - 1) + 1;
+        // Cast the current spell.
+        self.tile.spells[self.tile.cycle].behavior(self, target, map);
+        self.tile.cycle = 0;
     }
+    self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
+    self.tile.pic = self.tile.spells[self.tile.cycle].pic;
+    var announcement = `${lich_announcement}${self.tile.spells[self.tile.cycle].description}`
+    map.add_event({name: `spell announcement`, behavior: () => {display.display_message(UIIDS.display_message, announcement)}});;
+}
+
+/** @type {TelegraphFunction} */
+function lich_telegraph(location, map, self){
+    if( self.cycle === undefined || 
+        self.spells === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    return self.spells[self.cycle].telegraph(location, map, self);
+}
+
+/** @type {AIFunction} Function used when the lich is hit to have it prep teleport.*/
+function lich_hit(self, target, map){
+    if( self.tile.cycle === undefined || 
+        self.tile.spells === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    self.tile.cycle = 1;
     self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
 }
@@ -4407,56 +4438,47 @@ function generic_tile(){
         event_happening: undefined
     }
 }
-// ----------------Spells.js----------------
-// File for spell ai functions.
-
-/**
- * @typedef Spell A set a behavior, description and pic used by the lich.
- * @property {AIFunction} behavior Function performing the spell.
- * @property {string} description A description of what the spell does.
- * @property {string} pic A picture to help telegraph the spell.
- */
-
-/**
- * Function to generate and return a spell with the fields provided as parameters.
- * @param {AIFunction} behavior 
- * @param {string} description 
- * @param {string} pic 
- * @returns {Spell}
- */
-function spell_generator(behavior, description, pic){
+/** @type {SpellGenerator} */
+function confusion_spell_generator(){
     return {
-        behavior,
-        description,
-        pic
+        behavior: confusion_spell,
+        telegraph: rest_spell_telegraph,
+        description: confusion_spell_description,
+        pic: `${IMG_FOLDER.tiles}lich_confusion.png`
     }
 }
 
+/** @type {AIFunction} Spell which adds 2 random temporary debuff cards to the player's deck.*/
+function confusion_spell(self, target, map){
+    for(var i = 0; i < 2; ++i){
+        confuse_player();
+    }
+}
+/** @type {SpellGenerator} */
+function earthquake_spell_generator(){
+    return {
+        behavior: earthquake_spell,
+        telegraph: rest_spell_telegraph,
+        description: earthquake_spell_description,
+        pic: `${IMG_FOLDER.tiles}lich_earthquake.png`
+    }
+}
 
-/** @type {AIFunction} Spell which teleports the user to a random location.*/
-function teleport_spell(self, target, map){
-    var space = map.random_empty();
-    if(map.move(self.location, space)){
-        self.location.x = space.x;
-        self.location.y = space.y;
-    }
-}
-/** @type {AIFunction} Spell which summons a random thing from the user's summon array.*/
-function summon_spell(self, target, map){
-    if(self.tile.summons === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
-    }
-    var tile = self.tile.summons[random_num(self.tile.summons.length)]();
-    spawn_nearby(map, tile, self.location);
-}
 /** @type {AIFunction} Spell which causes an earthquake causing debris to rain from the ceiling.*/
 function earthquake_spell(self, target, map){
-    var health = self.tile.health;
-    if( health === undefined){
-        health = 4;
-    }
-    map.add_event({name: `Earthquake`, behavior: earthquake_event((5 - health) * 5 + random_num(4))});
+    var amount = random_num(9) + random_num(9) + random_num(9) + random_num(9);
+    map.add_event({name: `Earthquake`, behavior: earthquake_event(amount)});
 }
+/** @type {SpellGenerator} */
+function flame_wave_spell_generator(){
+    return {
+        behavior: flame_wave_spell,
+        telegraph: flame_wave_spell_telegraph,
+        description: flame_wave_spell_description,
+        pic: `${IMG_FOLDER.tiles}lich_flame_wave.png`
+    }
+}
+
 /** @type {AIFunction} Spell which creates a wave of fireballs aimed at the target.*/
 function flame_wave_spell(self, target, map){
     var direction = get_empty_nearby(self.location, order_nearby(target.difference), map);
@@ -4483,31 +4505,139 @@ function flame_wave_spell(self, target, map){
         spawnpoints.push(new Point(0, direction.y));
     }
     for(var i = 0; i < spawnpoints.length; ++i){
+        var spawnpoint = self.location.plus(spawnpoints[i])
         var fireball = shoot_fireball(direction);
-        map.add_tile(fireball, self.location.plus(spawnpoints[i]));
+        map.attack(spawnpoint);
+        map.add_tile(fireball, spawnpoint);
     }
 }
-/** @type {AIFunction} Spell which adds 2 random temporary debuff cards to the player's deck.*/
-function confusion_spell(self, target, map){
-    for(var i = 0; i < 2; ++i){
-        confuse_player();
+
+/** @type {TelegraphFunction} */
+function flame_wave_spell_telegraph(location, map, self){
+    return random_nearby().map(p => p.plus(location));
+}
+
+/** @type {SpellGenerator} */
+function lava_moat_spell_generator(){
+    return {
+        behavior: lava_moat_spell,
+        telegraph: rest_spell_telegraph,
+        description: lava_moat_spell_description,
+        pic: `${IMG_FOLDER.tiles}lich_lava_moat.png`
     }
 }
+
 /** @type {AIFunction} Spell which creates several lava pools between the user and their target.*/
 function lava_moat_spell(self, target, map){
-    var health = self.tile.health;
-    if( health === undefined){
-        health = 4;
-    }
     var nearby = order_nearby(target.difference);
-    for(var i = 0; i < health && count_nearby(self.location, map) < 6; ++i){
+    var amount = random_num(2) + 2;
+    for(var i = 0; i < amount; ++i){
         var tile = lava_pool_tile();
         spawn_nearby(map, tile, self.location, nearby);
     }
 }
+/** @type {SpellGenerator} */
+function piercing_beam_spell_generator(){
+    return {
+        behavior: piercing_beam_spell,
+        telegraph: piercing_beam_spell_telegraph,
+        description: piercing_beam_spell_description,
+        pic: `${IMG_FOLDER.tiles}lich_piercing_beam.png`
+    }
+}
+
+/** @type {AIFunction} Spell which damages each tile in a single direction.*/
+function piercing_beam_spell(self, target, map){
+    var aim_direction = order_nearby(target.difference)[0];
+    var beam_location = self.location.plus(aim_direction);
+    while(map.is_in_bounds(beam_location)){
+        map.attack(beam_location);
+        beam_location.plus_equals(aim_direction);
+    }
+}
+
+/** @type {TelegraphFunction} */
+function piercing_beam_spell_telegraph(location, map, self){
+    var attacks = [];
+    var nearby = random_nearby();
+    for(var direction of nearby){
+        var beam_location = location.plus(direction);
+        while(map.is_in_bounds(beam_location)){
+            attacks.push(beam_location.copy());
+            beam_location.plus_equals(direction);
+        }
+    }
+    return attacks;
+}
+/** @type {SpellGenerator} */
+function rest_spell_generator(){
+    return {
+        behavior: rest_spell,
+        telegraph: rest_spell_telegraph,
+        description: rest_spell_description,
+        pic: `${IMG_FOLDER.tiles}lich_rest.png`
+    }
+}
+
 /** @type {AIFunction} Spell which does nothing.*/
 function rest_spell(self, target, map){}
 
+/** @type {TelegraphFunction} */
+function rest_spell_telegraph(location, map, self){
+    return [];
+}
+// ----------------Spells.js----------------
+// File for spell ai functions.
+
+/**
+ * @typedef Spell A set a behavior, description and pic used by the lich.
+ * @property {AIFunction} behavior Function performing the spell.
+ * @property {TelegraphFunction} telegraph Function performing the spell.
+ * @property {string} description A description of what the spell does.
+ * @property {string} pic A picture to help telegraph the spell.
+ */
+
+/**
+ * @callback SpellGenerator
+ * @returns {Spell}
+ */
+
+/** @type {SpellGenerator} */
+function summon_spell_generator(){
+    return {
+        behavior: summon_spell,
+        telegraph: rest_spell_telegraph,
+        description: summon_spell_description,
+        pic: `${IMG_FOLDER.tiles}lich_summon.png`
+    }
+}
+
+/** @type {AIFunction} Spell which summons a random thing from the user's summon array.*/
+function summon_spell(self, target, map){
+    if(self.tile.summons === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    var tile = self.tile.summons[random_num(self.tile.summons.length)]();
+    spawn_nearby(map, tile, self.location);
+}
+/** @type {SpellGenerator} */
+function teleport_spell_generator(){
+    return {
+        behavior: teleport_spell,
+        telegraph: rest_spell_telegraph,
+        description: teleport_spell_description,
+        pic: `${IMG_FOLDER.tiles}lich_teleport.png`
+    }
+}
+
+/** @type {AIFunction} Spell which teleports the user to a random location.*/
+function teleport_spell(self, target, map){
+    var space = map.random_empty();
+    if(map.move(self.location, space)){
+        self.location.x = space.x;
+        self.location.y = space.y;
+    }
+}
 // ----------------TelegraphUtils.js----------------
 // File for utility functions and jsdoc typedefs used to telegraph enemy attacks and abilities.
 
@@ -5001,8 +5131,6 @@ class GameMap{
      * @returns {boolean} Returns true if the location is both in bounds and empty and false otherwise.
      */
     check_empty(location){
-        // returns true if the space at grid[x, y] is empty.
-        // throws an error if the space is out of bounds.
         try{
             this.check_bounds(location);
         }
