@@ -37,7 +37,7 @@ function velociphile_telegraph(location, map, self){
     var attacks = [];
     for(var direction of all_directions){
         if(map.check_empty(location.plus(direction))){
-            attacks = attacks.concat(get_points_in_direction(location.plus(direction), direction, map));
+            attacks.push(...get_points_in_direction(location.plus(direction), direction, map));
         }
     }
     return attacks;

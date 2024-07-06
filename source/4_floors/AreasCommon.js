@@ -10,7 +10,7 @@ const area4 = area_end;//[generate_forest_area, generate_library_area];
 const area5 = [generate_sanctum_area];
 
 /**
- * @typedef {object} Area A section of the dungeon that ends with a boss fight.
+ * @typedef {Object} Area A section of the dungeon that ends with a boss fight.
  * @property {string} background The picture used as a background for this area.
  * @property {FloorGenerator} generate_floor A function to generate a normal floor of the dungeon.
  * @property {TileGenerator[]} enemy_list An array of which enemies can spawn here.

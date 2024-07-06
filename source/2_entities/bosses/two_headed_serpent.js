@@ -66,13 +66,14 @@ function two_headed_serpent_ai(self, target, map){
                         throw new Error(`tile missing properties used by it's ai.`);
                     }
                     var last_segment_location = tail.location.plus(ifexists(tail.tile.segment_list[1 - index]));
-                    var last_segment = map.get_grid(last_segment_location);
+                    var last_segment = map.get_tile(last_segment_location);
                     if(last_segment.segment_list === undefined){
                         throw new Error(`tile missing properties used by it's ai.`);
                     }
                     tail.tile.segment_list[1 - index] = last_segment.segment_list[1 - index];
                     last_segment.health = 1;
                     map.attack(last_segment_location);
+                    map.clear_telegraphs();
                     map.move(tail.location, last_segment_location);
                     serpent_rotate(tail.tile);
                 }
@@ -109,7 +110,7 @@ function serpent_other_end(self, index, map){
     var next_location = self.location.plus(p);
     var next = {
         location: next_location,
-        tile: map.get_grid(next_location)
+        tile: map.get_tile(next_location)
     }
     return serpent_other_end(next, index, map);
 }
@@ -208,7 +209,7 @@ function two_headed_serpent_hurt(self, target, map){
     // New head replaces neck segment
     var index = serpent_get_direction(self.tile);
     var neck_location = self.location.plus(ifexists(self.tile.segment_list[index]));
-    var neck = map.get_grid(neck_location);
+    var neck = map.get_tile(neck_location);
     if(neck.segment_list === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
@@ -230,7 +231,7 @@ function two_headed_serpent_hurt(self, target, map){
     serpent_wake(regrow, map);
     // If no segments remain, it dies.
     neck_location = regrow.location.plus(ifexists(regrow.tile.segment_list[index]));
-    neck = map.get_grid(neck_location);
+    neck = map.get_tile(neck_location);
     if(neck.name === `two headed serpent head`){
         neck.on_death = undefined;
         regrow.tile.on_death = undefined;

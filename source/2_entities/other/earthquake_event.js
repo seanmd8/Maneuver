@@ -1,12 +1,3 @@
-/** @type {TileGenerator} Used to show which location will have falling rubble next turn.*/
-function falling_rubble_look(){
-    return {
-        type: `look`,
-        name: `falling rubble`,
-        pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-        description: falling_rubble_description
-    }
-}
 
 /**
  * Function to create an event function representing an earthquake.
@@ -23,13 +14,18 @@ function earthquake_event(amount, locations = undefined){
         }
     }
     var earthquake = function(amount){
+        var falling_rubble_layer = {
+            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
+            description: falling_rubble_description,
+            telegraph: hazard_telegraph
+        }
         return function(map_to_use){
             var rubble = [];
             var space;
             if(locations === undefined){
                 for(var j = 0; j < amount; ++j){
                     space = map_to_use.random_empty();
-                    map_to_use.mark_tile(space, falling_rubble_look);
+                    map_to_use.mark_event(space, falling_rubble_layer);
                     rubble.push(space);
                 }
             }
@@ -38,7 +34,7 @@ function earthquake_event(amount, locations = undefined){
                 for(var i = 0; i < amount; ++i){
                     space = spaces[i];
                     if(map_to_use.check_empty(space)){
-                        map_to_use.mark_tile(space, falling_rubble_look);
+                        map_to_use.mark_event(space, falling_rubble_layer);
                         rubble.push(space);
                     }
                 }

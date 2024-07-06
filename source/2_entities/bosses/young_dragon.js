@@ -42,8 +42,8 @@ function young_dragon_behavior(self, target, map){
     if(self.tile.cycle === 0){
         // Flight
         var spaces = [new Point(3, 0), new Point(3, 1), new Point(3, -1), new Point(2, 2),]; 
-        spaces = spaces.concat(spaces.map((p) => p.rotate(90)));
-        spaces = spaces.concat(spaces.map((p) => p.rotate(180))); // All rotations of the original are included.
+        spaces.push(...spaces.map((p) => p.rotate(90)));
+        spaces.push(...spaces.map((p) => p.rotate(180))); // All rotations of the original are included.
         spaces = randomize_arr(spaces);
         var moved = false;
         var preffered_distance = [4, 3, 5];

@@ -2,7 +2,7 @@
 // File for spell ai functions.
 
 /**
- * @typedef Spell A set a behavior, description and pic used by the lich.
+ * @typedef {Object} Spell A set a behavior, description and pic used by the lich.
  * @property {AIFunction} behavior Function performing the spell.
  * @property {TelegraphFunction} telegraph Function performing the spell.
  * @property {string} description A description of what the spell does.

@@ -17,6 +17,7 @@ const retry_message = `Retry?`;
 const stunned_msg = `Stunned x`;
 const gameplay_screen_name = `Gameplay`;
 const guide_screen_name = `Guidebook`;
+const tile_description_divider = `\n--------------------\n`;
 
 
 // Normal Enemy Descriptions.
@@ -58,7 +59,7 @@ const darkling_description = `Darkling: Teleports around randomly hurting everyt
                             +`it's rift will destroy it.`;
 const orb_of_insanity_description = [`Orb of Insanity: Does not move or attack. If the player is within `, ` spaces of it, it will `
                             +`pollute their deck with a bad temporary card.`];
-const carrion_flies_description = `Carrion Flies: Will only attack if the player is nearby. Otherwise they will wander aimlessly. `
+const carrion_flies_description = `Carrion Flies: Will attack the player if they are nearby. Otherwise wanders aimlessly. `
                             +`Over time they will multiply.`;
 const magma_spewer_description = `Magma Spewer: Fires magma into the air every other turn. Retreats when you get close.`
 const boulder_elemental_description = `Boulder Elemental: Wakes up stunned when something touches it. Each turn, it damages anyone `

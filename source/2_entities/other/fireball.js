@@ -39,7 +39,7 @@ function fireball_telegraph(location, map, self){
     if(self.direction === undefined){
         throw new Error(`tile missing properties used to telegraph it's attacks.`);
     }
-    return [location.plus(self.direction)].concat(hazard_telegraph(location, map, self));
+    return [location.plus(self.direction), ...hazard_telegraph(location, map, self)];
 }
 
 /**

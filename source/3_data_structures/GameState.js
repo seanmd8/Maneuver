@@ -169,6 +169,7 @@ class GameState{
      * @param {string} table The table where it should be displayed.
     */
     #generate_add_row(table){
+        // Get card choices
         var add_list_generators = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
         var chance_of_rare = random_num(4);
         if(chance_of_rare < add_list_generators.length){
@@ -180,15 +181,25 @@ class GameState{
             add_list[i] = add_list_generators[i]();
         }
         add_list.unshift(add_card_symbol())
-        var make_add_card = function(gamestate){
-            return function(card, position){
-                if(position.x > 0){
+        // Display cards
+        var make_add_card = function(card, position, gamestate){
+            return function(){
+                if(position > 0){
                     gamestate.deck.add(card);
                     gamestate.new_floor();
                 }
             }
         }
-        display.add_tb_row(table, add_list, CARD_SCALE, make_add_card(this));
+        var row = [];
+        for(var i = 0; i < add_list.length; ++i){
+            let card = add_list[i];
+            row.push({
+                name: card.name,
+                pic: card.pic,
+                on_click: make_add_card(card, i, this)
+            })
+        }
+        display.add_tb_row(table, row, CARD_SCALE);
     }
     /** 
      * Creates the row of cards that can be removed from the deck.
@@ -202,15 +213,24 @@ class GameState{
         else{
             remove_list.unshift(deck_at_minimum_symbol());
         }
-        var make_remove_card = function(gamestate){
-            return function(card, position){
-                if(position.x > 0){
+        var make_remove_card = function(card, position, gamestate){
+            return function(){
+                if(position > 0){
                     gamestate.deck.remove(card.id);
                     gamestate.new_floor();
                 }
             }
         }
-        display.add_tb_row(table, remove_list, CARD_SCALE, make_remove_card(this));
+        var row = [];
+        for(var i = 0; i < remove_list.length; ++i){
+            let card = remove_list[i];
+            row.push({
+                name: card.name,
+                pic: card.pic,
+                on_click: make_remove_card(card, i, this)
+            });
+        }
+        display.add_tb_row(table, row, CARD_SCALE);
     }
     /**
      * Called when the player dies. Gives the option to restart.

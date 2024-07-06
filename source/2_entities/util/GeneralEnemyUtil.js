@@ -46,8 +46,6 @@
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
  * @property {number=} id Given a unique one when added to a EntityList.
- * @property {string=} is_hit Used to telegraph which spaces have been or might be attacked.
- * @property {string=} event_happening Used to telegraph an event.
  */
 
 /**
@@ -225,18 +223,13 @@ function attack_around(location, map){
  * Function to let a tile disguise itself as another one.
  * @param {Tile} tile The tile to disguise.
  * @param {TileGenerator} tile_generator The generator for a default version of the tile to disguise as. 
- * @param {boolean=} just_background If true, changes the is_hit field rather than the main image.
  */
-function shapeshift(tile, tile_generator, just_background){
+function shapeshift(tile, tile_generator){
     var look = tile_generator();
+    tile.name = look.name;
     tile.description = look.description;
     tile.telegraph = look.telegraph;
-    if(just_background){
-        tile.event_happening = look.pic;
-    }
-    else{
-        tile.pic = look.pic;
-    }
+    tile.pic = look.pic;
 }
 
 /**

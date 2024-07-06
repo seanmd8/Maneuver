@@ -74,6 +74,21 @@ function tile_description(tile){
     }
     return `${hp}${stunned}${tile.description}`;
 }
+
+/**
+ * Function to create the combined description of everything happening on a space of the game map.
+ * @param {GridSpace} space The space to get a description of.
+ * @returns {string} The properly formatted description.
+ */
+function grid_space_description(space){
+    var tile = tile_description(space.tile);
+    var foreground = space.foreground.filter((fg) => fg.description !== undefined);
+    foreground = foreground.map((fg) => `${tile_description_divider}${fg.description}`);
+    var background = space.background.filter((bg) => bg.description !== undefined);
+    background = background.map((bg) => `${tile_description_divider}${bg.description}`);
+    var descriptions = [tile, ...foreground, ...background];
+    return descriptions.reduce((res, str) => `${res}${str}`);
+}
 /**
  * Function to display the player's current and max health.
  * @param {Tile} player The player to get health from.

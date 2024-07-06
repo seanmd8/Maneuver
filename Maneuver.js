@@ -475,12 +475,6 @@ Object.freeze(IMG_FOLDER);
  * @param {Point} position The row and column of the element.
  */
 
-/**
- * @callback BackgroundCreator A function to be called when an element is clicked.
- * @param {CellInfo} tile The object used to create this element.
- * @param {Point} position The row and column of the element.
- * @returns {string[]} An array of the pictures to layer in the background.
- */
 
 /**
  * @callback NormalCallback A function with no args or returns.
@@ -498,8 +492,6 @@ Object.freeze(IMG_FOLDER);
  * @param {string} location The ID of the table to be added to.
  * @param {CellInfo[]} row_contents The objects used to construct the row's contents.
  * @param {number} scale The size of the images.
- * @param {OnClickFunction} [on_click = undefined] Optional parameter which is used to give onclick functionality to the images.
- * @param {BackgroundCreator} [background = undefined] Optional parameter which specifies a image to be layered underneath each other one.
  */
 
 /**
@@ -641,7 +633,7 @@ function get_display(language){
  */
 
 /**
- * @typedef HTML_Helpers A collection of the helper functions used by the DisplayHTML library.
+ * @typedef {Object} HTML_Helpers A collection of the helper functions used by the DisplayHTML library.
  * @property {get_transformation} get_transformation
  * @property {get_element} get_element
  */
@@ -654,53 +646,60 @@ function get_display(language){
  */
 const DisplayHTML = {
     // Required functions.
-    add_tb_row: function(location, row_contents, scale, on_click, background = undefined){
+    add_tb_row: function(location, row_contents, scale){
         var table = DisplayHTML.get_element(location, HTMLTableElement);
         var row_num = table.rows.length;
         var row = document.createElement(`tr`);
         row.id = `${location} row ${row_num}`;
-        var make_on_click = function(tile, position, click){
-            return function(){
-                return click(tile, position);
-            }
-        }
+        row.style.height = `${scale}px`;
         for(var i = 0; i < row_contents.length; ++i){
             var to_display = row_contents[i];
+            // Make table cell
             var cell = document.createElement(`td`);
             cell.id = `${location} ${row_num} ${i}`;
             cell.style.height = `${scale}px`;
             cell.style.width = `${scale}px`;
             cell.classList.add(`relative`);
-            if(on_click !== undefined){
-                cell.onclick = make_on_click(to_display, new Point(i, row_num), on_click);
+            if(to_display.on_click !== undefined){
+                cell.onclick = to_display.on_click;
             }
             if(to_display.name !== undefined){
                 cell.title = to_display.name;
             }
-            if(background !== undefined){
-                var background_arr = background(to_display, new Point(i, row_num));
-                for(var j = 0; j < background_arr.length; ++j){
-                    var bottom_img = document.createElement(`img`);
-                    bottom_img.id = `${location} ${row_num} ${i} background ${j} img`;
-                    bottom_img.src = `${IMG_FOLDER.src}${background_arr[j]}`;
-                    bottom_img.height = scale;
-                    bottom_img.width = scale;
-                    bottom_img.classList.add(`absolute`);
-                    cell.append(bottom_img);
+            var layers = [];
+            var image;
+            // Foreground images
+            if(to_display.foreground !== undefined){
+                for(let pic of to_display.foreground){
+                    image = document.createElement(`img`);
+                    image.src = `${IMG_FOLDER.src}${pic}`;
+                    layers.push(image);
                 }
-                
             }
-            var top_img = document.createElement(`img`);
-            top_img.id = `${location} ${row_num} ${i} img`;
-            top_img.src = `${IMG_FOLDER.src}${to_display.pic}`;
-            top_img.height = scale;
-            top_img.width = scale;
-            top_img.classList.add(`absolute`);
-            top_img.style.transform = DisplayHTML.get_transformation(to_display);
+            // Main image
+            image = document.createElement(`img`);
+            image.src = `${IMG_FOLDER.src}${to_display.pic}`;
             if(to_display.name !== undefined){
-                top_img.alt = to_display.name;
+                image.alt = to_display.name;
             }
-            cell.append(top_img);
+            image.style.transform = DisplayHTML.get_transformation(to_display);
+            layers.push(image);
+            // Background images
+            if(to_display.background !== undefined){
+                for(let pic of to_display.background){
+                    image = document.createElement(`img`);
+                    image.src = `${IMG_FOLDER.src}${pic}`;
+                    layers.push(image);
+                }
+            }
+            // Style/size images
+            layers = layers.reverse();
+            for(let layer of layers){
+                layer.height = scale;
+                layer.width = scale;
+                layer.classList.add(`absolute`);
+                cell.append(layer);
+            }
             row.append(cell);
         }
         table.append(row);
@@ -746,9 +745,9 @@ const DisplayHTML = {
         var row = DisplayHTML.get_element(`${location} row ${row_num}`, HTMLTableRowElement);
         var column_count = row.cells.length;
         for(var i = 0; i < column_count; ++i){
-            DisplayHTML.get_element(`${location} ${row_num} ${i} img`, HTMLImageElement).classList.remove("selected-element");
+            DisplayHTML.get_element(`${location} ${row_num} ${i}`, HTMLTableCellElement).classList.remove("selected-element");
         }
-        DisplayHTML.get_element(`${location} ${row_num} ${column_num} img`, HTMLImageElement).classList.add("selected-element");
+        DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add("selected-element");
     },
     press: function(key_press){
         // Pick direction via keyboard.
@@ -987,6 +986,21 @@ function tile_description(tile){
     }
     return `${hp}${stunned}${tile.description}`;
 }
+
+/**
+ * Function to create the combined description of everything happening on a space of the game map.
+ * @param {GridSpace} space The space to get a description of.
+ * @returns {string} The properly formatted description.
+ */
+function grid_space_description(space){
+    var tile = tile_description(space.tile);
+    var foreground = space.foreground.filter((fg) => fg.description !== undefined);
+    foreground = foreground.map((fg) => `${tile_description_divider}${fg.description}`);
+    var background = space.background.filter((bg) => bg.description !== undefined);
+    background = background.map((bg) => `${tile_description_divider}${bg.description}`);
+    var descriptions = [tile, ...foreground, ...background];
+    return descriptions.reduce((res, str) => `${res}${str}`);
+}
 /**
  * Function to display the player's current and max health.
  * @param {Tile} player The player to get health from.
@@ -1105,6 +1119,7 @@ const retry_message = `Retry?`;
 const stunned_msg = `Stunned x`;
 const gameplay_screen_name = `Gameplay`;
 const guide_screen_name = `Guidebook`;
+const tile_description_divider = `\n--------------------\n`;
 
 
 // Normal Enemy Descriptions.
@@ -1146,7 +1161,7 @@ const darkling_description = `Darkling: Teleports around randomly hurting everyt
                             +`it's rift will destroy it.`;
 const orb_of_insanity_description = [`Orb of Insanity: Does not move or attack. If the player is within `, ` spaces of it, it will `
                             +`pollute their deck with a bad temporary card.`];
-const carrion_flies_description = `Carrion Flies: Will only attack if the player is nearby. Otherwise they will wander aimlessly. `
+const carrion_flies_description = `Carrion Flies: Will attack the player if they are nearby. Otherwise wanders aimlessly. `
                             +`Over time they will multiply.`;
 const magma_spewer_description = `Magma Spewer: Fires magma into the air every other turn. Retreats when you get close.`
 const boulder_elemental_description = `Boulder Elemental: Wakes up stunned when something touches it. Each turn, it damages anyone `
@@ -1395,7 +1410,7 @@ function get_uiids(language){
 }
 
 /**
- * @typedef uiid_library
+ * @typedef {Object} uiid_library
  * @property {string} title Displays the title of the game.
  * @property {string} game_screen Controls the visibility of the game itself.
  *      @property {string} stats Displays the current stats.
@@ -1579,6 +1594,31 @@ function lich_hit(self, target, map){
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
 }
 /** @type {TileGenerator} */
+function spider_queen_tile(){
+    return{
+        type: `enemy`,
+        name: `spider queen`,
+        pic: `${IMG_FOLDER.tiles}spider_queen.png`,
+        description: spider_queen_description,
+        health: 3,
+        death_message: spider_queen_death_message,
+        behavior: spider_ai,
+        telegraph: spider_telegraph,
+        on_hit: spider_queen_hit,
+        on_death: boss_death,
+        card_drops: [skitter, bite]
+    }
+}
+
+/** @type {AIFunction} Function used when the spider queen is hit to stun her and spawn a spider.*/
+function spider_queen_hit(self, target, map){
+    // Spawns a new spider nearby. Stuns it so it won't move right away.
+    stun(self.tile);
+    var new_spider = spider_tile();
+    stun(new_spider);
+    spawn_nearby(map, new_spider, self.location);
+}
+/** @type {TileGenerator} */
 function two_headed_serpent_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}serpent_head_sleep.png`, `${IMG_FOLDER.tiles}serpent_head.png`];
     return{
@@ -1646,13 +1686,14 @@ function two_headed_serpent_ai(self, target, map){
                         throw new Error(`tile missing properties used by it's ai.`);
                     }
                     var last_segment_location = tail.location.plus(ifexists(tail.tile.segment_list[1 - index]));
-                    var last_segment = map.get_grid(last_segment_location);
+                    var last_segment = map.get_tile(last_segment_location);
                     if(last_segment.segment_list === undefined){
                         throw new Error(`tile missing properties used by it's ai.`);
                     }
                     tail.tile.segment_list[1 - index] = last_segment.segment_list[1 - index];
                     last_segment.health = 1;
                     map.attack(last_segment_location);
+                    map.clear_telegraphs();
                     map.move(tail.location, last_segment_location);
                     serpent_rotate(tail.tile);
                 }
@@ -1689,7 +1730,7 @@ function serpent_other_end(self, index, map){
     var next_location = self.location.plus(p);
     var next = {
         location: next_location,
-        tile: map.get_grid(next_location)
+        tile: map.get_tile(next_location)
     }
     return serpent_other_end(next, index, map);
 }
@@ -1788,7 +1829,7 @@ function two_headed_serpent_hurt(self, target, map){
     // New head replaces neck segment
     var index = serpent_get_direction(self.tile);
     var neck_location = self.location.plus(ifexists(self.tile.segment_list[index]));
-    var neck = map.get_grid(neck_location);
+    var neck = map.get_tile(neck_location);
     if(neck.segment_list === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
@@ -1810,7 +1851,7 @@ function two_headed_serpent_hurt(self, target, map){
     serpent_wake(regrow, map);
     // If no segments remain, it dies.
     neck_location = regrow.location.plus(ifexists(regrow.tile.segment_list[index]));
-    neck = map.get_grid(neck_location);
+    neck = map.get_tile(neck_location);
     if(neck.name === `two headed serpent head`){
         neck.on_death = undefined;
         regrow.tile.on_death = undefined;
@@ -1842,31 +1883,6 @@ function two_headed_serpent_telegraph(location, map, self){
     return attacks;
 }
 
-/** @type {TileGenerator} */
-function spider_queen_tile(){
-    return{
-        type: `enemy`,
-        name: `spider queen`,
-        pic: `${IMG_FOLDER.tiles}spider_queen.png`,
-        description: spider_queen_description,
-        health: 3,
-        death_message: spider_queen_death_message,
-        behavior: spider_ai,
-        telegraph: spider_telegraph,
-        on_hit: spider_queen_hit,
-        on_death: boss_death,
-        card_drops: [skitter, bite]
-    }
-}
-
-/** @type {AIFunction} Function used when the spider queen is hit to stun her and spawn a spider.*/
-function spider_queen_hit(self, target, map){
-    // Spawns a new spider nearby. Stuns it so it won't move right away.
-    stun(self.tile);
-    var new_spider = spider_tile();
-    stun(new_spider);
-    spawn_nearby(map, new_spider, self.location);
-}
 /** @type {TileGenerator} */
 function velociphile_tile(){
     return{
@@ -1906,7 +1922,7 @@ function velociphile_telegraph(location, map, self){
     var attacks = [];
     for(var direction of all_directions){
         if(map.check_empty(location.plus(direction))){
-            attacks = attacks.concat(get_points_in_direction(location.plus(direction), direction, map));
+            attacks.push(...get_points_in_direction(location.plus(direction), direction, map));
         }
     }
     return attacks;
@@ -1955,8 +1971,8 @@ function young_dragon_behavior(self, target, map){
     if(self.tile.cycle === 0){
         // Flight
         var spaces = [new Point(3, 0), new Point(3, 1), new Point(3, -1), new Point(2, 2),]; 
-        spaces = spaces.concat(spaces.map((p) => p.rotate(90)));
-        spaces = spaces.concat(spaces.map((p) => p.rotate(180))); // All rotations of the original are included.
+        spaces.push(...spaces.map((p) => p.rotate(90)));
+        spaces.push(...spaces.map((p) => p.rotate(180))); // All rotations of the original are included.
         spaces = randomize_arr(spaces);
         var moved = false;
         var preffered_distance = [4, 3, 5];
@@ -2357,18 +2373,8 @@ function darkling_tile(){
         telegraph: darkling_telegraph
     }
 }
-/** @type {TileGenerator} Used to show where a darkling will teleport next turn.*/
-function darkling_rift_look(){
-    return {
-        type: `look`,
-        name: `darkling rift`,
-        pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
-        description: darkling_rift_description,
-        telegraph: spider_telegraph
-    }
-}
 
-/** @type {AIFunction} AI used by shadow scouts.*/
+/** @type {AIFunction} AI used by darklings.*/
 function darkling_ai(self, target, map){
     if(self.tile.direction !== undefined){
         // Teleport to it's rift.
@@ -2387,7 +2393,12 @@ function darkling_ai(self, target, map){
     self.tile.direction = map.random_empty();
     var darkling_rift = function(map_to_use){
         if(self.tile.health === undefined || self.tile.health > 0){
-            map_to_use.mark_tile(self.tile.direction, darkling_rift_look);
+            var rift = {
+                pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
+                description: darkling_rift_description,
+                telegraph: spider_telegraph
+            }
+            map_to_use.mark_event(self.tile.direction, rift, false);
         }
     }
     map.add_event({name: `Darkling Rift`, behavior: darkling_rift});
@@ -2496,7 +2507,7 @@ function magma_spewer_ai(self, target, map){
                 locations.push(center.plus(new Point(i, j)));
             }
         }
-        map.add_event({name: `Falling Magma`, behavior: earthquake_event(random_num(4) + 3, locations)})
+        map.add_event({name: `Falling Magma`, behavior: earthquake_event(random_num(4) + 4, locations)})
     }
     self.tile.cycle = 1 - self.tile.cycle;
     self.tile.pic = self.tile.pic_arr[self.tile.cycle];
@@ -2565,7 +2576,7 @@ function noxious_toad_telegraph(location, map, self){
     for(var direction of horizontal_directions){
         var move = location.plus(direction.times(2));
         if(map.check_empty(move)){
-            attacks = attacks.concat(spider_telegraph(move, map, self));
+            attacks.push(...spider_telegraph(move, map, self));
         }
         
     }
@@ -2716,12 +2727,14 @@ function large_porcuslime_ai(self, target, map){
         // If health is 2, turns into the medium version.
         map.attack(self.location);
         map.attack(self.location);
+        map.clear_telegraphs();
         map.add_tile(medium_porcuslime_tile(), self.location);
         return;
     }
     if(self.tile.health !== undefined && self.tile.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
         map.attack(self.location);
+        map.clear_telegraphs();
         spawn_nearby(map, small_d_porcuslime_tile(), self.location);
         spawn_nearby(map, small_h_porcuslime_tile(), self.location);
         return;
@@ -2761,6 +2774,7 @@ function medium_porcuslime_ai(self, target, map){
     if(self.tile.health !== undefined && self.tile.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
         map.attack(self.location);
+        map.clear_telegraphs();
         spawn_nearby(map, small_d_porcuslime_tile(), self.location);
         spawn_nearby(map, small_h_porcuslime_tile(), self.location);
         return;
@@ -3285,7 +3299,7 @@ function turret_d_ai(self, target, map){
 function turret_d_telegraph(location, map, self){
     var attacks = [];
     for(var direction of diagonal_directions){
-        attacks = attacks.concat(get_points_in_direction(location, direction, map));
+        attacks.push(...get_points_in_direction(location, direction, map));
     }
     return attacks;
 }
@@ -3318,7 +3332,7 @@ function turret_h_ai(self, target, map){
 function turret_h_telegraph(location, map, self){
     var attacks = [];
     for(var direction of horizontal_directions){
-        attacks = attacks.concat(get_points_in_direction(location, direction, map));
+        attacks.push(...get_points_in_direction(location, direction, map));
     }
     return attacks;
 }
@@ -3585,18 +3599,31 @@ function chest_on_enter(self, target, map){
         }
         leave_chest();
     }
-    var click_content = function(content, position){
-        var confirm_button = {
-            description: take_from_chest,
-            on_choose: content.on_choose
-        };
-        display.display_message(UIIDS.content_description, content.description);
-        display.clear_tb(UIIDS.chest_confirm_row);
-        display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button], take_or_leave);
-        display.select(UIIDS.contents, position.y, position.x);
+    var content_row = [];
+    for(var i = 0; i < self.tile.contents.length; ++i){
+        let item = self.tile.contents[i];
+        let make_on_click = function(position){
+            return function(){
+                let confirm_button = {
+                    description: take_from_chest,
+                    on_choose: item.on_choose
+                };
+                display.display_message(UIIDS.content_description, item.description);
+                display.clear_tb(UIIDS.chest_confirm_row);
+                display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button], take_or_leave);
+                display.select(UIIDS.contents, 0, position);
+            };
+        }
+        
+        content_row.push({
+            pic: item.pic,
+            name: item.name,
+            on_click: make_on_click(i)
+        });
     }
+
     display.display_message(UIIDS.chest_instructions, chest_inner_discription);
-    display.add_tb_row(UIIDS.contents, self.tile.contents, CHEST_CONTENTS_SIZE, click_content);
+    display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
     display.add_button_row(UIIDS.chest_confirm_row, [abandon_button], take_or_leave);
     display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.chest);
 }
@@ -3618,6 +3645,7 @@ function add_card_to_chest(chest, card){
     }
     var content = {
         pic: card.pic,
+        name: card.name,
         on_choose: function(){
             GS.deck.add(card);
         },
@@ -3672,15 +3700,6 @@ function corrosive_slime_tile(){
         on_enter: hazard
     }
 }
-/** @type {TileGenerator} Used to show which location will have falling rubble next turn.*/
-function falling_rubble_look(){
-    return {
-        type: `look`,
-        name: `falling rubble`,
-        pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-        description: falling_rubble_description
-    }
-}
 
 /**
  * Function to create an event function representing an earthquake.
@@ -3697,13 +3716,18 @@ function earthquake_event(amount, locations = undefined){
         }
     }
     var earthquake = function(amount){
+        var falling_rubble_layer = {
+            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
+            description: falling_rubble_description,
+            telegraph: hazard_telegraph
+        }
         return function(map_to_use){
             var rubble = [];
             var space;
             if(locations === undefined){
                 for(var j = 0; j < amount; ++j){
                     space = map_to_use.random_empty();
-                    map_to_use.mark_tile(space, falling_rubble_look);
+                    map_to_use.mark_event(space, falling_rubble_layer);
                     rubble.push(space);
                 }
             }
@@ -3712,7 +3736,7 @@ function earthquake_event(amount, locations = undefined){
                 for(var i = 0; i < amount; ++i){
                     space = spaces[i];
                     if(map_to_use.check_empty(space)){
-                        map_to_use.mark_tile(space, falling_rubble_look);
+                        map_to_use.mark_event(space, falling_rubble_layer);
                         rubble.push(space);
                     }
                 }
@@ -3764,7 +3788,7 @@ function fireball_telegraph(location, map, self){
     if(self.direction === undefined){
         throw new Error(`tile missing properties used to telegraph it's attacks.`);
     }
-    return [location.plus(self.direction)].concat(hazard_telegraph(location, map, self));
+    return [location.plus(self.direction), ...hazard_telegraph(location, map, self)];
 }
 
 /**
@@ -3864,7 +3888,7 @@ function repulsor_push_ai(self, target, map){
     for(var space of spaces){
         var target_space = self.location.plus(space);
         if(map.is_in_bounds(target_space)){
-            var target_tile = map.get_grid(target_space);
+            var target_tile = map.get_tile(target_space);
             if(target_tile.type === `player`){
                 player_was_moved = true;
             }
@@ -4064,13 +4088,13 @@ function player_tile(){
 // File for AI utility functions functions and jsdoc typedefs used by ai functions.
 
 /**
- * @typedef {object} AISelfParam Information passed into an ai function about the entity calling it.
+ * @typedef {Object} AISelfParam Information passed into an ai function about the entity calling it.
  * @property {Tile} tile The tile of the entity.
  * @property {Point} location The location of the tile on the grid.
  */
 
 /**
- * @typedef {object} AITargetParam Information passed into an ai function about the entity it is targeting.
+ * @typedef {Object} AITargetParam Information passed into an ai function about the entity it is targeting.
  * @property {Tile} tile The tile it is targeting.
  * @property {Point} difference The location of the tile it is targeting relative to the entity.
  */
@@ -4160,8 +4184,6 @@ function move_attack_ai(self, target, map){
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
  * @property {number=} id Given a unique one when added to a EntityList.
- * @property {string=} is_hit Used to telegraph which spaces have been or might be attacked.
- * @property {string=} event_happening Used to telegraph an event.
  */
 
 /**
@@ -4339,18 +4361,13 @@ function attack_around(location, map){
  * Function to let a tile disguise itself as another one.
  * @param {Tile} tile The tile to disguise.
  * @param {TileGenerator} tile_generator The generator for a default version of the tile to disguise as. 
- * @param {boolean=} just_background If true, changes the is_hit field rather than the main image.
  */
-function shapeshift(tile, tile_generator, just_background){
+function shapeshift(tile, tile_generator){
     var look = tile_generator();
+    tile.name = look.name;
     tile.description = look.description;
     tile.telegraph = look.telegraph;
-    if(just_background){
-        tile.event_happening = look.pic;
-    }
-    else{
-        tile.pic = look.pic;
-    }
+    tile.pic = look.pic;
 }
 
 /**
@@ -4595,7 +4612,7 @@ function rest_spell_telegraph(location, map, self){
 // File for spell ai functions.
 
 /**
- * @typedef Spell A set a behavior, description and pic used by the lich.
+ * @typedef {Object} Spell A set a behavior, description and pic used by the lich.
  * @property {AIFunction} behavior Function performing the spell.
  * @property {TelegraphFunction} telegraph Function performing the spell.
  * @property {string} description A description of what the spell does.
@@ -4806,7 +4823,7 @@ class ButtonGrid{
 // EntityList class is used by the GameMap class to keep track of entities without having to search through the map each time.
 
 /**
- * @typedef Tile_W_Pos An object containing a Tile and it's current position.
+ * @typedef {Object} Tile_W_Pos An object containing a Tile and it's current position.
  * @property {Tile} enemy The tile.
  * @property {Point} location It's current location.
  */
@@ -5003,9 +5020,25 @@ class EntityList{
  * @param {GameMap} map Function controlling behavior of the event.
  */
 /**
- * @typedef MapEvent An object representing an event that will happen at the end of the enemies' turn.
+ * @typedef {Object} MapEvent An object representing an event that will happen at the end of the enemies' turn.
  * @property {String} name The name of the event.
  * @property {MapEventFunction} behavior The event's behavior.
+ */
+/**
+ * @typedef {Object} GridSpace
+ * @property {GridSpaceLayer[]} foreground
+ * @property {Tile} tile
+ * @property {GridSpaceLayer[]} background
+ * @property {GridSpaceLayer=} action
+ * @property {GridSpaceLayer=} stunned
+ * @property {GridSpaceLayer} floor
+ */
+/**
+ * @typedef {Object} GridSpaceLayer
+ * @property {string} pic
+ * @property {string=} descrtiption
+ * @property {TelegraphFunction=} telegraph
+ * @property {TelegraphFunction=} telegraph_other
  */
 
 class GameMap{
@@ -5028,16 +5061,16 @@ class GameMap{
     /**
      * @param {number} x_max The x size of floors in this dungeon.
      * @param {number} y_max The y size of floors in this dungeon.
-     * @param {Area} area The starting area.
+     * @param {Area} starting_area The starting area.
      */
-    constructor(x_max, y_max, area){
+    constructor(x_max, y_max, starting_area){
         this.#x_max = x_max;
         this.#y_max = y_max;
         this.#entity_list = new EntityList();
         this.#floor_num = 0;
         this.#turn_count = 0;
         this.#events = [];
-        this.#area = area;
+        this.#area = starting_area;
         this.erase()
     }
     /**
@@ -5045,9 +5078,8 @@ class GameMap{
      * @returns {number} The updated floor number.
      */
     erase(){
-        // Function to start a new floor by erasing the board and adding only the player and the exit.
-        // Returns the floor number.
         try{
+            // Grabs the player tile from the current floor.
             var player = this.get_player();
         }
         catch(error){
@@ -5060,12 +5092,14 @@ class GameMap{
         }
         this.#entity_list = new EntityList();
         this.#grid = [];
+        // Fill the grid with blank spaces.
         for(var i = 0; i < this.#y_max; ++i){
             this.#grid.push([]);
             for(var j = 0; j < this.#x_max; ++j){
-                this.#grid[i].push(empty_tile());
+                this.#grid[i].push(grid_space(this.#area));
             }
         }
+        // Add the player and the exit.
         var exit_location = new Point(random_num(this.#y_max), 0);
         this.set_exit(exit_location);
         var player_location = new Point(random_num(this.#y_max), this.#x_max - 1);
@@ -5076,15 +5110,12 @@ class GameMap{
      * @returns {Point} A random space on the floor.
      */
     random_space(){
-        // Returns a random space in the grid.
         return new Point(random_num(this.#x_max), random_num(this.#y_max));
     }
     /**
      * @returns {Point} A random empty space on the floor.
      */
     random_empty(){
-        // Returns a random empty space in the grid.
-        // Throws an erro if the map is full.
         var num_empty = this.#x_max * this.#y_max - this.#entity_list.count_non_empty;
         var rand = random_num(num_empty);
         if(num_empty === 0){
@@ -5093,7 +5124,7 @@ class GameMap{
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
                 var pos = new Point(x, y)
-                if(this.get_grid(pos).type === `empty`){
+                if(this.get_tile(pos).type === `empty`){
                     if(rand === 0){
                         return pos;
                     }
@@ -5108,7 +5139,6 @@ class GameMap{
      * @param {Point} location The point to check.
      */
     check_bounds(location){
-        // Throws an error if x or y is out of bounds.
         if(location.x < 0 || location.x >= this.#x_max){
             throw new Error(`x out of bounds`);
         }
@@ -5136,13 +5166,7 @@ class GameMap{
      * @returns {boolean} Returns true if the location is both in bounds and empty and false otherwise.
      */
     check_empty(location){
-        try{
-            this.check_bounds(location);
-        }
-        catch{
-            return false;
-        }
-        return this.get_grid(location).type === `empty`;
+        return this.is_in_bounds(location) && this.get_tile(location).type === `empty`;
     }
     /**
      * Places an exit tile at the given location
@@ -5150,8 +5174,6 @@ class GameMap{
      * @param {Point} location The location to set the exit at.
      */
     set_exit(location){
-        // Places the exit.
-        // Throws an error if the space is occupied or out of bounds..
         this.check_bounds(location);
         if(!this.check_empty(location)){
             throw new Error(`space not empty`);
@@ -5168,7 +5190,7 @@ class GameMap{
             // otherwise continues.
         }
         this.#entity_list.set_exit(location);
-        this.#set_grid(location, exit_tile());
+        this.#set_tile(location, exit_tile());
     }
     /**
      * Places the player at the given location.
@@ -5177,8 +5199,6 @@ class GameMap{
      * @param {Tile} player The player tile to be placed,
      */
     set_player(player_location, player){
-        // Places the player. If a non-negative value is given for the player's health, it will be set to that.
-        // Throws an error is the space is occupied or out of bounds.
         if(player.type !== `player`){
             throw new Error(`tried to set non-player as player`)
         }
@@ -5198,20 +5218,18 @@ class GameMap{
             // otherwise continues.
         }
         this.#entity_list.set_player_pos(player_location);
-        this.#set_grid(player_location, player);
+        this.#set_tile(player_location, player);
     }
     /**
      * Function to add a tile to the map.
      * @param {Tile} tile The tile to be added.
      * @param {Point} [location = undefined] Optional location to place the tile. If the location is not empty, an error will be thrown.
      *                                          If not provided, the location will be a random unoccupied one.
-     * @returns {Point | void} If it successfully adds the tile, return sthe location. Otherwise, throws an error.
+     * @returns {Point | void} If it successfully adds the tile, returns the location. Otherwise, returns void.
      */
     add_tile(tile, location = undefined){
-        // Adds a new tile to a space.
-        // Returns the point if added successfully.
-        // If x or y aren't provided, it will select a random empty space.
         try{
+            // Makes sure the location is valid and empty
             if(location === undefined){
                 location = this.random_empty();
             }
@@ -5223,7 +5241,7 @@ class GameMap{
         catch(error){
             return;
         }
-        this.#set_grid(location, tile);
+        this.#set_tile(location, tile);
         if(tile.type === `enemy`){
             this.#entity_list.add_enemy(location, tile);
         }
@@ -5269,34 +5287,58 @@ class GameMap{
         // If any empty tiles have been marked as hit, it resets the pic to empty.
         // Shows the player's remaining health below.
         display.clear_tb(UIIDS.map_display);
-        var make_on_click = function(gameMap){
-            return function(tile, location){
-                var description = tile_description(tile);
+        var make_on_click = function(space, location, gameMap){
+            return function(){
+                var description = grid_space_description(space);
+                var tile = space.tile;
                 display.display_message(UIIDS.display_message, description);
                 gameMap.clear_telegraphs();
+                var telegraph_spaces = [];
+                var telegraph_other_spaces = [];
+                for(var element of [...space.foreground, ...space.background]){
+                    // Checks for upcoming attacks from the things in the foreground and background.
+                    if(element.telegraph !== undefined){
+                        telegraph_spaces.push(...element.telegraph(location, gameMap, element));
+                    }
+                    if(element.telegraph_other !== undefined){
+                        telegraph_other_spaces.push(...element.telegraph_other(location, gameMap, element));
+                    }
+                }
+                // Checks for upcoming attacks from the tile itself.
                 if(tile.telegraph !== undefined && !tile.stun){
-                    gameMap.display_telegraph(tile.telegraph(location, gameMap, tile));
+                    telegraph_spaces.push(...tile.telegraph(location, gameMap, tile));
                 }
                 if(tile.telegraph_other !== undefined && !tile.stun){
-                    gameMap.display_telegraph(tile.telegraph_other(location, gameMap, tile), `${IMG_FOLDER.tiles}telegraph_other.png`);
+                    telegraph_other_spaces.push(...tile.telegraph_other(location, gameMap, tile));
                 }
+                // Telegraphs possible upcoming attacks and other things.
+                gameMap.display_telegraph(telegraph_spaces);
+                gameMap.display_telegraph(telegraph_other_spaces, `${IMG_FOLDER.tiles}telegraph_other.png`);
                 gameMap.display();
             }
         }
-        var make_background = function(area){
-            return function(tile, location){
-                var backgrounds = [area.background];
-                if(tile.is_hit !== undefined){
-                    backgrounds.push(tile.is_hit);
+        for(var y = 0; y < this.#y_max; ++y){
+            var row = this.#grid[y];
+            var table_row = [];
+            for(var x = 0; x < this.#x_max; ++x){
+                let space = row[x];
+                let stunned = [];
+                if(space.tile.stun !== undefined && space.tile.stun > 0){
+                    stunned.push(`${IMG_FOLDER.tiles}telegraph_other.png`);
                 }
-                if(tile.event_happening !== undefined){
-                    backgrounds.push(tile.event_happening);
-                }
-                return backgrounds;
-            }
-        }        
-        for(var y = 0; y < this.#y_max; y++){
-            display.add_tb_row(UIIDS.map_display, this.#grid[y], TILE_SCALE, make_on_click(this), make_background(this.#area));
+                let foreground_pics = space.foreground.map((fg) => fg.pic);
+                let background_pics = space.background.map((fg) => fg.pic);
+                table_row.push({
+                    name: space.tile.name,
+                    foreground: foreground_pics,
+                    pic: space.tile.pic,
+                    rotate: space.tile.rotate,
+                    flip: space.tile.flip,
+                    background: [...background_pics, space.action, ...stunned, this.#area.background],
+                    on_click: make_on_click(space, new Point(x, y), this)
+                });
+            };
+            display.add_tb_row(UIIDS.map_display, table_row, TILE_SCALE);
         }
         display.clear_tb(UIIDS.health_display);
         display_health(this.get_player(), TILE_SCALE);
@@ -5310,20 +5352,12 @@ class GameMap{
      * @returns {boolean} Returns true if the tile is moved succesfully, false if it is not.
      */
     move(start_point, end_point){
-        // Moves the tile at start_point to end_point if it is empty. 
-        // Triggers the attempted destination's on_enter if applicable.
-        // Throws an error if the starting location is out of bounds.
-        // Returns true if the move was successful.
-        // Also throws errors if the player reaches the end of the floor or dies.
         this.check_bounds(start_point);
-        try{
-            this.check_bounds(end_point);
-        }
-        catch{
+        if(!this.is_in_bounds(end_point)){
             return false;
         }
-        var start = this.get_grid(start_point);
-        var end = this.get_grid(end_point);
+        var start = this.get_tile(start_point);
+        var end = this.get_tile(end_point);
         if(start.type === `player` && end.type === `exit`){
             ++this.#turn_count;
             throw new Error(`floor complete`);
@@ -5356,10 +5390,11 @@ class GameMap{
                 throw new Error(`creature died`);
             }
         }
-        if(end.type === `empty` && this.get_grid(start_point) === start){
+        if(end.type === `empty` && this.get_tile(start_point) === start){
+            // Move.
             this.#entity_list.move_any(end_point, start);
-            this.#set_grid(end_point, start);
-            this.#set_grid(start_point, empty_tile());
+            this.#set_tile(end_point, start);
+            this.#set_tile(start_point, empty_tile());
             return true;
         }
         return false;
@@ -5380,7 +5415,6 @@ class GameMap{
      * @returns {boolean} Returns true if something was teleported, false otherwise.
      */
     player_teleport(target){
-        // Moves the player the given relative distance.
         var player_pos = this.#entity_list.get_player_pos();
         var destination = this.random_empty();
         return this.move(player_pos.plus(target), destination);
@@ -5390,9 +5424,8 @@ class GameMap{
      * @returns {Tile} The player tile.
      */
     get_player(){
-        // Returns the player's health.
         var pos = this.#entity_list.get_player_pos();
-        return this.get_grid(pos);
+        return this.get_tile(pos);
     }
     /**
      * Attacks a point on the grid.
@@ -5400,22 +5433,16 @@ class GameMap{
      * @returns {boolean} Returns true if the attack hit.
      */
     attack(location){
-        // Attacks the specified square.
-        // hits specifes if the attacks only hits enemy, player or all tiles.
-        // If an enemy dies, it's on_death effect will be triggered if applicable.
-        // Throws an error if the location is out of bounds.
-        // Returns true if damage was dealt.
-        try{
-            this.check_bounds(location);
-        }
-        catch(error){
+        if(!this.is_in_bounds(location)){
             return false;
         }
-        var target = this.get_grid(location);
-        if(target.health !== undefined && target.type !== `player`){
+        var space = this.get_grid(location);
+        space.action = `${IMG_FOLDER.tiles}hit.png`;
+        var target = space.tile;
+        if(target.health !== undefined){
             target.health -= 1;
-            this.get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
             if(target.on_hit !== undefined){
+                // Trigger on_hit.
                 var player_pos = this.#entity_list.get_player_pos();
                 var hit_entity = {
                     tile: target,
@@ -5428,8 +5455,11 @@ class GameMap{
                 target.on_hit(hit_entity, aggressor_info, this);
             }
             if(target.health <= 0){
-                this.#set_grid(location, empty_tile());
-                this.get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
+                if(target.type === `player`){
+                    throw new Error(`game over`);
+                }
+                // Remove dead tile.
+                this.#set_tile(location, empty_tile());
                 if(target.type === `enemy`){
                     if(target.id === undefined){
                         throw new Error(`enemy missing id`);
@@ -5437,6 +5467,7 @@ class GameMap{
                     this.#entity_list.remove_enemy(target.id);
                 }
                 if(target.on_death !== undefined){
+                    // Trigger on_death/
                     var player_pos = this.#entity_list.get_player_pos();
                     var dying_entity = {
                         tile: target,
@@ -5451,19 +5482,8 @@ class GameMap{
             }
             return true;
         }
-        if(target.type === `player`){
-            if(target.health === undefined){
-                throw new Error(`player missing health`);
-            }
-            target.health -= 1;
-            this.get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
-            if(target.health === 0){
-                throw new Error(`game over`)
-            }
-            return true;
-        }
         if(target.health === undefined && target.on_hit !== undefined){
-            this.get_grid(location).is_hit = `${IMG_FOLDER.tiles}hit.png`;
+            // Trigger on_hit
             var player_pos = this.#entity_list.get_player_pos();
             var hit_entity = {
                 tile: target,
@@ -5489,7 +5509,7 @@ class GameMap{
     player_attack(direction){
         var pos = this.#entity_list.get_player_pos();
         try{
-            return this.attack(pos.plus(direction), `all`);
+            return this.attack(pos.plus(direction));
         }
         catch (error){
             if(error.message !== `game over`){
@@ -5509,11 +5529,10 @@ class GameMap{
         await this.#entity_list.enemy_turn(this);
     }
     /**
-     * Displays the floor number and turn count.
+     * Displays the current floor number and turn count.
      * @param {string} location Where they should be displayed.
      */
     display_stats(location){
-        // Shows the current floor and turn number.
         display.display_message(location, `Floor ${this.#floor_num} Turn: ${this.#turn_count}`);
     }
     /**
@@ -5523,7 +5542,7 @@ class GameMap{
      */
     lock(){
         var pos = this.#entity_list.get_exit_pos();
-        this.#set_grid(pos, lock_tile())
+        this.#set_tile(pos, lock_tile())
     }
     /**
      * Replaces the lock tile with an exit one and heals the player to max.
@@ -5532,7 +5551,7 @@ class GameMap{
      */
     unlock(){
         var pos = this.#entity_list.get_exit_pos();
-        this.#set_grid(pos, exit_tile());
+        this.#set_tile(pos, exit_tile());
         var player = this.get_player();
         player.health = player.max_health;
     }
@@ -5599,14 +5618,24 @@ class GameMap{
         return this.#grid[location.y][location.x];
     }
     /**
+     * Gets a tile from a location on the grid.
+     * Throws an error if the location is out of bounds.
+     * @param {Point} location The location of the tile.
+     * @returns {Tile} The tile at that location
+     */
+    get_tile(location){
+        var space = this.get_grid(location);
+        return space.tile;
+    }
+    /**
      * Puts a tile at the given location.
      * Throws an error if the location is out of bounds.
      * @param {Point} location Where to put the tile.
      * @param {Tile} value The tile to place.
      */
-    #set_grid(location, value){
+    #set_tile(location, value){
         this.check_bounds(location);
-        this.#grid[location.y][location.x] = value;
+        this.#grid[location.y][location.x].tile = value;
     }
     /**
      * Marks which positions an entity can attack during it's next turn.
@@ -5616,7 +5645,7 @@ class GameMap{
     display_telegraph(positions, pic = `${IMG_FOLDER.tiles}hit_telegraph.png`){
         for(var position of positions){
             if(this.is_in_bounds(position)){
-                this.get_grid(position).is_hit = pic;
+                this.get_grid(position).action = pic;
             }
         }
     }
@@ -5627,8 +5656,7 @@ class GameMap{
     clear_telegraphs(){
         for(var y = 0; y < this.#y_max; ++y){
             for(var x = 0; x < this.#x_max; ++x){
-                var tile = this.get_grid(new Point(x, y));
-                tile.is_hit = undefined;
+                this.get_grid(new Point(x, y)).action = `${IMG_FOLDER.tiles}empty.png`;
             }
         }
     }
@@ -5636,10 +5664,15 @@ class GameMap{
      * Function to mark a tile with a specific name, description and background.
      * @param {Point} location The location of the tile to mark.
      * @param {TileGenerator} mark Contains the fields to use.
+     * @param {boolean} foreground Controls if the image will be in the foreground or background. Defaults to foregroung.
      */
-    mark_tile(location, mark){
-        if(this.is_in_bounds(location)){
-            shapeshift(this.get_grid(location), mark, true);
+    mark_event(location, mark, foreground = true){
+        var space = this.get_grid(location);
+        if(foreground){
+            space.foreground.push(mark);
+        }
+        else{
+            space.background.push(mark);
         }
     }
     /**
@@ -5649,10 +5682,9 @@ class GameMap{
     clear_marked(){
         for(var y = 0; y < this.#y_max; ++y){
             for(var x = 0; x < this.#x_max; ++x){
-                var tile = this.get_grid(new Point(x, y));
-                if(tile.type === `empty`){
-                    shapeshift(tile, empty_tile, true);
-                }
+                var space = this.get_grid(new Point(x, y));
+                space.foreground = [];
+                space.background = [];
             }
         }
     }
@@ -5662,15 +5694,10 @@ class GameMap{
      * @returns {boolean} If something was stunned.
      */
     stun_tile(location){
-        try{
-            var tile = this.get_grid(location);
+        if(!this.is_in_bounds(location)){
+            return false;
         }
-        catch(error){
-            if(error.message === `x out of bounds` || error.message === `y out of bounds`){
-                return false;
-            }
-            throw error;
-        }
+        var tile = this.get_tile(location);
         if(tile.type === `enemy`){
             stun(tile);
             return true;
@@ -5696,13 +5723,13 @@ class GameMap{
         if(!this.is_in_bounds(location)){
             return false;
         }
-        var tile = this.get_grid(location);
+        var tile = this.get_tile(location);
         if(tile.health === undefined){
             // No health to heal.
             return false;
         }
-        // If no amount is specified, sets health to max.
         if(amount === undefined){
+            // If no amount is specified, sets health to max.
             if(tile.max_health === undefined){
                 throw new Error(`healed with no amount`);
             }
@@ -5710,13 +5737,13 @@ class GameMap{
             tile.health = tile.max_health;
             return healed;
         }
-        // If no max health is specified, heals by the given amount.
         if(tile.max_health === undefined){
+            // If no max health is specified, heals by the given amount.
             tile.health += amount;
             return true;
         }
-        // Otherwise, only heals up to the max.
         if(tile.health === tile.max_health){
+            // Otherwise, only heals up to the max.
             return false;
         }
         if(amount > 0){
@@ -5735,6 +5762,20 @@ class GameMap{
     player_heal(difference, amount=undefined){
         var pos = this.#entity_list.get_player_pos();
         return this.heal(pos.plus(difference), amount);
+    }
+}
+
+/**
+ * Creates an empty space to add to the game map's grid.
+ * @param {}
+ * @returns {GridSpace} The resulting array.
+ */
+function grid_space(area){
+    return {
+        foreground: [],
+        tile: empty_tile(),
+        background: [],
+        action: `${IMG_FOLDER.tiles}empty.png`
     }
 }
 // ----------------GameState.js----------------
@@ -5908,6 +5949,7 @@ class GameState{
      * @param {string} table The table where it should be displayed.
     */
     #generate_add_row(table){
+        // Get card choices
         var add_list_generators = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
         var chance_of_rare = random_num(4);
         if(chance_of_rare < add_list_generators.length){
@@ -5919,15 +5961,25 @@ class GameState{
             add_list[i] = add_list_generators[i]();
         }
         add_list.unshift(add_card_symbol())
-        var make_add_card = function(gamestate){
-            return function(card, position){
-                if(position.x > 0){
+        // Display cards
+        var make_add_card = function(card, position, gamestate){
+            return function(){
+                if(position > 0){
                     gamestate.deck.add(card);
                     gamestate.new_floor();
                 }
             }
         }
-        display.add_tb_row(table, add_list, CARD_SCALE, make_add_card(this));
+        var row = [];
+        for(var i = 0; i < add_list.length; ++i){
+            let card = add_list[i];
+            row.push({
+                name: card.name,
+                pic: card.pic,
+                on_click: make_add_card(card, i, this)
+            })
+        }
+        display.add_tb_row(table, row, CARD_SCALE);
     }
     /** 
      * Creates the row of cards that can be removed from the deck.
@@ -5941,15 +5993,24 @@ class GameState{
         else{
             remove_list.unshift(deck_at_minimum_symbol());
         }
-        var make_remove_card = function(gamestate){
-            return function(card, position){
-                if(position.x > 0){
+        var make_remove_card = function(card, position, gamestate){
+            return function(){
+                if(position > 0){
                     gamestate.deck.remove(card.id);
                     gamestate.new_floor();
                 }
             }
         }
-        display.add_tb_row(table, remove_list, CARD_SCALE, make_remove_card(this));
+        var row = [];
+        for(var i = 0; i < remove_list.length; ++i){
+            let card = remove_list[i];
+            row.push({
+                name: card.name,
+                pic: card.pic,
+                on_click: make_remove_card(card, i, this)
+            });
+        }
+        display.add_tb_row(table, row, CARD_SCALE);
     }
     /**
      * Called when the player dies. Gives the option to restart.
@@ -6134,31 +6195,38 @@ class MoveDeck{
     display_hand(table){
         // Displays the hand to the given table.
         display.clear_tb(table);
-        var make_prep_move = function(deck){
-            return function(card, hand_pos){
+        var make_prep_move = function(card, hand_pos){
+            return function(){
                 if(!GS.check_lock_player_turn()){
                     return;
                 }
                 var extra_info = temp_card_info(card);
-                display.select(UIIDS.hand_display, 0, hand_pos.x);
-                card.options.show_buttons(UIIDS.move_buttons, hand_pos.x, extra_info);
-                var deck = deck;
+                display.select(UIIDS.hand_display, 0, hand_pos);
+                card.options.show_buttons(UIIDS.move_buttons, hand_pos, extra_info);
             }
-        }
-        var card_background = function(tile, location){
-            var backgrounds = [];
-            if(tile.temp){
-                backgrounds.push(`${IMG_FOLDER.other}temporary_background.png`)
-            }
-            else{
-                backgrounds.push(`${IMG_FOLDER.other}default_card_background.png`)
-            }
-            return backgrounds;
         }
         var explain_blank_moves = function(){
             display.display_message(UIIDS.display_message, blank_moves_message);
         }
-        display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this), card_background);
+        var card_row = [];
+        for(var i = 0; i < this.#hand.length; ++i){
+            let card = this.#hand[i];
+            let background = [];
+            if(card.temp){
+                background.push(`${IMG_FOLDER.other}temporary_background.png`)
+            }
+            else{
+                background.push(`${IMG_FOLDER.other}default_card_background.png`)
+            }
+            card_row.push({
+                pic: card.pic,
+                name: card.name,
+                background,
+                card: card,
+                on_click: make_prep_move(card, i)
+            });
+        }
+        display.add_tb_row(table, card_row, CARD_SCALE);
         display.display_message(UIIDS.deck_count, `${this.#library.length}`);
         display.add_on_click(UIIDS.move_info, explain_blank_moves);
     }
@@ -6169,7 +6237,8 @@ class MoveDeck{
     display_all(table){
         display.display_message(UIIDS.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
         for(var i = 0; i < Math.ceil(this.#decklist.length / DECK_DISPLAY_WIDTH); ++i){
-            display.add_tb_row(table, this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH), CARD_SCALE)
+            var row = this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
+            display.add_tb_row(table, row, CARD_SCALE)
             
         }
     }
@@ -6402,7 +6471,7 @@ const area4 = area_end;//[generate_forest_area, generate_library_area];
 const area5 = [generate_sanctum_area];
 
 /**
- * @typedef {object} Area A section of the dungeon that ends with a boss fight.
+ * @typedef {Object} Area A section of the dungeon that ends with a boss fight.
  * @property {string} background The picture used as a background for this area.
  * @property {FloorGenerator} generate_floor A function to generate a normal floor of the dungeon.
  * @property {TileGenerator[]} enemy_list An array of which enemies can spawn here.
@@ -6899,7 +6968,7 @@ const CONFUSION_CARDS = [
 
 
 /**
- * @typedef {object} PlayerCommand A object used to give a command for a single action the player should do.
+ * @typedef {Object} PlayerCommand A object used to give a command for a single action the player should do.
  * @property {string} type What type of action it is (move, attack, etc.).
  * @property {Point} change The location the action should be performed at relative to the current one.
  */

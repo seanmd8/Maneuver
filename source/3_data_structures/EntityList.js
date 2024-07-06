@@ -2,7 +2,7 @@
 // EntityList class is used by the GameMap class to keep track of entities without having to search through the map each time.
 
 /**
- * @typedef Tile_W_Pos An object containing a Tile and it's current position.
+ * @typedef {Object} Tile_W_Pos An object containing a Tile and it's current position.
  * @property {Tile} enemy The tile.
  * @property {Point} location It's current location.
  */

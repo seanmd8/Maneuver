@@ -90,7 +90,15 @@
 
 /* Class to outline a card or chest item that the user currently has selected. */
 .selected-element {
-    box-shadow: 0 0 0 3px black;
+    box-shadow: 0 0 0 2px black;
+}
+
+.selectable {
+    border-spacing: 3px;
+}
+.selectable tr td{
+    border-spacing: 3px;
+    padding: 0px;
 }
 /* File containing styles used by the guidebook screen. */
 
@@ -212,6 +220,9 @@
     border-color: slategray;
     border-style: solid;
     border-width: 2px;
+}
+.hand-box table {
+    border-spacing: 3px;
 }
 .hand-box table tr td {
     cursor: pointer;

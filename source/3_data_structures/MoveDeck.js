@@ -110,31 +110,38 @@ class MoveDeck{
     display_hand(table){
         // Displays the hand to the given table.
         display.clear_tb(table);
-        var make_prep_move = function(deck){
-            return function(card, hand_pos){
+        var make_prep_move = function(card, hand_pos){
+            return function(){
                 if(!GS.check_lock_player_turn()){
                     return;
                 }
                 var extra_info = temp_card_info(card);
-                display.select(UIIDS.hand_display, 0, hand_pos.x);
-                card.options.show_buttons(UIIDS.move_buttons, hand_pos.x, extra_info);
-                var deck = deck;
+                display.select(UIIDS.hand_display, 0, hand_pos);
+                card.options.show_buttons(UIIDS.move_buttons, hand_pos, extra_info);
             }
-        }
-        var card_background = function(tile, location){
-            var backgrounds = [];
-            if(tile.temp){
-                backgrounds.push(`${IMG_FOLDER.other}temporary_background.png`)
-            }
-            else{
-                backgrounds.push(`${IMG_FOLDER.other}default_card_background.png`)
-            }
-            return backgrounds;
         }
         var explain_blank_moves = function(){
             display.display_message(UIIDS.display_message, blank_moves_message);
         }
-        display.add_tb_row(table, this.#hand, CARD_SCALE, make_prep_move(this), card_background);
+        var card_row = [];
+        for(var i = 0; i < this.#hand.length; ++i){
+            let card = this.#hand[i];
+            let background = [];
+            if(card.temp){
+                background.push(`${IMG_FOLDER.other}temporary_background.png`)
+            }
+            else{
+                background.push(`${IMG_FOLDER.other}default_card_background.png`)
+            }
+            card_row.push({
+                pic: card.pic,
+                name: card.name,
+                background,
+                card: card,
+                on_click: make_prep_move(card, i)
+            });
+        }
+        display.add_tb_row(table, card_row, CARD_SCALE);
         display.display_message(UIIDS.deck_count, `${this.#library.length}`);
         display.add_on_click(UIIDS.move_info, explain_blank_moves);
     }
@@ -145,7 +152,8 @@ class MoveDeck{
     display_all(table){
         display.display_message(UIIDS.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
         for(var i = 0; i < Math.ceil(this.#decklist.length / DECK_DISPLAY_WIDTH); ++i){
-            display.add_tb_row(table, this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH), CARD_SCALE)
+            var row = this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
+            display.add_tb_row(table, row, CARD_SCALE)
             
         }
     }

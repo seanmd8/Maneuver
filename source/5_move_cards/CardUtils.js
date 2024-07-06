@@ -32,7 +32,7 @@ const CONFUSION_CARDS = [
 
 
 /**
- * @typedef {object} PlayerCommand A object used to give a command for a single action the player should do.
+ * @typedef {Object} PlayerCommand A object used to give a command for a single action the player should do.
  * @property {string} type What type of action it is (move, attack, etc.).
  * @property {Point} change The location the action should be performed at relative to the current one.
  */

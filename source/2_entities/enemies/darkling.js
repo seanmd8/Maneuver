@@ -11,18 +11,8 @@ function darkling_tile(){
         telegraph: darkling_telegraph
     }
 }
-/** @type {TileGenerator} Used to show where a darkling will teleport next turn.*/
-function darkling_rift_look(){
-    return {
-        type: `look`,
-        name: `darkling rift`,
-        pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
-        description: darkling_rift_description,
-        telegraph: spider_telegraph
-    }
-}
 
-/** @type {AIFunction} AI used by shadow scouts.*/
+/** @type {AIFunction} AI used by darklings.*/
 function darkling_ai(self, target, map){
     if(self.tile.direction !== undefined){
         // Teleport to it's rift.
@@ -41,7 +31,12 @@ function darkling_ai(self, target, map){
     self.tile.direction = map.random_empty();
     var darkling_rift = function(map_to_use){
         if(self.tile.health === undefined || self.tile.health > 0){
-            map_to_use.mark_tile(self.tile.direction, darkling_rift_look);
+            var rift = {
+                pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
+                description: darkling_rift_description,
+                telegraph: spider_telegraph
+            }
+            map_to_use.mark_event(self.tile.direction, rift, false);
         }
     }
     map.add_event({name: `Darkling Rift`, behavior: darkling_rift});

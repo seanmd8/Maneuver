@@ -37,18 +37,31 @@ function chest_on_enter(self, target, map){
         }
         leave_chest();
     }
-    var click_content = function(content, position){
-        var confirm_button = {
-            description: take_from_chest,
-            on_choose: content.on_choose
-        };
-        display.display_message(UIIDS.content_description, content.description);
-        display.clear_tb(UIIDS.chest_confirm_row);
-        display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button], take_or_leave);
-        display.select(UIIDS.contents, position.y, position.x);
+    var content_row = [];
+    for(var i = 0; i < self.tile.contents.length; ++i){
+        let item = self.tile.contents[i];
+        let make_on_click = function(position){
+            return function(){
+                let confirm_button = {
+                    description: take_from_chest,
+                    on_choose: item.on_choose
+                };
+                display.display_message(UIIDS.content_description, item.description);
+                display.clear_tb(UIIDS.chest_confirm_row);
+                display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button], take_or_leave);
+                display.select(UIIDS.contents, 0, position);
+            };
+        }
+        
+        content_row.push({
+            pic: item.pic,
+            name: item.name,
+            on_click: make_on_click(i)
+        });
     }
+
     display.display_message(UIIDS.chest_instructions, chest_inner_discription);
-    display.add_tb_row(UIIDS.contents, self.tile.contents, CHEST_CONTENTS_SIZE, click_content);
+    display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
     display.add_button_row(UIIDS.chest_confirm_row, [abandon_button], take_or_leave);
     display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.chest);
 }
@@ -70,6 +83,7 @@ function add_card_to_chest(chest, card){
     }
     var content = {
         pic: card.pic,
+        name: card.name,
         on_choose: function(){
             GS.deck.add(card);
         },

@@ -18,7 +18,7 @@ function get_uiids(language){
 }
 
 /**
- * @typedef uiid_library
+ * @typedef {Object} uiid_library
  * @property {string} title Displays the title of the game.
  * @property {string} game_screen Controls the visibility of the game itself.
  *      @property {string} stats Displays the current stats.

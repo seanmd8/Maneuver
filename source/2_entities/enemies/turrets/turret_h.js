@@ -27,7 +27,7 @@ function turret_h_ai(self, target, map){
 function turret_h_telegraph(location, map, self){
     var attacks = [];
     for(var direction of horizontal_directions){
-        attacks = attacks.concat(get_points_in_direction(location, direction, map));
+        attacks.push(...get_points_in_direction(location, direction, map));
     }
     return attacks;
 }

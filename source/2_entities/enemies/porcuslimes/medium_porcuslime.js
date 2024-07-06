@@ -25,6 +25,7 @@ function medium_porcuslime_ai(self, target, map){
     if(self.tile.health !== undefined && self.tile.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
         map.attack(self.location);
+        map.clear_telegraphs();
         spawn_nearby(map, small_d_porcuslime_tile(), self.location);
         spawn_nearby(map, small_h_porcuslime_tile(), self.location);
         return;

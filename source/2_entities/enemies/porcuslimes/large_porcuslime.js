@@ -18,12 +18,14 @@ function large_porcuslime_ai(self, target, map){
         // If health is 2, turns into the medium version.
         map.attack(self.location);
         map.attack(self.location);
+        map.clear_telegraphs();
         map.add_tile(medium_porcuslime_tile(), self.location);
         return;
     }
     if(self.tile.health !== undefined && self.tile.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
         map.attack(self.location);
+        map.clear_telegraphs();
         spawn_nearby(map, small_d_porcuslime_tile(), self.location);
         spawn_nearby(map, small_h_porcuslime_tile(), self.location);
         return;

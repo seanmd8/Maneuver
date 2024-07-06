@@ -62,7 +62,7 @@ function noxious_toad_telegraph(location, map, self){
     for(var direction of horizontal_directions){
         var move = location.plus(direction.times(2));
         if(map.check_empty(move)){
-            attacks = attacks.concat(spider_telegraph(move, map, self));
+            attacks.push(...spider_telegraph(move, map, self));
         }
         
     }

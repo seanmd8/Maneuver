@@ -23,12 +23,6 @@
  * @param {Point} position The row and column of the element.
  */
 
-/**
- * @callback BackgroundCreator A function to be called when an element is clicked.
- * @param {CellInfo} tile The object used to create this element.
- * @param {Point} position The row and column of the element.
- * @returns {string[]} An array of the pictures to layer in the background.
- */
 
 /**
  * @callback NormalCallback A function with no args or returns.
@@ -46,8 +40,6 @@
  * @param {string} location The ID of the table to be added to.
  * @param {CellInfo[]} row_contents The objects used to construct the row's contents.
  * @param {number} scale The size of the images.
- * @param {OnClickFunction} [on_click = undefined] Optional parameter which is used to give onclick functionality to the images.
- * @param {BackgroundCreator} [background = undefined] Optional parameter which specifies a image to be layered underneath each other one.
  */
 
 /**
@@ -189,7 +181,7 @@ function get_display(language){
  */
 
 /**
- * @typedef HTML_Helpers A collection of the helper functions used by the DisplayHTML library.
+ * @typedef {Object} HTML_Helpers A collection of the helper functions used by the DisplayHTML library.
  * @property {get_transformation} get_transformation
  * @property {get_element} get_element
  */
@@ -202,53 +194,60 @@ function get_display(language){
  */
 const DisplayHTML = {
     // Required functions.
-    add_tb_row: function(location, row_contents, scale, on_click, background = undefined){
+    add_tb_row: function(location, row_contents, scale){
         var table = DisplayHTML.get_element(location, HTMLTableElement);
         var row_num = table.rows.length;
         var row = document.createElement(`tr`);
         row.id = `${location} row ${row_num}`;
-        var make_on_click = function(tile, position, click){
-            return function(){
-                return click(tile, position);
-            }
-        }
+        row.style.height = `${scale}px`;
         for(var i = 0; i < row_contents.length; ++i){
             var to_display = row_contents[i];
+            // Make table cell
             var cell = document.createElement(`td`);
             cell.id = `${location} ${row_num} ${i}`;
             cell.style.height = `${scale}px`;
             cell.style.width = `${scale}px`;
             cell.classList.add(`relative`);
-            if(on_click !== undefined){
-                cell.onclick = make_on_click(to_display, new Point(i, row_num), on_click);
+            if(to_display.on_click !== undefined){
+                cell.onclick = to_display.on_click;
             }
             if(to_display.name !== undefined){
                 cell.title = to_display.name;
             }
-            if(background !== undefined){
-                var background_arr = background(to_display, new Point(i, row_num));
-                for(var j = 0; j < background_arr.length; ++j){
-                    var bottom_img = document.createElement(`img`);
-                    bottom_img.id = `${location} ${row_num} ${i} background ${j} img`;
-                    bottom_img.src = `${IMG_FOLDER.src}${background_arr[j]}`;
-                    bottom_img.height = scale;
-                    bottom_img.width = scale;
-                    bottom_img.classList.add(`absolute`);
-                    cell.append(bottom_img);
+            var layers = [];
+            var image;
+            // Foreground images
+            if(to_display.foreground !== undefined){
+                for(let pic of to_display.foreground){
+                    image = document.createElement(`img`);
+                    image.src = `${IMG_FOLDER.src}${pic}`;
+                    layers.push(image);
                 }
-                
             }
-            var top_img = document.createElement(`img`);
-            top_img.id = `${location} ${row_num} ${i} img`;
-            top_img.src = `${IMG_FOLDER.src}${to_display.pic}`;
-            top_img.height = scale;
-            top_img.width = scale;
-            top_img.classList.add(`absolute`);
-            top_img.style.transform = DisplayHTML.get_transformation(to_display);
+            // Main image
+            image = document.createElement(`img`);
+            image.src = `${IMG_FOLDER.src}${to_display.pic}`;
             if(to_display.name !== undefined){
-                top_img.alt = to_display.name;
+                image.alt = to_display.name;
             }
-            cell.append(top_img);
+            image.style.transform = DisplayHTML.get_transformation(to_display);
+            layers.push(image);
+            // Background images
+            if(to_display.background !== undefined){
+                for(let pic of to_display.background){
+                    image = document.createElement(`img`);
+                    image.src = `${IMG_FOLDER.src}${pic}`;
+                    layers.push(image);
+                }
+            }
+            // Style/size images
+            layers = layers.reverse();
+            for(let layer of layers){
+                layer.height = scale;
+                layer.width = scale;
+                layer.classList.add(`absolute`);
+                cell.append(layer);
+            }
             row.append(cell);
         }
         table.append(row);
@@ -294,9 +293,9 @@ const DisplayHTML = {
         var row = DisplayHTML.get_element(`${location} row ${row_num}`, HTMLTableRowElement);
         var column_count = row.cells.length;
         for(var i = 0; i < column_count; ++i){
-            DisplayHTML.get_element(`${location} ${row_num} ${i} img`, HTMLImageElement).classList.remove("selected-element");
+            DisplayHTML.get_element(`${location} ${row_num} ${i}`, HTMLTableCellElement).classList.remove("selected-element");
         }
-        DisplayHTML.get_element(`${location} ${row_num} ${column_num} img`, HTMLImageElement).classList.add("selected-element");
+        DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add("selected-element");
     },
     press: function(key_press){
         // Pick direction via keyboard.

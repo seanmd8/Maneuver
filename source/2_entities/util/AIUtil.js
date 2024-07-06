@@ -2,13 +2,13 @@
 // File for AI utility functions functions and jsdoc typedefs used by ai functions.
 
 /**
- * @typedef {object} AISelfParam Information passed into an ai function about the entity calling it.
+ * @typedef {Object} AISelfParam Information passed into an ai function about the entity calling it.
  * @property {Tile} tile The tile of the entity.
  * @property {Point} location The location of the tile on the grid.
  */
 
 /**
- * @typedef {object} AITargetParam Information passed into an ai function about the entity it is targeting.
+ * @typedef {Object} AITargetParam Information passed into an ai function about the entity it is targeting.
  * @property {Tile} tile The tile it is targeting.
  * @property {Point} difference The location of the tile it is targeting relative to the entity.
  */

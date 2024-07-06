@@ -31,7 +31,7 @@ function repulsor_push_ai(self, target, map){
     for(var space of spaces){
         var target_space = self.location.plus(space);
         if(map.is_in_bounds(target_space)){
-            var target_tile = map.get_grid(target_space);
+            var target_tile = map.get_tile(target_space);
             if(target_tile.type === `player`){
                 player_was_moved = true;
             }
