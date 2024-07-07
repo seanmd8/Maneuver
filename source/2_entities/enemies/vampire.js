@@ -35,11 +35,10 @@ function vampire_ai(self, target, map){
             moved = map.move(self.location, space);
         }
     }
-    if(moved && map.attack(self.location.plus(target.difference)) // If you moved into range, attack.
-        && self.tile.health !== undefined // If you have health
-        && (self.tile.max_health === undefined || self.tile.health < self.tile.max_health)){ // and your health isn't at your max_health,
-        ++self.tile.health; // heal.
-    }
+    // If you moved into range, attack and heal.
+    if(moved && map.attack(self.location.plus(target.difference))){
+        map.heal(space, 1);
+    } 
     if(!moved){
         // If it hasn't moved yet, just moves closer to the player.
         var directions = order_nearby(target.difference);

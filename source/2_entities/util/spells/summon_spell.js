@@ -2,7 +2,6 @@
 function summon_spell_generator(){
     return {
         behavior: summon_spell,
-        telegraph: rest_spell_telegraph,
         description: summon_spell_description,
         pic: `${IMG_FOLDER.tiles}lich_summon.png`
     }

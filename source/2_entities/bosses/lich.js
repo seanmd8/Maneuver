@@ -31,6 +31,7 @@ function lich_tile(){
         death_message: lich_death_message,
         behavior: lich_ai,
         telegraph: lich_telegraph,
+        telegraph_other: lich_telegraph_other,
         on_hit: lich_hit,
         on_death: boss_death,
         cycle: starting_cycle,
@@ -78,7 +79,24 @@ function lich_telegraph(location, map, self){
         self.spells === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
-    return self.spells[self.cycle].telegraph(location, map, self);
+    var spell = self.spells[self.cycle]
+    if(spell.telegraph !== undefined){
+        return spell.telegraph(location, map, self);
+    }
+    return rest_spell_telegraph(location, map, self)
+}
+
+/** @type {TelegraphFunction} */
+function lich_telegraph_other(location, map, self){
+    if( self.cycle === undefined || 
+        self.spells === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    var spell = self.spells[self.cycle]
+    if(spell.telegraph_other !== undefined){
+        return spell.telegraph_other(location, map, self);
+    }
+    return rest_spell_telegraph(location, map, self)
 }
 
 /** @type {AIFunction} Function used when the lich is hit to have it prep teleport.*/

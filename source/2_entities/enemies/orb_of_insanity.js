@@ -23,7 +23,7 @@ function orb_of_insanity_ai(self, target, map){
         throw new Error(`tile missing properties used by it's ai.`);
     }
     if(target.difference.within_radius(self.tile.range)){
-        confuse_player();
+        map.stun_tile(self.location.plus(target.difference));
         self.tile.pic = self.tile.pic_arr[1];
     }
     else{

@@ -310,7 +310,7 @@ class GameMap{
                 let space = row[x];
                 let stunned = [];
                 if(space.tile.stun !== undefined && space.tile.stun > 0){
-                    stunned.push(`${IMG_FOLDER.tiles}telegraph_other.png`);
+                    stunned.push(`${IMG_FOLDER.tiles}confuse.png`);
                 }
                 let foreground_pics = space.foreground.map((fg) => fg.pic);
                 let background_pics = space.background.map((fg) => fg.pic);
@@ -412,6 +412,13 @@ class GameMap{
     get_player(){
         var pos = this.#entity_list.get_player_pos();
         return this.get_tile(pos);
+    }
+    /**
+     * Returns the player's location. Throws an error if there isn't one.
+     * @returns {Point} The player's location.
+     */
+    get_player_location(){
+        return this.#entity_list.get_player_pos();
     }
     /**
      * Attacks a point on the grid.
@@ -538,8 +545,7 @@ class GameMap{
     unlock(){
         var pos = this.#entity_list.get_exit_pos();
         this.#set_tile(pos, exit_tile());
-        var player = this.get_player();
-        player.health = player.max_health;
+        this.player_heal(new Point(0, 0));
     }
     /**
      * Schedules an event to happen at end of turn.
@@ -683,9 +689,15 @@ class GameMap{
         if(!this.is_in_bounds(location)){
             return false;
         }
-        var tile = this.get_tile(location);
+        var space = this.get_grid(location);
+        space.action = `${IMG_FOLDER.tiles}confuse.png`;
+        var tile = space.tile;
         if(tile.type === `enemy`){
             stun(tile);
+            return true;
+        }
+        if(tile.type === `player`){
+            confuse_player();
             return true;
         }
         return false;
@@ -709,7 +721,9 @@ class GameMap{
         if(!this.is_in_bounds(location)){
             return false;
         }
-        var tile = this.get_tile(location);
+        var space = this.get_grid(location);
+        space.action = `${IMG_FOLDER.tiles}heal.png`;
+        var tile = space.tile;
         if(tile.health === undefined){
             // No health to heal.
             return false;

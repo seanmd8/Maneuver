@@ -3,7 +3,6 @@
 function lava_moat_spell_generator(){
     return {
         behavior: lava_moat_spell,
-        telegraph: rest_spell_telegraph,
         description: lava_moat_spell_description,
         pic: `${IMG_FOLDER.tiles}lich_lava_moat.png`
     }

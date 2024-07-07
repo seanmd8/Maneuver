@@ -2,7 +2,6 @@
 function earthquake_spell_generator(){
     return {
         behavior: earthquake_spell,
-        telegraph: rest_spell_telegraph,
         description: earthquake_spell_description,
         pic: `${IMG_FOLDER.tiles}lich_earthquake.png`
     }

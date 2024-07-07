@@ -1533,6 +1533,7 @@ function lich_tile(){
         death_message: lich_death_message,
         behavior: lich_ai,
         telegraph: lich_telegraph,
+        telegraph_other: lich_telegraph_other,
         on_hit: lich_hit,
         on_death: boss_death,
         cycle: starting_cycle,
@@ -1580,7 +1581,24 @@ function lich_telegraph(location, map, self){
         self.spells === undefined){
         throw new Error(`tile missing properties used by it's ai.`);
     }
-    return self.spells[self.cycle].telegraph(location, map, self);
+    var spell = self.spells[self.cycle]
+    if(spell.telegraph !== undefined){
+        return spell.telegraph(location, map, self);
+    }
+    return rest_spell_telegraph(location, map, self)
+}
+
+/** @type {TelegraphFunction} */
+function lich_telegraph_other(location, map, self){
+    if( self.cycle === undefined || 
+        self.spells === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    var spell = self.spells[self.cycle]
+    if(spell.telegraph_other !== undefined){
+        return spell.telegraph_other(location, map, self);
+    }
+    return rest_spell_telegraph(location, map, self)
 }
 
 /** @type {AIFunction} Function used when the lich is hit to have it prep teleport.*/
@@ -2607,7 +2625,7 @@ function orb_of_insanity_ai(self, target, map){
         throw new Error(`tile missing properties used by it's ai.`);
     }
     if(target.difference.within_radius(self.tile.range)){
-        confuse_player();
+        map.stun_tile(self.location.plus(target.difference));
         self.tile.pic = self.tile.pic_arr[1];
     }
     else{
@@ -3431,11 +3449,10 @@ function vampire_ai(self, target, map){
             moved = map.move(self.location, space);
         }
     }
-    if(moved && map.attack(self.location.plus(target.difference)) // If you moved into range, attack.
-        && self.tile.health !== undefined // If you have health
-        && (self.tile.max_health === undefined || self.tile.health < self.tile.max_health)){ // and your health isn't at your max_health,
-        ++self.tile.health; // heal.
-    }
+    // If you moved into range, attack and heal.
+    if(moved && map.attack(self.location.plus(target.difference))){
+        map.heal(space, 1);
+    } 
     if(!moved){
         // If it hasn't moved yet, just moves closer to the player.
         var directions = order_nearby(target.difference);
@@ -4464,7 +4481,7 @@ function generic_tile(){
 function confusion_spell_generator(){
     return {
         behavior: confusion_spell,
-        telegraph: rest_spell_telegraph,
+        telegraph_other: confusion_spell_telegraph,
         description: confusion_spell_description,
         pic: `${IMG_FOLDER.tiles}lich_confusion.png`
     }
@@ -4473,14 +4490,18 @@ function confusion_spell_generator(){
 /** @type {AIFunction} Spell which adds 2 random temporary debuff cards to the player's deck.*/
 function confusion_spell(self, target, map){
     for(var i = 0; i < 2; ++i){
-        confuse_player();
+        map.stun_tile(self.location.plus(target.difference));
     }
+}
+
+/** @type {TelegraphFunction} Shows that the player will be confused.*/
+function confusion_spell_telegraph(location, map, self){
+    return [map.get_player_location()];
 }
 /** @type {SpellGenerator} */
 function earthquake_spell_generator(){
     return {
         behavior: earthquake_spell,
-        telegraph: rest_spell_telegraph,
         description: earthquake_spell_description,
         pic: `${IMG_FOLDER.tiles}lich_earthquake.png`
     }
@@ -4543,7 +4564,6 @@ function flame_wave_spell_telegraph(location, map, self){
 function lava_moat_spell_generator(){
     return {
         behavior: lava_moat_spell,
-        telegraph: rest_spell_telegraph,
         description: lava_moat_spell_description,
         pic: `${IMG_FOLDER.tiles}lich_lava_moat.png`
     }
@@ -4628,7 +4648,6 @@ function rest_spell_telegraph(location, map, self){
 function summon_spell_generator(){
     return {
         behavior: summon_spell,
-        telegraph: rest_spell_telegraph,
         description: summon_spell_description,
         pic: `${IMG_FOLDER.tiles}lich_summon.png`
     }
@@ -4646,7 +4665,6 @@ function summon_spell(self, target, map){
 function teleport_spell_generator(){
     return {
         behavior: teleport_spell,
-        telegraph: rest_spell_telegraph,
         description: teleport_spell_description,
         pic: `${IMG_FOLDER.tiles}lich_teleport.png`
     }
@@ -5324,7 +5342,7 @@ class GameMap{
                 let space = row[x];
                 let stunned = [];
                 if(space.tile.stun !== undefined && space.tile.stun > 0){
-                    stunned.push(`${IMG_FOLDER.tiles}telegraph_other.png`);
+                    stunned.push(`${IMG_FOLDER.tiles}confuse.png`);
                 }
                 let foreground_pics = space.foreground.map((fg) => fg.pic);
                 let background_pics = space.background.map((fg) => fg.pic);
@@ -5426,6 +5444,13 @@ class GameMap{
     get_player(){
         var pos = this.#entity_list.get_player_pos();
         return this.get_tile(pos);
+    }
+    /**
+     * Returns the player's location. Throws an error if there isn't one.
+     * @returns {Point} The player's location.
+     */
+    get_player_location(){
+        return this.#entity_list.get_player_pos();
     }
     /**
      * Attacks a point on the grid.
@@ -5552,8 +5577,7 @@ class GameMap{
     unlock(){
         var pos = this.#entity_list.get_exit_pos();
         this.#set_tile(pos, exit_tile());
-        var player = this.get_player();
-        player.health = player.max_health;
+        this.player_heal(new Point(0, 0));
     }
     /**
      * Schedules an event to happen at end of turn.
@@ -5697,9 +5721,15 @@ class GameMap{
         if(!this.is_in_bounds(location)){
             return false;
         }
-        var tile = this.get_tile(location);
+        var space = this.get_grid(location);
+        space.action = `${IMG_FOLDER.tiles}confuse.png`;
+        var tile = space.tile;
         if(tile.type === `enemy`){
             stun(tile);
+            return true;
+        }
+        if(tile.type === `player`){
+            confuse_player();
             return true;
         }
         return false;
@@ -5723,7 +5753,9 @@ class GameMap{
         if(!this.is_in_bounds(location)){
             return false;
         }
-        var tile = this.get_tile(location);
+        var space = this.get_grid(location);
+        space.action = `${IMG_FOLDER.tiles}heal.png`;
+        var tile = space.tile;
         if(tile.health === undefined){
             // No health to heal.
             return false;
@@ -5895,12 +5927,7 @@ class GameState{
                 this.unlock_player_turn();
                 return true;
             case `stun`:
-                if(point_equals(action.change, new Point(0, 0))){
-                    confuse_player();
-                }
-                else{
-                    this.map.player_stun(action.change);
-                }
+                this.map.player_stun(action.change);
                 break;
             case `move_until`:
                 while(this.map.player_move(action.change)){};
