@@ -49,6 +49,7 @@ Object.freeze(CONTROLS);
 // Image folder file structure.
 const IMG_FOLDER = {
     src: `images/`,
+    actions: `actions/`,
     backgrounds: `backgrounds/`,
     cards: `cards/`,
     other: `other/`,

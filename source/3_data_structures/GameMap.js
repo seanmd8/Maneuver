@@ -299,7 +299,7 @@ class GameMap{
                 }
                 // Telegraphs possible upcoming attacks and other things.
                 gameMap.display_telegraph(telegraph_spaces);
-                gameMap.display_telegraph(telegraph_other_spaces, `${IMG_FOLDER.tiles}telegraph_other.png`);
+                gameMap.display_telegraph(telegraph_other_spaces, `${IMG_FOLDER.actions}telegraph_other.png`);
                 gameMap.display();
             }
         }
@@ -310,7 +310,7 @@ class GameMap{
                 let space = row[x];
                 let stunned = [];
                 if(space.tile.stun !== undefined && space.tile.stun > 0){
-                    stunned.push(`${IMG_FOLDER.tiles}confuse.png`);
+                    stunned.push(`${IMG_FOLDER.actions}confuse.png`);
                 }
                 let foreground_pics = space.foreground.map((fg) => fg.pic);
                 let background_pics = space.background.map((fg) => fg.pic);
@@ -430,7 +430,7 @@ class GameMap{
             return false;
         }
         var space = this.get_grid(location);
-        space.action = `${IMG_FOLDER.tiles}hit.png`;
+        space.action = `${IMG_FOLDER.actions}hit.png`;
         var target = space.tile;
         if(target.health !== undefined){
             target.health -= 1;
@@ -488,9 +488,6 @@ class GameMap{
             }
             target.on_hit(hit_entity, aggressor_info, this);
             return true;
-        }
-        if(target.type === `empty`){
-            target.is_hit = `${IMG_FOLDER.tiles}hit.png`;
         }
         return false;
     }
@@ -634,7 +631,7 @@ class GameMap{
      * @param {Point[]} positions A list of positions to mark.
      * @param {string=} pic If provided, it will telegraph that rather than a hit.
      */
-    display_telegraph(positions, pic = `${IMG_FOLDER.tiles}hit_telegraph.png`){
+    display_telegraph(positions, pic = `${IMG_FOLDER.actions}hit_telegraph.png`){
         for(var position of positions){
             if(this.is_in_bounds(position)){
                 this.get_grid(position).action = pic;
@@ -690,7 +687,7 @@ class GameMap{
             return false;
         }
         var space = this.get_grid(location);
-        space.action = `${IMG_FOLDER.tiles}confuse.png`;
+        space.action = `${IMG_FOLDER.actions}confuse.png`;
         var tile = space.tile;
         if(tile.type === `enemy`){
             stun(tile);
@@ -722,7 +719,7 @@ class GameMap{
             return false;
         }
         var space = this.get_grid(location);
-        space.action = `${IMG_FOLDER.tiles}heal.png`;
+        space.action = `${IMG_FOLDER.actions}heal.png`;
         var tile = space.tile;
         if(tile.health === undefined){
             // No health to heal.
