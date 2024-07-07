@@ -6975,7 +6975,8 @@ const CARD_CHOICES = [
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal,
     diamond_attack, slice_twice, reckless_horizontal, reckless_diagonal, advance,
     bounding_retreat, leap_left, leap_right, short_charge_diagonal, side_sprint,
-    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw
+    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw,
+    dash_ne, dash_nw
 ];
 
 const RARE_CARD_CHOICES = [
@@ -7392,7 +7393,7 @@ function horsemanship(){
 /** @type {CardGenerator}*/
 function lunge_left(){
     var options = new ButtonGrid();
-    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(SE, [pmove(1, 1), pmove(1, 1)]);
     options.add_button(SW, [pmove(-1, 1)]);
     options.add_button(NE, [pmove(1, -1)]);
     options.add_button(NW, [pmove(-1, -1), pmove(-1, -1), pattack(-1, -1)]);
@@ -7405,7 +7406,7 @@ function lunge_left(){
 /** @type {CardGenerator}*/
 function lunge_right(){
     var options = new ButtonGrid();
-    options.add_button(SW, [pmove(-1, 1)]);
+    options.add_button(SW, [pmove(-1, 1), pmove(-1, 1)]);
     options.add_button(SE, [pmove(1, 1)]);
     options.add_button(NW, [pmove(-1, -1)]);
     options.add_button(NE, [pmove(1, -1), pmove(1, -1), pattack(1, -1)]);
@@ -7498,6 +7499,7 @@ function retreat(){
 function force(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(0, -1), pmove(0, -1), pattack(0, -1), pmove(0, -1)]);
+    options.add_button(S, [pattack(0, 1), pmove(0, 1), pattack(0, 1), pmove(0, 1)]);
     return{
         name: `force`,
         pic: `${IMG_FOLDER.cards}force.png`,
@@ -8029,6 +8031,30 @@ function slip_through_nw(){
         options
     }
 }
+/** @type {CardGenerator}*/
+function dash_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(1, -1), pmove(1, -1)]);
+    options.add_button(S, [pmove(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pmove(-1, 0), pmove(-1, -0)]);
+    return{
+        name: `dash ne`,
+        pic: `${IMG_FOLDER.cards}dash_ne.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function dash_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NW, [pmove(-1, -1), pmove(-1, -1)]);
+    options.add_button(S, [pmove(0, 1), pmove(0, 1)]);
+    options.add_button(E, [pmove(1, 0), pmove(1, -0)]);
+    return{
+        name: `dash nw`,
+        pic: `${IMG_FOLDER.cards}dash_nw.png`,
+        options
+    }
+}
 
 /** @type {CardGenerator}*/
 function teleport(){
@@ -8181,10 +8207,10 @@ function reckless_attack_left(){
 /** @type {CardGenerator}*/
 function reckless_sprint(){
     var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, 0), pmove(0, -1), pmove(0, -1), pmove(0, -1)]);
-    options.add_button(E, [pstun(0, 0), pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
-    options.add_button(S, [pstun(0, 0), pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
-    options.add_button(W, [pstun(0, 0), pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
+    options.add_button(N, [pstun(0, 0), pstun(0, 0), pmove(0, -1), pmove(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pstun(0, 0), pstun(0, 0), pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 0), pstun(0, 0), pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pstun(0, 0), pstun(0, 0), pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
     return{
         name: `reckless sprint`,
         pic: `${IMG_FOLDER.cards}reckless_sprint.png`,

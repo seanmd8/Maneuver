@@ -141,7 +141,7 @@ function horsemanship(){
 /** @type {CardGenerator}*/
 function lunge_left(){
     var options = new ButtonGrid();
-    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(SE, [pmove(1, 1), pmove(1, 1)]);
     options.add_button(SW, [pmove(-1, 1)]);
     options.add_button(NE, [pmove(1, -1)]);
     options.add_button(NW, [pmove(-1, -1), pmove(-1, -1), pattack(-1, -1)]);
@@ -154,7 +154,7 @@ function lunge_left(){
 /** @type {CardGenerator}*/
 function lunge_right(){
     var options = new ButtonGrid();
-    options.add_button(SW, [pmove(-1, 1)]);
+    options.add_button(SW, [pmove(-1, 1), pmove(-1, 1)]);
     options.add_button(SE, [pmove(1, 1)]);
     options.add_button(NW, [pmove(-1, -1)]);
     options.add_button(NE, [pmove(1, -1), pmove(1, -1), pattack(1, -1)]);
@@ -247,6 +247,7 @@ function retreat(){
 function force(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(0, -1), pmove(0, -1), pattack(0, -1), pmove(0, -1)]);
+    options.add_button(S, [pattack(0, 1), pmove(0, 1), pattack(0, 1), pmove(0, 1)]);
     return{
         name: `force`,
         pic: `${IMG_FOLDER.cards}force.png`,
@@ -775,6 +776,30 @@ function slip_through_nw(){
     return{
         name: `slip through nw`,
         pic: `${IMG_FOLDER.cards}slip_through_nw.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function dash_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(1, -1), pmove(1, -1)]);
+    options.add_button(S, [pmove(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pmove(-1, 0), pmove(-1, -0)]);
+    return{
+        name: `dash ne`,
+        pic: `${IMG_FOLDER.cards}dash_ne.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function dash_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NW, [pmove(-1, -1), pmove(-1, -1)]);
+    options.add_button(S, [pmove(0, 1), pmove(0, 1)]);
+    options.add_button(E, [pmove(1, 0), pmove(1, -0)]);
+    return{
+        name: `dash nw`,
+        pic: `${IMG_FOLDER.cards}dash_nw.png`,
         options
     }
 }

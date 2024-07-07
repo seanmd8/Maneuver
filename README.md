@@ -10,6 +10,8 @@ Gameplay Changelog:
 
 7/7/24
 - Confusion, stunning and healing are now displayed properly.
+- Added 2 new cards.
+- Rebalanced 4 old cards.
 
 7/2/24
 - Improved Lich AI and added a new spell.
