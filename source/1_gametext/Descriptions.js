@@ -114,7 +114,7 @@ const lich_announcement = `The Lich is currently preparing to cast:\n`;
 const lich_death_message = `The Lich's body crumbles to dust.`;
 
 const young_dragon_floor_message = `The air burns in your lungs.`;
-const young_dragon_description_arr = [`Young Dragon (Boss): Alternates between gliding short distances and breathing fire.\n`
+const young_dragon_description_arr = [`Young Dragon (Boss): Be glad it's still young. Alternates between gliding short distances and breathing fire.\n`
                     + `The Dragon is currently `, `preparing to fly a short distance.`, `preparing to aim it's fire breath.`,
                       `preparing to breath fire in a cone of length `];
 const young_dragon_death_message = `Scales so soft are easily pierced. The Young Dragon's fire goes out.`;
@@ -196,3 +196,49 @@ const move_types = {
     temp_card_message: `This card is temporary. It will be removed from your deck when used or at the end of the floor.`
 }
 Object.freeze(move_types);
+
+// Move types.
+const boon_names = {
+    bitter_determination: `Bitter Determination`,
+    brag_and_boast: `Brag & Boast`,
+    creative: `Creative`,
+    dazing_blows: `Dazing Blows`,
+    escape_artist: `Escape Artist`,
+    fleeting_thoughts: `Fleeting Thoughts`,
+    fortitude: `Fortitude`,
+    hoarder: `Hoarder`,
+    learn_from_mistakes: `Learn From Mistakes`,
+    pain_reflexes: `Pain Reflexes`,
+    picky_shopper: `Picky Shopper`,
+    rebirth: `Rebirth`,
+    serenity: `Serenity`,
+    slayer: `Slayer`,
+    spiked_shoes: `Spiked Shoes`,
+    spined_armor: `Spined Armor`,
+    stable_mind: `Stable Mind`,
+    stealthy: `Stealthy`,
+    stubborn: `Stubborn`,
+    thick_soles: `Thick Soles`,
+}
+Object.freeze(move_types);
+
+const bitter_determination_description = `At the start of each floor, heal 1 if your health is exactly 1.`;
+const brag_and_boast_description = `Add 2 random boss cards and 1 random debuff card to your deck.`;
+const creative_description = `Increase your hand size by 1. Increases minimum deck size by 5.`;
+const dazing_blows_description = `Your attacks stun enemies. Bosses are unaffected.`;
+const escape_artist_description = `Teleport away when attacked.`;
+const fleeting_thoughts_description = `Temporary cards added to your deck will happen instantly.`;
+const fortitude_description = `Gain an extra max health.`;
+const hoarder_description = `All treasure chests contain 2 additional choices.`;
+const learn_from_mistakes_description = `Remove any 2 cards from your deck.`;
+const pain_reflexes_description = `Take a turn whenever you are attacked.`;
+const picky_shopper_description = `Recieve an extra card choice for adding and removing cards in the shop.`;
+const rebirth_description = `When you die, you are revived at full health and this boon is removed.`;
+const serenity_description = `Reduce your minimum deck size by 1. Cannot be reduced below 4.`;
+const slayer_description = `When you damage an enemy 3 turns in a row, heal for 1.`;
+const spiked_shoes_description = `Attempting to move onto enemies damages them.`;
+const spined_armor_description = `Retaliate for 1 damage when attacked. Bosses are immune.`;
+const stable_mind_description = `You gain a 50% chance to resist confusion.`;
+const stealthy_description = `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`;
+const stubborn_description = `You can decide to skip shops.`;
+const thick_soles_description = `You are immune to damage on your turn.`;

@@ -12,12 +12,16 @@ class MoveDeck{
     #discard_pile;
     /** @type {number} Used to give each card a unique id.*/
     #id_count;
+    #hand_size;
+    #min_deck_size;
     constructor(){
         this.#decklist = [];
         this.#library = [];
         this.#hand = [];
         this.#discard_pile = [];
         this.#id_count = 0;
+        this.#hand_size = HAND_SIZE;
+        this.#min_deck_size = MIN_DECK_SIZE;
     }
     /**
      * Resets the deck to the decklist then deals a new hand.
@@ -39,7 +43,7 @@ class MoveDeck{
             }
         }
         this.#library = randomize_arr(this.#library);
-        for(var i = 0; i < HAND_SIZE; ++i){
+        for(var i = 0; i < this.#hand_size; ++i){
             var top_card = this.#library.pop();
             if(top_card !== undefined){
                 this.#hand.push(top_card);
@@ -150,7 +154,7 @@ class MoveDeck{
      * @param {string} table Where it should be displayed.
      */
     display_all(table){
-        display.display_message(UIIDS.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
+        display.display_message(UIIDS.current_deck, `${current_deck}${this.#min_deck_size}):`)
         for(var i = 0; i < Math.ceil(this.#decklist.length / DECK_DISPLAY_WIDTH); ++i){
             var row = this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
             display.add_tb_row(table, row, CARD_SCALE)
@@ -164,7 +168,7 @@ class MoveDeck{
      * @returns {Card[]} The array of random cards.
      */
     get_rand_cards(size){
-        if(this.#decklist.length <= MIN_DECK_SIZE){
+        if(this.#decklist.length <= this.#min_deck_size){
             return [];
         }
         return rand_no_repeates(this.#decklist, size);
@@ -185,6 +189,30 @@ class MoveDeck{
             }
         }
         return false;
+    }
+    /**
+     * @returns {number} The number of cards in the deck.
+     */
+    deck_size(){
+        return this.#decklist.length;
+    }
+    /**
+     * @returns {number} The minimum number of cards allowed in your deck.
+     */
+    deck_min(){
+        return this.#min_deck_size;
+    }
+    /**
+     * @param {number} change How much to add or remove from the minimum deck size.
+     */
+    alter_min(change){
+        this.#min_deck_size += change;
+    }
+    /**
+     *  @param {number} change How much to add or remove from the hand size.
+     */
+    alter_hand_size(change){
+        this.#hand_size += change;
     }
 }
 

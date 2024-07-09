@@ -261,6 +261,7 @@ class GameMap{
         if(force){
             return this.add_tile(tile);
         }
+        return undefined;
     }
     /**
      * Function to display the gamemap and the player's health.
@@ -449,6 +450,11 @@ class GameMap{
             }
             if(target.health <= 0){
                 if(target.type === `player`){
+                    if(GS.boons.has(boon_names.rebirth)){
+                        this.player_heal(new Point(0, 0));
+                        GS.boons.lose(boon_names.rebirth);
+                        return true;
+                    }
                     throw new Error(`game over`);
                 }
                 // Remove dead tile.
@@ -497,9 +503,9 @@ class GameMap{
      * @returns {boolean} Returns true if the attack hits and false otherwise.
      */
     player_attack(direction){
-        var pos = this.#entity_list.get_player_pos();
+        var pos = this.#entity_list.get_player_pos().plus(direction);
         try{
-            return this.attack(pos.plus(direction));
+            return this.attack(pos);
         }
         catch (error){
             if(error.message !== `game over`){
@@ -580,19 +586,34 @@ class GameMap{
      */
     next_floor(){
         this.erase();
+        var player = this.get_player();
+        if(player.health === 1 && GS.boons.has(boon_names.bitter_determination) > 0){
+            // Bitter determination heals you if you are at exactly 1.
+            this.player_heal(new Point(0, 0), 1);
+        }
         var floor_description = `${floor_message}${this.#floor_num}.`;
         if(this.#floor_num % AREA_SIZE === 1){
+            // Reached the next area.
             var next_list = this.#area.next_area_list;
             this.#area = next_list[random_num(next_list.length)]();
             floor_description = `${floor_description}\n${this.#area.description}`;
         }
         if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
+            // Reached the boss.
             var boss_floor = this.#area.boss_floor_list[random_num(this.#area.boss_floor_list.length)]; 
             var boss_message = boss_floor(this.#floor_num, this.#area, this);
             floor_description = `${floor_description}\n${boss_message}`;
         }
         else{
             this.#area.generate_floor(this.#floor_num, this.#area, this);
+        }
+        if(this.#floor_num % AREA_SIZE === CHEST_LOCATION){
+            var chest = chest_tile();
+            var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.hoarder)));
+            for(var boon of choices){
+                add_boon_to_chest(chest, boon);
+            }
+            this.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
         display.display_message(UIIDS.display_message, floor_description);
     }

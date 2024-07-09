@@ -622,32 +622,6 @@ function slice_twice(){
     }
 }
 /** @type {CardGenerator}*/
-function reckless_horizontal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, 0), pmove(0, -1), pinstant(0, 0)]);
-    options.add_button(E, [pstun(0, 0), pmove(1, 0), pinstant(0, 0)]);
-    options.add_button(S, [pstun(0, 0), pmove(0, 1), pinstant(0, 0)]);
-    options.add_button(W, [pstun(0, 0), pmove(-1, 0), pinstant(0, 0)]);
-    return{
-        name: `reckless horizontal`,
-        pic: `${IMG_FOLDER.cards}reckless_horizontal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pstun(0, 0), pmove(1, -1), pinstant(0, 0)]);
-    options.add_button(SE, [pstun(0, 0), pmove(1, 1), pinstant(0, 0)]);
-    options.add_button(SW, [pstun(0, 0), pmove(-1, 1), pinstant(0, 0)]);
-    options.add_button(NW, [pstun(0, 0), pmove(-1, -1), pinstant(0, 0)]);
-    return{
-        name: `reckless diagonal`,
-        pic: `${IMG_FOLDER.cards}reckless_diagonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
 function advance(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1), pmove(0, -1)]);

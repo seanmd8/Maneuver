@@ -185,6 +185,9 @@ function get_control_symbols(){
  * Function to add a random temporary debuff card to the player's deck.
  */
 function confuse_player(){
-    var ran = random_num(CONFUSION_CARDS.length);
-    GS.give_temp_card(CONFUSION_CARDS[ran]());
+    // Chance redused by 50% for each stable_mind boon.
+    if(1 + random_num(2) - GS.boons.has(boon_names.stable_mind) > 0){
+        var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
+        GS.give_temp_card(card);
+    } 
 }

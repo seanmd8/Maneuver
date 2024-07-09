@@ -8,6 +8,10 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+7/9/24
+- Added new reward: Boons. They will be found in the third floor of each area.
+- Added 12 Boons.
+
 7/7/24
 - Confusion, stunning and healing are now displayed properly.
 - Added 2 new cards.

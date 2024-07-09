@@ -410,14 +410,18 @@ const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = [generate_ruins_area];
 
 // Settings just used for testing.
-const SECOND_STARTING_ENEMY = scythe_tile;
+const SECOND_STARTING_ENEMY = spider_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
+const STARTING_CHEST_CONTENTS = stealthy;
+const STARTING_CHEST_AMOUNT = 0;
 
 // Dungeon generation settings.
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
 const AREA_SIZE = 5;
+const CHEST_LOCATION = 3;
+const BOON_CHOICES = 2
 const SAFE_SPAWN_ATTEMPTS = 5;
 
 // Visual and animation settings.
@@ -436,7 +440,7 @@ const MARKUP_LANGUAGE = `html`;
 // Keyboard controls.
 const CONTROLS = {
     directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
-    card: [`h`, `j`, `k`]
+    card: [`h`, `j`, `k`, `l`]
 }
 Object.freeze(CONTROLS);
 
@@ -448,7 +452,8 @@ const IMG_FOLDER = {
     cards: `cards/`,
     other: `other/`,
     symbols: `symbols/`,
-    tiles: `tiles/`
+    tiles: `tiles/`,
+    boons: `boons/`
 }
 Object.freeze(IMG_FOLDER);
 // ----------------Display.js----------------
@@ -1098,8 +1103,11 @@ function get_control_symbols(){
  * Function to add a random temporary debuff card to the player's deck.
  */
 function confuse_player(){
-    var ran = random_num(CONFUSION_CARDS.length);
-    GS.give_temp_card(CONFUSION_CARDS[ran]());
+    // Chance redused by 50% for each stable_mind boon.
+    if(1 + random_num(2) - GS.boons.has(boon_names.stable_mind) > 0){
+        var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
+        GS.give_temp_card(card);
+    } 
 }
 // ----------------Descriptions.js----------------
 // Contains text that will be displayed.
@@ -1217,7 +1225,7 @@ const lich_announcement = `The Lich is currently preparing to cast:\n`;
 const lich_death_message = `The Lich's body crumbles to dust.`;
 
 const young_dragon_floor_message = `The air burns in your lungs.`;
-const young_dragon_description_arr = [`Young Dragon (Boss): Alternates between gliding short distances and breathing fire.\n`
+const young_dragon_description_arr = [`Young Dragon (Boss): Be glad it's still young. Alternates between gliding short distances and breathing fire.\n`
                     + `The Dragon is currently `, `preparing to fly a short distance.`, `preparing to aim it's fire breath.`,
                       `preparing to breath fire in a cone of length `];
 const young_dragon_death_message = `Scales so soft are easily pierced. The Young Dragon's fire goes out.`;
@@ -1300,6 +1308,52 @@ const move_types = {
 }
 Object.freeze(move_types);
 
+// Move types.
+const boon_names = {
+    bitter_determination: `Bitter Determination`,
+    brag_and_boast: `Brag & Boast`,
+    creative: `Creative`,
+    dazing_blows: `Dazing Blows`,
+    escape_artist: `Escape Artist`,
+    fleeting_thoughts: `Fleeting Thoughts`,
+    fortitude: `Fortitude`,
+    hoarder: `Hoarder`,
+    learn_from_mistakes: `Learn From Mistakes`,
+    pain_reflexes: `Pain Reflexes`,
+    picky_shopper: `Picky Shopper`,
+    rebirth: `Rebirth`,
+    serenity: `Serenity`,
+    slayer: `Slayer`,
+    spiked_shoes: `Spiked Shoes`,
+    spined_armor: `Spined Armor`,
+    stable_mind: `Stable Mind`,
+    stealthy: `Stealthy`,
+    stubborn: `Stubborn`,
+    thick_soles: `Thick Soles`,
+}
+Object.freeze(move_types);
+
+const bitter_determination_description = `At the start of each floor, heal 1 if your health is exactly 1.`;
+const brag_and_boast_description = `Add 2 random boss cards and 1 random debuff card to your deck.`;
+const creative_description = `Increase your hand size by 1. Increases minimum deck size by 5.`;
+const dazing_blows_description = `Your attacks stun enemies. Bosses are unaffected.`;
+const escape_artist_description = `Teleport away when attacked.`;
+const fleeting_thoughts_description = `Temporary cards added to your deck will happen instantly.`;
+const fortitude_description = `Gain an extra max health.`;
+const hoarder_description = `All treasure chests contain 2 additional choices.`;
+const learn_from_mistakes_description = `Remove any 2 cards from your deck.`;
+const pain_reflexes_description = `Take a turn whenever you are attacked.`;
+const picky_shopper_description = `Recieve an extra card choice for adding and removing cards in the shop.`;
+const rebirth_description = `When you die, you are revived at full health and this boon is removed.`;
+const serenity_description = `Reduce your minimum deck size by 1. Cannot be reduced below 4.`;
+const slayer_description = `When you damage an enemy 3 turns in a row, heal for 1.`;
+const spiked_shoes_description = `Attempting to move onto enemies damages them.`;
+const spined_armor_description = `Retaliate for 1 damage when attacked. Bosses are immune.`;
+const stable_mind_description = `You gain a 50% chance to resist confusion.`;
+const stealthy_description = `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`;
+const stubborn_description = `You can decide to skip shops.`;
+const thick_soles_description = `You are immune to damage on your turn.`;
+
 // ----------------GuideText.js----------------
 // This file contains the headers and text for the guide / tutorial section.
 
@@ -1360,8 +1414,7 @@ const GUIDE_TEXT = {
 
     shop: [`When you complete a floor, you will enter a shop where you must either add or remove a card from your deck. You will get `
             +`${ADD_CHOICE_COUNT} options of random cards to add, and ${REMOVE_CHOICE_COUNT} options of random cards from your deck to remove. `
-            +`The current contents of your deck will be shown to help you choose. There is a minimum deck size of ${MIN_DECK_SIZE}, `
-            +`so if you reach it you will not be able to remove more cards.\n`
+            +`The current contents of your deck will be shown to help you choose. You cannot go below your minimum deck size.\n`
             +`Some enemies or effects may add temporary cards to your deck. They will go away after you play them or go to the next `
             +`floor.\n\n`],
 
@@ -1494,8 +1547,10 @@ function boss_death(self, target, map){
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
         // Create a chest containing a random card from it's loot table.
         var chest = chest_tile();
-        var card = rand_no_repeates(self.tile.card_drops, 1)[0];
-        add_card_to_chest(chest, card());
+        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.hoarder));
+        for(var card of cards){
+            add_card_to_chest(chest, card());
+        }
         map.add_tile(chest, self.location);
     }
     display.display_message(UIIDS.display_message, `${self.tile.death_message}\n${boss_death_description}`);
@@ -2190,19 +2245,23 @@ function boulder_elemental_ai(self, target, map){
         // Asleep.
         throw new Error(`skip animation delay`);
     }
+    if(self.tile.cycle < 0){
+        // Asleep and resting.
+        ++self.tile.cycle;
+        throw new Error(`skip animation delay`);
+    }
     var nearby = order_nearby(target.difference);
     var hit = false;
     for(let space of nearby){
         // Attacks everything nearby.
         hit = map.attack(self.location.plus(space)) || hit;
     }
-    if(!hit){
-        // If nothing was nearby, gets sleepier.
-        --self.tile.cycle;
-    }
+    // Gets sleepier
+    --self.tile.cycle;
     if(self.tile.cycle <= 0){
         // Falls asleep.
         shapeshift(self.tile, self.tile.look_arr[0]);
+        self.tile.cycle = -2;
     }
     else if(!target.difference.within_radius(1)){
         // If not asleep, moves towards the player.
@@ -2215,9 +2274,11 @@ function boulder_elemental_wake_up(self, target, map){
         self.tile.look_arr === undefined){
         throw new Error(`tile missing properties used by it's ai.`)
     }
-    stun(self.tile);
-    self.tile.cycle = 3;
-    shapeshift(self.tile, self.tile.look_arr[1]);
+    if(self.tile.cycle === 0){
+        stun(self.tile);
+        self.tile.cycle = 3;
+        shapeshift(self.tile, self.tile.look_arr[1]);
+    }
 }
 
 
@@ -3607,6 +3668,7 @@ function chest_on_enter(self, target, map){
         display.clear_tb(UIIDS.chest_confirm_row);
         display.clear_tb(UIIDS.contents);
         display.display_message(UIIDS.content_description, ``);
+        map.display();
     }
     var abandon_button = {
         description: abandon_chest
@@ -3670,9 +3732,26 @@ function add_card_to_chest(chest, card){
         description: add_card_description
     }
     chest.contents.push(content);
-
 }
 
+/**
+ * @param {Tile} chest 
+ * @param {Card} card 
+ */
+function add_boon_to_chest(chest, boon){
+    if(chest.contents === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    var content = {
+        pic: boon.pic,
+        name: boon.name,
+        on_choose: function(){
+            GS.boons.pick(boon.name);
+        },
+        description: `${boon.name}: ${boon.description}`
+    }
+    chest.contents.push(content);
+}
 /** @type {TileGenerator} A damaged wall that might spawn something on death.*/
 function coffin_tile(){
     return {
@@ -3683,7 +3762,7 @@ function coffin_tile(){
         health: 1,
         on_enter: decay_ai,
         on_death: coffin_tile_death,
-        summons: [rat_tile, carrion_flies_tile, vampire_tile, shadow_scout_tile, chest_tile],
+        summons: [chest_tile],//rat_tile, carrion_flies_tile, vampire_tile, shadow_scout_tile, chest_tile],
         card_drops: RARE_CARD_CHOICES
     }
 }
@@ -3696,7 +3775,7 @@ function coffin_tile_death(self, target, map){
     }
     var new_enemy = self.tile.summons[random_num(self.tile.summons.length)]();
     if(new_enemy.type === `chest`){
-        var cards = rand_no_repeates(self.tile.card_drops, random_num(2) + 1);
+        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.hoarder));
         for(let card of cards){
             add_card_to_chest(new_enemy, card());
         }
@@ -4211,12 +4290,19 @@ function move_attack_ai(self, target, map){
 
 
 // This is a array of all the enemies that can be spawned on a normal floor.
-const ENEMY_LIST = [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, shadow_knight_tile, 
+const ENEMY_LIST = [
+    spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, shadow_knight_tile, 
     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, boulder_elemental_tile,
-    pheonix_tile];
+    pheonix_tile, strider_tile
+];
+
+// This is an array of all bosses.
+const BOSS_LIST = [
+    lich_tile, spider_queen_tile, two_headed_serpent_tile, velociphile_tile, young_dragon_tile
+]
 
 /**
  * stuns a tile by incrementing it's stun property. Adds the property first if necessary.
@@ -4733,6 +4819,80 @@ function move_attack_telegraph(location, map, directions){
 }
 
 
+
+
+class BoonTracker{
+    #choices;
+    #boons;
+    constructor(){
+        this.#choices = [
+            bitter_determination(), brag_and_boast(), creative(), escape_artist(), fleeting_thoughts(), 
+            fortitude(), hoarder(), picky_shopper(), rebirth(), serenity(),
+            stable_mind(), stealthy(),
+        ];
+        this.#boons = [];
+    }
+    get_choices(amount){
+        var choice_list = randomize_arr(this.#choices);
+        var picks = [];
+        while(picks.length < amount && choice_list.length > 0){
+            var boon = choice_list.pop();
+            if(boon.prereq === undefined || boon.prereq()){
+                picks.push(boon);
+            }
+        }
+        return picks;
+    }
+    has(name){
+        var count = 0;
+        for(var boon of this.#boons){
+            if(boon.name === name){
+                ++count;
+            }
+        }
+        return count;
+    }
+    pick(name){
+        for(var i = 0; i < this.#choices.length; ++i){
+            var boon = this.#choices[i];
+            if(boon.name === name){
+                this.#choices.splice(i, 1);
+                if(boon.unlocks !== undefined){
+                    this.#choices.push(...boon.unlocks.map(f => f()));
+                }
+                if(boon.on_pick !== undefined){
+                    boon.on_pick();
+                }
+                this.#boons.push(boon);
+                return true;
+            }
+        }
+        return false;
+    }
+    lose(name){
+        for(var i = 0; i < this.#boons.length; ++i){
+            var boon = this.#boons[i];
+            if(boon.name === name){
+                this.#boons.splice(i, 1);
+                return true;
+            }
+        }
+        return false;
+    }
+    remove_choice(name){
+        for(var i = 0; i < this.#choices.length; ++i){
+            var boon = this.#choices[i];
+            if(boon.name === name){
+                this.#choices.splice(i, 1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+}
+
+
 // ----------------ButtonGrid.js----------------
 // The ButtonGrid class is used to keep track of the possible moves a card has.
 
@@ -4776,12 +4936,10 @@ class ButtonGrid{
      * @param {string=} extra_info Optional extra information to display when the card info button is clicked.
      */
     show_buttons(table_name, hand_pos, extra_info = ``){
-        // Displays the 3x3 grid to the given table.
-        // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
         display.clear_tb(table_name);
         display.display_message(UIIDS.display_message, ``);
         var make_press_button = function(hand_position){
-            return function(button, position){
+            return function(button){
                 if(button.behavior){
                     GS.player_turn(button.behavior, hand_position)
                 }
@@ -4836,6 +4994,18 @@ class ButtonGrid{
             return 5;
         }
         return -1;
+    }
+    /**
+     * Function to convert a card into an instant.
+     */
+    make_instant(){
+        for(var row of this.#buttons){
+            for(var button of row){
+                if(button.description !== null_move_button && button.behavior[button.behavior.length - 1].type !== `instant`){
+                    button.behavior.push(pinstant(0, 0));
+                }
+            }
+        }
     }
 }
 // ----------------EntityList.js----------------
@@ -5294,6 +5464,7 @@ class GameMap{
         if(force){
             return this.add_tile(tile);
         }
+        return undefined;
     }
     /**
      * Function to display the gamemap and the player's health.
@@ -5482,6 +5653,11 @@ class GameMap{
             }
             if(target.health <= 0){
                 if(target.type === `player`){
+                    if(GS.boons.has(boon_names.rebirth)){
+                        this.player_heal(new Point(0, 0));
+                        GS.boons.lose(boon_names.rebirth);
+                        return true;
+                    }
                     throw new Error(`game over`);
                 }
                 // Remove dead tile.
@@ -5530,9 +5706,9 @@ class GameMap{
      * @returns {boolean} Returns true if the attack hits and false otherwise.
      */
     player_attack(direction){
-        var pos = this.#entity_list.get_player_pos();
+        var pos = this.#entity_list.get_player_pos().plus(direction);
         try{
-            return this.attack(pos.plus(direction));
+            return this.attack(pos);
         }
         catch (error){
             if(error.message !== `game over`){
@@ -5613,19 +5789,34 @@ class GameMap{
      */
     next_floor(){
         this.erase();
+        var player = this.get_player();
+        if(player.health === 1 && GS.boons.has(boon_names.bitter_determination) > 0){
+            // Bitter determination heals you if you are at exactly 1.
+            this.player_heal(new Point(0, 0), 1);
+        }
         var floor_description = `${floor_message}${this.#floor_num}.`;
         if(this.#floor_num % AREA_SIZE === 1){
+            // Reached the next area.
             var next_list = this.#area.next_area_list;
             this.#area = next_list[random_num(next_list.length)]();
             floor_description = `${floor_description}\n${this.#area.description}`;
         }
         if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
+            // Reached the boss.
             var boss_floor = this.#area.boss_floor_list[random_num(this.#area.boss_floor_list.length)]; 
             var boss_message = boss_floor(this.#floor_num, this.#area, this);
             floor_description = `${floor_description}\n${boss_message}`;
         }
         else{
             this.#area.generate_floor(this.#floor_num, this.#area, this);
+        }
+        if(this.#floor_num % AREA_SIZE === CHEST_LOCATION){
+            var chest = chest_tile();
+            var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.hoarder)));
+            for(var boon of choices){
+                add_boon_to_chest(chest, boon);
+            }
+            this.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
         display.display_message(UIIDS.display_message, floor_description);
     }
@@ -5817,6 +6008,7 @@ class GameState{
     map;
     /** @type {MoveDeck} The player's deck of cards.*/
     deck;
+    boons;
     #player_turn_lock;
     constructor(){
         // Starts the game on load.
@@ -5839,10 +6031,16 @@ class GameState{
         for(var i = 0; i < SECOND_STARTING_ENEMY_AMOUNT; ++i){
             this.map.spawn_safely(SECOND_STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
         }
+        for(var i = 0; i < STARTING_CHEST_AMOUNT; ++i){
+            var chest = chest_tile();
+            add_boon_to_chest(chest, STARTING_CHEST_CONTENTS());
+            this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
+        }
         this.map.display();
         this.map.display_stats(UIIDS.stats);
         this.deck = STARTING_DECK();
         this.deck.display_hand(UIIDS.hand_display);
+        this.boons = new BoonTracker();
         display.display_message(UIIDS.shop_instructions, mod_deck);
         display.swap_screen(DISPLAY_DIVISIONS, UIIDS.game_screen);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
@@ -5942,7 +6140,7 @@ class GameState{
      * Sets up the next floor then leaves the shop.
      * @returns {void} 
      */
-    new_floor(){
+    async new_floor(){
         // Creates the next floor.
         this.map.next_floor();
         this.map.display_stats(UIIDS.stats);
@@ -5950,6 +6148,8 @@ class GameState{
         this.deck.deal();
         this.deck.display_hand(UIIDS.hand_display);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        await delay(ANIMATION_DELAY);
+        this.map.display();
         this.unlock_player_turn();
     }
     /** 
@@ -5975,7 +6175,8 @@ class GameState{
     */
     #generate_add_row(table){
         // Get card choices
-        var add_list_generators = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
+        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        var add_list_generators = rand_no_repeates(CARD_CHOICES, amount);
         var chance_of_rare = random_num(4);
         if(chance_of_rare < add_list_generators.length){
             var rare = rand_no_repeates(RARE_CARD_CHOICES, 1);
@@ -6011,7 +6212,8 @@ class GameState{
      * @param {string} table The table where it should be displayed.
      * */
     #generate_remove_row(table){
-        var remove_list = this.deck.get_rand_cards(REMOVE_CHOICE_COUNT);
+        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        var remove_list = this.deck.get_rand_cards(amount);
         if(remove_list.length > 0){
             remove_list.unshift(remove_card_symbol());
         }
@@ -6065,6 +6267,9 @@ class GameState{
      * @param {Card} card The card to be added.
      */
     give_temp_card(card){
+        if(GS.boons.has(boon_names.fleeting_thoughts)){
+            card.options.make_instant();
+        }
         this.deck.add_temp(card);
     }
     /** 
@@ -6122,12 +6327,16 @@ class MoveDeck{
     #discard_pile;
     /** @type {number} Used to give each card a unique id.*/
     #id_count;
+    #hand_size;
+    #min_deck_size;
     constructor(){
         this.#decklist = [];
         this.#library = [];
         this.#hand = [];
         this.#discard_pile = [];
         this.#id_count = 0;
+        this.#hand_size = HAND_SIZE;
+        this.#min_deck_size = MIN_DECK_SIZE;
     }
     /**
      * Resets the deck to the decklist then deals a new hand.
@@ -6149,7 +6358,7 @@ class MoveDeck{
             }
         }
         this.#library = randomize_arr(this.#library);
-        for(var i = 0; i < HAND_SIZE; ++i){
+        for(var i = 0; i < this.#hand_size; ++i){
             var top_card = this.#library.pop();
             if(top_card !== undefined){
                 this.#hand.push(top_card);
@@ -6260,7 +6469,7 @@ class MoveDeck{
      * @param {string} table Where it should be displayed.
      */
     display_all(table){
-        display.display_message(UIIDS.current_deck, `${current_deck}${MIN_DECK_SIZE}):`)
+        display.display_message(UIIDS.current_deck, `${current_deck}${this.#min_deck_size}):`)
         for(var i = 0; i < Math.ceil(this.#decklist.length / DECK_DISPLAY_WIDTH); ++i){
             var row = this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
             display.add_tb_row(table, row, CARD_SCALE)
@@ -6274,7 +6483,7 @@ class MoveDeck{
      * @returns {Card[]} The array of random cards.
      */
     get_rand_cards(size){
-        if(this.#decklist.length <= MIN_DECK_SIZE){
+        if(this.#decklist.length <= this.#min_deck_size){
             return [];
         }
         return rand_no_repeates(this.#decklist, size);
@@ -6295,6 +6504,30 @@ class MoveDeck{
             }
         }
         return false;
+    }
+    /**
+     * @returns {number} The number of cards in the deck.
+     */
+    deck_size(){
+        return this.#decklist.length;
+    }
+    /**
+     * @returns {number} The minimum number of cards allowed in your deck.
+     */
+    deck_min(){
+        return this.#min_deck_size;
+    }
+    /**
+     * @param {number} change How much to add or remove from the minimum deck size.
+     */
+    alter_min(change){
+        this.#min_deck_size += change;
+    }
+    /**
+     *  @param {number} change How much to add or remove from the hand size.
+     */
+    alter_hand_size(change){
+        this.#hand_size += change;
     }
 }
 
@@ -6696,8 +6929,12 @@ function generate_normal_floor(floor_num, area, map){
         var choice = random_num(enemy_list.length);
         var new_enemy = enemy_list[choice]();
         if(new_enemy.difficulty !== undefined){
-            if(map.spawn_safely(new_enemy, SAFE_SPAWN_ATTEMPTS, false)){
+            var spawned = map.spawn_safely(new_enemy, SAFE_SPAWN_ATTEMPTS, false)
+            if(spawned !== undefined){
                 i -= new_enemy.difficulty;
+                for(var j = 0; j < 2 * GS.boons.has(boon_names.stealthy); ++j){
+                    map.stun_tile(spawned);
+                }
             }
             else{
                 --i;
@@ -6973,16 +7210,16 @@ const CARD_CHOICES = [
     pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
     thwack, overcome_sideways, y_leap, diamond_slice, spearhead,
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal,
-    diamond_attack, slice_twice, reckless_horizontal, reckless_diagonal, advance,
+    diamond_attack, slice_twice, advance, dash_ne, dash_nw,
     bounding_retreat, leap_left, leap_right, short_charge_diagonal, side_sprint,
-    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw,
-    dash_ne, dash_nw
+    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw
 ];
 
 const RARE_CARD_CHOICES = [
     teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
     sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
-    punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport
+    punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport,
+    reckless_horizontal, reckless_diagonal, 
 ]
 
 // Cards that can be given as a debuff.
@@ -7874,32 +8111,6 @@ function slice_twice(){
     }
 }
 /** @type {CardGenerator}*/
-function reckless_horizontal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, 0), pmove(0, -1), pinstant(0, 0)]);
-    options.add_button(E, [pstun(0, 0), pmove(1, 0), pinstant(0, 0)]);
-    options.add_button(S, [pstun(0, 0), pmove(0, 1), pinstant(0, 0)]);
-    options.add_button(W, [pstun(0, 0), pmove(-1, 0), pinstant(0, 0)]);
-    return{
-        name: `reckless horizontal`,
-        pic: `${IMG_FOLDER.cards}reckless_horizontal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pstun(0, 0), pmove(1, -1), pinstant(0, 0)]);
-    options.add_button(SE, [pstun(0, 0), pmove(1, 1), pinstant(0, 0)]);
-    options.add_button(SW, [pstun(0, 0), pmove(-1, 1), pinstant(0, 0)]);
-    options.add_button(NW, [pstun(0, 0), pmove(-1, -1), pinstant(0, 0)]);
-    return{
-        name: `reckless diagonal`,
-        pic: `${IMG_FOLDER.cards}reckless_diagonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
 function advance(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1), pmove(0, -1)]);
@@ -8217,6 +8428,32 @@ function reckless_sprint(){
         options
     }
 }
+/** @type {CardGenerator}*/
+function reckless_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pmove(0, -1), pinstant(0, 0)]);
+    options.add_button(E, [pstun(0, 0), pmove(1, 0), pinstant(0, 0)]);
+    options.add_button(S, [pstun(0, 0), pmove(0, 1), pinstant(0, 0)]);
+    options.add_button(W, [pstun(0, 0), pmove(-1, 0), pinstant(0, 0)]);
+    return{
+        name: `reckless horizontal`,
+        pic: `${IMG_FOLDER.cards}reckless_horizontal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(0, 0), pmove(1, -1), pinstant(0, 0)]);
+    options.add_button(SE, [pstun(0, 0), pmove(1, 1), pinstant(0, 0)]);
+    options.add_button(SW, [pstun(0, 0), pmove(-1, 1), pinstant(0, 0)]);
+    options.add_button(NW, [pstun(0, 0), pmove(-1, -1), pinstant(0, 0)]);
+    return{
+        name: `reckless diagonal`,
+        pic: `${IMG_FOLDER.cards}reckless_diagonal.png`,
+        options
+    }
+}
 
 // ----------------ShopImages.js----------------
 // File containing cards used soley to display images in card rows of the shop.
@@ -8245,3 +8482,290 @@ function deck_at_minimum_symbol(){
         options: new ButtonGrid()
     }
 }
+
+function bitter_determination(){
+    return {
+        name: boon_names.bitter_determination,
+        pic: `${IMG_FOLDER.boons}bitter_determination.png`,
+        description: bitter_determination_description,
+    }
+}
+// Todo:
+//  description
+//  implement
+
+function brag_and_boast(){
+    return {
+        name: boon_names.brag_and_boast,
+        pic: `${IMG_FOLDER.boons}brag_and_boast.png`,
+        description: brag_and_boast_description,
+        on_pick: pick_brag_and_boast,
+        unlocks: [brag_and_boast]
+    }
+}
+
+function pick_brag_and_boast(){
+    for(var i = 0; i < 2; ++i){
+        var boss = rand_no_repeates(BOSS_LIST, 1)[0]();
+        var card = rand_no_repeates(boss.card_drops, 1)[0]();
+        GS.deck.add(card);
+    }
+    var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
+    GS.deck.add(card);
+}
+// Todo:
+//  description
+//  implement on_pick
+
+function creative(){
+    return {
+        name: boon_names.creative,
+        pic: `${IMG_FOLDER.boons}creative.png`,
+        description: creative_description,
+        prereq: prereq_creative,
+        on_pick: pick_creative
+    }
+}
+
+function prereq_creative(){
+    return GS.deck.deck_size() >= 10;
+}
+
+function pick_creative(){
+    GS.deck.alter_min(5);
+    GS.deck.alter_hand_size(1);
+    GS.deck.deal();
+    GS.deck.display_hand(UIIDS.hand_display);
+}
+
+function escape_artist(){
+    return {
+        name: boon_names.escape_artist,
+        pic: `${IMG_FOLDER.boons}escape_artist.png`,
+        description: escape_artist_description,
+        prereq: no_player_on_hit,
+        on_pick: pick_escape_artist
+    }
+}
+
+function pick_escape_artist(){
+    GS.map.get_player().on_hit = escape_artist_behavior;
+}
+
+/** @type {AIFunction}*/
+function escape_artist_behavior(self, target, map){
+    if(self.tile.health !== undefined && self.tile.health > 0){
+        teleport_spell(self, target, map);
+    }
+}
+// Todo:
+//  description
+//  implement
+
+function fleeting_thoughts(){
+    return {
+        name: boon_names.fleeting_thoughts,
+        pic: `${IMG_FOLDER.boons}fleeting_thoughts.png`,
+        description: fleeting_thoughts_description,
+    }
+}
+// Todo:
+//  description
+//  implement
+
+function fortitude(){
+    return {
+        name: boon_names.fortitude,
+        pic: `${IMG_FOLDER.boons}fortitude.png`,
+        description: fortitude_description,
+        on_pick: pick_fortitude,
+    }
+}
+
+function pick_fortitude(){
+    ++GS.map.get_player().max_health;
+}
+
+function hoarder(){
+    return {
+        name: boon_names.hoarder,
+        pic: `${IMG_FOLDER.boons}hoarder.png`,
+        description: hoarder_description,
+        unlocks: [hoarder]
+    }
+}
+
+function picky_shopper(){
+    return {
+        name: boon_names.picky_shopper,
+        pic: `${IMG_FOLDER.boons}picky_shopper.png`,
+        description: picky_shopper_description,
+        unlocks: [picky_shopper]
+    }
+}
+
+function rebirth(){
+    return {
+        name: boon_names.rebirth,
+        pic: `${IMG_FOLDER.boons}rebirth.png`,
+        description: rebirth_description,
+        unlocks: [rebirth]    
+    }
+}
+// Todo:
+//  description
+//  implement
+//  move shop choices options (add 3 of these?)
+
+function serenity(){
+    return {
+        name: boon_names.serenity,
+        pic: `${IMG_FOLDER.boons}serenity.png`,
+        description: serenity_description,
+        prereq: prereq_serenity,
+        on_pick: pick_serenity
+    }
+}
+
+function prereq_serenity(){
+    return GS.deck.deck_min() > 4;
+}
+
+function pick_serenity(){
+    GS.deck.alter_min(-1);
+}
+// Todo:
+//  description
+//  implement
+//  move min_deck_size?
+
+function stable_mind(){
+    return {
+        name: boon_names.stable_mind,
+        pic: `${IMG_FOLDER.boons}stable_mind.png`,
+        description: stable_mind_description,
+    }
+}
+
+function stealthy(){
+    return {
+        name: boon_names.stealthy,
+        pic: `${IMG_FOLDER.boons}stealthy.png`,
+        description: stealthy_description,
+    }
+}
+
+/**
+ * Checks to make sure there is no previous player on_hit function since they are mutually exclusive.
+ * @returns 
+ */
+function no_player_on_hit(){
+    return GS.map.get_player().on_hit === undefined;
+}
+
+function dazing_blows(){
+    return {
+        name: boon_names.dazing_blows,
+        pic: `${IMG_FOLDER.boons}dazing_blows.png`,
+        description: dazing_blows_description,
+    }
+}
+
+// Not finished
+// Figure out how to make bosses immune
+
+function learn_from_mistakes(){
+    return {
+        name: boon_names.learn_from_mistakes,
+        pic: `${IMG_FOLDER.boons}learn_from_mistakes.png`,
+        description: learn_from_mistakes_description,
+        on_pick: pick_learn_from_mistakes,
+        unlocks: [learn_from_mistakes]
+    }
+}
+// Not Finished
+// Todo:
+//  description
+//  implement on_pick
+
+function pain_reflexes(){
+    return {
+        name: boon_names.pain_reflexes,
+        pic: `${IMG_FOLDER.boons}pain_reflexes.png`,
+        description: pain_reflexes_description,
+        prereq: no_player_on_hit,
+        on_pick: pick_pain_reflexes
+    }
+}
+
+function pick_escape_artist(){
+    GS.map.get_player().on_hit = pain_reflex_behavior;
+}
+
+/** @type {AIFunction}*/
+function pain_reflex_behavior(self, target, map){
+    if(self.tile.health !== undefined && self.tile.health > 0){
+        throw new Error(`pass to player`);
+    }
+}
+// Not Finished
+// Todo:
+//  avoid enemy bookkeeping bugs
+//      Put a check in the enemy turn one? would also need to make sure that it applies during the player's turn.
+
+
+function slayer(){
+    return {
+        name: boon_names.slayer,
+        pic: `${IMG_FOLDER.boons}slayer.png`,
+        description: slayer_description,
+    }
+}
+// Todo:
+//  description
+//  implement
+
+function spiked_shoes(){
+    return {
+        name: boon_names.spiked_shoes,
+        pic: `${IMG_FOLDER.boons}spiked_shoes.png`,
+        description: spiked_shoes_description,
+    }
+}
+// Todo:
+//  description
+//  implement
+
+function spined_armor(){
+    return {
+        name: boon_names.spined_armor,
+        pic: `${IMG_FOLDER.boons}spined_armor.png`,
+        description: spined_armor_description,
+        on_pick: pick_spined_armor
+    }
+}
+// Todo:
+//  description
+//  implement
+
+function stubborn(){
+    return {
+        name: boon_names.stubborn,
+        pic: `${IMG_FOLDER.boons}stubborn.png`,
+        description: stubborn_description,
+    }
+}
+// Todo:
+//  description
+//  implement
+
+function thick_soles(){
+    return {
+        name: boon_names.thick_soles,
+        pic: `${IMG_FOLDER.boons}thick_soles.png`,
+        description: thick_soles_description,
+    }
+}
+// Todo:
+//  description
+//  implement

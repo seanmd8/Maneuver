@@ -41,12 +41,10 @@ class ButtonGrid{
      * @param {string=} extra_info Optional extra information to display when the card info button is clicked.
      */
     show_buttons(table_name, hand_pos, extra_info = ``){
-        // Displays the 3x3 grid to the given table.
-        // When one of the buttons with functionality is clicked, the corresponding actions will be performed then it will be discarded.
         display.clear_tb(table_name);
         display.display_message(UIIDS.display_message, ``);
         var make_press_button = function(hand_position){
-            return function(button, position){
+            return function(button){
                 if(button.behavior){
                     GS.player_turn(button.behavior, hand_position)
                 }
@@ -101,5 +99,17 @@ class ButtonGrid{
             return 5;
         }
         return -1;
+    }
+    /**
+     * Function to convert a card into an instant.
+     */
+    make_instant(){
+        for(var row of this.#buttons){
+            for(var button of row){
+                if(button.description !== null_move_button && button.behavior[button.behavior.length - 1].type !== `instant`){
+                    button.behavior.push(pinstant(0, 0));
+                }
+            }
+        }
     }
 }

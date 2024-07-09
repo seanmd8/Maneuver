@@ -12,16 +12,16 @@ const CARD_CHOICES = [
     pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
     thwack, overcome_sideways, y_leap, diamond_slice, spearhead,
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal,
-    diamond_attack, slice_twice, reckless_horizontal, reckless_diagonal, advance,
+    diamond_attack, slice_twice, advance, dash_ne, dash_nw,
     bounding_retreat, leap_left, leap_right, short_charge_diagonal, side_sprint,
-    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw,
-    dash_ne, dash_nw
+    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw
 ];
 
 const RARE_CARD_CHOICES = [
     teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
     sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
-    punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport
+    punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport,
+    reckless_horizontal, reckless_diagonal, 
 ]
 
 // Cards that can be given as a debuff.

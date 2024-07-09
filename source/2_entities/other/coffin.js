@@ -8,7 +8,7 @@ function coffin_tile(){
         health: 1,
         on_enter: decay_ai,
         on_death: coffin_tile_death,
-        summons: [rat_tile, carrion_flies_tile, vampire_tile, shadow_scout_tile, chest_tile],
+        summons: [chest_tile],//rat_tile, carrion_flies_tile, vampire_tile, shadow_scout_tile, chest_tile],
         card_drops: RARE_CARD_CHOICES
     }
 }
@@ -21,7 +21,7 @@ function coffin_tile_death(self, target, map){
     }
     var new_enemy = self.tile.summons[random_num(self.tile.summons.length)]();
     if(new_enemy.type === `chest`){
-        var cards = rand_no_repeates(self.tile.card_drops, random_num(2) + 1);
+        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.hoarder));
         for(let card of cards){
             add_card_to_chest(new_enemy, card());
         }

@@ -7,6 +7,7 @@ class GameState{
     map;
     /** @type {MoveDeck} The player's deck of cards.*/
     deck;
+    boons;
     #player_turn_lock;
     constructor(){
         // Starts the game on load.
@@ -29,10 +30,16 @@ class GameState{
         for(var i = 0; i < SECOND_STARTING_ENEMY_AMOUNT; ++i){
             this.map.spawn_safely(SECOND_STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
         }
+        for(var i = 0; i < STARTING_CHEST_AMOUNT; ++i){
+            var chest = chest_tile();
+            add_boon_to_chest(chest, STARTING_CHEST_CONTENTS());
+            this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
+        }
         this.map.display();
         this.map.display_stats(UIIDS.stats);
         this.deck = STARTING_DECK();
         this.deck.display_hand(UIIDS.hand_display);
+        this.boons = new BoonTracker();
         display.display_message(UIIDS.shop_instructions, mod_deck);
         display.swap_screen(DISPLAY_DIVISIONS, UIIDS.game_screen);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
@@ -132,7 +139,7 @@ class GameState{
      * Sets up the next floor then leaves the shop.
      * @returns {void} 
      */
-    new_floor(){
+    async new_floor(){
         // Creates the next floor.
         this.map.next_floor();
         this.map.display_stats(UIIDS.stats);
@@ -140,6 +147,8 @@ class GameState{
         this.deck.deal();
         this.deck.display_hand(UIIDS.hand_display);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        await delay(ANIMATION_DELAY);
+        this.map.display();
         this.unlock_player_turn();
     }
     /** 
@@ -165,7 +174,8 @@ class GameState{
     */
     #generate_add_row(table){
         // Get card choices
-        var add_list_generators = rand_no_repeates(CARD_CHOICES, ADD_CHOICE_COUNT);
+        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        var add_list_generators = rand_no_repeates(CARD_CHOICES, amount);
         var chance_of_rare = random_num(4);
         if(chance_of_rare < add_list_generators.length){
             var rare = rand_no_repeates(RARE_CARD_CHOICES, 1);
@@ -201,7 +211,8 @@ class GameState{
      * @param {string} table The table where it should be displayed.
      * */
     #generate_remove_row(table){
-        var remove_list = this.deck.get_rand_cards(REMOVE_CHOICE_COUNT);
+        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        var remove_list = this.deck.get_rand_cards(amount);
         if(remove_list.length > 0){
             remove_list.unshift(remove_card_symbol());
         }
@@ -255,6 +266,9 @@ class GameState{
      * @param {Card} card The card to be added.
      */
     give_temp_card(card){
+        if(GS.boons.has(boon_names.fleeting_thoughts)){
+            card.options.make_instant();
+        }
         this.deck.add_temp(card);
     }
     /** 

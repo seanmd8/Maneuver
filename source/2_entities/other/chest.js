@@ -27,6 +27,7 @@ function chest_on_enter(self, target, map){
         display.clear_tb(UIIDS.chest_confirm_row);
         display.clear_tb(UIIDS.contents);
         display.display_message(UIIDS.content_description, ``);
+        map.display();
     }
     var abandon_button = {
         description: abandon_chest
@@ -90,5 +91,23 @@ function add_card_to_chest(chest, card){
         description: add_card_description
     }
     chest.contents.push(content);
+}
 
+/**
+ * @param {Tile} chest 
+ * @param {Card} card 
+ */
+function add_boon_to_chest(chest, boon){
+    if(chest.contents === undefined){
+        throw new Error(`tile missing properties used by it's ai.`);
+    }
+    var content = {
+        pic: boon.pic,
+        name: boon.name,
+        on_choose: function(){
+            GS.boons.pick(boon.name);
+        },
+        description: `${boon.name}: ${boon.description}`
+    }
+    chest.contents.push(content);
 }

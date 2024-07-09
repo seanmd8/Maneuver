@@ -16,14 +16,18 @@ const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = [generate_ruins_area];
 
 // Settings just used for testing.
-const SECOND_STARTING_ENEMY = scythe_tile;
+const SECOND_STARTING_ENEMY = spider_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
+const STARTING_CHEST_CONTENTS = stealthy;
+const STARTING_CHEST_AMOUNT = 0;
 
 // Dungeon generation settings.
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
 const AREA_SIZE = 5;
+const CHEST_LOCATION = 3;
+const BOON_CHOICES = 2
 const SAFE_SPAWN_ATTEMPTS = 5;
 
 // Visual and animation settings.
@@ -42,7 +46,7 @@ const MARKUP_LANGUAGE = `html`;
 // Keyboard controls.
 const CONTROLS = {
     directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
-    card: [`h`, `j`, `k`]
+    card: [`h`, `j`, `k`, `l`]
 }
 Object.freeze(CONTROLS);
 
@@ -54,6 +58,7 @@ const IMG_FOLDER = {
     cards: `cards/`,
     other: `other/`,
     symbols: `symbols/`,
-    tiles: `tiles/`
+    tiles: `tiles/`,
+    boons: `boons/`
 }
 Object.freeze(IMG_FOLDER);

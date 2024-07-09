@@ -32,19 +32,23 @@ function boulder_elemental_ai(self, target, map){
         // Asleep.
         throw new Error(`skip animation delay`);
     }
+    if(self.tile.cycle < 0){
+        // Asleep and resting.
+        ++self.tile.cycle;
+        throw new Error(`skip animation delay`);
+    }
     var nearby = order_nearby(target.difference);
     var hit = false;
     for(let space of nearby){
         // Attacks everything nearby.
         hit = map.attack(self.location.plus(space)) || hit;
     }
-    if(!hit){
-        // If nothing was nearby, gets sleepier.
-        --self.tile.cycle;
-    }
+    // Gets sleepier
+    --self.tile.cycle;
     if(self.tile.cycle <= 0){
         // Falls asleep.
         shapeshift(self.tile, self.tile.look_arr[0]);
+        self.tile.cycle = -2;
     }
     else if(!target.difference.within_radius(1)){
         // If not asleep, moves towards the player.
@@ -57,8 +61,10 @@ function boulder_elemental_wake_up(self, target, map){
         self.tile.look_arr === undefined){
         throw new Error(`tile missing properties used by it's ai.`)
     }
-    stun(self.tile);
-    self.tile.cycle = 3;
-    shapeshift(self.tile, self.tile.look_arr[1]);
+    if(self.tile.cycle === 0){
+        stun(self.tile);
+        self.tile.cycle = 3;
+        shapeshift(self.tile, self.tile.look_arr[1]);
+    }
 }
 
