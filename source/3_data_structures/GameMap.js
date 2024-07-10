@@ -591,6 +591,10 @@ class GameMap{
             // Bitter determination heals you if you are at exactly 1.
             this.player_heal(new Point(0, 0), 1);
         }
+        if(GS.boons.has(boon_names.expend_vitality) > 0){
+            // Expend Vitality always heals you.
+            this.player_heal(new Point(0, 0), 1);
+        }
         var floor_description = `${floor_message}${this.#floor_num}.`;
         if(this.#floor_num % AREA_SIZE === 1){
             // Reached the next area.
@@ -780,6 +784,12 @@ class GameMap{
     player_heal(difference, amount=undefined){
         var pos = this.#entity_list.get_player_pos();
         return this.heal(pos.plus(difference), amount);
+    }
+    /**
+     * @returns {number} The number of turns that have elapsed.
+     */
+    get_turn_count(){
+        return this.#turn_count;
     }
 }
 

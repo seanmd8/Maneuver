@@ -428,6 +428,14 @@ const DisplayHTML = {
         var element = DisplayHTML.get_element(location);
         element.onclick = on_click;
     },
+    add_class: function(location, css_class){
+        var element = DisplayHTML.get_element(location);
+        element.classList.add(css_class);
+    },
+    remove_class: function(location, css_class){
+        var element = DisplayHTML.get_element(location);
+        element.classList.remove(css_class);
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){

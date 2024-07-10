@@ -14,12 +14,13 @@ const STARTING_ENEMY = spider_tile;
 const STARTING_ENEMY_AMOUNT = 1;
 const STARTING_DECK = make_starting_deck;
 const STARTING_AREA = [generate_ruins_area];
+var GS;
 
 // Settings just used for testing.
 const SECOND_STARTING_ENEMY = spider_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
-const STARTING_CHEST_CONTENTS = stealthy;
+const STARTING_CHEST_CONTENTS = ancient_card;
 const STARTING_CHEST_AMOUNT = 0;
 
 // Dungeon generation settings.

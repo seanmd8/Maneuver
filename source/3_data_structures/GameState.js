@@ -19,11 +19,18 @@ class GameState{
      */
     setup(){
         // Function ran on page load or on restart to set up the game.
+
+        this.boons = new BoonTracker();
         var start = randomize_arr(STARTING_AREA)[0]();
+        this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
+        this.deck = STARTING_DECK();
+
+
         display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
         display.display_message(UIIDS.hand_label, `${hand_label_text}`);
         display.display_message(UIIDS.move_label, `${move_label_text}`);
-        this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start); 
+
+        // Prep map
         for(var i = 0; i < STARTING_ENEMY_AMOUNT; ++i){
             this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
         }
@@ -37,9 +44,8 @@ class GameState{
         }
         this.map.display();
         this.map.display_stats(UIIDS.stats);
-        this.deck = STARTING_DECK();
+
         this.deck.display_hand(UIIDS.hand_display);
-        this.boons = new BoonTracker();
         display.display_message(UIIDS.shop_instructions, mod_deck);
         display.swap_screen(DISPLAY_DIVISIONS, UIIDS.game_screen);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
@@ -63,9 +69,13 @@ class GameState{
         this.map.clear_marked();
         try{
             var is_instant = false;
-            for(var i = 0; i < behavior.length; ++i){
-                // Does each valid command in the behavior array.
-                is_instant = this.player_action(behavior[i]);
+            var repetition_count = GS.boons.has(boon_names.repetition);
+            var repeat = (repetition_count > 0 &&  GS.map.get_turn_count() % (4 - repetition_count) === 0) ? 2 : 1;
+            for(var i = 0; i < repeat; ++i){
+                for(var action of behavior){
+                    // Does each valid command in the behavior array.
+                    is_instant = this.player_action(action);
+                }
             }
             display.clear_tb(UIIDS.move_buttons);
             this.deck.discard(hand_pos);
@@ -113,6 +123,9 @@ class GameState{
                 this.map.player_attack(action.change);
                 break;
             case `move`:
+                if(GS.boons.has(boon_names.spiked_shoes)){
+                    this.map.player_attack(action.change);
+                }
                 this.map.player_move(action.change);
                 break;
             case `teleport`:
@@ -125,7 +138,12 @@ class GameState{
                 this.map.player_stun(action.change);
                 break;
             case `move_until`:
-                while(this.map.player_move(action.change)){};
+                var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
+                do {
+                    if(spiked_shoes){
+                        this.map.player_attack(action.change);
+                    }
+                } while(this.map.player_move(action.change));
                 break;
             case `heal`:
                 this.map.player_heal(action.change, 1);

@@ -199,19 +199,27 @@ Object.freeze(move_types);
 
 // Move types.
 const boon_names = {
+    adrenaline_rush: `Adrenaline Rush`,
+    ancient_card: `Ancient Card`,
     bitter_determination: `Bitter Determination`,
     brag_and_boast: `Brag & Boast`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
     escape_artist: `Escape Artist`,
+    expend_vitality: `Expend Vitality`,
     fleeting_thoughts: `Fleeting Thoughts`,
     fortitude: `Fortitude`,
+    future_sight: `Future Sight`,
     hoarder: `Hoarder`,
     learn_from_mistakes: `Learn From Mistakes`,
     pain_reflexes: `Pain Reflexes`,
     picky_shopper: `Picky Shopper`,
     rebirth: `Rebirth`,
+    repetition: `Repetition`,
+    safe_passage: `Safe Passage`,
     serenity: `Serenity`,
+    shattered_glass: `Shattere Glass`,
+    skill_trading: `Skill Trading`,
     slayer: `Slayer`,
     spiked_shoes: `Spiked Shoes`,
     spined_armor: `Spined Armor`,
@@ -222,19 +230,27 @@ const boon_names = {
 }
 Object.freeze(move_types);
 
+const adrenaline_rush_description = `Dealing at least 2 damage in 1 turn gives you an extra turn.`;
+const ancient_card_description = add_card_description;
 const bitter_determination_description = `At the start of each floor, heal 1 if your health is exactly 1.`;
 const brag_and_boast_description = `Add 2 random boss cards and 1 random debuff card to your deck.`;
 const creative_description = `Increase your hand size by 1. Increases minimum deck size by 5.`;
 const dazing_blows_description = `Your attacks stun enemies. Bosses are unaffected.`;
 const escape_artist_description = `Teleport away when attacked.`;
+const expend_vitality_description =  `Heal 1 life at the start of each floor. Your max health is decreased by 1.`;
 const fleeting_thoughts_description = `Temporary cards added to your deck will happen instantly.`;
 const fortitude_description = `Gain an extra max health.`;
+const future_sight_description = `You may look at the order of your deck.`;
 const hoarder_description = `All treasure chests contain 2 additional choices.`;
 const learn_from_mistakes_description = `Remove any 2 cards from your deck.`;
 const pain_reflexes_description = `Take a turn whenever you are attacked.`;
 const picky_shopper_description = `Recieve an extra card choice for adding and removing cards in the shop.`;
 const rebirth_description = `When you die, you are revived at full health and this boon is removed.`;
+const repetition_description = `Every 1 in 3 moves are performed twice.`;
+const safe_passage_description = `Fully heal and travel to the next floor.`;
 const serenity_description = `Reduce your minimum deck size by 1. Cannot be reduced below 4.`;
+const shattered_glass_description = `Enemies explode on death damaging each other nearby enemy. Reduce your max health by 1.`;
+const skill_trading_description = `You may both add a card and remove a card at each shop.`;
 const slayer_description = `When you damage an enemy 3 turns in a row, heal for 1.`;
 const spiked_shoes_description = `Attempting to move onto enemies damages them.`;
 const spined_armor_description = `Retaliate for 1 damage when attacked. Bosses are immune.`;

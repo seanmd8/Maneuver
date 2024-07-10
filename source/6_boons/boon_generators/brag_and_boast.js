@@ -18,6 +18,3 @@ function pick_brag_and_boast(){
     var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
     GS.deck.add(card);
 }
-// Todo:
-//  description
-//  implement on_pick

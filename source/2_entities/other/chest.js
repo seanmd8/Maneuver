@@ -27,7 +27,14 @@ function chest_on_enter(self, target, map){
         display.clear_tb(UIIDS.chest_confirm_row);
         display.clear_tb(UIIDS.contents);
         display.display_message(UIIDS.content_description, ``);
+        GS.deck.display_hand(UIIDS.hand_display);
         map.display();
+        if(GS.boons.has(boon_names.safe_passage)){
+            GS.boons.lose(boon_names.safe_passage);
+            GS.map.heal(GS.map.get_player_location());
+            GS.map.display_stats(UIIDS.stats);
+            GS.enter_shop();
+        }
     }
     var abandon_button = {
         description: abandon_chest
@@ -65,6 +72,7 @@ function chest_on_enter(self, target, map){
     display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
     display.add_button_row(UIIDS.chest_confirm_row, [abandon_button], take_or_leave);
     display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.chest);
+    throw new Error(`pass to player`);
 }
 
 /**

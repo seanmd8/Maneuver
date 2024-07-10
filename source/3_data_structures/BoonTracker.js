@@ -4,11 +4,7 @@ class BoonTracker{
     #choices;
     #boons;
     constructor(){
-        this.#choices = [
-            bitter_determination(), brag_and_boast(), creative(), escape_artist(), fleeting_thoughts(), 
-            fortitude(), hoarder(), picky_shopper(), rebirth(), serenity(),
-            stable_mind(), stealthy(),
-        ];
+        this.#choices = BOON_LIST.map(b => b());
         this.#boons = [];
     }
     get_choices(amount){

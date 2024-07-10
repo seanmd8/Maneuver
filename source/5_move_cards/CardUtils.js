@@ -101,6 +101,7 @@ function pheal(x, y){
  * @property {string} name The name of the card which will be displayed as mouseover text.
  * @property {string} pic The card's image.
  * @property {ButtonGrid} options A button grid object which determines what actions the player can use the card to perform.
+ * @property {CardGenerator[]=} evolutions A list of cards to be added once this is removed.
  * 
  * @property {number=} id A unique id that will be added to the card when it is added to the deck.
  * @property {boolean=} temp Given true when the card is temporary and will be removed on use or on end of floor.

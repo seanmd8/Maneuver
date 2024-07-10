@@ -14,7 +14,21 @@
 .selectable {
     border-spacing: 3px;
 }
-.selectable tr td{
+.selectable tr td {
     border-spacing: 3px;
     padding: 0px;
+}
+
+/* Classes to show the effects of various boons. */
+.telegraph-repetition {
+    border-color: blue;
+}
+.telegraph-repetition legend {
+    border-color: blue;
+}
+.no-repetition {
+    border-color: slategrey;
+}
+.no-repetition legend {
+    border-color: slategrey;
 }

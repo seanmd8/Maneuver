@@ -96,9 +96,23 @@
 .selectable {
     border-spacing: 3px;
 }
-.selectable tr td{
+.selectable tr td {
     border-spacing: 3px;
     padding: 0px;
+}
+
+/* Classes to show the effects of various boons. */
+.telegraph-repetition {
+    border-color: blue;
+}
+.telegraph-repetition legend {
+    border-color: blue;
+}
+.no-repetition {
+    border-color: slategrey;
+}
+.no-repetition legend {
+    border-color: slategrey;
 }
 /* File containing styles used by the guidebook screen. */
 
@@ -210,14 +224,12 @@
 /* Styles the player's hand. */
 .hand-box {
     height: 120px;
-    border-color: slategray;
     border-style: solid;
     display: inline-block;
     padding: 5px;
 }
 .hand-box legend {
     font-weight: bold;
-    border-color: slategray;
     border-style: solid;
     border-width: 2px;
 }

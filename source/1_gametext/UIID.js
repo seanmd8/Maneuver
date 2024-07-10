@@ -28,11 +28,13 @@ function get_uiids(language){
  *          @property {string} remaining_deck Shows how many cards are left in the player's deck.
  *              @property {string} deck_image Deck icon in the background.
  *              @property {string} deck_count # of cards in the foreground.
- *          @property {string} hand_label Labels the hand box.
- *          @property {string} hand_display Displays the player's hand of cards.
- *          @property {string} move_label Labels the move button box.
- *          @property {string} move_info Info icon for move buttons.
- *          @property {string} move_buttons Displays the buttons for the last card clicked on.
+ *          @property {string} hand_box The box around the hand of cards.
+ *              @property {string} hand_label Labels the hand box.
+ *              @property {string} hand_display Displays the player's hand of cards.
+ *          @property {string} move_box The box around the move buttons.
+ *              @property {string} move_label Labels the move button box.
+ *              @property {string} move_info Info icon for move buttons.
+ *              @property {string} move_buttons Displays the buttons for the last card clicked on.
  *          @property {string} display_message Displays messages.
  *          @property {string} retry_button: A button to allow them to reset after they die.
  *      @property {string} shop Controls the visibility of the shop.
@@ -63,11 +65,13 @@ const HTML_UIIDS = {
             remaining_deck: `remainingDeck`,
                 deck_image: `deckImage`,
                 deck_count: `deckCount`,
-            hand_label: `handLabel`,
-            hand_display: `handDisplay`,
-            move_label: `moveLabel`,
-            move_info: `moveInfo`,
-            move_buttons: `moveButtons`,
+            hand_box: `handBox`,
+                hand_label: `handLabel`,
+                hand_display: `handDisplay`,
+            move_box: `moveBox`,
+                move_label: `moveLabel`,
+                move_info: `moveInfo`,
+                move_buttons: `moveButtons`,
             display_message: `displayMessage`,
             retry_button: `retryButton`,
         shop: `shop`,

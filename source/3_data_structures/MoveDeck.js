@@ -148,6 +148,17 @@ class MoveDeck{
         display.add_tb_row(table, card_row, CARD_SCALE);
         display.display_message(UIIDS.deck_count, `${this.#library.length}`);
         display.add_on_click(UIIDS.move_info, explain_blank_moves);
+        if(GS !== undefined){
+            // Telegraph the repetition boon.
+            display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
+            display.remove_class(UIIDS.move_box, `telegraph-repetition`);
+            display.remove_class(UIIDS.hand_box, `no-repetition`);
+            display.remove_class(UIIDS.move_box, `no-repetition`);
+            var repetition_count = GS.boons.has(boon_names.repetition);
+            var repeat = (repetition_count > 0 &&  GS.map.get_turn_count() % (4 - repetition_count) === 0) ? `telegraph-repetition` : `no-repetition`;
+            display.add_class(UIIDS.hand_box, repeat);
+            display.add_class(UIIDS.move_box, repeat);
+        }
     }
     /**
      * Displays the whole decklist
@@ -184,7 +195,10 @@ class MoveDeck{
         for(var i = 0; i < this.#decklist.length; ++i){
             if(this.#decklist[i].id === id){
                 this.#decklist[i] = this.#decklist[this.#decklist.length - 1];
-                this.#decklist.pop();
+                var card = this.#decklist.pop();
+                if(card.evolutions !== undefined){
+                    this.add(randomize_arr(card.evolutions)[0]());
+                }
                 return true;
             }
         }
