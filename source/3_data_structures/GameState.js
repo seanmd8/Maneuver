@@ -123,10 +123,11 @@ class GameState{
                 this.map.player_attack(action.change);
                 break;
             case `move`:
-                if(GS.boons.has(boon_names.spiked_shoes)){
+                var moved = this.map.player_move(action.change);
+                if(!moved && GS.boons.has(boon_names.spiked_shoes)){
                     this.map.player_attack(action.change);
                 }
-                this.map.player_move(action.change);
+                
                 break;
             case `teleport`:
                 this.map.player_teleport(action.change);
@@ -139,11 +140,10 @@ class GameState{
                 break;
             case `move_until`:
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
-                do {
-                    if(spiked_shoes){
-                        this.map.player_attack(action.change);
-                    }
-                } while(this.map.player_move(action.change));
+                while(this.map.player_move(action.change)){};
+                if(spiked_shoes){
+                    this.map.player_attack(action.change);
+                }
                 break;
             case `heal`:
                 this.map.player_heal(action.change, 1);
