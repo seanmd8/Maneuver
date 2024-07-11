@@ -150,12 +150,14 @@ function display_guide(location){
     var enemies_section = display.create_alternating_text_section(GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
     var shop_section = display.create_alternating_text_section(GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
     var bosses_section = display.create_alternating_text_section(GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
+    var chests_section = display.create_alternating_text_section(GUIDE_HEADERS.chests, GUIDE_TEXT.chests, [])
 
     display.create_visibility_toggle(location, GUIDE_HEADERS.basics, basics_section);
     display.create_visibility_toggle(location, GUIDE_HEADERS.cards, cards_section);
     display.create_visibility_toggle(location, GUIDE_HEADERS.enemies, enemies_section);
     display.create_visibility_toggle(location, GUIDE_HEADERS.shop, shop_section);
     display.create_visibility_toggle(location, GUIDE_HEADERS.bosses, bosses_section);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.chests, chests_section);
 }
 
 /**

@@ -1099,12 +1099,14 @@ function display_guide(location){
     var enemies_section = display.create_alternating_text_section(GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
     var shop_section = display.create_alternating_text_section(GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
     var bosses_section = display.create_alternating_text_section(GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
+    var chests_section = display.create_alternating_text_section(GUIDE_HEADERS.chests, GUIDE_TEXT.chests, [])
 
     display.create_visibility_toggle(location, GUIDE_HEADERS.basics, basics_section);
     display.create_visibility_toggle(location, GUIDE_HEADERS.cards, cards_section);
     display.create_visibility_toggle(location, GUIDE_HEADERS.enemies, enemies_section);
     display.create_visibility_toggle(location, GUIDE_HEADERS.shop, shop_section);
     display.create_visibility_toggle(location, GUIDE_HEADERS.bosses, bosses_section);
+    display.create_visibility_toggle(location, GUIDE_HEADERS.chests, chests_section);
 }
 
 /**
@@ -1410,6 +1412,7 @@ const GUIDE_HEADERS = {
     enemies: `Dealing With Enemies`,
     shop: `The Shop`,
     bosses: `Bosses`,
+    chests: `Chests`
 }
 Object.freeze(GUIDE_HEADERS);
 
@@ -1470,6 +1473,12 @@ const GUIDE_TEXT = {
             +`containing a powerful new card as a reward.\n`
             +`When leaving the floor, you will enter a new area of the dungeon with a different set of inhabitants and a new boss at `
             +`the end.\n\n`],
+
+    chests: [`On floor ${CHEST_LOCATION} of every area, you will find a treasure chest. Moving onto this chest will allow you to pick `
+            +`a boon. Boons are powerful abilities that can give your character a unique edge when it comes to surviving.\n\n`
+            +`Chests will also be dropped after a boss is defeated. Rather than boons, these ones will contain a card that lets you `
+            +`imitate one of the bosses abilities.\n\n`
+            +`Be careful when killing bosses and picking up chests. Breaking a chest will destroy it's contents.\n\n`]
 }
 Object.freeze(GUIDE_TEXT);
 

@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+7/11/24
+- Added a guidebook section for chests and boons.
+
 7/10/24
 - Added 5 new Boons.
 
