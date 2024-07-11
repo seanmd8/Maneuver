@@ -140,7 +140,7 @@ function explain_action(action){
         case `heal`:
             return `${move_types.heal}: ${target}`;
         default:
-            throw new Error(`invalid player action type`);
+            throw new Error(ERRORS.invalid_value);
     }
 }
 

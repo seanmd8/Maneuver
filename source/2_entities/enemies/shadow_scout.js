@@ -20,7 +20,7 @@ function shadow_scout_tile(){
 function shadow_scout_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.look_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     self.tile.cycle = 1 - self.tile.cycle;
     // Goes invisibl eon alternate turns.

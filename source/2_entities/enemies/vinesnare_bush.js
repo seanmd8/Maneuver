@@ -24,7 +24,7 @@ function vinesnare_bush_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined ||
         self.tile.range === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(target.difference.within_radius(1)){
         // If 1 away, attack if not rooted, otherwise uproot.
@@ -53,19 +53,19 @@ function vinesnare_bush_ai(self, target, map){
         // If the player was moved, uproot and pass the turn to them.
         self.tile.cycle = 0;
         self.tile.pic = self.tile.pic_arr[0];
-        throw new Error(`pass to player`);
+        throw new Error(ERRORS.pass_turn);
     }
     if(++self.tile.cycle > 0){
         // Otherwise, root.
         self.tile.pic = self.tile.pic_arr[1];
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
 }
 
 /** @type {TelegraphFunction} */
 function vinesnare_bush_telegraph(location, map, self){
     if( self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.cycle === 0){
         return spider_telegraph(location, map, self);
@@ -76,7 +76,7 @@ function vinesnare_bush_telegraph(location, map, self){
 function vinesnare_bush_telegraph_other(location, map, self){
     if( self.cycle === undefined ||
         self.range === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     var vines = []
     if(self.cycle === 0){

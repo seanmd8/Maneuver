@@ -26,7 +26,7 @@ class ButtonGrid{
             number = this.#convert_direction(description);
         }
         if(number < 1 || number > 9){
-            throw new Error(`button out of range`);
+            throw new Error(ERRORS.invalid_value);
         }
         var button = {
             description,

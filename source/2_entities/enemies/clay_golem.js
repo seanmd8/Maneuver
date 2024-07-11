@@ -17,7 +17,7 @@ function clay_golem_tile(){
 /** @type {AIFunction} AI used by clay golems.*/
 function clay_golem_ai(self, target, map){
     if(self.tile.cycle === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(target.difference.within_radius(1)){
         // If the player is next to it, attack.

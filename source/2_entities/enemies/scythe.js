@@ -16,7 +16,7 @@ function scythe_tile(){
 /** @type {AIFunction} AI used by scythes.*/
 function scythe_ai(self, target, map){
     if(self.tile.rotate === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     var distance = 3;
     self.tile.direction = sign(target.difference);

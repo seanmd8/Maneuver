@@ -92,16 +92,16 @@ class GameState{
         }
         catch (error){
             var m = error.message;
-            if(m === `floor complete`){
+            if(m === ERRORS.floor_complete){
                 // If the player has reached the end of the floor.
                 this.map.display_stats(UIIDS.stats);
                 this.enter_shop();
             }
-            else if(m === `game over`){
+            else if(m === ERRORS.game_over){
                 // If the player's health reached 0
                 this.game_over(error.cause.message);
             }
-            else if(m === `pass to player`){
+            else if(m === ERRORS.pass_turn){
                 // If the enemies' turn was interrupted,
                 // prep for player's next turn.
                 this.prep_turn();
@@ -149,7 +149,7 @@ class GameState{
                 this.map.player_heal(action.change, 1);
                 break;
             default:
-                throw new Error(`invalid player action type`);
+                throw new Error(ERRORS.invalid_value);
         }
         return false;
     }

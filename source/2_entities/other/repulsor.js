@@ -20,7 +20,7 @@ function repulsor_tile(){
 function repulsor_push_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle > 0){
         return;
@@ -43,8 +43,8 @@ function repulsor_push_ai(self, target, map){
                         target_space.plus_equals(space);
                     }
                 } catch (error) {
-                    // Catches `pass to player` errors to prevent ping pong between 2.
-                    if(error.message !== `pass to player`){
+                    // Catches ERRORS.pass_turn errors to prevent ping pong between 2.
+                    if(error.message !== ERRORS.pass_turn){
                         throw error;
                     }
                 }
@@ -56,7 +56,7 @@ function repulsor_push_ai(self, target, map){
         self.tile.pic = self.tile.pic_arr[self.tile.cycle];
     }
     if(player_was_moved){
-        throw new Error(`pass to player`);
+        throw new Error(ERRORS.pass_turn);
     }
 
 }
@@ -65,7 +65,7 @@ function repulsor_push_ai(self, target, map){
 function repulsor_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle > 0){
         self.tile.cycle = 0;
@@ -77,7 +77,7 @@ function repulsor_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function repulsor_telegraph_other(location, map, self){
     if( self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     var spaces = [];
     if(self.cycle === 0){

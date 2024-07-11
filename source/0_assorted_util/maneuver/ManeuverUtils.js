@@ -59,7 +59,7 @@ function make_test_deck(){
  */
 function tile_description(tile){
     if(tile.description === undefined){
-        throw new Error(`tile missing description`);
+        throw new Error(ERRORS.missing_property);
     }
     var hp = ``
     var stunned = ``;
@@ -96,7 +96,7 @@ function grid_space_description(space){
  */
 function display_health(player, scale){
     if(player.health === undefined || player.max_health === undefined){
-        throw new Error(`player missing health`);
+        throw new Error(ERRORS.missing_property);
     }
     var health = [];
     for(var i = 0; i < player.health; ++i){

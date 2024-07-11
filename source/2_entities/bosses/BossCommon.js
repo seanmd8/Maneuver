@@ -1,7 +1,7 @@
 /** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
 function boss_death(self, target, map){
     if(self.tile.death_message === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
         // Create a chest containing a random card from it's loot table.

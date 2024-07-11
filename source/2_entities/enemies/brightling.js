@@ -17,7 +17,7 @@ function brightling_tile(){
 /** @type {AIFunction} AI used by brightlings.*/
 function brightling_ai(self, target, map){
     if(self.tile.cycle === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === -1){
         // teleports to a random empty space, then cycle goes to 0.
@@ -33,7 +33,7 @@ function brightling_ai(self, target, map){
                 map.move(self.location.plus(target.difference), self.location.plus(near_points[i]));
                 self.tile.cycle = -1;
                 // Since player has been moved, it returns to their turn.
-                throw new Error(`pass to player`);
+                throw new Error(ERRORS.pass_turn);
             }
         }
     }

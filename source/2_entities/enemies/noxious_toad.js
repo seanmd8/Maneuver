@@ -20,7 +20,7 @@ function noxious_toad_tile(){
 function noxious_toad_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
         var directions = order_nearby(target.difference);
@@ -53,7 +53,7 @@ function noxious_toad_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function noxious_toad_telegraph(location, map, self){
     if(self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     var attacks = [];
     if(self.cycle === 1){

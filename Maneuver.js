@@ -205,7 +205,7 @@ function array_equals(a1, a2){
  */
 function ifexists(exists){
     if(exists === undefined){
-        throw new Error(`Value is undefined.`)
+        throw new Error(`value is undefined.`)
     }
     return exists;
 }
@@ -251,7 +251,7 @@ class Point{
             return this
         }
         else{
-            throw Error(`invalid type`);
+            throw Error(ERRORS.invalid_type);
         }
     }
     /** @type {PointOp} Returns this - p2, which is a new point*/
@@ -271,7 +271,7 @@ class Point{
             return this
         }
         else{
-            throw Error(`invalid type`);
+            throw Error(ERRORS.invalid_type);
         }
     }
     /** @type {PointOp} Returns this * p2, which is a new point*/
@@ -291,7 +291,7 @@ class Point{
             return this
         }
         else{
-            throw Error(`invalid type`);
+            throw Error(ERRORS.invalid_type);
         }
     }
     /**
@@ -319,7 +319,7 @@ class Point{
      */
     rotate(degrees){
         if(degrees % 90 !== 0){
-            throw new Error(`invalid rotation amount.`);
+            throw new Error(`invalid value`);
         }
         degrees = degrees % 360;
         if(degrees === 0){
@@ -356,7 +356,7 @@ function point_equals(p1, p2){
         return p1.x === p2.x && p1.y === p2.y;
     }
     else{
-        throw Error(`invalid type`);
+        throw Error(ERRORS.invalid_type);
     }
 }
 
@@ -369,7 +369,7 @@ function point_equals(p1, p2){
  */
 function add_point_arr(a1, a2){
     if(a1.length != a2.length){
-        throw new Error(`unequal array lengths`);
+        throw new Error(ERRORS.array_size);
     }
     var sum_arr = [];
     for(var i = 0; i < a1.length; ++i){
@@ -610,7 +610,7 @@ function get_display(language){
         case `html`:
             return DisplayHTML;
         default:
-            throw new Error(`invalid display language`);
+            throw new Error(ERRORS.invalid_value);
     }
 }
 
@@ -764,7 +764,7 @@ const DisplayHTML = {
                 DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
             }
             catch(error){
-                if(error.message !== `failed to retrieve html element`){
+                if(error.message !== ERRORS.value_not_found){
                     throw error;
                 }
             }
@@ -830,7 +830,7 @@ const DisplayHTML = {
     },
     create_alternating_text_section: function(header, par_arr, inline_arr){
         if(par_arr.length !== inline_arr.length && par_arr.length !== inline_arr.length + 1){
-            throw new Error(`array size mismatch`);
+            throw new Error(ERRORS.array_size);
         }
         var body_div = document.createElement(`div`);
         var body_div_id = `${header} section`;
@@ -910,10 +910,10 @@ const DisplayHTML = {
     get_element: function(location, type = undefined){
         var element = document.getElementById(location);
         if(element === null){
-            throw new Error(`failed to retrieve html element`);
+            throw new Error(ERRORS.value_not_found);
         }
         if(type !== undefined && !(element instanceof type)){
-            throw new Error(`html element is the wrong type`);
+            throw new Error(ERRORS.invalid_type);
         }
         return element
     }
@@ -925,6 +925,28 @@ const display = get_display(MARKUP_LANGUAGE);
 document.onkeydown = display.press;
 
 const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.
+// Library for the various kinds of errors that the game could throw
+const ERRORS = {
+    invalid_type: `invalid type`,
+    missing_property: `tile missing property`,
+    pass_turn: `pass turn to player`,
+    skip_animation: `skip animation delay`,
+    game_over: `game over`,
+    floor_complete: `floor complete`,
+    array_size: `array size mismatch`,
+    missing_id: `id not found`,
+    invalid_value: `invalid value`,
+    value_not_found: `value not found`,
+    invalid_type: `invalid type`,
+    space_full: `space not empty`,
+    already_exists: `value already set`,
+    map_full: `map full`,
+    creature_died: `creature died`,
+    out_of_bounds: `out of bounds`
+}
+Object.freeze(ERRORS);
+
+
 // ----------------ManeuverUtil.js----------------
 // File for utility functions used throughout the program.
 
@@ -986,7 +1008,7 @@ function make_test_deck(){
  */
 function tile_description(tile){
     if(tile.description === undefined){
-        throw new Error(`tile missing description`);
+        throw new Error(ERRORS.missing_property);
     }
     var hp = ``
     var stunned = ``;
@@ -1023,7 +1045,7 @@ function grid_space_description(space){
  */
 function display_health(player, scale){
     if(player.health === undefined || player.max_health === undefined){
-        throw new Error(`player missing health`);
+        throw new Error(ERRORS.missing_property);
     }
     var health = [];
     for(var i = 0; i < player.health; ++i){
@@ -1484,7 +1506,7 @@ function get_uiids(language){
         case `html`:
             return HTML_UIIDS;
         default:
-            throw new Error(`invalid display language`);
+            throw new Error(ERRORS.invalid_value);
     }
 }
 
@@ -1571,7 +1593,7 @@ const DISPLAY_DIVISION_NAMES = [gameplay_screen_name, guide_screen_name];
 /** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
 function boss_death(self, target, map){
     if(self.tile.death_message === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
         // Create a chest containing a random card from it's loot table.
@@ -1632,7 +1654,7 @@ function lich_tile(){
 function lich_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.spells === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
         // Move away and prepare the next spell.
@@ -1664,7 +1686,7 @@ function lich_ai(self, target, map){
 function lich_telegraph(location, map, self){
     if( self.cycle === undefined || 
         self.spells === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var spell = self.spells[self.cycle]
     if(spell.telegraph !== undefined){
@@ -1677,7 +1699,7 @@ function lich_telegraph(location, map, self){
 function lich_telegraph_other(location, map, self){
     if( self.cycle === undefined || 
         self.spells === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var spell = self.spells[self.cycle]
     if(spell.telegraph_other !== undefined){
@@ -1690,7 +1712,7 @@ function lich_telegraph_other(location, map, self){
 function lich_hit(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.spells === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     self.tile.cycle = 1;
     self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
@@ -1756,10 +1778,10 @@ function two_headed_serpent_body_tile(){
 function two_headed_serpent_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.segment_list === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle !== 1){
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
     var moved = false;
     var index = serpent_get_direction(self.tile);
@@ -1772,7 +1794,7 @@ function two_headed_serpent_ai(self, target, map){
                     // Create segment where the head was.
                     var neck = two_headed_serpent_body_tile();
                     if(neck.segment_list === undefined){
-                        throw new Error(`tile missing properties used by it's ai.`);
+                        throw new Error(ERRORS.missing_property);
                     }
                     neck.segment_list[1 - index] = dir[i];
                     neck.segment_list[index] = self.tile.segment_list[index]
@@ -1786,12 +1808,12 @@ function two_headed_serpent_ai(self, target, map){
                     // Drag tail
                     var tail = serpent_other_end(self, index, map);
                     if(tail.tile.segment_list === undefined){
-                        throw new Error(`tile missing properties used by it's ai.`);
+                        throw new Error(ERRORS.missing_property);
                     }
                     var last_segment_location = tail.location.plus(ifexists(tail.tile.segment_list[1 - index]));
                     var last_segment = map.get_tile(last_segment_location);
                     if(last_segment.segment_list === undefined){
-                        throw new Error(`tile missing properties used by it's ai.`);
+                        throw new Error(ERRORS.missing_property);
                     }
                     tail.tile.segment_list[1 - index] = last_segment.segment_list[1 - index];
                     last_segment.health = 1;
@@ -1824,7 +1846,7 @@ function two_headed_serpent_ai(self, target, map){
  */
 function serpent_other_end(self, index, map){
     if(self.tile.segment_list === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var p = self.tile.segment_list[index];
     if(p === undefined){
@@ -1844,7 +1866,7 @@ function serpent_other_end(self, index, map){
  */
 function serpent_get_direction(tile){
     if(tile.segment_list === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     return 1 - tile.segment_list.findIndex((element) => element === undefined);
 }
@@ -1855,7 +1877,7 @@ function serpent_get_direction(tile){
 function serpent_rotate(tile){
     if( tile.pic_arr === undefined || 
         tile.segment_list === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var index = serpent_get_direction(tile);
     if(index === 0 || index === 1){
@@ -1909,7 +1931,7 @@ function serpent_wake(self, map){
 function serpent_toggle(tile, cycle){
     if( tile.cycle === undefined || 
         tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     tile.cycle = cycle;
     tile.pic = tile.pic_arr[tile.cycle];
@@ -1927,21 +1949,21 @@ function serpent_toggle(tile, cycle){
 function two_headed_serpent_hurt(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.segment_list === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     // New head replaces neck segment
     var index = serpent_get_direction(self.tile);
     var neck_location = self.location.plus(ifexists(self.tile.segment_list[index]));
     var neck = map.get_tile(neck_location);
     if(neck.segment_list === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var regrow = {
         tile: two_headed_serpent_tile(),
         location: neck_location
     }
     if(regrow.tile.segment_list === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     regrow.tile.segment_list[index] = neck.segment_list[index];
     serpent_rotate(regrow.tile);
@@ -1967,7 +1989,7 @@ function two_headed_serpent_hurt(self, target, map){
 function two_headed_serpent_telegraph(location, map, self){
     if( self.cycle === undefined || 
         self.segment_list === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var attacks = [];
     if(self.cycle === 0){
@@ -2069,7 +2091,7 @@ function young_dragon_behavior(self, target, map){
         self.tile.cycle === undefined ||
         self.tile.range === undefined ||
         self.tile.direction === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
         // Flight
@@ -2173,7 +2195,7 @@ function young_dragon_telegraph(location, map, self){
         self.cycle === undefined ||
         self.range === undefined ||
         self.direction === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.cycle !== 2){
         return [];
@@ -2268,16 +2290,16 @@ function boulder_elemental_look(){
 function boulder_elemental_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.look_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle === 0){
         // Asleep.
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
     if(self.tile.cycle < 0){
         // Asleep and resting.
         ++self.tile.cycle;
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
     var nearby = order_nearby(target.difference);
     var hit = false;
@@ -2301,7 +2323,7 @@ function boulder_elemental_ai(self, target, map){
 function boulder_elemental_wake_up(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.look_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle === 0){
         stun(self.tile);
@@ -2330,7 +2352,7 @@ function brightling_tile(){
 /** @type {AIFunction} AI used by brightlings.*/
 function brightling_ai(self, target, map){
     if(self.tile.cycle === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === -1){
         // teleports to a random empty space, then cycle goes to 0.
@@ -2346,7 +2368,7 @@ function brightling_ai(self, target, map){
                 map.move(self.location.plus(target.difference), self.location.plus(near_points[i]));
                 self.tile.cycle = -1;
                 // Since player has been moved, it returns to their turn.
-                throw new Error(`pass to player`);
+                throw new Error(ERRORS.pass_turn);
             }
         }
     }
@@ -2380,7 +2402,7 @@ function carrion_flies_tile(){
 function carrion_flies_ai(self, target, map){
     if( self.tile.cycle === undefined ||
         self.tile.spawn_timer === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     ++self.tile.cycle;
     if(self.tile.cycle === self.tile.spawn_timer){
@@ -2418,7 +2440,7 @@ function clay_golem_tile(){
 /** @type {AIFunction} AI used by clay golems.*/
 function clay_golem_ai(self, target, map){
     if(self.tile.cycle === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(target.difference.within_radius(1)){
         // If the player is next to it, attack.
@@ -2539,7 +2561,7 @@ function igneous_crab_tile(){
 /** @type {AIFunction} AI used by igneous crabs.*/
 function igneous_crab_ai(self, target, map){
     if(self.tile.cycle === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle > 0){
         var directions = reverse_arr(order_nearby(target.difference));
@@ -2553,14 +2575,14 @@ function igneous_crab_ai(self, target, map){
 /** @type {AIFunction} Used to cause igneous crabs to flee when damaged.*/
 function igneous_crab_hit(self, target, map){
     if(self.tile.cycle === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     self.tile.cycle += 2;
 }
 /** @type {TelegraphFunction} Function to telegraph igneous crab attacks.*/
 function igneous_crab_telegraph(location, map, self){
     if(self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.cycle > 0){
         return [];
@@ -2590,7 +2612,7 @@ function magma_spewer_tile(){
 function magma_spewer_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle === 0){
         // Move away if the player gets close.
@@ -2643,7 +2665,7 @@ function noxious_toad_tile(){
 function noxious_toad_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
         var directions = order_nearby(target.difference);
@@ -2676,7 +2698,7 @@ function noxious_toad_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function noxious_toad_telegraph(location, map, self){
     if(self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     var attacks = [];
     if(self.cycle === 1){
@@ -2713,7 +2735,7 @@ function orb_of_insanity_tile(){
 function orb_of_insanity_ai(self, target, map){
     if( self.tile.range === undefined ||
         self.tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(target.difference.within_radius(self.tile.range)){
         map.stun_tile(self.location.plus(target.difference));
@@ -2721,14 +2743,14 @@ function orb_of_insanity_ai(self, target, map){
     }
     else{
         self.tile.pic = self.tile.pic_arr[0];
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
 }
 
 /** @type {TelegraphFunction} */
 function orb_of_insanity_telegraph_other(location, map, self){
     if(self.range === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     var area = [];
     for(var i = -1 * self.range; i <= self.range; ++i){
@@ -2878,7 +2900,7 @@ function medium_porcuslime_tile(){
 function medium_porcuslime_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if(self.tile.health !== undefined && self.tile.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
@@ -2904,7 +2926,7 @@ function medium_porcuslime_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function medium_porcuslime_telegraph(location, map, self){
     if(self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.cycle === 0){
         return porcuslime_horizontal_telegraph(location, map, self);
@@ -2922,9 +2944,6 @@ function porcuslime_diagonal_ai(self, target, map){
             direction = directions[i];
         }
     }
-    if(direction === undefined){
-        throw new Error(`porcuslime failed to pick a direction`);
-    }
     move_attack_ai(self, {tile: target.tile, difference: direction}, map);
 }
 /** @type {AIFunction} AI used by small and medium porcuslimes when moving orthogonally.*/
@@ -2936,9 +2955,6 @@ function porcuslime_horizontal_ai(self, target, map){
         if(directions[i].on_axis()){
             direction = directions[i];
         }
-    }
-    if(direction === undefined){
-        throw new Error(`porcuslime failed to pick a direction`);
     }
     move_attack_ai(self, {tile: target.tile, difference: direction}, map);
 }
@@ -2999,7 +3015,7 @@ function ram_tile(){
 function ram_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     var direction = sign(target.difference);
     var wander_speed = 2;
@@ -3048,7 +3064,7 @@ function ram_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function ram_telegraph(location, map, self){
     if(self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.cycle === 0){
         return [];
@@ -3075,7 +3091,7 @@ function rat_tile(){
 function rat_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.flip === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle >= 1 && target.difference.within_radius(1)){
         // If the player is next to it, attack.
@@ -3110,7 +3126,7 @@ function rat_ai(self, target, map){
 /** @type {TelegraphFunction} Function to telegraph rat attacks.*/
 function rat_telegraph(location, map, self){
     if(self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.cycle >= 1){
         return spider_telegraph(location, map, self);
@@ -3135,7 +3151,7 @@ function scythe_tile(){
 /** @type {AIFunction} AI used by scythes.*/
 function scythe_ai(self, target, map){
     if(self.tile.rotate === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     var distance = 3;
     self.tile.direction = sign(target.difference);
@@ -3261,7 +3277,7 @@ function shadow_scout_tile(){
 function shadow_scout_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.look_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     self.tile.cycle = 1 - self.tile.cycle;
     // Goes invisibl eon alternate turns.
@@ -3318,12 +3334,12 @@ function spider_web_tile(){
 function spider_web_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.spawn_timer === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle < self.tile.spawn_timer){
         // If the cycle hasn't reached the spawn timer, increments it.
         ++self.tile.cycle;
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
     else{
         // Attempts to spawn a spider nearby and resets cycle.
@@ -3400,7 +3416,7 @@ function turret_d_ai(self, target, map){
         turret_fire_ai(self, target, map);
     }
     else{
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
 }
 
@@ -3433,7 +3449,7 @@ function turret_h_ai(self, target, map){
         turret_fire_ai(self, target, map);
     }
     else{
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
 }
 
@@ -3476,7 +3492,7 @@ function turret_r_ai(self, target, map){
         self.tile.pic_arr === undefined || 
         self.tile.direction === undefined || 
         self.tile.spin_direction === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if((target.difference.on_axis() || target.difference.on_diagonal())){
         // Shoot if player is along the line of the old direction or it's opposite.
@@ -3498,7 +3514,7 @@ function turret_r_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function turret_r_telegraph(location, map, self){
     if(self.direction === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     var attacks = get_points_in_direction(location, self.direction, map);
     return attacks.concat(get_points_in_direction(location, self.direction.times(-1), map));
@@ -3523,7 +3539,7 @@ function vampire_tile(){
 function vampire_ai(self, target, map){
     if( self.tile.health === undefined || 
         self.tile.max_health === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     var player_pos = self.location.plus(target.difference);
     var target_spaces = [new Point(player_pos.x + 1, player_pos.y + 1), 
@@ -3603,7 +3619,7 @@ function vinesnare_bush_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined ||
         self.tile.range === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(target.difference.within_radius(1)){
         // If 1 away, attack if not rooted, otherwise uproot.
@@ -3632,19 +3648,19 @@ function vinesnare_bush_ai(self, target, map){
         // If the player was moved, uproot and pass the turn to them.
         self.tile.cycle = 0;
         self.tile.pic = self.tile.pic_arr[0];
-        throw new Error(`pass to player`);
+        throw new Error(ERRORS.pass_turn);
     }
     if(++self.tile.cycle > 0){
         // Otherwise, root.
         self.tile.pic = self.tile.pic_arr[1];
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
 }
 
 /** @type {TelegraphFunction} */
 function vinesnare_bush_telegraph(location, map, self){
     if( self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.cycle === 0){
         return spider_telegraph(location, map, self);
@@ -3655,7 +3671,7 @@ function vinesnare_bush_telegraph(location, map, self){
 function vinesnare_bush_telegraph_other(location, map, self){
     if( self.cycle === undefined ||
         self.range === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     var vines = []
     if(self.cycle === 0){
@@ -3684,7 +3700,7 @@ function chest_tile(){
 /** @type {AIFunction} Function to open a chest when the player moves onto it.*/
 function chest_on_enter(self, target, map){
     if(self.tile.contents === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(target.tile.type !== `player`){
         return;
@@ -3742,7 +3758,7 @@ function chest_on_enter(self, target, map){
     display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
     display.add_button_row(UIIDS.chest_confirm_row, [abandon_button], take_or_leave);
     display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.chest);
-    throw new Error(`pass to player`);
+    throw new Error(ERRORS.pass_turn);
 }
 
 /**
@@ -3758,7 +3774,7 @@ function chest_on_enter(self, target, map){
  */
 function add_card_to_chest(chest, card){
     if(chest.contents === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var content = {
         pic: card.pic,
@@ -3777,7 +3793,7 @@ function add_card_to_chest(chest, card){
  */
 function add_boon_to_chest(chest, boon){
     if(chest.contents === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var content = {
         pic: boon.pic,
@@ -3808,7 +3824,7 @@ function coffin_tile(){
 function coffin_tile_death(self, target, map){
     if( self.tile.summons === undefined ||
         self.tile.card_drops === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var new_enemy = self.tile.summons[random_num(self.tile.summons.length)]();
     if(new_enemy.type === `chest`){
@@ -3901,7 +3917,7 @@ function fireball_tile(){
 /** @type {AIFunction}  AI used by fireballs.*/
 function fireball_ai(self, target, map){
     if(self.tile.direction === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(!map.move(self.location, self.location.plus(self.tile.direction))){
         // When it hits something, explodes and damages it.
@@ -3920,7 +3936,7 @@ function fireball_on_enter(self, target, map){
 /** @type {TelegraphFunction} */
 function fireball_telegraph(location, map, self){
     if(self.direction === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     return [location.plus(self.direction), ...hazard_telegraph(location, map, self)];
 }
@@ -3980,7 +3996,7 @@ function raging_fire_hit(self, target, map){
     if( self.tile.health === undefined ||
         self.tile.pic_arr === undefined
     ){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var intensity = Math.min(self.tile.health - 1, self.tile.pic_arr.length);
     if(intensity >= 0){
@@ -4011,7 +4027,7 @@ function repulsor_tile(){
 function repulsor_push_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle > 0){
         return;
@@ -4034,8 +4050,8 @@ function repulsor_push_ai(self, target, map){
                         target_space.plus_equals(space);
                     }
                 } catch (error) {
-                    // Catches `pass to player` errors to prevent ping pong between 2.
-                    if(error.message !== `pass to player`){
+                    // Catches ERRORS.pass_turn errors to prevent ping pong between 2.
+                    if(error.message !== ERRORS.pass_turn){
                         throw error;
                     }
                 }
@@ -4047,7 +4063,7 @@ function repulsor_push_ai(self, target, map){
         self.tile.pic = self.tile.pic_arr[self.tile.cycle];
     }
     if(player_was_moved){
-        throw new Error(`pass to player`);
+        throw new Error(ERRORS.pass_turn);
     }
 
 }
@@ -4056,7 +4072,7 @@ function repulsor_push_ai(self, target, map){
 function repulsor_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle > 0){
         self.tile.cycle = 0;
@@ -4068,7 +4084,7 @@ function repulsor_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function repulsor_telegraph_other(location, map, self){
     if( self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     var spaces = [];
     if(self.cycle === 0){
@@ -4116,13 +4132,13 @@ function smoldering_ashes_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.spawn_timer === undefined ||
         self.tile.description_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle < self.tile.spawn_timer){
         // If the cycle hasn't reached the spawn timer, increments it.
         ++self.tile.cycle;
         self.tile.description = `${self.tile.description_arr[0]}${self.tile.spawn_timer - self.tile.cycle}${self.tile.description_arr[1]}`
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
     else{
         // Dies and spawns a pheonix.
@@ -4153,7 +4169,7 @@ function damaged_wall_tile(){
 function damaged_wall_on_hit(self, target, map){
     if(self.tile.pic_arr === undefined ||
         self.tile.health === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     self.tile.pic = self.tile.pic_arr[Math.min(2, self.tile.health - 1)];
 }
@@ -4161,7 +4177,7 @@ function damaged_wall_on_hit(self, target, map){
 /** @type {AIFunction} Function used when a damaged wall is destroyed to potentially spawn something.*/
 function damaged_wall_death(self, target, map){
     if(self.tile.summons === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(random_num(10) < 7){
         var ran = random_num(self.tile.summons.length);
@@ -4248,7 +4264,7 @@ function hazard(self, target, map){
 /** @type {AIFunction}  AI used by entities that decay over time or when moved onto.*/
 function decay_ai(self, target, map){
     map.attack(self.location);
-    throw new Error(`skip animation delay`);
+    throw new Error(ERRORS.skip_animation);
 }
 /** @type {AIFunction} Attempts to move 1 space closer to the user until it succesfully moves or it dies.*/
 function move_closer_ai(self, target, map){
@@ -4263,7 +4279,7 @@ function move_closer_ai(self, target, map){
 /** @type {AIFunction} AI used when a entity should move and attack in a direction (the target's difference field).*/
 function move_attack_ai(self, target, map){
     if(target.difference.within_radius(0)){
-        throw new Error(`entity targeting itself`)
+        throw new Error(ERRORS.invalid_value)
     }
     if(map.move(self.location, self.location.plus(target.difference))){
         self.location.plus_equals(target.difference);
@@ -4529,7 +4545,7 @@ function set_rotation(tile){
     */
     if( tile.direction === undefined ||
         tile.rotate === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var direction = tile.direction;
     if(direction.on_axis()){
@@ -4780,7 +4796,7 @@ function summon_spell_generator(){
 /** @type {AIFunction} Spell which summons a random thing from the user's summon array.*/
 function summon_spell(self, target, map){
     if(self.tile.summons === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var tile = self.tile.summons[random_num(self.tile.summons.length)]();
     spawn_nearby(map, tile, self.location);
@@ -4954,7 +4970,7 @@ class ButtonGrid{
             number = this.#convert_direction(description);
         }
         if(number < 1 || number > 9){
-            throw new Error(`button out of range`);
+            throw new Error(ERRORS.invalid_value);
         }
         var button = {
             description,
@@ -5086,7 +5102,7 @@ class EntityList{
      */
     get_player_pos(){
         if(this.#player_pos === undefined){
-            throw new Error(`player does not exist`);
+            throw new Error(ERRORS.value_not_found);
         }
         return this.#player_pos.copy();
     }
@@ -5102,7 +5118,7 @@ class EntityList{
      */
     get_exit_pos(){
         if(this.#exit_pos === undefined){
-            throw new Error(`exit does not exist`);
+            throw new Error(ERRORS.value_not_found);
         }
         return this.#exit_pos.copy();
     }
@@ -5124,7 +5140,7 @@ class EntityList{
     move_enemy(location, id){
         var index = this.#find_by_id(id);
         if(index === -1){
-            throw new Error(`id not found`);
+            throw new Error(ERRORS.missing_id);
         }
         this.#enemy_list[index].location = location;
     }
@@ -5135,7 +5151,7 @@ class EntityList{
     remove_enemy(id){
         var index = this.#find_by_id(id);
         if(index === -1){
-            throw new Error(`id not found`);
+            throw new Error(ERRORS.missing_id);
         }
         this.#enemy_list.splice(index, 1);
         --this.count_non_empty;
@@ -5164,12 +5180,12 @@ class EntityList{
         }
         else if(entity.type === `enemy`){
             if(entity.id === undefined){
-                throw new Error(`enemy missing id`);
+                throw new Error(ERRORS.missing_id);
             }
             this.move_enemy(location, entity.id);
         }
         else{
-            throw new Error(`moving invalid type`);
+            throw new Error(ERRORS.invalid_type);
         }
     }
     /**
@@ -5187,7 +5203,7 @@ class EntityList{
         for(var i = 0; i < turn.length; ++i){
             var e = turn[i];
             if(e.enemy.id === undefined){
-                throw new Error(`enemy has no id`);
+                throw new Error(ERRORS.missing_id);
             }
             if(!(this.#find_by_id(e.enemy.id) === -1)){
                 try{
@@ -5210,10 +5226,10 @@ class EntityList{
                             }
                         }
                         catch(error){
-                            if(error.message === `skip animation delay`){
+                            if(error.message === ERRORS.skip_animation){
                                 do_delay = false;
                             }
-                            else if(!(error.message === `creature died`)){
+                            else if(!(error.message === ERRORS.creature_died)){
                                 throw error
                             }
                         }
@@ -5224,8 +5240,8 @@ class EntityList{
                     }
                 }
                 catch(error){
-                    if(error.message === `game over`){
-                        throw new Error(`game over`, {cause: new Error(e.enemy.name)});
+                    if(error.message === ERRORS.game_over){
+                        throw new Error(ERRORS.game_over, {cause: new Error(e.enemy.name)});
                     }
                     throw error;
                 }
@@ -5305,7 +5321,7 @@ class GameMap{
             var player = this.get_player();
         }
         catch(error){
-            if(error.message === `player does not exist`){
+            if(error.message === ERRORS.value_not_found){
                 var player = player_tile();
             }
             else{
@@ -5341,7 +5357,7 @@ class GameMap{
         var num_empty = this.#x_max * this.#y_max - this.#entity_list.count_non_empty;
         var rand = random_num(num_empty);
         if(num_empty === 0){
-            throw new Error(`map full`);
+            throw new Error(ERRORS.map_full);
         }
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
@@ -5354,7 +5370,7 @@ class GameMap{
                 }
             }
         }
-        throw new Error(`grid full`);
+        throw new Error(ERRORS.map_full);
     }
     /**
      * Thows an error if the provided point is out of bounds.
@@ -5362,10 +5378,10 @@ class GameMap{
      */
     check_bounds(location){
         if(location.x < 0 || location.x >= this.#x_max){
-            throw new Error(`x out of bounds`);
+            throw new Error(ERRORS.out_of_bounds);
         }
         if(location.y < 0 || location.y >= this.#y_max){
-            throw new Error(`y out of bounds`);
+            throw new Error(ERRORS.out_of_bounds);
         }
     }
     /**
@@ -5398,15 +5414,15 @@ class GameMap{
     set_exit(location){
         this.check_bounds(location);
         if(!this.check_empty(location)){
-            throw new Error(`space not empty`);
+            throw new Error(ERRORS.space_full);
         }
         try{
             // If exit isn't undefined, throws error.
             this.#entity_list.get_exit_pos();
-            throw new Error(`exit already set`)
+            throw new Error(ERRORS.already_exists)
         }
         catch(error) {
-            if(error.message !== `exit does not exist`){
+            if(error.message !== ERRORS.value_not_found){
                 throw error;
             }
             // otherwise continues.
@@ -5422,19 +5438,19 @@ class GameMap{
      */
     set_player(player_location, player){
         if(player.type !== `player`){
-            throw new Error(`tried to set non-player as player`)
+            throw new Error(ERRORS.invalid_value)
         }
         this.check_bounds(player_location);
         if(!this.check_empty(player_location)){
-            throw new Error(`space not empty`);
+            throw new Error(ERRORS.space_full);
         }
         try{
             // If player isn't undefined, throws error.
             this.#entity_list.get_player_pos();
-            throw new Error(`player already set`)
+            throw new Error(ERRORS.already_exists)
         }
         catch(error) {
-            if(error.message !== `player does not exist`){
+            if(error.message !== ERRORS.value_not_found){
                 throw error;
             }
             // otherwise continues.
@@ -5457,7 +5473,7 @@ class GameMap{
             }
             this.check_bounds(location);
             if(!this.check_empty(location)){
-                throw new Error(`space not empty`);
+                throw new Error(ERRORS.space_full);
             }
         }
         catch(error){
@@ -5483,7 +5499,7 @@ class GameMap{
         var attacks = [];
         var player_location = this.#entity_list.get_player_pos();
         if(!player_location){
-            throw new Error(`player doesn't exist`);
+            throw new Error(ERRORS.value_not_found);
         }
         for(var i = 0; i < tries; ++i){
             var location = this.random_empty();
@@ -5583,7 +5599,7 @@ class GameMap{
         var end = this.get_tile(end_point);
         if(start.type === `player` && end.type === `exit`){
             ++this.#turn_count;
-            throw new Error(`floor complete`);
+            throw new Error(ERRORS.floor_complete);
         }
         if(end.on_enter !== undefined){
             // If the destination does something if moved onto, call it.
@@ -5599,10 +5615,10 @@ class GameMap{
                 end.on_enter(entity_entered, mover_info, this);
             }
             catch(error){
-                if(error.message === `game over`){
-                    throw new Error(`game over`, {cause: new Error(end.name)});
+                if(error.message === ERRORS.game_over){
+                    throw new Error(ERRORS.game_over, {cause: new Error(end.name)});
                 }
-                if(error.message === `skip animation delay`){
+                if(error.message === ERRORS.skip_animation){
                     // Do nothing
                 }
                 else{
@@ -5610,7 +5626,7 @@ class GameMap{
                 }
             }
             if(start.health !== undefined && start.health <= 0){
-                throw new Error(`creature died`);
+                throw new Error(ERRORS.creature_died);
             }
         }
         if(end.type === `empty` && this.get_tile(start_point) === start){
@@ -5691,13 +5707,13 @@ class GameMap{
                         GS.boons.lose(boon_names.rebirth);
                         return true;
                     }
-                    throw new Error(`game over`);
+                    throw new Error(ERRORS.game_over);
                 }
                 // Remove dead tile.
                 this.#set_tile(location, empty_tile());
                 if(target.type === `enemy`){
                     if(target.id === undefined){
-                        throw new Error(`enemy missing id`);
+                        throw new Error(ERRORS.missing_id);
                     }
                     this.#entity_list.remove_enemy(target.id);
                 }
@@ -5747,7 +5763,7 @@ class GameMap{
             if(error.message !== `game over`){
                 throw error;
             }
-            throw new Error(`game over`, {cause: new Error(`player`)});
+            throw new Error(ERRORS.game_over, {cause: new Error(`player`)});
         }
     }
     /**
@@ -5806,8 +5822,8 @@ class GameMap{
                 event.behavior(this);
             }
             catch(error){
-                if(error.message === `game over`){
-                    throw new Error(`game over`, {cause: new Error(event.name)});
+                if(error.message === ERRORS.game_over){
+                    throw new Error(ERRORS.game_over, {cause: new Error(event.name)});
                 }
                 throw error;
             }
@@ -5989,7 +6005,7 @@ class GameMap{
         if(amount === undefined){
             // If no amount is specified, sets health to max.
             if(tile.max_health === undefined){
-                throw new Error(`healed with no amount`);
+                throw new Error(ERRORS.value_not_found);
             }
             var healed = tile.health < tile.max_health;
             tile.health = tile.max_health;
@@ -6136,16 +6152,16 @@ class GameState{
         }
         catch (error){
             var m = error.message;
-            if(m === `floor complete`){
+            if(m === ERRORS.floor_complete){
                 // If the player has reached the end of the floor.
                 this.map.display_stats(UIIDS.stats);
                 this.enter_shop();
             }
-            else if(m === `game over`){
+            else if(m === ERRORS.game_over){
                 // If the player's health reached 0
                 this.game_over(error.cause.message);
             }
-            else if(m === `pass to player`){
+            else if(m === ERRORS.pass_turn){
                 // If the enemies' turn was interrupted,
                 // prep for player's next turn.
                 this.prep_turn();
@@ -6193,7 +6209,7 @@ class GameState{
                 this.map.player_heal(action.change, 1);
                 break;
             default:
-                throw new Error(`invalid player action type`);
+                throw new Error(ERRORS.invalid_value);
         }
         return false;
     }
@@ -6435,7 +6451,7 @@ class MoveDeck{
         // If the library is empty, it will first shuffle in the discard. 
         // Throws an error if x doens't correspond to a card in hand.
         if(hand_pos >= this.#hand.length || hand_pos < 0){
-            throw new Error(`hand out of bounds`);
+            throw new Error(ERRORS.invalid_value);
         }
         if(!(this.#hand[hand_pos].temp !== undefined && this.#hand[hand_pos].temp === true)){
             this.#discard_pile.push(this.#hand[hand_pos]);
@@ -6923,7 +6939,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     // Add sleeping head.
     var head = two_headed_serpent_tile();
     if(head.segment_list === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     head.segment_list[0] = locations[0].copy();
     serpent_rotate(head);
@@ -6932,7 +6948,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     for(var i = 0; i < locations.length - 1; ++i){
         var segment = two_headed_serpent_body_tile();
         if(segment.segment_list === undefined){
-            throw new Error(`tile missing properties used by it's ai.`);
+            throw new Error(ERRORS.missing_property);
         }
         segment.segment_list[0] = locations[i + 1];
         segment.segment_list[1] = locations[i].times(-1);
@@ -6943,7 +6959,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     // Add awake head.
     var tail = two_headed_serpent_tile();
     if(tail.segment_list === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     tail.segment_list[1] = locations[locations.length - 1].times(-1);
     serpent_rotate(tail);
@@ -7564,7 +7580,7 @@ function explain_action(action){
         case `heal`:
             return `${move_types.heal}: ${target}`;
         default:
-            throw new Error(`invalid player action type`);
+            throw new Error(ERRORS.invalid_value);
     }
 }
 
@@ -9027,7 +9043,7 @@ function pick_escape_artist(){
 /** @type {AIFunction}*/
 function pain_reflex_behavior(self, target, map){
     if(self.tile.health !== undefined && self.tile.health > 0){
-        throw new Error(`pass to player`);
+        throw new Error(ERRORS.pass_turn);
     }
 }
 // Not Finished

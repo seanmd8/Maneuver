@@ -43,7 +43,7 @@ class EntityList{
      */
     get_player_pos(){
         if(this.#player_pos === undefined){
-            throw new Error(`player does not exist`);
+            throw new Error(ERRORS.value_not_found);
         }
         return this.#player_pos.copy();
     }
@@ -59,7 +59,7 @@ class EntityList{
      */
     get_exit_pos(){
         if(this.#exit_pos === undefined){
-            throw new Error(`exit does not exist`);
+            throw new Error(ERRORS.value_not_found);
         }
         return this.#exit_pos.copy();
     }
@@ -81,7 +81,7 @@ class EntityList{
     move_enemy(location, id){
         var index = this.#find_by_id(id);
         if(index === -1){
-            throw new Error(`id not found`);
+            throw new Error(ERRORS.missing_id);
         }
         this.#enemy_list[index].location = location;
     }
@@ -92,7 +92,7 @@ class EntityList{
     remove_enemy(id){
         var index = this.#find_by_id(id);
         if(index === -1){
-            throw new Error(`id not found`);
+            throw new Error(ERRORS.missing_id);
         }
         this.#enemy_list.splice(index, 1);
         --this.count_non_empty;
@@ -121,12 +121,12 @@ class EntityList{
         }
         else if(entity.type === `enemy`){
             if(entity.id === undefined){
-                throw new Error(`enemy missing id`);
+                throw new Error(ERRORS.missing_id);
             }
             this.move_enemy(location, entity.id);
         }
         else{
-            throw new Error(`moving invalid type`);
+            throw new Error(ERRORS.invalid_type);
         }
     }
     /**
@@ -144,7 +144,7 @@ class EntityList{
         for(var i = 0; i < turn.length; ++i){
             var e = turn[i];
             if(e.enemy.id === undefined){
-                throw new Error(`enemy has no id`);
+                throw new Error(ERRORS.missing_id);
             }
             if(!(this.#find_by_id(e.enemy.id) === -1)){
                 try{
@@ -167,10 +167,10 @@ class EntityList{
                             }
                         }
                         catch(error){
-                            if(error.message === `skip animation delay`){
+                            if(error.message === ERRORS.skip_animation){
                                 do_delay = false;
                             }
-                            else if(!(error.message === `creature died`)){
+                            else if(!(error.message === ERRORS.creature_died)){
                                 throw error
                             }
                         }
@@ -181,8 +181,8 @@ class EntityList{
                     }
                 }
                 catch(error){
-                    if(error.message === `game over`){
-                        throw new Error(`game over`, {cause: new Error(e.enemy.name)});
+                    if(error.message === ERRORS.game_over){
+                        throw new Error(ERRORS.game_over, {cause: new Error(e.enemy.name)});
                     }
                     throw error;
                 }

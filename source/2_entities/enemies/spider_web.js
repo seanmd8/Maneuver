@@ -18,12 +18,12 @@ function spider_web_tile(){
 function spider_web_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.spawn_timer === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle < self.tile.spawn_timer){
         // If the cycle hasn't reached the spawn timer, increments it.
         ++self.tile.cycle;
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
     else{
         // Attempts to spawn a spider nearby and resets cycle.

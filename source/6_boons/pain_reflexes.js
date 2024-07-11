@@ -16,7 +16,7 @@ function pick_escape_artist(){
 /** @type {AIFunction}*/
 function pain_reflex_behavior(self, target, map){
     if(self.tile.health !== undefined && self.tile.health > 0){
-        throw new Error(`pass to player`);
+        throw new Error(ERRORS.pass_turn);
     }
 }
 // Not Finished

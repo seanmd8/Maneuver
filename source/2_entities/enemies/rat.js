@@ -18,7 +18,7 @@ function rat_tile(){
 function rat_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.flip === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle >= 1 && target.difference.within_radius(1)){
         // If the player is next to it, attack.
@@ -53,7 +53,7 @@ function rat_ai(self, target, map){
 /** @type {TelegraphFunction} Function to telegraph rat attacks.*/
 function rat_telegraph(location, map, self){
     if(self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.cycle >= 1){
         return spider_telegraph(location, map, self);

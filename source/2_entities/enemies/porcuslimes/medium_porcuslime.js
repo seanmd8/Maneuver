@@ -20,7 +20,7 @@ function medium_porcuslime_tile(){
 function medium_porcuslime_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if(self.tile.health !== undefined && self.tile.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
@@ -46,7 +46,7 @@ function medium_porcuslime_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function medium_porcuslime_telegraph(location, map, self){
     if(self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.cycle === 0){
         return porcuslime_horizontal_telegraph(location, map, self);

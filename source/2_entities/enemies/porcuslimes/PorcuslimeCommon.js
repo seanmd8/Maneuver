@@ -9,9 +9,6 @@ function porcuslime_diagonal_ai(self, target, map){
             direction = directions[i];
         }
     }
-    if(direction === undefined){
-        throw new Error(`porcuslime failed to pick a direction`);
-    }
     move_attack_ai(self, {tile: target.tile, difference: direction}, map);
 }
 /** @type {AIFunction} AI used by small and medium porcuslimes when moving orthogonally.*/
@@ -23,9 +20,6 @@ function porcuslime_horizontal_ai(self, target, map){
         if(directions[i].on_axis()){
             direction = directions[i];
         }
-    }
-    if(direction === undefined){
-        throw new Error(`porcuslime failed to pick a direction`);
     }
     move_attack_ai(self, {tile: target.tile, difference: direction}, map);
 }

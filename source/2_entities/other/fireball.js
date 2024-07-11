@@ -18,7 +18,7 @@ function fireball_tile(){
 /** @type {AIFunction}  AI used by fireballs.*/
 function fireball_ai(self, target, map){
     if(self.tile.direction === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(!map.move(self.location, self.location.plus(self.tile.direction))){
         // When it hits something, explodes and damages it.
@@ -37,7 +37,7 @@ function fireball_on_enter(self, target, map){
 /** @type {TelegraphFunction} */
 function fireball_telegraph(location, map, self){
     if(self.direction === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     return [location.plus(self.direction), ...hazard_telegraph(location, map, self)];
 }

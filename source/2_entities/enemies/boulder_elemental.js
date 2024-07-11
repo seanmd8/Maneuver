@@ -26,16 +26,16 @@ function boulder_elemental_look(){
 function boulder_elemental_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.look_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle === 0){
         // Asleep.
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
     if(self.tile.cycle < 0){
         // Asleep and resting.
         ++self.tile.cycle;
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
     var nearby = order_nearby(target.difference);
     var hit = false;
@@ -59,7 +59,7 @@ function boulder_elemental_ai(self, target, map){
 function boulder_elemental_wake_up(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.look_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle === 0){
         stun(self.tile);

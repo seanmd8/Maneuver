@@ -257,7 +257,7 @@ function set_rotation(tile){
     */
     if( tile.direction === undefined ||
         tile.rotate === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var direction = tile.direction;
     if(direction.on_axis()){

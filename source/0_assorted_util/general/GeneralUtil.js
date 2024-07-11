@@ -204,7 +204,7 @@ function array_equals(a1, a2){
  */
 function ifexists(exists){
     if(exists === undefined){
-        throw new Error(`Value is undefined.`)
+        throw new Error(`value is undefined.`)
     }
     return exists;
 }

@@ -19,7 +19,7 @@ function turret_h_ai(self, target, map){
         turret_fire_ai(self, target, map);
     }
     else{
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
 }
 

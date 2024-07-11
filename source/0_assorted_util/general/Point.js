@@ -39,7 +39,7 @@ class Point{
             return this
         }
         else{
-            throw Error(`invalid type`);
+            throw Error(ERRORS.invalid_type);
         }
     }
     /** @type {PointOp} Returns this - p2, which is a new point*/
@@ -59,7 +59,7 @@ class Point{
             return this
         }
         else{
-            throw Error(`invalid type`);
+            throw Error(ERRORS.invalid_type);
         }
     }
     /** @type {PointOp} Returns this * p2, which is a new point*/
@@ -79,7 +79,7 @@ class Point{
             return this
         }
         else{
-            throw Error(`invalid type`);
+            throw Error(ERRORS.invalid_type);
         }
     }
     /**
@@ -107,7 +107,7 @@ class Point{
      */
     rotate(degrees){
         if(degrees % 90 !== 0){
-            throw new Error(`invalid rotation amount.`);
+            throw new Error(`invalid value`);
         }
         degrees = degrees % 360;
         if(degrees === 0){
@@ -144,7 +144,7 @@ function point_equals(p1, p2){
         return p1.x === p2.x && p1.y === p2.y;
     }
     else{
-        throw Error(`invalid type`);
+        throw Error(ERRORS.invalid_type);
     }
 }
 
@@ -157,7 +157,7 @@ function point_equals(p1, p2){
  */
 function add_point_arr(a1, a2){
     if(a1.length != a2.length){
-        throw new Error(`unequal array lengths`);
+        throw new Error(ERRORS.array_size);
     }
     var sum_arr = [];
     for(var i = 0; i < a1.length; ++i){

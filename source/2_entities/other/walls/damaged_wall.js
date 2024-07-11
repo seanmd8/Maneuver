@@ -20,7 +20,7 @@ function damaged_wall_tile(){
 function damaged_wall_on_hit(self, target, map){
     if(self.tile.pic_arr === undefined ||
         self.tile.health === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     self.tile.pic = self.tile.pic_arr[Math.min(2, self.tile.health - 1)];
 }
@@ -28,7 +28,7 @@ function damaged_wall_on_hit(self, target, map){
 /** @type {AIFunction} Function used when a damaged wall is destroyed to potentially spawn something.*/
 function damaged_wall_death(self, target, map){
     if(self.tile.summons === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(random_num(10) < 7){
         var ran = random_num(self.tile.summons.length);

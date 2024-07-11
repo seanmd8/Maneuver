@@ -14,7 +14,7 @@ function chest_tile(){
 /** @type {AIFunction} Function to open a chest when the player moves onto it.*/
 function chest_on_enter(self, target, map){
     if(self.tile.contents === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(target.tile.type !== `player`){
         return;
@@ -72,7 +72,7 @@ function chest_on_enter(self, target, map){
     display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
     display.add_button_row(UIIDS.chest_confirm_row, [abandon_button], take_or_leave);
     display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.chest);
-    throw new Error(`pass to player`);
+    throw new Error(ERRORS.pass_turn);
 }
 
 /**
@@ -88,7 +88,7 @@ function chest_on_enter(self, target, map){
  */
 function add_card_to_chest(chest, card){
     if(chest.contents === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var content = {
         pic: card.pic,
@@ -107,7 +107,7 @@ function add_card_to_chest(chest, card){
  */
 function add_boon_to_chest(chest, boon){
     if(chest.contents === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var content = {
         pic: boon.pic,

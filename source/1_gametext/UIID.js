@@ -13,7 +13,7 @@ function get_uiids(language){
         case `html`:
             return HTML_UIIDS;
         default:
-            throw new Error(`invalid display language`);
+            throw new Error(ERRORS.invalid_value);
     }
 }
 

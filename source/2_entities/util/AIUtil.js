@@ -28,7 +28,7 @@ function hazard(self, target, map){
 /** @type {AIFunction}  AI used by entities that decay over time or when moved onto.*/
 function decay_ai(self, target, map){
     map.attack(self.location);
-    throw new Error(`skip animation delay`);
+    throw new Error(ERRORS.skip_animation);
 }
 /** @type {AIFunction} Attempts to move 1 space closer to the user until it succesfully moves or it dies.*/
 function move_closer_ai(self, target, map){
@@ -43,7 +43,7 @@ function move_closer_ai(self, target, map){
 /** @type {AIFunction} AI used when a entity should move and attack in a direction (the target's difference field).*/
 function move_attack_ai(self, target, map){
     if(target.difference.within_radius(0)){
-        throw new Error(`entity targeting itself`)
+        throw new Error(ERRORS.invalid_value)
     }
     if(map.move(self.location, self.location.plus(target.difference))){
         self.location.plus_equals(target.difference);

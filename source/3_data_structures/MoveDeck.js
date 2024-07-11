@@ -59,7 +59,7 @@ class MoveDeck{
         // If the library is empty, it will first shuffle in the discard. 
         // Throws an error if x doens't correspond to a card in hand.
         if(hand_pos >= this.#hand.length || hand_pos < 0){
-            throw new Error(`hand out of bounds`);
+            throw new Error(ERRORS.invalid_value);
         }
         if(!(this.#hand[hand_pos].temp !== undefined && this.#hand[hand_pos].temp === true)){
             this.#discard_pile.push(this.#hand[hand_pos]);

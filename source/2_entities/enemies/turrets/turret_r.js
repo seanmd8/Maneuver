@@ -29,7 +29,7 @@ function turret_r_ai(self, target, map){
         self.tile.pic_arr === undefined || 
         self.tile.direction === undefined || 
         self.tile.spin_direction === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if((target.difference.on_axis() || target.difference.on_diagonal())){
         // Shoot if player is along the line of the old direction or it's opposite.
@@ -51,7 +51,7 @@ function turret_r_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function turret_r_telegraph(location, map, self){
     if(self.direction === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     var attacks = get_points_in_direction(location, self.direction, map);
     return attacks.concat(get_points_in_direction(location, self.direction.times(-1), map));

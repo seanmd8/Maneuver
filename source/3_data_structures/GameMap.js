@@ -69,7 +69,7 @@ class GameMap{
             var player = this.get_player();
         }
         catch(error){
-            if(error.message === `player does not exist`){
+            if(error.message === ERRORS.value_not_found){
                 var player = player_tile();
             }
             else{
@@ -105,7 +105,7 @@ class GameMap{
         var num_empty = this.#x_max * this.#y_max - this.#entity_list.count_non_empty;
         var rand = random_num(num_empty);
         if(num_empty === 0){
-            throw new Error(`map full`);
+            throw new Error(ERRORS.map_full);
         }
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
@@ -118,7 +118,7 @@ class GameMap{
                 }
             }
         }
-        throw new Error(`grid full`);
+        throw new Error(ERRORS.map_full);
     }
     /**
      * Thows an error if the provided point is out of bounds.
@@ -126,10 +126,10 @@ class GameMap{
      */
     check_bounds(location){
         if(location.x < 0 || location.x >= this.#x_max){
-            throw new Error(`x out of bounds`);
+            throw new Error(ERRORS.out_of_bounds);
         }
         if(location.y < 0 || location.y >= this.#y_max){
-            throw new Error(`y out of bounds`);
+            throw new Error(ERRORS.out_of_bounds);
         }
     }
     /**
@@ -162,15 +162,15 @@ class GameMap{
     set_exit(location){
         this.check_bounds(location);
         if(!this.check_empty(location)){
-            throw new Error(`space not empty`);
+            throw new Error(ERRORS.space_full);
         }
         try{
             // If exit isn't undefined, throws error.
             this.#entity_list.get_exit_pos();
-            throw new Error(`exit already set`)
+            throw new Error(ERRORS.already_exists)
         }
         catch(error) {
-            if(error.message !== `exit does not exist`){
+            if(error.message !== ERRORS.value_not_found){
                 throw error;
             }
             // otherwise continues.
@@ -186,19 +186,19 @@ class GameMap{
      */
     set_player(player_location, player){
         if(player.type !== `player`){
-            throw new Error(`tried to set non-player as player`)
+            throw new Error(ERRORS.invalid_value)
         }
         this.check_bounds(player_location);
         if(!this.check_empty(player_location)){
-            throw new Error(`space not empty`);
+            throw new Error(ERRORS.space_full);
         }
         try{
             // If player isn't undefined, throws error.
             this.#entity_list.get_player_pos();
-            throw new Error(`player already set`)
+            throw new Error(ERRORS.already_exists)
         }
         catch(error) {
-            if(error.message !== `player does not exist`){
+            if(error.message !== ERRORS.value_not_found){
                 throw error;
             }
             // otherwise continues.
@@ -221,7 +221,7 @@ class GameMap{
             }
             this.check_bounds(location);
             if(!this.check_empty(location)){
-                throw new Error(`space not empty`);
+                throw new Error(ERRORS.space_full);
             }
         }
         catch(error){
@@ -247,7 +247,7 @@ class GameMap{
         var attacks = [];
         var player_location = this.#entity_list.get_player_pos();
         if(!player_location){
-            throw new Error(`player doesn't exist`);
+            throw new Error(ERRORS.value_not_found);
         }
         for(var i = 0; i < tries; ++i){
             var location = this.random_empty();
@@ -347,7 +347,7 @@ class GameMap{
         var end = this.get_tile(end_point);
         if(start.type === `player` && end.type === `exit`){
             ++this.#turn_count;
-            throw new Error(`floor complete`);
+            throw new Error(ERRORS.floor_complete);
         }
         if(end.on_enter !== undefined){
             // If the destination does something if moved onto, call it.
@@ -363,10 +363,10 @@ class GameMap{
                 end.on_enter(entity_entered, mover_info, this);
             }
             catch(error){
-                if(error.message === `game over`){
-                    throw new Error(`game over`, {cause: new Error(end.name)});
+                if(error.message === ERRORS.game_over){
+                    throw new Error(ERRORS.game_over, {cause: new Error(end.name)});
                 }
-                if(error.message === `skip animation delay`){
+                if(error.message === ERRORS.skip_animation){
                     // Do nothing
                 }
                 else{
@@ -374,7 +374,7 @@ class GameMap{
                 }
             }
             if(start.health !== undefined && start.health <= 0){
-                throw new Error(`creature died`);
+                throw new Error(ERRORS.creature_died);
             }
         }
         if(end.type === `empty` && this.get_tile(start_point) === start){
@@ -455,13 +455,13 @@ class GameMap{
                         GS.boons.lose(boon_names.rebirth);
                         return true;
                     }
-                    throw new Error(`game over`);
+                    throw new Error(ERRORS.game_over);
                 }
                 // Remove dead tile.
                 this.#set_tile(location, empty_tile());
                 if(target.type === `enemy`){
                     if(target.id === undefined){
-                        throw new Error(`enemy missing id`);
+                        throw new Error(ERRORS.missing_id);
                     }
                     this.#entity_list.remove_enemy(target.id);
                 }
@@ -511,7 +511,7 @@ class GameMap{
             if(error.message !== `game over`){
                 throw error;
             }
-            throw new Error(`game over`, {cause: new Error(`player`)});
+            throw new Error(ERRORS.game_over, {cause: new Error(`player`)});
         }
     }
     /**
@@ -570,8 +570,8 @@ class GameMap{
                 event.behavior(this);
             }
             catch(error){
-                if(error.message === `game over`){
-                    throw new Error(`game over`, {cause: new Error(event.name)});
+                if(error.message === ERRORS.game_over){
+                    throw new Error(ERRORS.game_over, {cause: new Error(event.name)});
                 }
                 throw error;
             }
@@ -753,7 +753,7 @@ class GameMap{
         if(amount === undefined){
             // If no amount is specified, sets health to max.
             if(tile.max_health === undefined){
-                throw new Error(`healed with no amount`);
+                throw new Error(ERRORS.value_not_found);
             }
             var healed = tile.health < tile.max_health;
             tile.health = tile.max_health;

@@ -19,7 +19,7 @@ function magma_spewer_tile(){
 function magma_spewer_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle === 0){
         // Move away if the player gets close.

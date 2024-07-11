@@ -20,7 +20,7 @@ function ram_tile(){
 function ram_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     var direction = sign(target.difference);
     var wander_speed = 2;
@@ -69,7 +69,7 @@ function ram_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function ram_telegraph(location, map, self){
     if(self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.cycle === 0){
         return [];

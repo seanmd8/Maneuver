@@ -27,7 +27,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     // Add sleeping head.
     var head = two_headed_serpent_tile();
     if(head.segment_list === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     head.segment_list[0] = locations[0].copy();
     serpent_rotate(head);
@@ -36,7 +36,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     for(var i = 0; i < locations.length - 1; ++i){
         var segment = two_headed_serpent_body_tile();
         if(segment.segment_list === undefined){
-            throw new Error(`tile missing properties used by it's ai.`);
+            throw new Error(ERRORS.missing_property);
         }
         segment.segment_list[0] = locations[i + 1];
         segment.segment_list[1] = locations[i].times(-1);
@@ -47,7 +47,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     // Add awake head.
     var tail = two_headed_serpent_tile();
     if(tail.segment_list === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     tail.segment_list[1] = locations[locations.length - 1].times(-1);
     serpent_rotate(tail);

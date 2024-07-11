@@ -45,7 +45,7 @@ function lich_tile(){
 function lich_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.spells === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
         // Move away and prepare the next spell.
@@ -77,7 +77,7 @@ function lich_ai(self, target, map){
 function lich_telegraph(location, map, self){
     if( self.cycle === undefined || 
         self.spells === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var spell = self.spells[self.cycle]
     if(spell.telegraph !== undefined){
@@ -90,7 +90,7 @@ function lich_telegraph(location, map, self){
 function lich_telegraph_other(location, map, self){
     if( self.cycle === undefined || 
         self.spells === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var spell = self.spells[self.cycle]
     if(spell.telegraph_other !== undefined){
@@ -103,7 +103,7 @@ function lich_telegraph_other(location, map, self){
 function lich_hit(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.spells === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     self.tile.cycle = 1;
     self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;

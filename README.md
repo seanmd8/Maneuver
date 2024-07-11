@@ -9,7 +9,7 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 Gameplay Changelog:
 
 7/10/24
-- Added 5 new Boons
+- Added 5 new Boons.
 
 7/9/24
 - Added new reward: Boons. They will be found in the third floor of each area.

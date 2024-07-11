@@ -151,7 +151,7 @@ function get_display(language){
         case `html`:
             return DisplayHTML;
         default:
-            throw new Error(`invalid display language`);
+            throw new Error(ERRORS.invalid_value);
     }
 }
 
@@ -305,7 +305,7 @@ const DisplayHTML = {
                 DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
             }
             catch(error){
-                if(error.message !== `failed to retrieve html element`){
+                if(error.message !== ERRORS.value_not_found){
                     throw error;
                 }
             }
@@ -371,7 +371,7 @@ const DisplayHTML = {
     },
     create_alternating_text_section: function(header, par_arr, inline_arr){
         if(par_arr.length !== inline_arr.length && par_arr.length !== inline_arr.length + 1){
-            throw new Error(`array size mismatch`);
+            throw new Error(ERRORS.array_size);
         }
         var body_div = document.createElement(`div`);
         var body_div_id = `${header} section`;
@@ -451,10 +451,10 @@ const DisplayHTML = {
     get_element: function(location, type = undefined){
         var element = document.getElementById(location);
         if(element === null){
-            throw new Error(`failed to retrieve html element`);
+            throw new Error(ERRORS.value_not_found);
         }
         if(type !== undefined && !(element instanceof type)){
-            throw new Error(`html element is the wrong type`);
+            throw new Error(ERRORS.invalid_type);
         }
         return element
     }

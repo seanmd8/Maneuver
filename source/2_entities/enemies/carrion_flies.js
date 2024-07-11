@@ -18,7 +18,7 @@ function carrion_flies_tile(){
 function carrion_flies_ai(self, target, map){
     if( self.tile.cycle === undefined ||
         self.tile.spawn_timer === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     ++self.tile.cycle;
     if(self.tile.cycle === self.tile.spawn_timer){

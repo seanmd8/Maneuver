@@ -37,7 +37,7 @@ function young_dragon_behavior(self, target, map){
         self.tile.cycle === undefined ||
         self.tile.range === undefined ||
         self.tile.direction === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
         // Flight
@@ -141,7 +141,7 @@ function young_dragon_telegraph(location, map, self){
         self.cycle === undefined ||
         self.range === undefined ||
         self.direction === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.cycle !== 2){
         return [];

@@ -17,7 +17,7 @@ function igneous_crab_tile(){
 /** @type {AIFunction} AI used by igneous crabs.*/
 function igneous_crab_ai(self, target, map){
     if(self.tile.cycle === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle > 0){
         var directions = reverse_arr(order_nearby(target.difference));
@@ -31,14 +31,14 @@ function igneous_crab_ai(self, target, map){
 /** @type {AIFunction} Used to cause igneous crabs to flee when damaged.*/
 function igneous_crab_hit(self, target, map){
     if(self.tile.cycle === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     self.tile.cycle += 2;
 }
 /** @type {TelegraphFunction} Function to telegraph igneous crab attacks.*/
 function igneous_crab_telegraph(location, map, self){
     if(self.cycle === undefined){
-        throw new Error(`tile missing properties used to telegraph it's attacks.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.cycle > 0){
         return [];

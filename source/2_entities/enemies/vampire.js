@@ -18,7 +18,7 @@ function vampire_tile(){
 function vampire_ai(self, target, map){
     if( self.tile.health === undefined || 
         self.tile.max_health === undefined){
-        throw new Error(`tile missing properties used by it's ai.`)
+        throw new Error(ERRORS.missing_property)
     }
     var player_pos = self.location.plus(target.difference);
     var target_spaces = [new Point(player_pos.x + 1, player_pos.y + 1), 

@@ -20,13 +20,13 @@ function smoldering_ashes_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.spawn_timer === undefined ||
         self.tile.description_arr === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle < self.tile.spawn_timer){
         // If the cycle hasn't reached the spawn timer, increments it.
         ++self.tile.cycle;
         self.tile.description = `${self.tile.description_arr[0]}${self.tile.spawn_timer - self.tile.cycle}${self.tile.description_arr[1]}`
-        throw new Error(`skip animation delay`);
+        throw new Error(ERRORS.skip_animation);
     }
     else{
         // Dies and spawns a pheonix.

@@ -17,7 +17,7 @@ function coffin_tile(){
 function coffin_tile_death(self, target, map){
     if( self.tile.summons === undefined ||
         self.tile.card_drops === undefined){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var new_enemy = self.tile.summons[random_num(self.tile.summons.length)]();
     if(new_enemy.type === `chest`){

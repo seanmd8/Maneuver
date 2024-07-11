@@ -21,7 +21,7 @@ function raging_fire_hit(self, target, map){
     if( self.tile.health === undefined ||
         self.tile.pic_arr === undefined
     ){
-        throw new Error(`tile missing properties used by it's ai.`);
+        throw new Error(ERRORS.missing_property);
     }
     var intensity = Math.min(self.tile.health - 1, self.tile.pic_arr.length);
     if(intensity >= 0){
