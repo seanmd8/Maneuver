@@ -27,7 +27,7 @@ function lich_tile(){
         name: `lich`,
         pic: spells[starting_cycle].pic,
         description: `${lich_description}${spells[starting_cycle].description}`,
-        health: 3,
+        health: 4,
         death_message: lich_death_message,
         behavior: lich_ai,
         telegraph: lich_telegraph,
