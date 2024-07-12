@@ -10,5 +10,5 @@ function repetition(){
 }
 
 function prereq_repetition(){
-    return getSelection.boons.has(boon_names.repetition) < 3;
+    return GS.boons.has(boon_names.repetition) < 3;
 }

@@ -194,8 +194,9 @@ class MoveDeck{
         // Returns false if it could not be found.
         for(var i = 0; i < this.#decklist.length; ++i){
             if(this.#decklist[i].id === id){
+                var card = this.#decklist[i];
                 this.#decklist[i] = this.#decklist[this.#decklist.length - 1];
-                var card = this.#decklist.pop();
+                this.#decklist.pop()
                 if(card.evolutions !== undefined){
                     this.add(randomize_arr(card.evolutions)[0]());
                 }
