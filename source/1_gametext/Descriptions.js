@@ -18,6 +18,9 @@ const stunned_msg = `Stunned x`;
 const gameplay_screen_name = `Gameplay`;
 const guide_screen_name = `Guidebook`;
 const tile_description_divider = `\n--------------------\n`;
+const card_explanation_start = `Move Options (actions will be performed in order):\n`;
+const card_explanation_end = `Shift click on a button to show what it will do on the map.\n`;
+
 
 
 // Normal Enemy Descriptions.

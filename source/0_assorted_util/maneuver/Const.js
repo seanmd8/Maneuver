@@ -17,7 +17,7 @@ const STARTING_AREA = [generate_ruins_area];
 var GS;
 
 // Settings just used for testing.
-const SECOND_STARTING_ENEMY = spider_tile;
+const SECOND_STARTING_ENEMY = lava_pool_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
 const STARTING_CHEST_CONTENTS = ancient_card;
@@ -47,7 +47,8 @@ const MARKUP_LANGUAGE = `html`;
 // Keyboard controls.
 const CONTROLS = {
     directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
-    card: [`h`, `j`, `k`, `l`]
+    card: [`h`, `j`, `k`, `l`],
+    alt: [`Shift`, `ShiftLeft`, `ShiftRight`]
 }
 Object.freeze(CONTROLS);
 

@@ -411,7 +411,7 @@ const STARTING_AREA = [generate_ruins_area];
 var GS;
 
 // Settings just used for testing.
-const SECOND_STARTING_ENEMY = spider_tile;
+const SECOND_STARTING_ENEMY = lava_pool_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
 const STARTING_CHEST_CONTENTS = ancient_card;
@@ -441,7 +441,8 @@ const MARKUP_LANGUAGE = `html`;
 // Keyboard controls.
 const CONTROLS = {
     directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
-    card: [`h`, `j`, `k`, `l`]
+    card: [`h`, `j`, `k`, `l`],
+    alt: [`Shift`, `ShiftLeft`, `ShiftRight`]
 }
 Object.freeze(CONTROLS);
 
@@ -758,7 +759,7 @@ const DisplayHTML = {
     },
     press: function(key_press){
         // Pick direction via keyboard.
-        var key_num = search(key_press.key, CONTROLS.directional);
+        var key_num = search(key_press.key.toLowerCase(), CONTROLS.directional);
         if(key_num >= 0){
             try{
                 DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
@@ -771,10 +772,22 @@ const DisplayHTML = {
             
         }
         // Select card via keyboard.
-        key_num = search(key_press.key, CONTROLS.card);
+        key_num = search(key_press.key.toLowerCase(), CONTROLS.card);
         if(key_num >= 0){
             var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
             element && element.click();
+        }
+        key_num = search(key_press.key, CONTROLS.alt);
+        if(key_num >= 0){
+            display.shift_is_pressed = true;
+            console.log(display.shift_is_pressed);
+        }
+    },
+    unpress: function(key_press){
+        key_num = search(key_press.key, CONTROLS.alt);
+        if(key_num >= 0){
+            display.shift_is_pressed = false;
+            console.log(display.shift_is_pressed);
         }
     },
     create_visibility_toggle: function(location, header, body_element){
@@ -895,6 +908,7 @@ const DisplayHTML = {
         var element = DisplayHTML.get_element(location);
         element.classList.remove(css_class);
     },
+    shift_is_pressed: false,
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -918,11 +932,11 @@ const DisplayHTML = {
         return element
     }
 }
-Object.freeze(DisplayHTML);
 
 // Set up the display library and the onkeydown function.
 const display = get_display(MARKUP_LANGUAGE);
 document.onkeydown = display.press;
+document.onkeyup = display.unpress;
 
 const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.
 // Library for the various kinds of errors that the game could throw
@@ -1162,6 +1176,9 @@ const stunned_msg = `Stunned x`;
 const gameplay_screen_name = `Gameplay`;
 const guide_screen_name = `Guidebook`;
 const tile_description_divider = `\n--------------------\n`;
+const card_explanation_start = `Move Options (actions will be performed in order):\n`;
+const card_explanation_end = `Shift click on a button to show what it will do on the map.\n`;
+
 
 
 // Normal Enemy Descriptions.
@@ -1442,7 +1459,8 @@ const GUIDE_TEXT = {
                 ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
                 ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
             +`\n`
-            +`You can use the (?) button next to your move options to learn exactly what a selected card does.\n`
+            +`You can use the (?) button next to your move options to learn exactly what a selected card does, or shift click to `
+            +`display what the card does on the map.\n`
             +`\n`
             +`In addition to clicking on cards to use them, you can use the keys\n`,
                 ` `, ` `, `\n`
@@ -4997,8 +5015,18 @@ class ButtonGrid{
         display.display_message(UIIDS.display_message, ``);
         var make_press_button = function(hand_position){
             return function(button){
-                if(button.behavior){
-                    GS.player_turn(button.behavior, hand_position)
+                if(display.shift_is_pressed){
+                    var t = telegraph_card(button.behavior, GS.map);
+                    GS.map.clear_telegraphs();
+                    GS.map.display_telegraph(t.moves, `${IMG_FOLDER.actions}move_telegraph.png`);
+                    GS.map.display_telegraph(t.attacks, `${IMG_FOLDER.actions}hit_telegraph.png`);
+                    GS.map.display_telegraph(t.stun, `${IMG_FOLDER.actions}confuse.png`);
+                    GS.map.display_telegraph(t.healing, `${IMG_FOLDER.actions}heal.png`);
+                    GS.map.display_telegraph(t.teleport, `${IMG_FOLDER.actions}teleport_telegraph.png`);
+                    GS.map.display();
+                }
+                else if(button.behavior){
+                    GS.player_turn(button.behavior, hand_position);
                 }
             }
         }
@@ -5020,7 +5048,7 @@ class ButtonGrid{
      * @returns {String} The explanation.
      */
     explain_card(){
-        var explanation = `Move Options (actions will be performed in order):\n`;
+        var explanation = card_explanation_start;
         for(let row of this.#buttons){
             for(let button of row){
                 if(button.description !== null_move_button){
@@ -5033,7 +5061,7 @@ class ButtonGrid{
                 }
             }
         }
-        return explanation;
+        return explanation.concat(card_explanation_end);
     }
     /**
      * A helper function to infer the number (1-9) on the 3x3 button grid where a new button should go.
@@ -5413,6 +5441,14 @@ class GameMap{
      */
     check_empty(location){
         return this.is_in_bounds(location) && this.get_tile(location).type === `empty`;
+    }
+    /**
+     * Checks if a location is in bounds and looks empty (could be something invisible).
+     * @param {Point} location The point to check.
+     * @returns {boolean} Returns true if the location is both in bounds and looks empty and false otherwise.
+     */
+    looks_empty(location){
+        return this.is_in_bounds(location) && this.get_tile(location).name === `empty`;
     }
     /**
      * Places an exit tile at the given location
@@ -6050,6 +6086,18 @@ class GameMap{
      */
     get_turn_count(){
         return this.#turn_count;
+    }
+    /**
+     * Checks if a location is in bounds and looks empty, or has a on_enter function.
+     * @param {Point} location The point to check.
+     * @returns {boolean} Returns true if the tile fits the criteria, false otherwise.
+     */
+    looks_movable(location){
+        if(!this.is_in_bounds(location)){
+            return false;
+        }
+        var tile = this.get_tile(location);
+        return (tile.name === `empty` || tile.on_enter !== undefined || tile.name === `exit`);
     }
 }
 
@@ -7613,6 +7661,76 @@ function explain_point(p){
     else{
         return `${horizontal} ${Math.abs(p.x)}, ${vertical} ${Math.abs(p.y)}`;
     }
+}
+
+/**
+ * 
+ */
+function telegraph_card(behavior, map){
+    var start_position = map.get_player_location(); 
+    var telegraphs = {
+        moves: [],
+        attacks: [],
+        stun: [],
+        healing: [],
+        teleport: []
+    }
+    for(var action of behavior){
+        var next_position = start_position.plus(action.change);
+        switch(action.type){
+            case `attack`:
+                telegraphs.attacks.push(next_position);
+                break;
+            case `move`:
+                if(map.looks_movable(next_position)){
+                    telegraphs.moves.push(next_position);
+                }
+                if(map.looks_empty(next_position)){
+                    start_position = next_position;
+                }
+                break;
+            case `teleport`:
+                for(var p of get_all_points()){
+                    if(map.looks_empty(p)){
+                        telegraphs.teleport.push(p);
+                    }
+                }
+                break;
+            case `instant`:
+                break;
+            case `stun`:
+                telegraphs.stun.push(next_position);
+                break;
+            case `move_until`:
+                while(map.looks_empty(next_position)){
+                    telegraphs.moves.push(next_position);
+                    start_position = next_position;
+                    next_position = start_position.plus(action.change);
+                }
+                if(map.looks_movable(next_position)){
+                    telegraphs.moves.push(next_position);
+                }
+                break;
+            case `heal`:
+                telegraphs.healing.push(next_position);
+                break;
+            default:
+                throw new Error(ERRORS.invalid_value);
+        }
+    }
+    return telegraphs;
+}
+/*
+*
+*/
+function get_all_points(){
+    var points = [];
+    for(var x = 0; x < FLOOR_WIDTH; ++x){
+        for(var y = 0; y < FLOOR_HEIGHT; ++y){
+            points.push(new Point(x, y));
+        }
+    }
+    return points;
 }
 // ----------------ConfusionCards.js----------------
 // File containing cards that can be given to the player as a debuff.

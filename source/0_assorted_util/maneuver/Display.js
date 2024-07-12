@@ -299,7 +299,7 @@ const DisplayHTML = {
     },
     press: function(key_press){
         // Pick direction via keyboard.
-        var key_num = search(key_press.key, CONTROLS.directional);
+        var key_num = search(key_press.key.toLowerCase(), CONTROLS.directional);
         if(key_num >= 0){
             try{
                 DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
@@ -312,10 +312,22 @@ const DisplayHTML = {
             
         }
         // Select card via keyboard.
-        key_num = search(key_press.key, CONTROLS.card);
+        key_num = search(key_press.key.toLowerCase(), CONTROLS.card);
         if(key_num >= 0){
             var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
             element && element.click();
+        }
+        key_num = search(key_press.key, CONTROLS.alt);
+        if(key_num >= 0){
+            display.shift_is_pressed = true;
+            console.log(display.shift_is_pressed);
+        }
+    },
+    unpress: function(key_press){
+        key_num = search(key_press.key, CONTROLS.alt);
+        if(key_num >= 0){
+            display.shift_is_pressed = false;
+            console.log(display.shift_is_pressed);
         }
     },
     create_visibility_toggle: function(location, header, body_element){
@@ -436,6 +448,7 @@ const DisplayHTML = {
         var element = DisplayHTML.get_element(location);
         element.classList.remove(css_class);
     },
+    shift_is_pressed: false,
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -459,10 +472,10 @@ const DisplayHTML = {
         return element
     }
 }
-Object.freeze(DisplayHTML);
 
 // Set up the display library and the onkeydown function.
 const display = get_display(MARKUP_LANGUAGE);
 document.onkeydown = display.press;
+document.onkeyup = display.unpress;
 
 const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.

@@ -45,8 +45,18 @@ class ButtonGrid{
         display.display_message(UIIDS.display_message, ``);
         var make_press_button = function(hand_position){
             return function(button){
-                if(button.behavior){
-                    GS.player_turn(button.behavior, hand_position)
+                if(display.shift_is_pressed){
+                    var t = telegraph_card(button.behavior, GS.map);
+                    GS.map.clear_telegraphs();
+                    GS.map.display_telegraph(t.moves, `${IMG_FOLDER.actions}move_telegraph.png`);
+                    GS.map.display_telegraph(t.attacks, `${IMG_FOLDER.actions}hit_telegraph.png`);
+                    GS.map.display_telegraph(t.stun, `${IMG_FOLDER.actions}confuse.png`);
+                    GS.map.display_telegraph(t.healing, `${IMG_FOLDER.actions}heal.png`);
+                    GS.map.display_telegraph(t.teleport, `${IMG_FOLDER.actions}teleport_telegraph.png`);
+                    GS.map.display();
+                }
+                else if(button.behavior){
+                    GS.player_turn(button.behavior, hand_position);
                 }
             }
         }
@@ -68,7 +78,7 @@ class ButtonGrid{
      * @returns {String} The explanation.
      */
     explain_card(){
-        var explanation = `Move Options (actions will be performed in order):\n`;
+        var explanation = card_explanation_start;
         for(let row of this.#buttons){
             for(let button of row){
                 if(button.description !== null_move_button){
@@ -81,7 +91,7 @@ class ButtonGrid{
                 }
             }
         }
-        return explanation;
+        return explanation.concat(card_explanation_end);
     }
     /**
      * A helper function to infer the number (1-9) on the 3x3 button grid where a new button should go.

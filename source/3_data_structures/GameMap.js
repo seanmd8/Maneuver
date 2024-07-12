@@ -155,6 +155,14 @@ class GameMap{
         return this.is_in_bounds(location) && this.get_tile(location).type === `empty`;
     }
     /**
+     * Checks if a location is in bounds and looks empty (could be something invisible).
+     * @param {Point} location The point to check.
+     * @returns {boolean} Returns true if the location is both in bounds and looks empty and false otherwise.
+     */
+    looks_empty(location){
+        return this.is_in_bounds(location) && this.get_tile(location).name === `empty`;
+    }
+    /**
      * Places an exit tile at the given location
      * Throws an error if the location is out of bounds, the space is not empty or there is already an exit tile.
      * @param {Point} location The location to set the exit at.
@@ -790,6 +798,18 @@ class GameMap{
      */
     get_turn_count(){
         return this.#turn_count;
+    }
+    /**
+     * Checks if a location is in bounds and looks empty, or has a on_enter function.
+     * @param {Point} location The point to check.
+     * @returns {boolean} Returns true if the tile fits the criteria, false otherwise.
+     */
+    looks_movable(location){
+        if(!this.is_in_bounds(location)){
+            return false;
+        }
+        var tile = this.get_tile(location);
+        return (tile.name === `empty` || tile.on_enter !== undefined || tile.name === `exit`);
     }
 }
 

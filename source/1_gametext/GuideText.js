@@ -37,7 +37,8 @@ const GUIDE_TEXT = {
                 ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
                 ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
             +`\n`
-            +`You can use the (?) button next to your move options to learn exactly what a selected card does.\n`
+            +`You can use the (?) button next to your move options to learn exactly what a selected card does, or shift click to `
+            +`display what the card does on the map.\n`
             +`\n`
             +`In addition to clicking on cards to use them, you can use the keys\n`,
                 ` `, ` `, `\n`

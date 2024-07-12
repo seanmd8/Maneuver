@@ -10,6 +10,7 @@ Gameplay Changelog:
 
 7/11/24
 - Added a guidebook section for chests and boons.
+- Shift clicking a move button now displays the expected result on the map.
 
 7/10/24
 - Added 5 new Boons.

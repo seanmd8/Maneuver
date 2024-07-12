@@ -166,3 +166,73 @@ function explain_point(p){
         return `${horizontal} ${Math.abs(p.x)}, ${vertical} ${Math.abs(p.y)}`;
     }
 }
+
+/**
+ * 
+ */
+function telegraph_card(behavior, map){
+    var start_position = map.get_player_location(); 
+    var telegraphs = {
+        moves: [],
+        attacks: [],
+        stun: [],
+        healing: [],
+        teleport: []
+    }
+    for(var action of behavior){
+        var next_position = start_position.plus(action.change);
+        switch(action.type){
+            case `attack`:
+                telegraphs.attacks.push(next_position);
+                break;
+            case `move`:
+                if(map.looks_movable(next_position)){
+                    telegraphs.moves.push(next_position);
+                }
+                if(map.looks_empty(next_position)){
+                    start_position = next_position;
+                }
+                break;
+            case `teleport`:
+                for(var p of get_all_points()){
+                    if(map.looks_empty(p)){
+                        telegraphs.teleport.push(p);
+                    }
+                }
+                break;
+            case `instant`:
+                break;
+            case `stun`:
+                telegraphs.stun.push(next_position);
+                break;
+            case `move_until`:
+                while(map.looks_empty(next_position)){
+                    telegraphs.moves.push(next_position);
+                    start_position = next_position;
+                    next_position = start_position.plus(action.change);
+                }
+                if(map.looks_movable(next_position)){
+                    telegraphs.moves.push(next_position);
+                }
+                break;
+            case `heal`:
+                telegraphs.healing.push(next_position);
+                break;
+            default:
+                throw new Error(ERRORS.invalid_value);
+        }
+    }
+    return telegraphs;
+}
+/*
+*
+*/
+function get_all_points(){
+    var points = [];
+    for(var x = 0; x < FLOOR_WIDTH; ++x){
+        for(var y = 0; y < FLOOR_HEIGHT; ++y){
+            points.push(new Point(x, y));
+        }
+    }
+    return points;
+}
