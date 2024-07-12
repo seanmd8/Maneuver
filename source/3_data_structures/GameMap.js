@@ -90,6 +90,7 @@ class GameMap{
         this.set_exit(exit_location);
         var player_location = new Point(random_num(this.#y_max), this.#x_max - 1);
         this.set_player(player_location, player);
+        this.#events = [];
         return ++this.#floor_num;
     }
     /**

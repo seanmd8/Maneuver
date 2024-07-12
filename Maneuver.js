@@ -780,14 +780,12 @@ const DisplayHTML = {
         key_num = search(key_press.key, CONTROLS.alt);
         if(key_num >= 0){
             display.shift_is_pressed = true;
-            console.log(display.shift_is_pressed);
         }
     },
     unpress: function(key_press){
         key_num = search(key_press.key, CONTROLS.alt);
         if(key_num >= 0){
             display.shift_is_pressed = false;
-            console.log(display.shift_is_pressed);
         }
     },
     create_visibility_toggle: function(location, header, body_element){
@@ -4070,6 +4068,8 @@ function repulsor_push_ai(self, target, map){
             }
             if(target_tile.health !== undefined){
                 activated = true;
+                self.tile.cycle = 1;
+                self.tile.pic = self.tile.pic_arr[self.tile.cycle];
                 try {
                     // Push the creature away.
                     for(var i = 0; i < 2 && map.move(target_space, target_space.plus(space)); ++i){
@@ -4084,14 +4084,12 @@ function repulsor_push_ai(self, target, map){
             }
         }
     }
-    if(activated){
-        self.tile.cycle = 1;
-        self.tile.pic = self.tile.pic_arr[self.tile.cycle];
-    }
     if(player_was_moved){
         throw new Error(ERRORS.pass_turn);
     }
-
+    if(!activated){
+        throw new Error(ERRORS.skip_animation);
+    }
 }
 
 /** @type {AIFunction} AI used by smoldering ashes.*/
@@ -5378,6 +5376,7 @@ class GameMap{
         this.set_exit(exit_location);
         var player_location = new Point(random_num(this.#y_max), this.#x_max - 1);
         this.set_player(player_location, player);
+        this.#events = [];
         return ++this.#floor_num;
     }
     /**

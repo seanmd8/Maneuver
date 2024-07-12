@@ -37,6 +37,8 @@ function repulsor_push_ai(self, target, map){
             }
             if(target_tile.health !== undefined){
                 activated = true;
+                self.tile.cycle = 1;
+                self.tile.pic = self.tile.pic_arr[self.tile.cycle];
                 try {
                     // Push the creature away.
                     for(var i = 0; i < 2 && map.move(target_space, target_space.plus(space)); ++i){
@@ -51,14 +53,12 @@ function repulsor_push_ai(self, target, map){
             }
         }
     }
-    if(activated){
-        self.tile.cycle = 1;
-        self.tile.pic = self.tile.pic_arr[self.tile.cycle];
-    }
     if(player_was_moved){
         throw new Error(ERRORS.pass_turn);
     }
-
+    if(!activated){
+        throw new Error(ERRORS.skip_animation);
+    }
 }
 
 /** @type {AIFunction} AI used by smoldering ashes.*/

@@ -320,14 +320,12 @@ const DisplayHTML = {
         key_num = search(key_press.key, CONTROLS.alt);
         if(key_num >= 0){
             display.shift_is_pressed = true;
-            console.log(display.shift_is_pressed);
         }
     },
     unpress: function(key_press){
         key_num = search(key_press.key, CONTROLS.alt);
         if(key_num >= 0){
             display.shift_is_pressed = false;
-            console.log(display.shift_is_pressed);
         }
     },
     create_visibility_toggle: function(location, header, body_element){
