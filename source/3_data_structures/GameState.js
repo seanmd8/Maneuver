@@ -125,7 +125,13 @@ class GameState{
     player_action(action){
         switch(action.type){
             case `attack`:
-                this.map.player_attack(action.change);
+                if(this.boons.has(boon_names.pacifism)){
+                    this.map.player_stun(action.change);
+                    this.map.player_stun(action.change);
+                }
+                else{
+                    this.map.player_attack(action.change);
+                }
                 break;
             case `move`:
                 var moved = this.map.player_move(action.change);

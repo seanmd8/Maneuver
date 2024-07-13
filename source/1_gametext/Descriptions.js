@@ -215,6 +215,8 @@ const boon_names = {
     future_sight: `Future Sight`,
     hoarder: `Hoarder`,
     learn_from_mistakes: `Learn From Mistakes`,
+    limitless: `Limitless`,
+    pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
     picky_shopper: `Picky Shopper`,
     rebirth: `Rebirth`,
@@ -248,6 +250,9 @@ const fortitude_description = `Gain an extra max health.`;
 const future_sight_description = `You may look at the order of your deck.`;
 const hoarder_description = `All treasure chests contain 2 additional choices.`;
 const learn_from_mistakes_description = `Remove any 2 cards from your deck.`;
+const limitless_description = `Remove your max health. Heal for 2. If you would be fully healed, heal for 1 instead.`;
+const pacifism_description = `If you would attack an enemy, stun them twice instead. Fully heal at the start of each floor. `
+                            +`All boss floor exits unlock.`;
 const pain_reflexes_description = `Take a turn whenever you are attacked.`;
 const picky_shopper_description = `Recieve an extra card choice for adding and removing cards in the shop.`;
 const rebirth_description = `When you die, you are revived at full health and this boon is removed.`;

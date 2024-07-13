@@ -39,6 +39,12 @@ function generate_normal_floor(floor_num, area, map){
     }
 }
 
+function boss_floor_common(floor_num,  area, map){
+    if(GS.boons.has(boon_names.pacifism) === 0){
+        map.lock();
+    }
+}
+
 
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){

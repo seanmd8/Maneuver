@@ -414,7 +414,7 @@ var GS;
 const SECOND_STARTING_ENEMY = lava_pool_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
-const STARTING_CHEST_CONTENTS = pain_reflexes;
+const STARTING_CHEST_CONTENTS = pacifism;
 const STARTING_CHEST_AMOUNT = 0;
 
 // Dungeon generation settings.
@@ -1056,7 +1056,7 @@ function grid_space_description(space){
  * @param {number} scale The size of the display images.
  */
 function display_health(player, scale){
-    if(player.health === undefined || player.max_health === undefined){
+    if(player.health === undefined){
         throw new Error(ERRORS.missing_property);
     }
     var health = [];
@@ -1066,11 +1066,13 @@ function display_health(player, scale){
             name: `heart`
         });
     }
-    for(var i = 0; i < (player.max_health - player.health); ++i){
-        health.push({
-            pic: `${IMG_FOLDER.other}heart_broken.png`, 
-            name: `broken heart`
-        });
+    if(player.max_health !== undefined){
+        for(var i = 0; i < (player.max_health - player.health); ++i){
+            health.push({
+                pic: `${IMG_FOLDER.other}heart_broken.png`, 
+                name: `broken heart`
+            });
+        }
     }
     display.add_tb_row(UIIDS.health_display, health, scale);
 }
@@ -1371,6 +1373,8 @@ const boon_names = {
     future_sight: `Future Sight`,
     hoarder: `Hoarder`,
     learn_from_mistakes: `Learn From Mistakes`,
+    limitless: `Limitless`,
+    pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
     picky_shopper: `Picky Shopper`,
     rebirth: `Rebirth`,
@@ -1404,6 +1408,9 @@ const fortitude_description = `Gain an extra max health.`;
 const future_sight_description = `You may look at the order of your deck.`;
 const hoarder_description = `All treasure chests contain 2 additional choices.`;
 const learn_from_mistakes_description = `Remove any 2 cards from your deck.`;
+const limitless_description = `Remove your max health. Heal for 2. If you would be fully healed, heal for 1 instead.`;
+const pacifism_description = `If you would attack an enemy, stun them twice instead. Fully heal at the start of each floor. `
+                            +`All boss floor exits unlock.`;
 const pain_reflexes_description = `Take a turn whenever you are attacked.`;
 const picky_shopper_description = `Recieve an extra card choice for adding and removing cards in the shop.`;
 const rebirth_description = `When you die, you are revived at full health and this boon is removed.`;
@@ -5898,6 +5905,10 @@ class GameMap{
             // Expend Vitality always heals you.
             this.player_heal(new Point(0, 0), 1);
         }
+        if(GS.boons.has(boon_names.pacifism) > 0){
+            // Pacifism always fully heals you.
+            this.player_heal(new Point(0, 0));
+        }
         var floor_description = `${floor_message}${this.#floor_num}.`;
         if(this.#floor_num % AREA_SIZE === 1){
             // Reached the next area.
@@ -5907,7 +5918,8 @@ class GameMap{
         }
         if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
-            var boss_floor = this.#area.boss_floor_list[random_num(this.#area.boss_floor_list.length)]; 
+            var boss_floor = this.#area.boss_floor_list[random_num(this.#area.boss_floor_list.length)];
+            boss_floor_common(this.#floor_num, this.#area, this); 
             var boss_message = boss_floor(this.#floor_num, this.#area, this);
             floor_description = `${floor_description}\n${boss_message}`;
         }
@@ -6086,6 +6098,9 @@ class GameMap{
      * @returns {boolean} if healing was performed.
      */
     player_heal(difference, amount=undefined){
+        if(amount === undefined && this.get_player().max_health === undefined){
+            amount = 1;
+        }
         var pos = this.#entity_list.get_player_pos();
         return this.heal(pos.plus(difference), amount);
     }
@@ -6249,7 +6264,13 @@ class GameState{
     player_action(action){
         switch(action.type){
             case `attack`:
-                this.map.player_attack(action.change);
+                if(this.boons.has(boon_names.pacifism)){
+                    this.map.player_stun(action.change);
+                    this.map.player_stun(action.change);
+                }
+                else{
+                    this.map.player_attack(action.change);
+                }
                 break;
             case `move`:
                 var moved = this.map.player_move(action.change);
@@ -6991,13 +7012,11 @@ function lich_floor(floor_num,  area, map){
         map.add_tile(damaged_wall_tile(), locations[i]);
     }
     map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
-    map.lock();
     return lich_floor_message;
 }
 /** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){
     map.spawn_safely(spider_queen_tile(), SAFE_SPAWN_ATTEMPTS, true);
-    map.lock();
     for(var i = 0; i < 4; ++i){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
@@ -7009,7 +7028,6 @@ function spider_queen_floor(floor_num, area, map){
 }
 /** @type {FloorGenerator} Generates the floor where the Two Headed Serpent appears.*/
 function two_headed_serpent_floor(floor_num, area, map){
-    map.lock();
     var serpent_length = 8;
     var finished = false;
     // Finds enough adjacent empty spaces to spawn the serpent in.
@@ -7074,7 +7092,6 @@ function two_headed_serpent_floor(floor_num, area, map){
 /** @type {FloorGenerator} Generates the floor where the Velociphile appears.*/
 function velociphile_floor(floor_num,  area, map){
     map.spawn_safely(velociphile_tile(), SAFE_SPAWN_ATTEMPTS, true);
-    map.lock();
     for(var i = 0; i < 8; ++i){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
@@ -7084,7 +7101,6 @@ function velociphile_floor(floor_num,  area, map){
 /** @type {FloorGenerator} Generates the floor where the Young Dragon appears.*/
 function young_dragon_floor(floor_num,  area, map){
     map.spawn_safely(young_dragon_tile(), SAFE_SPAWN_ATTEMPTS, true);
-    map.lock();
     for(var i = 0; i < 25; ++i){
         map.add_tile(lava_pool_tile());
     }
@@ -7128,6 +7144,12 @@ function generate_normal_floor(floor_num, area, map){
                 --i;
             }
         }
+    }
+}
+
+function boss_floor_common(floor_num,  area, map){
+    if(GS.boons.has(boon_names.pacifism) === 0){
+        map.lock();
     }
 }
 
@@ -8904,9 +8926,10 @@ function adrenaline_rush(){
 
 BOON_LIST = [
     ancient_card, bitter_determination, brag_and_boast, creative, escape_artist, 
-    expend_vitality, fleeting_thoughts, fortitude, hoarder, pain_reflexes, 
-    picky_shopper, rebirth, repetition, roar_of_challenge, safe_passage, 
-    serenity, spiked_shoes, spontaneous, stable_mind, stealthy,
+    expend_vitality, fleeting_thoughts, fortitude, hoarder, limitless, 
+    pacifism, pain_reflexes, picky_shopper, rebirth, repetition, 
+    roar_of_challenge, safe_passage, serenity, spiked_shoes, spontaneous, 
+    stable_mind, stealthy,
 ];
 
 /**
@@ -8918,8 +8941,16 @@ function no_player_on_hit(){
 }
 
 function change_max_health(amount){
+    if(GS.map.get_player().max_health === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
     GS.map.get_player().max_health += amount;
     GS.map.get_player().health = Math.min(GS.map.get_player().max_health, GS.map.get_player().health)
+}
+
+function max_health_at_least(amount){
+    var max_health = GS.map.get_player().max_health;
+    return max_health !== undefined && max_health > amount;
 }
 
 function ancient_card(){
@@ -9025,7 +9056,7 @@ function expend_vitality(){
 }
 
 function prereq_expend_vitality(){
-    return GS.map.get_player().max_health > 1;
+    return max_health_at_least(1);
 }
 
 function pick_expend_vitality(){
@@ -9065,6 +9096,27 @@ function hoarder(){
         unlocks: [hoarder]
     }
 }
+function limitless(){
+    return {
+        name: boon_names.limitless,
+        pic: `${IMG_FOLDER.boons}limitless.png`,
+        description: limitless_description,
+        on_pick: on_pick_limitless
+    }
+}
+
+function on_pick_limitless(){
+    GS.map.get_player().max_health = undefined;
+    GS.map.player_heal(new Point(0, 0), 2);
+}
+function pacifism(){
+    return {
+        name: boon_names.pacifism,
+        pic: `${IMG_FOLDER.boons}pacifism.png`,
+        description: pacifism_description,
+    }
+}
+
 
 function pain_reflexes(){
     return {
@@ -9248,7 +9300,7 @@ function shattered_glass(){
 }
 
 function prereq_shattered_glass(){
-    return GS.map.get_player().max_health > 1;
+    return max_health_at_least(1);
 }
 
 function on_pick_shattered_glass(){

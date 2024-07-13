@@ -9,7 +9,7 @@ function shattered_glass(){
 }
 
 function prereq_shattered_glass(){
-    return GS.map.get_player().max_health > 1;
+    return max_health_at_least(1);
 }
 
 function on_pick_shattered_glass(){

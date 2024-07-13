@@ -10,7 +10,7 @@ function expend_vitality(){
 }
 
 function prereq_expend_vitality(){
-    return GS.map.get_player().max_health > 1;
+    return max_health_at_least(1);
 }
 
 function pick_expend_vitality(){

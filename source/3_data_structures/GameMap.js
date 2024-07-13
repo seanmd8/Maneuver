@@ -604,6 +604,10 @@ class GameMap{
             // Expend Vitality always heals you.
             this.player_heal(new Point(0, 0), 1);
         }
+        if(GS.boons.has(boon_names.pacifism) > 0){
+            // Pacifism always fully heals you.
+            this.player_heal(new Point(0, 0));
+        }
         var floor_description = `${floor_message}${this.#floor_num}.`;
         if(this.#floor_num % AREA_SIZE === 1){
             // Reached the next area.
@@ -613,7 +617,8 @@ class GameMap{
         }
         if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
-            var boss_floor = this.#area.boss_floor_list[random_num(this.#area.boss_floor_list.length)]; 
+            var boss_floor = this.#area.boss_floor_list[random_num(this.#area.boss_floor_list.length)];
+            boss_floor_common(this.#floor_num, this.#area, this); 
             var boss_message = boss_floor(this.#floor_num, this.#area, this);
             floor_description = `${floor_description}\n${boss_message}`;
         }
@@ -792,6 +797,9 @@ class GameMap{
      * @returns {boolean} if healing was performed.
      */
     player_heal(difference, amount=undefined){
+        if(amount === undefined && this.get_player().max_health === undefined){
+            amount = 1;
+        }
         var pos = this.#entity_list.get_player_pos();
         return this.heal(pos.plus(difference), amount);
     }

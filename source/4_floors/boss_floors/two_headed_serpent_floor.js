@@ -1,6 +1,5 @@
 /** @type {FloorGenerator} Generates the floor where the Two Headed Serpent appears.*/
 function two_headed_serpent_floor(floor_num, area, map){
-    map.lock();
     var serpent_length = 8;
     var finished = false;
     // Finds enough adjacent empty spaces to spawn the serpent in.
