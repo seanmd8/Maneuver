@@ -14,9 +14,7 @@ function prereq_serenity(){
 }
 
 function pick_serenity(){
-    GS.deck.alter_min(-1);
+    while(GS.deck.deck_min() > 4){
+        GS.deck.alter_min(-1);
+    }
 }
-// Todo:
-//  description
-//  implement
-//  move min_deck_size?

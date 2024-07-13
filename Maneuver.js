@@ -414,7 +414,7 @@ var GS;
 const SECOND_STARTING_ENEMY = lava_pool_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
-const STARTING_CHEST_CONTENTS = pacifism;
+const STARTING_CHEST_CONTENTS = serenity;
 const STARTING_CHEST_AMOUNT = 0;
 
 // Dungeon generation settings.
@@ -1417,7 +1417,7 @@ const rebirth_description = `When you die, you are revived at full health and th
 const repetition_description = `Every 1 in 3 moves are performed twice.`;
 const roar_of_challenge_description = `Gain 2 max health. Difficulty increases.`;
 const safe_passage_description = `Fully heal and travel to the next floor.`;
-const serenity_description = `Reduce your minimum deck size by 1. Cannot be reduced below 4.`;
+const serenity_description = `Reduce your minimum deck size to 4.`;
 const shattered_glass_description = `Enemies explode on death damaging each other nearby enemy. Reduce your max health by 1.`;
 const skill_trading_description = `You may both add a card and remove a card at each shop.`;
 const slayer_description = `When you damage an enemy 3 turns in a row, heal for 1.`;
@@ -9204,12 +9204,10 @@ function prereq_serenity(){
 }
 
 function pick_serenity(){
-    GS.deck.alter_min(-1);
+    while(GS.deck.deck_min() > 4){
+        GS.deck.alter_min(-1);
+    }
 }
-// Todo:
-//  description
-//  implement
-//  move min_deck_size?
 
 function spiked_shoes(){
     return {
