@@ -93,11 +93,12 @@
 
 /**
  * @callback create_alternating_text_section A function to create a section of interspersed text with images and other elements.
+ * @param {string} location The id of the div element to put the section in.
  * @param {string} header The header to give the section. The div id will be of the form `${header} section`.
  * @param {string[]} par_arr An array of the strings which other elements should be placed between.
  * @param {HTMLElement[]} inline_arr An array of other elements to be added inline inbetween the strings. 
  *                                  It's length should be 1 or 0 less than par_arr's.
- * @returns {HTMLDivElement} The div including the mix of text and other elements.
+ * @returns {string} The div id.
  */
 
 /**
@@ -328,27 +329,14 @@ const DisplayHTML = {
             display.shift_is_pressed = false;
         }
     },
-    create_visibility_toggle: function(location, header, body_element){
-        var toggle_visible = function(button_table_id, body_id, header_txt, visible){
-            return function(tile, position){
-                var vis_str = visible ? `Hide` : `Show`;
-                var callback = toggle_visible(tb_id, body_id, header_txt, !visible);
-                DisplayHTML.clear_tb(button_table_id);
-                DisplayHTML.add_button_row(button_table_id, [{description: `${vis_str} ${header_txt}`}], callback);
-                var vis_style = visible ? `block` : `none`;
-                DisplayHTML.get_element(body_id).style.display = vis_style;
-            }
-        }
-
+    create_visibility_toggle: function(location, header, on_click){
         var section = DisplayHTML.get_element(location);
-        var table = document.createElement(`table`);
-        var tb_id = `${header} button table`;
-        table.id = tb_id;
-        section.append(table);
+        var element = document.createElement(`input`);
+        element.type = `button`;
 
-        body_element.style.display = `none`;
-        section.append(body_element);
-        DisplayHTML.add_button_row(tb_id, [{description: `Show ${header}`}], toggle_visible(tb_id, body_element.id, header, true));
+        element.value = header;
+        element.onclick = on_click;
+        section.append(element);
     },
     create_dropdown: function(location, options_arr){
         var doc_location = this.get_element(location);
@@ -379,7 +367,7 @@ const DisplayHTML = {
         }
         doc_location.append(select_button);
     },
-    create_alternating_text_section: function(header, par_arr, inline_arr){
+    create_alternating_text_section: function(location, header, par_arr, inline_arr){
         if(par_arr.length !== inline_arr.length && par_arr.length !== inline_arr.length + 1){
             throw new Error(ERRORS.array_size);
         }
@@ -407,8 +395,9 @@ const DisplayHTML = {
                 body_div.append(inline_arr[i]);
             }
         }
-        
-        return body_div;
+        var destination = DisplayHTML.get_element(location, HTMLDivElement);
+        destination.append(body_div);
+        return body_div_id;
     },
     create_button: function(label, id, on_click = undefined){
         var button = document.createElement(`input`);

@@ -6,9 +6,10 @@
  * @returns {void}
  */
 function initiate_game(){
+    display.swap_screen(DISPLAY_DIVISIONS);
     display.display_message(UIIDS.title, `${game_title}    `);
     create_main_dropdown(UIIDS.title);
-    display_guide(UIIDS.guide);
+    display_guide();
     GS = new GameState();
 }
 
@@ -140,26 +141,38 @@ function create_main_dropdown(location){
 }
 /**
  * Function to display the guide.
- * @param {string} location Where to display it to.
  */
-function display_guide(location){
+function display_guide(){
+    var section_location = UIIDS.guide;
+    var navbar_location = UIIDS.guide_navbar;
+
     var cards_symbol_arr = get_card_symbols();
     var ctrl_symbol_arr = get_control_symbols();
     var cards_inline_arr = cards_symbol_arr.concat(ctrl_symbol_arr)
 
-    var basics_section = display.create_alternating_text_section(GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
-    var cards_section = display.create_alternating_text_section(GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_inline_arr);
-    var enemies_section = display.create_alternating_text_section(GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
-    var shop_section = display.create_alternating_text_section(GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
-    var bosses_section = display.create_alternating_text_section(GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
-    var chests_section = display.create_alternating_text_section(GUIDE_HEADERS.chests, GUIDE_TEXT.chests, [])
+    // Create guidebook text sections.
+    var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
+    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_inline_arr);
+    var enemies_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
+    var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
+    var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
+    var chests_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.chests, GUIDE_TEXT.chests, []);
 
-    display.create_visibility_toggle(location, GUIDE_HEADERS.basics, basics_section);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.cards, cards_section);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.enemies, enemies_section);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.shop, shop_section);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.bosses, bosses_section);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.chests, chests_section);
+    var section_id_list = [basics_section, cards_section, enemies_section, shop_section, bosses_section, chests_section];
+
+    var swap_visibility = function(id_list, id){
+        return function(){
+            display.swap_screen(id_list, id);
+        }
+    }
+
+    // Create guidebook navbar.
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap_visibility(section_id_list, basics_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap_visibility(section_id_list, cards_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap_visibility(section_id_list, enemies_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap_visibility(section_id_list, shop_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
 }
 
 /**

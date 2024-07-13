@@ -553,11 +553,12 @@ Object.freeze(IMG_FOLDER);
 
 /**
  * @callback create_alternating_text_section A function to create a section of interspersed text with images and other elements.
+ * @param {string} location The id of the div element to put the section in.
  * @param {string} header The header to give the section. The div id will be of the form `${header} section`.
  * @param {string[]} par_arr An array of the strings which other elements should be placed between.
  * @param {HTMLElement[]} inline_arr An array of other elements to be added inline inbetween the strings. 
  *                                  It's length should be 1 or 0 less than par_arr's.
- * @returns {HTMLDivElement} The div including the mix of text and other elements.
+ * @returns {string} The div id.
  */
 
 /**
@@ -788,27 +789,14 @@ const DisplayHTML = {
             display.shift_is_pressed = false;
         }
     },
-    create_visibility_toggle: function(location, header, body_element){
-        var toggle_visible = function(button_table_id, body_id, header_txt, visible){
-            return function(tile, position){
-                var vis_str = visible ? `Hide` : `Show`;
-                var callback = toggle_visible(tb_id, body_id, header_txt, !visible);
-                DisplayHTML.clear_tb(button_table_id);
-                DisplayHTML.add_button_row(button_table_id, [{description: `${vis_str} ${header_txt}`}], callback);
-                var vis_style = visible ? `block` : `none`;
-                DisplayHTML.get_element(body_id).style.display = vis_style;
-            }
-        }
-
+    create_visibility_toggle: function(location, header, on_click){
         var section = DisplayHTML.get_element(location);
-        var table = document.createElement(`table`);
-        var tb_id = `${header} button table`;
-        table.id = tb_id;
-        section.append(table);
+        var element = document.createElement(`input`);
+        element.type = `button`;
 
-        body_element.style.display = `none`;
-        section.append(body_element);
-        DisplayHTML.add_button_row(tb_id, [{description: `Show ${header}`}], toggle_visible(tb_id, body_element.id, header, true));
+        element.value = header;
+        element.onclick = on_click;
+        section.append(element);
     },
     create_dropdown: function(location, options_arr){
         var doc_location = this.get_element(location);
@@ -839,7 +827,7 @@ const DisplayHTML = {
         }
         doc_location.append(select_button);
     },
-    create_alternating_text_section: function(header, par_arr, inline_arr){
+    create_alternating_text_section: function(location, header, par_arr, inline_arr){
         if(par_arr.length !== inline_arr.length && par_arr.length !== inline_arr.length + 1){
             throw new Error(ERRORS.array_size);
         }
@@ -867,8 +855,9 @@ const DisplayHTML = {
                 body_div.append(inline_arr[i]);
             }
         }
-        
-        return body_div;
+        var destination = DisplayHTML.get_element(location, HTMLDivElement);
+        destination.append(body_div);
+        return body_div_id;
     },
     create_button: function(label, id, on_click = undefined){
         var button = document.createElement(`input`);
@@ -967,9 +956,10 @@ Object.freeze(ERRORS);
  * @returns {void}
  */
 function initiate_game(){
+    display.swap_screen(DISPLAY_DIVISIONS);
     display.display_message(UIIDS.title, `${game_title}    `);
     create_main_dropdown(UIIDS.title);
-    display_guide(UIIDS.guide);
+    display_guide();
     GS = new GameState();
 }
 
@@ -1101,26 +1091,38 @@ function create_main_dropdown(location){
 }
 /**
  * Function to display the guide.
- * @param {string} location Where to display it to.
  */
-function display_guide(location){
+function display_guide(){
+    var section_location = UIIDS.guide;
+    var navbar_location = UIIDS.guide_navbar;
+
     var cards_symbol_arr = get_card_symbols();
     var ctrl_symbol_arr = get_control_symbols();
     var cards_inline_arr = cards_symbol_arr.concat(ctrl_symbol_arr)
 
-    var basics_section = display.create_alternating_text_section(GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
-    var cards_section = display.create_alternating_text_section(GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_inline_arr);
-    var enemies_section = display.create_alternating_text_section(GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
-    var shop_section = display.create_alternating_text_section(GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
-    var bosses_section = display.create_alternating_text_section(GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
-    var chests_section = display.create_alternating_text_section(GUIDE_HEADERS.chests, GUIDE_TEXT.chests, [])
+    // Create guidebook text sections.
+    var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
+    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_inline_arr);
+    var enemies_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
+    var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
+    var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
+    var chests_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.chests, GUIDE_TEXT.chests, []);
 
-    display.create_visibility_toggle(location, GUIDE_HEADERS.basics, basics_section);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.cards, cards_section);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.enemies, enemies_section);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.shop, shop_section);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.bosses, bosses_section);
-    display.create_visibility_toggle(location, GUIDE_HEADERS.chests, chests_section);
+    var section_id_list = [basics_section, cards_section, enemies_section, shop_section, bosses_section, chests_section];
+
+    var swap_visibility = function(id_list, id){
+        return function(){
+            display.swap_screen(id_list, id);
+        }
+    }
+
+    // Create guidebook navbar.
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap_visibility(section_id_list, basics_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap_visibility(section_id_list, cards_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap_visibility(section_id_list, enemies_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap_visibility(section_id_list, shop_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
 }
 
 /**
@@ -1472,12 +1474,13 @@ const GUIDE_TEXT = {
             +`display what the card does on the map.\n`
             +`\n`
             +`In addition to clicking on cards to use them, you can use the keys\n`,
-                ` `, ` `, `\n`
-            +`to select a card and\n`,
+                ` `, ` `, ` `, `\n`
+            +`to select a card in your hand.\n`
+            +`Press the keys\n`,
                 ` `, ` `, `\n`,
                 ` `, ` `, `\n`,
                 ` `, ` `, `\n`
-            +`to use it.\n\n`],
+            +`to use a card once it is selected.\n\n`],
 
     enemies: [`As you travel through the dungeon, you will encounter various other creatures, many of whom want to kill you. Each creature has `
             +`different patterns of attack and movement and many of them have other unique abilities. Click on a tile to learn more about it. `
@@ -1580,6 +1583,7 @@ function get_uiids(language){
  *              @property {string} chest_confirm_row: Buttons allowing you to confirm your pick or skip the reward.
  *              @property {string} content_description: A description of whichever one of the contents you last clicked on.
  * @property {string} guide Controls the visibility of the guide screen.
+ *      @property {string} guide_navbar Controls the visibility of each guidebook section.
  */
 
 
@@ -1617,6 +1621,7 @@ const HTML_UIIDS = {
                 chest_confirm_row: `chestConfirmRow`,
                 content_description: `contentDescription`,
     guide: `guide`,
+        guide_navbar: `guideNavbar`,
 }
 Object.freeze(HTML_UIIDS);
 

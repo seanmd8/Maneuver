@@ -51,6 +51,7 @@ function get_uiids(language){
  *              @property {string} chest_confirm_row: Buttons allowing you to confirm your pick or skip the reward.
  *              @property {string} content_description: A description of whichever one of the contents you last clicked on.
  * @property {string} guide Controls the visibility of the guide screen.
+ *      @property {string} guide_navbar Controls the visibility of each guidebook section.
  */
 
 
@@ -88,6 +89,7 @@ const HTML_UIIDS = {
                 chest_confirm_row: `chestConfirmRow`,
                 content_description: `contentDescription`,
     guide: `guide`,
+        guide_navbar: `guideNavbar`,
 }
 Object.freeze(HTML_UIIDS);
 

@@ -41,12 +41,13 @@ const GUIDE_TEXT = {
             +`display what the card does on the map.\n`
             +`\n`
             +`In addition to clicking on cards to use them, you can use the keys\n`,
-                ` `, ` `, `\n`
-            +`to select a card and\n`,
+                ` `, ` `, ` `, `\n`
+            +`to select a card in your hand.\n`
+            +`Press the keys\n`,
                 ` `, ` `, `\n`,
                 ` `, ` `, `\n`,
                 ` `, ` `, `\n`
-            +`to use it.\n\n`],
+            +`to use a card once it is selected.\n\n`],
 
     enemies: [`As you travel through the dungeon, you will encounter various other creatures, many of whom want to kill you. Each creature has `
             +`different patterns of attack and movement and many of them have other unique abilities. Click on a tile to learn more about it. `
