@@ -32,7 +32,7 @@ const turret_r_description = `Turret: Does not move. Fires beams in two directio
 const scythe_description = `Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes next to them. `
                             +`Can only see diagonally.`;
 const shadow_knight_description = `Shadow Knight: Moves in an L shape. If it tramples the player, it will move again.`;
-const spider_web_description = [`Spider Web: Does not move or attack. Spawns a spider every `, ` turns.`];
+const spider_web_description = [`Spider Web: Does not move or attack. Spawns a spider every `, ` turns. Slows over time.`];
 const ram_description = `Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards them and ram them.`;
 const large_porcuslime_description = `Large Porcuslime: Moves towards the player 1 space and attacks in that direction. Weakens when `
                             +`hit.`;

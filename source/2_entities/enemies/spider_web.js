@@ -29,5 +29,6 @@ function spider_web_ai(self, target, map){
         // Attempts to spawn a spider nearby and resets cycle.
         spawn_nearby(map, spider_tile(), self.location);
         self.tile.cycle = 0;
+        ++self.tile.spawn_timer;
     }
 }
