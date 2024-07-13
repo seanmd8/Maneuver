@@ -414,7 +414,7 @@ var GS;
 const SECOND_STARTING_ENEMY = lava_pool_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
-const STARTING_CHEST_CONTENTS = serenity;
+const STARTING_CHEST_CONTENTS = fortitude;
 const STARTING_CHEST_AMOUNT = 0;
 
 // Dungeon generation settings.
@@ -9080,9 +9080,14 @@ function fortitude(){
         name: boon_names.fortitude,
         pic: `${IMG_FOLDER.boons}fortitude.png`,
         description: fortitude_description,
+        prereq: prereq_fortitude,
         on_pick: pick_fortitude,
         unlocks: [fortitude]
     }
+}
+
+function prereq_fortitude(){
+    return GS.map.get_player().max_health !== undefined;
 }
 
 function pick_fortitude(){
