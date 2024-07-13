@@ -618,7 +618,8 @@ class GameMap{
             floor_description = `${floor_description}\n${boss_message}`;
         }
         else{
-            this.#area.generate_floor(this.#floor_num, this.#area, this);
+            var extra_difficulty = 5 * GS.boons.has(boon_names.roar_of_challenge);
+            this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
         if(this.#floor_num % AREA_SIZE === CHEST_LOCATION){
             var chest = chest_tile();

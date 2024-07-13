@@ -414,7 +414,7 @@ var GS;
 const SECOND_STARTING_ENEMY = lava_pool_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
-const STARTING_CHEST_CONTENTS = ancient_card;
+const STARTING_CHEST_CONTENTS = pain_reflexes;
 const STARTING_CHEST_AMOUNT = 0;
 
 // Dungeon generation settings.
@@ -1375,6 +1375,7 @@ const boon_names = {
     picky_shopper: `Picky Shopper`,
     rebirth: `Rebirth`,
     repetition: `Repetition`,
+    roar_of_challenge: `Roar of Challenge`,
     safe_passage: `Safe Passage`,
     serenity: `Serenity`,
     shattered_glass: `Shattere Glass`,
@@ -1382,6 +1383,7 @@ const boon_names = {
     slayer: `Slayer`,
     spiked_shoes: `Spiked Shoes`,
     spined_armor: `Spined Armor`,
+    spontaneous: `Spontaneous`,
     stable_mind: `Stable Mind`,
     stealthy: `Stealthy`,
     stubborn: `Stubborn`,
@@ -1406,6 +1408,7 @@ const pain_reflexes_description = `Take a turn whenever you are attacked.`;
 const picky_shopper_description = `Recieve an extra card choice for adding and removing cards in the shop.`;
 const rebirth_description = `When you die, you are revived at full health and this boon is removed.`;
 const repetition_description = `Every 1 in 3 moves are performed twice.`;
+const roar_of_challenge_description = `Gain 2 max health. Difficulty increases.`;
 const safe_passage_description = `Fully heal and travel to the next floor.`;
 const serenity_description = `Reduce your minimum deck size by 1. Cannot be reduced below 4.`;
 const shattered_glass_description = `Enemies explode on death damaging each other nearby enemy. Reduce your max health by 1.`;
@@ -1413,6 +1416,7 @@ const skill_trading_description = `You may both add a card and remove a card at 
 const slayer_description = `When you damage an enemy 3 turns in a row, heal for 1.`;
 const spiked_shoes_description = `Attempting to move onto enemies damages them.`;
 const spined_armor_description = `Retaliate for 1 damage when attacked. Bosses are immune.`;
+const spontaneous_description = `After using a non instant card, discard your whole hand. Minimum deck size increased by 5.`;
 const stable_mind_description = `You gain a 50% chance to resist confusion.`;
 const stealthy_description = `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`;
 const stubborn_description = `You can decide to skip shops.`;
@@ -5241,6 +5245,7 @@ class EntityList{
             }
             if(!(this.#find_by_id(e.enemy.id) === -1)){
                 try{
+                    var initial_health = GS.map.get_player().health;
                     if(e.enemy.stun !== undefined && e.enemy.stun > 0){
                         --e.enemy.stun;
                     }
@@ -5271,6 +5276,9 @@ class EntityList{
                         if(do_delay){
                             await delay(ANIMATION_DELAY);
                         }
+                    }
+                    if(GS.boons.has(boon_names.pain_reflexes) && GS.map.get_player().health < initial_health){
+                        throw new Error(ERRORS.pass_turn);
                     }
                 }
                 catch(error){
@@ -5904,7 +5912,8 @@ class GameMap{
             floor_description = `${floor_description}\n${boss_message}`;
         }
         else{
-            this.#area.generate_floor(this.#floor_num, this.#area, this);
+            var extra_difficulty = 5 * GS.boons.has(boon_names.roar_of_challenge);
+            this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
         if(this.#floor_num % AREA_SIZE === CHEST_LOCATION){
             var chest = chest_tile();
@@ -6193,7 +6202,12 @@ class GameState{
                 }
             }
             display.clear_tb(UIIDS.move_buttons);
-            this.deck.discard(hand_pos);
+            if(this.boons.has(boon_names.spontaneous) > 0 && !is_instant){
+                this.deck.discard_all();
+            }
+            else{
+                this.deck.discard(hand_pos);
+            }
             this.map.display();
             await delay(ANIMATION_DELAY);
             if(is_instant){
@@ -6523,6 +6537,33 @@ class MoveDeck{
         if(top_card !== undefined){
             this.#hand[hand_pos] = top_card;
         }
+    }
+    /**
+     * Discards all cards then draws up to max hand size.
+     */
+    discard_all(){
+        for(var card of this.#hand){
+            if(this.#hand.temp === undefined || this.#hand.temp === false){
+                this.#discard_pile.push(card);
+            }
+        }
+        this.#hand = [];
+        while(this.#hand.length < this.#hand_size){
+            if(this.#library.length === 0){
+                var top_discard = this.#discard_pile.pop();
+                while(top_discard !== undefined){
+                    this.#library.push(top_discard);
+                    top_discard = this.#discard_pile.pop();
+                }
+                this.#library = randomize_arr(this.#library);
+            }
+            var top_card = this.#library.pop();
+            if(top_card !== undefined){
+                this.#hand.push(top_card);
+            }
+        }
+
+        
     }
     /**
      * Adds a new card to the decklist.
@@ -8863,9 +8904,9 @@ function adrenaline_rush(){
 
 BOON_LIST = [
     ancient_card, bitter_determination, brag_and_boast, creative, escape_artist, 
-    expend_vitality, fleeting_thoughts, fortitude, hoarder, picky_shopper, 
-    rebirth, repetition, safe_passage, serenity, spiked_shoes, 
-    stable_mind, stealthy,
+    expend_vitality, fleeting_thoughts, fortitude, hoarder, pain_reflexes, 
+    picky_shopper, rebirth, repetition, roar_of_challenge, safe_passage, 
+    serenity, spiked_shoes, spontaneous, stable_mind, stealthy,
 ];
 
 /**
@@ -9025,6 +9066,20 @@ function hoarder(){
     }
 }
 
+function pain_reflexes(){
+    return {
+        name: boon_names.pain_reflexes,
+        pic: `${IMG_FOLDER.boons}pain_reflexes.png`,
+        description: pain_reflexes_description,
+        prereq: no_player_on_hit,
+    }
+}
+// Not Finished
+// Todo:
+//  avoid enemy bookkeeping bugs
+//      Put a check in the enemy turn one? would also need to make sure that it applies during the player's turn.
+
+
 function picky_shopper(){
     return {
         name: boon_names.picky_shopper,
@@ -9059,6 +9114,19 @@ function repetition(){
 
 function prereq_repetition(){
     return GS.boons.has(boon_names.repetition) < 3;
+}
+
+function roar_of_challenge(){
+    return {
+        name: boon_names.roar_of_challenge,
+        pic: `${IMG_FOLDER.boons}roar_of_challenge.png`,
+        description: roar_of_challenge_description,
+        on_pick: pick_roar_of_challenge,
+    }
+}
+
+function pick_roar_of_challenge(){
+    change_max_health(2);
 }
 
 function safe_passage(){
@@ -9101,6 +9169,24 @@ function spiked_shoes(){
 // Todo:
 //  description
 //  implement
+
+function spontaneous(){
+    return {
+        name: boon_names.spontaneous,
+        pic: `${IMG_FOLDER.boons}spontaneous.png`,
+        description: spontaneous_description,
+        prereq: prereq_spontaneous,
+        on_pick: pick_spontaneous
+    }
+}
+
+function prereq_spontaneous(){
+    return GS.deck.deck_size() >= 10;
+}
+
+function pick_spontaneous(){
+    GS.deck.alter_min(5);
+}
 
 function stable_mind(){
     return {
@@ -9151,32 +9237,6 @@ function learn_from_mistakes(){
 // Todo:
 //  description
 //  implement on_pick
-
-function pain_reflexes(){
-    return {
-        name: boon_names.pain_reflexes,
-        pic: `${IMG_FOLDER.boons}pain_reflexes.png`,
-        description: pain_reflexes_description,
-        prereq: no_player_on_hit,
-        on_pick: pick_pain_reflexes
-    }
-}
-
-function pick_escape_artist(){
-    GS.map.get_player().on_hit = pain_reflex_behavior;
-}
-
-/** @type {AIFunction}*/
-function pain_reflex_behavior(self, target, map){
-    if(self.tile.health !== undefined && self.tile.health > 0){
-        throw new Error(ERRORS.pass_turn);
-    }
-}
-// Not Finished
-// Todo:
-//  avoid enemy bookkeeping bugs
-//      Put a check in the enemy turn one? would also need to make sure that it applies during the player's turn.
-
 function shattered_glass(){
     return {
         name: boon_names.shattered_glass,

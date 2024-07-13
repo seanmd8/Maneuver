@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+7/12/24
+- Added 3 new boons.
+
 7/11/24
 - Added a guidebook section for chests and boons.
 - Shift clicking a move button now displays the expected result on the map.

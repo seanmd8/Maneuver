@@ -78,7 +78,12 @@ class GameState{
                 }
             }
             display.clear_tb(UIIDS.move_buttons);
-            this.deck.discard(hand_pos);
+            if(this.boons.has(boon_names.spontaneous) > 0 && !is_instant){
+                this.deck.discard_all();
+            }
+            else{
+                this.deck.discard(hand_pos);
+            }
             this.map.display();
             await delay(ANIMATION_DELAY);
             if(is_instant){

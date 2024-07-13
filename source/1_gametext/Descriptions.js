@@ -219,6 +219,7 @@ const boon_names = {
     picky_shopper: `Picky Shopper`,
     rebirth: `Rebirth`,
     repetition: `Repetition`,
+    roar_of_challenge: `Roar of Challenge`,
     safe_passage: `Safe Passage`,
     serenity: `Serenity`,
     shattered_glass: `Shattere Glass`,
@@ -226,6 +227,7 @@ const boon_names = {
     slayer: `Slayer`,
     spiked_shoes: `Spiked Shoes`,
     spined_armor: `Spined Armor`,
+    spontaneous: `Spontaneous`,
     stable_mind: `Stable Mind`,
     stealthy: `Stealthy`,
     stubborn: `Stubborn`,
@@ -250,6 +252,7 @@ const pain_reflexes_description = `Take a turn whenever you are attacked.`;
 const picky_shopper_description = `Recieve an extra card choice for adding and removing cards in the shop.`;
 const rebirth_description = `When you die, you are revived at full health and this boon is removed.`;
 const repetition_description = `Every 1 in 3 moves are performed twice.`;
+const roar_of_challenge_description = `Gain 2 max health. Difficulty increases.`;
 const safe_passage_description = `Fully heal and travel to the next floor.`;
 const serenity_description = `Reduce your minimum deck size by 1. Cannot be reduced below 4.`;
 const shattered_glass_description = `Enemies explode on death damaging each other nearby enemy. Reduce your max health by 1.`;
@@ -257,6 +260,7 @@ const skill_trading_description = `You may both add a card and remove a card at 
 const slayer_description = `When you damage an enemy 3 turns in a row, heal for 1.`;
 const spiked_shoes_description = `Attempting to move onto enemies damages them.`;
 const spined_armor_description = `Retaliate for 1 damage when attacked. Bosses are immune.`;
+const spontaneous_description = `After using a non instant card, discard your whole hand. Minimum deck size increased by 5.`;
 const stable_mind_description = `You gain a 50% chance to resist confusion.`;
 const stealthy_description = `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`;
 const stubborn_description = `You can decide to skip shops.`;

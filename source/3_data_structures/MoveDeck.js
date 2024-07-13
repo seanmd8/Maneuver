@@ -78,6 +78,33 @@ class MoveDeck{
         }
     }
     /**
+     * Discards all cards then draws up to max hand size.
+     */
+    discard_all(){
+        for(var card of this.#hand){
+            if(this.#hand.temp === undefined || this.#hand.temp === false){
+                this.#discard_pile.push(card);
+            }
+        }
+        this.#hand = [];
+        while(this.#hand.length < this.#hand_size){
+            if(this.#library.length === 0){
+                var top_discard = this.#discard_pile.pop();
+                while(top_discard !== undefined){
+                    this.#library.push(top_discard);
+                    top_discard = this.#discard_pile.pop();
+                }
+                this.#library = randomize_arr(this.#library);
+            }
+            var top_card = this.#library.pop();
+            if(top_card !== undefined){
+                this.#hand.push(top_card);
+            }
+        }
+
+        
+    }
+    /**
      * Adds a new card to the decklist.
      * @param {Card} new_card Card to add.
      */
