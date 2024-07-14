@@ -119,6 +119,7 @@ function trample(){
     var options = new ButtonGrid();
     options.add_button(NE, [pattack(1, -2), pmove(1, -2)]);
     options.add_button(NW, [pattack(-1, -2), pmove(-1, -2)]);
+    options.add_button(S, [pattack(0, 2), pmove(0, 2)]);
     return{
         name: `trample`,
         pic: `${IMG_FOLDER.cards}trample.png`,
@@ -203,14 +204,7 @@ function whack_horizontal(){
 /** @type {CardGenerator}*/
 function spin_attack(){
     var options = new ButtonGrid();
-    var spin = [pattack(1, 1),
-                pattack(1, 0),
-                pattack(1, -1),
-                pattack(0, 1),
-                pattack(0, -1),
-                pattack(-1, 1),
-                pattack(-1, 0),
-                pattack(-1, -1)]
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
     options.add_button(SPIN, spin);
     return{
         name: `spin attack`,
@@ -290,10 +284,10 @@ function clear_in_front(){
 /** @type {CardGenerator}*/
 function jab(){
     var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1), pattack(0, -2)]);
-    options.add_button(E, [pattack(1, 0), pattack(2, 0)]);
-    options.add_button(S, [pattack(0, 1), pattack(0, 2)]);
-    options.add_button(W, [pattack(-1, 0), pattack(-2, 0)]);
+    options.add_button(N, [pattack(0, -1), pattack(0, -2), pattack(0, -1), pattack(0, -2)]);
+    options.add_button(E, [pattack(1, 0), pattack(2, 0), pattack(1, 0), pattack(2, 0)]);
+    options.add_button(S, [pattack(0, 1), pattack(0, 2), pattack(0, 1), pattack(0, 2)]);
+    options.add_button(W, [pattack(-1, 0), pattack(-2, 0), pattack(-1, 0), pattack(-2, 0)]);
     return{
         name: `jab`,
         pic: `${IMG_FOLDER.cards}jab.png`,
@@ -589,10 +583,10 @@ function alt_vertical(){
 /** @type {CardGenerator}*/
 function jab_diagonal(){
     var options = new ButtonGrid();
-    options.add_button(NE, [pattack(1, -1), pattack(2, -2)]);
-    options.add_button(SE, [pattack(1, 1), pattack(2, 2)]);
-    options.add_button(SW, [pattack(-1, 1), pattack(-2, 2)]);
-    options.add_button(NW, [pattack(-1, -1), pattack(-2, -2)]);
+    options.add_button(NE, [pattack(1, -1), pattack(2, -2), pattack(1, -1), pattack(2, -2)]);
+    options.add_button(SE, [pattack(1, 1), pattack(2, 2), pattack(1, 1), pattack(2, 2)]);
+    options.add_button(SW, [pattack(-1, 1), pattack(-2, 2), pattack(-1, 1), pattack(-2, 2)]);
+    options.add_button(NW, [pattack(-1, -1), pattack(-2, -2), pattack(-1, -1), pattack(-2, -2)]);
     return{
         name: `jab_diagonal`,
         pic: `${IMG_FOLDER.cards}jab_diagonal.png`,
@@ -774,6 +768,43 @@ function dash_nw(){
     return{
         name: `dash nw`,
         pic: `${IMG_FOLDER.cards}dash_nw.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_slice(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(1, -1), pattack(1, -1), pstun(0, -1), pattack(0, -1), pstun(-1, -1), pattack(-1, -1)]);
+    options.add_button(E, [pstun(1, 1), pattack(1, 1), pstun(1, 0), pattack(1, 0), pstun(1, -1), pattack(1, -1)]);
+    options.add_button(S, [pstun(1, 1), pattack(1, 1), pstun(0, 1), pattack(0, 1), pstun(-1, 1), pattack(-1, 1)]);
+    options.add_button(W, [pstun(-1, 1), pattack(-1, 1), pstun(-1, 0), pattack(-1, 0), pstun(-1, -1), pattack(-1, -1)]);
+    return{
+        name: `stunning_slice`,
+        pic: `${IMG_FOLDER.cards}stunning_slice.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_leap(){
+    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -2), ...spin]);
+    options.add_button(S, [pmove(0, 2), ...spin]);
+    return{
+        name: `stunning_leap`,
+        pic: `${IMG_FOLDER.cards}stunning_leap.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_side_leap(){
+    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(2, 0), ...spin]);
+    options.add_button(W, [pmove(-2, 0), ...spin]);
+    return{
+        name: `stunning_side_leap`,
+        pic: `${IMG_FOLDER.cards}stunning_side_leap.png`,
         options
     }
 }

@@ -70,7 +70,7 @@ class GameState{
         try{
             var is_instant = false;
             var repetition_count = GS.boons.has(boon_names.repetition);
-            var repeat = (repetition_count > 0 &&  GS.map.get_turn_count() % (4 - repetition_count) === 0) ? 2 : 1;
+            var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? 2 : 1;
             for(var i = 0; i < repeat; ++i){
                 for(var action of behavior){
                     // Does each valid command in the behavior array.

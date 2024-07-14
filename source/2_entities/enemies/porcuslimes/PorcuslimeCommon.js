@@ -26,9 +26,9 @@ function porcuslime_horizontal_ai(self, target, map){
 
 /** @type {TelegraphFunction} */
 function porcuslime_diagonal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, diagonal_directions).concat(hazard_telegraph(location, map, self));
+    return move_attack_telegraph(location, map, DIAGONAL_DIRECTIONS).concat(hazard_telegraph(location, map, self));
 }
 /** @type {TelegraphFunction} */
 function porcuslime_horizontal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, horizontal_directions).concat(hazard_telegraph(location, map, self));
+    return move_attack_telegraph(location, map, HORIZONTAL_DIRECTIONS).concat(hazard_telegraph(location, map, self));
 }

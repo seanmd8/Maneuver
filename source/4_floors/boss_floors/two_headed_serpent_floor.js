@@ -57,7 +57,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     for(var i = 0; i < 8; ++i){
         var position = map.random_empty();
         map.add_tile(wall_tile(), position);
-        map.add_tile(damaged_wall_tile(), position.plus(rand_no_repeates(all_directions, 1)[0]));
+        map.add_tile(damaged_wall_tile(), position.plus(rand_no_repeates(ALL_DIRECTIONS, 1)[0]));
     }
     return two_headed_serpent_floor_message;
 }

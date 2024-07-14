@@ -10,6 +10,7 @@ Gameplay Changelog:
 
 7/13/24
 - Improved the look of the guidebook.
+- Added 5 new cards, rebalanced 3.
 
 7/12/24
 - Added 5 new boons.

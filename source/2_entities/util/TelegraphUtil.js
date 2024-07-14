@@ -9,9 +9,9 @@
  * @returns {Point[]} An array of the points on the map it could currently attack.
  */
 
-const horizontal_directions = [new Point(1, 0), new Point(-1, 0), new Point(0, -1), new Point(0, 1)];
-const diagonal_directions = [new Point(1, 1), new Point(-1, 1), new Point(1, -1), new Point(-1, -1)];
-const all_directions = horizontal_directions.concat(diagonal_directions);
+const HORIZONTAL_DIRECTIONS = [new Point(1, 0), new Point(-1, 0), new Point(0, -1), new Point(0, 1)];
+const DIAGONAL_DIRECTIONS = [new Point(1, 1), new Point(-1, 1), new Point(1, -1), new Point(-1, -1)];
+const ALL_DIRECTIONS = HORIZONTAL_DIRECTIONS.concat(DIAGONAL_DIRECTIONS);
 
 /** @type {TelegraphFunction} */
 function hazard_telegraph(location, map, self){

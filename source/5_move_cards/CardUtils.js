@@ -14,7 +14,8 @@ const CARD_CHOICES = [
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal,
     diamond_attack, slice_twice, advance, dash_ne, dash_nw,
     bounding_retreat, leap_left, leap_right, short_charge_diagonal, side_sprint,
-    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw
+    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw,
+    stunning_leap, stunning_side_leap, stunning_slice, stunning_punch_orthogonal, stunning_punch_diagonal
 ];
 
 const RARE_CARD_CHOICES = [

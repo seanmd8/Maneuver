@@ -222,7 +222,7 @@ function spawn_nearby(map, tile, location, nearby = random_nearby()){
  * @param {GameMap} map The map to make attacks using.
  */
 function attack_around(location, map){
-    for(var direction of all_directions){
+    for(var direction of ALL_DIRECTIONS){
         map.attack(location.plus(direction));
     }
 }

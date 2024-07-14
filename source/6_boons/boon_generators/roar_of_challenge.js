@@ -6,6 +6,7 @@ function roar_of_challenge(){
         description: roar_of_challenge_description,
         prereq: prereq_roar_of_challenge,
         on_pick: pick_roar_of_challenge,
+        unlocks: [serenity]
     }
 }
 

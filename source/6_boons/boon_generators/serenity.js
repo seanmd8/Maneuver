@@ -5,7 +5,8 @@ function serenity(){
         pic: `${IMG_FOLDER.boons}serenity.png`,
         description: serenity_description,
         prereq: prereq_serenity,
-        on_pick: pick_serenity
+        on_pick: pick_serenity,
+        unlocks: [serenity]
     }
 }
 

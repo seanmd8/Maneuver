@@ -182,7 +182,7 @@ class MoveDeck{
             display.remove_class(UIIDS.hand_box, `no-repetition`);
             display.remove_class(UIIDS.move_box, `no-repetition`);
             var repetition_count = GS.boons.has(boon_names.repetition);
-            var repeat = (repetition_count > 0 &&  GS.map.get_turn_count() % (4 - repetition_count) === 0) ? `telegraph-repetition` : `no-repetition`;
+            var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? `telegraph-repetition` : `no-repetition`;
             display.add_class(UIIDS.hand_box, repeat);
             display.add_class(UIIDS.move_box, repeat);
         }

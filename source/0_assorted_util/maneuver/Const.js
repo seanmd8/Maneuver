@@ -20,7 +20,7 @@ var GS;
 const SECOND_STARTING_ENEMY = lava_pool_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
-const STARTING_CHEST_CONTENTS = fortitude;
+const STARTING_CHEST_CONTENTS = repetition;
 const STARTING_CHEST_AMOUNT = 0;
 
 // Dungeon generation settings.

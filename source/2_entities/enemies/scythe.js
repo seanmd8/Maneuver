@@ -43,7 +43,7 @@ function scythe_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function scythe_telegraph(location, map, self){
     var attacks = [];
-    for(var direction of diagonal_directions){
+    for(var direction of DIAGONAL_DIRECTIONS){
         var current = location.copy();
         for(var i = 0; i < 3 && map.check_empty(current.plus_equals(direction)); ++i){
             attacks.push(current.plus(direction.times(new Point(-1, 0))));

@@ -414,7 +414,7 @@ var GS;
 const SECOND_STARTING_ENEMY = lava_pool_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
-const STARTING_CHEST_CONTENTS = fortitude;
+const STARTING_CHEST_CONTENTS = repetition;
 const STARTING_CHEST_AMOUNT = 0;
 
 // Dungeon generation settings.
@@ -1416,7 +1416,7 @@ const pacifism_description = `If you would attack an enemy, stun them twice inst
 const pain_reflexes_description = `Take a turn whenever you are attacked.`;
 const picky_shopper_description = `Recieve an extra card choice for adding and removing cards in the shop.`;
 const rebirth_description = `When you die, you are revived at full health and this boon is removed.`;
-const repetition_description = `Every 1 in 3 moves are performed twice.`;
+const repetition_description = `Every 3rd turn, your cards happen twice.`;
 const roar_of_challenge_description = `Gain 2 max health. Difficulty increases.`;
 const safe_passage_description = `Fully heal and travel to the next floor.`;
 const serenity_description = `Reduce your minimum deck size to 4.`;
@@ -2036,12 +2036,12 @@ function two_headed_serpent_telegraph(location, map, self){
     if(self.cycle === 0){
         return attacks;
     }
-    for(var direction of horizontal_directions){
+    for(var direction of HORIZONTAL_DIRECTIONS){
         attacks.push(location.plus(direction));
     }
-    for(var move of horizontal_directions){
+    for(var move of HORIZONTAL_DIRECTIONS){
         if(map.check_empty(location.plus(move))){
-            for(var direction of horizontal_directions){
+            for(var direction of HORIZONTAL_DIRECTIONS){
                 attacks.push(location.plus(move).plus(direction));
             }
         }
@@ -2086,7 +2086,7 @@ function velociphile_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function velociphile_telegraph(location, map, self){
     var attacks = [];
-    for(var direction of all_directions){
+    for(var direction of ALL_DIRECTIONS){
         if(map.check_empty(location.plus(direction))){
             attacks.push(...get_points_in_direction(location.plus(direction), direction, map));
         }
@@ -2744,7 +2744,7 @@ function noxious_toad_telegraph(location, map, self){
     if(self.cycle === 1){
         return attacks;
     }
-    for(var direction of horizontal_directions){
+    for(var direction of HORIZONTAL_DIRECTIONS){
         var move = location.plus(direction.times(2));
         if(map.check_empty(move)){
             attacks.push(...spider_telegraph(move, map, self));
@@ -3001,11 +3001,11 @@ function porcuslime_horizontal_ai(self, target, map){
 
 /** @type {TelegraphFunction} */
 function porcuslime_diagonal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, diagonal_directions).concat(hazard_telegraph(location, map, self));
+    return move_attack_telegraph(location, map, DIAGONAL_DIRECTIONS).concat(hazard_telegraph(location, map, self));
 }
 /** @type {TelegraphFunction} */
 function porcuslime_horizontal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, horizontal_directions).concat(hazard_telegraph(location, map, self));
+    return move_attack_telegraph(location, map, HORIZONTAL_DIRECTIONS).concat(hazard_telegraph(location, map, self));
 }
 /** @type {TileGenerator} */
 function small_d_porcuslime_tile(){
@@ -3218,7 +3218,7 @@ function scythe_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function scythe_telegraph(location, map, self){
     var attacks = [];
-    for(var direction of diagonal_directions){
+    for(var direction of DIAGONAL_DIRECTIONS){
         var current = location.copy();
         for(var i = 0; i < 3 && map.check_empty(current.plus_equals(direction)); ++i){
             attacks.push(current.plus(direction.times(new Point(-1, 0))));
@@ -3289,7 +3289,7 @@ function shadow_knight_telegraph(location, map, self){
     var attacks = [];
     var Ls = [new Point(1, 2), new Point(2, 1)];
     for(var L of  Ls){
-        for(var transformation of diagonal_directions){
+        for(var transformation of DIAGONAL_DIRECTIONS){
             attacks.push(L.times(transformation).plus(location));
         }
     }
@@ -3352,7 +3352,7 @@ function spider_ai(self, target, map){
 
 /** @type {TelegraphFunction} */
 function spider_telegraph(location, map, self){
-    return add_to_point_arr(all_directions, location);
+    return add_to_point_arr(ALL_DIRECTIONS, location);
 }
 /** @type {TileGenerator} */
 function spider_web_tile(){
@@ -3464,7 +3464,7 @@ function turret_d_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function turret_d_telegraph(location, map, self){
     var attacks = [];
-    for(var direction of diagonal_directions){
+    for(var direction of DIAGONAL_DIRECTIONS){
         attacks.push(...get_points_in_direction(location, direction, map));
     }
     return attacks;
@@ -3497,7 +3497,7 @@ function turret_h_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function turret_h_telegraph(location, map, self){
     var attacks = [];
-    for(var direction of horizontal_directions){
+    for(var direction of HORIZONTAL_DIRECTIONS){
         attacks.push(...get_points_in_direction(location, direction, map));
     }
     return attacks;
@@ -3624,10 +3624,10 @@ function vampire_hit(self, target, map){
 /** @type {TelegraphFunction} */
 function vampire_telegraph(location, map, self){
     var attacks = [];
-    for(var move_direction of horizontal_directions){
+    for(var move_direction of HORIZONTAL_DIRECTIONS){
         var move = location.plus(move_direction);
         if(map.check_empty(move)){
-            for(var attack_direction of diagonal_directions){
+            for(var attack_direction of DIAGONAL_DIRECTIONS){
                 attacks.push(move.plus(attack_direction));
             }
         }
@@ -3718,7 +3718,7 @@ function vinesnare_bush_telegraph_other(location, map, self){
     if(self.cycle === 0){
         return vines;
     }
-    for(var direction of all_directions){
+    for(var direction of ALL_DIRECTIONS){
         for(var i = 2; i <= self.range; ++i){
             vines.push(location.plus(direction.times(i)));
         }
@@ -4551,7 +4551,7 @@ function spawn_nearby(map, tile, location, nearby = random_nearby()){
  * @param {GameMap} map The map to make attacks using.
  */
 function attack_around(location, map){
-    for(var direction of all_directions){
+    for(var direction of ALL_DIRECTIONS){
         map.attack(location.plus(direction));
     }
 }
@@ -4870,9 +4870,9 @@ function teleport_spell(self, target, map){
  * @returns {Point[]} An array of the points on the map it could currently attack.
  */
 
-const horizontal_directions = [new Point(1, 0), new Point(-1, 0), new Point(0, -1), new Point(0, 1)];
-const diagonal_directions = [new Point(1, 1), new Point(-1, 1), new Point(1, -1), new Point(-1, -1)];
-const all_directions = horizontal_directions.concat(diagonal_directions);
+const HORIZONTAL_DIRECTIONS = [new Point(1, 0), new Point(-1, 0), new Point(0, -1), new Point(0, 1)];
+const DIAGONAL_DIRECTIONS = [new Point(1, 1), new Point(-1, 1), new Point(1, -1), new Point(-1, -1)];
+const ALL_DIRECTIONS = HORIZONTAL_DIRECTIONS.concat(DIAGONAL_DIRECTIONS);
 
 /** @type {TelegraphFunction} */
 function hazard_telegraph(location, map, self){
@@ -6215,7 +6215,7 @@ class GameState{
         try{
             var is_instant = false;
             var repetition_count = GS.boons.has(boon_names.repetition);
-            var repeat = (repetition_count > 0 &&  GS.map.get_turn_count() % (4 - repetition_count) === 0) ? 2 : 1;
+            var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? 2 : 1;
             for(var i = 0; i < repeat; ++i){
                 for(var action of behavior){
                     // Does each valid command in the behavior array.
@@ -6670,7 +6670,7 @@ class MoveDeck{
             display.remove_class(UIIDS.hand_box, `no-repetition`);
             display.remove_class(UIIDS.move_box, `no-repetition`);
             var repetition_count = GS.boons.has(boon_names.repetition);
-            var repeat = (repetition_count > 0 &&  GS.map.get_turn_count() % (4 - repetition_count) === 0) ? `telegraph-repetition` : `no-repetition`;
+            var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? `telegraph-repetition` : `no-repetition`;
             display.add_class(UIIDS.hand_box, repeat);
             display.add_class(UIIDS.move_box, repeat);
         }
@@ -7091,7 +7091,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     for(var i = 0; i < 8; ++i){
         var position = map.random_empty();
         map.add_tile(wall_tile(), position);
-        map.add_tile(damaged_wall_tile(), position.plus(rand_no_repeates(all_directions, 1)[0]));
+        map.add_tile(damaged_wall_tile(), position.plus(rand_no_repeates(ALL_DIRECTIONS, 1)[0]));
     }
     return two_headed_serpent_floor_message;
 }
@@ -7579,7 +7579,8 @@ const CARD_CHOICES = [
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal,
     diamond_attack, slice_twice, advance, dash_ne, dash_nw,
     bounding_retreat, leap_left, leap_right, short_charge_diagonal, side_sprint,
-    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw
+    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw,
+    stunning_leap, stunning_side_leap, stunning_slice, stunning_punch_orthogonal, stunning_punch_diagonal
 ];
 
 const RARE_CARD_CHOICES = [
@@ -8046,6 +8047,7 @@ function trample(){
     var options = new ButtonGrid();
     options.add_button(NE, [pattack(1, -2), pmove(1, -2)]);
     options.add_button(NW, [pattack(-1, -2), pmove(-1, -2)]);
+    options.add_button(S, [pattack(0, 2), pmove(0, 2)]);
     return{
         name: `trample`,
         pic: `${IMG_FOLDER.cards}trample.png`,
@@ -8130,14 +8132,7 @@ function whack_horizontal(){
 /** @type {CardGenerator}*/
 function spin_attack(){
     var options = new ButtonGrid();
-    var spin = [pattack(1, 1),
-                pattack(1, 0),
-                pattack(1, -1),
-                pattack(0, 1),
-                pattack(0, -1),
-                pattack(-1, 1),
-                pattack(-1, 0),
-                pattack(-1, -1)]
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
     options.add_button(SPIN, spin);
     return{
         name: `spin attack`,
@@ -8217,10 +8212,10 @@ function clear_in_front(){
 /** @type {CardGenerator}*/
 function jab(){
     var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1), pattack(0, -2)]);
-    options.add_button(E, [pattack(1, 0), pattack(2, 0)]);
-    options.add_button(S, [pattack(0, 1), pattack(0, 2)]);
-    options.add_button(W, [pattack(-1, 0), pattack(-2, 0)]);
+    options.add_button(N, [pattack(0, -1), pattack(0, -2), pattack(0, -1), pattack(0, -2)]);
+    options.add_button(E, [pattack(1, 0), pattack(2, 0), pattack(1, 0), pattack(2, 0)]);
+    options.add_button(S, [pattack(0, 1), pattack(0, 2), pattack(0, 1), pattack(0, 2)]);
+    options.add_button(W, [pattack(-1, 0), pattack(-2, 0), pattack(-1, 0), pattack(-2, 0)]);
     return{
         name: `jab`,
         pic: `${IMG_FOLDER.cards}jab.png`,
@@ -8516,10 +8511,10 @@ function alt_vertical(){
 /** @type {CardGenerator}*/
 function jab_diagonal(){
     var options = new ButtonGrid();
-    options.add_button(NE, [pattack(1, -1), pattack(2, -2)]);
-    options.add_button(SE, [pattack(1, 1), pattack(2, 2)]);
-    options.add_button(SW, [pattack(-1, 1), pattack(-2, 2)]);
-    options.add_button(NW, [pattack(-1, -1), pattack(-2, -2)]);
+    options.add_button(NE, [pattack(1, -1), pattack(2, -2), pattack(1, -1), pattack(2, -2)]);
+    options.add_button(SE, [pattack(1, 1), pattack(2, 2), pattack(1, 1), pattack(2, 2)]);
+    options.add_button(SW, [pattack(-1, 1), pattack(-2, 2), pattack(-1, 1), pattack(-2, 2)]);
+    options.add_button(NW, [pattack(-1, -1), pattack(-2, -2), pattack(-1, -1), pattack(-2, -2)]);
     return{
         name: `jab_diagonal`,
         pic: `${IMG_FOLDER.cards}jab_diagonal.png`,
@@ -8704,7 +8699,43 @@ function dash_nw(){
         options
     }
 }
-
+/** @type {CardGenerator}*/
+function stunning_slice(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(1, -1), pattack(1, -1), pstun(0, -1), pattack(0, -1), pstun(-1, -1), pattack(-1, -1)]);
+    options.add_button(E, [pstun(1, 1), pattack(1, 1), pstun(1, 0), pattack(1, 0), pstun(1, -1), pattack(1, -1)]);
+    options.add_button(S, [pstun(1, 1), pattack(1, 1), pstun(0, 1), pattack(0, 1), pstun(-1, 1), pattack(-1, 1)]);
+    options.add_button(W, [pstun(-1, 1), pattack(-1, 1), pstun(-1, 0), pattack(-1, 0), pstun(-1, -1), pattack(-1, -1)]);
+    return{
+        name: `stunning_slice`,
+        pic: `${IMG_FOLDER.cards}stunning_slice.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_leap(){
+    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -2), ...spin]);
+    options.add_button(S, [pmove(0, 2), ...spin]);
+    return{
+        name: `stunning_leap`,
+        pic: `${IMG_FOLDER.cards}stunning_leap.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_side_leap(){
+    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(2, 0), ...spin]);
+    options.add_button(W, [pmove(-2, 0), ...spin]);
+    return{
+        name: `stunning_side_leap`,
+        pic: `${IMG_FOLDER.cards}stunning_side_leap.png`,
+        options
+    }
+}
 /** @type {CardGenerator}*/
 function teleport(){
     var options = new ButtonGrid();
@@ -8892,7 +8923,32 @@ function reckless_diagonal(){
         options
     }
 }
-
+/** @type {CardGenerator}*/
+function stunning_punch_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, -1), pstun(0, -1), pinstant(0, 0)]);
+    options.add_button(E, [pstun(1, 0), pstun(1, 0), pinstant(0, 0)]);
+    options.add_button(S, [pstun(0, 1), pstun(0, 1), pinstant(0, 0)]);
+    options.add_button(W, [pstun(-1, 0), pstun(-1, 0), pinstant(0, 0)]);
+    return{
+        name: `stunning punch orthogonal`,
+        pic: `${IMG_FOLDER.cards}stunning_punch_orthogonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_punch_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(1, -1), pstun(1, -1), pinstant(0, 0)]);
+    options.add_button(SE, [pstun(1, 1), pstun(1, 1), pinstant(0, 0)]);
+    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1), pinstant(0, 0)]);
+    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1), pinstant(0, 0)]);
+    return{
+        name: `stunning punch diagonal`,
+        pic: `${IMG_FOLDER.cards}stunning_punch_diagonal.png`,
+        options
+    }
+}
 // ----------------ShopImages.js----------------
 // File containing cards used soley to display images in card rows of the shop.
 
@@ -9186,6 +9242,7 @@ function roar_of_challenge(){
         description: roar_of_challenge_description,
         prereq: prereq_roar_of_challenge,
         on_pick: pick_roar_of_challenge,
+        unlocks: [serenity]
     }
 }
 
@@ -9211,7 +9268,8 @@ function serenity(){
         pic: `${IMG_FOLDER.boons}serenity.png`,
         description: serenity_description,
         prereq: prereq_serenity,
-        on_pick: pick_serenity
+        on_pick: pick_serenity,
+        unlocks: [serenity]
     }
 }
 

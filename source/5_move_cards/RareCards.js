@@ -185,3 +185,29 @@ function reckless_diagonal(){
         options
     }
 }
+/** @type {CardGenerator}*/
+function stunning_punch_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, -1), pstun(0, -1), pinstant(0, 0)]);
+    options.add_button(E, [pstun(1, 0), pstun(1, 0), pinstant(0, 0)]);
+    options.add_button(S, [pstun(0, 1), pstun(0, 1), pinstant(0, 0)]);
+    options.add_button(W, [pstun(-1, 0), pstun(-1, 0), pinstant(0, 0)]);
+    return{
+        name: `stunning punch orthogonal`,
+        pic: `${IMG_FOLDER.cards}stunning_punch_orthogonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_punch_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(1, -1), pstun(1, -1), pinstant(0, 0)]);
+    options.add_button(SE, [pstun(1, 1), pstun(1, 1), pinstant(0, 0)]);
+    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1), pinstant(0, 0)]);
+    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1), pinstant(0, 0)]);
+    return{
+        name: `stunning punch diagonal`,
+        pic: `${IMG_FOLDER.cards}stunning_punch_diagonal.png`,
+        options
+    }
+}

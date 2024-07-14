@@ -82,7 +82,7 @@ function vinesnare_bush_telegraph_other(location, map, self){
     if(self.cycle === 0){
         return vines;
     }
-    for(var direction of all_directions){
+    for(var direction of ALL_DIRECTIONS){
         for(var i = 2; i <= self.range; ++i){
             vines.push(location.plus(direction.times(i)));
         }
