@@ -10,7 +10,25 @@
         <h2 id= "stats" class="no-margins"></h2>
 
         <div id= "stage">
-            <table id="mapDisplay" class="gamemap-box"></table>
+            <table id="mapDisplay" class="gamemap-box"></table> 
+            <div id="sidebar" class="sidebar">
+                <div id="sidebarHeader" class="sidebar-header"></div>
+                <div id="initiative"    class="sidebar-section"                 style="display: none"></div>
+                <div id="boonList"      class="sidebar-section"                 style="display: none">
+                    <table id="boonListTable" class="card-container"></table>
+                    <hr>
+                    <table id="removedBoonTable" class="card-container"></table>
+                </div>
+                <div id="discardPile"   class="sidebar-section"                 style="display: none">
+                    <table id="discardPileTable" class="card-container"></table>
+                </div>
+                <div id="textLog"       class="sidebar-section"     style="display: none">
+                    <div id="textScroll" class="scroll-down"></div>
+                </div>
+                <div id="deckOrder"     class="sidebar-section"                 style="display: none">
+                    <table id="deckOrderTable" class="card-container"></table>
+                </div>
+            </div>
             <div>
                 <table id="healthDisplay" class="health-box"></table>
                 <div id="remainingDeck" class="deck-box relative" title="Cards in deck">

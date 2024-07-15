@@ -9,6 +9,7 @@ class GameState{
     deck;
     boons;
     #player_turn_lock;
+    #text_log;
     constructor(){
         // Starts the game on load.
         this.setup();
@@ -19,16 +20,18 @@ class GameState{
      */
     setup(){
         // Function ran on page load or on restart to set up the game.
-
+        this.#text_log = [];
         this.boons = new BoonTracker();
         var start = randomize_arr(STARTING_AREA)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = STARTING_DECK();
 
-
-        display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
+        var starting_text = `${start.description}\n${welcome_message}`;
+        say(starting_text, false);
+        this.record_message(starting_text);
         display.display_message(UIIDS.hand_label, `${hand_label_text}`);
         display.display_message(UIIDS.move_label, `${move_label_text}`);
+        create_sidebar();
 
         // Prep map
         for(var i = 0; i < STARTING_ENEMY_AMOUNT; ++i){
@@ -45,7 +48,7 @@ class GameState{
         this.map.display();
         this.map.display_stats(UIIDS.stats);
 
-        this.deck.display_hand(UIIDS.hand_display);
+        this.refresh_deck_display();
         display.display_message(UIIDS.shop_instructions, mod_deck);
         display.swap_screen(DISPLAY_DIVISIONS, UIIDS.game_screen);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
@@ -65,7 +68,7 @@ class GameState{
         if(!this.lock_player_turn()){
             return;
         }
-        display.display_message(UIIDS.display_message, ``);
+        say(``, false);
         this.map.clear_marked();
         try{
             var is_instant = false;
@@ -77,7 +80,7 @@ class GameState{
                     is_instant = this.player_action(action);
                 }
             }
-            display.clear_tb(UIIDS.move_buttons);
+            display.remove_children(UIIDS.move_buttons);
             if(this.boons.has(boon_names.spontaneous) > 0 && !is_instant){
                 this.deck.discard_all();
             }
@@ -87,7 +90,7 @@ class GameState{
             this.map.display();
             await delay(ANIMATION_DELAY);
             if(is_instant){
-                this.deck.display_hand(UIIDS.hand_display);
+                this.refresh_deck_display();
                 this.map.display_stats(UIIDS.stats);
                 this.map.display();
                 return;
@@ -174,7 +177,7 @@ class GameState{
         this.map.display_stats(UIIDS.stats);
         this.map.display();
         this.deck.deal();
-        this.deck.display_hand(UIIDS.hand_display);
+        this.refresh_deck_display();
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
         await delay(ANIMATION_DELAY);
         this.map.display();
@@ -188,10 +191,10 @@ class GameState{
         // Gives the player the option to add or remove a card from their deck.
         // Their deck contents are also displayed.
         // Options to remove cards will not be displayed if the deck is at the minimum size already.
-        display.clear_tb(UIIDS.move_buttons);
-        display.clear_tb(UIIDS.add_card);
-        display.clear_tb(UIIDS.remove_card);
-        display.clear_tb(UIIDS.display_deck);
+        display.remove_children(UIIDS.move_buttons);
+        display.remove_children(UIIDS.add_card);
+        display.remove_children(UIIDS.remove_card);
+        display.remove_children(UIIDS.display_deck);
         this.deck.display_all(UIIDS.display_deck);
         this.#generate_add_row(UIIDS.add_card);
         this.#generate_remove_row(UIIDS.remove_card);
@@ -275,13 +278,13 @@ class GameState{
         // Tells the user the game is over, prevents them fro m continuing, tells them the cause
         // and gives them the chance to retry.
         this.map.display();
-        display.clear_tb(UIIDS.hand_display);
-        display.clear_tb(UIIDS.move_buttons);
-        display.display_message(UIIDS.display_message, `${game_over_message}${cause}.`);
-        display.clear_tb(UIIDS.move_buttons);
+        display.remove_children(UIIDS.hand_display);
+        display.remove_children(UIIDS.move_buttons);
+        say(`${game_over_message}${cause}.`);
+        display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
-                display.clear_tb(UIIDS.retry_button);
+                display.remove_children(UIIDS.retry_button);
                 game.setup();
             };
         }
@@ -309,7 +312,7 @@ class GameState{
         this.map.display();
         await delay(ANIMATION_DELAY);
         this.map.display();
-        this.deck.display_hand(UIIDS.hand_display);
+        this.refresh_deck_display();
         this.map.display_stats(UIIDS.stats);
         this.unlock_player_turn();
     }
@@ -336,6 +339,37 @@ class GameState{
      */
     check_lock_player_turn(){
         return this.#player_turn_lock;
+    }
+    /**
+     * Records a message in the text log, then displays the text log.
+     * @param {string} msg The message to record.
+     */
+    record_message(msg){
+        this.#text_log.push(msg);
+        this.display_messages(UIIDS.text_scroll);
+    }
+    /**
+     * Displays all messages in the text log.
+     * @param {string} location Where to display to.
+     */
+    display_messages(location){
+        display.remove_children(location);
+        display.create_stacked_p(location, reverse_arr(this.#text_log));
+    }
+    /**
+     * Displays the hand, discard pile, and deck to their proper locations.
+     */
+    refresh_deck_display(){
+        this.deck.display_hand(UIIDS.hand_display);
+        this.deck.display_discard(UIIDS.discard_pile_table);
+        this.deck.display_deck_order(UIIDS.deck_order_table);
+    }
+    /**
+     * Displays the hand, discard pile, and deck to their proper locations.
+     */
+    refresh_boon_display(){
+        this.boons.display(UIIDS.boon_list_table);
+        this.boons.display_lost(UIIDS.removed_boon_table);
     }
 }
 

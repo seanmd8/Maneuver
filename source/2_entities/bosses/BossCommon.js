@@ -12,6 +12,6 @@ function boss_death(self, target, map){
         }
         map.add_tile(chest, self.location);
     }
-    display.display_message(UIIDS.display_message, `${self.tile.death_message}\n${boss_death_description}`);
+    say(`${self.tile.death_message}\n${boss_death_description}`);
     map.unlock();
 }

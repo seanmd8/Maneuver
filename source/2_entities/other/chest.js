@@ -24,13 +24,14 @@ function chest_on_enter(self, target, map){
     var leave_chest = function(){
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
         display.display_message(UIIDS.chest_instructions, ``);
-        display.clear_tb(UIIDS.chest_confirm_row);
-        display.clear_tb(UIIDS.contents);
+        display.remove_children(UIIDS.chest_confirm_row);
+        display.remove_children(UIIDS.contents);
         display.display_message(UIIDS.content_description, ``);
-        GS.deck.display_hand(UIIDS.hand_display);
+        GS.refresh_deck_display();
         map.display();
         if(GS.boons.has(boon_names.safe_passage)){
             GS.boons.lose(boon_names.safe_passage);
+            GS.refresh_boon_display();
             GS.map.heal(GS.map.get_player_location());
             GS.map.display_stats(UIIDS.stats);
             GS.enter_shop();
@@ -55,7 +56,7 @@ function chest_on_enter(self, target, map){
                     on_choose: item.on_choose
                 };
                 display.display_message(UIIDS.content_description, item.description);
-                display.clear_tb(UIIDS.chest_confirm_row);
+                display.remove_children(UIIDS.chest_confirm_row);
                 display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button], take_or_leave);
                 display.select(UIIDS.contents, 0, position);
             };
@@ -114,6 +115,7 @@ function add_boon_to_chest(chest, boon){
         name: boon.name,
         on_choose: function(){
             GS.boons.pick(boon.name);
+            GS.refresh_boon_display();
         },
         description: `${boon.name}: ${boon.description}`
     }

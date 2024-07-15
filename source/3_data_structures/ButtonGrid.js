@@ -41,8 +41,8 @@ class ButtonGrid{
      * @param {string=} extra_info Optional extra information to display when the card info button is clicked.
      */
     show_buttons(table_name, hand_pos, extra_info = ``){
-        display.clear_tb(table_name);
-        display.display_message(UIIDS.display_message, ``);
+        display.remove_children(table_name);
+        say(``, false);
         var make_press_button = function(hand_position){
             return function(button){
                 if(display.shift_is_pressed){
@@ -63,7 +63,7 @@ class ButtonGrid{
         var explain_moves = function(extra_text, card){
             var text = `${extra_text}${card.explain_card()}`;
             return function(){
-                display.display_message(UIIDS.display_message, text);
+                say(text, false);
             }
         }
         

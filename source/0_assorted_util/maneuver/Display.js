@@ -56,7 +56,7 @@
  */
 
 /**
- * @callback clear_tb A function to remove all rows from a table.
+ * @callback remove_children A function to remove all rows from a table.
  * @param {string} location The ID of the table to remove rows from.
  */
 
@@ -128,7 +128,7 @@
  * @property {add_tb_row} add_tb_row
  * @property {add_button_row} add_button_row
  * @property {display_message} display_message
- * @property {clear_tb} clear_tb
+ * @property {remove_children} remove_children
  * @property {swap_screen} swap_screen
  * @property {select} select
  * @property {press} press
@@ -276,10 +276,10 @@ const DisplayHTML = {
         var output = message;//wrap_str(message, TEXT_WRAP_WIDTH, ` `);
         DisplayHTML.get_element(location).innerText = output;
     },
-    clear_tb: function(location){
-        var table = DisplayHTML.get_element(location, HTMLTableElement);
-        while(table.rows.length > 0){
-            table.deleteRow(0);
+    remove_children: function(location){
+        var element = DisplayHTML.get_element(location);
+        while(element.firstChild){
+            element.removeChild(element.lastChild);
         }
     },
     swap_screen: function(divisions, screen = undefined){
@@ -374,7 +374,6 @@ const DisplayHTML = {
         var body_div = document.createElement(`div`);
         var body_div_id = `${header} section`;
         body_div.id = body_div_id;
-        body_div.style.display = `none`;
         body_div.classList.add(`guidebook-section`)
 
 
@@ -434,6 +433,18 @@ const DisplayHTML = {
     remove_class: function(location, css_class){
         var element = DisplayHTML.get_element(location);
         element.classList.remove(css_class);
+    },
+    create_stacked_p: function(location, strs){
+        element = DisplayHTML.get_element(location);
+        var hr = document.createElement(`hr`);
+        element.append(hr);
+        for(var str of strs){
+            var p = document.createElement(`p`);
+            p.innerText = str;
+            element.append(p);
+            hr = document.createElement(`hr`);
+            element.append(hr);
+        }
     },
     shift_is_pressed: false,
 

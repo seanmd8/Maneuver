@@ -140,7 +140,7 @@ class MoveDeck{
      */
     display_hand(table){
         // Displays the hand to the given table.
-        display.clear_tb(table);
+        display.remove_children(table);
         var make_prep_move = function(card, hand_pos){
             return function(){
                 if(!GS.check_lock_player_turn()){
@@ -152,7 +152,7 @@ class MoveDeck{
             }
         }
         var explain_blank_moves = function(){
-            display.display_message(UIIDS.display_message, blank_moves_message);
+            say(blank_moves_message, false);
         }
         var card_row = [];
         for(var i = 0; i < this.#hand.length; ++i){
@@ -198,6 +198,22 @@ class MoveDeck{
             display.add_tb_row(table, row, CARD_SCALE)
             
         }
+    }
+    /**
+     * Displays the whole discard pile.
+     * @param {string} table Where it should be displayed.
+     */
+    display_discard(table){
+        display.remove_children(table);
+        display.add_tb_row(table, this.#discard_pile, SMALL_CARD_SCALE);
+    }
+    /**
+     * Displays the cards in your draw pile in order..
+     * @param {string} table Where it should be displayed.
+     */
+    display_deck_order(table){
+        display.remove_children(table);
+        display.add_tb_row(table, reverse_arr(this.#library), SMALL_CARD_SCALE);
     }
     /**
      * Gets a random array of cards from the decklist with no repeats.

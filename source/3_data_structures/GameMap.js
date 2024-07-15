@@ -282,12 +282,12 @@ class GameMap{
         // Diplays the gamemap. Each element shows it's description and hp (if applicable) when clicked.
         // If any empty tiles have been marked as hit, it resets the pic to empty.
         // Shows the player's remaining health below.
-        display.clear_tb(UIIDS.map_display);
+        display.remove_children(UIIDS.map_display);
         var make_on_click = function(space, location, gameMap){
             return function(){
                 var description = grid_space_description(space);
                 var tile = space.tile;
-                display.display_message(UIIDS.display_message, description);
+                say(description, false);
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
                 var telegraph_other_spaces = [];
@@ -336,7 +336,7 @@ class GameMap{
             };
             display.add_tb_row(UIIDS.map_display, table_row, TILE_SCALE);
         }
-        display.clear_tb(UIIDS.health_display);
+        display.remove_children(UIIDS.health_display);
         display_health(this.get_player(), TILE_SCALE);
         this.clear_telegraphs()
 	}
@@ -462,6 +462,7 @@ class GameMap{
                     if(GS.boons.has(boon_names.rebirth)){
                         this.player_heal(new Point(0, 0));
                         GS.boons.lose(boon_names.rebirth);
+                        GS.refresh_boon_display();
                         return true;
                     }
                     throw new Error(ERRORS.game_over);
@@ -634,7 +635,7 @@ class GameMap{
             }
             this.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
-        display.display_message(UIIDS.display_message, floor_description);
+        say(floor_description);
     }
     /**
      * Gets a tile from a location on the grid.

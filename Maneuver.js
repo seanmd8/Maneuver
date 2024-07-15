@@ -411,10 +411,10 @@ const STARTING_AREA = [generate_ruins_area];
 var GS;
 
 // Settings just used for testing.
-const SECOND_STARTING_ENEMY = lava_pool_tile;
+const SECOND_STARTING_ENEMY = corrosive_slime_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
-const STARTING_CHEST_CONTENTS = repetition;
+const STARTING_CHEST_CONTENTS = rebirth;
 const STARTING_CHEST_AMOUNT = 0;
 
 // Dungeon generation settings.
@@ -422,11 +422,12 @@ const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
 const AREA_SIZE = 5;
 const CHEST_LOCATION = 3;
-const BOON_CHOICES = 2
+const BOON_CHOICES = 3;
 const SAFE_SPAWN_ATTEMPTS = 5;
 
 // Visual and animation settings.
 const CARD_SCALE = 90;
+const SMALL_CARD_SCALE = 75;
 const CHEST_CONTENTS_SIZE = 120;
 const TILE_SCALE = 40;
 const CARD_SYMBOL_SCALE = 20;
@@ -516,7 +517,7 @@ Object.freeze(IMG_FOLDER);
  */
 
 /**
- * @callback clear_tb A function to remove all rows from a table.
+ * @callback remove_children A function to remove all rows from a table.
  * @param {string} location The ID of the table to remove rows from.
  */
 
@@ -588,7 +589,7 @@ Object.freeze(IMG_FOLDER);
  * @property {add_tb_row} add_tb_row
  * @property {add_button_row} add_button_row
  * @property {display_message} display_message
- * @property {clear_tb} clear_tb
+ * @property {remove_children} remove_children
  * @property {swap_screen} swap_screen
  * @property {select} select
  * @property {press} press
@@ -736,10 +737,10 @@ const DisplayHTML = {
         var output = message;//wrap_str(message, TEXT_WRAP_WIDTH, ` `);
         DisplayHTML.get_element(location).innerText = output;
     },
-    clear_tb: function(location){
-        var table = DisplayHTML.get_element(location, HTMLTableElement);
-        while(table.rows.length > 0){
-            table.deleteRow(0);
+    remove_children: function(location){
+        var element = DisplayHTML.get_element(location);
+        while(element.firstChild){
+            element.removeChild(element.lastChild);
         }
     },
     swap_screen: function(divisions, screen = undefined){
@@ -834,7 +835,6 @@ const DisplayHTML = {
         var body_div = document.createElement(`div`);
         var body_div_id = `${header} section`;
         body_div.id = body_div_id;
-        body_div.style.display = `none`;
         body_div.classList.add(`guidebook-section`)
 
 
@@ -894,6 +894,18 @@ const DisplayHTML = {
     remove_class: function(location, css_class){
         var element = DisplayHTML.get_element(location);
         element.classList.remove(css_class);
+    },
+    create_stacked_p: function(location, strs){
+        element = DisplayHTML.get_element(location);
+        var hr = document.createElement(`hr`);
+        element.append(hr);
+        for(var str of strs){
+            var p = document.createElement(`p`);
+            p.innerText = str;
+            element.append(p);
+            hr = document.createElement(`hr`);
+            element.append(hr);
+        }
     },
     shift_is_pressed: false,
 
@@ -1107,8 +1119,9 @@ function display_guide(){
     var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
     var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
     var chests_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.chests, GUIDE_TEXT.chests, []);
+    var sidebar_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.sidebar, GUIDE_TEXT.sidebar, []);
 
-    var section_id_list = [basics_section, cards_section, enemies_section, shop_section, bosses_section, chests_section];
+    var section_id_list = [basics_section, cards_section, enemies_section, shop_section, bosses_section, chests_section, sidebar_section];
 
     var swap_visibility = function(id_list, id){
         return function(){
@@ -1123,6 +1136,8 @@ function display_guide(){
     display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap_visibility(section_id_list, shop_section));
     display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
     display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap_visibility(section_id_list, sidebar_section));
+    display.swap_screen(section_id_list, basics_section);
 }
 
 /**
@@ -1156,7 +1171,39 @@ function confuse_player(){
     if(1 + random_num(2) - GS.boons.has(boon_names.stable_mind) > 0){
         var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
         GS.give_temp_card(card);
+        GS.refresh_deck_display
     } 
+}
+
+/**
+ * Function to give a message to the user.
+ * @param {string} msg message text.
+ * @param {boolean} record If true, also adds it to the chat log.
+ */
+function say(msg, record = true){
+    if(msg === ``){
+        record = false;
+    }
+    display.display_message(UIIDS.display_message, msg);
+    if(record){
+        GS.record_message(msg);
+    }
+}
+
+/**
+ * Function to create and add the buttons for the sidebar.
+ */
+function create_sidebar(){
+    var location = UIIDS.sidebar_header;
+    var swap_visibility = function(id_list, id){
+        return function(){
+            display.swap_screen(id_list, id);
+        }
+    }
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
+    //display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
+    swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log)();
 }
 // ----------------Descriptions.js----------------
 // Contains text that will be displayed.
@@ -1431,6 +1478,17 @@ const stealthy_description = `Enemies are stunned for two turns at the start of 
 const stubborn_description = `You can decide to skip shops.`;
 const thick_soles_description = `You are immune to damage on your turn.`;
 
+
+const SIDEBAR_BUTTONS = {
+    text_log: `Messages`, 
+    boon_list: `Boons`, 
+    discard_pile: `Discard`, 
+    initiative: `Initiative`, 
+    deck_order: `Deck Order`,
+    sidebar: `Sidebar`
+}
+Object.freeze(SIDEBAR_BUTTONS);
+
 // ----------------GuideText.js----------------
 // This file contains the headers and text for the guide / tutorial section.
 
@@ -1440,7 +1498,8 @@ const GUIDE_HEADERS = {
     enemies: `Dealing With Enemies`,
     shop: `The Shop`,
     bosses: `Bosses`,
-    chests: `Chests`
+    chests: `Chests`,
+    sidebar: `Sidebar`
 }
 Object.freeze(GUIDE_HEADERS);
 
@@ -1508,7 +1567,16 @@ const GUIDE_TEXT = {
             +`a boon. Boons are powerful abilities that can give your character a unique edge when it comes to surviving.\n\n`
             +`Chests will also be dropped after a boss is defeated. Rather than boons, these ones will contain a card that lets you `
             +`imitate one of the bosses abilities.\n\n`
-            +`Be careful when killing bosses and picking up chests. Breaking a chest will destroy it's contents.\n\n`]
+            +`Be careful when killing bosses and picking up chests. Breaking a chest will destroy it's contents.\n\n`],
+
+    sidebar: [`The sidebar contains several tabs which keep track of useful information so you don't need to remember it.\n\n`
+            +`- The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like the descriptions `
+            +`given by clicking on a tile will not be tracked.\n\n`
+            +`- The Discard tab will keep track of which cards in your deck have been used so far, to help you figure out what might `
+            +`be left to draw. It resets after shuffling.\n\n`
+            +`- The Boons tab will become available when you pick up your first boon. It will keep track of each boon you pick up `
+            +`and allow you to view their descriptions again by clicking on them. It will also track when certain boons are lost.\n\n`
+            +`More tabs might become available as you play.\n\n`]
 }
 Object.freeze(GUIDE_TEXT);
 
@@ -1594,6 +1662,18 @@ const HTML_UIIDS = {
         stats: `stats`,
         stage: `stage`,
             map_display: `mapDisplay`,
+            sidebar: `sidebar`,
+                sidebar_header: `sidebarHeader`,
+                initiative: `initiative`,
+                boon_list: `boonList`,
+                    boon_list_table: `boonListTable`,
+                    removed_boon_table: `removedBoonTable`,
+                discard_pile: `discardPile`,
+                    discard_pile_table: `discardPileTable`,
+                text_log: `textLog`,
+                    text_scroll: `textScroll`,
+                deck_order: `deckOrder`,
+                    deck_order_table: `deckOrderTable`,
             health_display: `healthDisplay`,
             remaining_deck: `remainingDeck`,
                 deck_image: `deckImage`,
@@ -1631,6 +1711,8 @@ const GAME_SCREEN_DIVISIONS = [UIIDS.stage, UIIDS.shop, UIIDS.chest];
 const DISPLAY_DIVISIONS = [UIIDS.game_screen, UIIDS.guide];
 const DISPLAY_DIVISION_NAMES = [gameplay_screen_name, guide_screen_name];
 
+const SIDEBAR_DIVISIONS = [UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order];
+
 /** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
 function boss_death(self, target, map){
     if(self.tile.death_message === undefined){
@@ -1645,7 +1727,7 @@ function boss_death(self, target, map){
         }
         map.add_tile(chest, self.location);
     }
-    display.display_message(UIIDS.display_message, `${self.tile.death_message}\n${boss_death_description}`);
+    say(`${self.tile.death_message}\n${boss_death_description}`);
     map.unlock();
 }
 /** @type {TileGenerator} */
@@ -1720,7 +1802,7 @@ function lich_ai(self, target, map){
     self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
     var announcement = `${lich_announcement}${self.tile.spells[self.tile.cycle].description}`
-    map.add_event({name: `spell announcement`, behavior: () => {display.display_message(UIIDS.display_message, announcement)}});;
+    map.add_event({name: `spell announcement`, behavior: () => {say(announcement)}});
 }
 
 /** @type {TelegraphFunction} */
@@ -3589,7 +3671,8 @@ function vampire_ai(self, target, map){
                         new Point(player_pos.x - 1, player_pos.y - 1)];
     target_spaces = randomize_arr(target_spaces);
     var moved = false;
-    for(var i = 0; i < target_spaces.length && !moved; ++i){
+    var health = self.tile.health;
+    for(var i = 0; i < target_spaces.length && !moved && health === self.tile.health; ++i){
         // Tries to move to a nearby space from which it can attack the player.
         var space = target_spaces[i];
         var target_distance = space.minus(self.location);
@@ -3601,10 +3684,10 @@ function vampire_ai(self, target, map){
     if(moved && map.attack(self.location.plus(target.difference))){
         map.heal(space, 1);
     } 
-    if(!moved){
+    if(!moved && health === self.tile.health){
         // If it hasn't moved yet, just moves closer to the player.
         var directions = order_nearby(target.difference);
-        for(var i = 0; i < directions.length && !moved; ++i){
+        for(var i = 0; i < directions.length && !moved  && health === self.tile.health; ++i){
             var direction = directions[i]
             if(direction.on_axis()){
                 moved = map.move(self.location, self.location.plus(direction));
@@ -3751,13 +3834,14 @@ function chest_on_enter(self, target, map){
     var leave_chest = function(){
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
         display.display_message(UIIDS.chest_instructions, ``);
-        display.clear_tb(UIIDS.chest_confirm_row);
-        display.clear_tb(UIIDS.contents);
+        display.remove_children(UIIDS.chest_confirm_row);
+        display.remove_children(UIIDS.contents);
         display.display_message(UIIDS.content_description, ``);
-        GS.deck.display_hand(UIIDS.hand_display);
+        GS.refresh_deck_display();
         map.display();
         if(GS.boons.has(boon_names.safe_passage)){
             GS.boons.lose(boon_names.safe_passage);
+            GS.refresh_boon_display();
             GS.map.heal(GS.map.get_player_location());
             GS.map.display_stats(UIIDS.stats);
             GS.enter_shop();
@@ -3782,7 +3866,7 @@ function chest_on_enter(self, target, map){
                     on_choose: item.on_choose
                 };
                 display.display_message(UIIDS.content_description, item.description);
-                display.clear_tb(UIIDS.chest_confirm_row);
+                display.remove_children(UIIDS.chest_confirm_row);
                 display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button], take_or_leave);
                 display.select(UIIDS.contents, 0, position);
             };
@@ -3841,6 +3925,7 @@ function add_boon_to_chest(chest, boon){
         name: boon.name,
         on_choose: function(){
             GS.boons.pick(boon.name);
+            GS.refresh_boon_display();
         },
         description: `${boon.name}: ${boon.description}`
     }
@@ -4201,7 +4286,7 @@ function damaged_wall_tile(){
         on_hit: damaged_wall_on_hit,
         on_death: damaged_wall_death,
         pic_arr,
-        summons: [spider_tile, acid_bug_tile, spider_web_tile, rat_tile, carrion_flies_tile, scythe_tile]
+        summons: [spider_tile, acid_bug_tile, spider_web_tile, rat_tile, scythe_tile]
     }
 }
 
@@ -4918,9 +5003,11 @@ function move_attack_telegraph(location, map, directions){
 class BoonTracker{
     #choices;
     #boons;
+    #lost_boons;
     constructor(){
         this.#choices = BOON_LIST.map(b => b());
         this.#boons = [];
+        this.#lost_boons = [];
     }
     get_choices(amount){
         var choice_list = randomize_arr(this.#choices);
@@ -4946,6 +5033,12 @@ class BoonTracker{
         for(var i = 0; i < this.#choices.length; ++i){
             var boon = this.#choices[i];
             if(boon.name === name){
+                if(this.#boons.length + this.#lost_boons.length === 0){
+                    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
+                        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
+                    });
+                    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
+                }
                 this.#choices.splice(i, 1);
                 if(boon.unlocks !== undefined){
                     this.#choices.push(...boon.unlocks.map(f => f()));
@@ -4964,6 +5057,7 @@ class BoonTracker{
             var boon = this.#boons[i];
             if(boon.name === name){
                 this.#boons.splice(i, 1);
+                this.#lost_boons.push(boon);
                 return true;
             }
         }
@@ -4978,6 +5072,25 @@ class BoonTracker{
             }
         }
         return false;
+    }
+    display(location){
+        display.remove_children(location);
+        var boons = this.#boons.map(b => {return {
+            name: b.name,
+            pic: b.pic,
+            on_click: function(){say(b.description, false)}
+        }});
+        display.add_tb_row(location, boons, SMALL_CARD_SCALE);
+    }
+    display_lost(location){
+        display.remove_children(location);
+        var lost = this.#lost_boons.map(b => {return {
+            name: b.name,
+            foreground: [`${IMG_FOLDER.other}lost.png`],
+            pic: b.pic,
+            on_click: function(){say(b.description, false)}
+        }});
+        display.add_tb_row(location, lost, SMALL_CARD_SCALE);
     }
 
 }
@@ -5026,8 +5139,8 @@ class ButtonGrid{
      * @param {string=} extra_info Optional extra information to display when the card info button is clicked.
      */
     show_buttons(table_name, hand_pos, extra_info = ``){
-        display.clear_tb(table_name);
-        display.display_message(UIIDS.display_message, ``);
+        display.remove_children(table_name);
+        say(``, false);
         var make_press_button = function(hand_position){
             return function(button){
                 if(display.shift_is_pressed){
@@ -5048,7 +5161,7 @@ class ButtonGrid{
         var explain_moves = function(extra_text, card){
             var text = `${extra_text}${card.explain_card()}`;
             return function(){
-                display.display_message(UIIDS.display_message, text);
+                say(text, false);
             }
         }
         
@@ -5589,12 +5702,12 @@ class GameMap{
         // Diplays the gamemap. Each element shows it's description and hp (if applicable) when clicked.
         // If any empty tiles have been marked as hit, it resets the pic to empty.
         // Shows the player's remaining health below.
-        display.clear_tb(UIIDS.map_display);
+        display.remove_children(UIIDS.map_display);
         var make_on_click = function(space, location, gameMap){
             return function(){
                 var description = grid_space_description(space);
                 var tile = space.tile;
-                display.display_message(UIIDS.display_message, description);
+                say(description, false);
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
                 var telegraph_other_spaces = [];
@@ -5643,7 +5756,7 @@ class GameMap{
             };
             display.add_tb_row(UIIDS.map_display, table_row, TILE_SCALE);
         }
-        display.clear_tb(UIIDS.health_display);
+        display.remove_children(UIIDS.health_display);
         display_health(this.get_player(), TILE_SCALE);
         this.clear_telegraphs()
 	}
@@ -5769,6 +5882,7 @@ class GameMap{
                     if(GS.boons.has(boon_names.rebirth)){
                         this.player_heal(new Point(0, 0));
                         GS.boons.lose(boon_names.rebirth);
+                        GS.refresh_boon_display();
                         return true;
                     }
                     throw new Error(ERRORS.game_over);
@@ -5941,7 +6055,7 @@ class GameMap{
             }
             this.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
-        display.display_message(UIIDS.display_message, floor_description);
+        say(floor_description);
     }
     /**
      * Gets a tile from a location on the grid.
@@ -6154,6 +6268,7 @@ class GameState{
     deck;
     boons;
     #player_turn_lock;
+    #text_log;
     constructor(){
         // Starts the game on load.
         this.setup();
@@ -6164,16 +6279,18 @@ class GameState{
      */
     setup(){
         // Function ran on page load or on restart to set up the game.
-
+        this.#text_log = [];
         this.boons = new BoonTracker();
         var start = randomize_arr(STARTING_AREA)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = STARTING_DECK();
 
-
-        display.display_message(UIIDS.display_message, `${start.description}\n${welcome_message}`);
+        var starting_text = `${start.description}\n${welcome_message}`;
+        say(starting_text, false);
+        this.record_message(starting_text);
         display.display_message(UIIDS.hand_label, `${hand_label_text}`);
         display.display_message(UIIDS.move_label, `${move_label_text}`);
+        create_sidebar();
 
         // Prep map
         for(var i = 0; i < STARTING_ENEMY_AMOUNT; ++i){
@@ -6190,7 +6307,7 @@ class GameState{
         this.map.display();
         this.map.display_stats(UIIDS.stats);
 
-        this.deck.display_hand(UIIDS.hand_display);
+        this.refresh_deck_display();
         display.display_message(UIIDS.shop_instructions, mod_deck);
         display.swap_screen(DISPLAY_DIVISIONS, UIIDS.game_screen);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
@@ -6210,7 +6327,7 @@ class GameState{
         if(!this.lock_player_turn()){
             return;
         }
-        display.display_message(UIIDS.display_message, ``);
+        say(``, false);
         this.map.clear_marked();
         try{
             var is_instant = false;
@@ -6222,7 +6339,7 @@ class GameState{
                     is_instant = this.player_action(action);
                 }
             }
-            display.clear_tb(UIIDS.move_buttons);
+            display.remove_children(UIIDS.move_buttons);
             if(this.boons.has(boon_names.spontaneous) > 0 && !is_instant){
                 this.deck.discard_all();
             }
@@ -6232,7 +6349,7 @@ class GameState{
             this.map.display();
             await delay(ANIMATION_DELAY);
             if(is_instant){
-                this.deck.display_hand(UIIDS.hand_display);
+                this.refresh_deck_display();
                 this.map.display_stats(UIIDS.stats);
                 this.map.display();
                 return;
@@ -6319,7 +6436,7 @@ class GameState{
         this.map.display_stats(UIIDS.stats);
         this.map.display();
         this.deck.deal();
-        this.deck.display_hand(UIIDS.hand_display);
+        this.refresh_deck_display();
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
         await delay(ANIMATION_DELAY);
         this.map.display();
@@ -6333,10 +6450,10 @@ class GameState{
         // Gives the player the option to add or remove a card from their deck.
         // Their deck contents are also displayed.
         // Options to remove cards will not be displayed if the deck is at the minimum size already.
-        display.clear_tb(UIIDS.move_buttons);
-        display.clear_tb(UIIDS.add_card);
-        display.clear_tb(UIIDS.remove_card);
-        display.clear_tb(UIIDS.display_deck);
+        display.remove_children(UIIDS.move_buttons);
+        display.remove_children(UIIDS.add_card);
+        display.remove_children(UIIDS.remove_card);
+        display.remove_children(UIIDS.display_deck);
         this.deck.display_all(UIIDS.display_deck);
         this.#generate_add_row(UIIDS.add_card);
         this.#generate_remove_row(UIIDS.remove_card);
@@ -6420,13 +6537,13 @@ class GameState{
         // Tells the user the game is over, prevents them fro m continuing, tells them the cause
         // and gives them the chance to retry.
         this.map.display();
-        display.clear_tb(UIIDS.hand_display);
-        display.clear_tb(UIIDS.move_buttons);
-        display.display_message(UIIDS.display_message, `${game_over_message}${cause}.`);
-        display.clear_tb(UIIDS.move_buttons);
+        display.remove_children(UIIDS.hand_display);
+        display.remove_children(UIIDS.move_buttons);
+        say(`${game_over_message}${cause}.`);
+        display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
-                display.clear_tb(UIIDS.retry_button);
+                display.remove_children(UIIDS.retry_button);
                 game.setup();
             };
         }
@@ -6454,7 +6571,7 @@ class GameState{
         this.map.display();
         await delay(ANIMATION_DELAY);
         this.map.display();
-        this.deck.display_hand(UIIDS.hand_display);
+        this.refresh_deck_display();
         this.map.display_stats(UIIDS.stats);
         this.unlock_player_turn();
     }
@@ -6481,6 +6598,37 @@ class GameState{
      */
     check_lock_player_turn(){
         return this.#player_turn_lock;
+    }
+    /**
+     * Records a message in the text log, then displays the text log.
+     * @param {string} msg The message to record.
+     */
+    record_message(msg){
+        this.#text_log.push(msg);
+        this.display_messages(UIIDS.text_scroll);
+    }
+    /**
+     * Displays all messages in the text log.
+     * @param {string} location Where to display to.
+     */
+    display_messages(location){
+        display.remove_children(location);
+        display.create_stacked_p(location, reverse_arr(this.#text_log));
+    }
+    /**
+     * Displays the hand, discard pile, and deck to their proper locations.
+     */
+    refresh_deck_display(){
+        this.deck.display_hand(UIIDS.hand_display);
+        this.deck.display_discard(UIIDS.discard_pile_table);
+        this.deck.display_deck_order(UIIDS.deck_order_table);
+    }
+    /**
+     * Displays the hand, discard pile, and deck to their proper locations.
+     */
+    refresh_boon_display(){
+        this.boons.display(UIIDS.boon_list_table);
+        this.boons.display_lost(UIIDS.removed_boon_table);
     }
 }
 
@@ -6628,7 +6776,7 @@ class MoveDeck{
      */
     display_hand(table){
         // Displays the hand to the given table.
-        display.clear_tb(table);
+        display.remove_children(table);
         var make_prep_move = function(card, hand_pos){
             return function(){
                 if(!GS.check_lock_player_turn()){
@@ -6640,7 +6788,7 @@ class MoveDeck{
             }
         }
         var explain_blank_moves = function(){
-            display.display_message(UIIDS.display_message, blank_moves_message);
+            say(blank_moves_message, false);
         }
         var card_row = [];
         for(var i = 0; i < this.#hand.length; ++i){
@@ -6686,6 +6834,22 @@ class MoveDeck{
             display.add_tb_row(table, row, CARD_SCALE)
             
         }
+    }
+    /**
+     * Displays the whole discard pile.
+     * @param {string} table Where it should be displayed.
+     */
+    display_discard(table){
+        display.remove_children(table);
+        display.add_tb_row(table, this.#discard_pile, SMALL_CARD_SCALE);
+    }
+    /**
+     * Displays the cards in your draw pile in order..
+     * @param {string} table Where it should be displayed.
+     */
+    display_deck_order(table){
+        display.remove_children(table);
+        display.add_tb_row(table, reverse_arr(this.#library), SMALL_CARD_SCALE);
     }
     /**
      * Gets a random array of cards from the decklist with no repeats.
@@ -9080,7 +9244,7 @@ function pick_creative(){
     GS.deck.alter_min(5);
     GS.deck.alter_hand_size(1);
     GS.deck.deal();
-    GS.deck.display_hand(UIIDS.hand_display);
+    GS.refresh_deck_display();
 }
 
 function escape_artist(){

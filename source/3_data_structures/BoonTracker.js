@@ -3,9 +3,11 @@
 class BoonTracker{
     #choices;
     #boons;
+    #lost_boons;
     constructor(){
         this.#choices = BOON_LIST.map(b => b());
         this.#boons = [];
+        this.#lost_boons = [];
     }
     get_choices(amount){
         var choice_list = randomize_arr(this.#choices);
@@ -31,6 +33,12 @@ class BoonTracker{
         for(var i = 0; i < this.#choices.length; ++i){
             var boon = this.#choices[i];
             if(boon.name === name){
+                if(this.#boons.length + this.#lost_boons.length === 0){
+                    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
+                        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
+                    });
+                    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
+                }
                 this.#choices.splice(i, 1);
                 if(boon.unlocks !== undefined){
                     this.#choices.push(...boon.unlocks.map(f => f()));
@@ -49,6 +57,7 @@ class BoonTracker{
             var boon = this.#boons[i];
             if(boon.name === name){
                 this.#boons.splice(i, 1);
+                this.#lost_boons.push(boon);
                 return true;
             }
         }
@@ -63,6 +72,25 @@ class BoonTracker{
             }
         }
         return false;
+    }
+    display(location){
+        display.remove_children(location);
+        var boons = this.#boons.map(b => {return {
+            name: b.name,
+            pic: b.pic,
+            on_click: function(){say(b.description, false)}
+        }});
+        display.add_tb_row(location, boons, SMALL_CARD_SCALE);
+    }
+    display_lost(location){
+        display.remove_children(location);
+        var lost = this.#lost_boons.map(b => {return {
+            name: b.name,
+            foreground: [`${IMG_FOLDER.other}lost.png`],
+            pic: b.pic,
+            on_click: function(){say(b.description, false)}
+        }});
+        display.add_tb_row(location, lost, SMALL_CARD_SCALE);
     }
 
 }

@@ -62,6 +62,18 @@ const HTML_UIIDS = {
         stats: `stats`,
         stage: `stage`,
             map_display: `mapDisplay`,
+            sidebar: `sidebar`,
+                sidebar_header: `sidebarHeader`,
+                initiative: `initiative`,
+                boon_list: `boonList`,
+                    boon_list_table: `boonListTable`,
+                    removed_boon_table: `removedBoonTable`,
+                discard_pile: `discardPile`,
+                    discard_pile_table: `discardPileTable`,
+                text_log: `textLog`,
+                    text_scroll: `textScroll`,
+                deck_order: `deckOrder`,
+                    deck_order_table: `deckOrderTable`,
             health_display: `healthDisplay`,
             remaining_deck: `remainingDeck`,
                 deck_image: `deckImage`,
@@ -98,3 +110,5 @@ const UIIDS = get_uiids(MARKUP_LANGUAGE);
 const GAME_SCREEN_DIVISIONS = [UIIDS.stage, UIIDS.shop, UIIDS.chest];
 const DISPLAY_DIVISIONS = [UIIDS.game_screen, UIIDS.guide];
 const DISPLAY_DIVISION_NAMES = [gameplay_screen_name, guide_screen_name];
+
+const SIDEBAR_DIVISIONS = [UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order];

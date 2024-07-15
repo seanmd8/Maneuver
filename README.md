@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+7/14/24
+- Added sidebar to let you see your message history, discard pile, and boons. Read more about it in the guidebook.
+
 7/13/24
 - Improved the look of the guidebook.
 - Added 5 new cards, rebalanced 3.

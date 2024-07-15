@@ -17,10 +17,10 @@ const STARTING_AREA = [generate_ruins_area];
 var GS;
 
 // Settings just used for testing.
-const SECOND_STARTING_ENEMY = lava_pool_tile;
+const SECOND_STARTING_ENEMY = corrosive_slime_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
-const STARTING_CHEST_CONTENTS = repetition;
+const STARTING_CHEST_CONTENTS = rebirth;
 const STARTING_CHEST_AMOUNT = 0;
 
 // Dungeon generation settings.
@@ -28,11 +28,12 @@ const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
 const AREA_SIZE = 5;
 const CHEST_LOCATION = 3;
-const BOON_CHOICES = 2
+const BOON_CHOICES = 3;
 const SAFE_SPAWN_ATTEMPTS = 5;
 
 // Visual and animation settings.
 const CARD_SCALE = 90;
+const SMALL_CARD_SCALE = 75;
 const CHEST_CONTENTS_SIZE = 120;
 const TILE_SCALE = 40;
 const CARD_SYMBOL_SCALE = 20;

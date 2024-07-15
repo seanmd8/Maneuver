@@ -17,5 +17,5 @@ function pick_creative(){
     GS.deck.alter_min(5);
     GS.deck.alter_hand_size(1);
     GS.deck.deal();
-    GS.deck.display_hand(UIIDS.hand_display);
+    GS.refresh_deck_display();
 }

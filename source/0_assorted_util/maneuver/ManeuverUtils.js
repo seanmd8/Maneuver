@@ -157,8 +157,9 @@ function display_guide(){
     var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
     var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
     var chests_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.chests, GUIDE_TEXT.chests, []);
+    var sidebar_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.sidebar, GUIDE_TEXT.sidebar, []);
 
-    var section_id_list = [basics_section, cards_section, enemies_section, shop_section, bosses_section, chests_section];
+    var section_id_list = [basics_section, cards_section, enemies_section, shop_section, bosses_section, chests_section, sidebar_section];
 
     var swap_visibility = function(id_list, id){
         return function(){
@@ -173,6 +174,8 @@ function display_guide(){
     display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap_visibility(section_id_list, shop_section));
     display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
     display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap_visibility(section_id_list, sidebar_section));
+    display.swap_screen(section_id_list, basics_section);
 }
 
 /**
@@ -206,5 +209,37 @@ function confuse_player(){
     if(1 + random_num(2) - GS.boons.has(boon_names.stable_mind) > 0){
         var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
         GS.give_temp_card(card);
+        GS.refresh_deck_display
     } 
+}
+
+/**
+ * Function to give a message to the user.
+ * @param {string} msg message text.
+ * @param {boolean} record If true, also adds it to the chat log.
+ */
+function say(msg, record = true){
+    if(msg === ``){
+        record = false;
+    }
+    display.display_message(UIIDS.display_message, msg);
+    if(record){
+        GS.record_message(msg);
+    }
+}
+
+/**
+ * Function to create and add the buttons for the sidebar.
+ */
+function create_sidebar(){
+    var location = UIIDS.sidebar_header;
+    var swap_visibility = function(id_list, id){
+        return function(){
+            display.swap_screen(id_list, id);
+        }
+    }
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
+    //display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
+    swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log)();
 }

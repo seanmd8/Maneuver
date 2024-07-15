@@ -70,7 +70,7 @@ function lich_ai(self, target, map){
     self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
     var announcement = `${lich_announcement}${self.tile.spells[self.tile.cycle].description}`
-    map.add_event({name: `spell announcement`, behavior: () => {display.display_message(UIIDS.display_message, announcement)}});;
+    map.add_event({name: `spell announcement`, behavior: () => {say(announcement)}});
 }
 
 /** @type {TelegraphFunction} */

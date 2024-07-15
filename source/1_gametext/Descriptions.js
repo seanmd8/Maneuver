@@ -270,3 +270,14 @@ const stable_mind_description = `You gain a 50% chance to resist confusion.`;
 const stealthy_description = `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`;
 const stubborn_description = `You can decide to skip shops.`;
 const thick_soles_description = `You are immune to damage on your turn.`;
+
+
+const SIDEBAR_BUTTONS = {
+    text_log: `Messages`, 
+    boon_list: `Boons`, 
+    discard_pile: `Discard`, 
+    initiative: `Initiative`, 
+    deck_order: `Deck Order`,
+    sidebar: `Sidebar`
+}
+Object.freeze(SIDEBAR_BUTTONS);

@@ -27,7 +27,8 @@ function vampire_ai(self, target, map){
                         new Point(player_pos.x - 1, player_pos.y - 1)];
     target_spaces = randomize_arr(target_spaces);
     var moved = false;
-    for(var i = 0; i < target_spaces.length && !moved; ++i){
+    var health = self.tile.health;
+    for(var i = 0; i < target_spaces.length && !moved && health === self.tile.health; ++i){
         // Tries to move to a nearby space from which it can attack the player.
         var space = target_spaces[i];
         var target_distance = space.minus(self.location);
@@ -39,10 +40,10 @@ function vampire_ai(self, target, map){
     if(moved && map.attack(self.location.plus(target.difference))){
         map.heal(space, 1);
     } 
-    if(!moved){
+    if(!moved && health === self.tile.health){
         // If it hasn't moved yet, just moves closer to the player.
         var directions = order_nearby(target.difference);
-        for(var i = 0; i < directions.length && !moved; ++i){
+        for(var i = 0; i < directions.length && !moved  && health === self.tile.health; ++i){
             var direction = directions[i]
             if(direction.on_axis()){
                 moved = map.move(self.location, self.location.plus(direction));

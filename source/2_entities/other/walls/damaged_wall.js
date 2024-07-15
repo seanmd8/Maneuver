@@ -11,7 +11,7 @@ function damaged_wall_tile(){
         on_hit: damaged_wall_on_hit,
         on_death: damaged_wall_death,
         pic_arr,
-        summons: [spider_tile, acid_bug_tile, spider_web_tile, rat_tile, carrion_flies_tile, scythe_tile]
+        summons: [spider_tile, acid_bug_tile, spider_web_tile, rat_tile, scythe_tile]
     }
 }
 

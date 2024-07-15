@@ -7,7 +7,8 @@ const GUIDE_HEADERS = {
     enemies: `Dealing With Enemies`,
     shop: `The Shop`,
     bosses: `Bosses`,
-    chests: `Chests`
+    chests: `Chests`,
+    sidebar: `Sidebar`
 }
 Object.freeze(GUIDE_HEADERS);
 
@@ -75,7 +76,16 @@ const GUIDE_TEXT = {
             +`a boon. Boons are powerful abilities that can give your character a unique edge when it comes to surviving.\n\n`
             +`Chests will also be dropped after a boss is defeated. Rather than boons, these ones will contain a card that lets you `
             +`imitate one of the bosses abilities.\n\n`
-            +`Be careful when killing bosses and picking up chests. Breaking a chest will destroy it's contents.\n\n`]
+            +`Be careful when killing bosses and picking up chests. Breaking a chest will destroy it's contents.\n\n`],
+
+    sidebar: [`The sidebar contains several tabs which keep track of useful information so you don't need to remember it.\n\n`
+            +`- The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like the descriptions `
+            +`given by clicking on a tile will not be tracked.\n\n`
+            +`- The Discard tab will keep track of which cards in your deck have been used so far, to help you figure out what might `
+            +`be left to draw. It resets after shuffling.\n\n`
+            +`- The Boons tab will become available when you pick up your first boon. It will keep track of each boon you pick up `
+            +`and allow you to view their descriptions again by clicking on them. It will also track when certain boons are lost.\n\n`
+            +`More tabs might become available as you play.\n\n`]
 }
 Object.freeze(GUIDE_TEXT);
 
