@@ -19,6 +19,3 @@ function escape_artist_behavior(self, target, map){
         teleport_spell(self, target, map);
     }
 }
-// Todo:
-//  description
-//  implement

@@ -9287,9 +9287,6 @@ function escape_artist_behavior(self, target, map){
         teleport_spell(self, target, map);
     }
 }
-// Todo:
-//  description
-//  implement
 
 function expend_vitality(){
     return {
@@ -9374,14 +9371,8 @@ function pain_reflexes(){
         name: boon_names.pain_reflexes,
         pic: `${IMG_FOLDER.boons}pain_reflexes.png`,
         description: pain_reflexes_description,
-        prereq: no_player_on_hit,
     }
 }
-// Not Finished
-// Todo:
-//  avoid enemy bookkeeping bugs
-//      Put a check in the enemy turn one? would also need to make sure that it applies during the player's turn.
-
 
 function picky_shopper(){
     return {
@@ -9442,8 +9433,15 @@ function safe_passage(){
     return {
         name: boon_names.safe_passage,
         pic: `${IMG_FOLDER.boons}safe_passage.png`,
-        description: safe_passage_description
+        description: safe_passage_description,
+        prereq: prereq_safe_passage,
+        unlocks: [safe_passage]
     }
+}
+
+function prereq_safe_passage(){
+    var player = GS.map.get_player();
+    return player.max_health === undefined || player.health < max_health;
 }
 
 function serenity(){
@@ -9472,11 +9470,19 @@ function spiked_shoes(){
         name: boon_names.spiked_shoes,
         pic: `${IMG_FOLDER.boons}spiked_shoes.png`,
         description: spiked_shoes_description,
+        prereq: prereq_spiked_shoes,
+        on_pick: pick_spiked_shoes
     }
 }
-// Todo:
-//  description
-//  implement
+
+function prereq_spiked_shoes(){
+    return max_health_at_least(1);
+}
+
+function pick_spiked_shoes(){
+    change_max_health(-1);
+}
+
 
 function spontaneous(){
     return {
