@@ -213,7 +213,7 @@ class MoveDeck{
      */
     display_deck_order(table){
         display.remove_children(table);
-        display.add_tb_row(table, reverse_arr(this.#library), SMALL_CARD_SCALE);
+        display.add_tb_row(table, [future_sight(), ...reverse_arr(this.#library)], SMALL_CARD_SCALE);
     }
     /**
      * Gets a random array of cards from the decklist with no repeats.

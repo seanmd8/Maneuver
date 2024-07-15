@@ -138,14 +138,14 @@
 
 .sidebar-header {
     width: 100%;
-    height: 50px;
+    height: 60px;
     border: solid;
     border-radius: 15px 15px 0px 0px;
     background-color: moccasin;
     text-align:center;
 }
 .sidebar-header input {
-    margin: 3px 6px;
+    margin: 4px 6px 0px 6px;
     padding-left: 3px;
     padding-right: 3px;
     border-radius: 7px;
@@ -161,7 +161,7 @@
 }
 
 .sidebar-section {
-    height: 300px;
+    height: 290px;
     width: 100%;
     border: solid;
 }
@@ -182,5 +182,10 @@
 
 .card-container tr td{
     display: inline-block;
+    margin: 3px;
+}
+
+.select-second tr td:nth-child(2) img{
+    box-shadow: 0 0 0 3px cyan;
 }
 

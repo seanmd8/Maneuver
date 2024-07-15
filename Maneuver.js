@@ -1484,7 +1484,7 @@ const SIDEBAR_BUTTONS = {
     boon_list: `Boons`, 
     discard_pile: `Discard`, 
     initiative: `Initiative`, 
-    deck_order: `Deck Order`,
+    deck_order: `Deck`,
     sidebar: `Sidebar`
 }
 Object.freeze(SIDEBAR_BUTTONS);
@@ -6869,7 +6869,7 @@ class MoveDeck{
      */
     display_deck_order(table){
         display.remove_children(table);
-        display.add_tb_row(table, reverse_arr(this.#library), SMALL_CARD_SCALE);
+        display.add_tb_row(table, [future_sight(), ...reverse_arr(this.#library)], SMALL_CARD_SCALE);
     }
     /**
      * Gets a random array of cards from the decklist with no repeats.
@@ -9172,10 +9172,10 @@ function adrenaline_rush(){
 
 BOON_LIST = [
     ancient_card, bitter_determination, brag_and_boast, creative, escape_artist, 
-    expend_vitality, fleeting_thoughts, fortitude, hoarder, limitless, 
-    pacifism, pain_reflexes, picky_shopper, rebirth, repetition, 
-    roar_of_challenge, safe_passage, serenity, spiked_shoes, spontaneous, 
-    stable_mind, stealthy,
+    expend_vitality, fleeting_thoughts, fortitude, future_sight, hoarder, 
+    limitless, pacifism, pain_reflexes, picky_shopper, rebirth, 
+    repetition, roar_of_challenge, safe_passage, serenity, spiked_shoes, 
+    spontaneous, stable_mind, stealthy,
 ];
 
 /**
@@ -9528,8 +9528,15 @@ function future_sight(){
         name: boon_names.future_sight,
         pic: `${IMG_FOLDER.boons}future_sight.png`,
         description: future_sight_description,
-        on_pick: future_sight_vitality
+        on_pick: pick_future_sight
     }
+}
+
+function pick_future_sight(){
+    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.deck_order, function(){
+        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
+    });
+    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
 }
 
 function learn_from_mistakes(){

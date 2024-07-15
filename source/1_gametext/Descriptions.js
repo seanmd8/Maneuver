@@ -277,7 +277,7 @@ const SIDEBAR_BUTTONS = {
     boon_list: `Boons`, 
     discard_pile: `Discard`, 
     initiative: `Initiative`, 
-    deck_order: `Deck Order`,
+    deck_order: `Deck`,
     sidebar: `Sidebar`
 }
 Object.freeze(SIDEBAR_BUTTONS);

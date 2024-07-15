@@ -10,6 +10,7 @@ Gameplay Changelog:
 
 7/14/24
 - Added sidebar to let you see your message history, discard pile, and boons. Read more about it in the guidebook.
+- Added 1 new boon.
 
 7/13/24
 - Improved the look of the guidebook.
