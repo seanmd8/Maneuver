@@ -23,25 +23,45 @@ function ram_ai(self, target, map){
         throw new Error(ERRORS.missing_property)
     }
     var direction = sign(target.difference);
+    var other_direction = sign(target.difference);
     var wander_speed = 2;
     var moved = true;
+    var amount_moved = 0;
     if(self.tile.cycle === 0){
         // moves <wander_speed> closer to a row or column that the player is in.
         if(Math.abs(target.difference.x) <= Math.abs(target.difference.y)){
             direction.y = 0;
-            for(var i = 0; i < wander_speed && i < Math.abs(target.difference.x) && moved; ++i){
-                moved = map.move(self.location, self.location.plus(direction));
-                moved && self.location.plus_equals(direction);
-            }
+            other_direction.x = 0;
         }
         else{
             direction.x = 0;
-            for(var i = 0; i < wander_speed && i < Math.abs(target.difference.y) && moved; ++i){
-                moved = map.move(self.location, self.location.plus(direction));
-                moved && self.location.plus_equals(direction);
+            other_direction.y = 0;
+        }
+        for(var i = 0; i < wander_speed && !target.difference.on_axis() && moved; ++i){
+            // Attempts to move towards the closest row or column that they are in.
+            moved = map.move(self.location, self.location.plus(direction));
+            if(moved){
+                self.location.plus_equals(direction);
+                target.difference.minus_equals(direction);
+                ++amount_moved;
             }
         }
-        if(moved === true && (Math.abs(target.difference.x) < 3 || Math.abs(target.difference.y) < 3)){
+        if(amount_moved === 0){
+            // Moves towards them instead.
+            direction = other_direction;
+            moved = true;
+            for(var i = 0; i < wander_speed && !target.difference.on_axis() && moved; ++i){
+                // Attempts to move towards the closest row or column that they are in.
+                moved = map.move(self.location, self.location.plus(direction));
+                if(moved){
+                    self.location.plus_equals(direction);
+                    target.difference.minus_equals(direction);
+                    ++amount_moved;
+                }
+            }
+        }
+
+        if(target.difference.on_axis()){
             // If it sees them, prepares to charge.
             self.tile.cycle = 1;
             self.tile.pic = self.tile.pic_arr[self.tile.cycle];
