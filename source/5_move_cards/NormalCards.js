@@ -190,19 +190,6 @@ function trident(){
     }
 }
 /** @type {CardGenerator}*/
-function whack_horizontal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1), pattack(0, -1)]);
-    options.add_button(E, [pattack(1, 0), pattack(1, 0)]);
-    options.add_button(S, [pattack(0, 1), pattack(0, 1)]);
-    options.add_button(W, [pattack(-1, 0), pattack(-1, 0)]);
-    return{
-        name: `whack horizontal`,
-        pic: `${IMG_FOLDER.cards}whack_horizontal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
 function spin_attack(){
     var options = new ButtonGrid();
     var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
@@ -450,19 +437,6 @@ function breakthrough_side(){
     return{
         name: `breakthrough side`,
         pic: `${IMG_FOLDER.cards}breakthrough_side.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function whack_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NW, [pattack(-1, -1), pattack(-1, -1)]);
-    options.add_button(NE, [pattack(1, -1), pattack(1, -1)]);
-    options.add_button(SE, [pattack(1, 1), pattack(1, 1)]);
-    options.add_button(SW, [pattack(-1, 1), pattack(-1, 1)]);
-    return{
-        name: `whack diagonal`,
-        pic: `${IMG_FOLDER.cards}whack_diagonal.png`,
         options
     }
 }

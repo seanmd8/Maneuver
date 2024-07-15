@@ -7755,17 +7755,17 @@ function soar(){
 const CARD_CHOICES = [
     short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
-    sprint, trident, whack_horizontal, spin_attack, butterfly, 
+    sprint, trident, spin_attack, butterfly, fork,
     retreat, force, side_attack, clear_behind, clear_in_front, 
-    jab, overcome, hit_and_run, push_back, fork,
+    jab, overcome, hit_and_run, push_back, breakthrough_side,
     explosion, breakthrough, flanking_diagonal, flanking_sideways, flanking_straight,
-    pike, combat_diagonal, combat_horizontal, breakthrough_side, whack_diagonal,
+    pike, combat_diagonal, combat_horizontal, stunning_punch_orthogonal, stunning_punch_diagonal,
     thwack, overcome_sideways, y_leap, diamond_slice, spearhead,
     alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal,
     diamond_attack, slice_twice, advance, dash_ne, dash_nw,
     bounding_retreat, leap_left, leap_right, short_charge_diagonal, side_sprint,
     slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw,
-    stunning_leap, stunning_side_leap, stunning_slice, stunning_punch_orthogonal, stunning_punch_diagonal
+    stunning_leap, stunning_side_leap, stunning_slice,
 ];
 
 const RARE_CARD_CHOICES = [
@@ -8303,19 +8303,6 @@ function trident(){
     }
 }
 /** @type {CardGenerator}*/
-function whack_horizontal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1), pattack(0, -1)]);
-    options.add_button(E, [pattack(1, 0), pattack(1, 0)]);
-    options.add_button(S, [pattack(0, 1), pattack(0, 1)]);
-    options.add_button(W, [pattack(-1, 0), pattack(-1, 0)]);
-    return{
-        name: `whack horizontal`,
-        pic: `${IMG_FOLDER.cards}whack_horizontal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
 function spin_attack(){
     var options = new ButtonGrid();
     var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
@@ -8563,19 +8550,6 @@ function breakthrough_side(){
     return{
         name: `breakthrough side`,
         pic: `${IMG_FOLDER.cards}breakthrough_side.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function whack_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NW, [pattack(-1, -1), pattack(-1, -1)]);
-    options.add_button(NE, [pattack(1, -1), pattack(1, -1)]);
-    options.add_button(SE, [pattack(1, 1), pattack(1, 1)]);
-    options.add_button(SW, [pattack(-1, 1), pattack(-1, 1)]);
-    return{
-        name: `whack diagonal`,
-        pic: `${IMG_FOLDER.cards}whack_diagonal.png`,
         options
     }
 }
