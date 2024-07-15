@@ -8281,6 +8281,7 @@ function lunge_right(){
 function sprint(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1), pmove(0, -1), pmove(0, -1)]);
+    options.add_button(S, [pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
     return{
         name: `sprint`,
         pic: `${IMG_FOLDER.cards}sprint.png`,
@@ -8643,9 +8644,9 @@ function spearhead(){
 /** @type {CardGenerator}*/
 function alt_diagonal_left(){
     var options = new ButtonGrid();
-    options.add_button(NE, [pattack(1, 0), pattack(1, -1), pattack(0, -1)]);
+    options.add_button(NE, [pattack(1, 0), pattack(1, -1), pattack(2, -2), pattack(0, -1)]);
     options.add_button(SE, [pmove(1, 1)]);
-    options.add_button(SW, [pattack(-1, 0), pattack(-1, 1), pattack(0, 1)]);
+    options.add_button(SW, [pattack(-1, 0), pattack(-1, 1), pattack(-2, 2), pattack(0, 1)]);
     options.add_button(NW, [pmove(-1, -1)]);
     return{
         name: `alternating diagonal left`,
@@ -8657,9 +8658,9 @@ function alt_diagonal_left(){
 function alt_diagonal_right(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(1, -1)]);
-    options.add_button(SE, [pattack(1, 0), pattack(1, 1), pattack(0, 1)]);
+    options.add_button(SE, [pattack(1, 0), pattack(1, 1), pattack(2, 2), pattack(0, 1)]);
     options.add_button(SW, [pmove(-1, 1)]);
-    options.add_button(NW, [pattack(-1, 0), pattack(-1, -1), pattack(0, -1)]);
+    options.add_button(NW, [pattack(-1, 0), pattack(-1, -1), pattack(-2, -2), pattack(0, -1)]);
     return{
         name: `alternating diagonal right`,
         pic: `${IMG_FOLDER.cards}alt_diagonal_right.png`,
@@ -8669,9 +8670,9 @@ function alt_diagonal_right(){
 /** @type {CardGenerator}*/
 function alt_horizontal(){
     var options = new ButtonGrid();
-    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1)]);
+    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(0, -2), pattack(-1, -1)]);
     options.add_button(E, [pmove(1, 0)]);
-    options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(-1, 1)]);
+    options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(0, 2), pattack(-1, 1)]);
     options.add_button(W, [pmove(-1, 0)]);
     return{
         name: `alternating horizontal`,
@@ -8683,9 +8684,9 @@ function alt_horizontal(){
 function alt_vertical(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1)]);
-    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(1, -1)]);
+    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(2, 0), pattack(1, -1)]);
     options.add_button(S, [pmove(0, 1)]);
-    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-1, -1)]);
+    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-2, 0), pattack(-1, -1)]);
     return{
         name: `alternating vertical`,
         pic: `${IMG_FOLDER.cards}alt_vertical.png`,
