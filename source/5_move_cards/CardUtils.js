@@ -180,6 +180,9 @@ function telegraph_card(behavior, map){
         healing: [],
         teleport: []
     }
+    if(behavior === undefined){
+        return telegraphs;
+    }
     for(var action of behavior){
         var next_position = start_position.plus(action.change);
         switch(action.type){

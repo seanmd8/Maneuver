@@ -463,6 +463,7 @@ class GameMap{
                         this.player_heal(new Point(0, 0));
                         GS.boons.lose(boon_names.rebirth);
                         GS.refresh_boon_display();
+                        say(rebirth_revival_message);
                         return true;
                     }
                     throw new Error(ERRORS.game_over);

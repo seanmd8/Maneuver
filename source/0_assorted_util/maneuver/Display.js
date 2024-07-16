@@ -200,7 +200,8 @@ const DisplayHTML = {
         var row_num = table.rows.length;
         var row = document.createElement(`tr`);
         row.id = `${location} row ${row_num}`;
-        row.style.height = `${scale}px`;
+        row.style.height = `auto`;
+        row.style.minHeight= `${scale}px`; 
         for(var i = 0; i < row_contents.length; ++i){
             var to_display = row_contents[i];
             // Make table cell
@@ -315,8 +316,16 @@ const DisplayHTML = {
         // Select card via keyboard.
         key_num = search(key_press.key.toLowerCase(), CONTROLS.card);
         if(key_num >= 0){
-            var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
-            element && element.click();
+            try{
+                var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
+                element && element.click();
+            }
+            catch(error){
+                if(error.message !== ERRORS.value_not_found){
+                    throw error;
+                }
+            }
+            
         }
         key_num = search(key_press.key, CONTROLS.alt);
         if(key_num >= 0){

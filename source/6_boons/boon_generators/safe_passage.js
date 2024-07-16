@@ -11,5 +11,5 @@ function safe_passage(){
 
 function prereq_safe_passage(){
     var player = GS.map.get_player();
-    return player.max_health === undefined || player.health < max_health;
+    return player.max_health === undefined || player.health < player.max_health;
 }

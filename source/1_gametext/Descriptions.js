@@ -256,6 +256,7 @@ const pacifism_description = `If you would attack an enemy, stun them twice inst
 const pain_reflexes_description = `Take a turn whenever you are attacked.`;
 const picky_shopper_description = `Recieve an extra card choice for adding and removing cards in the shop.`;
 const rebirth_description = `When you die, you are revived at full health and this boon is removed.`;
+const rebirth_revival_message = `You died, but were brought back to life.`;
 const repetition_description = `Every 3rd turn, your cards happen twice.`;
 const roar_of_challenge_description = `Gain 2 max health. Difficulty increases.`;
 const safe_passage_description = `Fully heal and travel to the next floor.`;

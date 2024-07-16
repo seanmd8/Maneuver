@@ -661,7 +661,8 @@ const DisplayHTML = {
         var row_num = table.rows.length;
         var row = document.createElement(`tr`);
         row.id = `${location} row ${row_num}`;
-        row.style.height = `${scale}px`;
+        row.style.height = `auto`;
+        row.style.minHeight= `${scale}px`; 
         for(var i = 0; i < row_contents.length; ++i){
             var to_display = row_contents[i];
             // Make table cell
@@ -776,8 +777,16 @@ const DisplayHTML = {
         // Select card via keyboard.
         key_num = search(key_press.key.toLowerCase(), CONTROLS.card);
         if(key_num >= 0){
-            var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
-            element && element.click();
+            try{
+                var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
+                element && element.click();
+            }
+            catch(error){
+                if(error.message !== ERRORS.value_not_found){
+                    throw error;
+                }
+            }
+            
         }
         key_num = search(key_press.key, CONTROLS.alt);
         if(key_num >= 0){
@@ -1464,6 +1473,7 @@ const pacifism_description = `If you would attack an enemy, stun them twice inst
 const pain_reflexes_description = `Take a turn whenever you are attacked.`;
 const picky_shopper_description = `Recieve an extra card choice for adding and removing cards in the shop.`;
 const rebirth_description = `When you die, you are revived at full health and this boon is removed.`;
+const rebirth_revival_message = `You died, but were brought back to life.`;
 const repetition_description = `Every 3rd turn, your cards happen twice.`;
 const roar_of_challenge_description = `Gain 2 max health. Difficulty increases.`;
 const safe_passage_description = `Fully heal and travel to the next floor.`;
@@ -5904,6 +5914,7 @@ class GameMap{
                         this.player_heal(new Point(0, 0));
                         GS.boons.lose(boon_names.rebirth);
                         GS.refresh_boon_display();
+                        say(rebirth_revival_message);
                         return true;
                     }
                     throw new Error(ERRORS.game_over);
@@ -7930,6 +7941,9 @@ function telegraph_card(behavior, map){
         healing: [],
         teleport: []
     }
+    if(behavior === undefined){
+        return telegraphs;
+    }
     for(var action of behavior){
         var next_position = start_position.plus(action.change);
         switch(action.type){
@@ -9417,7 +9431,7 @@ function safe_passage(){
 
 function prereq_safe_passage(){
     var player = GS.map.get_player();
-    return player.max_health === undefined || player.health < max_health;
+    return player.max_health === undefined || player.health < player.max_health;
 }
 
 function serenity(){
