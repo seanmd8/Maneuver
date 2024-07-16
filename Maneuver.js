@@ -1369,7 +1369,7 @@ const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be rebor
 const raging_fire_description = `Raging Fire: The very ground here is burning. It will grow weaker every turn, but it's not safe to move through.`;
 const coffin_description = `Coffin: There is no telling whether whatever is inside is still alive or not. Touch it at your own risk.`;
 const sewer_grate_description = `Sewer Grate: It's clogged. Corrosive slime is oozing out.`;
-const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes a turn to recharge afterwards.`;
+const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 2 turns to recharge afterwards.`;
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;
@@ -4201,8 +4201,8 @@ function repulsor_push_ai(self, target, map){
             }
             if(target_tile.health !== undefined){
                 activated = true;
-                self.tile.cycle = 1;
-                self.tile.pic = self.tile.pic_arr[self.tile.cycle];
+                self.tile.cycle = 2;
+                self.tile.pic = self.tile.pic_arr[1];
                 try {
                     // Push the creature away.
                     for(var i = 0; i < 2 && map.move(target_space, target_space.plus(space)); ++i){
@@ -4232,8 +4232,10 @@ function repulsor_ai(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle > 0){
-        self.tile.cycle = 0;
-        self.tile.pic = self.tile.pic_arr[self.tile.cycle];
+        --self.tile.cycle;
+        if(self.tile.cycle === 0){
+            self.tile.pic = self.tile.pic_arr[0];
+        }
         return;
     }
     repulsor_push_ai(self, target, map);
@@ -9326,6 +9328,22 @@ function pick_fortitude(){
     change_max_health(1);
 }
 
+function future_sight(){
+    return {
+        name: boon_names.future_sight,
+        pic: `${IMG_FOLDER.boons}future_sight.png`,
+        description: future_sight_description,
+        on_pick: pick_future_sight
+    }
+}
+
+function pick_future_sight(){
+    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.deck_order, function(){
+        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
+    });
+    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
+}
+
 function hoarder(){
     return {
         name: boon_names.hoarder,
@@ -9518,22 +9536,6 @@ function dazing_blows(){
 
 // Not finished
 // Figure out how to make bosses immune
-
-function future_sight(){
-    return {
-        name: boon_names.future_sight,
-        pic: `${IMG_FOLDER.boons}future_sight.png`,
-        description: future_sight_description,
-        on_pick: pick_future_sight
-    }
-}
-
-function pick_future_sight(){
-    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.deck_order, function(){
-        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
-    });
-    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
-}
 
 function learn_from_mistakes(){
     return {

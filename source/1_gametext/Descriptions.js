@@ -152,7 +152,7 @@ const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be rebor
 const raging_fire_description = `Raging Fire: The very ground here is burning. It will grow weaker every turn, but it's not safe to move through.`;
 const coffin_description = `Coffin: There is no telling whether whatever is inside is still alive or not. Touch it at your own risk.`;
 const sewer_grate_description = `Sewer Grate: It's clogged. Corrosive slime is oozing out.`;
-const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes a turn to recharge afterwards.`;
+const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 2 turns to recharge afterwards.`;
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;

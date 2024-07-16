@@ -37,8 +37,8 @@ function repulsor_push_ai(self, target, map){
             }
             if(target_tile.health !== undefined){
                 activated = true;
-                self.tile.cycle = 1;
-                self.tile.pic = self.tile.pic_arr[self.tile.cycle];
+                self.tile.cycle = 2;
+                self.tile.pic = self.tile.pic_arr[1];
                 try {
                     // Push the creature away.
                     for(var i = 0; i < 2 && map.move(target_space, target_space.plus(space)); ++i){
@@ -68,8 +68,10 @@ function repulsor_ai(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle > 0){
-        self.tile.cycle = 0;
-        self.tile.pic = self.tile.pic_arr[self.tile.cycle];
+        --self.tile.cycle;
+        if(self.tile.cycle === 0){
+            self.tile.pic = self.tile.pic_arr[0];
+        }
         return;
     }
     repulsor_push_ai(self, target, map);
