@@ -3920,7 +3920,7 @@ function coffin_tile(){
         health: 1,
         on_enter: decay_ai,
         on_death: coffin_tile_death,
-        summons: [chest_tile],//rat_tile, carrion_flies_tile, vampire_tile, shadow_scout_tile, chest_tile],
+        summons: [rat_tile, carrion_flies_tile, vampire_tile, chest_tile],
         card_drops: RARE_CARD_CHOICES
     }
 }
