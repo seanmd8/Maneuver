@@ -60,16 +60,6 @@ class BoonTracker{
         }
         return false;
     }
-    remove_choice(name){
-        for(var i = 0; i < this.#choices.length; ++i){
-            var boon = this.#choices[i];
-            if(boon.name === name){
-                this.#choices.splice(i, 1);
-                return true;
-            }
-        }
-        return false;
-    }
     display(location){
         display.remove_children(location);
         var boons = this.#boons.map(b => {return {

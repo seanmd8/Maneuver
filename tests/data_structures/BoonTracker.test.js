@@ -58,7 +58,8 @@ function get_test_boons(){
         return {
             name: test_boon_names.on_pick_boon,
             pic: ``,
-            description: ``
+            description: ``,
+            on_pick
         }
     }
     var unlock_boon = function(){
@@ -122,13 +123,80 @@ describe(`BoonTracker`, () => {
         boons = new BoonTracker(BOON_LIST);
     });
 
+    it(`returns the correct value when attempting to pick a boon`, () => {
+        expect(boons.pick(`foo`)).toBe(false);
+        expect(boons.pick(names.repeating_boon)).toBe(true);
+        expect(boons.pick(names.repeating_boon)).toBe(true);
+        expect(boons.pick(names.minimal_boon)).toBe(true);
+        expect(boons.pick(names.minimal_boon)).toBe(false);
+
+    })
+
     it(`knows how many of a given boon it has`, () => {
         expect(boons.has(names.repeating_boon)).toBe(0);
-        boons.pick(names.repeating_boon)
+        expect(boons.pick(names.repeating_boon)).toBe(true);
         expect(boons.has(names.repeating_boon)).toBe(1);
-        boons.pick(names.repeating_boon)
+        expect(boons.pick(names.repeating_boon)).toBe(true);
         expect(boons.has(names.repeating_boon)).toBe(2);
     })
-  
+
+    it(`correctly checks prereqs`, () => {
+        boons = new BoonTracker([test_boons.prereq_true_boon, test_boons.prereq_false_boon,]);
+        var options = boons.get_choices(2);
+        expect(options.length).toBe(1);
+        expect(options[0].name).toBe(names.prereq_true_boon);
+    })
+
+    it(`correctly checks prereqs`, () => {
+        boons = new BoonTracker([test_boons.prereq_true_boon, test_boons.prereq_false_boon,]);
+        var options = boons.get_choices(2);
+        expect(options.length).toBe(1);
+        expect(options[0].name).toBe(names.prereq_true_boon);
+    })
+
+    it(`correctly removes boons`, () => {
+        expect(boons.lose(names.minimal_boon)).toBe(false);
+        expect(boons.has(names.minimal_boon)).toBe(0);
+        expect(boons.pick(names.minimal_boon)).toBe(true);
+        expect(boons.has(names.minimal_boon)).toBe(1);
+        expect(boons.lose(names.minimal_boon)).toBe(true);
+        expect(boons.has(names.minimal_boon)).toBe(0);
+        expect(boons.lose(names.minimal_boon)).toBe(false);
+        expect(boons.has(names.minimal_boon)).toBe(0);
+    })
+
+    it(`correctly keeps track of the total number picked`, () => {
+        expect(boons.total).toBe(0);
+        boons.pick(names.minimal_boon);
+        expect(boons.total).toBe(1);
+        boons.pick(names.minimal_boon);
+        expect(boons.total).toBe(1);
+        boons.pick(names.repeating_boon);
+        expect(boons.total).toBe(2);
+        boons.pick(names.repeating_boon);
+        expect(boons.total).toBe(3);
+        boons.lose(names.minimal_boon);
+        expect(boons.total).toBe(3);
+        boons.lose(names.minimal_boon);
+        expect(boons.total).toBe(3);
+        boons.lose(names.repeating_boon);
+        boons.lose(names.repeating_boon);
+        expect(boons.total).toBe(3);
+    })
+
+    it(`correctly adds different unlocks`, () => {
+        boons = new BoonTracker([test_boons.unlock_boon]);
+        expect(boons.pick(names.minimal_boon)).toBe(false);
+        expect(boons.pick(names.unlock_boon)).toBe(true);
+        expect(boons.pick(names.unlock_boon)).toBe(false);
+        expect(boons.pick(names.minimal_boon)).toBe(true);
+        expect(boons.pick(names.minimal_boon)).toBe(false);
+    })
+
+    it(`correctly calls on_pick functions when picked`, () => {
+        console.log = jest.fn();
+        boons.pick(names.on_pick_boon);
+        expect(console.log).toHaveBeenCalledWith(names.on_pick_boon);
+    })
   
 });
