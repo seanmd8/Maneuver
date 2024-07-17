@@ -856,6 +856,10 @@ const DisplayHTML = {
             element.append(hr);
         }
     },
+    detect_keys: function(){
+        document.onkeydown = display.press;
+        document.onkeyup = display.unpress;
+    },
     shift_is_pressed: false,
 
     // Non Required helper functions.
@@ -883,8 +887,6 @@ const DisplayHTML = {
 
 // Set up the display library and the onkeydown function.
 const display = get_display(MARKUP_LANGUAGE);
-document.onkeydown = display.press;
-document.onkeyup = display.unpress;
 
 const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.
 // Library for the various kinds of errors that the game could throw
@@ -917,6 +919,7 @@ Object.freeze(ERRORS);
  * @returns {void}
  */
 function initiate_game(){
+    display.detect_keys();
     display.swap_screen(DISPLAY_DIVISIONS);
     display.display_message(UIIDS.title, `${game_title}    `);
     create_main_dropdown(UIIDS.title);
@@ -3895,6 +3898,12 @@ function add_boon_to_chest(chest, boon){
         name: boon.name,
         on_choose: function(){
             GS.boons.pick(boon.name);
+            if(GS.boons.total === 1){
+                display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
+                    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
+                });
+                display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
+            }
             GS.refresh_boon_display();
         },
         description: `${boon.name}: ${boon.description}`
@@ -4973,10 +4982,12 @@ class BoonTracker{
     #choices;
     #boons;
     #lost_boons;
-    constructor(){
-        this.#choices = BOON_LIST.map(b => b());
+    total;
+    constructor(initial_choices){
+        this.#choices = initial_choices.map(b => b());
         this.#boons = [];
         this.#lost_boons = [];
+        this.total = 0;
     }
     get_choices(amount){
         var choice_list = randomize_arr(this.#choices);
@@ -5002,12 +5013,6 @@ class BoonTracker{
         for(var i = 0; i < this.#choices.length; ++i){
             var boon = this.#choices[i];
             if(boon.name === name){
-                if(this.#boons.length + this.#lost_boons.length === 0){
-                    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
-                        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
-                    });
-                    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
-                }
                 this.#choices.splice(i, 1);
                 if(boon.unlocks !== undefined){
                     this.#choices.push(...boon.unlocks.map(f => f()));
@@ -5016,6 +5021,7 @@ class BoonTracker{
                     boon.on_pick();
                 }
                 this.#boons.push(boon);
+                ++this.total;
                 return true;
             }
         }
@@ -5182,7 +5188,10 @@ class ButtonGrid{
     make_instant(){
         for(var row of this.#buttons){
             for(var button of row){
-                if(button.description !== null_move_button && button.behavior[button.behavior.length - 1].type !== `instant`){
+                if(button.description !== null_move_button && 
+                    button.behavior.length > 0 && 
+                    button.behavior[button.behavior.length - 1].type !== `instant`
+                ){
                     button.behavior.push(pinstant(0, 0));
                 }
             }
@@ -6245,7 +6254,7 @@ class GameState{
     setup(){
         // Function ran on page load or on restart to set up the game.
         this.#text_log = [];
-        this.boons = new BoonTracker();
+        this.boons = new BoonTracker(BOON_LIST);
         var start = randomize_arr(STARTING_AREA)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = STARTING_DECK();
@@ -6892,7 +6901,12 @@ function temp_card_info(card){
 class TagList{
     #tags;
     constructor(list=[]){
-        this.#tags = [...list];
+        for(element of list){
+            if(typeof element !== `string`){
+                throw new Error(ERRORS.invalid_type);
+            }
+        }
+        this.#tags = [...list]
     }
     add(tag){
         if(!this.has(tag)){
@@ -6900,11 +6914,17 @@ class TagList{
         }
     }
     remove(tag){
+        if(typeof tag !== `string`){
+            throw new Error(ERRORS.invalid_type);
+        }
         var start_len = this.#tags.length;
         this.#tags = this.#tags.filter(t => t !== tag);
-        return start_len === this.#tags,length;
+        return start_len > this.#tags.length;
     }
     has(tag){
+        if(typeof tag !== `string`){
+            throw new Error(ERRORS.invalid_type);
+        }
         return this.#tags.indexOf(tag) !== -1;
     }
 

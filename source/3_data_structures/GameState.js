@@ -21,7 +21,7 @@ class GameState{
     setup(){
         // Function ran on page load or on restart to set up the game.
         this.#text_log = [];
-        this.boons = new BoonTracker();
+        this.boons = new BoonTracker(BOON_LIST);
         var start = randomize_arr(STARTING_AREA)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = STARTING_DECK();

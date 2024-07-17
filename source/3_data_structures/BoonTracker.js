@@ -4,10 +4,12 @@ class BoonTracker{
     #choices;
     #boons;
     #lost_boons;
-    constructor(){
-        this.#choices = BOON_LIST.map(b => b());
+    total;
+    constructor(initial_choices){
+        this.#choices = initial_choices.map(b => b());
         this.#boons = [];
         this.#lost_boons = [];
+        this.total = 0;
     }
     get_choices(amount){
         var choice_list = randomize_arr(this.#choices);
@@ -33,12 +35,6 @@ class BoonTracker{
         for(var i = 0; i < this.#choices.length; ++i){
             var boon = this.#choices[i];
             if(boon.name === name){
-                if(this.#boons.length + this.#lost_boons.length === 0){
-                    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
-                        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
-                    });
-                    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
-                }
                 this.#choices.splice(i, 1);
                 if(boon.unlocks !== undefined){
                     this.#choices.push(...boon.unlocks.map(f => f()));
@@ -47,6 +43,7 @@ class BoonTracker{
                     boon.on_pick();
                 }
                 this.#boons.push(boon);
+                ++this.total;
                 return true;
             }
         }

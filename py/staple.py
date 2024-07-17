@@ -2,24 +2,33 @@
 # Resorted to this as neither ES6 nor cjs worked locally without a server.
 
 import os
-def main():
-    staple("./source", "Maneuver.js", True)
-    staple("./css", "ManeuverStyles.css")
+import argparse
 
-def staple(folder, destination, jsd_enabled = False):
+def main(mode):
+    if mode == "test":
+        staple("source", "Maneuver.js", True)
+    elif mode == "build":
+        source_folders = get_folders_in("source")
+        staple(source_folders, "Maneuver.js", True)
+        staple("css", "ManeuverStyles.css")
+
+def staple(folders, destination, jsd_enabled = False):
     # Concatonates each file in the given folder into one document which is saved as the destination. 
     # If jsd enabled is true, enables it in the resulting document.
+    if not type(folders) is list:
+        folders = [folders]
     body = ""
     if(jsd_enabled):
         body = "// @ts-check\n"
-    body += read_files_recursively(folder)
+    for f in folders:
+        body += read_files_recursively(f)
     write_file(destination, body)
 
 def read_files_recursively(folder):
     source = os.listdir(folder)
     body = ""
-    for i in range(len(source)):
-        contents_path = folder + "/" + source[i]
+    for f in source:
+        contents_path = folder + "/" + f
         if(os.path.isfile(contents_path)):
             body += read_file(contents_path)
             body += "\n"
@@ -40,5 +49,21 @@ def write_file(file_name, text):
     f.write(text)
     f.close()
 
+def get_folders_in(folder):
+    source = os.listdir(folder)
+    folders = []
+    for f in source:
+        contents_path = folder + "/" + f
+        if(os.path.isdir(contents_path)):
+            folders.append(contents_path)
+    return folders
 
-main()
+
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('mode', type=str, help='build || test')
+    args = parser.parse_args()
+
+    main(args.mode)

@@ -1,0 +1,10 @@
+{
+    "devDependencies": {
+        "jest": "^29.7.0"
+    },
+    "scripts": {
+        "build": "python py/staple.py test",
+        "run-test": "jest ./tests",
+        "test": "npm run build && npm run run-test"
+    }
+}

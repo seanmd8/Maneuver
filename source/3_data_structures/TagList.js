@@ -3,7 +3,12 @@
 class TagList{
     #tags;
     constructor(list=[]){
-        this.#tags = [...list];
+        for(element of list){
+            if(typeof element !== `string`){
+                throw new Error(ERRORS.invalid_type);
+            }
+        }
+        this.#tags = [...list]
     }
     add(tag){
         if(!this.has(tag)){
@@ -11,11 +16,17 @@ class TagList{
         }
     }
     remove(tag){
+        if(typeof tag !== `string`){
+            throw new Error(ERRORS.invalid_type);
+        }
         var start_len = this.#tags.length;
         this.#tags = this.#tags.filter(t => t !== tag);
-        return start_len === this.#tags,length;
+        return start_len > this.#tags.length;
     }
     has(tag){
+        if(typeof tag !== `string`){
+            throw new Error(ERRORS.invalid_type);
+        }
         return this.#tags.indexOf(tag) !== -1;
     }
 

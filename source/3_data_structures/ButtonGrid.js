@@ -115,7 +115,10 @@ class ButtonGrid{
     make_instant(){
         for(var row of this.#buttons){
             for(var button of row){
-                if(button.description !== null_move_button && button.behavior[button.behavior.length - 1].type !== `instant`){
+                if(button.description !== null_move_button && 
+                    button.behavior.length > 0 && 
+                    button.behavior[button.behavior.length - 1].type !== `instant`
+                ){
                     button.behavior.push(pinstant(0, 0));
                 }
             }

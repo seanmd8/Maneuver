@@ -115,6 +115,12 @@ function add_boon_to_chest(chest, boon){
         name: boon.name,
         on_choose: function(){
             GS.boons.pick(boon.name);
+            if(GS.boons.total === 1){
+                display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
+                    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
+                });
+                display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
+            }
             GS.refresh_boon_display();
         },
         description: `${boon.name}: ${boon.description}`

@@ -457,6 +457,10 @@ const DisplayHTML = {
             element.append(hr);
         }
     },
+    detect_keys: function(){
+        document.onkeydown = display.press;
+        document.onkeyup = display.unpress;
+    },
     shift_is_pressed: false,
 
     // Non Required helper functions.
@@ -484,7 +488,5 @@ const DisplayHTML = {
 
 // Set up the display library and the onkeydown function.
 const display = get_display(MARKUP_LANGUAGE);
-document.onkeydown = display.press;
-document.onkeyup = display.unpress;
 
 const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.
