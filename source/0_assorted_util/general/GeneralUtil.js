@@ -13,21 +13,6 @@ function delay(milliseconds){
     })
 }
 /**
- * Searches an array for an element.
- * @template T
- * @param {T} element The element to find.
- * @param {T[]} arr The array to search.
- * @returns {number} The index of the element, or -1 if it isn't found.
- */
-function search(element, arr){
-    for(var i = 0; i < arr.length; ++i){
-        if(element === arr[i]){
-            return i;
-        }
-    }
-    return -1;
-}
-/**
  * Creates an array by drawing random elements from another with no repeats.
  * @template T
  * @param {T[]} source Array to draw from.
@@ -63,7 +48,7 @@ function wrap_str(message, wrap_length, delimiter = undefined){
     if(message.indexOf(`\n`) > -1){ // If it already has new line characters, 
         str_arr = message.split(`\n`);
         for(var i = 0; i < str_arr.length; ++i){
-            new_message = `${new_message}${wrap_str(str_arr[i], wrap_length, delimiter)}\n`
+            new_message += `${wrap_str(str_arr[i], wrap_length, delimiter)}\n`
         }
     }
     else if(delimiter === undefined){ // if there is no delimiter
@@ -74,21 +59,21 @@ function wrap_str(message, wrap_length, delimiter = undefined){
             start = end;
         }
         for(var i = 0; i < str_arr.length; ++i){
-            new_message = `${new_message}${str_arr[i]}\n`
+            new_message += `${str_arr[i]}\n`
         }
     }
     else{ // if there is a delimiter
         str_arr = message.split(delimiter);
         var line = ``
         for(var i = 0; i < str_arr.length; ++i){
-            line = `${line}${str_arr[i]}${delimiter}`;
+            line += `${str_arr[i]}${delimiter}`;
             if(line.length > wrap_length){
-                new_message = `${new_message}${line.slice(0, -1 * delimiter.length)}\n`
+                new_message += `${line.slice(0, -1 * delimiter.length)}\n`
                 line = ``;
             } 
         }
         if(line.length > 0){
-            new_message = `${new_message}${line.slice(0, -1 * delimiter.length)}\n`
+            new_message += `${line.slice(0, -1 * delimiter.length)}\n`
         } 
     }
     return new_message.slice(0, -1);
@@ -134,7 +119,7 @@ function random_sign(){
  */
 function randomize_arr(arr){
     // Returns a copy of the given array with it's order randomized.
-    arr = copy_arr(arr);
+    arr = [...arr];
     var random_arr = [];
     while(arr.length > 0){
         var index = random_num(arr.length);
@@ -143,20 +128,6 @@ function randomize_arr(arr){
         arr.pop();
     }
     return random_arr;
-}
-/** 
- * Function to return a copy of an array.
- * @template T
- * @param {T[]} arr Array to copy.
- * @returns {T[]} Copy of the array.
- */
-function copy_arr(arr){
-    //returns a copy of the given array.
-    var arr2 = [];
-    for(var i = 0; i < arr.length; ++i){
-        arr2[i] = arr[i];
-    }
-    return arr2;
 }
 /**
  * Function to return a copy of an array with it's order reversed.

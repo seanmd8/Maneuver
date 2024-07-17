@@ -68,8 +68,8 @@ class ButtonGrid{
         }
         
         var press_button = make_press_button(hand_pos);
-        for(var i = 0; i < this.#buttons.length; ++i){
-            display.add_button_row(table_name, this.#buttons[i], press_button)
+        for(var button of this.#buttons){
+            display.add_button_row(table_name, button, press_button)
         }
         display.add_on_click(UIIDS.move_info, explain_moves(extra_info, this));
     }
@@ -100,10 +100,9 @@ class ButtonGrid{
      */
     #convert_direction(direction){
         var direction_list = [NW, N, NE, W, C, E, SW, S, SE];
-        for(var i = 0; i < direction_list.length; ++i){
-            if(direction === direction_list[i]){
-                return i + 1;
-            }
+        var index = direction_list.indexOf(direction);
+        if(index >= 0){
+            return index + 1;
         }
         if(direction === SPIN){
             return 5;

@@ -26,5 +26,5 @@ function spider_ai(self, target, map){
 
 /** @type {TelegraphFunction} */
 function spider_telegraph(location, map, self){
-    return add_to_point_arr(ALL_DIRECTIONS, location);
+    return ALL_DIRECTIONS.map(a => a.plus(location));
 }

@@ -301,7 +301,8 @@ const DisplayHTML = {
     },
     press: function(key_press){
         // Pick direction via keyboard.
-        var key_num = search(key_press.key.toLowerCase(), CONTROLS.directional);
+        var key = key_press.key.toLowerCase();
+        var key_num = CONTROLS.directional.indexOf(key);
         if(key_num >= 0){
             try{
                 DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
@@ -314,7 +315,7 @@ const DisplayHTML = {
             
         }
         // Select card via keyboard.
-        key_num = search(key_press.key.toLowerCase(), CONTROLS.card);
+        key_num = CONTROLS.card.indexOf(key);
         if(key_num >= 0){
             try{
                 var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
@@ -327,13 +328,14 @@ const DisplayHTML = {
             }
             
         }
-        key_num = search(key_press.key, CONTROLS.alt);
+        key_num = CONTROLS.alt.indexOf(key);
         if(key_num >= 0){
             display.shift_is_pressed = true;
         }
     },
     unpress: function(key_press){
-        key_num = search(key_press.key, CONTROLS.alt);
+        var key = key_press.key.toLowerCase();
+        var key_num = CONTROLS.alt.indexOf(key);
         if(key_num >= 0){
             display.shift_is_pressed = false;
         }
@@ -461,10 +463,10 @@ const DisplayHTML = {
     get_transformation: function(to_display){
         var transformation = ``;
         if(to_display.rotate !== undefined){
-            transformation = `${transformation}rotate(${to_display.rotate}deg) `;
+            transformation += `rotate(${to_display.rotate}deg) `;
         }
         if(to_display.flip){
-            transformation = `${transformation}scaleX(-1) `;
+            transformation += `scaleX(-1) `;
         }
         return transformation;   
     },

@@ -32,8 +32,7 @@ class MoveDeck{
         this.#library = [];
         this.#hand = [];
         this.#discard_pile = [];
-        for(var i = 0; i < this.#decklist.length; ++i){
-            var card = this.#decklist[i]
+        for(var card of this.#decklist){
             if(card.per_floor !== undefined){
                 card = card.per_floor();
                 this.add_temp(card);

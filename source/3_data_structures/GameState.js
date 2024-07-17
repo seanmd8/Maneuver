@@ -72,6 +72,7 @@ class GameState{
         this.map.clear_marked();
         try{
             var is_instant = false;
+            // The repetition boon will double movements one in every 3 turns.
             var repetition_count = GS.boons.has(boon_names.repetition);
             var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? 2 : 1;
             for(var i = 0; i < repeat; ++i){
@@ -213,10 +214,7 @@ class GameState{
             var rare = rand_no_repeates(RARE_CARD_CHOICES, 1);
             add_list_generators[chance_of_rare] = rare[0];
         }
-        var add_list = [];
-        for(var i = 0; i < add_list_generators.length; ++i){
-            add_list[i] = add_list_generators[i]();
-        }
+        var add_list = add_list_generators.map(g => g());
         add_list.unshift(add_card_symbol())
         // Display cards
         var make_add_card = function(card, position, gamestate){

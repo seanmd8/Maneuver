@@ -615,14 +615,14 @@ class GameMap{
             // Reached the next area.
             var next_list = this.#area.next_area_list;
             this.#area = next_list[random_num(next_list.length)]();
-            floor_description = `${floor_description}\n${this.#area.description}`;
+            floor_description += `\n${this.#area.description}`;
         }
         if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
             var boss_floor = this.#area.boss_floor_list[random_num(this.#area.boss_floor_list.length)];
             boss_floor_common(this.#floor_num, this.#area, this); 
             var boss_message = boss_floor(this.#floor_num, this.#area, this);
-            floor_description = `${floor_description}\n${boss_message}`;
+            floor_description += `\n${boss_message}`;
         }
         else{
             var extra_difficulty = 5 * GS.boons.has(boon_names.roar_of_challenge);

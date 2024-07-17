@@ -174,9 +174,9 @@ function order_nearby(direction){
  * @returns {Point | undefined} Returns an empty location if one is found and undefined otherwise.
  */
 function get_empty_nearby(location, nearby_arr, map){
-    for(var i = 0; i < nearby_arr.length; ++i){
-        if(map.check_empty(location.plus(nearby_arr[i]))){
-            return nearby_arr[i];
+    for(var near of nearby_arr){
+        if(map.check_empty(location.plus(near))){
+            return near;
         }
     }
     return undefined;
@@ -190,8 +190,8 @@ function get_empty_nearby(location, nearby_arr, map){
 function count_nearby(location, map){
     var count = 0;
     var nearby = random_nearby();
-    for(var i = 0; i < nearby.length; ++i){
-        if(!map.check_empty(location.plus(nearby[i]))){
+    for(var near of nearby){
+        if(!map.check_empty(location.plus(near))){
             ++count;
         }
     }
@@ -209,9 +209,9 @@ function count_nearby(location, map){
 function spawn_nearby(map, tile, location, nearby = random_nearby()){
     // Attempts to spawn a <tile> at a space next to to the given cords.
     // If it succeeds, returns the location, otherwise returns false.
-    for(var i = 0; i < nearby.length; ++i){
-        if(map.add_tile(tile, location.plus(nearby[i]))){
-            return nearby[i];
+    for(var near of nearby){
+        if(map.add_tile(tile, location.plus(near))){
+            return near;
         }
     }
     return undefined;

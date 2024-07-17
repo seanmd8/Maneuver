@@ -49,7 +49,7 @@ const MARKUP_LANGUAGE = `html`;
 const CONTROLS = {
     directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
     card: [`h`, `j`, `k`, `l`],
-    alt: [`Shift`, `ShiftLeft`, `ShiftRight`]
+    alt: [`shift`, `shiftleft`, `shiftright`]
 }
 Object.freeze(CONTROLS);
 

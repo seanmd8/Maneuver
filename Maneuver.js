@@ -14,21 +14,6 @@ function delay(milliseconds){
     })
 }
 /**
- * Searches an array for an element.
- * @template T
- * @param {T} element The element to find.
- * @param {T[]} arr The array to search.
- * @returns {number} The index of the element, or -1 if it isn't found.
- */
-function search(element, arr){
-    for(var i = 0; i < arr.length; ++i){
-        if(element === arr[i]){
-            return i;
-        }
-    }
-    return -1;
-}
-/**
  * Creates an array by drawing random elements from another with no repeats.
  * @template T
  * @param {T[]} source Array to draw from.
@@ -64,7 +49,7 @@ function wrap_str(message, wrap_length, delimiter = undefined){
     if(message.indexOf(`\n`) > -1){ // If it already has new line characters, 
         str_arr = message.split(`\n`);
         for(var i = 0; i < str_arr.length; ++i){
-            new_message = `${new_message}${wrap_str(str_arr[i], wrap_length, delimiter)}\n`
+            new_message += `${wrap_str(str_arr[i], wrap_length, delimiter)}\n`
         }
     }
     else if(delimiter === undefined){ // if there is no delimiter
@@ -75,21 +60,21 @@ function wrap_str(message, wrap_length, delimiter = undefined){
             start = end;
         }
         for(var i = 0; i < str_arr.length; ++i){
-            new_message = `${new_message}${str_arr[i]}\n`
+            new_message += `${str_arr[i]}\n`
         }
     }
     else{ // if there is a delimiter
         str_arr = message.split(delimiter);
         var line = ``
         for(var i = 0; i < str_arr.length; ++i){
-            line = `${line}${str_arr[i]}${delimiter}`;
+            line += `${str_arr[i]}${delimiter}`;
             if(line.length > wrap_length){
-                new_message = `${new_message}${line.slice(0, -1 * delimiter.length)}\n`
+                new_message += `${line.slice(0, -1 * delimiter.length)}\n`
                 line = ``;
             } 
         }
         if(line.length > 0){
-            new_message = `${new_message}${line.slice(0, -1 * delimiter.length)}\n`
+            new_message += `${line.slice(0, -1 * delimiter.length)}\n`
         } 
     }
     return new_message.slice(0, -1);
@@ -135,7 +120,7 @@ function random_sign(){
  */
 function randomize_arr(arr){
     // Returns a copy of the given array with it's order randomized.
-    arr = copy_arr(arr);
+    arr = [...arr];
     var random_arr = [];
     while(arr.length > 0){
         var index = random_num(arr.length);
@@ -144,20 +129,6 @@ function randomize_arr(arr){
         arr.pop();
     }
     return random_arr;
-}
-/** 
- * Function to return a copy of an array.
- * @template T
- * @param {T[]} arr Array to copy.
- * @returns {T[]} Copy of the array.
- */
-function copy_arr(arr){
-    //returns a copy of the given array.
-    var arr2 = [];
-    for(var i = 0; i < arr.length; ++i){
-        arr2[i] = arr[i];
-    }
-    return arr2;
 }
 /**
  * Function to return a copy of an array with it's order reversed.
@@ -359,39 +330,6 @@ function point_equals(p1, p2){
         throw Error(ERRORS.invalid_type);
     }
 }
-
-/**
- * Adds each element in one point array to each eelment in another or a number array.
- * Throws an error if their length doesn't match.
- * @param {Point[]} a1 The point array being added to.
- * @param {Point[] | number[]} a2 The point or number array to add to it.
- * @returns  {Point[]} The resulting point array.
- */
-function add_point_arr(a1, a2){
-    if(a1.length != a2.length){
-        throw new Error(ERRORS.array_size);
-    }
-    var sum_arr = [];
-    for(var i = 0; i < a1.length; ++i){
-        sum_arr.push(a1[i].plus(a2[i]));
-    }
-    return sum_arr;
-}
-
-/**
- * Adds a point or number to each element in a point array.
- * @param {Point[]} arr The point array being added to.
- * @param {Point | number} pt The point or number to add to it.
- * @returns  {Point[]} The resulting point array.
- */
-function add_to_point_arr(arr, pt){
-    var sum_arr = [];
-    for(var i = 0; i < arr.length; ++i){
-        sum_arr.push(arr[i].plus(pt));
-    }
-    return sum_arr;
-}
-
 // ----------------Const.js----------------
 // File containing global constants used throughout the program.
 
@@ -443,7 +381,7 @@ const MARKUP_LANGUAGE = `html`;
 const CONTROLS = {
     directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
     card: [`h`, `j`, `k`, `l`],
-    alt: [`Shift`, `ShiftLeft`, `ShiftRight`]
+    alt: [`shift`, `shiftleft`, `shiftright`]
 }
 Object.freeze(CONTROLS);
 
@@ -762,7 +700,8 @@ const DisplayHTML = {
     },
     press: function(key_press){
         // Pick direction via keyboard.
-        var key_num = search(key_press.key.toLowerCase(), CONTROLS.directional);
+        var key = key_press.key.toLowerCase();
+        var key_num = CONTROLS.directional.indexOf(key);
         if(key_num >= 0){
             try{
                 DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
@@ -775,7 +714,7 @@ const DisplayHTML = {
             
         }
         // Select card via keyboard.
-        key_num = search(key_press.key.toLowerCase(), CONTROLS.card);
+        key_num = CONTROLS.card.indexOf(key);
         if(key_num >= 0){
             try{
                 var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
@@ -788,13 +727,14 @@ const DisplayHTML = {
             }
             
         }
-        key_num = search(key_press.key, CONTROLS.alt);
+        key_num = CONTROLS.alt.indexOf(key);
         if(key_num >= 0){
             display.shift_is_pressed = true;
         }
     },
     unpress: function(key_press){
-        key_num = search(key_press.key, CONTROLS.alt);
+        var key = key_press.key.toLowerCase();
+        var key_num = CONTROLS.alt.indexOf(key);
         if(key_num >= 0){
             display.shift_is_pressed = false;
         }
@@ -922,10 +862,10 @@ const DisplayHTML = {
     get_transformation: function(to_display){
         var transformation = ``;
         if(to_display.rotate !== undefined){
-            transformation = `${transformation}rotate(${to_display.rotate}deg) `;
+            transformation += `rotate(${to_display.rotate}deg) `;
         }
         if(to_display.flip){
-            transformation = `${transformation}scaleX(-1) `;
+            transformation += `scaleX(-1) `;
         }
         return transformation;   
     },
@@ -2391,8 +2331,8 @@ function acid_bug_tile(){
 function acid_bug_death(self, target, map){
     // On death, attacks each space next to it.
     var attacks = random_nearby();
-    for(var i = 0; i < attacks.length; ++i){
-        map.attack(self.location.plus(attacks[i]));
+    for(var attack of attacks){
+        map.attack(self.location.plus(attack));
     }
 }
 /** @type {TileGenerator} Generates a camoflauged boulder elemental. */
@@ -2493,12 +2433,12 @@ function brightling_ai(self, target, map){
         ++self.tile.cycle;
         return;
     }
+    var near_points = random_nearby();
     if(random_num(4) < self.tile.cycle){
         // Attempts to teleport the player next to it, then cycle goes to -1 to prepare to teleport next turn.
-        var near_points = random_nearby();
-        for(var i = 0; i < near_points.length; ++i){
-            if(map.check_empty(self.location.plus(near_points[i]))){
-                map.move(self.location.plus(target.difference), self.location.plus(near_points[i]));
+        for(var near of near_points){
+            if(map.check_empty(self.location.plus(near))){
+                map.move(self.location.plus(target.difference), self.location.plus(near));
                 self.tile.cycle = -1;
                 // Since player has been moved, it returns to their turn.
                 throw new Error(ERRORS.pass_turn);
@@ -2506,7 +2446,6 @@ function brightling_ai(self, target, map){
         }
     }
     // Moves 2 spaces randomly and increments cycle.
-    var near_points = random_nearby();
     for(var i = 0; i < 2; ++i){
         var moved = map.move(self.location, self.location.plus(near_points[i]));
         if(moved){
@@ -3465,7 +3404,7 @@ function spider_ai(self, target, map){
 
 /** @type {TelegraphFunction} */
 function spider_telegraph(location, map, self){
-    return add_to_point_arr(ALL_DIRECTIONS, location);
+    return ALL_DIRECTIONS.map(a => a.plus(location));
 }
 /** @type {TileGenerator} */
 function spider_web_tile(){
@@ -4621,9 +4560,9 @@ function order_nearby(direction){
  * @returns {Point | undefined} Returns an empty location if one is found and undefined otherwise.
  */
 function get_empty_nearby(location, nearby_arr, map){
-    for(var i = 0; i < nearby_arr.length; ++i){
-        if(map.check_empty(location.plus(nearby_arr[i]))){
-            return nearby_arr[i];
+    for(var near of nearby_arr){
+        if(map.check_empty(location.plus(near))){
+            return near;
         }
     }
     return undefined;
@@ -4637,8 +4576,8 @@ function get_empty_nearby(location, nearby_arr, map){
 function count_nearby(location, map){
     var count = 0;
     var nearby = random_nearby();
-    for(var i = 0; i < nearby.length; ++i){
-        if(!map.check_empty(location.plus(nearby[i]))){
+    for(var near of nearby){
+        if(!map.check_empty(location.plus(near))){
             ++count;
         }
     }
@@ -4656,9 +4595,9 @@ function count_nearby(location, map){
 function spawn_nearby(map, tile, location, nearby = random_nearby()){
     // Attempts to spawn a <tile> at a space next to to the given cords.
     // If it succeeds, returns the location, otherwise returns false.
-    for(var i = 0; i < nearby.length; ++i){
-        if(map.add_tile(tile, location.plus(nearby[i]))){
-            return nearby[i];
+    for(var near of nearby){
+        if(map.add_tile(tile, location.plus(near))){
+            return near;
         }
     }
     return undefined;
@@ -4824,21 +4763,18 @@ function flame_wave_spell_generator(){
 /** @type {AIFunction} Spell which creates a wave of fireballs aimed at the target.*/
 function flame_wave_spell(self, target, map){
     var direction = get_empty_nearby(self.location, order_nearby(target.difference), map);
-    var spawnpoints = [];
     if(direction === undefined){
         return;
     }
+    var spawnpoints = [];
+    var wave = [-1, 0, 1];
     if(direction.x === 0){
         // Shooting vertically.
-        for(var i = 0; i < 3; ++i){
-            spawnpoints.push(new Point(i - 1, direction.y));
-        }
+        spawnpoints = wave.map(x => new Point(x, direction.y));
     }
     else if(direction.y === 0){
         // Shooting horizontally.
-        for(var i = 0; i < 3; ++i){
-            spawnpoints.push(new Point(direction.x, i - 1));
-        }
+        spawnpoints = wave.map(y => new Point(direction.x, y));
     }
     else{
         // Shooting diagonally.
@@ -4846,8 +4782,8 @@ function flame_wave_spell(self, target, map){
         spawnpoints.push(new Point(direction.x, 0));
         spawnpoints.push(new Point(0, direction.y));
     }
-    for(var i = 0; i < spawnpoints.length; ++i){
-        var spawnpoint = self.location.plus(spawnpoints[i])
+    spawnpoints = spawnpoints.map(s => self.location.plus(s));
+    for(var spawnpoint of spawnpoints){
         var fireball = shoot_fireball(direction);
         map.attack(spawnpoint);
         map.add_tile(fireball, spawnpoint);
@@ -5199,8 +5135,8 @@ class ButtonGrid{
         }
         
         var press_button = make_press_button(hand_pos);
-        for(var i = 0; i < this.#buttons.length; ++i){
-            display.add_button_row(table_name, this.#buttons[i], press_button)
+        for(var button of this.#buttons){
+            display.add_button_row(table_name, button, press_button)
         }
         display.add_on_click(UIIDS.move_info, explain_moves(extra_info, this));
     }
@@ -5231,10 +5167,9 @@ class ButtonGrid{
      */
     #convert_direction(direction){
         var direction_list = [NW, N, NE, W, C, E, SW, S, SE];
-        for(var i = 0; i < direction_list.length; ++i){
-            if(direction === direction_list[i]){
-                return i + 1;
-            }
+        var index = direction_list.indexOf(direction);
+        if(index >= 0){
+            return index + 1;
         }
         if(direction === SPIN){
             return 5;
@@ -5393,12 +5328,8 @@ class EntityList{
     async enemy_turn(map){
         // Triggers each enemy's behavior.
         // Displays the game map between each.
-        var turn = []
-        for(var i = 0; i < this.#enemy_list.length; ++i){
-            turn.push(this.#enemy_list[i]);
-        }
-        for(var i = 0; i < turn.length; ++i){
-            var e = turn[i];
+        var turn = [...this.#enemy_list];
+        for(var e of turn){
             if(e.enemy.id === undefined){
                 throw new Error(ERRORS.missing_id);
             }
@@ -6068,14 +5999,14 @@ class GameMap{
             // Reached the next area.
             var next_list = this.#area.next_area_list;
             this.#area = next_list[random_num(next_list.length)]();
-            floor_description = `${floor_description}\n${this.#area.description}`;
+            floor_description += `\n${this.#area.description}`;
         }
         if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
             var boss_floor = this.#area.boss_floor_list[random_num(this.#area.boss_floor_list.length)];
             boss_floor_common(this.#floor_num, this.#area, this); 
             var boss_message = boss_floor(this.#floor_num, this.#area, this);
-            floor_description = `${floor_description}\n${boss_message}`;
+            floor_description += `\n${boss_message}`;
         }
         else{
             var extra_difficulty = 5 * GS.boons.has(boon_names.roar_of_challenge);
@@ -6365,6 +6296,7 @@ class GameState{
         this.map.clear_marked();
         try{
             var is_instant = false;
+            // The repetition boon will double movements one in every 3 turns.
             var repetition_count = GS.boons.has(boon_names.repetition);
             var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? 2 : 1;
             for(var i = 0; i < repeat; ++i){
@@ -6506,10 +6438,7 @@ class GameState{
             var rare = rand_no_repeates(RARE_CARD_CHOICES, 1);
             add_list_generators[chance_of_rare] = rare[0];
         }
-        var add_list = [];
-        for(var i = 0; i < add_list_generators.length; ++i){
-            add_list[i] = add_list_generators[i]();
-        }
+        var add_list = add_list_generators.map(g => g());
         add_list.unshift(add_card_symbol())
         // Display cards
         var make_add_card = function(card, position, gamestate){
@@ -6702,8 +6631,7 @@ class MoveDeck{
         this.#library = [];
         this.#hand = [];
         this.#discard_pile = [];
-        for(var i = 0; i < this.#decklist.length; ++i){
-            var card = this.#decklist[i]
+        for(var card of this.#decklist){
             if(card.per_floor !== undefined){
                 card = card.per_floor();
                 this.add_temp(card);
@@ -6959,6 +6887,28 @@ function temp_card_info(card){
     return ``;
 }
 
+
+
+class TagList{
+    #tags;
+    constructor(list=[]){
+        this.#tags = [...list];
+    }
+    add(tag){
+        if(!this.has(tag)){
+            this.#tags.push(tag)
+        }
+    }
+    remove(tag){
+        var start_len = this.#tags.length;
+        this.#tags = this.#tags.filter(t => t !== tag);
+        return start_len === this.#tags,length;
+    }
+    has(tag){
+        return this.#tags.indexOf(tag) !== -1;
+    }
+
+}
 /** @type {AreaGenerator}*/
 function generate_basement_area(){
     return {
@@ -7212,8 +7162,8 @@ function lich_floor(floor_num,  area, map){
         new Point(FLOOR_WIDTH - 2, 1),
         new Point(1, 1)
     ]
-    for(var i = 0; i < locations.length; ++i){
-        map.add_tile(damaged_wall_tile(), locations[i]);
+    for(var location of locations){
+        map.add_tile(damaged_wall_tile(), location);
     }
     map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
     return lich_floor_message;
@@ -7305,7 +7255,7 @@ function velociphile_floor(floor_num,  area, map){
 /** @type {FloorGenerator} Generates the floor where the Young Dragon appears.*/
 function young_dragon_floor(floor_num,  area, map){
     map.spawn_safely(young_dragon_tile(), SAFE_SPAWN_ATTEMPTS, true);
-    for(var i = 0; i < 25; ++i){
+    for(var i = 0; i < 22; ++i){
         map.add_tile(lava_pool_tile());
     }
     return young_dragon_floor_message;

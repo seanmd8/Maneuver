@@ -16,7 +16,7 @@ function acid_bug_tile(){
 function acid_bug_death(self, target, map){
     // On death, attacks each space next to it.
     var attacks = random_nearby();
-    for(var i = 0; i < attacks.length; ++i){
-        map.attack(self.location.plus(attacks[i]));
+    for(var attack of attacks){
+        map.attack(self.location.plus(attack));
     }
 }

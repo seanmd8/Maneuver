@@ -137,12 +137,8 @@ class EntityList{
     async enemy_turn(map){
         // Triggers each enemy's behavior.
         // Displays the game map between each.
-        var turn = []
-        for(var i = 0; i < this.#enemy_list.length; ++i){
-            turn.push(this.#enemy_list[i]);
-        }
-        for(var i = 0; i < turn.length; ++i){
-            var e = turn[i];
+        var turn = [...this.#enemy_list];
+        for(var e of turn){
             if(e.enemy.id === undefined){
                 throw new Error(ERRORS.missing_id);
             }

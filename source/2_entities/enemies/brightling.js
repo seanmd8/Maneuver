@@ -25,12 +25,12 @@ function brightling_ai(self, target, map){
         ++self.tile.cycle;
         return;
     }
+    var near_points = random_nearby();
     if(random_num(4) < self.tile.cycle){
         // Attempts to teleport the player next to it, then cycle goes to -1 to prepare to teleport next turn.
-        var near_points = random_nearby();
-        for(var i = 0; i < near_points.length; ++i){
-            if(map.check_empty(self.location.plus(near_points[i]))){
-                map.move(self.location.plus(target.difference), self.location.plus(near_points[i]));
+        for(var near of near_points){
+            if(map.check_empty(self.location.plus(near))){
+                map.move(self.location.plus(target.difference), self.location.plus(near));
                 self.tile.cycle = -1;
                 // Since player has been moved, it returns to their turn.
                 throw new Error(ERRORS.pass_turn);
@@ -38,7 +38,6 @@ function brightling_ai(self, target, map){
         }
     }
     // Moves 2 spaces randomly and increments cycle.
-    var near_points = random_nearby();
     for(var i = 0; i < 2; ++i){
         var moved = map.move(self.location, self.location.plus(near_points[i]));
         if(moved){
