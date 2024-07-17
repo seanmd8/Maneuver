@@ -1418,7 +1418,7 @@ const picky_shopper_description = `Recieve an extra card choice for adding and r
 const rebirth_description = `When you die, you are revived at full health and this boon is removed.`;
 const rebirth_revival_message = `You died, but were brought back to life.`;
 const repetition_description = `Every 3rd turn, your cards happen twice.`;
-const roar_of_challenge_description = `Gain 2 max health. Difficulty increases.`;
+const roar_of_challenge_description = `Gain 2 max health. Difficulty increases by 5 floors.`;
 const safe_passage_description = `Fully heal and travel to the next floor.`;
 const serenity_description = `Reduce your minimum deck size to 4.`;
 const shattered_glass_description = `Enemies explode on death damaging each other nearby enemy. Reduce your max health by 1.`;
@@ -2482,9 +2482,11 @@ function carrion_flies_ai(self, target, map){
     ++self.tile.cycle;
     if(self.tile.cycle === self.tile.spawn_timer){
         // When the cycle reaches the spawn timer, spawn and reset it while increasing the time until the next one.
-        self.tile.spawn_timer += 2;
+        self.tile.spawn_timer += 1;
         self.tile.cycle = 0;
-        spawn_nearby(map, carrion_flies_tile(), self.location);
+        var new_tile = carrion_flies_tile()
+        new_tile.spawn_timer = self.tile.spawn_timer;
+        spawn_nearby(map, new_tile, self.location);
     }
     if(target.difference.within_radius(1)){
         // Attack the player if they are close.

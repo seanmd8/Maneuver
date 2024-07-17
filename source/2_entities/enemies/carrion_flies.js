@@ -23,9 +23,11 @@ function carrion_flies_ai(self, target, map){
     ++self.tile.cycle;
     if(self.tile.cycle === self.tile.spawn_timer){
         // When the cycle reaches the spawn timer, spawn and reset it while increasing the time until the next one.
-        self.tile.spawn_timer += 2;
+        self.tile.spawn_timer += 1;
         self.tile.cycle = 0;
-        spawn_nearby(map, carrion_flies_tile(), self.location);
+        var new_tile = carrion_flies_tile()
+        new_tile.spawn_timer = self.tile.spawn_timer;
+        spawn_nearby(map, new_tile, self.location);
     }
     if(target.difference.within_radius(1)){
         // Attack the player if they are close.
