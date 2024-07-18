@@ -82,6 +82,32 @@ class Point{
             throw Error(ERRORS.invalid_type);
         }
     }
+    /** @type {PointOp} Returns this * p2, which is a new point*/
+    divide(p2){
+        return this.copy().divide_equals(p2);
+    }
+    /** @type {PointOp} Does this = this * p2, then returns this.*/
+    divide_equals(p2){
+        if(typeof p2 === `number`){
+            if(p2 === 0){
+                throw new Error(ERRORS.divide_by_0);
+            }
+            this.x /= p2;
+            this.y /= p2;
+            return this
+        }
+        else if(p2.x !== undefined && p2.y !== undefined){
+            if(p2.x === 0 || p2.y === 0){
+                throw new Error(ERRORS.divide_by_0);
+            }
+            this.x /= p2.x;
+            this.y /= p2.y;
+            return this
+        }
+        else{
+            throw Error(ERRORS.invalid_type);
+        }
+    }
     /**
      * Function to check if a point's x and y values both have an absolute value <= radius.
      * @param {number} radius How far away from 0 x and y can be.
@@ -107,7 +133,7 @@ class Point{
      */
     rotate(degrees){
         if(degrees % 90 !== 0){
-            throw new Error(`invalid value`);
+            throw new Error(ERRORS.invalid_value);
         }
         degrees = degrees % 360;
         if(degrees === 0){

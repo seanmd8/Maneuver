@@ -101,9 +101,7 @@ function get_test_boons(){
 
 describe(`BoonTracker`, () => {
     // Imports used or being tested.
-    const BoonTracker = imports.BoonTracker;
-    const ERRORS = imports.ERRORS;
-    
+    const BoonTracker = imports.BoonTracker;    
 
     // Common testing vars.
     let boons;
@@ -118,6 +116,7 @@ describe(`BoonTracker`, () => {
         test_boons.unlock_boon,
         test_boons.mix_boon
     ];
+    
   
     beforeEach(() => {
         boons = new BoonTracker(BOON_LIST);

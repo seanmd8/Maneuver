@@ -10,12 +10,12 @@ const ERRORS = {
     missing_id: `id not found`,
     invalid_value: `invalid value`,
     value_not_found: `value not found`,
-    invalid_type: `invalid type`,
     space_full: `space not empty`,
     already_exists: `value already set`,
     map_full: `map full`,
     creature_died: `creature died`,
-    out_of_bounds: `out of bounds`
+    out_of_bounds: `out of bounds`,
+    divide_by_0: `divide by 0`
 }
 Object.freeze(ERRORS);
 
