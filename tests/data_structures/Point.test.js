@@ -1,4 +1,4 @@
-var imports = require('../../Maneuver.js');
+var imports = require('../../ManeuverTest.js');
 
 
 describe(`Point`, () => {

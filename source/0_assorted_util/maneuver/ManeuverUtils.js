@@ -18,7 +18,7 @@ function initiate_game(){
 // Deck Creation
 /** @returns {MoveDeck} Returns a normal starting deck.*/
 function make_starting_deck(){
-    var deck = new MoveDeck();
+    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
 
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
@@ -35,7 +35,7 @@ function make_starting_deck(){
 // Makes a deck for testing new cards.
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
-    var deck = new MoveDeck();
+    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
     for(var card of CARDS_TO_TEST){
         deck.add(card());
     }

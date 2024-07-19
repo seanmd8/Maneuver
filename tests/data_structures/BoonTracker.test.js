@@ -1,4 +1,4 @@
-var imports = require('../../Maneuver.js');
+var imports = require('../../ManeuverTest.js');
 
 function get_test_boons(){
     var test_boon_names = {

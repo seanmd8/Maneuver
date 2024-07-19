@@ -9,7 +9,7 @@ function vinesnare_bush_tile(){
         pic: pic_arr[starting_cycle],
         description: `${vinesnare_bush_description[0]}${range}${vinesnare_bush_description[1]}`,
         health: 1,
-        difficulty: 4,
+        difficulty: 2,
         behavior: vinesnare_bush_ai,
         telegraph: vinesnare_bush_telegraph,
         telegraph_other: vinesnare_bush_telegraph_other,

@@ -6,7 +6,7 @@ import argparse
 
 def main(mode):
     if mode == "test":
-        staple("source", "Maneuver.js", True)
+        staple("source", "ManeuverTest.js", True)
     elif mode == "build":
         source_folders = get_folders_in("source")
         staple(source_folders, "Maneuver.js", True)

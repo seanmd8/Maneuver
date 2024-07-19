@@ -957,7 +957,7 @@ function initiate_game(){
 // Deck Creation
 /** @returns {MoveDeck} Returns a normal starting deck.*/
 function make_starting_deck(){
-    var deck = new MoveDeck();
+    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
 
     deck.add(basic_horizontal());
     deck.add(basic_horizontal());
@@ -974,7 +974,7 @@ function make_starting_deck(){
 // Makes a deck for testing new cards.
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
-    var deck = new MoveDeck();
+    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
     for(var card of CARDS_TO_TEST){
         deck.add(card());
     }
@@ -3729,7 +3729,7 @@ function vinesnare_bush_tile(){
         pic: pic_arr[starting_cycle],
         description: `${vinesnare_bush_description[0]}${range}${vinesnare_bush_description[1]}`,
         health: 1,
-        difficulty: 4,
+        difficulty: 2,
         behavior: vinesnare_bush_ai,
         telegraph: vinesnare_bush_telegraph,
         telegraph_other: vinesnare_bush_telegraph_other,
@@ -6640,14 +6640,14 @@ class MoveDeck{
     #id_count;
     #hand_size;
     #min_deck_size;
-    constructor(){
+    constructor(hand_size, minimum){
         this.#decklist = [];
         this.#library = [];
         this.#hand = [];
         this.#discard_pile = [];
         this.#id_count = 0;
-        this.#hand_size = HAND_SIZE;
-        this.#min_deck_size = MIN_DECK_SIZE;
+        this.#hand_size = hand_size;
+        this.#min_deck_size = minimum;
     }
     /**
      * Resets the deck to the decklist then deals a new hand.

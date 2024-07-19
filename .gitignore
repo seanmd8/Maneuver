@@ -1,2 +1,5 @@
 # Node.js dependency directory
 node_modules/
+
+# File generated for tests
+ManeuverTest.js

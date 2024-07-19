@@ -14,14 +14,14 @@ class MoveDeck{
     #id_count;
     #hand_size;
     #min_deck_size;
-    constructor(){
+    constructor(hand_size, minimum){
         this.#decklist = [];
         this.#library = [];
         this.#hand = [];
         this.#discard_pile = [];
         this.#id_count = 0;
-        this.#hand_size = HAND_SIZE;
-        this.#min_deck_size = MIN_DECK_SIZE;
+        this.#hand_size = hand_size;
+        this.#min_deck_size = minimum;
     }
     /**
      * Resets the deck to the decklist then deals a new hand.
