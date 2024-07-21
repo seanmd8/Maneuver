@@ -6,6 +6,7 @@ function two_headed_serpent_tile(){
         name: `two headed serpent head`,
         pic: pic_arr[1],
         description: two_headed_serpent_awake_description,
+        tags: new TagList([TAGS.boss, TAGS.unmovable]),
         health: 1,
         death_message: two_headed_serpent_death_message,
         behavior: two_headed_serpent_ai,
@@ -25,6 +26,7 @@ function two_headed_serpent_body_tile(){
         name: `two headed serpent body`,
         pic: pic_arr[0],
         description: two_headed_serpent_body_description,
+        tags: new TagList([TAGS.boss, TAGS.unmovable]),
         pic_arr,
         segment_list: [undefined, undefined],
     }

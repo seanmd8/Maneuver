@@ -5,6 +5,7 @@ function rat_tile(){
         name: `rat`,
         pic: `${IMG_FOLDER.tiles}rat.png`,
         description: rat_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 2,
         behavior: rat_ai,

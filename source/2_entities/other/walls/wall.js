@@ -4,6 +4,7 @@ function wall_tile(){
         type: `terrain`,
         name: `wall`,
         pic: `${IMG_FOLDER.tiles}wall.png`,
-        description: wall_description
+        description: wall_description,
+        tags: new TagList(),
     }
 }

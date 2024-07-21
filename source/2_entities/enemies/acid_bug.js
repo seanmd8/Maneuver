@@ -5,6 +5,7 @@ function acid_bug_tile(){
         name: `acid bug`,
         pic: `${IMG_FOLDER.tiles}acid_bug.png`,
         description: acid_bug_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: move_closer_ai,

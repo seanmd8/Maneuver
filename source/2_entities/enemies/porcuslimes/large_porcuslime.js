@@ -5,6 +5,7 @@ function large_porcuslime_tile(){
         name: `large porcuslime`,
         pic: `${IMG_FOLDER.tiles}large_porcuslime.png`,
         description: large_porcuslime_description,
+        tags: new TagList(),
         health: 3,
         difficulty: 8,
         behavior: large_porcuslime_ai,

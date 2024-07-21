@@ -5,8 +5,8 @@ function player_tile(){
         name: `player`,
         pic: `${IMG_FOLDER.tiles}helmet.png`,
         description: player_description,
+        tags: new TagList(),
         health: PLAYER_STARTING_HEALTH,
         max_health: PLAYER_STARTING_HEALTH
-        
     }
 }

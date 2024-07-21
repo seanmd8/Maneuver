@@ -5,6 +5,7 @@ function lava_pool_tile(){
         name: `lava pool`,
         pic: `${IMG_FOLDER.tiles}lava_pool.png`,
         description: lava_pool_description,
+        tags: new TagList([TAGS.unmovable]),
         telegraph: hazard_telegraph,
         on_enter: hazard
     }

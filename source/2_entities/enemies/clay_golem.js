@@ -5,6 +5,7 @@ function clay_golem_tile(){
         name: `clay golem`,
         pic: `${IMG_FOLDER.tiles}clay_golem.png`,
         description: clay_golem_description,
+        tags: new TagList(),
         health: 3,
         difficulty: 4,
         behavior: clay_golem_ai,

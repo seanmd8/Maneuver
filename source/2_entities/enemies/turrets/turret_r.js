@@ -5,6 +5,7 @@ function turret_r_tile(){
         name: `rotary turret`,
         pic: ``,
         description: turret_r_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: turret_r_ai,

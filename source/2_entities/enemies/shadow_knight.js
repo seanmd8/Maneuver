@@ -8,6 +8,7 @@ function shadow_knight_tile(){
         name: `shadow knight`,
         pic: `${IMG_FOLDER.tiles}shadow_knight.png`,
         description: shadow_knight_description,
+        tags: new TagList(),
         health: 2,
         difficulty: 4,
         behavior: shadow_knight_ai,

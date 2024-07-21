@@ -145,9 +145,9 @@ class MoveDeck{
                 if(!GS.check_lock_player_turn()){
                     return;
                 }
-                var extra_info = temp_card_info(card);
                 display.select(UIIDS.hand_display, 0, hand_pos);
-                card.options.show_buttons(UIIDS.move_buttons, hand_pos, extra_info);
+                say(``, false);
+                display_move_buttons(card, hand_pos);
             }
         }
         var explain_blank_moves = function(){

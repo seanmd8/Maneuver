@@ -40,38 +40,36 @@ class ButtonGrid{
      * @param {number} hand_pos The position of the card in hand that these buttons belong to.
      * @param {string=} extra_info Optional extra information to display when the card info button is clicked.
      */
-    show_buttons(table_name, hand_pos, extra_info = ``){
-        display.remove_children(table_name);
-        say(``, false);
-        var make_press_button = function(hand_position){
-            return function(button){
-                if(display.shift_is_pressed){
-                    var t = telegraph_card(button.behavior, GS.map);
-                    GS.map.clear_telegraphs();
-                    GS.map.display_telegraph(t.moves, `${IMG_FOLDER.actions}move_telegraph.png`);
-                    GS.map.display_telegraph(t.attacks, `${IMG_FOLDER.actions}hit_telegraph.png`);
-                    GS.map.display_telegraph(t.stun, `${IMG_FOLDER.actions}confuse.png`);
-                    GS.map.display_telegraph(t.healing, `${IMG_FOLDER.actions}heal.png`);
-                    GS.map.display_telegraph(t.teleport, `${IMG_FOLDER.actions}teleport_telegraph.png`);
-                    GS.map.display();
-                }
-                else if(button.behavior){
-                    GS.player_turn(button.behavior, hand_position);
-                }
-            }
-        }
-        var explain_moves = function(extra_text, card){
-            var text = `${extra_text}${card.explain_card()}`;
+    show_buttons(hand_position){
+        var grid = [];
+        var telegraph = function(behavior){
             return function(){
-                say(text, false);
+                var t = telegraph_card(behavior, GS.map);
+                GS.map.clear_telegraphs();
+                GS.map.display_telegraph(t.moves, `${IMG_FOLDER.actions}move_telegraph.png`);
+                GS.map.display_telegraph(t.attacks, `${IMG_FOLDER.actions}hit_telegraph.png`);
+                GS.map.display_telegraph(t.stun, `${IMG_FOLDER.actions}confuse.png`);
+                GS.map.display_telegraph(t.healing, `${IMG_FOLDER.actions}heal.png`);
+                GS.map.display_telegraph(t.teleport, `${IMG_FOLDER.actions}teleport_telegraph.png`);
+                GS.map.display();
             }
         }
-        
-        var press_button = make_press_button(hand_pos);
-        for(var button of this.#buttons){
-            display.add_button_row(table_name, button, press_button)
+        var click = function(behavior){
+            return function(){
+                if(behavior != undefined){
+                    GS.player_turn(behavior, hand_position);
+                }
+            }
         }
-        display.add_on_click(UIIDS.move_info, explain_moves(extra_info, this));
+        for(var row of this.#buttons){
+            grid.push(row.map(button => {return {
+                description: button.description,
+                alt_click: telegraph(button.behavior),
+                on_click: click(button.behavior)
+            }
+            }));
+        }
+        return grid;
     }
     /**
      * Creates an explanation of what each button does.

@@ -6,6 +6,7 @@ function spider_web_tile(){
         name: `spider egg`,
         pic: `${IMG_FOLDER.tiles}spider_web.png`,
         description: `${spider_web_description[0]}${spawn_timer + 1}${spider_web_description[1]}`,
+        tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 4,
         behavior: spider_web_ai,

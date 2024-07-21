@@ -5,6 +5,7 @@ function turret_d_tile(){
         name: `turret`,
         pic: `${IMG_FOLDER.tiles}turret_d.png`,
         description: turret_d_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 2,
         behavior: turret_d_ai,

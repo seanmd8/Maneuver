@@ -5,6 +5,7 @@ function coffin_tile(){
         name: `coffin`,
         pic: `${IMG_FOLDER.tiles}coffin.png`,
         description: coffin_description,
+        tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: decay_ai,
         on_death: coffin_tile_death,

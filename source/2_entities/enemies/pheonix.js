@@ -5,6 +5,7 @@ function pheonix_tile(){
         name: `pheonix`,
         pic: `${IMG_FOLDER.tiles}pheonix.png`,
         description: pheonix_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 5,
         behavior: pheonix_ai,

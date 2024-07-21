@@ -287,9 +287,10 @@ class GameState{
             };
         }
         var restart_message = [{
-            description: retry_message
+            description: retry_message,
+            on_click: restart(this)
         }]
-        display.add_button_row(UIIDS.retry_button, restart_message, restart(this));
+        display.add_button_row(UIIDS.retry_button, restart_message);
     }
     /**
      * Adds a temporary card to the player's deck.

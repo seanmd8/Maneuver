@@ -5,6 +5,7 @@ function chest_tile(){
         name: `chest`,
         pic: `${IMG_FOLDER.tiles}chest.png`,
         description: chest_description,
+        tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: chest_on_enter,
         contents: []
@@ -38,13 +39,16 @@ function chest_on_enter(self, target, map){
         }
     }
     var abandon_button = {
-        description: abandon_chest
+        description: abandon_chest,
+        on_click: leave_chest
     };
-    var take_or_leave =  function(button, position){
-        if(button.on_choose !== undefined){
-            button.on_choose();
+    var pick = function(on_choose){
+        return function(){
+            if(on_choose !== undefined){
+                on_choose();
+            }
+            leave_chest();
         }
-        leave_chest();
     }
     var content_row = [];
     for(var i = 0; i < self.tile.contents.length; ++i){
@@ -53,11 +57,11 @@ function chest_on_enter(self, target, map){
             return function(){
                 let confirm_button = {
                     description: take_from_chest,
-                    on_choose: item.on_choose
+                    on_click: pick(item.on_choose)
                 };
                 display.display_message(UIIDS.content_description, item.description);
                 display.remove_children(UIIDS.chest_confirm_row);
-                display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button], take_or_leave);
+                display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button]);
                 display.select(UIIDS.contents, 0, position);
             };
         }
@@ -71,7 +75,7 @@ function chest_on_enter(self, target, map){
 
     display.display_message(UIIDS.chest_instructions, chest_inner_discription);
     display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
-    display.add_button_row(UIIDS.chest_confirm_row, [abandon_button], take_or_leave);
+    display.add_button_row(UIIDS.chest_confirm_row, [abandon_button]);
     display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.chest);
     throw new Error(ERRORS.pass_turn);
 }

@@ -65,3 +65,10 @@ const IMG_FOLDER = {
     boons: `boons/`
 }
 Object.freeze(IMG_FOLDER);
+
+const TAGS = {
+    boss: `Boss`,
+    unmovable: `Unmovable`,
+    hidden: `Hidden`
+}
+Object.freeze(TAGS);

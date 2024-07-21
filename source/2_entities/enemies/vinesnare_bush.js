@@ -8,6 +8,7 @@ function vinesnare_bush_tile(){
         name: `vinesnare bush`,
         pic: pic_arr[starting_cycle],
         description: `${vinesnare_bush_description[0]}${range}${vinesnare_bush_description[1]}`,
+        tags: new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 2,
         behavior: vinesnare_bush_ai,
@@ -37,7 +38,7 @@ function vinesnare_bush_ai(self, target, map){
         return;
     }
     var moved = false;
-    if(self.tile.cycle > 0 && target.difference.within_radius(self.tile.range)){
+    if(self.tile.cycle > 0 && target.difference.within_radius(self.tile.range) && !target.tile.tags.has(TAGS.unmovable)){
         var direction = sign(target.difference);
         if(target.difference.on_axis() || target.difference.on_diagonal()){
             // If the player is orthogonal or diagonal and within range, drag them closer.

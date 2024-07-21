@@ -12,6 +12,7 @@ function boulder_elemental_look(){
         name: `boulder elemental`,
         pic: `${IMG_FOLDER.tiles}boulder_elemental.png`,
         description: boulder_elemental_description,
+        tags: new TagList([TAGS.unmovable]),
         behavior: boulder_elemental_ai,
         telegraph: spider_telegraph,
         on_enter: boulder_elemental_wake_up,

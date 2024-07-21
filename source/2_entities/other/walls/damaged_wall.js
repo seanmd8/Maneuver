@@ -7,6 +7,7 @@ function damaged_wall_tile(){
         name: `damaged wall`,
         pic: pic_arr[health - 1],
         description: damaged_wall_description,
+        tags: new TagList(),
         health,
         on_hit: damaged_wall_on_hit,
         on_death: damaged_wall_death,

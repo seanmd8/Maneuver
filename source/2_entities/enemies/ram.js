@@ -7,6 +7,7 @@ function ram_tile(){
         name: `ram`,
         pic: pic_arr[starting_cycle],
         description: ram_description,
+        tags: new TagList(),
         health: 2,
         difficulty: 5,
         behavior: ram_ai,

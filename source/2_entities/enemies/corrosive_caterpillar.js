@@ -5,6 +5,7 @@ function corrosive_caterpillar_tile(){
         name: `corrosive caterpillar`,
         pic: `${IMG_FOLDER.tiles}corrosive_caterpillar.png`,
         description: corrosive_caterpillar_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 2,
         behavior: corrosive_caterpillar_ai,

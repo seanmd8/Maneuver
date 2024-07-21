@@ -5,6 +5,7 @@ function scythe_tile(){
         name: `scythe`,
         pic: `${IMG_FOLDER.tiles}scythe.png`,
         description: scythe_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: scythe_ai,

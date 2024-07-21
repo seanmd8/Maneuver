@@ -7,6 +7,7 @@ function medium_porcuslime_tile(){
         name: `medium porcuslime`,
         pic: pic_arr[starting_cycle],
         description: medium_porcuslime_description,
+        tags: new TagList(),
         health: 2,
         difficulty: 5,
         behavior: medium_porcuslime_ai,

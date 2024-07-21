@@ -5,6 +5,7 @@ function small_h_porcuslime_tile(){
         name: `small porcuslime`,
         pic: `${IMG_FOLDER.tiles}small_h_porcuslime.png`,
         description: small_h_porcuslime_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: porcuslime_horizontal_ai,

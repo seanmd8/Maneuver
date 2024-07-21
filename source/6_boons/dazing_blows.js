@@ -6,6 +6,3 @@ function dazing_blows(){
         description: dazing_blows_description,
     }
 }
-
-// Not finished
-// Figure out how to make bosses immune

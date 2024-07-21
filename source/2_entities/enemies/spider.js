@@ -5,6 +5,7 @@ function spider_tile(){
         name: `spider`,
         pic: `${IMG_FOLDER.tiles}spider.png`,
         description: spider_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 1,
         behavior: spider_ai,

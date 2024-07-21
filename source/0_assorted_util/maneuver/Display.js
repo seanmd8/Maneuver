@@ -15,6 +15,7 @@
 /**
  * @typedef {Object} ButtonInfo The info required to create a button table cell.
  * @property {string} description The text to be displayed in the button.
+ * @property {OnClickFunction=} on_click The function to be called when the button is clicked.
  */
 
 /**
@@ -46,7 +47,6 @@
  * @callback add_button_row A function to add a row of buttons to a table.
  * @param {string} location The ID of the table to be added to.
  * @param {ButtonInfo[]} row_contents The objects used to construct the row's contents.
- * @param {OnClickFunction} [on_click = undefined] Optional parameter which is used to give onclick functionality to the buttons.
  */
 
 /**
@@ -254,22 +254,14 @@ const DisplayHTML = {
         }
         table.append(row);
     },
-    add_button_row: function(location, row_contents, on_click = undefined){
+    add_button_row: function(location, row_contents){
         var table = DisplayHTML.get_element(location, HTMLTableElement);
         var row_num = table.rows.length;
         var row = document.createElement(`tr`);
         row.id = `${location} row ${row_num}`;
-        var make_on_click = function(tile, position, click){
-            return function(){
-                return click(tile, position);
-            }
-        }
         for(var i = 0; i < row_contents.length; ++i){
-            var button_on_click = undefined;
-            if(on_click !== undefined){
-                button_on_click = make_on_click(row_contents[i], new Point(i, row_num), on_click);
-            }
-            row.append(DisplayHTML.create_button(row_contents[i].description, `${location} ${row_num} ${i}`, button_on_click));
+            var button = row_contents[i];
+            row.append(DisplayHTML.create_button(button.description, `${location} ${row_num} ${i}`, button.on_click));
         }
         table.append(row);
     },

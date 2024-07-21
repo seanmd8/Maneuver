@@ -7,6 +7,7 @@ function magma_spewer_tile(){
         name: `magma spewer`,
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
         description: magma_spewer_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: magma_spewer_ai,

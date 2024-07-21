@@ -5,6 +5,7 @@ function sewer_grate_tile(){
         name: `sewer grate`,
         pic: `${IMG_FOLDER.tiles}sewer_grate.png`,
         description: sewer_grate_description,
+        tags: new TagList([TAGS.unmovable]),
         behavior: sewer_grate_ai,
     }
 }

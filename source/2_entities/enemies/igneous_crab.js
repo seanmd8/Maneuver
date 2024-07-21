@@ -5,6 +5,7 @@ function igneous_crab_tile(){
         name: `igneous crab`,
         pic: `${IMG_FOLDER.tiles}igneous_crab.png`,
         description: igneous_crab_description,
+        tags: new TagList(),
         health: 2,
         difficulty: 3,
         behavior: igneous_crab_ai,

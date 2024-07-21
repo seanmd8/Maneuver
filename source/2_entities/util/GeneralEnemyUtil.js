@@ -9,6 +9,7 @@
  * @property {string} name More specific than type. Used for mousover text.
  * @property {string} pic The picture of the tile's contents.
  * @property {string} description A description given when the tile is clicked on.
+ * @property {TagList} tags Tags that group enemies together
  * 
  * // Misc //
  * @property {number=} health The amount of damage it can take before dying.

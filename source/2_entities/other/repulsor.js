@@ -7,6 +7,7 @@ function repulsor_tile(){
         name: `repulsor`,
         pic: pic_arr[starting_cycle],
         description: repulsor_description,
+        tags: new TagList([TAGS.unmovable]),
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
         on_enter: repulsor_push_ai,
@@ -32,10 +33,10 @@ function repulsor_push_ai(self, target, map){
         var target_space = self.location.plus(space);
         if(map.is_in_bounds(target_space)){
             var target_tile = map.get_tile(target_space);
-            if(target_tile.type === `player`){
-                player_was_moved = true;
-            }
-            if(target_tile.health !== undefined){
+            if(!target_tile.tags.has(TAGS.unmovable)){
+                if(target_tile.type === `player`){
+                    player_was_moved = true;
+                }
                 activated = true;
                 self.tile.cycle = 2;
                 self.tile.pic = self.tile.pic_arr[1];

@@ -4,6 +4,7 @@ function empty_tile(){
         type: `empty`,
         name: `empty`,
         pic: `${IMG_FOLDER.tiles}empty.png`,
-        description: empty_description
+        description: empty_description,
+        tags: new TagList([TAGS.unmovable])
     }
 }

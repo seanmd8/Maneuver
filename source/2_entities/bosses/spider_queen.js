@@ -5,6 +5,7 @@ function spider_queen_tile(){
         name: `spider queen`,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
         description: spider_queen_description,
+        tags: new TagList([TAGS.boss]),
         health: 3,
         death_message: spider_queen_death_message,
         behavior: spider_ai,

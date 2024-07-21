@@ -423,6 +423,13 @@ const IMG_FOLDER = {
     boons: `boons/`
 }
 Object.freeze(IMG_FOLDER);
+
+const TAGS = {
+    boss: `Boss`,
+    unmovable: `Unmovable`,
+    hidden: `Hidden`
+}
+Object.freeze(TAGS);
 // ----------------Display.js----------------
 // File containing the display class which interacts with wherever the game is being displayed. 
 // Currently the only way to display is via HTML, but if I wanted to port the game, this should
@@ -440,6 +447,7 @@ Object.freeze(IMG_FOLDER);
 /**
  * @typedef {Object} ButtonInfo The info required to create a button table cell.
  * @property {string} description The text to be displayed in the button.
+ * @property {OnClickFunction=} on_click The function to be called when the button is clicked.
  */
 
 /**
@@ -471,7 +479,6 @@ Object.freeze(IMG_FOLDER);
  * @callback add_button_row A function to add a row of buttons to a table.
  * @param {string} location The ID of the table to be added to.
  * @param {ButtonInfo[]} row_contents The objects used to construct the row's contents.
- * @param {OnClickFunction} [on_click = undefined] Optional parameter which is used to give onclick functionality to the buttons.
  */
 
 /**
@@ -679,22 +686,14 @@ const DisplayHTML = {
         }
         table.append(row);
     },
-    add_button_row: function(location, row_contents, on_click = undefined){
+    add_button_row: function(location, row_contents){
         var table = DisplayHTML.get_element(location, HTMLTableElement);
         var row_num = table.rows.length;
         var row = document.createElement(`tr`);
         row.id = `${location} row ${row_num}`;
-        var make_on_click = function(tile, position, click){
-            return function(){
-                return click(tile, position);
-            }
-        }
         for(var i = 0; i < row_contents.length; ++i){
-            var button_on_click = undefined;
-            if(on_click !== undefined){
-                button_on_click = make_on_click(row_contents[i], new Point(i, row_num), on_click);
-            }
-            row.append(DisplayHTML.create_button(row_contents[i].description, `${location} ${row_num} ${i}`, button_on_click));
+            var button = row_contents[i];
+            row.append(DisplayHTML.create_button(button.description, `${location} ${row_num} ${i}`, button.on_click));
         }
         table.append(row);
     },
@@ -915,6 +914,27 @@ const DisplayHTML = {
 const display = get_display(MARKUP_LANGUAGE);
 
 const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.
+
+
+function display_move_buttons(card, hand_position){
+    display.remove_children(UIIDS.move_buttons);
+    var button_data = card.options.show_buttons(hand_position);
+    for(let row of button_data){
+        let button_row = row.map(button => {return {
+            description: button.description,
+            on_click: function(){
+                display.shift_is_pressed ? button.alt_click() : button.on_click();
+            }
+        }});
+        display.add_button_row(UIIDS.move_buttons, button_row);
+    }
+    display.add_on_click(UIIDS.move_info, function(){explain_card(card)});
+}
+
+function explain_card(card){
+    var text = `${temp_card_info(card)}${card.options.explain_card()}`;
+    say(text, false);
+}
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
     invalid_type: `invalid type`,
@@ -1739,6 +1759,7 @@ function lich_tile(){
         name: `lich`,
         pic: spells[starting_cycle].pic,
         description: `${lich_description}${spells[starting_cycle].description}`,
+        tags: new TagList([TAGS.boss]),
         health: 4,
         death_message: lich_death_message,
         behavior: lich_ai,
@@ -1828,6 +1849,7 @@ function spider_queen_tile(){
         name: `spider queen`,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
         description: spider_queen_description,
+        tags: new TagList([TAGS.boss]),
         health: 3,
         death_message: spider_queen_death_message,
         behavior: spider_ai,
@@ -1854,6 +1876,7 @@ function two_headed_serpent_tile(){
         name: `two headed serpent head`,
         pic: pic_arr[1],
         description: two_headed_serpent_awake_description,
+        tags: new TagList([TAGS.boss, TAGS.unmovable]),
         health: 1,
         death_message: two_headed_serpent_death_message,
         behavior: two_headed_serpent_ai,
@@ -1873,6 +1896,7 @@ function two_headed_serpent_body_tile(){
         name: `two headed serpent body`,
         pic: pic_arr[0],
         description: two_headed_serpent_body_description,
+        tags: new TagList([TAGS.boss, TAGS.unmovable]),
         pic_arr,
         segment_list: [undefined, undefined],
     }
@@ -2118,6 +2142,7 @@ function velociphile_tile(){
         name: `velociphile`,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
         description: velociphile_description,
+        tags: new TagList([TAGS.boss]),
         health: 3,
         death_message: velociphile_death_message,
         behavior: velociphile_ai,
@@ -2169,6 +2194,7 @@ function young_dragon_tile(){
         name: `young dragon`,
         pic: pic_arr[0],
         description: `${young_dragon_description_arr[0]}${young_dragon_description_arr[1]}`,
+        tags: new TagList([TAGS.boss]),
         health: 5,
         death_message: young_dragon_death_message,
         behavior: young_dragon_behavior,
@@ -2349,6 +2375,7 @@ function acid_bug_tile(){
         name: `acid bug`,
         pic: `${IMG_FOLDER.tiles}acid_bug.png`,
         description: acid_bug_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: move_closer_ai,
@@ -2378,6 +2405,7 @@ function boulder_elemental_look(){
         name: `boulder elemental`,
         pic: `${IMG_FOLDER.tiles}boulder_elemental.png`,
         description: boulder_elemental_description,
+        tags: new TagList([TAGS.unmovable]),
         behavior: boulder_elemental_ai,
         telegraph: spider_telegraph,
         on_enter: boulder_elemental_wake_up,
@@ -2443,6 +2471,7 @@ function brightling_tile(){
         name: `brightling`,
         pic: `${IMG_FOLDER.tiles}brightling.png`,
         description: brightling_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 4,
         behavior: brightling_ai,
@@ -2463,7 +2492,7 @@ function brightling_ai(self, target, map){
         return;
     }
     var near_points = random_nearby();
-    if(random_num(4) < self.tile.cycle){
+    if(random_num(4) < self.tile.cycle && !target.tile.tags.has(TAGS.unmovable)){
         // Attempts to teleport the player next to it, then cycle goes to -1 to prepare to teleport next turn.
         for(var near of near_points){
             if(map.check_empty(self.location.plus(near))){
@@ -2490,6 +2519,7 @@ function carrion_flies_tile(){
         name: `carrion flies`,
         pic: `${IMG_FOLDER.tiles}carrion_flies.png`,
         description: carrion_flies_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 6,
         behavior: carrion_flies_ai,
@@ -2531,6 +2561,7 @@ function clay_golem_tile(){
         name: `clay golem`,
         pic: `${IMG_FOLDER.tiles}clay_golem.png`,
         description: clay_golem_description,
+        tags: new TagList(),
         health: 3,
         difficulty: 4,
         behavior: clay_golem_ai,
@@ -2571,6 +2602,7 @@ function corrosive_caterpillar_tile(){
         name: `corrosive caterpillar`,
         pic: `${IMG_FOLDER.tiles}corrosive_caterpillar.png`,
         description: corrosive_caterpillar_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 2,
         behavior: corrosive_caterpillar_ai,
@@ -2600,7 +2632,8 @@ function darkling_tile(){
         type: `enemy`,
         name: `darkling`,
         pic: `${IMG_FOLDER.tiles}darkling.png`,
-        description: darkling_description, 
+        description: darkling_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 4,
         behavior: darkling_ai,
@@ -2652,6 +2685,7 @@ function igneous_crab_tile(){
         name: `igneous crab`,
         pic: `${IMG_FOLDER.tiles}igneous_crab.png`,
         description: igneous_crab_description,
+        tags: new TagList(),
         health: 2,
         difficulty: 3,
         behavior: igneous_crab_ai,
@@ -2703,6 +2737,7 @@ function magma_spewer_tile(){
         name: `magma spewer`,
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
         description: magma_spewer_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: magma_spewer_ai,
@@ -2755,6 +2790,7 @@ function noxious_toad_tile(){
         name: `noxious toad`,
         pic: pic_arr[starting_cycle],
         description: noxious_toad_description, 
+        tags: new TagList(),
         health: 1,
         difficulty: 4,
         behavior: noxious_toad_ai,
@@ -2824,7 +2860,8 @@ function orb_of_insanity_tile(){
         type: `enemy`,
         name: `orb of insanity`,
         pic: pic_arr[0],
-        description: `${orb_of_insanity_description[0]}${range}${orb_of_insanity_description[1]}`, 
+        description: `${orb_of_insanity_description[0]}${range}${orb_of_insanity_description[1]}`,
+        tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 3,
         behavior: orb_of_insanity_ai,
@@ -2872,6 +2909,7 @@ function pheonix_tile(){
         name: `pheonix`,
         pic: `${IMG_FOLDER.tiles}pheonix.png`,
         description: pheonix_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 5,
         behavior: pheonix_ai,
@@ -2948,6 +2986,7 @@ function large_porcuslime_tile(){
         name: `large porcuslime`,
         pic: `${IMG_FOLDER.tiles}large_porcuslime.png`,
         description: large_porcuslime_description,
+        tags: new TagList(),
         health: 3,
         difficulty: 8,
         behavior: large_porcuslime_ai,
@@ -2990,6 +3029,7 @@ function medium_porcuslime_tile(){
         name: `medium porcuslime`,
         pic: pic_arr[starting_cycle],
         description: medium_porcuslime_description,
+        tags: new TagList(),
         health: 2,
         difficulty: 5,
         behavior: medium_porcuslime_ai,
@@ -3077,6 +3117,7 @@ function small_d_porcuslime_tile(){
         name: `small porcuslime`,
         pic: `${IMG_FOLDER.tiles}small_d_porcuslime.png`,
         description: small_d_porcuslime_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: porcuslime_diagonal_ai,
@@ -3090,6 +3131,7 @@ function small_h_porcuslime_tile(){
         name: `small porcuslime`,
         pic: `${IMG_FOLDER.tiles}small_h_porcuslime.png`,
         description: small_h_porcuslime_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: porcuslime_horizontal_ai,
@@ -3105,6 +3147,7 @@ function ram_tile(){
         name: `ram`,
         pic: pic_arr[starting_cycle],
         description: ram_description,
+        tags: new TagList(),
         health: 2,
         difficulty: 5,
         behavior: ram_ai,
@@ -3201,6 +3244,7 @@ function rat_tile(){
         name: `rat`,
         pic: `${IMG_FOLDER.tiles}rat.png`,
         description: rat_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 2,
         behavior: rat_ai,
@@ -3263,6 +3307,7 @@ function scythe_tile(){
         name: `scythe`,
         pic: `${IMG_FOLDER.tiles}scythe.png`,
         description: scythe_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: scythe_ai,
@@ -3320,6 +3365,7 @@ function shadow_knight_tile(){
         name: `shadow knight`,
         pic: `${IMG_FOLDER.tiles}shadow_knight.png`,
         description: shadow_knight_description,
+        tags: new TagList(),
         health: 2,
         difficulty: 4,
         behavior: shadow_knight_ai,
@@ -3386,7 +3432,8 @@ function shadow_scout_tile(){
         type: `enemy`,
         name: `shadow scout`,
         pic: `${IMG_FOLDER.tiles}shadow_scout.png`,
-        description: shadow_scout_description, 
+        description: shadow_scout_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: shadow_scout_ai,
@@ -3414,6 +3461,7 @@ function spider_tile(){
         name: `spider`,
         pic: `${IMG_FOLDER.tiles}spider.png`,
         description: spider_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 1,
         behavior: spider_ai,
@@ -3445,6 +3493,7 @@ function spider_web_tile(){
         name: `spider egg`,
         pic: `${IMG_FOLDER.tiles}spider_web.png`,
         description: `${spider_web_description[0]}${spawn_timer + 1}${spider_web_description[1]}`,
+        tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 4,
         behavior: spider_web_ai,
@@ -3478,6 +3527,7 @@ function strider_tile(){
         name: `strider`,
         pic: `${IMG_FOLDER.tiles}strider.png`,
         description: strider_description,
+        tags: new TagList(),
         health: 2,
         difficulty: 5,
         behavior: strider_ai,
@@ -3526,6 +3576,7 @@ function turret_d_tile(){
         name: `turret`,
         pic: `${IMG_FOLDER.tiles}turret_d.png`,
         description: turret_d_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 2,
         behavior: turret_d_ai,
@@ -3559,6 +3610,7 @@ function turret_h_tile(){
         name: `turret`,
         pic: `${IMG_FOLDER.tiles}turret_h.png`,
         description: turret_h_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 2,
         behavior: turret_h_ai,
@@ -3592,6 +3644,7 @@ function turret_r_tile(){
         name: `rotary turret`,
         pic: ``,
         description: turret_r_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: turret_r_ai,
@@ -3650,6 +3703,7 @@ function vampire_tile(){
         name: `vampire`,
         pic: `${IMG_FOLDER.tiles}vampire.png`,
         description: vampire_description,
+        tags: new TagList(),
         health: 2,
         max_health: 2,
         difficulty: 5,
@@ -3728,6 +3782,7 @@ function vinesnare_bush_tile(){
         name: `vinesnare bush`,
         pic: pic_arr[starting_cycle],
         description: `${vinesnare_bush_description[0]}${range}${vinesnare_bush_description[1]}`,
+        tags: new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 2,
         behavior: vinesnare_bush_ai,
@@ -3757,7 +3812,7 @@ function vinesnare_bush_ai(self, target, map){
         return;
     }
     var moved = false;
-    if(self.tile.cycle > 0 && target.difference.within_radius(self.tile.range)){
+    if(self.tile.cycle > 0 && target.difference.within_radius(self.tile.range) && !target.tile.tags.has(TAGS.unmovable)){
         var direction = sign(target.difference);
         if(target.difference.on_axis() || target.difference.on_diagonal()){
             // If the player is orthogonal or diagonal and within range, drag them closer.
@@ -3816,6 +3871,7 @@ function chest_tile(){
         name: `chest`,
         pic: `${IMG_FOLDER.tiles}chest.png`,
         description: chest_description,
+        tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: chest_on_enter,
         contents: []
@@ -3849,13 +3905,16 @@ function chest_on_enter(self, target, map){
         }
     }
     var abandon_button = {
-        description: abandon_chest
+        description: abandon_chest,
+        on_click: leave_chest
     };
-    var take_or_leave =  function(button, position){
-        if(button.on_choose !== undefined){
-            button.on_choose();
+    var pick = function(on_choose){
+        return function(){
+            if(on_choose !== undefined){
+                on_choose();
+            }
+            leave_chest();
         }
-        leave_chest();
     }
     var content_row = [];
     for(var i = 0; i < self.tile.contents.length; ++i){
@@ -3864,11 +3923,11 @@ function chest_on_enter(self, target, map){
             return function(){
                 let confirm_button = {
                     description: take_from_chest,
-                    on_choose: item.on_choose
+                    on_click: pick(item.on_choose)
                 };
                 display.display_message(UIIDS.content_description, item.description);
                 display.remove_children(UIIDS.chest_confirm_row);
-                display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button], take_or_leave);
+                display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button]);
                 display.select(UIIDS.contents, 0, position);
             };
         }
@@ -3882,7 +3941,7 @@ function chest_on_enter(self, target, map){
 
     display.display_message(UIIDS.chest_instructions, chest_inner_discription);
     display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
-    display.add_button_row(UIIDS.chest_confirm_row, [abandon_button], take_or_leave);
+    display.add_button_row(UIIDS.chest_confirm_row, [abandon_button]);
     display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.chest);
     throw new Error(ERRORS.pass_turn);
 }
@@ -3945,6 +4004,7 @@ function coffin_tile(){
         name: `coffin`,
         pic: `${IMG_FOLDER.tiles}coffin.png`,
         description: coffin_description,
+        tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: decay_ai,
         on_death: coffin_tile_death,
@@ -3978,6 +4038,7 @@ function corrosive_slime_tile(){
         name: `corrosive_slime`,
         pic: `${IMG_FOLDER.tiles}corrosive_slime.png`,
         description: corrosive_slime_description,
+        tags: new TagList([TAGS.unmovable]),
         health: 1,
         telegraph: hazard_telegraph,
         on_enter: hazard
@@ -4038,6 +4099,7 @@ function fireball_tile(){
         name: `fireball`,
         pic: `${IMG_FOLDER.tiles}fireball.png`,
         description: fireball_description,
+        tags: new TagList(),
         behavior: fireball_ai,
         telegraph: fireball_telegraph,
         on_enter: fireball_on_enter,
@@ -4092,6 +4154,7 @@ function lava_pool_tile(){
         name: `lava pool`,
         pic: `${IMG_FOLDER.tiles}lava_pool.png`,
         description: lava_pool_description,
+        tags: new TagList([TAGS.unmovable]),
         telegraph: hazard_telegraph,
         on_enter: hazard
     }
@@ -4103,7 +4166,8 @@ function magmatic_boulder_tile(){
         type: `terrain`,
         name: `magmatic boulder`,
         pic: `${IMG_FOLDER.tiles}magmatic_boulder.png`,
-        description: magmatic_boulder_description
+        description: magmatic_boulder_description,
+        tags: new TagList([TAGS.unmovable]),
     }
 }
 /** @type {TileGenerator} A fire which goes away over time. */
@@ -4115,6 +4179,7 @@ function raging_fire_tile(){
         name: `raging fire`,
         pic: pic_arr[health - 1],
         description: raging_fire_description,
+        tags: new TagList([TAGS.unmovable]),
         health,
         behavior: decay_ai,
         telegraph: hazard_telegraph,
@@ -4147,6 +4212,7 @@ function repulsor_tile(){
         name: `repulsor`,
         pic: pic_arr[starting_cycle],
         description: repulsor_description,
+        tags: new TagList([TAGS.unmovable]),
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
         on_enter: repulsor_push_ai,
@@ -4172,10 +4238,10 @@ function repulsor_push_ai(self, target, map){
         var target_space = self.location.plus(space);
         if(map.is_in_bounds(target_space)){
             var target_tile = map.get_tile(target_space);
-            if(target_tile.type === `player`){
-                player_was_moved = true;
-            }
-            if(target_tile.health !== undefined){
+            if(!target_tile.tags.has(TAGS.unmovable)){
+                if(target_tile.type === `player`){
+                    player_was_moved = true;
+                }
                 activated = true;
                 self.tile.cycle = 2;
                 self.tile.pic = self.tile.pic_arr[1];
@@ -4237,6 +4303,7 @@ function sewer_grate_tile(){
         name: `sewer grate`,
         pic: `${IMG_FOLDER.tiles}sewer_grate.png`,
         description: sewer_grate_description,
+        tags: new TagList([TAGS.unmovable]),
         behavior: sewer_grate_ai,
     }
 }
@@ -4253,6 +4320,7 @@ function smoldering_ashes_tile(){
         name: `smoldering_ashes`,
         pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
         description: `${smoldering_ashes_description[0]}${spawn_timer}${smoldering_ashes_description[1]}`,
+        tags: new TagList(),
         health: 1,
         behavior: smoldering_ashes_ai,
         on_enter: decay_ai,
@@ -4291,6 +4359,7 @@ function damaged_wall_tile(){
         name: `damaged wall`,
         pic: pic_arr[health - 1],
         description: damaged_wall_description,
+        tags: new TagList(),
         health,
         on_hit: damaged_wall_on_hit,
         on_death: damaged_wall_death,
@@ -4327,7 +4396,8 @@ function wall_tile(){
         type: `terrain`,
         name: `wall`,
         pic: `${IMG_FOLDER.tiles}wall.png`,
-        description: wall_description
+        description: wall_description,
+        tags: new TagList(),
     }
 }
 /** @type {TileGenerator} Empty space.*/
@@ -4336,7 +4406,8 @@ function empty_tile(){
         type: `empty`,
         name: `empty`,
         pic: `${IMG_FOLDER.tiles}empty.png`,
-        description: empty_description
+        description: empty_description,
+        tags: new TagList([TAGS.unmovable])
     }
 }
 /** @type {TileGenerator} The player must move here to complete the floor.*/
@@ -4345,7 +4416,8 @@ function exit_tile(){
         type: `exit`,
         name: `exit`,
         pic: `${IMG_FOLDER.tiles}stairs.png`,
-        description: exit_description
+        description: exit_description,
+        tags: new TagList([TAGS.unmovable])
     }
 }
 /** @type {TileGenerator} Must be unlocked to reveal the exit.*/
@@ -4354,7 +4426,8 @@ function lock_tile(){
         type: `terrain`,
         name: `lock`,
         pic: `${IMG_FOLDER.tiles}lock.png`,
-        description: lock_description
+        description: lock_description,
+        tags: new TagList([TAGS.unmovable])
     }
 }
 /** @type {TileGenerator} The starting player.*/
@@ -4364,9 +4437,9 @@ function player_tile(){
         name: `player`,
         pic: `${IMG_FOLDER.tiles}helmet.png`,
         description: player_description,
+        tags: new TagList(),
         health: PLAYER_STARTING_HEALTH,
         max_health: PLAYER_STARTING_HEALTH
-        
     }
 }
 // ----------------AIUtil.js----------------
@@ -4432,6 +4505,7 @@ function move_attack_ai(self, target, map){
  * @property {string} name More specific than type. Used for mousover text.
  * @property {string} pic The picture of the tile's contents.
  * @property {string} description A description given when the tile is clicked on.
+ * @property {TagList} tags Tags that group enemies together
  * 
  * // Misc //
  * @property {number=} health The amount of damage it can take before dying.
@@ -5131,38 +5205,36 @@ class ButtonGrid{
      * @param {number} hand_pos The position of the card in hand that these buttons belong to.
      * @param {string=} extra_info Optional extra information to display when the card info button is clicked.
      */
-    show_buttons(table_name, hand_pos, extra_info = ``){
-        display.remove_children(table_name);
-        say(``, false);
-        var make_press_button = function(hand_position){
-            return function(button){
-                if(display.shift_is_pressed){
-                    var t = telegraph_card(button.behavior, GS.map);
-                    GS.map.clear_telegraphs();
-                    GS.map.display_telegraph(t.moves, `${IMG_FOLDER.actions}move_telegraph.png`);
-                    GS.map.display_telegraph(t.attacks, `${IMG_FOLDER.actions}hit_telegraph.png`);
-                    GS.map.display_telegraph(t.stun, `${IMG_FOLDER.actions}confuse.png`);
-                    GS.map.display_telegraph(t.healing, `${IMG_FOLDER.actions}heal.png`);
-                    GS.map.display_telegraph(t.teleport, `${IMG_FOLDER.actions}teleport_telegraph.png`);
-                    GS.map.display();
-                }
-                else if(button.behavior){
-                    GS.player_turn(button.behavior, hand_position);
-                }
-            }
-        }
-        var explain_moves = function(extra_text, card){
-            var text = `${extra_text}${card.explain_card()}`;
+    show_buttons(hand_position){
+        var grid = [];
+        var telegraph = function(behavior){
             return function(){
-                say(text, false);
+                var t = telegraph_card(behavior, GS.map);
+                GS.map.clear_telegraphs();
+                GS.map.display_telegraph(t.moves, `${IMG_FOLDER.actions}move_telegraph.png`);
+                GS.map.display_telegraph(t.attacks, `${IMG_FOLDER.actions}hit_telegraph.png`);
+                GS.map.display_telegraph(t.stun, `${IMG_FOLDER.actions}confuse.png`);
+                GS.map.display_telegraph(t.healing, `${IMG_FOLDER.actions}heal.png`);
+                GS.map.display_telegraph(t.teleport, `${IMG_FOLDER.actions}teleport_telegraph.png`);
+                GS.map.display();
             }
         }
-        
-        var press_button = make_press_button(hand_pos);
-        for(var button of this.#buttons){
-            display.add_button_row(table_name, button, press_button)
+        var click = function(behavior){
+            return function(){
+                if(behavior != undefined){
+                    GS.player_turn(behavior, hand_position);
+                }
+            }
         }
-        display.add_on_click(UIIDS.move_info, explain_moves(extra_info, this));
+        for(var row of this.#buttons){
+            grid.push(row.map(button => {return {
+                description: button.description,
+                alt_click: telegraph(button.behavior),
+                on_click: click(button.behavior)
+            }
+            }));
+        }
+        return grid;
     }
     /**
      * Creates an explanation of what each button does.
@@ -6538,9 +6610,10 @@ class GameState{
             };
         }
         var restart_message = [{
-            description: retry_message
+            description: retry_message,
+            on_click: restart(this)
         }]
-        display.add_button_row(UIIDS.retry_button, restart_message, restart(this));
+        display.add_button_row(UIIDS.retry_button, restart_message);
     }
     /**
      * Adds a temporary card to the player's deck.
@@ -6771,9 +6844,9 @@ class MoveDeck{
                 if(!GS.check_lock_player_turn()){
                     return;
                 }
-                var extra_info = temp_card_info(card);
                 display.select(UIIDS.hand_display, 0, hand_pos);
-                card.options.show_buttons(UIIDS.move_buttons, hand_pos, extra_info);
+                say(``, false);
+                display_move_buttons(card, hand_pos);
             }
         }
         var explain_blank_moves = function(){
@@ -6919,7 +6992,7 @@ function temp_card_info(card){
 class TagList{
     #tags;
     constructor(list=[]){
-        for(element of list){
+        for(var element of list){
             if(typeof element !== `string`){
                 throw new Error(ERRORS.invalid_type);
             }
@@ -9521,9 +9594,6 @@ function dazing_blows(){
         description: dazing_blows_description,
     }
 }
-
-// Not finished
-// Figure out how to make bosses immune
 
 function learn_from_mistakes(){
     return {

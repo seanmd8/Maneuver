@@ -3,7 +3,7 @@
 class TagList{
     #tags;
     constructor(list=[]){
-        for(element of list){
+        for(var element of list){
             if(typeof element !== `string`){
                 throw new Error(ERRORS.invalid_type);
             }

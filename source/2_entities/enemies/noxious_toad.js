@@ -7,6 +7,7 @@ function noxious_toad_tile(){
         name: `noxious toad`,
         pic: pic_arr[starting_cycle],
         description: noxious_toad_description, 
+        tags: new TagList(),
         health: 1,
         difficulty: 4,
         behavior: noxious_toad_ai,

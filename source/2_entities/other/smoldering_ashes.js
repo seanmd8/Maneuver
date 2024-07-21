@@ -6,6 +6,7 @@ function smoldering_ashes_tile(){
         name: `smoldering_ashes`,
         pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
         description: `${smoldering_ashes_description[0]}${spawn_timer}${smoldering_ashes_description[1]}`,
+        tags: new TagList(),
         health: 1,
         behavior: smoldering_ashes_ai,
         on_enter: decay_ai,

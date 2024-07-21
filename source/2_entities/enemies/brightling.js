@@ -6,6 +6,7 @@ function brightling_tile(){
         name: `brightling`,
         pic: `${IMG_FOLDER.tiles}brightling.png`,
         description: brightling_description,
+        tags: new TagList(),
         health: 1,
         difficulty: 4,
         behavior: brightling_ai,
@@ -26,7 +27,7 @@ function brightling_ai(self, target, map){
         return;
     }
     var near_points = random_nearby();
-    if(random_num(4) < self.tile.cycle){
+    if(random_num(4) < self.tile.cycle && !target.tile.tags.has(TAGS.unmovable)){
         // Attempts to teleport the player next to it, then cycle goes to -1 to prepare to teleport next turn.
         for(var near of near_points){
             if(map.check_empty(self.location.plus(near))){

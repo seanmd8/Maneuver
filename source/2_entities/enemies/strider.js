@@ -5,6 +5,7 @@ function strider_tile(){
         name: `strider`,
         pic: `${IMG_FOLDER.tiles}strider.png`,
         description: strider_description,
+        tags: new TagList(),
         health: 2,
         difficulty: 5,
         behavior: strider_ai,

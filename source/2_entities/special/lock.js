@@ -4,6 +4,7 @@ function lock_tile(){
         type: `terrain`,
         name: `lock`,
         pic: `${IMG_FOLDER.tiles}lock.png`,
-        description: lock_description
+        description: lock_description,
+        tags: new TagList([TAGS.unmovable])
     }
 }
