@@ -20,3 +20,4 @@ exports.BUTTON_LABELS = {
 exports.Point = Point;
 exports.point_equals = point_equals;
 exports.MoveDeck = MoveDeck;
+exports.pmove = pmove;

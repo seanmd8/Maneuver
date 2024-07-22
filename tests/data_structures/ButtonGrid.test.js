@@ -7,6 +7,7 @@ describe(`ButtonGrid`, () => {
     const ButtonGrid = imports.ButtonGrid;
     const Bs = imports.BUTTON_LABELS;
     const ERRORS = imports.ERRORS;
+    const pmove = imports.pmove;
 
     // Common testing vars.
     var options;
@@ -18,8 +19,8 @@ describe(`ButtonGrid`, () => {
 
     it(`has blank buttons initially`, () => {
         var buttons = options.show_buttons(1);
-        for(var row in buttons){
-            for(var button in row){
+        for(var row of buttons){
+            for(var button of row){
                 expect(button.description).toBe(Bs.null_move_button);
             }
         }
@@ -32,9 +33,9 @@ describe(`ButtonGrid`, () => {
         }
         var buttons = options.show_buttons(1);
         var correct = [
-            [Bs.NE, Bs.N, Bs.NW],
-            [Bs.E, Bs.null_move_button, Bs.W],
-            [Bs.SE, Bs.S, Bs.SW]
+            [Bs.NW, Bs.N, Bs.NE],
+            [Bs.W, Bs.null_move_button, Bs.E],
+            [Bs.SW, Bs.S, Bs.SE]
         ]
         for(var x = 0; x < 3; ++x){
             for(var y = 0; y < 3; ++y){
@@ -45,11 +46,13 @@ describe(`ButtonGrid`, () => {
 
     it(`adds C button correctly`, () => {
         options.add_button(Bs.C, [pmove(0, 0)]);
+        var buttons = options.show_buttons(1);
         expect(buttons[1][1].description).toBe(Bs.C);
     })
 
     it(`adds Spin button correctly`, () => {
         options.add_button(Bs.SPIN, [pmove(0, 0)]);
+        var buttons = options.show_buttons(1);
         expect(buttons[1][1].description).toBe(Bs.SPIN);
     })
 
@@ -66,22 +69,27 @@ describe(`ButtonGrid`, () => {
 
     it(`overrides the automatic position when a position is passed in`, () => {
         options.add_button(Bs.N, [pmove(0, 0)], 4);
+        var buttons = options.show_buttons(1);
         expect(buttons[0][1].description).toBe(Bs.null_move_button);
         expect(buttons[1][0].description).toBe(Bs.N);
     })
 
     it(`throws an error when an invalid position is passed in`, () => {
-        expect(options.add_button(`foo`, [pmove(0, 0)], -1)).toThrowError(ERRORS.invalid_value);
-        expect(options.add_button(`foo`, [pmove(0, 0)], 0)).toThrowError(ERRORS.invalid_value);
-        expect(options.add_button(`foo`, [pmove(0, 0)], 10)).toThrowError(ERRORS.invalid_value);
-        expect(options.add_button(Bs.N, [pmove(0, 0)], 100)).toThrowError(ERRORS.invalid_value);
+        expect(() => {options.add_button(`foo`, [pmove(0, 0)], -1)}).toThrowError(ERRORS.invalid_value);
+        expect(() => {options.add_button(`foo`, [pmove(0, 0)], 0)}).toThrowError(ERRORS.invalid_value);
+        expect(() => {options.add_button(`foo`, [pmove(0, 0)], 10)}).toThrowError(ERRORS.invalid_value);
+        expect(() => {options.add_button(Bs.N, [pmove(0, 0)], 100)}).toThrowError(ERRORS.invalid_value);
     })
 
     it(`throws an error when no position is passed in and one cannot be deduced from the label`, () => {
-        expect(options.add_button(`foo`, [pmove(0, 0)])).toThrowError(ERRORS.invalid_value);
+        expect(() => {options.add_button(`foo`, [pmove(0, 0)])}).toThrowError(ERRORS.invalid_value);
     })
 
     it(`correctly can be made into an instant`, () => {
-        //ToDo
+        expect(options.is_instant()).toBe(false);
+        options.make_instant();
+        expect(options.is_instant()).toBe(true);
     })
+
+    // ToDo: make sure the correct behavior is added.
 });
