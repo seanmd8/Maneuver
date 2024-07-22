@@ -6,6 +6,3 @@ function fleeting_thoughts(){
         description: fleeting_thoughts_description,
     }
 }
-// Todo:
-//  description
-//  implement

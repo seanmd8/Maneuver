@@ -215,21 +215,6 @@ function confuse_player(){
 }
 
 /**
- * Function to give a message to the user.
- * @param {string} msg message text.
- * @param {boolean} record If true, also adds it to the chat log.
- */
-function say(msg, record = true){
-    if(msg === ``){
-        record = false;
-    }
-    display.display_message(UIIDS.display_message, msg);
-    if(record){
-        GS.record_message(msg);
-    }
-}
-
-/**
  * Function to create and add the buttons for the sidebar.
  */
 function create_sidebar(){

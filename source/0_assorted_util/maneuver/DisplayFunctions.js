@@ -16,6 +16,34 @@ function display_move_buttons(card, hand_position){
 }
 
 function explain_card(card){
-    var text = `${temp_card_info(card)}${card.options.explain_card()}`;
+    var text = ``;
+    text += `${move_types.alt}\n`;
+    text += `\n`;
+    text += `${card.options.explain_buttons()}`;
+    text += `\n`;
+    if(card.per_floor !== undefined){
+        text += `${move_types.per_floor}\n`;
+    }
+    else if(card.temp){
+        text += `${move_types.temp}\n`;
+    }
+    if(card.options.is_instant()){
+        text += `${move_types.instant}\n`;
+    }
     say(text, false);
+}
+
+/**
+ * Function to give a message to the user.
+ * @param {string} msg message text.
+ * @param {boolean} record If true, also adds it to the chat log.
+ */
+function say(msg, record = true){
+    if(msg === ``){
+        record = false;
+    }
+    display.display_message(UIIDS.display_message, msg);
+    if(record){
+        GS.record_message(msg);
+    }
 }

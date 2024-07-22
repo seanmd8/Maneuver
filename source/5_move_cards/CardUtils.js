@@ -67,13 +67,6 @@ function pteleport(x, y){
         change: new Point(x, y)
     }
 }
-/** @type {PlayerCommandGenerator} Function to declare the previous commands as instant.*/
-function pinstant(x, y){
-    return {
-        type: `instant`,
-        change: new Point(x, y) // In this case, this point does nothing.
-    }
-}
 /** @type {PlayerCommandGenerator} Function to stun any enemies at the given location.*/
 function pstun(x, y){
     return {
@@ -128,9 +121,7 @@ function explain_action(action){
         case `move`:
             return `${move_types.move}: ${target}`;
         case `teleport`:
-            return move_types.teleport
-        case `instant`:
-            return move_types.instant;
+            return move_types.teleport;
         case `stun`:
             if(point_equals(action.change, new Point(0, 0))){
                 return move_types.confuse;
@@ -203,8 +194,6 @@ function telegraph_card(behavior, map){
                         telegraphs.teleport.push(p);
                     }
                 }
-                break;
-            case `instant`:
                 break;
             case `stun`:
                 telegraphs.stun.push(next_position);

@@ -932,8 +932,36 @@ function display_move_buttons(card, hand_position){
 }
 
 function explain_card(card){
-    var text = `${temp_card_info(card)}${card.options.explain_card()}`;
+    var text = ``;
+    text += `${move_types.alt}\n`;
+    text += `\n`;
+    text += `${card.options.explain_buttons()}`;
+    text += `\n`;
+    if(card.per_floor !== undefined){
+        text += `${move_types.per_floor}\n`;
+    }
+    else if(card.temp){
+        text += `${move_types.temp}\n`;
+    }
+    if(card.options.is_instant()){
+        text += `${move_types.instant}\n`;
+    }
     say(text, false);
+}
+
+/**
+ * Function to give a message to the user.
+ * @param {string} msg message text.
+ * @param {boolean} record If true, also adds it to the chat log.
+ */
+function say(msg, record = true){
+    if(msg === ``){
+        record = false;
+    }
+    display.display_message(UIIDS.display_message, msg);
+    if(record){
+        GS.record_message(msg);
+    }
 }
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
@@ -1174,21 +1202,6 @@ function confuse_player(){
 }
 
 /**
- * Function to give a message to the user.
- * @param {string} msg message text.
- * @param {boolean} record If true, also adds it to the chat log.
- */
-function say(msg, record = true){
-    if(msg === ``){
-        record = false;
-    }
-    display.display_message(UIIDS.display_message, msg);
-    if(record){
-        GS.record_message(msg);
-    }
-}
-
-/**
  * Function to create and add the buttons for the sidebar.
  */
 function create_sidebar(){
@@ -1391,6 +1404,9 @@ const four_directions = {
 
 // Move types.
 const move_types = {
+    alt: `Shift click on a button to show what it will do on the map.`,
+    intro: `Move Options (actions will be performed in order):\n`,
+
     attack: `Attack`,
     move: `Move`,
     teleport: `Teleport you to a random space`,
@@ -1398,11 +1414,12 @@ const move_types = {
     confuse: `Confuse: you`,
     move_until: `Keep Moving`,
     heal: `Heal`,
-    instant: `Take another turn`,
     you: `you`,
     nothing: `Do nothing`,
-    per_floor_card_message: `This card can only be used once per floor.`,
-    temp_card_message: `This card is temporary. It will be removed from your deck when used or at the end of the floor.`
+    
+    per_floor: `Once Per Floor: after being played, this card will disapear for the rest of the floor.`,
+    temp: `Temporary: this card will be removed from your deck when used, or at the end of the floor.`,
+    instant: `Instant: you will take an extra turn after playing this card.`
 }
 Object.freeze(move_types);
 
@@ -1524,6 +1541,7 @@ const GUIDE_TEXT = {
                 ` Each action the line goes through will be performed.\n`,
                 ` Multiple actions will be performed in a specific order.\n`,
                 ` Multiple actions of the same type will be performed until you hit something.\n`,
+                ` You will be teleported to a random unoccupied location.\n`,
                 `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
                 ` A card with a purple grid will be performed instantly.\n`,
                 ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
@@ -1589,6 +1607,7 @@ const CARD_SYMBOLS = [
     {src: `${IMG_FOLDER.symbols}multiple.png`,          name: `multiple actions`,   x: 3, y: 1},
     {src: `${IMG_FOLDER.symbols}multiple_ordered.png`,  name: `actions in order`,   x: 3, y: 1},
     {src: `${IMG_FOLDER.symbols}move_until.png`,        name: `move until`,         x: 4, y: 1},
+    {src: `${IMG_FOLDER.symbols}teleport.png`,          name: `teleport`,         x: 3, y: 1},
     {src: `${IMG_FOLDER.symbols}attack_move.png`,       name: `attack then move`,   x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}triple_attack.png`,     name: `tripple attack`,     x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}instant.png`,           name: `instant`,            x: 2, y: 2},
@@ -5168,7 +5187,9 @@ class BoonTracker{
 
 class ButtonGrid{
     #buttons; // A 3x3 2d array used to store the options.
+    #instant;
     constructor(){
+        this.#instant = false;
         var initial = {
             description: null_move_button
         }
@@ -5200,10 +5221,8 @@ class ButtonGrid{
         this.#buttons[Math.floor((number - 1) / 3)][(number - 1) % 3] = button;
     }
     /**
-     * A function to display the grid of buttons to a table.
-     * @param {string} table_name The location where the buttons should be displayed.
-     * @param {number} hand_pos The position of the card in hand that these buttons belong to.
-     * @param {string=} extra_info Optional extra information to display when the card info button is clicked.
+     * A function to get return the information required to display the buttons.
+     * @param {number} hand_position The position of the card in hand that these buttons belong to.
      */
     show_buttons(hand_position){
         var grid = [];
@@ -5240,8 +5259,8 @@ class ButtonGrid{
      * Creates an explanation of what each button does.
      * @returns {String} The explanation.
      */
-    explain_card(){
-        var explanation = card_explanation_start;
+    explain_buttons(){
+        var explanation = move_types.intro;
         for(let row of this.#buttons){
             for(let button of row){
                 if(button.description !== null_move_button){
@@ -5254,7 +5273,7 @@ class ButtonGrid{
                 }
             }
         }
-        return explanation.concat(card_explanation_end);
+        return explanation;
     }
     /**
      * A helper function to infer the number (1-9) on the 3x3 button grid where a new button should go.
@@ -5276,16 +5295,14 @@ class ButtonGrid{
      * Function to convert a card into an instant.
      */
     make_instant(){
-        for(var row of this.#buttons){
-            for(var button of row){
-                if(button.description !== null_move_button && 
-                    button.behavior.length > 0 && 
-                    button.behavior[button.behavior.length - 1].type !== `instant`
-                ){
-                    button.behavior.push(pinstant(0, 0));
-                }
-            }
-        }
+        this.#instant = true;
+    }
+    /**
+     * Function to check to see if it is an instant.
+     * @returns {boolean} If it is an instant.
+     */
+    is_instant(){
+        return this.#instant;
     }
 }
 // ----------------EntityList.js----------------
@@ -6391,20 +6408,20 @@ class GameState{
         if(!this.lock_player_turn()){
             return;
         }
-        say(``, false);
+        display.remove_children(UIIDS.move_buttons);
         this.map.clear_marked();
+        say(``, false);
         try{
-            var is_instant = false;
             // The repetition boon will double movements one in every 3 turns.
             var repetition_count = GS.boons.has(boon_names.repetition);
             var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? 2 : 1;
             for(var i = 0; i < repeat; ++i){
                 for(var action of behavior){
                     // Does each valid command in the behavior array.
-                    is_instant = this.player_action(action);
+                    this.player_action(action);
                 }
             }
-            display.remove_children(UIIDS.move_buttons);
+            var is_instant = this.deck.is_instant(hand_pos);
             if(this.boons.has(boon_names.spontaneous) > 0 && !is_instant){
                 this.deck.discard_all();
             }
@@ -6415,8 +6432,10 @@ class GameState{
             await delay(ANIMATION_DELAY);
             if(is_instant){
                 this.refresh_deck_display();
+                this.unlock_player_turn();
                 this.map.display_stats(UIIDS.stats);
                 this.map.display();
+                this.unlock_player_turn();
                 return;
             }
             await this.map.enemy_turn();
@@ -6470,9 +6489,6 @@ class GameState{
             case `teleport`:
                 this.map.player_teleport(action.change);
                 break;
-            case `instant`:
-                this.unlock_player_turn();
-                return true;
             case `stun`:
                 this.map.player_stun(action.change);
                 break;
@@ -6970,23 +6986,18 @@ class MoveDeck{
     alter_hand_size(change){
         this.#hand_size += change;
     }
-}
-
-/**
- * Function to give the correct messages if a card is temporary or only usable once per floor.
- * @param {Card} card The card to check.
- * @returns {String} The correct string message.
- */
-function temp_card_info(card){
-    if(card.per_floor !== undefined){
-        return `${move_types.per_floor_card_message}\n`;
+    /**
+     * Function to check if a card in the hand is an instant.
+     * @param {number} hand_position The position of the card to check.
+     * @returns {boolean} If it is an instant. 
+     */
+    is_instant(hand_position){
+        if(this.#hand.length <= hand_position || hand_position < 0){
+            throw new Error(ERRORS.invalid_value);
+        }
+        return this.#hand[hand_position].options.is_instant();
     }
-    if(card.temp){
-        return `${move_types.temp_card_message}\n`;
-    }
-    return ``;
 }
-
 
 
 class TagList{
@@ -7470,16 +7481,18 @@ function chipped_split_second(){
 /** @type {CardGenerator}*/
 function split_second(){
     var options = new ButtonGrid();
-    var spin = [pattack(1, 1),
-                pattack(1, 0),
-                pattack(1, -1),
-                pattack(0, 1),
-                pattack(0, -1),
-                pattack(-1, 1),
-                pattack(-1, 0),
-                pattack(-1, -1),
-                pinstant(0, 0)];
+    var spin = [
+        pattack(1, 1),
+        pattack(1, 0),
+        pattack(1, -1),
+        pattack(0, 1),
+        pattack(0, -1),
+        pattack(-1, 1),
+        pattack(-1, 0),
+        pattack(-1, -1)
+    ];
     options.add_button(SPIN, spin);
+    options.make_instant();
     return{
         name: `split second`,
         pic: `${IMG_FOLDER.cards}split_second.png`,
@@ -7592,7 +7605,8 @@ function superweapon(){
 /** @type {CardGenerator} Dropped by the lich*/
 function instant_teleport(){
     var options = new ButtonGrid();
-    options.add_button(C, [pteleport(0, 0), pinstant(0, 0)]);
+    options.add_button(C, [pteleport(0, 0)]);
+    options.make_instant();
     return{
         name: `instant teleport`,
         pic: `${IMG_FOLDER.cards}instant_teleport.png`,
@@ -7624,14 +7638,15 @@ function debilitating_confusion(){
 /** @type {CardGenerator} Dropped by the spider queen*/
 function bite(){
     var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1), pinstant(0, 0)]);
-    options.add_button(E, [pattack(1, 0), pinstant(0, 0)]);
-    options.add_button(S, [pattack(0, 1), pinstant(0, 0)]);
-    options.add_button(W, [pattack(-1, 0), pinstant(0, 0)]);
-    options.add_button(NE, [pattack(1, -1), pinstant(0, 0)]);
-    options.add_button(SE, [pattack(1, 1), pinstant(0, 0)]);
-    options.add_button(SW, [pattack(-1, 1), pinstant(0, 0)]);
-    options.add_button(NW, [pattack(-1, -1), pinstant(0, 0)]);
+    options.add_button(N, [pattack(0, -1)]);
+    options.add_button(E, [pattack(1, 0)]);
+    options.add_button(S, [pattack(0, 1)]);
+    options.add_button(W, [pattack(-1, 0)]);
+    options.add_button(NE, [pattack(1, -1)]);
+    options.add_button(SE, [pattack(1, 1)]);
+    options.add_button(SW, [pattack(-1, 1)]);
+    options.add_button(NW, [pattack(-1, -1)]);
+    options.make_instant();
     return{
         name: `bite`,
         pic: `${IMG_FOLDER.cards}bite.png`,
@@ -7891,13 +7906,6 @@ function pteleport(x, y){
         change: new Point(x, y)
     }
 }
-/** @type {PlayerCommandGenerator} Function to declare the previous commands as instant.*/
-function pinstant(x, y){
-    return {
-        type: `instant`,
-        change: new Point(x, y) // In this case, this point does nothing.
-    }
-}
 /** @type {PlayerCommandGenerator} Function to stun any enemies at the given location.*/
 function pstun(x, y){
     return {
@@ -7952,9 +7960,7 @@ function explain_action(action){
         case `move`:
             return `${move_types.move}: ${target}`;
         case `teleport`:
-            return move_types.teleport
-        case `instant`:
-            return move_types.instant;
+            return move_types.teleport;
         case `stun`:
             if(point_equals(action.change, new Point(0, 0))){
                 return move_types.confuse;
@@ -8027,8 +8033,6 @@ function telegraph_card(behavior, map){
                         telegraphs.teleport.push(p);
                     }
                 }
-                break;
-            case `instant`:
                 break;
             case `stun`:
                 telegraphs.stun.push(next_position);
@@ -8179,7 +8183,8 @@ function lash_out(){
 /** @type {CardGenerator}*/
 function lightheaded(){
     var options = new ButtonGrid();
-    options.add_button(C, [pstun(0, 0), pstun(0, 0), pinstant(0, 0)], 5);
+    options.add_button(C, [pstun(0, 0), pstun(0, 0)], 5);
+    options.make_instant();
     return{
         name: `lightheaded`,
         pic: `${IMG_FOLDER.cards}lightheaded.png`,
@@ -8986,7 +8991,8 @@ function teleport(){
 /** @type {CardGenerator}*/
 function reckless_teleport(){
     var options = new ButtonGrid();
-    options.add_button(C, [pstun(0, 0), pstun(0, 0), pteleport(0, 0), pinstant(0, 0)]);
+    options.add_button(C, [pstun(0, 0), pstun(0, 0), pteleport(0, 0)]);
+    options.make_instant();
     return{
         name: `reckless teleport`,
         pic: `${IMG_FOLDER.cards}reckless_teleport.png`,
@@ -8996,7 +9002,8 @@ function reckless_teleport(){
 /** @type {CardGenerator}*/
 function sidestep_w(){
     var options = new ButtonGrid();
-    options.add_button(W, [pmove(-1, 0), pinstant(0, 0)]);
+    options.add_button(W, [pmove(-1, 0)]);
+    options.make_instant();
     return{
         name: `sidestep west`,
         pic: `${IMG_FOLDER.cards}sidestep_w.png`,
@@ -9006,7 +9013,8 @@ function sidestep_w(){
 /** @type {CardGenerator}*/
 function sidestep_e(){
     var options = new ButtonGrid();
-    options.add_button(E, [pmove(1, 0), pinstant(0, 0)]);
+    options.add_button(E, [pmove(1, 0)]);
+    options.make_instant();
     return{
         name: `sidestep east`,
         pic: `${IMG_FOLDER.cards}sidestep_e.png`,
@@ -9016,7 +9024,8 @@ function sidestep_e(){
 /** @type {CardGenerator}*/
 function sidestep_n(){
     var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1), pinstant(0, 0)]);
+    options.add_button(N, [pmove(0, -1)]);
+    options.make_instant();
     return{
         name: `sidestep north`,
         pic: `${IMG_FOLDER.cards}sidestep_n.png`,
@@ -9026,7 +9035,8 @@ function sidestep_n(){
 /** @type {CardGenerator}*/
 function sidestep_s(){
     var options = new ButtonGrid();
-    options.add_button(S, [pmove(0, 1), pinstant(0, 0)]);
+    options.add_button(S, [pmove(0, 1)]);
+    options.make_instant();
     return{
         name: `sidestep south`,
         pic: `${IMG_FOLDER.cards}sidestep_s.png`,
@@ -9036,7 +9046,8 @@ function sidestep_s(){
 /** @type {CardGenerator}*/
 function sidestep_nw(){
     var options = new ButtonGrid();
-    options.add_button(NW, [pmove(-1, -1), pinstant(0, 0)]);
+    options.add_button(NW, [pmove(-1, -1)]);
+    options.make_instant();
     return{
         name: `sidestep nw`,
         pic: `${IMG_FOLDER.cards}sidestep_nw.png`,
@@ -9046,7 +9057,8 @@ function sidestep_nw(){
 /** @type {CardGenerator}*/
 function sidestep_ne(){
     var options = new ButtonGrid();
-    options.add_button(NE, [pmove(1, -1), pinstant(0, 0)]);
+    options.add_button(NE, [pmove(1, -1)]);
+    options.make_instant();
     return{
         name: `sidestep ne`,
         pic: `${IMG_FOLDER.cards}sidestep_ne.png`,
@@ -9056,7 +9068,8 @@ function sidestep_ne(){
 /** @type {CardGenerator}*/
 function sidestep_se(){
     var options = new ButtonGrid();
-    options.add_button(SE, [pmove(1, 1), pinstant(0, 0)]);
+    options.add_button(SE, [pmove(1, 1)]);
+    options.make_instant();
     return{
         name: `sidestep se`,
         pic: `${IMG_FOLDER.cards}sidestep_se.png`,
@@ -9066,7 +9079,8 @@ function sidestep_se(){
 /** @type {CardGenerator}*/
 function sidestep_sw(){
     var options = new ButtonGrid();
-    options.add_button(SW, [pmove(-1, 1), pinstant(0, 0)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    options.make_instant();
     return{
         name: `sidestep sw`,
         pic: `${IMG_FOLDER.cards}sidestep_sw.png`,
@@ -9076,10 +9090,11 @@ function sidestep_sw(){
 /** @type {CardGenerator}*/
 function punch_orthogonal(){
     var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1), pinstant(0, 0)]);
-    options.add_button(E, [pattack(1, 0), pinstant(0, 0)]);
-    options.add_button(S, [pattack(0, 1), pinstant(0, 0)]);
-    options.add_button(W, [pattack(-1, 0), pinstant(0, 0)]);
+    options.add_button(N, [pattack(0, -1)]);
+    options.add_button(E, [pattack(1, 0)]);
+    options.add_button(S, [pattack(0, 1)]);
+    options.add_button(W, [pattack(-1, 0)]);
+    options.make_instant();
     return{
         name: `punch orthogonal`,
         pic: `${IMG_FOLDER.cards}punch_orthogonal.png`,
@@ -9089,10 +9104,11 @@ function punch_orthogonal(){
 /** @type {CardGenerator}*/
 function punch_diagonal(){
     var options = new ButtonGrid();
-    options.add_button(NE, [pattack(1, -1), pinstant(0, 0)]);
-    options.add_button(SE, [pattack(1, 1), pinstant(0, 0)]);
-    options.add_button(SW, [pattack(-1, 1), pinstant(0, 0)]);
-    options.add_button(NW, [pattack(-1, -1), pinstant(0, 0)]);
+    options.add_button(NE, [pattack(1, -1)]);
+    options.add_button(SE, [pattack(1, 1)]);
+    options.add_button(SW, [pattack(-1, 1)]);
+    options.add_button(NW, [pattack(-1, -1)]);
+    options.make_instant();
     return{
         name: `punch diagonal`,
         pic: `${IMG_FOLDER.cards}punch_diagonal.png`,
@@ -9137,10 +9153,11 @@ function reckless_sprint(){
 /** @type {CardGenerator}*/
 function reckless_horizontal(){
     var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, 0), pmove(0, -1), pinstant(0, 0)]);
-    options.add_button(E, [pstun(0, 0), pmove(1, 0), pinstant(0, 0)]);
-    options.add_button(S, [pstun(0, 0), pmove(0, 1), pinstant(0, 0)]);
-    options.add_button(W, [pstun(0, 0), pmove(-1, 0), pinstant(0, 0)]);
+    options.add_button(N, [pstun(0, 0), pmove(0, -1)]);
+    options.add_button(E, [pstun(0, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 0), pmove(0, 1)]);
+    options.add_button(W, [pstun(0, 0), pmove(-1, 0)]);
+    options.make_instant();
     return{
         name: `reckless horizontal`,
         pic: `${IMG_FOLDER.cards}reckless_horizontal.png`,
@@ -9150,10 +9167,11 @@ function reckless_horizontal(){
 /** @type {CardGenerator}*/
 function reckless_diagonal(){
     var options = new ButtonGrid();
-    options.add_button(NE, [pstun(0, 0), pmove(1, -1), pinstant(0, 0)]);
-    options.add_button(SE, [pstun(0, 0), pmove(1, 1), pinstant(0, 0)]);
-    options.add_button(SW, [pstun(0, 0), pmove(-1, 1), pinstant(0, 0)]);
-    options.add_button(NW, [pstun(0, 0), pmove(-1, -1), pinstant(0, 0)]);
+    options.add_button(NE, [pstun(0, 0), pmove(1, -1)]);
+    options.add_button(SE, [pstun(0, 0), pmove(1, 1)]);
+    options.add_button(SW, [pstun(0, 0), pmove(-1, 1)]);
+    options.add_button(NW, [pstun(0, 0), pmove(-1, -1)]);
+    options.make_instant();
     return{
         name: `reckless diagonal`,
         pic: `${IMG_FOLDER.cards}reckless_diagonal.png`,
@@ -9163,10 +9181,11 @@ function reckless_diagonal(){
 /** @type {CardGenerator}*/
 function stunning_punch_orthogonal(){
     var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, -1), pstun(0, -1), pinstant(0, 0)]);
-    options.add_button(E, [pstun(1, 0), pstun(1, 0), pinstant(0, 0)]);
-    options.add_button(S, [pstun(0, 1), pstun(0, 1), pinstant(0, 0)]);
-    options.add_button(W, [pstun(-1, 0), pstun(-1, 0), pinstant(0, 0)]);
+    options.add_button(N, [pstun(0, -1), pstun(0, -1)]);
+    options.add_button(E, [pstun(1, 0), pstun(1, 0)]);
+    options.add_button(S, [pstun(0, 1), pstun(0, 1)]);
+    options.add_button(W, [pstun(-1, 0), pstun(-1, 0)]);
+    options.make_instant();
     return{
         name: `stunning punch orthogonal`,
         pic: `${IMG_FOLDER.cards}stunning_punch_orthogonal.png`,
@@ -9176,10 +9195,11 @@ function stunning_punch_orthogonal(){
 /** @type {CardGenerator}*/
 function stunning_punch_diagonal(){
     var options = new ButtonGrid();
-    options.add_button(NE, [pstun(1, -1), pstun(1, -1), pinstant(0, 0)]);
-    options.add_button(SE, [pstun(1, 1), pstun(1, 1), pinstant(0, 0)]);
-    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1), pinstant(0, 0)]);
-    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1), pinstant(0, 0)]);
+    options.add_button(NE, [pstun(1, -1), pstun(1, -1)]);
+    options.add_button(SE, [pstun(1, 1), pstun(1, 1)]);
+    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1)]);
+    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1)]);
+    options.make_instant();
     return{
         name: `stunning punch diagonal`,
         pic: `${IMG_FOLDER.cards}stunning_punch_diagonal.png`,
@@ -9274,9 +9294,6 @@ function bitter_determination(){
         description: bitter_determination_description,
     }
 }
-// Todo:
-//  description
-//  implement
 
 function brag_and_boast(){
     return {
@@ -9366,9 +9383,6 @@ function fleeting_thoughts(){
         description: fleeting_thoughts_description,
     }
 }
-// Todo:
-//  description
-//  implement
 
 function fortitude(){
     return {
@@ -9460,10 +9474,6 @@ function rebirth(){
         unlocks: [rebirth]    
     }
 }
-// Todo:
-//  description
-//  implement
-//  move shop choices options (add 3 of these?)
 
 function repetition(){
     return {

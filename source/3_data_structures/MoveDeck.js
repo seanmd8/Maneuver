@@ -271,19 +271,15 @@ class MoveDeck{
     alter_hand_size(change){
         this.#hand_size += change;
     }
-}
-
-/**
- * Function to give the correct messages if a card is temporary or only usable once per floor.
- * @param {Card} card The card to check.
- * @returns {String} The correct string message.
- */
-function temp_card_info(card){
-    if(card.per_floor !== undefined){
-        return `${move_types.per_floor_card_message}\n`;
+    /**
+     * Function to check if a card in the hand is an instant.
+     * @param {number} hand_position The position of the card to check.
+     * @returns {boolean} If it is an instant. 
+     */
+    is_instant(hand_position){
+        if(this.#hand.length <= hand_position || hand_position < 0){
+            throw new Error(ERRORS.invalid_value);
+        }
+        return this.#hand[hand_position].options.is_instant();
     }
-    if(card.temp){
-        return `${move_types.temp_card_message}\n`;
-    }
-    return ``;
 }

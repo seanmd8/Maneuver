@@ -3,7 +3,9 @@
 
 class ButtonGrid{
     #buttons; // A 3x3 2d array used to store the options.
+    #instant;
     constructor(){
+        this.#instant = false;
         var initial = {
             description: null_move_button
         }
@@ -35,10 +37,8 @@ class ButtonGrid{
         this.#buttons[Math.floor((number - 1) / 3)][(number - 1) % 3] = button;
     }
     /**
-     * A function to display the grid of buttons to a table.
-     * @param {string} table_name The location where the buttons should be displayed.
-     * @param {number} hand_pos The position of the card in hand that these buttons belong to.
-     * @param {string=} extra_info Optional extra information to display when the card info button is clicked.
+     * A function to get return the information required to display the buttons.
+     * @param {number} hand_position The position of the card in hand that these buttons belong to.
      */
     show_buttons(hand_position){
         var grid = [];
@@ -75,8 +75,8 @@ class ButtonGrid{
      * Creates an explanation of what each button does.
      * @returns {String} The explanation.
      */
-    explain_card(){
-        var explanation = card_explanation_start;
+    explain_buttons(){
+        var explanation = move_types.intro;
         for(let row of this.#buttons){
             for(let button of row){
                 if(button.description !== null_move_button){
@@ -89,7 +89,7 @@ class ButtonGrid{
                 }
             }
         }
-        return explanation.concat(card_explanation_end);
+        return explanation;
     }
     /**
      * A helper function to infer the number (1-9) on the 3x3 button grid where a new button should go.
@@ -111,15 +111,13 @@ class ButtonGrid{
      * Function to convert a card into an instant.
      */
     make_instant(){
-        for(var row of this.#buttons){
-            for(var button of row){
-                if(button.description !== null_move_button && 
-                    button.behavior.length > 0 && 
-                    button.behavior[button.behavior.length - 1].type !== `instant`
-                ){
-                    button.behavior.push(pinstant(0, 0));
-                }
-            }
-        }
+        this.#instant = true;
+    }
+    /**
+     * Function to check to see if it is an instant.
+     * @returns {boolean} If it is an instant.
+     */
+    is_instant(){
+        return this.#instant;
     }
 }

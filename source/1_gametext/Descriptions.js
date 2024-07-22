@@ -185,6 +185,9 @@ const four_directions = {
 
 // Move types.
 const move_types = {
+    alt: `Shift click on a button to show what it will do on the map.`,
+    intro: `Move Options (actions will be performed in order):\n`,
+
     attack: `Attack`,
     move: `Move`,
     teleport: `Teleport you to a random space`,
@@ -192,11 +195,12 @@ const move_types = {
     confuse: `Confuse: you`,
     move_until: `Keep Moving`,
     heal: `Heal`,
-    instant: `Take another turn`,
     you: `you`,
     nothing: `Do nothing`,
-    per_floor_card_message: `This card can only be used once per floor.`,
-    temp_card_message: `This card is temporary. It will be removed from your deck when used or at the end of the floor.`
+    
+    per_floor: `Once Per Floor: after being played, this card will disapear for the rest of the floor.`,
+    temp: `Temporary: this card will be removed from your deck when used, or at the end of the floor.`,
+    instant: `Instant: you will take an extra turn after playing this card.`
 }
 Object.freeze(move_types);
 

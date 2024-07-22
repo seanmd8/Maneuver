@@ -6,6 +6,3 @@ function bitter_determination(){
         description: bitter_determination_description,
     }
 }
-// Todo:
-//  description
-//  implement

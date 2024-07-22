@@ -68,20 +68,20 @@ class GameState{
         if(!this.lock_player_turn()){
             return;
         }
-        say(``, false);
+        display.remove_children(UIIDS.move_buttons);
         this.map.clear_marked();
+        say(``, false);
         try{
-            var is_instant = false;
             // The repetition boon will double movements one in every 3 turns.
             var repetition_count = GS.boons.has(boon_names.repetition);
             var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? 2 : 1;
             for(var i = 0; i < repeat; ++i){
                 for(var action of behavior){
                     // Does each valid command in the behavior array.
-                    is_instant = this.player_action(action);
+                    this.player_action(action);
                 }
             }
-            display.remove_children(UIIDS.move_buttons);
+            var is_instant = this.deck.is_instant(hand_pos);
             if(this.boons.has(boon_names.spontaneous) > 0 && !is_instant){
                 this.deck.discard_all();
             }
@@ -92,8 +92,10 @@ class GameState{
             await delay(ANIMATION_DELAY);
             if(is_instant){
                 this.refresh_deck_display();
+                this.unlock_player_turn();
                 this.map.display_stats(UIIDS.stats);
                 this.map.display();
+                this.unlock_player_turn();
                 return;
             }
             await this.map.enemy_turn();
@@ -147,9 +149,6 @@ class GameState{
             case `teleport`:
                 this.map.player_teleport(action.change);
                 break;
-            case `instant`:
-                this.unlock_player_turn();
-                return true;
             case `stun`:
                 this.map.player_stun(action.change);
                 break;

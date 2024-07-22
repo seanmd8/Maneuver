@@ -7,7 +7,3 @@ function rebirth(){
         unlocks: [rebirth]    
     }
 }
-// Todo:
-//  description
-//  implement
-//  move shop choices options (add 3 of these?)
