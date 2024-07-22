@@ -24,7 +24,8 @@ function shadow_scout_ai(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     self.tile.cycle = 1 - self.tile.cycle;
-    // Goes invisibl eon alternate turns.
+    // Goes invisible on alternate turns.
     shapeshift(self.tile, self.tile.look_arr[self.tile.cycle]);
+    self.tile.cycle === 0 ? self.tile.tags.add(TAGS.hidden) : self.tile.tags.remove(TAGS.hidden);
     spider_ai(self, target, map);
 }

@@ -12,7 +12,7 @@ function boulder_elemental_look(){
         name: `boulder elemental`,
         pic: `${IMG_FOLDER.tiles}boulder_elemental.png`,
         description: boulder_elemental_description,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.hidden]),
         behavior: boulder_elemental_ai,
         telegraph: spider_telegraph,
         on_enter: boulder_elemental_wake_up,
@@ -49,6 +49,7 @@ function boulder_elemental_ai(self, target, map){
     if(self.tile.cycle <= 0){
         // Falls asleep.
         shapeshift(self.tile, self.tile.look_arr[0]);
+        self.tile.tags.add(TAGS.hidden);
         self.tile.cycle = -2;
     }
     else if(!target.difference.within_radius(1)){
@@ -66,6 +67,7 @@ function boulder_elemental_wake_up(self, target, map){
         stun(self.tile);
         self.tile.cycle = 3;
         shapeshift(self.tile, self.tile.look_arr[1]);
+        self.tile.tags.remove(TAGS.hidden);
     }
 }
 
