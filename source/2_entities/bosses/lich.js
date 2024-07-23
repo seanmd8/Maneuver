@@ -24,7 +24,7 @@ function lich_tile(){
     var starting_cycle = 0;
     return{
         type: `enemy`,
-        name: `lich`,
+        name: `Lich`,
         pic: spells[starting_cycle].pic,
         description: `${lich_description}${spells[starting_cycle].description}`,
         tags: new TagList([TAGS.boss]),

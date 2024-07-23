@@ -84,6 +84,8 @@ const GUIDE_TEXT = {
             +`given by clicking on a tile will not be tracked.\n\n`
             +`- The Discard tab will keep track of which cards in your deck have been used so far, to help you figure out what might `
             +`be left to draw. It resets after shuffling.\n\n`
+            +`- The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it when trying to `
+            +`use one enemy to block the attack of another. It will not track hidden enemies.\n\n`
             +`- The Boons tab will become available when you pick up your first boon. It will keep track of each boon you pick up `
             +`and allow you to view their descriptions again by clicking on them. It will also track when certain boons are lost.\n\n`
             +`More tabs might become available as you play.\n\n`]

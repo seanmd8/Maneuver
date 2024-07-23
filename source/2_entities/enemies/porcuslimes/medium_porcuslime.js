@@ -4,7 +4,7 @@ function medium_porcuslime_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}medium_h_porcuslime.png`, `${IMG_FOLDER.tiles}medium_d_porcuslime.png`];
     return {
         type: `enemy`,
-        name: `medium porcuslime`,
+        name: `Medium Porcuslime`,
         pic: pic_arr[starting_cycle],
         description: medium_porcuslime_description,
         tags: new TagList(),

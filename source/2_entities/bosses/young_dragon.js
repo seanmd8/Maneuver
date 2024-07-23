@@ -9,7 +9,7 @@ function young_dragon_tile(){
 
     return {
         type: `enemy`,
-        name: `young dragon`,
+        name: `Young Dragon`,
         pic: pic_arr[0],
         description: `${young_dragon_description_arr[0]}${young_dragon_description_arr[1]}`,
         tags: new TagList([TAGS.boss]),

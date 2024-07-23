@@ -2,7 +2,7 @@
 function chest_tile(){
     return {
         type: `chest`,
-        name: `chest`,
+        name: `Chest`,
         pic: `${IMG_FOLDER.tiles}chest.png`,
         description: chest_description,
         tags: new TagList([TAGS.unmovable]),

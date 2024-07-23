@@ -3,7 +3,7 @@ function two_headed_serpent_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}serpent_head_sleep.png`, `${IMG_FOLDER.tiles}serpent_head.png`];
     return{
         type: `enemy`,
-        name: `two headed serpent head`,
+        name: `Two Headed Serpent`,
         pic: pic_arr[1],
         description: two_headed_serpent_awake_description,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
@@ -22,8 +22,8 @@ function two_headed_serpent_tile(){
 function two_headed_serpent_body_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}serpent_body_straight.png`, `${IMG_FOLDER.tiles}serpent_body_bend.png`];
     return{
-        type: `enemy`,
-        name: `two headed serpent body`,
+        type: `terrain`,
+        name: `Two Headed Serpent body`,
         pic: pic_arr[0],
         description: two_headed_serpent_body_description,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
@@ -234,7 +234,7 @@ function two_headed_serpent_hurt(self, target, map){
     // If no segments remain, it dies.
     neck_location = regrow.location.plus(ifexists(regrow.tile.segment_list[index]));
     neck = map.get_tile(neck_location);
-    if(neck.name === `two headed serpent head`){
+    if(neck.name === `Two Headed Serpent`){
         neck.on_death = undefined;
         regrow.tile.on_death = undefined;
         map.attack(neck_location);

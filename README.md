@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+7/23/24
+- Added a new Sidebar section to track enemy turn order.
+
 7/14/24
 - Added sidebar to let you see your message history, discard pile, and boons. Read more about it in the guidebook.
 - Added 1 new boon.

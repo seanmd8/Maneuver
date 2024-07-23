@@ -161,7 +161,7 @@ class GameMap{
      * @returns {boolean} Returns true if the location is both in bounds and looks empty and false otherwise.
      */
     looks_empty(location){
-        return this.is_in_bounds(location) && this.get_tile(location).name === `empty`;
+        return this.is_in_bounds(location) && this.get_tile(location).name === `Empty`;
     }
     /**
      * Places an exit tile at the given location
@@ -311,6 +311,7 @@ class GameMap{
                 gameMap.display_telegraph(telegraph_spaces);
                 gameMap.display_telegraph(telegraph_other_spaces, `${IMG_FOLDER.actions}telegraph_other.png`);
                 gameMap.display();
+                display.add_class(`${UIIDS.map_display} ${location.y} ${location.x}`, `selected-tile`);
             }
         }
         for(var y = 0; y < this.#y_max; ++y){
@@ -338,7 +339,8 @@ class GameMap{
         }
         display.remove_children(UIIDS.health_display);
         display_health(this.get_player(), TILE_SCALE);
-        this.clear_telegraphs()
+        this.clear_telegraphs();
+        update_initiative(this);
 	}
     /**
      * Moves a tile.
@@ -821,7 +823,10 @@ class GameMap{
             return false;
         }
         var tile = this.get_tile(location);
-        return (tile.name === `empty` || tile.on_enter !== undefined || tile.name === `exit`);
+        return (tile.name === `Empty` || tile.on_enter !== undefined || tile.name === `Exit`);
+    }
+    get_initiative(){
+        return this.#entity_list.get_initiative();
     }
 }
 

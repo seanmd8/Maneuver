@@ -2,7 +2,7 @@
 function turret_d_tile(){
     return {
         type: `enemy`,
-        name: `turret`,
+        name: `Turret`,
         pic: `${IMG_FOLDER.tiles}turret_d.png`,
         description: turret_d_description,
         tags: new TagList(),

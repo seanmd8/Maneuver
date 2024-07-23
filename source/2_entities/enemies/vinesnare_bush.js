@@ -5,7 +5,7 @@ function vinesnare_bush_tile(){
     var starting_cycle = 1;
     return {
         type: `enemy`,
-        name: `vinesnare bush`,
+        name: `Vinesnare Bush`,
         pic: pic_arr[starting_cycle],
         description: `${vinesnare_bush_description[0]}${range}${vinesnare_bush_description[1]}`,
         tags: new TagList([TAGS.unmovable]),

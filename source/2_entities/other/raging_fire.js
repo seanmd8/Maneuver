@@ -4,7 +4,7 @@ function raging_fire_tile(){
     var health = 2;
     return {
         type: `enemy`,
-        name: `raging fire`,
+        name: `Raging Fire`,
         pic: pic_arr[health - 1],
         description: raging_fire_description,
         tags: new TagList([TAGS.unmovable]),

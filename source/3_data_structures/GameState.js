@@ -277,7 +277,7 @@ class GameState{
         this.map.display();
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
-        say(`${game_over_message}${cause}.`);
+        say(`${game_over_message}${cause.toLowerCase()}.`);
         display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){

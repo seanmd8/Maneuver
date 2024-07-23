@@ -3,7 +3,7 @@ function spider_web_tile(){
     var spawn_timer = 2
     return{
         type: `enemy`,
-        name: `spider egg`,
+        name: `Spider Web`,
         pic: `${IMG_FOLDER.tiles}spider_web.png`,
         description: `${spider_web_description[0]}${spawn_timer + 1}${spider_web_description[1]}`,
         tags:  new TagList([TAGS.unmovable]),

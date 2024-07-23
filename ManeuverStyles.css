@@ -405,4 +405,49 @@
     margin: 4px;
 }
 
+.initiative-box {
+    overflow-y: scroll;
+    overflow-x: clip;
+    padding-bottom: 2px;
+}
 
+.initiative-element {
+    height: 70px;
+    background-color: lightgray;
+    margin-top: 2px;
+}
+.initiative-element:hover {
+    cursor: pointer;
+    background-color: gray;
+}
+.initiative-element div{
+    display: inline-block;
+    width: fit-content;
+    vertical-align: middle;
+    height: 100%;
+    margin: 0px 0px 0px 5px;
+}
+.initiative-element img{
+    border-width: 2px;
+    border-color: black;
+    border-style: solid;
+    margin: 5px;
+}
+.initiative-element p{
+    margin-top: auto;
+    margin-bottom: auto;
+    line-height: 140%;
+    margin: 5px;
+    width: 150px;
+}
+.initiative-element p::first-line{
+    font-weight: bolder;
+}
+.stun-background{
+    background-color: yellow;
+}
+
+/* Selected map square */
+.selected-tile {
+    box-shadow: 0 0 0 1px darkslategray;
+}

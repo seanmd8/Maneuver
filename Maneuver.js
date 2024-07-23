@@ -394,6 +394,7 @@ const CARD_SCALE = 90;
 const SMALL_CARD_SCALE = 75;
 const CHEST_CONTENTS_SIZE = 120;
 const TILE_SCALE = 40;
+const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 200;
 const DECK_DISPLAY_WIDTH = 4;
@@ -885,6 +886,43 @@ const DisplayHTML = {
         document.onkeydown = display.press;
         document.onkeyup = display.unpress;
     },
+    create_initiative: function(location, contents, size){
+        location = DisplayHTML.get_element(location);
+        for(let element of contents){
+            let container = document.createElement(`div`);
+            let picbox = document.createElement(`div`);
+            let pic = document.createElement(`img`);
+            let parbox = document.createElement(`div`);
+            let par = document.createElement(`p`);
+
+            container.classList.add(`initiative-element`);
+            if(element.on_click !== undefined){
+                container.onclick = element.on_click;
+            }
+            pic.src = `${IMG_FOLDER.src}${element.pic}`;
+            pic.alt = element.name;
+            pic.title = element.name;
+            pic.style.height = `${size}px`;
+            pic.style.width = `${size}px`;
+            pic.style.transform = DisplayHTML.get_transformation(element);
+            if(element.stun){
+                pic.classList.add(`stun-background`);
+            }
+            par.innerText = element.str;
+
+            picbox.append(pic);
+            parbox.append(par);
+            container.append(picbox);
+            container.append(parbox);
+            location.append(container);
+        }
+    },
+    click(location){
+        var element = DisplayHTML.get_element(location);
+        if(element.onclick !== undefined){
+            element.click();
+        }
+    },
     shift_is_pressed: false,
 
     // Non Required helper functions.
@@ -962,6 +1000,26 @@ function say(msg, record = true){
     if(record){
         GS.record_message(msg);
     }
+}
+
+function update_initiative(map){
+    var info = map.get_initiative().map(e => {
+        let str = `${e.name}\n` + hp_description(e);
+        let on_click = function(){
+            display.click(`${UIIDS.map_display} ${e.location.y} ${e.location.x}`);
+        }
+        return {
+            pic: e.pic,
+            rotate: e.rotate,
+            flip: e.flip,
+            stun: e.stun !== undefined && e.stun > 0,
+            name: e.name,
+            str,
+            on_click,
+        }
+    });
+    display.remove_children(UIIDS.initiative);
+    display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
 }
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
@@ -1050,6 +1108,10 @@ function tile_description(tile){
     if(tile.description === undefined){
         throw new Error(ERRORS.missing_property);
     }
+    return `${hp_description(tile)}${tile.description}`;
+}
+
+function hp_description(tile){
     var hp = ``
     var stunned = ``;
     if(tile.max_health !== undefined && tile.health !== undefined){
@@ -1061,7 +1123,7 @@ function tile_description(tile){
     if(tile.stun !== undefined && tile.stun > 0){
         stunned = `*${stunned_msg}${tile.stun}* `;
     }
-    return `${hp}${stunned}${tile.description}`;
+    return `${hp}${stunned}`;
 }
 
 /**
@@ -1214,7 +1276,7 @@ function create_sidebar(){
     display.remove_children(location);
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
-    //display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
     swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log)();
 }
 // ----------------Descriptions.js----------------
@@ -1366,7 +1428,7 @@ const falling_rubble_description = `Watch out, something is about to fall here.`
 const darkling_rift_description = `If this space isn't blocked, a darkling will teleport here next turn damaging everything nearby.`;
 const chest_description = `Chest: It might have something useful inside. Breaking it will damage the contents.`;
 const magmatic_boulder_description = `Magmatic Boulder: The light reflecting off of it gives you the feeling of being watched.`;
-const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, `turns unless you scatter the ashes by attacking `
+const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, ` turns unless you scatter the ashes by attacking `
                         +`them or moving onto them.`];
 const raging_fire_description = `Raging Fire: The very ground here is burning. It will grow weaker every turn, but it's not safe to move through.`;
 const coffin_description = `Coffin: There is no telling whether whatever is inside is still alive or not. Touch it at your own risk.`;
@@ -1592,6 +1654,8 @@ const GUIDE_TEXT = {
             +`given by clicking on a tile will not be tracked.\n\n`
             +`- The Discard tab will keep track of which cards in your deck have been used so far, to help you figure out what might `
             +`be left to draw. It resets after shuffling.\n\n`
+            +`- The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it when trying to `
+            +`use one enemy to block the attack of another. It will not track hidden enemies.\n\n`
             +`- The Boons tab will become available when you pick up your first boon. It will keep track of each boon you pick up `
             +`and allow you to view their descriptions again by clicking on them. It will also track when certain boons are lost.\n\n`
             +`More tabs might become available as you play.\n\n`]
@@ -1775,7 +1839,7 @@ function lich_tile(){
     var starting_cycle = 0;
     return{
         type: `enemy`,
-        name: `lich`,
+        name: `Lich`,
         pic: spells[starting_cycle].pic,
         description: `${lich_description}${spells[starting_cycle].description}`,
         tags: new TagList([TAGS.boss]),
@@ -1865,7 +1929,7 @@ function lich_hit(self, target, map){
 function spider_queen_tile(){
     return{
         type: `enemy`,
-        name: `spider queen`,
+        name: `Spider Queen`,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
         description: spider_queen_description,
         tags: new TagList([TAGS.boss]),
@@ -1892,7 +1956,7 @@ function two_headed_serpent_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}serpent_head_sleep.png`, `${IMG_FOLDER.tiles}serpent_head.png`];
     return{
         type: `enemy`,
-        name: `two headed serpent head`,
+        name: `Two Headed Serpent`,
         pic: pic_arr[1],
         description: two_headed_serpent_awake_description,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
@@ -1911,8 +1975,8 @@ function two_headed_serpent_tile(){
 function two_headed_serpent_body_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}serpent_body_straight.png`, `${IMG_FOLDER.tiles}serpent_body_bend.png`];
     return{
-        type: `enemy`,
-        name: `two headed serpent body`,
+        type: `terrain`,
+        name: `Two Headed Serpent body`,
         pic: pic_arr[0],
         description: two_headed_serpent_body_description,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
@@ -2123,7 +2187,7 @@ function two_headed_serpent_hurt(self, target, map){
     // If no segments remain, it dies.
     neck_location = regrow.location.plus(ifexists(regrow.tile.segment_list[index]));
     neck = map.get_tile(neck_location);
-    if(neck.name === `two headed serpent head`){
+    if(neck.name === `Two Headed Serpent`){
         neck.on_death = undefined;
         regrow.tile.on_death = undefined;
         map.attack(neck_location);
@@ -2158,7 +2222,7 @@ function two_headed_serpent_telegraph(location, map, self){
 function velociphile_tile(){
     return{
         type: `enemy`,
-        name: `velociphile`,
+        name: `Velociphile`,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
         description: velociphile_description,
         tags: new TagList([TAGS.boss]),
@@ -2210,7 +2274,7 @@ function young_dragon_tile(){
 
     return {
         type: `enemy`,
-        name: `young dragon`,
+        name: `Young Dragon`,
         pic: pic_arr[0],
         description: `${young_dragon_description_arr[0]}${young_dragon_description_arr[1]}`,
         tags: new TagList([TAGS.boss]),
@@ -2391,7 +2455,7 @@ function create_diagonal_cone(rotation, range){
 function acid_bug_tile(){
     return {
         type: `enemy`,
-        name: `acid bug`,
+        name: `Acid Bug`,
         pic: `${IMG_FOLDER.tiles}acid_bug.png`,
         description: acid_bug_description,
         tags: new TagList(),
@@ -2421,7 +2485,7 @@ function boulder_elemental_tile(){
 function boulder_elemental_look(){
     return {
         type: `enemy`,
-        name: `boulder elemental`,
+        name: `Boulder Elemental`,
         pic: `${IMG_FOLDER.tiles}boulder_elemental.png`,
         description: boulder_elemental_description,
         tags: new TagList([TAGS.unmovable, TAGS.hidden]),
@@ -2489,7 +2553,7 @@ function brightling_tile(){
     var starting_cycle = 0;
     return{
         type: `enemy`,
-        name: `brightling`,
+        name: `Brightling`,
         pic: `${IMG_FOLDER.tiles}brightling.png`,
         description: brightling_description,
         tags: new TagList(),
@@ -2537,7 +2601,7 @@ function brightling_ai(self, target, map){
 function carrion_flies_tile(){
     return {
         type: `enemy`,
-        name: `carrion flies`,
+        name: `Carrion Flies`,
         pic: `${IMG_FOLDER.tiles}carrion_flies.png`,
         description: carrion_flies_description,
         tags: new TagList(),
@@ -2579,7 +2643,7 @@ function carrion_flies_ai(self, target, map){
 function clay_golem_tile(){
     return {
         type: `enemy`,
-        name: `clay golem`,
+        name: `Clay Golem`,
         pic: `${IMG_FOLDER.tiles}clay_golem.png`,
         description: clay_golem_description,
         tags: new TagList(),
@@ -2620,7 +2684,7 @@ function clay_golem_hit(self, target, map){
 function corrosive_caterpillar_tile(){
     return {
         type: `enemy`,
-        name: `corrosive caterpillar`,
+        name: `Corrosive Caterpillar`,
         pic: `${IMG_FOLDER.tiles}corrosive_caterpillar.png`,
         description: corrosive_caterpillar_description,
         tags: new TagList(),
@@ -2651,7 +2715,7 @@ function corrosive_caterpillar_death(self, target, map){
 function darkling_tile(){
     return {
         type: `enemy`,
-        name: `darkling`,
+        name: `Darkling`,
         pic: `${IMG_FOLDER.tiles}darkling.png`,
         description: darkling_description,
         tags: new TagList(),
@@ -2703,7 +2767,7 @@ function darkling_telegraph(location, map, self){
 function igneous_crab_tile(){
     return {
         type: `enemy`,
-        name: `igneous crab`,
+        name: `Igneous Crab`,
         pic: `${IMG_FOLDER.tiles}igneous_crab.png`,
         description: igneous_crab_description,
         tags: new TagList(),
@@ -2755,7 +2819,7 @@ function magma_spewer_tile(){
     var starting_cycle = random_num(pic_arr.length);
     return {
         type: `enemy`,
-        name: `magma spewer`,
+        name: `Magma Spewer`,
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
         description: magma_spewer_description,
         tags: new TagList(),
@@ -2808,7 +2872,7 @@ function noxious_toad_tile(){
     var starting_cycle = random_num(pic_arr.length);
     return {
         type: `enemy`,
-        name: `noxious toad`,
+        name: `Noxious Toad`,
         pic: pic_arr[starting_cycle],
         description: noxious_toad_description, 
         tags: new TagList(),
@@ -2879,7 +2943,7 @@ function orb_of_insanity_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}orb_of_insanity_off.png`, `${IMG_FOLDER.tiles}orb_of_insanity_on.png`];
     return {
         type: `enemy`,
-        name: `orb of insanity`,
+        name: `Orb of Insanity`,
         pic: pic_arr[0],
         description: `${orb_of_insanity_description[0]}${range}${orb_of_insanity_description[1]}`,
         tags:  new TagList([TAGS.unmovable]),
@@ -2927,7 +2991,7 @@ function orb_of_insanity_telegraph_other(location, map, self){
 function pheonix_tile(){
     return {
         type: `enemy`,
-        name: `pheonix`,
+        name: `Pheonix`,
         pic: `${IMG_FOLDER.tiles}pheonix.png`,
         description: pheonix_description,
         tags: new TagList(),
@@ -3004,7 +3068,7 @@ function pheonix_telegraph(location, map, self){
 function large_porcuslime_tile(){
     return {
         type: `enemy`,
-        name: `large porcuslime`,
+        name: `Large Porcuslime`,
         pic: `${IMG_FOLDER.tiles}large_porcuslime.png`,
         description: large_porcuslime_description,
         tags: new TagList(),
@@ -3047,7 +3111,7 @@ function medium_porcuslime_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}medium_h_porcuslime.png`, `${IMG_FOLDER.tiles}medium_d_porcuslime.png`];
     return {
         type: `enemy`,
-        name: `medium porcuslime`,
+        name: `Medium Porcuslime`,
         pic: pic_arr[starting_cycle],
         description: medium_porcuslime_description,
         tags: new TagList(),
@@ -3135,7 +3199,7 @@ function porcuslime_horizontal_telegraph(location, map, self){
 function small_d_porcuslime_tile(){
     return {
         type: `enemy`,
-        name: `small porcuslime`,
+        name: `Small Porcuslime`,
         pic: `${IMG_FOLDER.tiles}small_d_porcuslime.png`,
         description: small_d_porcuslime_description,
         tags: new TagList(),
@@ -3149,7 +3213,7 @@ function small_d_porcuslime_tile(){
 function small_h_porcuslime_tile(){
     return {
         type: `enemy`,
-        name: `small porcuslime`,
+        name: `Small Porcuslime`,
         pic: `${IMG_FOLDER.tiles}small_h_porcuslime.png`,
         description: small_h_porcuslime_description,
         tags: new TagList(),
@@ -3165,7 +3229,7 @@ function ram_tile(){
     var starting_cycle = 0;
     return{
         type: `enemy`,
-        name: `ram`,
+        name: `Ram`,
         pic: pic_arr[starting_cycle],
         description: ram_description,
         tags: new TagList(),
@@ -3262,7 +3326,7 @@ function ram_telegraph(location, map, self){
 function rat_tile(){
     return {
         type: `enemy`,
-        name: `rat`,
+        name: `Rat`,
         pic: `${IMG_FOLDER.tiles}rat.png`,
         description: rat_description,
         tags: new TagList(),
@@ -3325,7 +3389,7 @@ function rat_telegraph(location, map, self){
 function scythe_tile(){
     return{
         type: `enemy`,
-        name: `scythe`,
+        name: `Scythe`,
         pic: `${IMG_FOLDER.tiles}scythe.png`,
         description: scythe_description,
         tags: new TagList(),
@@ -3383,7 +3447,7 @@ const L_SHAPES = [new Point(1, 2), new Point(-1, 2), new Point(1, -2), new Point
 function shadow_knight_tile(){
     return{
         type: `enemy`,
-        name: `shadow knight`,
+        name: `Shadow Knight`,
         pic: `${IMG_FOLDER.tiles}shadow_knight.png`,
         description: shadow_knight_description,
         tags: new TagList(),
@@ -3451,7 +3515,7 @@ function shadow_scout_tile(){
     var starting_cycle = random_num(2);
     return {
         type: `enemy`,
-        name: `shadow scout`,
+        name: `Shadow Scout`,
         pic: `${IMG_FOLDER.tiles}shadow_scout.png`,
         description: shadow_scout_description,
         tags: new TagList(),
@@ -3480,7 +3544,7 @@ function shadow_scout_ai(self, target, map){
 function spider_tile(){
     return {
         type: `enemy`,
-        name: `spider`,
+        name: `Spider`,
         pic: `${IMG_FOLDER.tiles}spider.png`,
         description: spider_description,
         tags: new TagList(),
@@ -3512,7 +3576,7 @@ function spider_web_tile(){
     var spawn_timer = 2
     return{
         type: `enemy`,
-        name: `spider egg`,
+        name: `Spider Web`,
         pic: `${IMG_FOLDER.tiles}spider_web.png`,
         description: `${spider_web_description[0]}${spawn_timer + 1}${spider_web_description[1]}`,
         tags:  new TagList([TAGS.unmovable]),
@@ -3546,7 +3610,7 @@ function spider_web_ai(self, target, map){
 function strider_tile(){
     return{
         type: `enemy`,
-        name: `strider`,
+        name: `Strider`,
         pic: `${IMG_FOLDER.tiles}strider.png`,
         description: strider_description,
         tags: new TagList(),
@@ -3595,7 +3659,7 @@ function turret_fire_ai(self, target, map){
 function turret_d_tile(){
     return {
         type: `enemy`,
-        name: `turret`,
+        name: `Turret`,
         pic: `${IMG_FOLDER.tiles}turret_d.png`,
         description: turret_d_description,
         tags: new TagList(),
@@ -3629,7 +3693,7 @@ function turret_d_telegraph(location, map, self){
 function turret_h_tile(){
     return {
         type: `enemy`,
-        name: `turret`,
+        name: `Turret`,
         pic: `${IMG_FOLDER.tiles}turret_h.png`,
         description: turret_h_description,
         tags: new TagList(),
@@ -3663,7 +3727,7 @@ function turret_h_telegraph(location, map, self){
 function turret_r_tile(){
     var tile = {
         type: `enemy`,
-        name: `rotary turret`,
+        name: `Rotary Turret`,
         pic: ``,
         description: turret_r_description,
         tags: new TagList(),
@@ -3722,7 +3786,7 @@ function turret_r_telegraph(location, map, self){
 function vampire_tile(){
     return {
         type: `enemy`,
-        name: `vampire`,
+        name: `Vampire`,
         pic: `${IMG_FOLDER.tiles}vampire.png`,
         description: vampire_description,
         tags: new TagList(),
@@ -3801,7 +3865,7 @@ function vinesnare_bush_tile(){
     var starting_cycle = 1;
     return {
         type: `enemy`,
-        name: `vinesnare bush`,
+        name: `Vinesnare Bush`,
         pic: pic_arr[starting_cycle],
         description: `${vinesnare_bush_description[0]}${range}${vinesnare_bush_description[1]}`,
         tags: new TagList([TAGS.unmovable]),
@@ -3890,7 +3954,7 @@ function vinesnare_bush_telegraph_other(location, map, self){
 function chest_tile(){
     return {
         type: `chest`,
-        name: `chest`,
+        name: `Chest`,
         pic: `${IMG_FOLDER.tiles}chest.png`,
         description: chest_description,
         tags: new TagList([TAGS.unmovable]),
@@ -4023,7 +4087,7 @@ function add_boon_to_chest(chest, boon){
 function coffin_tile(){
     return {
         type: `terrain`,
-        name: `coffin`,
+        name: `Coffin`,
         pic: `${IMG_FOLDER.tiles}coffin.png`,
         description: coffin_description,
         tags: new TagList([TAGS.unmovable]),
@@ -4057,7 +4121,7 @@ function coffin_tile_death(self, target, map){
 function corrosive_slime_tile(){
     return {
         type: `terrain`,
-        name: `corrosive_slime`,
+        name: `Corrosive Slime`,
         pic: `${IMG_FOLDER.tiles}corrosive_slime.png`,
         description: corrosive_slime_description,
         tags: new TagList([TAGS.unmovable]),
@@ -4118,7 +4182,7 @@ function fireball_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}fireball_n.png`, `${IMG_FOLDER.tiles}fireball_nw.png`];
     return {
         type: `enemy`,
-        name: `fireball`,
+        name: `Fireball`,
         pic: `${IMG_FOLDER.tiles}fireball.png`,
         description: fireball_description,
         tags: new TagList(),
@@ -4173,7 +4237,7 @@ function shoot_fireball(direction){
 function lava_pool_tile(){
     return {
         type: `terrain`,
-        name: `lava pool`,
+        name: `Lava Pool`,
         pic: `${IMG_FOLDER.tiles}lava_pool.png`,
         description: lava_pool_description,
         tags: new TagList([TAGS.unmovable]),
@@ -4186,7 +4250,7 @@ function lava_pool_tile(){
 function magmatic_boulder_tile(){
     return {
         type: `terrain`,
-        name: `magmatic boulder`,
+        name: `Magmatic Boulder`,
         pic: `${IMG_FOLDER.tiles}magmatic_boulder.png`,
         description: magmatic_boulder_description,
         tags: new TagList([TAGS.unmovable]),
@@ -4198,7 +4262,7 @@ function raging_fire_tile(){
     var health = 2;
     return {
         type: `enemy`,
-        name: `raging fire`,
+        name: `Raging Fire`,
         pic: pic_arr[health - 1],
         description: raging_fire_description,
         tags: new TagList([TAGS.unmovable]),
@@ -4231,7 +4295,7 @@ function repulsor_tile(){
     var starting_cycle = 0;
     return {
         type: `enemy`,
-        name: `repulsor`,
+        name: `Repulsor`,
         pic: pic_arr[starting_cycle],
         description: repulsor_description,
         tags: new TagList([TAGS.unmovable]),
@@ -4322,7 +4386,7 @@ function repulsor_telegraph_other(location, map, self){
 function sewer_grate_tile(){
     return{
         type: `enemy`,
-        name: `sewer grate`,
+        name: `Sewer Grate`,
         pic: `${IMG_FOLDER.tiles}sewer_grate.png`,
         description: sewer_grate_description,
         tags: new TagList([TAGS.unmovable]),
@@ -4339,7 +4403,7 @@ function smoldering_ashes_tile(){
     var spawn_timer = 2;
     return {
         type: `enemy`,
-        name: `smoldering_ashes`,
+        name: `Smoldering Ashes`,
         pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
         description: `${smoldering_ashes_description[0]}${spawn_timer}${smoldering_ashes_description[1]}`,
         tags: new TagList(),
@@ -4378,7 +4442,7 @@ function damaged_wall_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}very_damaged_wall.png`, `${IMG_FOLDER.tiles}damaged_wall.png`];
     return {
         type: `terrain`,
-        name: `damaged wall`,
+        name: `Damaged Wall`,
         pic: pic_arr[health - 1],
         description: damaged_wall_description,
         tags: new TagList(),
@@ -4416,7 +4480,7 @@ function damaged_wall_death(self, target, map){
 function wall_tile(){
     return {
         type: `terrain`,
-        name: `wall`,
+        name: `Wall`,
         pic: `${IMG_FOLDER.tiles}wall.png`,
         description: wall_description,
         tags: new TagList(),
@@ -4426,7 +4490,7 @@ function wall_tile(){
 function empty_tile(){
     return {
         type: `empty`,
-        name: `empty`,
+        name: `Empty`,
         pic: `${IMG_FOLDER.tiles}empty.png`,
         description: empty_description,
         tags: new TagList([TAGS.unmovable])
@@ -4436,7 +4500,7 @@ function empty_tile(){
 function exit_tile(){
     return {
         type: `exit`,
-        name: `exit`,
+        name: `Exit`,
         pic: `${IMG_FOLDER.tiles}stairs.png`,
         description: exit_description,
         tags: new TagList([TAGS.unmovable])
@@ -4446,7 +4510,7 @@ function exit_tile(){
 function lock_tile(){
     return {
         type: `terrain`,
-        name: `lock`,
+        name: `Lock`,
         pic: `${IMG_FOLDER.tiles}lock.png`,
         description: lock_description,
         tags: new TagList([TAGS.unmovable])
@@ -4456,7 +4520,7 @@ function lock_tile(){
 function player_tile(){
     return {
         type: `player`,
-        name: `player`,
+        name: `Player`,
         pic: `${IMG_FOLDER.tiles}helmet.png`,
         description: player_description,
         tags: new TagList(),
@@ -5499,6 +5563,21 @@ class EntityList{
             } 
         }
     }
+    get_initiative(){
+        var visible = this.#enemy_list.filter(e => !e.enemy.tags.has(TAGS.hidden));
+        return visible.map(e => {
+            return {
+                name: e.enemy.name,
+                pic: e.enemy.pic,
+                health: e.enemy.health,
+                max_health: e.enemy.max_health,
+                stun: e.enemy.stun,
+                location: e.location,
+                rotate: e.enemy.rotate,
+                flip: e.enemy.flip
+            }
+        });
+    }
 }
 
 // ----------------GameMap.js----------------
@@ -5664,7 +5743,7 @@ class GameMap{
      * @returns {boolean} Returns true if the location is both in bounds and looks empty and false otherwise.
      */
     looks_empty(location){
-        return this.is_in_bounds(location) && this.get_tile(location).name === `empty`;
+        return this.is_in_bounds(location) && this.get_tile(location).name === `Empty`;
     }
     /**
      * Places an exit tile at the given location
@@ -5814,6 +5893,7 @@ class GameMap{
                 gameMap.display_telegraph(telegraph_spaces);
                 gameMap.display_telegraph(telegraph_other_spaces, `${IMG_FOLDER.actions}telegraph_other.png`);
                 gameMap.display();
+                display.add_class(`${UIIDS.map_display} ${location.y} ${location.x}`, `selected-tile`);
             }
         }
         for(var y = 0; y < this.#y_max; ++y){
@@ -5841,7 +5921,8 @@ class GameMap{
         }
         display.remove_children(UIIDS.health_display);
         display_health(this.get_player(), TILE_SCALE);
-        this.clear_telegraphs()
+        this.clear_telegraphs();
+        update_initiative(this);
 	}
     /**
      * Moves a tile.
@@ -6324,7 +6405,10 @@ class GameMap{
             return false;
         }
         var tile = this.get_tile(location);
-        return (tile.name === `empty` || tile.on_enter !== undefined || tile.name === `exit`);
+        return (tile.name === `Empty` || tile.on_enter !== undefined || tile.name === `Exit`);
+    }
+    get_initiative(){
+        return this.#entity_list.get_initiative();
     }
 }
 
@@ -6620,7 +6704,7 @@ class GameState{
         this.map.display();
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
-        say(`${game_over_message}${cause}.`);
+        say(`${game_over_message}${cause.toLowerCase()}.`);
         display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
@@ -7313,11 +7397,11 @@ function two_headed_serpent_floor(floor_num, area, map){
     do{
         finished = true;
         var locations = [];
-        var start = map.random_empty();
-        if(start.y >= 2){
+        var current = map.random_empty();
+        if(current.y >= 2){
             finished = false;
         }
-        var position = start.copy();
+        var position = current.copy();
         var dirs = [new Point(random_sign(), 0), new Point(0, random_sign())];
         for(var i = 1; i < serpent_length; ++i){
             var next = rand_no_repeates(dirs, 1)[0];
@@ -7337,7 +7421,8 @@ function two_headed_serpent_floor(floor_num, area, map){
     }
     head.segment_list[0] = locations[0].copy();
     serpent_rotate(head);
-    map.add_tile(head, start);
+    map.add_tile(head, current);
+    var start = current.copy();
     // Add body segments.
     for(var i = 0; i < locations.length - 1; ++i){
         var segment = two_headed_serpent_body_tile();
@@ -7347,8 +7432,8 @@ function two_headed_serpent_floor(floor_num, area, map){
         segment.segment_list[0] = locations[i + 1];
         segment.segment_list[1] = locations[i].times(-1);
         serpent_rotate(segment);
-        start.plus_equals(locations[i]);
-        map.add_tile(segment, start);
+        current.plus_equals(locations[i]);
+        map.add_tile(segment, current);
     }
     // Add awake head.
     var tail = two_headed_serpent_tile();
@@ -7357,9 +7442,9 @@ function two_headed_serpent_floor(floor_num, area, map){
     }
     tail.segment_list[1] = locations[locations.length - 1].times(-1);
     serpent_rotate(tail);
-    start.plus_equals(locations[locations.length - 1]);
-    map.add_tile(tail, start);
-    serpent_wake({tile: tail, location: start}, map);
+    current.plus_equals(locations[locations.length - 1]);
+    map.add_tile(tail, current);
+    serpent_wake({tile: head, location: start}, map);
     // Add terrain.
     for(var i = 0; i < 8; ++i){
         var position = map.random_empty();

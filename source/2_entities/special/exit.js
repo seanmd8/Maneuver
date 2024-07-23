@@ -2,7 +2,7 @@
 function exit_tile(){
     return {
         type: `exit`,
-        name: `exit`,
+        name: `Exit`,
         pic: `${IMG_FOLDER.tiles}stairs.png`,
         description: exit_description,
         tags: new TagList([TAGS.unmovable])

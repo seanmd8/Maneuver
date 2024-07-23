@@ -2,7 +2,7 @@
 function corrosive_slime_tile(){
     return {
         type: `terrain`,
-        name: `corrosive_slime`,
+        name: `Corrosive Slime`,
         pic: `${IMG_FOLDER.tiles}corrosive_slime.png`,
         description: corrosive_slime_description,
         tags: new TagList([TAGS.unmovable]),

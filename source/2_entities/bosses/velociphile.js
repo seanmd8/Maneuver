@@ -2,7 +2,7 @@
 function velociphile_tile(){
     return{
         type: `enemy`,
-        name: `velociphile`,
+        name: `Velociphile`,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
         description: velociphile_description,
         tags: new TagList([TAGS.boss]),

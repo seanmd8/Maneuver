@@ -2,7 +2,7 @@
 function turret_r_tile(){
     var tile = {
         type: `enemy`,
-        name: `rotary turret`,
+        name: `Rotary Turret`,
         pic: ``,
         description: turret_r_description,
         tags: new TagList(),

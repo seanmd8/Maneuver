@@ -2,7 +2,7 @@
 function spider_tile(){
     return {
         type: `enemy`,
-        name: `spider`,
+        name: `Spider`,
         pic: `${IMG_FOLDER.tiles}spider.png`,
         description: spider_description,
         tags: new TagList(),

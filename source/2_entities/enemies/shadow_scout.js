@@ -4,7 +4,7 @@ function shadow_scout_tile(){
     var starting_cycle = random_num(2);
     return {
         type: `enemy`,
-        name: `shadow scout`,
+        name: `Shadow Scout`,
         pic: `${IMG_FOLDER.tiles}shadow_scout.png`,
         description: shadow_scout_description,
         tags: new TagList(),

@@ -4,7 +4,7 @@ function damaged_wall_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}very_damaged_wall.png`, `${IMG_FOLDER.tiles}damaged_wall.png`];
     return {
         type: `terrain`,
-        name: `damaged wall`,
+        name: `Damaged Wall`,
         pic: pic_arr[health - 1],
         description: damaged_wall_description,
         tags: new TagList(),

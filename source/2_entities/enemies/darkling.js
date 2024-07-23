@@ -2,7 +2,7 @@
 function darkling_tile(){
     return {
         type: `enemy`,
-        name: `darkling`,
+        name: `Darkling`,
         pic: `${IMG_FOLDER.tiles}darkling.png`,
         description: darkling_description,
         tags: new TagList(),

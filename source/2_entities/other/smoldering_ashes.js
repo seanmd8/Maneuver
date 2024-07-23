@@ -3,7 +3,7 @@ function smoldering_ashes_tile(){
     var spawn_timer = 2;
     return {
         type: `enemy`,
-        name: `smoldering_ashes`,
+        name: `Smoldering Ashes`,
         pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
         description: `${smoldering_ashes_description[0]}${spawn_timer}${smoldering_ashes_description[1]}`,
         tags: new TagList(),

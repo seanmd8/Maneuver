@@ -2,7 +2,7 @@
 function acid_bug_tile(){
     return {
         type: `enemy`,
-        name: `acid bug`,
+        name: `Acid Bug`,
         pic: `${IMG_FOLDER.tiles}acid_bug.png`,
         description: acid_bug_description,
         tags: new TagList(),

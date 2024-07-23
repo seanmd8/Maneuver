@@ -2,7 +2,7 @@
 function strider_tile(){
     return{
         type: `enemy`,
-        name: `strider`,
+        name: `Strider`,
         pic: `${IMG_FOLDER.tiles}strider.png`,
         description: strider_description,
         tags: new TagList(),

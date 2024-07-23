@@ -2,7 +2,7 @@
 function lava_pool_tile(){
     return {
         type: `terrain`,
-        name: `lava pool`,
+        name: `Lava Pool`,
         pic: `${IMG_FOLDER.tiles}lava_pool.png`,
         description: lava_pool_description,
         tags: new TagList([TAGS.unmovable]),

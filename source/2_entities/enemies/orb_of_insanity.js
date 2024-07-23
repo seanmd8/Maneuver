@@ -4,7 +4,7 @@ function orb_of_insanity_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}orb_of_insanity_off.png`, `${IMG_FOLDER.tiles}orb_of_insanity_on.png`];
     return {
         type: `enemy`,
-        name: `orb of insanity`,
+        name: `Orb of Insanity`,
         pic: pic_arr[0],
         description: `${orb_of_insanity_description[0]}${range}${orb_of_insanity_description[1]}`,
         tags:  new TagList([TAGS.unmovable]),

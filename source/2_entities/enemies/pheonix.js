@@ -2,7 +2,7 @@
 function pheonix_tile(){
     return {
         type: `enemy`,
-        name: `pheonix`,
+        name: `Pheonix`,
         pic: `${IMG_FOLDER.tiles}pheonix.png`,
         description: pheonix_description,
         tags: new TagList(),

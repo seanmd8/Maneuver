@@ -2,7 +2,7 @@
 function vampire_tile(){
     return {
         type: `enemy`,
-        name: `vampire`,
+        name: `Vampire`,
         pic: `${IMG_FOLDER.tiles}vampire.png`,
         description: vampire_description,
         tags: new TagList(),

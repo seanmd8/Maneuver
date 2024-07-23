@@ -189,4 +189,19 @@ class EntityList{
             } 
         }
     }
+    get_initiative(){
+        var visible = this.#enemy_list.filter(e => !e.enemy.tags.has(TAGS.hidden));
+        return visible.map(e => {
+            return {
+                name: e.enemy.name,
+                pic: e.enemy.pic,
+                health: e.enemy.health,
+                max_health: e.enemy.max_health,
+                stun: e.enemy.stun,
+                location: e.location,
+                rotate: e.enemy.rotate,
+                flip: e.enemy.flip
+            }
+        });
+    }
 }

@@ -2,7 +2,7 @@
 function small_d_porcuslime_tile(){
     return {
         type: `enemy`,
-        name: `small porcuslime`,
+        name: `Small Porcuslime`,
         pic: `${IMG_FOLDER.tiles}small_d_porcuslime.png`,
         description: small_d_porcuslime_description,
         tags: new TagList(),

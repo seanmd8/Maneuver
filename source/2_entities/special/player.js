@@ -2,7 +2,7 @@
 function player_tile(){
     return {
         type: `player`,
-        name: `player`,
+        name: `Player`,
         pic: `${IMG_FOLDER.tiles}helmet.png`,
         description: player_description,
         tags: new TagList(),

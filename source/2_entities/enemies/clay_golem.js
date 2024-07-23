@@ -2,7 +2,7 @@
 function clay_golem_tile(){
     return {
         type: `enemy`,
-        name: `clay golem`,
+        name: `Clay Golem`,
         pic: `${IMG_FOLDER.tiles}clay_golem.png`,
         description: clay_golem_description,
         tags: new TagList(),

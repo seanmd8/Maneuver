@@ -9,7 +9,7 @@ function boulder_elemental_tile(){
 function boulder_elemental_look(){
     return {
         type: `enemy`,
-        name: `boulder elemental`,
+        name: `Boulder Elemental`,
         pic: `${IMG_FOLDER.tiles}boulder_elemental.png`,
         description: boulder_elemental_description,
         tags: new TagList([TAGS.unmovable, TAGS.hidden]),

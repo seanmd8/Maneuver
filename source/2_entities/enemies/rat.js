@@ -2,7 +2,7 @@
 function rat_tile(){
     return {
         type: `enemy`,
-        name: `rat`,
+        name: `Rat`,
         pic: `${IMG_FOLDER.tiles}rat.png`,
         description: rat_description,
         tags: new TagList(),

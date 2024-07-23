@@ -4,7 +4,7 @@ function repulsor_tile(){
     var starting_cycle = 0;
     return {
         type: `enemy`,
-        name: `repulsor`,
+        name: `Repulsor`,
         pic: pic_arr[starting_cycle],
         description: repulsor_description,
         tags: new TagList([TAGS.unmovable]),

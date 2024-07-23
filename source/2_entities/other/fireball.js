@@ -3,7 +3,7 @@ function fireball_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}fireball_n.png`, `${IMG_FOLDER.tiles}fireball_nw.png`];
     return {
         type: `enemy`,
-        name: `fireball`,
+        name: `Fireball`,
         pic: `${IMG_FOLDER.tiles}fireball.png`,
         description: fireball_description,
         tags: new TagList(),

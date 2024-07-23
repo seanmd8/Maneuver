@@ -453,6 +453,43 @@ const DisplayHTML = {
         document.onkeydown = display.press;
         document.onkeyup = display.unpress;
     },
+    create_initiative: function(location, contents, size){
+        location = DisplayHTML.get_element(location);
+        for(let element of contents){
+            let container = document.createElement(`div`);
+            let picbox = document.createElement(`div`);
+            let pic = document.createElement(`img`);
+            let parbox = document.createElement(`div`);
+            let par = document.createElement(`p`);
+
+            container.classList.add(`initiative-element`);
+            if(element.on_click !== undefined){
+                container.onclick = element.on_click;
+            }
+            pic.src = `${IMG_FOLDER.src}${element.pic}`;
+            pic.alt = element.name;
+            pic.title = element.name;
+            pic.style.height = `${size}px`;
+            pic.style.width = `${size}px`;
+            pic.style.transform = DisplayHTML.get_transformation(element);
+            if(element.stun){
+                pic.classList.add(`stun-background`);
+            }
+            par.innerText = element.str;
+
+            picbox.append(pic);
+            parbox.append(par);
+            container.append(picbox);
+            container.append(parbox);
+            location.append(container);
+        }
+    },
+    click(location){
+        var element = DisplayHTML.get_element(location);
+        if(element.onclick !== undefined){
+            element.click();
+        }
+    },
     shift_is_pressed: false,
 
     // Non Required helper functions.

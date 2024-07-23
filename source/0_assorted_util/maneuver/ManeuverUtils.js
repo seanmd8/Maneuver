@@ -63,6 +63,10 @@ function tile_description(tile){
     if(tile.description === undefined){
         throw new Error(ERRORS.missing_property);
     }
+    return `${hp_description(tile)}${tile.description}`;
+}
+
+function hp_description(tile){
     var hp = ``
     var stunned = ``;
     if(tile.max_health !== undefined && tile.health !== undefined){
@@ -74,7 +78,7 @@ function tile_description(tile){
     if(tile.stun !== undefined && tile.stun > 0){
         stunned = `*${stunned_msg}${tile.stun}* `;
     }
-    return `${hp}${stunned}${tile.description}`;
+    return `${hp}${stunned}`;
 }
 
 /**
@@ -227,6 +231,6 @@ function create_sidebar(){
     display.remove_children(location);
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
-    //display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
     swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log)();
 }

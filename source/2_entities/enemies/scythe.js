@@ -2,7 +2,7 @@
 function scythe_tile(){
     return{
         type: `enemy`,
-        name: `scythe`,
+        name: `Scythe`,
         pic: `${IMG_FOLDER.tiles}scythe.png`,
         description: scythe_description,
         tags: new TagList(),

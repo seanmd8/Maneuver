@@ -4,7 +4,7 @@ function noxious_toad_tile(){
     var starting_cycle = random_num(pic_arr.length);
     return {
         type: `enemy`,
-        name: `noxious toad`,
+        name: `Noxious Toad`,
         pic: pic_arr[starting_cycle],
         description: noxious_toad_description, 
         tags: new TagList(),

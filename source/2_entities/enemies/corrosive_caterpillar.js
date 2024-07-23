@@ -2,7 +2,7 @@
 function corrosive_caterpillar_tile(){
     return {
         type: `enemy`,
-        name: `corrosive caterpillar`,
+        name: `Corrosive Caterpillar`,
         pic: `${IMG_FOLDER.tiles}corrosive_caterpillar.png`,
         description: corrosive_caterpillar_description,
         tags: new TagList(),

@@ -6,11 +6,11 @@ function two_headed_serpent_floor(floor_num, area, map){
     do{
         finished = true;
         var locations = [];
-        var start = map.random_empty();
-        if(start.y >= 2){
+        var current = map.random_empty();
+        if(current.y >= 2){
             finished = false;
         }
-        var position = start.copy();
+        var position = current.copy();
         var dirs = [new Point(random_sign(), 0), new Point(0, random_sign())];
         for(var i = 1; i < serpent_length; ++i){
             var next = rand_no_repeates(dirs, 1)[0];
@@ -30,7 +30,8 @@ function two_headed_serpent_floor(floor_num, area, map){
     }
     head.segment_list[0] = locations[0].copy();
     serpent_rotate(head);
-    map.add_tile(head, start);
+    map.add_tile(head, current);
+    var start = current.copy();
     // Add body segments.
     for(var i = 0; i < locations.length - 1; ++i){
         var segment = two_headed_serpent_body_tile();
@@ -40,8 +41,8 @@ function two_headed_serpent_floor(floor_num, area, map){
         segment.segment_list[0] = locations[i + 1];
         segment.segment_list[1] = locations[i].times(-1);
         serpent_rotate(segment);
-        start.plus_equals(locations[i]);
-        map.add_tile(segment, start);
+        current.plus_equals(locations[i]);
+        map.add_tile(segment, current);
     }
     // Add awake head.
     var tail = two_headed_serpent_tile();
@@ -50,9 +51,9 @@ function two_headed_serpent_floor(floor_num, area, map){
     }
     tail.segment_list[1] = locations[locations.length - 1].times(-1);
     serpent_rotate(tail);
-    start.plus_equals(locations[locations.length - 1]);
-    map.add_tile(tail, start);
-    serpent_wake({tile: tail, location: start}, map);
+    current.plus_equals(locations[locations.length - 1]);
+    map.add_tile(tail, current);
+    serpent_wake({tile: head, location: start}, map);
     // Add terrain.
     for(var i = 0; i < 8; ++i){
         var position = map.random_empty();
