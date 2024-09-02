@@ -1069,8 +1069,8 @@ function make_starting_deck(){
     deck.add(basic_horizontal());
     deck.add(basic_diagonal());
     deck.add(basic_diagonal());
-    deck.add(slice());
-    deck.add(slice());
+    deck.add(basic_slice());
+    deck.add(basic_slice());
     deck.add(short_charge());
     deck.add(jump());
 
@@ -1088,7 +1088,7 @@ function make_test_deck(){
     for(var i = 0; i < Math.max(4 - size, 1); ++i){
         deck.add(basic_horizontal());
     }
-    deck.add(slice());
+    deck.add(basic_slice());
     deck.deal();
     return deck;
 }
@@ -8284,7 +8284,7 @@ function lightheaded(){
 // ----------------NormalCards.js----------------
 // File containing both basic cards and all cards that can be gained from the shop.
 
-// basic_horizontal,  basic_diagonal, and slice are unique to the starting deck.
+// basic_horizontal,  basic_diagonal, and basic_slice are unique to the starting deck.
 /** @type {CardGenerator}*/
 function basic_horizontal(){
     var options = new ButtonGrid();
@@ -8312,15 +8312,15 @@ function basic_diagonal(){
     }
 }
 /** @type {CardGenerator}*/
-function slice(){
+function basic_slice(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1)]);
     options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(1, -1)]);
     options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(-1, 1)]);
     options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-1, -1)]);
     return{
-        name: `slice`,
-        pic: `${IMG_FOLDER.cards}slice.png`,
+        name: `basic slice`,
+        pic: `${IMG_FOLDER.cards}basic_slice.png`,
         options
     }
 }

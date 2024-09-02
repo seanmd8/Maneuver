@@ -24,8 +24,8 @@ function make_starting_deck(){
     deck.add(basic_horizontal());
     deck.add(basic_diagonal());
     deck.add(basic_diagonal());
-    deck.add(slice());
-    deck.add(slice());
+    deck.add(basic_slice());
+    deck.add(basic_slice());
     deck.add(short_charge());
     deck.add(jump());
 
@@ -43,7 +43,7 @@ function make_test_deck(){
     for(var i = 0; i < Math.max(4 - size, 1); ++i){
         deck.add(basic_horizontal());
     }
-    deck.add(slice());
+    deck.add(basic_slice());
     deck.deal();
     return deck;
 }
