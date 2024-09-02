@@ -61,7 +61,7 @@ const shadow_scout_description = `Shadow Scout: Will attack the player if it is 
 const darkling_description = `Darkling: Teleports around randomly hurting everything next to the location it arrives at. Blocking `
                             +`it's rift will destroy it.`;
 const orb_of_insanity_description = [`Orb of Insanity: Does not move or attack. If the player is within `, ` spaces of it, it will `
-                            +`pollute their deck with a bad temporary card.`];
+                            +`confuse them, polluting their deck with a bad temporary card.`];
 const carrion_flies_description = `Carrion Flies: Will attack the player if they are nearby. Otherwise wanders aimlessly. `
                             +`Over time they will multiply.`;
 const magma_spewer_description = `Magma Spewer: Fires magma into the air every other turn. Retreats when you get close.`
@@ -192,7 +192,7 @@ const move_types = {
     move: `Move`,
     teleport: `Teleport you to a random space`,
     stun: `Stun`,
-    confuse: `Confuse: you`,
+    confuse: `Confuse: you. Adds a bad temporary card to your deck.`,
     move_until: `Keep Moving`,
     heal: `Heal`,
     you: `you`,

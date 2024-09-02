@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+9/2/24
+- Added a guidebook section for confusion.
+
 7/23/24
 - Added a new Sidebar section to track enemy turn order.
 

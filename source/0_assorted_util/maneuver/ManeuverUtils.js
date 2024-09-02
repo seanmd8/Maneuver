@@ -151,9 +151,19 @@ function display_guide(){
     var section_location = UIIDS.guide;
     var navbar_location = UIIDS.guide_navbar;
 
-    var cards_symbol_arr = get_card_symbols();
+    // Create the image arrays for the sections with images.
+    var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
     var ctrl_symbol_arr = get_control_symbols();
-    var cards_inline_arr = cards_symbol_arr.concat(ctrl_symbol_arr)
+    var cards_inline_arr = cards_symbol_arr.concat(ctrl_symbol_arr);
+    var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
+        card = card();
+        return {
+            src: card.pic,
+            name: card.name,
+            x: 5,
+            y: 5
+        }
+    }));
 
     // Create guidebook text sections.
     var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
@@ -163,8 +173,26 @@ function display_guide(){
     var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
     var chests_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.chests, GUIDE_TEXT.chests, []);
     var sidebar_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.sidebar, GUIDE_TEXT.sidebar, []);
+    var confusion_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.confusion, 
+        [...GUIDE_TEXT.confusion, ...CONFUSION_CARDS.map((card, i) => {
+            // Adds the space for confusion card images.
+            if(i % 4 !== 3){
+                return NBS;
+            }
+            return `\n`;
+        })],
+        confusion_inline_arr);
 
-    var section_id_list = [basics_section, cards_section, enemies_section, shop_section, bosses_section, chests_section, sidebar_section];
+    var section_id_list = [
+        basics_section, 
+        cards_section, 
+        enemies_section, 
+        shop_section, 
+        bosses_section, 
+        chests_section, 
+        sidebar_section,
+        confusion_section
+    ];
 
     var swap_visibility = function(id_list, id){
         return function(){
@@ -180,6 +208,8 @@ function display_guide(){
     display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
     display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
     display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap_visibility(section_id_list, sidebar_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap_visibility(section_id_list, confusion_section));
+
     display.swap_screen(section_id_list, basics_section);
 }
 
@@ -187,10 +217,10 @@ function display_guide(){
  * Function to get an array of images for the card symbols to use when displaying the guide..
  * @returns {HTMLElement[]} The array of images.
  */
-function get_card_symbols(){
+function make_guidebook_images(arr){
     var images = [];
-    for(var img of CARD_SYMBOLS){
-        images.push(display.create_image(img.src, `${img.src} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE)));
+    for(var img of arr){
+        images.push(display.create_image(img.src, `${img.name} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE)));
     }
     return images;
 }

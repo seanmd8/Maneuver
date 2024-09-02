@@ -3,12 +3,13 @@
 
 const GUIDE_HEADERS = {
     basics: `The Basics`,
-    cards: `Playing Your Cards`,
-    enemies: `Dealing With Enemies`,
+    cards: `Using Cards`,
+    enemies: `Handling Enemies`,
     shop: `The Shop`,
     bosses: `Bosses`,
     chests: `Chests`,
-    sidebar: `Sidebar`
+    sidebar: `Sidebar`,
+    confusion: `Confusion`
 }
 Object.freeze(GUIDE_HEADERS);
 
@@ -88,7 +89,12 @@ const GUIDE_TEXT = {
             +`use one enemy to block the attack of another. It will not track hidden enemies.\n\n`
             +`- The Boons tab will become available when you pick up your first boon. It will keep track of each boon you pick up `
             +`and allow you to view their descriptions again by clicking on them. It will also track when certain boons are lost.\n\n`
-            +`More tabs might become available as you play.\n\n`]
+            +`More tabs might become available as you play.\n\n`],
+
+    confusion: [`Certain enemies and cards will confuse you. Confusion adds a temporary bad card to your deck which will go away after `
+            +`it goes to your discard pile, or when you go to the next floor. Cards will do this if they highlight your current square `
+            +`in yellow.\n\n`
+            +`Here is a list of the possible confusion cards:\n\n`]
 }
 Object.freeze(GUIDE_TEXT);
 
@@ -108,5 +114,4 @@ const CARD_SYMBOLS = [
     {src: `${IMG_FOLDER.symbols}temporary.png`,         name: `temporary`,          x: 2, y: 2},
     {src: `${IMG_FOLDER.symbols}per_floor.png`,         name: `once per floor`,     x: 2, y: 2},
 ];
-
 
