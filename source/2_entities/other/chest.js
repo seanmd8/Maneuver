@@ -118,13 +118,13 @@ function add_boon_to_chest(chest, boon){
         pic: boon.pic,
         name: boon.name,
         on_choose: function(){
-            GS.boons.pick(boon.name);
-            if(GS.boons.total === 1){
+            if(GS.boons.total === 0){
                 display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
                     display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
                 });
                 display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
             }
+            GS.boons.pick(boon.name);
             GS.refresh_boon_display();
         },
         description: `${boon.name}: ${boon.description}`
