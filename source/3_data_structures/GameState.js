@@ -131,7 +131,7 @@ class GameState{
     player_action(action){
         switch(action.type){
             case `attack`:
-                if(this.boons.has(boon_names.pacifism)){
+                if(this.boons.has(boon_names.pacifism) && !point_equals(action.change, new Point(0, 0))){
                     this.map.player_stun(action.change);
                     this.map.player_stun(action.change);
                 }

@@ -378,7 +378,7 @@ var GS;
 const SECOND_STARTING_ENEMY = corrosive_slime_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
-const STARTING_CHEST_CONTENTS = hoarder;
+const STARTING_CHEST_CONTENTS = pacifism;
 const STARTING_CHEST_AMOUNT = 0;
 
 // Dungeon generation settings.
@@ -6624,7 +6624,7 @@ class GameState{
     player_action(action){
         switch(action.type){
             case `attack`:
-                if(this.boons.has(boon_names.pacifism)){
+                if(this.boons.has(boon_names.pacifism) && !point_equals(action.change, new Point(0, 0))){
                     this.map.player_stun(action.change);
                     this.map.player_stun(action.change);
                 }
