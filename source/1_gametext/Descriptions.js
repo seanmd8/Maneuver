@@ -73,6 +73,7 @@ const pheonix_description = `Pheonix: Flies to an empty spot 2 or 3 spaces away 
 const igneous_crab_description = `Igneous Crab: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
                                 +`When damaged, it will spend the next 2 turns fleeing.`;
 const strider_description = `Strider: Attacks then moves 2 spaces away in one direction.`;
+const swaying_nettle_description = `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal to it.`;
 
 
 // Area Descriptions.

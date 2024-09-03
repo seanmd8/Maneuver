@@ -1388,6 +1388,7 @@ const pheonix_description = `Pheonix: Flies to an empty spot 2 or 3 spaces away 
 const igneous_crab_description = `Igneous Crab: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
                                 +`When damaged, it will spend the next 2 turns fleeing.`;
 const strider_description = `Strider: Attacks then moves 2 spaces away in one direction.`;
+const swaying_nettle_description = `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal to it.`;
 
 
 // Area Descriptions.
@@ -3696,6 +3697,42 @@ function strider_telegraph(location, map, self){
     var attacks = random_nearby();
     return attacks.map(attack => location.plus(attack.times(2)));
 }
+/** @type {TileGenerator} */
+function swaying_nettle_tile(){
+    var pic_arr = [`${IMG_FOLDER.tiles}swaying_nettle_x.png`, `${IMG_FOLDER.tiles}swaying_nettle_+.png`];
+    var starting_cycle = random_num(2);
+    return{
+        type: `enemy`,
+        name: `swaying nettle`,
+        pic: pic_arr[starting_cycle],
+        description: swaying_nettle_description,
+        tags: new TagList(),
+        health: 1,
+        difficulty: 2,
+        behavior: swaying_nettle_ai,
+        telegraph: swaying_nettle_telegraph,
+        pic_arr,
+        cycle: starting_cycle
+    }
+}
+
+/** @type {AIFunction} AI used by swaying nettles.*/
+function swaying_nettle_ai(self, target, map){
+    var targets = self.tile.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;
+    for(var target of targets){
+        map.attack(self.location.plus(target));
+    }
+    self.tile.cycle = 1 - self.tile.cycle;
+    self.tile.pic = self.tile.pic_arr[self.tile.cycle];
+}
+
+/** @type {TelegraphFunction} */
+function swaying_nettle_telegraph(location, map, self){
+    var targets = self.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;
+    return targets.map(target => {
+        return target.plus(location);
+    })
+}
 /** @type {AIFunction} AI used by all turrets to fire towards the player.*/
 function turret_fire_ai(self, target, map){
     // Fires a shot in the direction of the player.
@@ -4717,7 +4754,7 @@ const ENEMY_LIST = [
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, boulder_elemental_tile,
-    pheonix_tile, strider_tile
+    pheonix_tile, strider_tile, swaying_nettle_tile
 ];
 
 // This is an array of all bosses.
