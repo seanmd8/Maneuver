@@ -10,6 +10,7 @@ Gameplay Changelog:
 
 9/2/24
 - Added a guidebook section for confusion.
+- Rebalanced Hoarder: Larger chests are now invulnerable. It no longer stacks.
 
 7/23/24
 - Added a new Sidebar section to track enemy turn order.

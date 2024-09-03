@@ -1,15 +1,9 @@
-/** @type {TileGenerator} A chest letting the user choose a reward. Currently empty.*/
-function chest_tile(){
-    return {
-        type: `chest`,
-        name: `Chest`,
-        pic: `${IMG_FOLDER.tiles}chest.png`,
-        description: chest_description,
-        tags: new TagList([TAGS.unmovable]),
-        health: 1,
-        on_enter: chest_on_enter,
-        contents: []
+/** @type {TileGenerator} Makes the correct type of chest*/
+function appropriate_chest_tile(){
+    if(GS.boons.has(boon_names.hoarder)){
+        return armored_chest_tile();
     }
+    return chest_tile();
 }
 
 /** @type {AIFunction} Function to open a chest when the player moves onto it.*/

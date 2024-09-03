@@ -631,7 +631,7 @@ class GameMap{
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
         if(this.#floor_num % AREA_SIZE === CHEST_LOCATION){
-            var chest = chest_tile();
+            var chest = appropriate_chest_tile();
             var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.hoarder)));
             for(var boon of choices){
                 add_boon_to_chest(chest, boon);

@@ -378,7 +378,7 @@ var GS;
 const SECOND_STARTING_ENEMY = corrosive_slime_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
 const CARDS_TO_TEST = [];
-const STARTING_CHEST_CONTENTS = escape_artist;
+const STARTING_CHEST_CONTENTS = hoarder;
 const STARTING_CHEST_AMOUNT = 0;
 
 // Dungeon generation settings.
@@ -1428,9 +1428,13 @@ const lich_announcement = `The Lich is currently preparing to cast:\n`;
 const lich_death_message = `The Lich's body crumbles to dust.`;
 
 const young_dragon_floor_message = `The air burns in your lungs.`;
-const young_dragon_description_arr = [`Young Dragon (Boss): Be glad it's still young. Alternates between gliding short distances and breathing fire.\n`
-                    + `The Dragon is currently `, `preparing to fly a short distance.`, `preparing to aim it's fire breath.`,
-                      `preparing to breath fire in a cone of length `];
+const young_dragon_description_arr = [
+        `Young Dragon (Boss): Be glad it's still young. Alternates between gliding short distances and breathing fire.\n`
+        +`The Dragon is currently `, 
+        `preparing to fly a short distance.`, 
+        `preparing to aim it's fire breath.`, 
+        `preparing to breath fire in a cone of length `
+    ];
 const young_dragon_death_message = `Scales so soft are easily pierced. The Young Dragon's fire goes out.`;
 
 // Lich Spell Descriptions.
@@ -1457,13 +1461,17 @@ const fireball_description = `Fireball: Moves forwards until it comes into conta
 const falling_rubble_description = `Watch out, something is about to fall here.`;
 const darkling_rift_description = `If this space isn't blocked, a darkling will teleport here next turn damaging everything nearby.`;
 const chest_description = `Chest: It might have something useful inside. Breaking it will damage the contents.`;
+const armored_chest_description = `Armored Chest: It might have something useful inside. It is larger than a normal chest and armored `
+        +`to protect it's contents.`;
 const magmatic_boulder_description = `Magmatic Boulder: The light reflecting off of it gives you the feeling of being watched.`;
-const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, ` turns unless you scatter the ashes by attacking `
-                        +`them or moving onto them.`];
-const raging_fire_description = `Raging Fire: The very ground here is burning. It will grow weaker every turn, but it's not safe to move through.`;
+const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, ` turns unless you scatter the ashes `
+        +`by attacking them or moving onto them.`];
+const raging_fire_description = `Raging Fire: The very ground here is burning. It will grow weaker every turn, but it's not safe to `
+        +`move through.`;
 const coffin_description = `Coffin: There is no telling whether whatever is inside is still alive or not. Touch it at your own risk.`;
 const sewer_grate_description = `Sewer Grate: It's clogged. Corrosive slime is oozing out.`;
-const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 2 turns to recharge afterwards.`;
+const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 2 turns to `
+        +`recharge afterwards.`;
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;
@@ -1563,7 +1571,7 @@ const expend_vitality_description =  `Heal 1 life at the start of each floor. Yo
 const fleeting_thoughts_description = `Temporary cards added to your deck will happen instantly.`;
 const fortitude_description = `Gain an extra max health.`;
 const future_sight_description = `You may look at the order of your deck.`;
-const hoarder_description = `All treasure chests contain 2 additional choices.`;
+const hoarder_description = `All treasure chests contain 2 additional choices and are invulnerable.`;
 const learn_from_mistakes_description = `Remove any 2 cards from your deck.`;
 const limitless_description = `Remove your max health. Heal for 2. If you would be fully healed, heal for 1 instead.`;
 const pacifism_description = `If you would attack an enemy, stun them twice instead. Fully heal at the start of each floor. `
@@ -1838,7 +1846,7 @@ function boss_death(self, target, map){
     }
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
         // Create a chest containing a random card from it's loot table.
-        var chest = chest_tile();
+        var chest = appropriate_chest_tile();
         var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.hoarder));
         for(var card of cards){
             add_card_to_chest(chest, card());
@@ -3985,6 +3993,20 @@ function vinesnare_bush_telegraph_other(location, map, self){
     }
     return vines;
 }
+/** @type {TileGenerator} Like the normal chest, but it is invulnerable.*/
+function armored_chest_tile(){
+    return {
+        type: `chest`,
+        name: `Armored Chest`,
+        pic: `${IMG_FOLDER.tiles}armored_chest.png`,
+        description: armored_chest_description,
+        tags: new TagList([TAGS.unmovable]),
+        on_enter: chest_on_enter,
+        contents: []
+    }
+}
+
+
 /** @type {TileGenerator} A chest letting the user choose a reward. Currently empty.*/
 function chest_tile(){
     return {
@@ -3997,6 +4019,15 @@ function chest_tile(){
         on_enter: chest_on_enter,
         contents: []
     }
+}
+
+
+/** @type {TileGenerator} Makes the correct type of chest*/
+function appropriate_chest_tile(){
+    if(GS.boons.has(boon_names.hoarder)){
+        return armored_chest_tile();
+    }
+    return chest_tile();
 }
 
 /** @type {AIFunction} Function to open a chest when the player moves onto it.*/
@@ -4129,7 +4160,7 @@ function coffin_tile(){
         health: 1,
         on_enter: decay_ai,
         on_death: coffin_tile_death,
-        summons: [rat_tile, carrion_flies_tile, vampire_tile, chest_tile],
+        summons: [rat_tile, carrion_flies_tile, vampire_tile, appropriate_chest_tile],
         card_drops: RARE_CARD_CHOICES
     }
 }
@@ -6248,7 +6279,7 @@ class GameMap{
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
         if(this.#floor_num % AREA_SIZE === CHEST_LOCATION){
-            var chest = chest_tile();
+            var chest = appropriate_chest_tile();
             var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.hoarder)));
             for(var boon of choices){
                 add_boon_to_chest(chest, boon);
@@ -9546,8 +9577,7 @@ function hoarder(){
     return {
         name: boon_names.hoarder,
         pic: `${IMG_FOLDER.boons}hoarder.png`,
-        description: hoarder_description,
-        unlocks: [hoarder]
+        description: hoarder_description
     }
 }
 function limitless(){

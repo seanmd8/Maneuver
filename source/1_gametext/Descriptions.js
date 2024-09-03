@@ -117,9 +117,13 @@ const lich_announcement = `The Lich is currently preparing to cast:\n`;
 const lich_death_message = `The Lich's body crumbles to dust.`;
 
 const young_dragon_floor_message = `The air burns in your lungs.`;
-const young_dragon_description_arr = [`Young Dragon (Boss): Be glad it's still young. Alternates between gliding short distances and breathing fire.\n`
-                    + `The Dragon is currently `, `preparing to fly a short distance.`, `preparing to aim it's fire breath.`,
-                      `preparing to breath fire in a cone of length `];
+const young_dragon_description_arr = [
+        `Young Dragon (Boss): Be glad it's still young. Alternates between gliding short distances and breathing fire.\n`
+        +`The Dragon is currently `, 
+        `preparing to fly a short distance.`, 
+        `preparing to aim it's fire breath.`, 
+        `preparing to breath fire in a cone of length `
+    ];
 const young_dragon_death_message = `Scales so soft are easily pierced. The Young Dragon's fire goes out.`;
 
 // Lich Spell Descriptions.
@@ -146,13 +150,17 @@ const fireball_description = `Fireball: Moves forwards until it comes into conta
 const falling_rubble_description = `Watch out, something is about to fall here.`;
 const darkling_rift_description = `If this space isn't blocked, a darkling will teleport here next turn damaging everything nearby.`;
 const chest_description = `Chest: It might have something useful inside. Breaking it will damage the contents.`;
+const armored_chest_description = `Armored Chest: It might have something useful inside. It is larger than a normal chest and armored `
+        +`to protect it's contents.`;
 const magmatic_boulder_description = `Magmatic Boulder: The light reflecting off of it gives you the feeling of being watched.`;
-const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, ` turns unless you scatter the ashes by attacking `
-                        +`them or moving onto them.`];
-const raging_fire_description = `Raging Fire: The very ground here is burning. It will grow weaker every turn, but it's not safe to move through.`;
+const smoldering_ashes_description = [`Smoldering Ashes: A pheonix will be reborn here in `, ` turns unless you scatter the ashes `
+        +`by attacking them or moving onto them.`];
+const raging_fire_description = `Raging Fire: The very ground here is burning. It will grow weaker every turn, but it's not safe to `
+        +`move through.`;
 const coffin_description = `Coffin: There is no telling whether whatever is inside is still alive or not. Touch it at your own risk.`;
 const sewer_grate_description = `Sewer Grate: It's clogged. Corrosive slime is oozing out.`;
-const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 2 turns to recharge afterwards.`;
+const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 2 turns to `
+        +`recharge afterwards.`;
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;
@@ -252,7 +260,7 @@ const expend_vitality_description =  `Heal 1 life at the start of each floor. Yo
 const fleeting_thoughts_description = `Temporary cards added to your deck will happen instantly.`;
 const fortitude_description = `Gain an extra max health.`;
 const future_sight_description = `You may look at the order of your deck.`;
-const hoarder_description = `All treasure chests contain 2 additional choices.`;
+const hoarder_description = `All treasure chests contain 2 additional choices and are invulnerable.`;
 const learn_from_mistakes_description = `Remove any 2 cards from your deck.`;
 const limitless_description = `Remove your max health. Heal for 2. If you would be fully healed, heal for 1 instead.`;
 const pacifism_description = `If you would attack an enemy, stun them twice instead. Fully heal at the start of each floor. `
