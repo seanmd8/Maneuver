@@ -32,3 +32,10 @@
 .no-repetition legend {
     border-color: slategrey;
 }
+
+.visible-section {
+    display: block;
+}
+.hidden-section {
+    display: none;
+}

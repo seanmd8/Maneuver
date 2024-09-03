@@ -710,10 +710,14 @@ const DisplayHTML = {
     },
     swap_screen: function(divisions, screen = undefined){
         for(var i = 0; i < divisions.length; ++i){
-            DisplayHTML.get_element(divisions[i], HTMLDivElement).style.display = `none`;
+            DisplayHTML.get_element(divisions[i], HTMLDivElement);
+            display.remove_class(divisions[i], `visible-section`);
+            display.add_class(divisions[i], `hidden-section`);
         }
         if(screen !== undefined){
-            DisplayHTML.get_element(screen, HTMLDivElement).style.display = `block`;
+            DisplayHTML.get_element(screen, HTMLDivElement);
+            display.remove_class(screen, `hidden-section`);
+            display.add_class(screen, `visible-section`);
         }
     },
     select: function(location, row_num, column_num){
