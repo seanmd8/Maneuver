@@ -9,19 +9,19 @@ const ADD_CHOICE_COUNT = 3;
 const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
 
-// Initialization settings.
-const STARTING_ENEMY = spider_tile;
-const STARTING_ENEMY_AMOUNT = 1;
-const STARTING_DECK = make_starting_deck;
-const STARTING_AREA = [generate_ruins_area];
-var GS;
-
 // Settings just used for testing.
 const SECOND_STARTING_ENEMY = corrosive_slime_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
-const CARDS_TO_TEST = [];
 const STARTING_CHEST_CONTENTS = pacifism;
 const STARTING_CHEST_AMOUNT = 0;
+const CARDS_TO_TEST = [];
+
+// Initialization settings.
+const STARTING_ENEMY = spider_tile;
+const STARTING_ENEMY_AMOUNT = 1;
+const STARTING_DECK = CARDS_TO_TEST.length > 0 ? make_test_deck : make_starting_deck;
+const STARTING_AREA = [generate_ruins_area];
+var GS;
 
 // Dungeon generation settings.
 const FLOOR_WIDTH = 8;

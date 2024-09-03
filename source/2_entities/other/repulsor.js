@@ -57,9 +57,6 @@ function repulsor_push_ai(self, target, map){
     if(player_was_moved){
         throw new Error(ERRORS.pass_turn);
     }
-    if(!activated){
-        throw new Error(ERRORS.skip_animation);
-    }
 }
 
 /** @type {AIFunction} AI used by smoldering ashes.*/
