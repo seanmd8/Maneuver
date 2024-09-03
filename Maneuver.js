@@ -1453,7 +1453,7 @@ const empty_description = `There is nothing here.`;
 const exit_description = `Stairs: Takes you to the next floor.`;
 const player_description = `You: Click a card to move.`;
 const lava_pool_description = `Lava Pool: Attempting to move here will hurt.`;
-const corrosive_slime_description = `Corrosive Slime: Trying to walk in this will hurt. Clear it out by attacking.`;
+const corrosive_slime_description = `Corrosive Slime: Stepping into this will hurt. Clear it out by attacking.`;
 const wall_description = `Wall: It seems sturdy.`;
 const damaged_wall_description = `Damaged Wall: Something might live inside.`;
 const lock_description = `Locked Exit: Defeat the boss to continue.`;
@@ -4193,8 +4193,14 @@ function corrosive_slime_tile(){
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         telegraph: hazard_telegraph,
-        on_enter: hazard
+        on_enter: corrosive_slime_on_enter
     }
+}
+
+/** @type {AIFunction} AI used by spider webs.*/
+function corrosive_slime_on_enter(self, target, map){
+    hazard(self, target, map);
+    decay_ai(self, target, map);
 }
 
 /**
@@ -6036,6 +6042,7 @@ class GameMap{
                 throw new Error(ERRORS.creature_died);
             }
         }
+        end = this.get_tile(end_point);
         if(end.type === `empty` && this.get_tile(start_point) === start){
             // Move.
             this.#entity_list.move_any(end_point, start);

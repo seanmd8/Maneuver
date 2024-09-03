@@ -388,6 +388,7 @@ class GameMap{
                 throw new Error(ERRORS.creature_died);
             }
         }
+        end = this.get_tile(end_point);
         if(end.type === `empty` && this.get_tile(start_point) === start){
             // Move.
             this.#entity_list.move_any(end_point, start);

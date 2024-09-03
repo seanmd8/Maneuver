@@ -8,6 +8,12 @@ function corrosive_slime_tile(){
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         telegraph: hazard_telegraph,
-        on_enter: hazard
+        on_enter: corrosive_slime_on_enter
     }
+}
+
+/** @type {AIFunction} AI used by spider webs.*/
+function corrosive_slime_on_enter(self, target, map){
+    hazard(self, target, map);
+    decay_ai(self, target, map);
 }

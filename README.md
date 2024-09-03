@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+9/25/24
+- Walking into Corrosive Slime will clear it out in addition to harming you.
+
 9/2/24
 - Added a guidebook section for confusion.
 - Rebalanced Hoarder Boon: Larger chests are now invulnerable. It no longer stacks.
