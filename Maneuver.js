@@ -428,7 +428,8 @@ Object.freeze(IMG_FOLDER);
 const TAGS = {
     boss: `Boss`,
     unmovable: `Unmovable`,
-    hidden: `Hidden`
+    hidden: `Hidden`,
+    thorn_bush_roots: `Thorn Bush Roots`
 }
 Object.freeze(TAGS);
 // ----------------Display.js----------------
@@ -1389,6 +1390,7 @@ const igneous_crab_description = `Igneous Crab: Will attack the player if it is 
                                 +`When damaged, it will spend the next 2 turns fleeing.`;
 const strider_description = `Strider: Attacks then moves 2 spaces away in one direction.`;
 const swaying_nettle_description = `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal to it.`;
+const thorn_bush_description = `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`;
 
 
 // Area Descriptions.
@@ -1477,6 +1479,7 @@ const coffin_description = `Coffin: There is no telling whether whatever is insi
 const sewer_grate_description = `Sewer Grate: It's clogged. Corrosive slime is oozing out.`;
 const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 2 turns to `
         +`recharge afterwards.`;
+const thorn_bramble_description = `Thorn Bramble: Trying to move here hurts. Allows the thorn bush to spread further.`;
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;
@@ -3706,7 +3709,7 @@ function swaying_nettle_tile(){
         name: `swaying nettle`,
         pic: pic_arr[starting_cycle],
         description: swaying_nettle_description,
-        tags: new TagList(),
+        tags: new TagList(TAGS.unmovable),
         health: 1,
         difficulty: 2,
         behavior: swaying_nettle_ai,
@@ -3732,6 +3735,38 @@ function swaying_nettle_telegraph(location, map, self){
     return targets.map(target => {
         return target.plus(location);
     })
+}
+/** @type {TileGenerator} */
+function thorn_bush_tile(){
+    return{
+        type: `enemy`,
+        name: `thorn bush`,
+        pic: `${IMG_FOLDER.tiles}thorn_bush.png`,
+        description: thorn_bush_description,
+        tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
+        health: 2,
+        difficulty: 6,
+        behavior: thorn_bush_ai,
+        telegraph: hazard_telegraph,
+        on_enter: hazard
+    }
+}
+
+/** @type {AIFunction} AI used by thorn bushes.*/
+function thorn_bush_ai(self, target, map){
+    var current = self.location;
+    for(var i = 0; i < 30 && !map.check_empty(current); ++i){
+        var next = current.plus(random_nearby()[0]);
+        if(map.is_in_bounds(next)){
+            var space = map.get_tile(next)
+            if(space.tags.has(TAGS.thorn_bush_roots) || (space.type === `empty` && random_num(4) === 0)){
+                current = next;
+            }
+        }
+    }
+    if(map.check_empty(current)){
+        map.add_tile(thorn_bramble_tile(), current);
+    }
 }
 /** @type {AIFunction} AI used by all turrets to fire towards the player.*/
 function turret_fire_ai(self, target, map){
@@ -4546,6 +4581,20 @@ function smoldering_ashes_ai(self, target, map){
     }
 }
 
+/** @type {TileGenerator} */
+function thorn_bramble_tile(){
+    return{
+        type: `terrain`,
+        name: `thorn bramble`,
+        pic: `${IMG_FOLDER.tiles}thorn_bramble.png`,
+        description: thorn_bramble_description,
+        tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
+        health: 1,
+        telegraph: hazard_telegraph,
+        on_enter: hazard
+    }
+}
+
 /** @type {TileGenerator} A damaged wall that might spawn something on death.*/
 function damaged_wall_tile(){
     var health = random_num(2) + 1;
@@ -4754,7 +4803,7 @@ const ENEMY_LIST = [
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, boulder_elemental_tile,
-    pheonix_tile, strider_tile, swaying_nettle_tile
+    pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile
 ];
 
 // This is an array of all bosses.
@@ -6334,7 +6383,7 @@ class GameMap{
         say(floor_description);
     }
     /**
-     * Gets a tile from a location on the grid.
+     * Gets a GridSpace from a location on the grid.
      * Throws an error if the location is out of bounds.
      * @param {Point} location The location of the tile.
      * @returns {Tile} The tile at that location

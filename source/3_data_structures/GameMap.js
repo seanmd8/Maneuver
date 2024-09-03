@@ -642,7 +642,7 @@ class GameMap{
         say(floor_description);
     }
     /**
-     * Gets a tile from a location on the grid.
+     * Gets a GridSpace from a location on the grid.
      * Throws an error if the location is out of bounds.
      * @param {Point} location The location of the tile.
      * @returns {Tile} The tile at that location

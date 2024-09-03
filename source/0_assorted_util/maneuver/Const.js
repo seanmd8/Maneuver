@@ -70,6 +70,7 @@ Object.freeze(IMG_FOLDER);
 const TAGS = {
     boss: `Boss`,
     unmovable: `Unmovable`,
-    hidden: `Hidden`
+    hidden: `Hidden`,
+    thorn_bush_roots: `Thorn Bush Roots`
 }
 Object.freeze(TAGS);

@@ -7,7 +7,7 @@ function swaying_nettle_tile(){
         name: `swaying nettle`,
         pic: pic_arr[starting_cycle],
         description: swaying_nettle_description,
-        tags: new TagList(),
+        tags: new TagList(TAGS.unmovable),
         health: 1,
         difficulty: 2,
         behavior: swaying_nettle_ai,

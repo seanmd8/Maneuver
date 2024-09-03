@@ -74,6 +74,7 @@ const igneous_crab_description = `Igneous Crab: Will attack the player if it is 
                                 +`When damaged, it will spend the next 2 turns fleeing.`;
 const strider_description = `Strider: Attacks then moves 2 spaces away in one direction.`;
 const swaying_nettle_description = `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal to it.`;
+const thorn_bush_description = `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`;
 
 
 // Area Descriptions.
@@ -162,6 +163,7 @@ const coffin_description = `Coffin: There is no telling whether whatever is insi
 const sewer_grate_description = `Sewer Grate: It's clogged. Corrosive slime is oozing out.`;
 const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 2 turns to `
         +`recharge afterwards.`;
+const thorn_bramble_description = `Thorn Bramble: Trying to move here hurts. Allows the thorn bush to spread further.`;
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;
