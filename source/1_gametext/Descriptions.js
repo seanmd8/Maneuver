@@ -71,10 +71,12 @@ const boulder_elemental_description = `Boulder Elemental: Wakes up stunned when 
 const pheonix_description = `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. Everything it flies over will be `
                             +`damaged and set on fire. When it dies, it drops a pile of ashes from which it will eventually be reborn.`;
 const igneous_crab_description = `Igneous Crab: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
-                                +`When damaged, it will spend the next 2 turns fleeing.`;
+                            +`When damaged, it will spend the next 2 turns fleeing.`;
 const strider_description = `Strider: Attacks then moves 2 spaces away in one direction.`;
 const swaying_nettle_description = `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal to it.`;
 const thorn_bush_description = `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`;
+const dart_tail_scorpion_description = `Dart Tail Scorpion: Damages the player if they are exactly 2 spaces away in any direction. `
+                            +`Otherwise, moves one space orthogonally away if the player is nearby, or closer if they aren't.`;
 
 
 // Area Descriptions.

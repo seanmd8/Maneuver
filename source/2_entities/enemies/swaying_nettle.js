@@ -4,7 +4,7 @@ function swaying_nettle_tile(){
     var starting_cycle = random_num(2);
     return{
         type: `enemy`,
-        name: `swaying nettle`,
+        name: `Swaying Nettle`,
         pic: pic_arr[starting_cycle],
         description: swaying_nettle_description,
         tags: new TagList(TAGS.unmovable),
@@ -19,6 +19,10 @@ function swaying_nettle_tile(){
 
 /** @type {AIFunction} AI used by swaying nettles.*/
 function swaying_nettle_ai(self, target, map){
+    if( self.tile.cycle === undefined || 
+        self.tile.pic_arr === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
     var targets = self.tile.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;
     for(var target of targets){
         map.attack(self.location.plus(target));
@@ -29,6 +33,10 @@ function swaying_nettle_ai(self, target, map){
 
 /** @type {TelegraphFunction} */
 function swaying_nettle_telegraph(location, map, self){
+    if( self.cycle === undefined || 
+        self.flip === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
     var targets = self.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;
     return targets.map(target => {
         return target.plus(location);

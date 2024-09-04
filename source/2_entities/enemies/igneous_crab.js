@@ -26,7 +26,16 @@ function igneous_crab_ai(self, target, map){
         --self.tile.cycle;
     }
     else{
-        spider_ai(self, target, map);
+        if(target.difference.within_radius(1)){
+            map.attack(self.location.plus(target.difference));
+        }
+        else{
+            var directions = order_nearby(target.difference);
+            for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
+            if(i < directions.length){
+                map.move(self.location, self.location.plus(directions[i]));
+            }
+        }
     }
 }
 /** @type {AIFunction} Used to cause igneous crabs to flee when damaged.*/

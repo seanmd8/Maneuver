@@ -2,7 +2,7 @@
 function thorn_bush_tile(){
     return{
         type: `enemy`,
-        name: `thorn bush`,
+        name: `Thorn Bush`,
         pic: `${IMG_FOLDER.tiles}thorn_bush.png`,
         description: thorn_bush_description,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),

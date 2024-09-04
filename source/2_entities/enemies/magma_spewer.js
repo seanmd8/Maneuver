@@ -35,7 +35,6 @@ function magma_spewer_ai(self, target, map){
                 }
             }
         }
-        
     }
     else{
         // Spew Magma.

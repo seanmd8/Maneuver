@@ -1387,10 +1387,12 @@ const boulder_elemental_description = `Boulder Elemental: Wakes up stunned when 
 const pheonix_description = `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. Everything it flies over will be `
                             +`damaged and set on fire. When it dies, it drops a pile of ashes from which it will eventually be reborn.`;
 const igneous_crab_description = `Igneous Crab: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
-                                +`When damaged, it will spend the next 2 turns fleeing.`;
+                            +`When damaged, it will spend the next 2 turns fleeing.`;
 const strider_description = `Strider: Attacks then moves 2 spaces away in one direction.`;
 const swaying_nettle_description = `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal to it.`;
 const thorn_bush_description = `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`;
+const dart_tail_scorpion_description = `Dart Tail Scorpion: Damages the player if they are exactly 2 spaces away in any direction. `
+                            +`Otherwise, moves one space orthogonally away if the player is nearby, or closer if they aren't.`;
 
 
 // Area Descriptions.
@@ -2814,6 +2816,76 @@ function darkling_telegraph(location, map, self){
     }
     return spider_telegraph(self.direction, map, self);
 }
+/** @type {TileGenerator} */
+function dart_tail_scorpion_tile(){
+    return {
+        type: `enemy`,
+        name: `Dart Tail Scorpion`,
+        pic: `${IMG_FOLDER.tiles}dart_tail_scorpion.png`,
+        description: dart_tail_scorpion_description,
+        tags: new TagList(),
+        health: 1,
+        difficulty: 6,
+        behavior: dart_tail_scorpion_ai,
+        telegraph: dart_tail_scorpion_telegraph,
+        flip: random_num(2) === 0,
+    }
+}
+
+/** @type {AIFunction} AI used by dart tailed scorpions.*/
+function dart_tail_scorpion_ai(self, target, map){
+    if(self.tile.flip === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    // Checks if it can attack the player.
+    var hits = get_2_away().filter(p => {
+        return point_equals(p, target.difference);
+    });
+    if(hits.length > 0){
+        map.attack(self.location.plus(target.difference));
+        return;
+    }
+    // Orders the places it could move.
+    var directions = order_nearby(target.difference).filter(p => {
+        return p.on_axis();
+    });
+    if(target.difference.within_radius(1)){
+        directions = reverse_arr(directions);
+    }
+    // Carefully tries to move.
+    for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
+    if(i < directions.length){
+        var move = directions[i];
+        map.move(self.location, self.location.plus(move));
+        if(move.x !== 0){
+            self.tile.flip = move.x > 0;
+        }
+    }
+}
+
+/** @type {TelegraphFunction} Function to telegraph rat attacks.*/
+function dart_tail_scorpion_telegraph(location, map, self){
+    return get_2_away().map(p => {
+        return p.plus(location);
+    })
+}
+
+/**
+ * Function to make a square of points with a side length 5 centered on the origin.
+ * @returns {Point[]} the points.
+ */
+function get_2_away(){
+    var points = [];
+    for(var x = -2; x <= 2; ++x){
+        for(var y = -2; y <= 2; ++y){
+            var p = new Point(x, y);
+            if(p.within_radius(2) && !p.within_radius(1)){
+                points.push(p);
+            }
+        }
+    }
+    return points;
+}
 /** @type {TileGenerator} A crab which flees when hit. */
 function igneous_crab_tile(){
     return {
@@ -2842,7 +2914,16 @@ function igneous_crab_ai(self, target, map){
         --self.tile.cycle;
     }
     else{
-        spider_ai(self, target, map);
+        if(target.difference.within_radius(1)){
+            map.attack(self.location.plus(target.difference));
+        }
+        else{
+            var directions = order_nearby(target.difference);
+            for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
+            if(i < directions.length){
+                map.move(self.location, self.location.plus(directions[i]));
+            }
+        }
     }
 }
 /** @type {AIFunction} Used to cause igneous crabs to flee when damaged.*/
@@ -2901,7 +2982,6 @@ function magma_spewer_ai(self, target, map){
                 }
             }
         }
-        
     }
     else{
         // Spew Magma.
@@ -3706,7 +3786,7 @@ function swaying_nettle_tile(){
     var starting_cycle = random_num(2);
     return{
         type: `enemy`,
-        name: `swaying nettle`,
+        name: `Swaying Nettle`,
         pic: pic_arr[starting_cycle],
         description: swaying_nettle_description,
         tags: new TagList(TAGS.unmovable),
@@ -3721,6 +3801,10 @@ function swaying_nettle_tile(){
 
 /** @type {AIFunction} AI used by swaying nettles.*/
 function swaying_nettle_ai(self, target, map){
+    if( self.tile.cycle === undefined || 
+        self.tile.pic_arr === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
     var targets = self.tile.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;
     for(var target of targets){
         map.attack(self.location.plus(target));
@@ -3731,6 +3815,10 @@ function swaying_nettle_ai(self, target, map){
 
 /** @type {TelegraphFunction} */
 function swaying_nettle_telegraph(location, map, self){
+    if( self.cycle === undefined || 
+        self.flip === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
     var targets = self.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;
     return targets.map(target => {
         return target.plus(location);
@@ -3740,7 +3828,7 @@ function swaying_nettle_telegraph(location, map, self){
 function thorn_bush_tile(){
     return{
         type: `enemy`,
-        name: `thorn bush`,
+        name: `Thorn Bush`,
         pic: `${IMG_FOLDER.tiles}thorn_bush.png`,
         description: thorn_bush_description,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
@@ -4585,7 +4673,7 @@ function smoldering_ashes_ai(self, target, map){
 function thorn_bramble_tile(){
     return{
         type: `terrain`,
-        name: `thorn bramble`,
+        name: `Thorn Bramble`,
         pic: `${IMG_FOLDER.tiles}thorn_bramble.png`,
         description: thorn_bramble_description,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
