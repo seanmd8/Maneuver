@@ -461,6 +461,7 @@ class GameMap{
                 target.on_hit(hit_entity, aggressor_info, this);
             }
             if(target.health <= 0){
+                // Player death.
                 if(target.type === `player`){
                     if(GS.boons.has(boon_names.rebirth)){
                         this.player_heal(new Point(0, 0));
@@ -471,13 +472,16 @@ class GameMap{
                     }
                     throw new Error(ERRORS.game_over);
                 }
-                // Remove dead tile.
+                // Non player death.
                 this.#set_tile(location, empty_tile());
                 if(target.type === `enemy`){
                     if(target.id === undefined){
                         throw new Error(ERRORS.missing_id);
                     }
                     this.#entity_list.remove_enemy(target.id);
+                }
+                else{
+                    --this.#entity_list.count_non_empty;
                 }
                 if(target.on_death !== undefined){
                     // Trigger on_death/

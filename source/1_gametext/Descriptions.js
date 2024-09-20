@@ -73,10 +73,15 @@ const pheonix_description = `Pheonix: Flies to an empty spot 2 or 3 spaces away 
 const igneous_crab_description = `Igneous Crab: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
                             +`When damaged, it will spend the next 2 turns fleeing.`;
 const strider_description = `Strider: Attacks then moves 2 spaces away in one direction.`;
-const swaying_nettle_description = `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal to it.`;
+const swaying_nettle_description = `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal to it. Won't `
+                            +`hurt each other`;
+const nettle_root_description = `Watch out, swaying nettles are about to sprout damaging anything standing here.`
 const thorn_bush_description = `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`;
-const dart_tail_scorpion_description = `Dart Tail Scorpion: Damages the player if they are exactly 2 spaces away in any direction. `
-                            +`Otherwise, moves one space orthogonally away if the player is nearby, or closer if they aren't.`;
+const living_tree_description = `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
+                            +`Moves one square in any direction every other turn if it didn't attack.`;
+const living_tree_rooted_description = `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
+                            +`This one has put down roots making it unable to move.`
+const scorpion_description = `Scorpion: Will attack the player if it is next to them. Otherwise, moves 2 spaces closer every other turn.`;
 
 
 // Area Descriptions.
@@ -129,6 +134,13 @@ const young_dragon_description_arr = [
         `preparing to breath fire in a cone of length `
     ];
 const young_dragon_death_message = `Scales so soft are easily pierced. The Young Dragon's fire goes out.`;
+const forest_heart_floor_message = `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`;
+const forest_heart_description = `An ancient tree warped by dark magic. Cannot take more than 1 damage each turn. `;
+const forest_heart_rest_description = `Currently, the Forest Heart is resting.`;
+const forest_heart_growth_description = `Currently, the Forest Heart is preparing to grow plants.`;
+const forest_heart_summon_description = `Currently, the Forest Heart is preparing to summon forest creatures.`;
+const forest_heart_death_message = `Branches rain from above as the ancient tree is felled.`
+
 
 // Lich Spell Descriptions.
 const teleport_spell_description = `Teleport: The user moves to a random square on the map`;
@@ -166,6 +178,11 @@ const sewer_grate_description = `Sewer Grate: It's clogged. Corrosive slime is o
 const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 2 turns to `
         +`recharge afterwards.`;
 const thorn_bramble_description = `Thorn Bramble: Trying to move here hurts. Allows the thorn bush to spread further.`;
+const thorn_root_description = `Watch out, brambles are about to sprout damaging anything standing here.`
+const enticing_fruit_tree_description = `Enticing Fruit Tree: Moving you here will heal you, but other creatures may be attracted by `
+        +`the fruit.`;
+const rotting_fruit_tree_description = `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell could still attract `
+        +`creatures if it is disturbed.`;
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;

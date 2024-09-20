@@ -7,9 +7,9 @@ function swaying_nettle_tile(){
         name: `Swaying Nettle`,
         pic: pic_arr[starting_cycle],
         description: swaying_nettle_description,
-        tags: new TagList(TAGS.unmovable),
+        tags: new TagList([TAGS.unmovable, TAGS.nettle_immune]),
         health: 1,
-        difficulty: 2,
+        difficulty: 1,
         behavior: swaying_nettle_ai,
         telegraph: swaying_nettle_telegraph,
         pic_arr,
@@ -25,7 +25,10 @@ function swaying_nettle_ai(self, target, map){
     }
     var targets = self.tile.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;
     for(var target of targets){
-        map.attack(self.location.plus(target));
+        var target_space = self.location.plus(target);
+        if(map.is_in_bounds(target_space) && !map.get_tile(target_space).tags.has(TAGS.nettle_immune)){
+            map.attack(target_space);
+        }
     }
     self.tile.cycle = 1 - self.tile.cycle;
     self.tile.pic = self.tile.pic_arr[self.tile.cycle];
@@ -34,7 +37,7 @@ function swaying_nettle_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function swaying_nettle_telegraph(location, map, self){
     if( self.cycle === undefined || 
-        self.flip === undefined){
+        self.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
     var targets = self.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;

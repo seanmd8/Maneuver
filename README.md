@@ -8,7 +8,17 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
-9/25/24
+9/20/24
+- Added new fourth area: Subterranian Forest
+- Added Subterranian Forest Boss: Forest Heart
+- Added new enemy: Living Tree
+- Added new enemy: Scorpion
+- Added new enemy: Swaying Nettle
+- Added new enemy: Thorn Bush
+- Added new terrain: Enticing Fruit Tree
+- Added new terrain: Rotting Fruit Tree
+
+9/5/24
 - Walking into Corrosive Slime will clear it out in addition to harming you.
 
 9/2/24

@@ -62,7 +62,7 @@ const ENEMY_LIST = [
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, boulder_elemental_tile,
-    pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, dart_tail_scorpion_tile
+    pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile
 ];
 
 // This is an array of all bosses.
@@ -71,11 +71,14 @@ const BOSS_LIST = [
 ]
 
 /**
- * stuns a tile by incrementing it's stun property. Adds the property first if necessary.
+ * Stuns a stunnable tile by incrementing it's stun property. Adds the property first if necessary.
  * @param {Tile} tile The tile to stun.
  * @param {number} [amount = 1] Optional parameter for the amount of stun to add. Default is 1.
  */
 function stun(tile, amount = 1){
+    if(tile.tags !== undefined && tile.tags.has(TAGS.unstunnable)){
+        return;
+    }
     // Increases a tile's stun.
     if(tile.stun === undefined){
         tile.stun = 0;
@@ -279,6 +282,38 @@ function set_rotation(tile){
         var diagonal = 1;
     }
     return diagonal;
+}
+
+/**
+ * Creates an array of points around the edge of the rectangle created using the given points as corners.
+ * @param {Point} p1 One corner of the rectangle.
+ * @param {Point} p2 The opposite corner.
+ * @returns {Point[]} An array of the points around the edge.
+ */
+function point_rectangle(p1, p2){
+    if(p1.x === p2.x || p1.y === p2.y){
+        // The rectangle can't be 1 dimensional.
+        throw new Error(ERRORS.invalid_value);
+    }
+    var rectangle = [
+        p1.copy(),
+        p2.copy(),
+        new Point(p1.x, p2.y),
+        new Point(p2.x, p1.y)
+    ];
+    var x_min = Math.min(p1.x, p2.x);
+    var x_max = Math.max(p1.x, p2.x);
+    var y_min = Math.min(p1.y, p2.y);
+    var y_max = Math.max(p1.y, p2.y);
+    for(var x = x_min + 1; x < x_max; ++x){
+        rectangle.push(new Point(x, y_min));
+        rectangle.push(new Point(x, y_max));
+    }
+    for(var y = y_min + 1; y < y_max; ++y){
+        rectangle.push(new Point(x_min, y));
+        rectangle.push(new Point(x_max, y));
+    }
+    return rectangle;
 }
 
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */

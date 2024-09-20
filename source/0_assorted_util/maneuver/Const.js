@@ -10,9 +10,9 @@ const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
 
 // Settings just used for testing.
-const SECOND_STARTING_ENEMY = corrosive_slime_tile;
+const SECOND_STARTING_ENEMY = spider_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
-const STARTING_CHEST_CONTENTS = pacifism;
+const STARTING_CHEST_CONTENTS = roar_of_challenge;
 const STARTING_CHEST_AMOUNT = 0;
 const CARDS_TO_TEST = [];
 
@@ -38,7 +38,7 @@ const CHEST_CONTENTS_SIZE = 120;
 const TILE_SCALE = 40;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
-const ANIMATION_DELAY = 200;
+const ANIMATION_DELAY = 160;
 const DECK_DISPLAY_WIDTH = 4;
 const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
@@ -70,7 +70,9 @@ Object.freeze(IMG_FOLDER);
 const TAGS = {
     boss: `Boss`,
     unmovable: `Unmovable`,
+    unstunnable: `Unstunnable`,
     hidden: `Hidden`,
-    thorn_bush_roots: `Thorn Bush Roots`
+    thorn_bush_roots: `Thorn Bush Roots`,
+    nettle_immune: `Nettle Immune`
 }
 Object.freeze(TAGS);

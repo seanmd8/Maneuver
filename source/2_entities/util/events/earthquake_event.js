@@ -3,7 +3,7 @@
  * Function to create an event function representing an earthquake.
  * @param {number} amount The amount of falling debris that should be created.
  * @param {Point[]=} locations An optional grid of locations to pick from.
- * @returns {MapEventFunction} The earthquake event.
+ * @returns {MapEventFunction} The event.
  */
 function earthquake_event(amount, locations = undefined){
     var falling_rubble = function(locations){

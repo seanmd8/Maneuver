@@ -147,7 +147,14 @@ class GameState{
                 
                 break;
             case `teleport`:
-                this.map.player_teleport(action.change);
+                try{
+                    this.map.player_teleport(action.change);
+                }
+                catch(error){
+                    if(error.message !== ERRORS.map_full){
+                        throw error;
+                    }
+                }
                 break;
             case `stun`:
                 this.map.player_stun(action.change);

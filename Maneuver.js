@@ -368,9 +368,9 @@ const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
 
 // Settings just used for testing.
-const SECOND_STARTING_ENEMY = corrosive_slime_tile;
+const SECOND_STARTING_ENEMY = spider_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
-const STARTING_CHEST_CONTENTS = pacifism;
+const STARTING_CHEST_CONTENTS = roar_of_challenge;
 const STARTING_CHEST_AMOUNT = 0;
 const CARDS_TO_TEST = [];
 
@@ -396,7 +396,7 @@ const CHEST_CONTENTS_SIZE = 120;
 const TILE_SCALE = 40;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
-const ANIMATION_DELAY = 200;
+const ANIMATION_DELAY = 160;
 const DECK_DISPLAY_WIDTH = 4;
 const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
@@ -428,8 +428,10 @@ Object.freeze(IMG_FOLDER);
 const TAGS = {
     boss: `Boss`,
     unmovable: `Unmovable`,
+    unstunnable: `Unstunnable`,
     hidden: `Hidden`,
-    thorn_bush_roots: `Thorn Bush Roots`
+    thorn_bush_roots: `Thorn Bush Roots`,
+    nettle_immune: `Nettle Immune`
 }
 Object.freeze(TAGS);
 // ----------------Display.js----------------
@@ -1389,10 +1391,15 @@ const pheonix_description = `Pheonix: Flies to an empty spot 2 or 3 spaces away 
 const igneous_crab_description = `Igneous Crab: Will attack the player if it is next to them. Otherwise it will move 1 space closer. `
                             +`When damaged, it will spend the next 2 turns fleeing.`;
 const strider_description = `Strider: Attacks then moves 2 spaces away in one direction.`;
-const swaying_nettle_description = `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal to it.`;
+const swaying_nettle_description = `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal to it. Won't `
+                            +`hurt each other`;
+const nettle_root_description = `Watch out, swaying nettles are about to sprout damaging anything standing here.`
 const thorn_bush_description = `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`;
-const dart_tail_scorpion_description = `Dart Tail Scorpion: Damages the player if they are exactly 2 spaces away in any direction. `
-                            +`Otherwise, moves one space orthogonally away if the player is nearby, or closer if they aren't.`;
+const living_tree_description = `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
+                            +`Moves one square in any direction every other turn if it didn't attack.`;
+const living_tree_rooted_description = `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
+                            +`This one has put down roots making it unable to move.`
+const scorpion_description = `Scorpion: Will attack the player if it is next to them. Otherwise, moves 2 spaces closer every other turn.`;
 
 
 // Area Descriptions.
@@ -1445,6 +1452,13 @@ const young_dragon_description_arr = [
         `preparing to breath fire in a cone of length `
     ];
 const young_dragon_death_message = `Scales so soft are easily pierced. The Young Dragon's fire goes out.`;
+const forest_heart_floor_message = `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`;
+const forest_heart_description = `An ancient tree warped by dark magic. Cannot take more than 1 damage each turn. `;
+const forest_heart_rest_description = `Currently, the Forest Heart is resting.`;
+const forest_heart_growth_description = `Currently, the Forest Heart is preparing to grow plants.`;
+const forest_heart_summon_description = `Currently, the Forest Heart is preparing to summon forest creatures.`;
+const forest_heart_death_message = `Branches rain from above as the ancient tree is felled.`
+
 
 // Lich Spell Descriptions.
 const teleport_spell_description = `Teleport: The user moves to a random square on the map`;
@@ -1482,6 +1496,11 @@ const sewer_grate_description = `Sewer Grate: It's clogged. Corrosive slime is o
 const repulsor_description = `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 2 turns to `
         +`recharge afterwards.`;
 const thorn_bramble_description = `Thorn Bramble: Trying to move here hurts. Allows the thorn bush to spread further.`;
+const thorn_root_description = `Watch out, brambles are about to sprout damaging anything standing here.`
+const enticing_fruit_tree_description = `Enticing Fruit Tree: Moving you here will heal you, but other creatures may be attracted by `
+        +`the fruit.`;
+const rotting_fruit_tree_description = `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell could still attract `
+        +`creatures if it is disturbed.`;
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;
@@ -1865,6 +1884,168 @@ function boss_death(self, target, map){
     }
     say(`${self.tile.death_message}\n${boss_death_description}`);
     map.unlock();
+}
+// ToDo
+//      Handle Death
+//      Handle Spells
+//      New Pics?
+//      Test Stun immunity
+//      Test Nettle immunity (along with nettle's nettle immunity)
+//      Add Cards
+//      Double check which things replace previous spawns and how.
+
+//      Playtest
+//      Finish Forest
+//      Clean up testing, put forest into context
+//      Try to beat it
+
+
+/** @type {TileGenerator} */
+function forest_heart_tile(){
+    var pic_arr = [
+        `${IMG_FOLDER.tiles}forest_heart.png`,
+        `${IMG_FOLDER.tiles}forest_heart_invincible.png`
+    ]
+    var health = 12
+    var spells = [
+        // Index + 1 corresponds with the health it's triggered at.
+        /*1*/greater_thorn_bush_spell_generator(),
+        /*2*/forest_heart_rest_spell_generator(),
+        /*3*/swaying_nettle_spell_generator(),
+        /*4*/living_tree_spell_generator(),
+        /*5*/thorn_bush_spell_generator(),
+        /*6*/rotting_fruit_spell_generator(),
+        /*7*/scorpion_spell_generator(),
+        /*8*/forest_heart_rest_spell_generator(),
+        /*9*/thorn_bush_spell_generator(),
+        /*10*/vinesnare_bush_spell_generator(),
+        /*11*/forest_heart_rest_spell_generator(),
+    ];
+    return{
+        type: `enemy`,
+        name: `Forest Heart`,
+        pic: pic_arr[0],
+        description: forest_heart_description + forest_heart_rest_description,
+        tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
+        health,
+        death_message: forest_heart_death_message,
+        behavior: forest_heart_ai,
+        on_hit: forest_heart_on_hit,
+        on_death: forest_heart_death,
+        telegraph_other: rest_spell_telegraph,
+        pic_arr,
+        cycle: health,
+        segment_list: [undefined, undefined],
+        spells,
+        card_drops: [snack, branch_strike]
+    }
+}
+
+/** @type {AIFunction} */
+function forest_heart_ai(self, target, map){
+    if( self.tile.cycle === undefined || // Make sure it checks for correct fields
+        self.tile.spells === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    if(self.tile.health === undefined){
+        // Performs the action corresponding to the current health.
+        self.tile.spells[self.tile.cycle - 1].behavior(self, target, map);
+        if(self.tile.cycle === 0){
+            return;
+        }
+        // Makes it vulnerable again
+        var sections = get_forest_heart_sections(self, map);
+        var health = self.tile.cycle;
+        var next_spell = self.tile.spells[health - 2];
+        if(health > 1){
+            map.add_event({name: `spell announcement`, behavior: () => {say(next_spell.description)}});
+        }
+        for(var section of sections){
+            var tile = section.tile;
+            tile.health = health;
+            tile.pic = tile.pic_arr[0];
+            if(tile.health > 1){
+                tile.description = forest_heart_description + next_spell.description;
+                tile.pic = next_spell.pic;
+                tile.telegraph_other = next_spell.telegraph_other;
+            }
+        }
+    }
+    else{
+        throw new Error(ERRORS.skip_animation);
+    }
+}
+
+/** @type {AIFunction} */
+function forest_heart_on_hit(self, target, map){
+    // Removes health so it can't be damaged again this turn.
+    if(self.tile.health !== undefined && self.tile.health > 0){
+        var sections = get_forest_heart_sections(self, map);
+        var health = self.tile.health;
+        for(var section of sections){
+            var tile = section.tile;
+            // cycle stores the health value so it can be restored.
+            tile.cycle = health;
+            tile.health = undefined;
+            tile.pic = tile.pic_arr[1];
+        }
+    }
+}
+
+/**
+ * Function to get an array of each tile in a Forest Heart.
+ * @param {AISelfParam} self The tile and location of one section.
+ * @param {GameMap} map The map used to locate the sections.
+ * @returns {AISelfParam[]} An array with each tile and location in the Forest Heart.
+ */
+function get_forest_heart_sections(self, map){
+    if(self.tile.segment_list === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    var tiles = [self];
+    // Goes one direction
+    var current = self.tile.segment_list[0];
+    var next_location = self.location;
+    while(current != undefined){
+        next_location = next_location.plus(current);
+        var next_tile = map.get_tile(next_location);
+        if(next_tile.segment_list === undefined){
+            throw new Error(ERRORS.missing_property);
+        }
+        tiles.push({
+            tile: next_tile,
+            location: next_location
+        });
+        current = next_tile.segment_list[0]
+    }
+    // Goes the other
+    current = self.tile.segment_list[1];
+    next_location = self.location;
+    while(current != undefined){
+        next_location = next_location.plus(current);
+        var next_tile = map.get_tile(next_location);
+        if(next_tile.segment_list === undefined){
+            throw new Error(ERRORS.missing_property);
+        }
+        tiles.push({
+            tile: next_tile,
+            location: next_location
+        });
+        current = next_tile.segment_list[1]
+    }
+    return tiles;
+}
+
+/** @type {AIFunction} */
+function forest_heart_death(self, target, map){
+    var sections = get_forest_heart_sections(self, map);
+    for(var section of sections){
+        section.tile.on_hit = undefined;
+        section.tile.on_death = undefined;
+        section.tile.health = 1;
+        map.attack(section.location);
+    }
+    boss_death(self, target, map);
 }
 /** @type {TileGenerator} */
 function lich_tile(){
@@ -2662,7 +2843,7 @@ function carrion_flies_tile(){
         difficulty: 6,
         behavior: carrion_flies_ai,
         telegraph: spider_telegraph,
-        cycle: 0,
+        cycle: random_num(2),
         spawn_timer: 3
     }
 }
@@ -2676,7 +2857,7 @@ function carrion_flies_ai(self, target, map){
     ++self.tile.cycle;
     if(self.tile.cycle === self.tile.spawn_timer){
         // When the cycle reaches the spawn timer, spawn and reset it while increasing the time until the next one.
-        self.tile.spawn_timer += 1;
+        self.tile.spawn_timer += 2;
         self.tile.cycle = 0;
         var new_tile = carrion_flies_tile()
         new_tile.spawn_timer = self.tile.spawn_timer;
@@ -2816,76 +2997,6 @@ function darkling_telegraph(location, map, self){
     }
     return spider_telegraph(self.direction, map, self);
 }
-/** @type {TileGenerator} */
-function dart_tail_scorpion_tile(){
-    return {
-        type: `enemy`,
-        name: `Dart Tail Scorpion`,
-        pic: `${IMG_FOLDER.tiles}dart_tail_scorpion.png`,
-        description: dart_tail_scorpion_description,
-        tags: new TagList(),
-        health: 1,
-        difficulty: 6,
-        behavior: dart_tail_scorpion_ai,
-        telegraph: dart_tail_scorpion_telegraph,
-        flip: random_num(2) === 0,
-    }
-}
-
-/** @type {AIFunction} AI used by dart tailed scorpions.*/
-function dart_tail_scorpion_ai(self, target, map){
-    if(self.tile.flip === undefined){
-        throw new Error(ERRORS.missing_property);
-    }
-    // Checks if it can attack the player.
-    var hits = get_2_away().filter(p => {
-        return point_equals(p, target.difference);
-    });
-    if(hits.length > 0){
-        map.attack(self.location.plus(target.difference));
-        return;
-    }
-    // Orders the places it could move.
-    var directions = order_nearby(target.difference).filter(p => {
-        return p.on_axis();
-    });
-    if(target.difference.within_radius(1)){
-        directions = reverse_arr(directions);
-    }
-    // Carefully tries to move.
-    for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
-    if(i < directions.length){
-        var move = directions[i];
-        map.move(self.location, self.location.plus(move));
-        if(move.x !== 0){
-            self.tile.flip = move.x > 0;
-        }
-    }
-}
-
-/** @type {TelegraphFunction} Function to telegraph rat attacks.*/
-function dart_tail_scorpion_telegraph(location, map, self){
-    return get_2_away().map(p => {
-        return p.plus(location);
-    })
-}
-
-/**
- * Function to make a square of points with a side length 5 centered on the origin.
- * @returns {Point[]} the points.
- */
-function get_2_away(){
-    var points = [];
-    for(var x = -2; x <= 2; ++x){
-        for(var y = -2; y <= 2; ++y){
-            var p = new Point(x, y);
-            if(p.within_radius(2) && !p.within_radius(1)){
-                points.push(p);
-            }
-        }
-    }
-    return points;
-}
 /** @type {TileGenerator} A crab which flees when hit. */
 function igneous_crab_tile(){
     return {
@@ -2942,6 +3053,106 @@ function igneous_crab_telegraph(location, map, self){
         return [];
     }
     return spider_telegraph(location, map, self);
+}
+
+
+/** @type {TileGenerator} */
+function living_tree_tile(){
+    return {
+        type: `enemy`,
+        name: `Living Tree`,
+        pic: `${IMG_FOLDER.tiles}living_tree.png`,
+        description: living_tree_description,
+        tags: new TagList(),
+        health: 2,
+        difficulty: 7,
+        behavior: living_tree_ai,
+        telegraph: living_tree_telegraph,
+        cycle: random_num(2)
+    }
+}
+
+/** @type {AIFunction} AI used by living trees.*/
+function living_tree_ai(self, target, map){
+    if(self.tile.cycle === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    // Checks if it can attack the player.
+    var hits = get_2_away().filter(p => {
+        return point_equals(p, target.difference);
+    });
+    if(hits.length > 0){
+        map.attack(self.location.plus(target.difference));
+        return;
+    }
+    if(self.tile.cycle === 0){
+        self.tile.cycle = 1 - self.tile.cycle;
+        throw new Error(ERRORS.skip_animation);
+    }
+    // Orders the places it could move.
+    var directions = order_nearby(target.difference);
+    if(target.difference.within_radius(1)){
+        directions = reverse_arr(directions);
+    }
+    // Carefully tries to move.
+    for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
+    if(i < directions.length){
+        var move = directions[i];
+        map.move(self.location, self.location.plus(move));
+    }
+    self.tile.cycle = 1 - self.tile.cycle;
+}
+
+
+/** @type {TelegraphFunction} Function to telegraph living tree attacks.*/
+function living_tree_telegraph(location, map, self){
+    return get_2_away().map(p => {
+        return p.plus(location);
+    })
+}
+
+/**
+ * Function to make a square of points with a side length 5 centered on the origin.
+ * @returns {Point[]} the points.
+ */
+function get_2_away(){
+    var points = [];
+    for(var x = -2; x <= 2; ++x){
+        for(var y = -2; y <= 2; ++y){
+            var p = new Point(x, y);
+            if(p.within_radius(2) && !p.within_radius(1)){
+                points.push(p);
+            }
+        }
+    }
+    return points;
+}
+/** @type {TileGenerator} */
+function living_tree_rooted_tile(){
+    return {
+        type: `enemy`,
+        name: `Living Tree`,
+        pic: `${IMG_FOLDER.tiles}living_tree_rooted.png`,
+        description: living_tree_rooted_description,
+        tags: new TagList(),
+        health: 2,
+        behavior: living_tree_rooted_ai,
+        telegraph: living_tree_telegraph
+    }
+}
+
+/** @type {AIFunction} AI used by living trees that are rooted.*/
+function living_tree_rooted_ai(self, target, map){
+    // Checks if it can attack the player.
+    var hits = get_2_away().filter(p => {
+        return point_equals(p, target.difference);
+    });
+    if(hits.length > 0){
+        map.attack(self.location.plus(target.difference));
+    }
+    else{
+        throw new Error(ERRORS.skip_animation);
+    }
 }
 
 
@@ -3517,6 +3728,62 @@ function rat_telegraph(location, map, self){
     return [];
 }
 /** @type {TileGenerator} */
+function scorpion_tile(){
+    return {
+        type: `enemy`,
+        name: `Scorpion`,
+        pic: `${IMG_FOLDER.tiles}scorpion.png`,
+        description: scorpion_description,
+        tags: new TagList(),
+        health: 1,
+        difficulty: 3,
+        behavior: scorpion_ai,
+        telegraph: spider_telegraph,
+        flip: random_num(2) === 0,
+        cycle: random_num(2)
+    }
+}
+
+/** @type {AIFunction} AI used by scorpion.*/
+function scorpion_ai(self, target, map){
+    if( self.tile.cycle === undefined || 
+        self.tile.flip === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    if(target.difference.within_radius(1)){
+        // If the player is next to it, attack.
+        map.attack(self.location.plus(target.difference));
+        self.tile.cycle = 0;
+        return;
+    }
+    // Move 2 spaces.
+    if(self.tile.cycle === 1){
+        for(var i = 0; i < 2; ++i){
+            var directions = order_nearby(target.difference);
+            var moved = false;
+            for(var j = 0; j < directions.length && !moved; ++j){
+                var destination = self.location.plus(directions[j]);
+                moved = map.check_empty(destination);
+                if(moved){
+                    map.move(self.location, destination);
+                    self.location.plus_equals(directions[j]);
+                    target.difference.minus_equals(directions[j]);
+                    if(directions[j].x < 0){
+                        self.tile.flip = false;
+                    }
+                    if(directions[j].x > 0){
+                        self.tile.flip = true;
+                    }
+                }
+            }
+        }
+    }
+    self.tile.cycle = 1 - self.tile.cycle;
+    if(self.tile.cycle === 1){
+        throw new Error(ERRORS.skip_animation);
+    }
+}
+/** @type {TileGenerator} */
 function scythe_tile(){
     return{
         type: `enemy`,
@@ -3525,7 +3792,7 @@ function scythe_tile(){
         description: scythe_description,
         tags: new TagList(),
         health: 1,
-        difficulty: 3,
+        difficulty: 4,
         behavior: scythe_ai,
         telegraph: scythe_telegraph,
         rotate: 90 * random_num(4)
@@ -3789,9 +4056,9 @@ function swaying_nettle_tile(){
         name: `Swaying Nettle`,
         pic: pic_arr[starting_cycle],
         description: swaying_nettle_description,
-        tags: new TagList(TAGS.unmovable),
+        tags: new TagList([TAGS.unmovable, TAGS.nettle_immune]),
         health: 1,
-        difficulty: 2,
+        difficulty: 1,
         behavior: swaying_nettle_ai,
         telegraph: swaying_nettle_telegraph,
         pic_arr,
@@ -3807,7 +4074,10 @@ function swaying_nettle_ai(self, target, map){
     }
     var targets = self.tile.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;
     for(var target of targets){
-        map.attack(self.location.plus(target));
+        var target_space = self.location.plus(target);
+        if(map.is_in_bounds(target_space) && !map.get_tile(target_space).tags.has(TAGS.nettle_immune)){
+            map.attack(target_space);
+        }
     }
     self.tile.cycle = 1 - self.tile.cycle;
     self.tile.pic = self.tile.pic_arr[self.tile.cycle];
@@ -3816,7 +4086,7 @@ function swaying_nettle_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function swaying_nettle_telegraph(location, map, self){
     if( self.cycle === undefined || 
-        self.flip === undefined){
+        self.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
     var targets = self.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;
@@ -3833,7 +4103,7 @@ function thorn_bush_tile(){
         description: thorn_bush_description,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
         health: 2,
-        difficulty: 6,
+        difficulty: 5,
         behavior: thorn_bush_ai,
         telegraph: hazard_telegraph,
         on_enter: hazard
@@ -3846,7 +4116,7 @@ function thorn_bush_ai(self, target, map){
     for(var i = 0; i < 30 && !map.check_empty(current); ++i){
         var next = current.plus(random_nearby()[0]);
         if(map.is_in_bounds(next)){
-            var space = map.get_tile(next)
+            var space = map.get_tile(next);
             if(space.tags.has(TAGS.thorn_bush_roots) || (space.type === `empty` && random_num(4) === 0)){
                 current = next;
             }
@@ -4366,53 +4636,6 @@ function corrosive_slime_on_enter(self, target, map){
     hazard(self, target, map);
     decay_ai(self, target, map);
 }
-
-/**
- * Function to create an event function representing an earthquake.
- * @param {number} amount The amount of falling debris that should be created.
- * @param {Point[]=} locations An optional grid of locations to pick from.
- * @returns {MapEventFunction} The earthquake event.
- */
-function earthquake_event(amount, locations = undefined){
-    var falling_rubble = function(locations){
-        return function(map_to_use){
-            for(var location of locations){
-                map_to_use.attack(location);
-            }
-        }
-    }
-    var earthquake = function(amount){
-        var falling_rubble_layer = {
-            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-            description: falling_rubble_description,
-            telegraph: hazard_telegraph
-        }
-        return function(map_to_use){
-            var rubble = [];
-            var space;
-            if(locations === undefined){
-                for(var j = 0; j < amount; ++j){
-                    space = map_to_use.random_empty();
-                    map_to_use.mark_event(space, falling_rubble_layer);
-                    rubble.push(space);
-                }
-            }
-            else{
-                var spaces = rand_no_repeates(locations, amount);
-                for(var i = 0; i < amount; ++i){
-                    space = spaces[i];
-                    if(map_to_use.check_empty(space)){
-                        map_to_use.mark_event(space, falling_rubble_layer);
-                        rubble.push(space);
-                    }
-                }
-            }
-            map_to_use.add_event({name: `Falling Rubble`, behavior: falling_rubble(rubble)});
-        }
-    }
-    return earthquake(amount);
-}
-
 /** @type {TileGenerator} A fireball that travels in a straight line until it hits something. Direction is not yet set.*/
 function fireball_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}fireball_n.png`, `${IMG_FOLDER.tiles}fireball_nw.png`];
@@ -4468,6 +4691,66 @@ function shoot_fireball(direction){
     fireball.direction = direction;
     fireball.pic = ifexists(fireball.pic_arr)[set_rotation(fireball)];
     return fireball;
+}
+/** @type {TileGenerator} A healing fruit that spawns enemies.*/
+function enticing_fruit_tree_tile(){
+    return {
+        type: `terrain`,
+        name: `Enticing Fruit Tree`,
+        pic: `${IMG_FOLDER.tiles}enticing_fruit_tree.png`,
+        description: enticing_fruit_tree_description,
+        tags: new TagList([TAGS.unmovable]),
+        health: 1,
+        on_enter: enticing_fruit_tree_on_enter,
+        summons: FRUIT_TREE_SUMMONS
+    }
+}
+
+/** @type {AIFunction} AI used when the player moves onto the fruit tree.*/
+function enticing_fruit_tree_on_enter(self, target, map){
+    if(self.tile.summons === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    if(target.tile.type !== `player`){
+        return;
+    }
+    map.heal(self.location.plus(target.difference), 1);
+    var spawns = random_num(3);
+    for(var i = 0; i < spawns; ++i){
+        var new_spawn = self.tile.summons[random_num(self.tile.summons.length)]();
+        stun(new_spawn);
+        spawn_nearby(map, new_spawn, self.location);
+    }
+    decay_ai(self, target, map);
+}
+const FRUIT_TREE_SUMMONS = [carrion_flies_tile, ram_tile, living_tree_tile, scythe_tile, scorpion_tile, 
+    spider_tile];
+/** @type {TileGenerator} A healing fruit that spawns enemies.*/
+function rotting_fruit_tree_tile(){
+    return {
+        type: `terrain`,
+        name: `Rotting Fruit Tree`,
+        pic: `${IMG_FOLDER.tiles}rotting_fruit_tree.png`,
+        description: rotting_fruit_tree_description,
+        tags: new TagList([TAGS.unmovable]),
+        health: 1,
+        on_enter: decay_ai,
+        on_death: rotting_fruit_tree_on_death,
+        summons: FRUIT_TREE_SUMMONS
+    }
+}
+
+/** @type {AIFunction} AI used when the fruit tree is moved on or destroyed.*/
+function rotting_fruit_tree_on_death(self, target, map){
+    if(self.tile.summons === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    var spawns = random_num(3);
+    if(spawns !== 0){
+        var new_spawn = self.tile.summons[random_num(self.tile.summons.length)]();
+        stun(new_spawn);
+        spawn_nearby(map, new_spawn, self.location);
+    }
 }
 /** @type {TileGenerator} A hazardous pool of lava.*/
 function lava_pool_tile(){
@@ -4827,6 +5110,103 @@ function move_attack_ai(self, target, map){
     }
     map.attack(self.location.plus(target.difference));
 }
+
+
+
+/**
+ * Function to create a function that delays an event function for a specified number of turns.
+ * @param {number} turn_count How many turns to delay it.
+ * @param {function} delayed_function The event to fire after the delay.
+ * @returns {MapEventFunction} The event.
+ */
+function delay_event(turn_count, delayed_function){
+    var delay = function(){
+        return function(map_to_use){
+            if(turn_count > 1){
+                map_to_use.add_event({name: `Delay`, behavior: delay_event(turn_count - 1, delayed_function)});
+            }
+            else{
+                delayed_function(map_to_use);
+            }
+        }
+    }
+    return delay();
+}
+
+/**
+ * Function to create an event function representing an earthquake.
+ * @param {number} amount The amount of falling debris that should be created.
+ * @param {Point[]=} locations An optional grid of locations to pick from.
+ * @returns {MapEventFunction} The event.
+ */
+function earthquake_event(amount, locations = undefined){
+    var falling_rubble = function(locations){
+        return function(map_to_use){
+            for(var location of locations){
+                map_to_use.attack(location);
+            }
+        }
+    }
+    var earthquake = function(amount){
+        var falling_rubble_layer = {
+            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
+            description: falling_rubble_description,
+            telegraph: hazard_telegraph
+        }
+        return function(map_to_use){
+            var rubble = [];
+            var space;
+            if(locations === undefined){
+                for(var j = 0; j < amount; ++j){
+                    space = map_to_use.random_empty();
+                    map_to_use.mark_event(space, falling_rubble_layer);
+                    rubble.push(space);
+                }
+            }
+            else{
+                var spaces = rand_no_repeates(locations, amount);
+                for(var i = 0; i < amount; ++i){
+                    space = spaces[i];
+                    if(map_to_use.check_empty(space)){
+                        map_to_use.mark_event(space, falling_rubble_layer);
+                        rubble.push(space);
+                    }
+                }
+            }
+            map_to_use.add_event({name: `Falling Rubble`, behavior: falling_rubble(rubble)});
+        }
+    }
+    return earthquake(amount);
+}
+
+
+
+/**
+ * Function to create an event function representing hazardous growth.
+ * @param {Point[]} points A grid of locations to grow things at.
+ * @returns {MapEventFunction} The event.
+ */
+function growth_event(points, root, grown){
+    var grow = function(locations){
+        return function(map_to_use){
+            for(var location of locations){
+                map_to_use.attack(location);
+                if(map_to_use.check_empty(location)){
+                    map_to_use.add_tile(grown(), location);
+                }
+            }
+        }
+    }
+    var plant = function(locations){
+        return function(map_to_use){
+            for(var location of locations){
+                map_to_use.mark_event(location, root);
+            }
+            map_to_use.add_event({name: grown().name, behavior: grow(locations)});
+        }
+    }
+    return plant(points);
+}
 // ----------------GeneralEnemyUtil.js----------------
 // File for utility functions and jsdoc typedefs used by ai functions.
 
@@ -4891,7 +5271,7 @@ const ENEMY_LIST = [
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, boulder_elemental_tile,
-    pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile
+    pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile
 ];
 
 // This is an array of all bosses.
@@ -4900,11 +5280,14 @@ const BOSS_LIST = [
 ]
 
 /**
- * stuns a tile by incrementing it's stun property. Adds the property first if necessary.
+ * Stuns a stunnable tile by incrementing it's stun property. Adds the property first if necessary.
  * @param {Tile} tile The tile to stun.
  * @param {number} [amount = 1] Optional parameter for the amount of stun to add. Default is 1.
  */
 function stun(tile, amount = 1){
+    if(tile.tags !== undefined && tile.tags.has(TAGS.unstunnable)){
+        return;
+    }
     // Increases a tile's stun.
     if(tile.stun === undefined){
         tile.stun = 0;
@@ -5110,6 +5493,38 @@ function set_rotation(tile){
     return diagonal;
 }
 
+/**
+ * Creates an array of points around the edge of the rectangle created using the given points as corners.
+ * @param {Point} p1 One corner of the rectangle.
+ * @param {Point} p2 The opposite corner.
+ * @returns {Point[]} An array of the points around the edge.
+ */
+function point_rectangle(p1, p2){
+    if(p1.x === p2.x || p1.y === p2.y){
+        // The rectangle can't be 1 dimensional.
+        throw new Error(ERRORS.invalid_value);
+    }
+    var rectangle = [
+        p1.copy(),
+        p2.copy(),
+        new Point(p1.x, p2.y),
+        new Point(p2.x, p1.y)
+    ];
+    var x_min = Math.min(p1.x, p2.x);
+    var x_max = Math.max(p1.x, p2.x);
+    var y_min = Math.min(p1.y, p2.y);
+    var y_max = Math.max(p1.y, p2.y);
+    for(var x = x_min + 1; x < x_max; ++x){
+        rectangle.push(new Point(x, y_min));
+        rectangle.push(new Point(x, y_max));
+    }
+    for(var y = y_min + 1; y < y_max; ++y){
+        rectangle.push(new Point(x_min, y));
+        rectangle.push(new Point(x_max, y));
+    }
+    return rectangle;
+}
+
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */
 function generic_tile(){
     return {
@@ -5158,6 +5573,293 @@ function generic_tile(){
         is_hit: undefined,
         event_happening: undefined
     }
+}
+/** @type {SpellGenerator} */
+function forest_heart_rest_spell_generator(){
+    return {
+        behavior: rest_spell,
+        telegraph_other: rest_spell_telegraph,
+        description: forest_heart_rest_description,
+        pic: `${IMG_FOLDER.tiles}forest_heart.png`
+    }
+}
+/** @type {SpellGenerator} */
+function greater_thorn_bush_spell_generator(){
+    return {
+        behavior: greater_thorn_bush_spell,
+        telegraph_other: thorn_bush_spell_telegraph,
+        description: forest_heart_growth_description,
+        pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
+    }
+}
+
+/** @type {AIFunction} Spawns Thorn Brambles around the tree in two rings.*/
+function greater_thorn_bush_spell(self, target, map){
+    thorn_bush_spell(self, target, map);
+    var points = point_rectangle(
+        new Point(FLOOR_WIDTH / 2 - 3, FLOOR_HEIGHT / 2 - 3), 
+        new Point(FLOOR_WIDTH / 2 + 2, FLOOR_HEIGHT / 2 + 2)
+    );
+    var root_layer = {
+        pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
+        description: thorn_root_description,
+        telegraph: hazard_telegraph
+    }
+    var delayed_func = function(map_to_use){
+        map_to_use.add_event({name: `Bramble Shield`, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+    };
+    map.add_event({name: `Delayed Bramble Shield`, behavior: delay_event(1, delayed_func)});
+}
+/** @type {SpellGenerator} */
+function living_tree_spell_generator(){
+    return {
+        behavior: living_tree_spell,
+        telegraph_other: living_tree_spell_telegraph,
+        description: forest_heart_summon_description,
+        pic: `${IMG_FOLDER.tiles}forest_heart_summon.png`
+    }
+}
+
+/** @type {AIFunction} Spawns a living tree along the diagonal of each corner.*/
+function living_tree_spell(self, target, map){
+    var nw = [];
+    var ne = [];
+    var se = [];
+    var sw = [];
+    for(var i = 0; i < Math.floor(FLOOR_HEIGHT / 2) && i < Math.floor(FLOOR_WIDTH / 2); ++i){
+        nw.push(new Point(0 + i, 0 + i));
+        ne.push(new Point(FLOOR_WIDTH - 1 - i, 0 + i));
+        se.push(new Point(FLOOR_WIDTH - 1 - i, FLOOR_HEIGHT - 1 - i));
+        sw.push(new Point(0 + i, FLOOR_HEIGHT - 1 - i));
+    }
+    for(var diagonal of [nw, ne, se, sw]){
+        var spawned = false;
+        for(var i = 0; i < diagonal.length && !spawned; ++i){
+            if(map.check_empty(diagonal[i])){
+                map.add_tile(living_tree_tile(), diagonal[i]);
+                spawned = true;
+            }
+        }
+    }
+}
+
+/** @type {TelegraphFunction} */
+function living_tree_spell_telegraph(location, map, self){
+    var nw = [];
+    var ne = [];
+    var se = [];
+    var sw = [];
+    var points = [];
+    for(var i = 0; i < Math.floor(FLOOR_HEIGHT / 2) && i < Math.floor(FLOOR_WIDTH / 2); ++i){
+        nw.push(new Point(0 + i, 0 + i));
+        ne.push(new Point(FLOOR_WIDTH - 1 - i, 0 + i));
+        se.push(new Point(FLOOR_WIDTH - 1 - i, FLOOR_HEIGHT - 1 - i));
+        sw.push(new Point(0 + i, FLOOR_HEIGHT - 1 - i));
+    }
+    for(var diagonal of [nw, ne, se, sw]){
+        var added = false;
+        for(var i = 0; i < diagonal.length && !added; ++i){
+            if(map.check_empty(diagonal[i])){
+                points.push(diagonal[i]);
+                added = true;
+            }
+        }
+    }
+    return points;
+}
+/** @type {SpellGenerator} */
+function rotting_fruit_spell_generator(){
+    return {
+        behavior: rotting_fruit_spell,
+        telegraph_other: rotting_fruit_spell_telegraph,
+        description: forest_heart_growth_description,
+        pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
+    }
+}
+
+/** @type {AIFunction} Spawns Thorn Brambles around the tree.*/
+function rotting_fruit_spell(self, target, map){
+    var points = point_rectangle(
+        new Point(FLOOR_WIDTH / 2 - 2, FLOOR_HEIGHT / 2 - 2), 
+        new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
+    );
+    for(var point of points){
+        if(map.get_tile(point).tags.has(TAGS.thorn_bush_roots)){
+            map.attack(point);
+        }
+        if(map.check_empty(point)){
+            map.add_tile(rotting_fruit_tree_tile(), point);
+        }
+    }
+}
+
+/** @type {TelegraphFunction} */
+function rotting_fruit_spell_telegraph(location, map, self){
+    return point_rectangle(
+        new Point(FLOOR_WIDTH / 2 - 2, FLOOR_HEIGHT / 2 - 2), 
+        new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
+    );
+}
+/** @type {SpellGenerator} */
+function scorpion_spell_generator(){
+    return {
+        behavior: scorpion_spell,
+        telegraph_other: scorpion_spell_telegraph,
+        description: forest_heart_summon_description,
+        pic: `${IMG_FOLDER.tiles}forest_heart_summon.png`
+    }
+}
+
+/** @type {AIFunction} Spawns a scorpion on each side.*/
+function scorpion_spell(self, target, map){
+    var width = [];
+    for(var x = 0; x < FLOOR_WIDTH; ++x){
+        width.push(x);
+    }
+    var height = [];
+    for(var y = 0; y < FLOOR_HEIGHT; ++y){
+        height.push(y);
+    }
+    var top = randomize_arr(width).map(x => {return new Point(x, 0)});
+    var bottom = randomize_arr(width).map(x => {return new Point(x, FLOOR_HEIGHT - 1)});
+    var left = randomize_arr(height).map(y => {return new Point(0, y)});
+    var right = randomize_arr(height).map(y => {return new Point(FLOOR_WIDTH - 1, y)});
+    for(var side of [top, bottom, left, right]){
+        var spawned = false;
+        for(var i = 0; i < side.length && !spawned; ++i){
+            if(map.check_empty(side[i])){
+                map.add_tile(scorpion_tile(), side[i]);
+                spawned = true;
+            }
+        }
+    }
+}
+
+/** @type {TelegraphFunction} */
+function scorpion_spell_telegraph(location, map, self){
+    return point_rectangle(
+        new Point(0, 0), 
+        new Point(FLOOR_WIDTH - 1, FLOOR_HEIGHT - 1)
+    );
+}
+/** @type {SpellGenerator} */
+function swaying_nettle_spell_generator(){
+    return {
+        behavior: swaying_nettle_spell,
+        telegraph_other: swaying_nettle_spell_telegraph,
+        description: forest_heart_growth_description,
+        pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
+    }
+}
+
+/** @type {AIFunction} Spawns Swaying Nettles around the tree.*/
+function swaying_nettle_spell(self, target, map){
+    var points = point_rectangle(
+        new Point(FLOOR_WIDTH / 2 - 2, FLOOR_HEIGHT / 2 - 2), 
+        new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
+    );
+    var root_layer = {
+        pic: `${IMG_FOLDER.tiles}swaying_nettle_roots.png`,
+        description: nettle_root_description,
+        telegraph: hazard_telegraph
+    }
+    map.add_event({name: `Nettle Shield`, behavior: growth_event(points, root_layer, swaying_nettle_tile)});
+}
+
+/** @type {TelegraphFunction} */
+function swaying_nettle_spell_telegraph(location, map, self){
+    return point_rectangle(
+        new Point(FLOOR_WIDTH / 2 - 2, FLOOR_HEIGHT / 2 - 2), 
+        new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
+    );
+}
+
+/** @type {SpellGenerator} */
+function thorn_bush_spell_generator(){
+    return {
+        behavior: thorn_bush_spell,
+        telegraph_other: thorn_bush_spell_telegraph,
+        description: forest_heart_growth_description,
+        pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
+    }
+}
+
+/** @type {AIFunction} Spawns Thorn Brambles around the tree.*/
+function thorn_bush_spell(self, target, map){
+    var points = point_rectangle(
+        new Point(FLOOR_WIDTH / 2 - 2, FLOOR_HEIGHT / 2 - 2), 
+        new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
+    );
+    var root_layer = {
+        pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
+        description: thorn_root_description,
+        telegraph: hazard_telegraph
+    }
+    map.add_event({name: `Bramble Shield`, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+}
+
+/** @type {TelegraphFunction} */
+function thorn_bush_spell_telegraph(location, map, self){
+    return point_rectangle(
+        new Point(FLOOR_WIDTH / 2 - 2, FLOOR_HEIGHT / 2 - 2), 
+        new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
+    );
+}
+/** @type {SpellGenerator} */
+function vinesnare_bush_spell_generator(){
+    return {
+        behavior: vinesnare_bush_spell,
+        telegraph_other: vinesnare_bush_spell_telegraph,
+        description: forest_heart_growth_description,
+        pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
+    }
+}
+
+/** @type {AIFunction} Spawns 3 vinesnare bushes in each corner.*/
+function vinesnare_bush_spell(self, target, map){
+    var points = [
+        new Point(0, 0),
+        new Point(1, 0),
+        new Point(0, 1),
+
+        new Point(FLOOR_WIDTH - 1, 0),
+        new Point(FLOOR_WIDTH - 2, 0),
+        new Point(FLOOR_WIDTH - 1, 1),
+
+        new Point(0, FLOOR_HEIGHT - 1),
+        new Point(1, FLOOR_HEIGHT - 1),
+        new Point(0, FLOOR_HEIGHT - 2),
+
+        new Point(FLOOR_WIDTH - 1, FLOOR_HEIGHT - 1),
+        new Point(FLOOR_WIDTH - 2, FLOOR_HEIGHT - 1),
+        new Point(FLOOR_WIDTH - 1, FLOOR_HEIGHT - 2),
+    ];
+    for(var space of points){
+        if(map.check_empty(space)){
+            map.add_tile(vinesnare_bush_tile(), space);
+        }
+    }
+}
+
+/** @type {TelegraphFunction} */
+function vinesnare_bush_spell_telegraph(location, map, self){
+    return [
+        new Point(0, 0),
+        new Point(1, 0),
+        new Point(0, 1),
+
+        new Point(FLOOR_WIDTH - 1, 0),
+        new Point(FLOOR_WIDTH - 2, 0),
+        new Point(FLOOR_WIDTH - 1, 1),
+
+        new Point(0, FLOOR_HEIGHT - 1),
+        new Point(1, FLOOR_HEIGHT - 1),
+        new Point(0, FLOOR_HEIGHT - 2),
+
+        new Point(FLOOR_WIDTH - 1, FLOOR_HEIGHT - 1),
+        new Point(FLOOR_WIDTH - 2, FLOOR_HEIGHT - 1),
+        new Point(FLOOR_WIDTH - 1, FLOOR_HEIGHT - 2),
+    ];
 }
 /** @type {SpellGenerator} */
 function confusion_spell_generator(){
@@ -5307,22 +6009,6 @@ function rest_spell(self, target, map){}
 function rest_spell_telegraph(location, map, self){
     return [];
 }
-// ----------------Spells.js----------------
-// File for spell ai functions.
-
-/**
- * @typedef {Object} Spell A set a behavior, description and pic used by the lich.
- * @property {AIFunction} behavior Function performing the spell.
- * @property {TelegraphFunction} telegraph Function performing the spell.
- * @property {string} description A description of what the spell does.
- * @property {string} pic A picture to help telegraph the spell.
- */
-
-/**
- * @callback SpellGenerator
- * @returns {Spell}
- */
-
 /** @type {SpellGenerator} */
 function summon_spell_generator(){
     return {
@@ -5357,6 +6043,23 @@ function teleport_spell(self, target, map){
         self.location.y = space.y;
     }
 }
+// ----------------Spells.js----------------
+// File for spell ai functions.
+
+/**
+ * @typedef {Object} Spell A set a behavior, description and pic used by the lich.
+ * @property {AIFunction} behavior Function performing the spell.
+ * @property {TelegraphFunction=} telegraph Function telegraphing the damaging effects of the spell.
+ * @property {TelegraphFunction=} telegraph_other Function telegraphing the non damaging effects of the spell.
+ * @property {string} description A description of what the spell does.
+ * @property {string} pic A picture to help telegraph the spell.
+ */
+
+/**
+ * @callback SpellGenerator
+ * @returns {Spell}
+ */
+
 // ----------------TelegraphUtils.js----------------
 // File for utility functions and jsdoc typedefs used to telegraph enemy attacks and abilities.
 
@@ -6290,6 +6993,7 @@ class GameMap{
                 target.on_hit(hit_entity, aggressor_info, this);
             }
             if(target.health <= 0){
+                // Player death.
                 if(target.type === `player`){
                     if(GS.boons.has(boon_names.rebirth)){
                         this.player_heal(new Point(0, 0));
@@ -6300,13 +7004,16 @@ class GameMap{
                     }
                     throw new Error(ERRORS.game_over);
                 }
-                // Remove dead tile.
+                // Non player death.
                 this.#set_tile(location, empty_tile());
                 if(target.type === `enemy`){
                     if(target.id === undefined){
                         throw new Error(ERRORS.missing_id);
                     }
                     this.#entity_list.remove_enemy(target.id);
+                }
+                else{
+                    --this.#entity_list.count_non_empty;
                 }
                 if(target.on_death !== undefined){
                     // Trigger on_death/
@@ -6822,7 +7529,14 @@ class GameState{
                 
                 break;
             case `teleport`:
-                this.map.player_teleport(action.change);
+                try{
+                    this.map.player_teleport(action.change);
+                }
+                catch(error){
+                    if(error.message !== ERRORS.map_full){
+                        throw error;
+                    }
+                }
                 break;
             case `stun`:
                 this.map.player_stun(action.change);
@@ -7418,6 +8132,44 @@ function coffin_terrain(floor_num, area, map){
     }
 }
 /** @type {AreaGenerator}*/
+function generate_forest_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}forest.png`,
+        generate_floor: generate_forest_floor,
+        enemy_list: [vinesnare_bush_tile, carrion_flies_tile, ram_tile, swaying_nettle_tile, living_tree_tile, 
+                    scythe_tile, scorpion_tile, thorn_bush_tile],
+        boss_floor_list: [forest_heart_floor],
+        next_area_list: area5,
+        description: forest_description
+    }
+}
+
+/** @type {FloorGenerator}*/
+function generate_forest_floor(floor_num, area, map){
+    if(random_num(16) === 0 && floor_num % AREA_SIZE !== CHEST_LOCATION){
+        swaying_nettle_terrain(floor_num, area, map);
+        generate_normal_floor(floor_num / 2, area, map);
+    }
+    else{
+        enticing_fruit_tree_terrain(floor_num, area, map);
+        generate_normal_floor(floor_num, area, map);
+    }
+}
+/** @type {FloorGenerator}*/
+function enticing_fruit_tree_terrain(floor_num, area, map){
+    if(random_num(5) > 2){
+        map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+}
+
+/** @type {FloorGenerator}*/
+function swaying_nettle_terrain(floor_num, area, map){
+    var amount = 15 + random_num(8);
+    for(var i = 0; i < amount; ++i){
+        map.spawn_safely(swaying_nettle_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+}
+/** @type {AreaGenerator}*/
 function generate_magma_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}magma.png`,
@@ -7545,8 +8297,8 @@ const area_end = [generate_default_area]; // Once they have finished the complet
 const area1 = STARTING_AREA;
 const area2 = [generate_sewers_area, generate_basement_area];
 const area3 = [generate_magma_area, generate_crypt_area];
-const area4 = area_end;//[generate_forest_area, generate_library_area];
-const area5 = [generate_sanctum_area];
+const area4 = [generate_forest_area];//, generate_library_area];
+const area5 = area_end;//[generate_sanctum_area];
 
 /**
  * @typedef {Object} Area A section of the dungeon that ends with a boss fight.
@@ -7565,18 +8317,6 @@ const area5 = [generate_sanctum_area];
 
 // ---Unfinished Areas---
 
-
-/** @type {AreaGenerator}*/
-function generate_forest_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}forest.png`,
-        generate_floor: generate_forest_floor,
-        enemy_list: [vinesnare_bush_tile, carrion_flies_tile, ram_tile, noxious_toad_tile],
-        boss_floor_list: [],
-        next_area_list: area5,
-        description: forest_description
-    }
-}
 /** @type {AreaGenerator}*/
 function generate_library_area(){
     return {
@@ -7610,6 +8350,39 @@ function generate_default_area(){
         next_area_list: [generate_default_area],
         description: default_area_description
     }
+}
+/** @type {FloorGenerator} Generates the floor where the Forest Heart appears.*/
+function forest_heart_floor(floor_num,  area, map){
+    var mid_width = Math.floor(FLOOR_WIDTH / 2) - 1;
+    var mid_height = Math.floor(FLOOR_HEIGHT / 2) - 1;
+
+    var locations = [
+        new Point(mid_width, mid_height),
+        new Point(mid_width + 1, mid_height),
+        new Point(mid_width + 1, mid_height + 1),
+        new Point(mid_width, mid_height + 1),
+    ]
+    var sections = [
+        [undefined, new Point(1, 0)],
+        [new Point(-1, 0), new Point(0, 1)],
+        [new Point(0, -1), new Point(-1, 0)],
+        [new Point(1, 0), undefined]
+    ]
+    for(var i = 0; i < locations.length; ++i){
+        var section = forest_heart_tile();
+        if(i !== 0){
+            section.behavior = undefined;
+            section.tags.add(TAGS.hidden);
+        }
+        section.rotate = 90 * i;
+        section.segment_list = sections[i];
+        map.add_tile(section, locations[i]);
+    }
+    map.add_tile(living_tree_rooted_tile(), new Point(mid_width - 1, mid_height));
+    map.add_tile(living_tree_rooted_tile(), new Point(mid_width + 2, mid_height));
+    map.add_tile(vinesnare_bush_tile(), new Point(mid_width - 2, mid_height));
+    map.add_tile(vinesnare_bush_tile(), new Point(mid_width + 3, mid_height));
+    return forest_heart_floor_message;
 }
 /** @type {FloorGenerator} Generates the floor where the Lich appears.*/
 function lich_floor(floor_num,  area, map){
@@ -7765,11 +8538,6 @@ function boss_floor_common(floor_num,  area, map){
     }
 }
 
-
-/** @type {FloorGenerator}*/
-function generate_forest_floor(floor_num, area, map){
-    generate_normal_floor(floor_num, area, map);
-}
 /** @type {FloorGenerator}*/
 function generate_library_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
@@ -7932,6 +8700,35 @@ function superweapon(){
     return{
         name: `superweapon`,
         pic: `${IMG_FOLDER.cards}superweapon.png`,
+        options
+    }
+}
+// ----------------two_headed_serpent_cards.js----------------
+// File containing cards that can be dropped as rewards for defeating the forest heart.
+
+/** @type {CardGenerator} Dropped by the forest heart*/
+function snack(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pheal(0, 0), pstun(0, 0)]);
+    options.make_instant();
+    return{
+        name: `snack`,
+        pic: `${IMG_FOLDER.cards}snack.png`,
+        options,
+        per_floor: snack
+    }
+}
+
+/** @type {CardGenerator} Dropped by the forest heart*/
+function branch_strike(){
+    var options = new ButtonGrid();
+    var targets = get_2_away().map(p => {
+        return pattack(p.x, p.y);
+    });
+    options.add_button(SPIN, targets);
+    return{
+        name: `branch strike`,
+        pic: `${IMG_FOLDER.cards}branch_strike.png`,
         options
     }
 }
@@ -9831,7 +10628,7 @@ function roar_of_challenge(){
         description: roar_of_challenge_description,
         prereq: prereq_roar_of_challenge,
         on_pick: pick_roar_of_challenge,
-        unlocks: [serenity]
+        unlocks: [roar_of_challenge]
     }
 }
 

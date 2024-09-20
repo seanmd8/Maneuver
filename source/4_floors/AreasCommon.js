@@ -6,8 +6,8 @@ const area_end = [generate_default_area]; // Once they have finished the complet
 const area1 = STARTING_AREA;
 const area2 = [generate_sewers_area, generate_basement_area];
 const area3 = [generate_magma_area, generate_crypt_area];
-const area4 = area_end;//[generate_forest_area, generate_library_area];
-const area5 = [generate_sanctum_area];
+const area4 = [generate_forest_area];//, generate_library_area];
+const area5 = area_end;//[generate_sanctum_area];
 
 /**
  * @typedef {Object} Area A section of the dungeon that ends with a boss fight.
@@ -26,18 +26,6 @@ const area5 = [generate_sanctum_area];
 
 // ---Unfinished Areas---
 
-
-/** @type {AreaGenerator}*/
-function generate_forest_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}forest.png`,
-        generate_floor: generate_forest_floor,
-        enemy_list: [vinesnare_bush_tile, carrion_flies_tile, ram_tile, noxious_toad_tile],
-        boss_floor_list: [],
-        next_area_list: area5,
-        description: forest_description
-    }
-}
 /** @type {AreaGenerator}*/
 function generate_library_area(){
     return {

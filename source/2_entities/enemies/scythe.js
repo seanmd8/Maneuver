@@ -7,7 +7,7 @@ function scythe_tile(){
         description: scythe_description,
         tags: new TagList(),
         health: 1,
-        difficulty: 3,
+        difficulty: 4,
         behavior: scythe_ai,
         telegraph: scythe_telegraph,
         rotate: 90 * random_num(4)
