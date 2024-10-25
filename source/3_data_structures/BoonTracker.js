@@ -60,24 +60,20 @@ class BoonTracker{
         }
         return false;
     }
-    display(location){
-        display.remove_children(location);
-        var boons = this.#boons.map(b => {return {
+    get_gained(){
+        return this.#boons.map(b => {return {
             name: b.name,
             pic: b.pic,
             on_click: function(){say(b.description, false)}
         }});
-        display.add_tb_row(location, boons, SMALL_CARD_SCALE);
     }
-    display_lost(location){
-        display.remove_children(location);
-        var lost = this.#lost_boons.map(b => {return {
+    get_lost(){
+        return this.#lost_boons.map(b => {return {
             name: b.name,
             foreground: [`${IMG_FOLDER.other}lost.png`],
             pic: b.pic,
             on_click: function(){say(b.description, false)}
         }});
-        display.add_tb_row(location, lost, SMALL_CARD_SCALE);
     }
 
 }

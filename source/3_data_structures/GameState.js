@@ -370,11 +370,10 @@ class GameState{
         this.deck.display_deck_order(UIIDS.deck_order_table);
     }
     /**
-     * Displays the hand, discard pile, and deck to their proper locations.
+     * Displays the boons to their proper location.
      */
     refresh_boon_display(){
-        this.boons.display(UIIDS.boon_list_table);
-        this.boons.display_lost(UIIDS.removed_boon_table);
+        display_boons(this.boons);
     }
 }
 

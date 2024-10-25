@@ -370,7 +370,7 @@ const MIN_DECK_SIZE = 5;
 // Settings just used for testing.
 const SECOND_STARTING_ENEMY = spider_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
-const STARTING_CHEST_CONTENTS = roar_of_challenge;
+const STARTING_CHEST_CONTENTS = rebirth;
 const STARTING_CHEST_AMOUNT = 0;
 const CARDS_TO_TEST = [];
 
@@ -960,6 +960,18 @@ const display = get_display(MARKUP_LANGUAGE);
 
 const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.
 
+
+function display_boons(boon_list){
+    // Updates the list of boons they have.
+    display.remove_children(UIIDS.boon_list_table);
+    var gained = boon_list.get_gained();
+    display.add_tb_row(UIIDS.boon_list_table, gained, SMALL_CARD_SCALE);
+
+    // Updates the list of used up boons.
+    display.remove_children(UIIDS.removed_boon_table);
+    var lost = boon_list.get_lost();
+    display.add_tb_row(UIIDS.removed_boon_table, lost, SMALL_CARD_SCALE);
+}
 
 function display_move_buttons(card, hand_position){
     display.remove_children(UIIDS.move_buttons);
@@ -6176,24 +6188,20 @@ class BoonTracker{
         }
         return false;
     }
-    display(location){
-        display.remove_children(location);
-        var boons = this.#boons.map(b => {return {
+    get_gained(){
+        return this.#boons.map(b => {return {
             name: b.name,
             pic: b.pic,
             on_click: function(){say(b.description, false)}
         }});
-        display.add_tb_row(location, boons, SMALL_CARD_SCALE);
     }
-    display_lost(location){
-        display.remove_children(location);
-        var lost = this.#lost_boons.map(b => {return {
+    get_lost(){
+        return this.#lost_boons.map(b => {return {
             name: b.name,
             foreground: [`${IMG_FOLDER.other}lost.png`],
             pic: b.pic,
             on_click: function(){say(b.description, false)}
         }});
-        display.add_tb_row(location, lost, SMALL_CARD_SCALE);
     }
 
 }
@@ -7752,11 +7760,10 @@ class GameState{
         this.deck.display_deck_order(UIIDS.deck_order_table);
     }
     /**
-     * Displays the hand, discard pile, and deck to their proper locations.
+     * Displays the boons to their proper location.
      */
     refresh_boon_display(){
-        this.boons.display(UIIDS.boon_list_table);
-        this.boons.display_lost(UIIDS.removed_boon_table);
+        display_boons(this.boons);
     }
 }
 
