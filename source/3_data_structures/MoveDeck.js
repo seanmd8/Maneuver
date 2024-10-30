@@ -176,16 +176,10 @@ class MoveDeck{
         return this.#library.length;
     }
     /**
-     * Displays the whole decklist
-     * @param {string} table Where it should be displayed.
+     * Returns the whole decklist.
      */
-    display_all(table){
-        display.display_message(UIIDS.current_deck, `${current_deck}${this.#min_deck_size}):`)
-        for(var i = 0; i < Math.ceil(this.#decklist.length / DECK_DISPLAY_WIDTH); ++i){
-            var row = this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
-            display.add_tb_row(table, row, CARD_SCALE)
-            
-        }
+    get_deck_info(){
+        return [...this.#decklist];
     }
     /**
      * Displays the whole discard pile.

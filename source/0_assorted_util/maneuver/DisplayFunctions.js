@@ -73,6 +73,19 @@ function telegraph_repetition_boon(repeat){
     display.add_class(UIIDS.move_box, class_name);
 }
 
+function display_entire_deck(deck){
+    // Display section header.
+    var min_deck_size = deck.deck_min();
+    display.display_message(UIIDS.current_deck, `${current_deck}${min_deck_size}):`);
+    // Display deck with limited cards per line.
+    var decklist = deck.get_deck_info();
+    for(var i = 0; i < Math.ceil(decklist.length / DECK_DISPLAY_WIDTH); ++i){
+        var row = decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
+        display.add_tb_row(UIIDS.display_deck, row, CARD_SCALE);
+    }
+
+}
+
 function explain_card(card){
     var text = ``;
     text += `${move_types.alt}\n`;

@@ -202,7 +202,7 @@ class GameState{
         display.remove_children(UIIDS.add_card);
         display.remove_children(UIIDS.remove_card);
         display.remove_children(UIIDS.display_deck);
-        this.deck.display_all(UIIDS.display_deck);
+        display_entire_deck(this.deck);
         this.#generate_add_row(UIIDS.add_card);
         this.#generate_remove_row(UIIDS.remove_card);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.shop);

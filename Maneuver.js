@@ -1034,6 +1034,19 @@ function telegraph_repetition_boon(repeat){
     display.add_class(UIIDS.move_box, class_name);
 }
 
+function display_entire_deck(deck){
+    // Display section header.
+    var min_deck_size = deck.deck_min();
+    display.display_message(UIIDS.current_deck, `${current_deck}${min_deck_size}):`);
+    // Display deck with limited cards per line.
+    var decklist = deck.get_deck_info();
+    for(var i = 0; i < Math.ceil(decklist.length / DECK_DISPLAY_WIDTH); ++i){
+        var row = decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
+        display.add_tb_row(UIIDS.display_deck, row, CARD_SCALE);
+    }
+
+}
+
 function explain_card(card){
     var text = ``;
     text += `${move_types.alt}\n`;
@@ -7638,7 +7651,7 @@ class GameState{
         display.remove_children(UIIDS.add_card);
         display.remove_children(UIIDS.remove_card);
         display.remove_children(UIIDS.display_deck);
-        this.deck.display_all(UIIDS.display_deck);
+        display_entire_deck(this.deck);
         this.#generate_add_row(UIIDS.add_card);
         this.#generate_remove_row(UIIDS.remove_card);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.shop);
@@ -7998,16 +8011,10 @@ class MoveDeck{
         return this.#library.length;
     }
     /**
-     * Displays the whole decklist
-     * @param {string} table Where it should be displayed.
+     * Returns the whole decklist.
      */
-    display_all(table){
-        display.display_message(UIIDS.current_deck, `${current_deck}${this.#min_deck_size}):`)
-        for(var i = 0; i < Math.ceil(this.#decklist.length / DECK_DISPLAY_WIDTH); ++i){
-            var row = this.#decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
-            display.add_tb_row(table, row, CARD_SCALE)
-            
-        }
+    get_deck_info(){
+        return [...this.#decklist];
     }
     /**
      * Displays the whole discard pile.
