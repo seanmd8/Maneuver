@@ -12,7 +12,7 @@ const MIN_DECK_SIZE = 5;
 // Settings just used for testing.
 const SECOND_STARTING_ENEMY = spider_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
-const STARTING_CHEST_CONTENTS = rebirth;
+const STARTING_CHEST_CONTENTS = future_sight;
 const STARTING_CHEST_AMOUNT = 0;
 const CARDS_TO_TEST = [];
 

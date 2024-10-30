@@ -370,7 +370,7 @@ const MIN_DECK_SIZE = 5;
 // Settings just used for testing.
 const SECOND_STARTING_ENEMY = spider_tile;
 const SECOND_STARTING_ENEMY_AMOUNT = 0;
-const STARTING_CHEST_CONTENTS = rebirth;
+const STARTING_CHEST_CONTENTS = future_sight;
 const STARTING_CHEST_AMOUNT = 0;
 const CARDS_TO_TEST = [];
 
@@ -986,6 +986,52 @@ function display_move_buttons(card, hand_position){
         display.add_button_row(UIIDS.move_buttons, button_row);
     }
     display.add_on_click(UIIDS.move_info, function(){explain_card(card)});
+}
+
+/**
+ * Displays the hand to it's proper location.
+ */
+function refresh_hand_display(deck){
+    // Updates the hand.
+    var card_row = deck.get_hand_info();
+    display.remove_children(UIIDS.hand_display);
+    display.add_tb_row(UIIDS.hand_display, card_row, CARD_SCALE);
+
+    // Shows how many cards are left in your deck.
+    var remaining = deck.get_deck_count();
+    display.display_message(UIIDS.deck_count, `${remaining}`);
+
+    // Makes sure the card info button shows that no card is selected.
+    var explain_blank_moves = function(){
+        say(blank_moves_message, false);
+    }
+    display.add_on_click(UIIDS.move_info, explain_blank_moves);
+}
+/**
+ * Displays the discard pile to it's proper location.
+ */
+function refresh_discard_display(deck){
+    var discard = deck.get_discard_info();
+    display.remove_children(UIIDS.discard_pile_table);
+    display.add_tb_row(UIIDS.discard_pile_table, discard, SMALL_CARD_SCALE);
+}
+/**
+ * Displays the library to it's proper location.
+ */
+function refresh_deck_order_display(deck){
+    var library = deck.get_library_info();
+    display.remove_children(UIIDS.deck_order_table);
+    display.add_tb_row(UIIDS.deck_order_table, [future_sight(), ...library], SMALL_CARD_SCALE);
+}
+
+function telegraph_repetition_boon(repeat){
+    display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
+    display.remove_class(UIIDS.move_box, `telegraph-repetition`);
+    display.remove_class(UIIDS.hand_box, `no-repetition`);
+    display.remove_class(UIIDS.move_box, `no-repetition`);
+    var class_name = repeat ? `telegraph-repetition` : `no-repetition`;
+    display.add_class(UIIDS.hand_box, class_name);
+    display.add_class(UIIDS.move_box, class_name);
 }
 
 function explain_card(card){
@@ -6246,7 +6292,7 @@ class ButtonGrid{
         this.#buttons[Math.floor((number - 1) / 3)][(number - 1) % 3] = button;
     }
     /**
-     * A function to get return the information required to display the buttons.
+     * A function to return the information required to display the buttons.
      * @param {number} hand_position The position of the card in hand that these buttons belong to.
      */
     show_buttons(hand_position){
@@ -7755,9 +7801,14 @@ class GameState{
      * Displays the hand, discard pile, and deck to their proper locations.
      */
     refresh_deck_display(){
-        this.deck.display_hand(UIIDS.hand_display);
-        this.deck.display_discard(UIIDS.discard_pile_table);
-        this.deck.display_deck_order(UIIDS.deck_order_table);
+        refresh_hand_display(this.deck);
+        refresh_discard_display(this.deck);
+        refresh_deck_order_display(this.deck);
+        if(this.boons !== undefined){
+            var repetition_count = this.boons.has(boon_names.repetition);
+            var repeat = repetition_count > 0 && this.map.get_turn_count() % 3 < repetition_count;
+            telegraph_repetition_boon(repeat);
+        }
     }
     /**
      * Displays the boons to their proper location.
@@ -7908,9 +7959,7 @@ class MoveDeck{
      * Displays the hand.
      * @param {string} table Where it should be dispalyed.
      */
-    display_hand(table){
-        // Displays the hand to the given table.
-        display.remove_children(table);
+    get_hand_info(){
         var make_prep_move = function(card, hand_pos){
             return function(){
                 if(!GS.check_lock_player_turn()){
@@ -7920,9 +7969,6 @@ class MoveDeck{
                 say(``, false);
                 display_move_buttons(card, hand_pos);
             }
-        }
-        var explain_blank_moves = function(){
-            say(blank_moves_message, false);
         }
         var card_row = [];
         for(var i = 0; i < this.#hand.length; ++i){
@@ -7942,20 +7988,14 @@ class MoveDeck{
                 on_click: make_prep_move(card, i)
             });
         }
-        display.add_tb_row(table, card_row, CARD_SCALE);
-        display.display_message(UIIDS.deck_count, `${this.#library.length}`);
-        display.add_on_click(UIIDS.move_info, explain_blank_moves);
-        if(GS !== undefined){
-            // Telegraph the repetition boon.
-            display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
-            display.remove_class(UIIDS.move_box, `telegraph-repetition`);
-            display.remove_class(UIIDS.hand_box, `no-repetition`);
-            display.remove_class(UIIDS.move_box, `no-repetition`);
-            var repetition_count = GS.boons.has(boon_names.repetition);
-            var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? `telegraph-repetition` : `no-repetition`;
-            display.add_class(UIIDS.hand_box, repeat);
-            display.add_class(UIIDS.move_box, repeat);
-        }
+        return card_row;
+    }
+    /**
+     * Function to count the number of cards remaining in your library.
+     * @returns {number} cards remaining.
+     */
+    get_deck_count(){
+        return this.#library.length;
     }
     /**
      * Displays the whole decklist
@@ -7971,19 +8011,15 @@ class MoveDeck{
     }
     /**
      * Displays the whole discard pile.
-     * @param {string} table Where it should be displayed.
      */
-    display_discard(table){
-        display.remove_children(table);
-        display.add_tb_row(table, this.#discard_pile, SMALL_CARD_SCALE);
+    get_discard_info(table){
+        return [...this.#discard_pile];
     }
     /**
-     * Displays the cards in your draw pile in order..
-     * @param {string} table Where it should be displayed.
+     * Displays the cards in your draw pile in order.
      */
-    display_deck_order(table){
-        display.remove_children(table);
-        display.add_tb_row(table, [future_sight(), ...reverse_arr(this.#library)], SMALL_CARD_SCALE);
+    get_library_info(table){
+        return reverse_arr(this.#library);
     }
     /**
      * Gets a random array of cards from the decklist with no repeats.
@@ -8054,6 +8090,8 @@ class MoveDeck{
         return this.#hand[hand_position].options.is_instant();
     }
 }
+// ----------------TagList.js----------------
+// Class to contain a list of tags for true or false questions about a tile.
 
 
 class TagList{

@@ -365,9 +365,14 @@ class GameState{
      * Displays the hand, discard pile, and deck to their proper locations.
      */
     refresh_deck_display(){
-        this.deck.display_hand(UIIDS.hand_display);
-        this.deck.display_discard(UIIDS.discard_pile_table);
-        this.deck.display_deck_order(UIIDS.deck_order_table);
+        refresh_hand_display(this.deck);
+        refresh_discard_display(this.deck);
+        refresh_deck_order_display(this.deck);
+        if(this.boons !== undefined){
+            var repetition_count = this.boons.has(boon_names.repetition);
+            var repeat = repetition_count > 0 && this.map.get_turn_count() % 3 < repetition_count;
+            telegraph_repetition_boon(repeat);
+        }
     }
     /**
      * Displays the boons to their proper location.

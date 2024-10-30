@@ -27,6 +27,52 @@ function display_move_buttons(card, hand_position){
     display.add_on_click(UIIDS.move_info, function(){explain_card(card)});
 }
 
+/**
+ * Displays the hand to it's proper location.
+ */
+function refresh_hand_display(deck){
+    // Updates the hand.
+    var card_row = deck.get_hand_info();
+    display.remove_children(UIIDS.hand_display);
+    display.add_tb_row(UIIDS.hand_display, card_row, CARD_SCALE);
+
+    // Shows how many cards are left in your deck.
+    var remaining = deck.get_deck_count();
+    display.display_message(UIIDS.deck_count, `${remaining}`);
+
+    // Makes sure the card info button shows that no card is selected.
+    var explain_blank_moves = function(){
+        say(blank_moves_message, false);
+    }
+    display.add_on_click(UIIDS.move_info, explain_blank_moves);
+}
+/**
+ * Displays the discard pile to it's proper location.
+ */
+function refresh_discard_display(deck){
+    var discard = deck.get_discard_info();
+    display.remove_children(UIIDS.discard_pile_table);
+    display.add_tb_row(UIIDS.discard_pile_table, discard, SMALL_CARD_SCALE);
+}
+/**
+ * Displays the library to it's proper location.
+ */
+function refresh_deck_order_display(deck){
+    var library = deck.get_library_info();
+    display.remove_children(UIIDS.deck_order_table);
+    display.add_tb_row(UIIDS.deck_order_table, [future_sight(), ...library], SMALL_CARD_SCALE);
+}
+
+function telegraph_repetition_boon(repeat){
+    display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
+    display.remove_class(UIIDS.move_box, `telegraph-repetition`);
+    display.remove_class(UIIDS.hand_box, `no-repetition`);
+    display.remove_class(UIIDS.move_box, `no-repetition`);
+    var class_name = repeat ? `telegraph-repetition` : `no-repetition`;
+    display.add_class(UIIDS.hand_box, class_name);
+    display.add_class(UIIDS.move_box, class_name);
+}
+
 function explain_card(card){
     var text = ``;
     text += `${move_types.alt}\n`;

@@ -137,9 +137,7 @@ class MoveDeck{
      * Displays the hand.
      * @param {string} table Where it should be dispalyed.
      */
-    display_hand(table){
-        // Displays the hand to the given table.
-        display.remove_children(table);
+    get_hand_info(){
         var make_prep_move = function(card, hand_pos){
             return function(){
                 if(!GS.check_lock_player_turn()){
@@ -149,9 +147,6 @@ class MoveDeck{
                 say(``, false);
                 display_move_buttons(card, hand_pos);
             }
-        }
-        var explain_blank_moves = function(){
-            say(blank_moves_message, false);
         }
         var card_row = [];
         for(var i = 0; i < this.#hand.length; ++i){
@@ -171,20 +166,14 @@ class MoveDeck{
                 on_click: make_prep_move(card, i)
             });
         }
-        display.add_tb_row(table, card_row, CARD_SCALE);
-        display.display_message(UIIDS.deck_count, `${this.#library.length}`);
-        display.add_on_click(UIIDS.move_info, explain_blank_moves);
-        if(GS !== undefined){
-            // Telegraph the repetition boon.
-            display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
-            display.remove_class(UIIDS.move_box, `telegraph-repetition`);
-            display.remove_class(UIIDS.hand_box, `no-repetition`);
-            display.remove_class(UIIDS.move_box, `no-repetition`);
-            var repetition_count = GS.boons.has(boon_names.repetition);
-            var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? `telegraph-repetition` : `no-repetition`;
-            display.add_class(UIIDS.hand_box, repeat);
-            display.add_class(UIIDS.move_box, repeat);
-        }
+        return card_row;
+    }
+    /**
+     * Function to count the number of cards remaining in your library.
+     * @returns {number} cards remaining.
+     */
+    get_deck_count(){
+        return this.#library.length;
     }
     /**
      * Displays the whole decklist
@@ -200,19 +189,15 @@ class MoveDeck{
     }
     /**
      * Displays the whole discard pile.
-     * @param {string} table Where it should be displayed.
      */
-    display_discard(table){
-        display.remove_children(table);
-        display.add_tb_row(table, this.#discard_pile, SMALL_CARD_SCALE);
+    get_discard_info(table){
+        return [...this.#discard_pile];
     }
     /**
-     * Displays the cards in your draw pile in order..
-     * @param {string} table Where it should be displayed.
+     * Displays the cards in your draw pile in order.
      */
-    display_deck_order(table){
-        display.remove_children(table);
-        display.add_tb_row(table, [future_sight(), ...reverse_arr(this.#library)], SMALL_CARD_SCALE);
+    get_library_info(table){
+        return reverse_arr(this.#library);
     }
     /**
      * Gets a random array of cards from the decklist with no repeats.

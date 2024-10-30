@@ -37,7 +37,7 @@ class ButtonGrid{
         this.#buttons[Math.floor((number - 1) / 3)][(number - 1) % 3] = button;
     }
     /**
-     * A function to get return the information required to display the buttons.
+     * A function to return the information required to display the buttons.
      * @param {number} hand_position The position of the card in hand that these buttons belong to.
      */
     show_buttons(hand_position){

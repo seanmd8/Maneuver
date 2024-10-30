@@ -1,3 +1,5 @@
+// ----------------TagList.js----------------
+// Class to contain a list of tags for true or false questions about a tile.
 
 
 class TagList{
