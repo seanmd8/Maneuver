@@ -4928,7 +4928,8 @@ function repulsor_push_ai(self, target, map){
                     }
                 } catch (error) {
                     // Catches ERRORS.pass_turn errors to prevent ping pong between 2.
-                    if(error.message !== ERRORS.pass_turn){
+                    // Catched ERRORS.creature_died in case it moves a enemy into lava.
+                    if(error.message !== ERRORS.pass_turn && error.message !== ERRORS.creature_died){
                         throw error;
                     }
                 }
