@@ -171,7 +171,7 @@ class EntityList{
                                 throw error
                             }
                         }
-                        map.display();
+                        display_map(map);
                         if(do_delay){
                             await delay(ANIMATION_DELAY);
                         }

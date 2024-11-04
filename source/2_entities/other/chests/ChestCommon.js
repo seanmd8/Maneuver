@@ -23,7 +23,7 @@ function chest_on_enter(self, target, map){
         display.remove_children(UIIDS.contents);
         display.display_message(UIIDS.content_description, ``);
         GS.refresh_deck_display();
-        map.display();
+        display_map(map);
         if(GS.boons.has(boon_names.safe_passage)){
             GS.boons.lose(boon_names.safe_passage);
             GS.refresh_boon_display();

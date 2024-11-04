@@ -1047,6 +1047,21 @@ function display_entire_deck(deck){
 
 }
 
+function display_map(map){
+    // Updates the GameMap display.
+    display.remove_children(UIIDS.map_display);
+    var grid = map.display();
+    for(var row of grid){
+        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE);
+    }
+    map.clear_telegraphs();
+    // Updates the health bar display.
+    display.remove_children(UIIDS.health_display);
+    display_health(map.get_player(), TILE_SCALE);
+    // Updates the initiative tracker display.
+    update_initiative(map);
+}
+
 function explain_card(card){
     var text = ``;
     text += `${move_types.alt}\n`;
@@ -4552,7 +4567,7 @@ function chest_on_enter(self, target, map){
         display.remove_children(UIIDS.contents);
         display.display_message(UIIDS.content_description, ``);
         GS.refresh_deck_display();
-        map.display();
+        display_map(map);
         if(GS.boons.has(boon_names.safe_passage)){
             GS.boons.lose(boon_names.safe_passage);
             GS.refresh_boon_display();
@@ -4928,7 +4943,7 @@ function repulsor_push_ai(self, target, map){
                     }
                 } catch (error) {
                     // Catches ERRORS.pass_turn errors to prevent ping pong between 2.
-                    // Catched ERRORS.creature_died in case it moves a enemy into lava.
+                    // Catches ERRORS.creature_died errors in case it moves a enemy into lava.
                     if(error.message !== ERRORS.pass_turn && error.message !== ERRORS.creature_died){
                         throw error;
                     }
@@ -6315,12 +6330,12 @@ class ButtonGrid{
             return function(){
                 var t = telegraph_card(behavior, GS.map);
                 GS.map.clear_telegraphs();
-                GS.map.display_telegraph(t.moves, `${IMG_FOLDER.actions}move_telegraph.png`);
-                GS.map.display_telegraph(t.attacks, `${IMG_FOLDER.actions}hit_telegraph.png`);
-                GS.map.display_telegraph(t.stun, `${IMG_FOLDER.actions}confuse.png`);
-                GS.map.display_telegraph(t.healing, `${IMG_FOLDER.actions}heal.png`);
-                GS.map.display_telegraph(t.teleport, `${IMG_FOLDER.actions}teleport_telegraph.png`);
-                GS.map.display();
+                GS.map.mark_telegraph(t.moves, `${IMG_FOLDER.actions}move_telegraph.png`);
+                GS.map.mark_telegraph(t.attacks, `${IMG_FOLDER.actions}hit_telegraph.png`);
+                GS.map.mark_telegraph(t.stun, `${IMG_FOLDER.actions}confuse.png`);
+                GS.map.mark_telegraph(t.healing, `${IMG_FOLDER.actions}heal.png`);
+                GS.map.mark_telegraph(t.teleport, `${IMG_FOLDER.actions}teleport_telegraph.png`);
+                display_map(GS.map);
             }
         }
         var click = function(behavior){
@@ -6563,7 +6578,7 @@ class EntityList{
                                 throw error
                             }
                         }
-                        map.display();
+                        display_map(map);
                         if(do_delay){
                             await delay(ANIMATION_DELAY);
                         }
@@ -6879,10 +6894,6 @@ class GameMap{
      * @returns {void}
      */
     display(){
-        // Diplays the gamemap. Each element shows it's description and hp (if applicable) when clicked.
-        // If any empty tiles have been marked as hit, it resets the pic to empty.
-        // Shows the player's remaining health below.
-        display.remove_children(UIIDS.map_display);
         var make_on_click = function(space, location, gameMap){
             return function(){
                 var description = grid_space_description(space);
@@ -6908,12 +6919,13 @@ class GameMap{
                     telegraph_other_spaces.push(...tile.telegraph_other(location, gameMap, tile));
                 }
                 // Telegraphs possible upcoming attacks and other things.
-                gameMap.display_telegraph(telegraph_spaces);
-                gameMap.display_telegraph(telegraph_other_spaces, `${IMG_FOLDER.actions}telegraph_other.png`);
-                gameMap.display();
+                gameMap.mark_telegraph(telegraph_spaces);
+                gameMap.mark_telegraph(telegraph_other_spaces, `${IMG_FOLDER.actions}telegraph_other.png`);
+                display_map(gameMap);
                 display.add_class(`${UIIDS.map_display} ${location.y} ${location.x}`, `selected-tile`);
             }
         }
+        var grid = [];
         for(var y = 0; y < this.#y_max; ++y){
             var row = this.#grid[y];
             var table_row = [];
@@ -6935,12 +6947,9 @@ class GameMap{
                     on_click: make_on_click(space, new Point(x, y), this)
                 });
             };
-            display.add_tb_row(UIIDS.map_display, table_row, TILE_SCALE);
+            grid.push(table_row);
         }
-        display.remove_children(UIIDS.health_display);
-        display_health(this.get_player(), TILE_SCALE);
-        this.clear_telegraphs();
-        update_initiative(this);
+        return grid;
 	}
     /**
      * Moves a tile.
@@ -7280,7 +7289,7 @@ class GameMap{
      * @param {Point[]} positions A list of positions to mark.
      * @param {string=} pic If provided, it will telegraph that rather than a hit.
      */
-    display_telegraph(positions, pic = `${IMG_FOLDER.actions}hit_telegraph.png`){
+    mark_telegraph(positions, pic = `${IMG_FOLDER.actions}hit_telegraph.png`){
         for(var position of positions){
             if(this.is_in_bounds(position)){
                 this.get_grid(position).action = pic;
@@ -7495,7 +7504,7 @@ class GameState{
             add_boon_to_chest(chest, STARTING_CHEST_CONTENTS());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
-        this.map.display();
+        display_map(this.map);
         this.map.display_stats(UIIDS.stats);
 
         this.refresh_deck_display();
@@ -7538,13 +7547,13 @@ class GameState{
             else{
                 this.deck.discard(hand_pos);
             }
-            this.map.display();
+            display_map(this.map);
             await delay(ANIMATION_DELAY);
             if(is_instant){
                 this.refresh_deck_display();
                 this.unlock_player_turn();
                 this.map.display_stats(UIIDS.stats);
-                this.map.display();
+                display_map(this.map);
                 this.unlock_player_turn();
                 return;
             }
@@ -7632,12 +7641,12 @@ class GameState{
         // Creates the next floor.
         this.map.next_floor();
         this.map.display_stats(UIIDS.stats);
-        this.map.display();
+        display_map(this.map);
         this.deck.deal();
         this.refresh_deck_display();
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
         await delay(ANIMATION_DELAY);
-        this.map.display();
+        display_map(this.map);
         this.unlock_player_turn();
     }
     /** 
@@ -7731,7 +7740,7 @@ class GameState{
     game_over(cause){
         // Tells the user the game is over, prevents them fro m continuing, tells them the cause
         // and gives them the chance to retry.
-        this.map.display();
+        display_map(this.map);
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
         say(`${game_over_message}${cause.toLowerCase()}.`);
@@ -7764,9 +7773,9 @@ class GameState{
      */
     async prep_turn(){
         this.map.resolve_events();
-        this.map.display();
+        display_map(this.map);
         await delay(ANIMATION_DELAY);
-        this.map.display();
+        display_map(this.map);
         this.refresh_deck_display();
         this.map.display_stats(UIIDS.stats);
         this.unlock_player_turn();

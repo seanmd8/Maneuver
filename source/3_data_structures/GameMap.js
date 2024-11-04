@@ -279,10 +279,6 @@ class GameMap{
      * @returns {void}
      */
     display(){
-        // Diplays the gamemap. Each element shows it's description and hp (if applicable) when clicked.
-        // If any empty tiles have been marked as hit, it resets the pic to empty.
-        // Shows the player's remaining health below.
-        display.remove_children(UIIDS.map_display);
         var make_on_click = function(space, location, gameMap){
             return function(){
                 var description = grid_space_description(space);
@@ -308,12 +304,13 @@ class GameMap{
                     telegraph_other_spaces.push(...tile.telegraph_other(location, gameMap, tile));
                 }
                 // Telegraphs possible upcoming attacks and other things.
-                gameMap.display_telegraph(telegraph_spaces);
-                gameMap.display_telegraph(telegraph_other_spaces, `${IMG_FOLDER.actions}telegraph_other.png`);
-                gameMap.display();
+                gameMap.mark_telegraph(telegraph_spaces);
+                gameMap.mark_telegraph(telegraph_other_spaces, `${IMG_FOLDER.actions}telegraph_other.png`);
+                display_map(gameMap);
                 display.add_class(`${UIIDS.map_display} ${location.y} ${location.x}`, `selected-tile`);
             }
         }
+        var grid = [];
         for(var y = 0; y < this.#y_max; ++y){
             var row = this.#grid[y];
             var table_row = [];
@@ -335,12 +332,9 @@ class GameMap{
                     on_click: make_on_click(space, new Point(x, y), this)
                 });
             };
-            display.add_tb_row(UIIDS.map_display, table_row, TILE_SCALE);
+            grid.push(table_row);
         }
-        display.remove_children(UIIDS.health_display);
-        display_health(this.get_player(), TILE_SCALE);
-        this.clear_telegraphs();
-        update_initiative(this);
+        return grid;
 	}
     /**
      * Moves a tile.
@@ -680,7 +674,7 @@ class GameMap{
      * @param {Point[]} positions A list of positions to mark.
      * @param {string=} pic If provided, it will telegraph that rather than a hit.
      */
-    display_telegraph(positions, pic = `${IMG_FOLDER.actions}hit_telegraph.png`){
+    mark_telegraph(positions, pic = `${IMG_FOLDER.actions}hit_telegraph.png`){
         for(var position of positions){
             if(this.is_in_bounds(position)){
                 this.get_grid(position).action = pic;

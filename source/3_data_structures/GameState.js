@@ -45,7 +45,7 @@ class GameState{
             add_boon_to_chest(chest, STARTING_CHEST_CONTENTS());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
-        this.map.display();
+        display_map(this.map);
         this.map.display_stats(UIIDS.stats);
 
         this.refresh_deck_display();
@@ -88,13 +88,13 @@ class GameState{
             else{
                 this.deck.discard(hand_pos);
             }
-            this.map.display();
+            display_map(this.map);
             await delay(ANIMATION_DELAY);
             if(is_instant){
                 this.refresh_deck_display();
                 this.unlock_player_turn();
                 this.map.display_stats(UIIDS.stats);
-                this.map.display();
+                display_map(this.map);
                 this.unlock_player_turn();
                 return;
             }
@@ -182,12 +182,12 @@ class GameState{
         // Creates the next floor.
         this.map.next_floor();
         this.map.display_stats(UIIDS.stats);
-        this.map.display();
+        display_map(this.map);
         this.deck.deal();
         this.refresh_deck_display();
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
         await delay(ANIMATION_DELAY);
-        this.map.display();
+        display_map(this.map);
         this.unlock_player_turn();
     }
     /** 
@@ -281,7 +281,7 @@ class GameState{
     game_over(cause){
         // Tells the user the game is over, prevents them fro m continuing, tells them the cause
         // and gives them the chance to retry.
-        this.map.display();
+        display_map(this.map);
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
         say(`${game_over_message}${cause.toLowerCase()}.`);
@@ -314,9 +314,9 @@ class GameState{
      */
     async prep_turn(){
         this.map.resolve_events();
-        this.map.display();
+        display_map(this.map);
         await delay(ANIMATION_DELAY);
-        this.map.display();
+        display_map(this.map);
         this.refresh_deck_display();
         this.map.display_stats(UIIDS.stats);
         this.unlock_player_turn();

@@ -46,12 +46,12 @@ class ButtonGrid{
             return function(){
                 var t = telegraph_card(behavior, GS.map);
                 GS.map.clear_telegraphs();
-                GS.map.display_telegraph(t.moves, `${IMG_FOLDER.actions}move_telegraph.png`);
-                GS.map.display_telegraph(t.attacks, `${IMG_FOLDER.actions}hit_telegraph.png`);
-                GS.map.display_telegraph(t.stun, `${IMG_FOLDER.actions}confuse.png`);
-                GS.map.display_telegraph(t.healing, `${IMG_FOLDER.actions}heal.png`);
-                GS.map.display_telegraph(t.teleport, `${IMG_FOLDER.actions}teleport_telegraph.png`);
-                GS.map.display();
+                GS.map.mark_telegraph(t.moves, `${IMG_FOLDER.actions}move_telegraph.png`);
+                GS.map.mark_telegraph(t.attacks, `${IMG_FOLDER.actions}hit_telegraph.png`);
+                GS.map.mark_telegraph(t.stun, `${IMG_FOLDER.actions}confuse.png`);
+                GS.map.mark_telegraph(t.healing, `${IMG_FOLDER.actions}heal.png`);
+                GS.map.mark_telegraph(t.teleport, `${IMG_FOLDER.actions}teleport_telegraph.png`);
+                display_map(GS.map);
             }
         }
         var click = function(behavior){
