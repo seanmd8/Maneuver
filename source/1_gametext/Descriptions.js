@@ -84,6 +84,12 @@ const living_tree_rooted_description = `Living Tree: Damages the player if they 
 const scorpion_description = `Scorpion: Will attack the player if it is next to them. Otherwise, moves 2 spaces closer every other turn.`;
 const moving_turret_description = `Moving Turret: Fires beams in two directions that hit the first thing in their path. Moves in the same `
                             +`direction until it hits something.`;
+const walking_prism_description = [
+    `Walking Prism: Has no normal attack, but will fire beams in 4 directions when damaged which hit the `
+    +`first thing in their path. Changes firing direction aftewards.\n`, 
+    `Currently aiming orthogonally.`,
+    `Currently aiming diagonally.`
+    ]
 
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;

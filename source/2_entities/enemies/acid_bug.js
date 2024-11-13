@@ -9,6 +9,7 @@ function acid_bug_tile(){
         health: 1,
         difficulty: 3,
         behavior: move_closer_ai,
+        telegraph_other: spider_telegraph,
         on_death: acid_bug_death,
     }
 }
