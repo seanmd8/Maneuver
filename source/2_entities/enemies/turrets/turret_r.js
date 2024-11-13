@@ -33,7 +33,7 @@ function turret_r_ai(self, target, map){
         throw new Error(ERRORS.missing_property)
     }
     if((target.difference.on_axis() || target.difference.on_diagonal())){
-        // Shoot if player is along the line of the old direction or it's opposite.
+        // Shoot if player is along the line of the current direction or it's opposite.
         if(point_equals(self.tile.direction, sign(target.difference))){
             turret_fire_ai(self, target, map);
         }

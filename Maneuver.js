@@ -1486,7 +1486,8 @@ const living_tree_description = `Living Tree: Damages the player if they are exa
 const living_tree_rooted_description = `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
                             +`This one has put down roots making it unable to move.`
 const scorpion_description = `Scorpion: Will attack the player if it is next to them. Otherwise, moves 2 spaces closer every other turn.`;
-
+const moving_turret_description = `Moving Turret: Fires beams in two directions that hit the first thing in their path. Moves in the same `
+                            +`direction until it hits something.`;
 
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
@@ -4212,6 +4213,104 @@ function thorn_bush_ai(self, target, map){
         map.add_tile(thorn_bramble_tile(), current);
     }
 }
+/** @type {TileGenerator} */
+function moving_turret_d_tile(){
+    var direction = DIAGONAL_DIRECTIONS[random_num(DIAGONAL_DIRECTIONS.length)].copy();
+    var tile = {
+        type: `enemy`,
+        name: `Moving Turret`,
+        pic: `${IMG_FOLDER.tiles}moving_turret_d.png`,
+        description: moving_turret_description,
+        tags: new TagList(),
+        health: 2,
+        difficulty: 4,
+        behavior: moving_turret_d_ai,
+        telegraph: moving_turret_d_telegraph,
+        rotate: 0,
+        direction
+    }
+    set_rotation(tile);
+    return tile;
+}
+
+/** @type {AIFunction} AI used by moving turrets that shoot diagonally.*/
+function moving_turret_d_ai(self, target, map){
+    if( self.tile.rotate === undefined || 
+        self.tile.direction === undefined){
+        throw new Error(ERRORS.missing_property)
+    }
+    // If the player is on the diagonal and not in the direction of travel, fire.
+    if( 
+        target.difference.on_diagonal() && 
+        !point_equals(sign(target.difference), self.tile.direction) &&
+        !point_equals(sign(target.difference), self.tile.direction.times(-1))
+    ){
+        turret_fire_ai(self, target, map);
+    }
+    // Try to move. Change direction if it hits something.
+    if(!map.move(self.location, self.location.plus(self.tile.direction))){
+        self.tile.direction.times_equals(-1);
+        set_rotation(self.tile);
+    }
+}
+
+/** @type {TelegraphFunction} */
+function moving_turret_d_telegraph(location, map, self){
+    var attacks = [];
+    for(var direction of [self.direction.rotate(90), self.direction.rotate(-90)]){
+        attacks.push(...get_points_in_direction(location, direction, map));
+    }
+    return attacks;
+}
+/** @type {TileGenerator} */
+function moving_turret_h_tile(){
+    var direction = HORIZONTAL_DIRECTIONS[random_num(HORIZONTAL_DIRECTIONS.length)].copy();
+    var tile = {
+        type: `enemy`,
+        name: `Moving Turret`,
+        pic: `${IMG_FOLDER.tiles}moving_turret_h.png`,
+        description: moving_turret_description,
+        tags: new TagList(),
+        health: 2,
+        difficulty: 4,
+        behavior: moving_turret_h_ai,
+        telegraph: moving_turret_h_telegraph,
+        rotate: 0,
+        direction
+    }
+    set_rotation(tile);
+    return tile;
+}
+
+/** @type {AIFunction} AI used by moving turrets that shoot orthogonally.*/
+function moving_turret_h_ai(self, target, map){
+    if( self.tile.rotate === undefined || 
+        self.tile.direction === undefined){
+        throw new Error(ERRORS.missing_property)
+    }
+    // If the player is on the axis and not in the direction of travel, fire.
+    if( 
+        target.difference.on_axis() && 
+        !point_equals(sign(target.difference), self.tile.direction) &&
+        !point_equals(sign(target.difference), self.tile.direction.times(-1))
+    ){
+        turret_fire_ai(self, target, map);
+    }
+    // Try to move. Change direction if it hits something.
+    if(!map.move(self.location, self.location.plus(self.tile.direction))){
+        self.tile.direction.times_equals(-1);
+        set_rotation(self.tile);
+    }
+}
+
+/** @type {TelegraphFunction} */
+function moving_turret_h_telegraph(location, map, self){
+    var attacks = [];
+    for(var direction of [self.direction.rotate(90), self.direction.rotate(-90)]){
+        attacks.push(...get_points_in_direction(location, direction, map));
+    }
+    return attacks;
+}
 /** @type {AIFunction} AI used by all turrets to fire towards the player.*/
 function turret_fire_ai(self, target, map){
     // Fires a shot in the direction of the player.
@@ -4321,7 +4420,7 @@ function turret_r_ai(self, target, map){
         throw new Error(ERRORS.missing_property)
     }
     if((target.difference.on_axis() || target.difference.on_diagonal())){
-        // Shoot if player is along the line of the old direction or it's opposite.
+        // Shoot if player is along the line of the current direction or it's opposite.
         if(point_equals(self.tile.direction, sign(target.difference))){
             turret_fire_ai(self, target, map);
         }
@@ -5358,7 +5457,8 @@ const ENEMY_LIST = [
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, boulder_elemental_tile,
-    pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile
+    pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
+    moving_turret_h_tile, moving_turret_d_tile
 ];
 
 // This is an array of all bosses.

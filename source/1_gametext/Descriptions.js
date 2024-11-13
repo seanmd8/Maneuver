@@ -82,7 +82,8 @@ const living_tree_description = `Living Tree: Damages the player if they are exa
 const living_tree_rooted_description = `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
                             +`This one has put down roots making it unable to move.`
 const scorpion_description = `Scorpion: Will attack the player if it is next to them. Otherwise, moves 2 spaces closer every other turn.`;
-
+const moving_turret_description = `Moving Turret: Fires beams in two directions that hit the first thing in their path. Moves in the same `
+                            +`direction until it hits something.`;
 
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
