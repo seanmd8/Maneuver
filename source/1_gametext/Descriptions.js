@@ -89,7 +89,9 @@ const walking_prism_description = [
     +`first thing in their path. Changes firing direction aftewards.\n`, 
     `Currently aiming orthogonally.`,
     `Currently aiming diagonally.`
-    ]
+    ];
+const unstable_wisp_description = `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes into a ring `
+                            +`of fireballs on death.`;
 
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
