@@ -1496,6 +1496,7 @@ const walking_prism_description = [
     ];
 const unstable_wisp_description = `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes into a ring `
                             +`of fireballs on death.`;
+const captive_void_description = `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it turns it off for 2 turns.`;
 
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
@@ -2928,6 +2929,79 @@ function brightling_ai(self, target, map){
     ++self.tile.cycle;
 }
 /** @type {TileGenerator} */
+function captive_void_tile(){
+    var pic_arr = [`${IMG_FOLDER.tiles}captive_void_on.png`, `${IMG_FOLDER.tiles}captive_void_off.png`];
+    var starting_cycle = 0;
+    return {
+        type: `enemy`,
+        name: `Captive Void`,
+        pic: pic_arr[starting_cycle],
+        description: captive_void_description,
+        tags: new TagList([TAGS.unmovable]),
+        difficulty: 2,
+        behavior: captive_void_ai,
+        on_hit: captive_void_on_hit,
+        telegraph_other: captive_void_telegraph_other,
+        pic_arr,
+        cycle: starting_cycle
+    }
+}
+
+/** @type {AIFunction}.*/
+function captive_void_ai(self, target, map){
+    if( self.tile.cycle === undefined || 
+        self.tile.pic_arr === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    if(self.tile.cycle === 0){
+        var moved_player = false;
+        var spaces = get_2_away();
+        for(var space of spaces){
+            var start = self.location.plus(space);
+            var end = self.location.plus(sign(space));
+            if(map.is_in_bounds(start) && !map.check_empty(start) && !map.get_tile(start).tags.has(TAGS.unmovable)){
+                var moved = map.move(start, end)
+                if(moved && map.get_tile(end).type === `player`){
+                    moved_player = true;
+                }
+            }
+        }
+        if(moved_player){
+            throw new Error(ERRORS.pass_turn);
+        }
+    }
+    else{
+        --self.tile.cycle;
+        if(self.tile.cycle === 0){
+            self.tile.pic = self.tile.pic_arr[0];
+        }
+    }
+}
+
+/** @type {AIFunction}.*/
+function captive_void_on_hit(self, target, map){
+    if( self.tile.cycle === undefined || 
+        self.tile.pic_arr === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    self.tile.cycle = 2;
+    self.tile.pic = self.tile.pic_arr[1];
+}
+
+/** @type {TelegraphFunction} */
+function captive_void_telegraph_other(location, map, self){
+    if(self.cycle === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    var spaces = [];
+    if(self.cycle === 0){
+        spaces = get_2_away().map(p => {
+            return location.plus(p);
+        });
+    }
+    return spaces;
+}
+/** @type {TileGenerator} */
 function carrion_flies_tile(){
     return {
         type: `enemy`,
@@ -3207,22 +3281,6 @@ function living_tree_telegraph(location, map, self){
     })
 }
 
-/**
- * Function to make a square of points with a side length 5 centered on the origin.
- * @returns {Point[]} the points.
- */
-function get_2_away(){
-    var points = [];
-    for(var x = -2; x <= 2; ++x){
-        for(var y = -2; y <= 2; ++y){
-            var p = new Point(x, y);
-            if(p.within_radius(2) && !p.within_radius(1)){
-                points.push(p);
-            }
-        }
-    }
-    return points;
-}
 /** @type {TileGenerator} */
 function living_tree_rooted_tile(){
     return {
@@ -5586,7 +5644,7 @@ const ENEMY_LIST = [
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, boulder_elemental_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
-    moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile
+    moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile
 ];
 
 // This is an array of all bosses.
@@ -5838,6 +5896,24 @@ function point_rectangle(p1, p2){
         rectangle.push(new Point(x_max, y));
     }
     return rectangle;
+}
+
+
+/**
+ * Function to make a square of points with a side length 5 centered on the origin.
+ * @returns {Point[]} the points.
+ */
+function get_2_away(){
+    var points = [];
+    for(var x = -2; x <= 2; ++x){
+        for(var y = -2; y <= 2; ++y){
+            var p = new Point(x, y);
+            if(p.within_radius(2) && !p.within_radius(1)){
+                points.push(p);
+            }
+        }
+    }
+    return points;
 }
 
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */

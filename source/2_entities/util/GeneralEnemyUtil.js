@@ -63,7 +63,7 @@ const ENEMY_LIST = [
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, boulder_elemental_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
-    moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile
+    moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile
 ];
 
 // This is an array of all bosses.
@@ -315,6 +315,24 @@ function point_rectangle(p1, p2){
         rectangle.push(new Point(x_max, y));
     }
     return rectangle;
+}
+
+
+/**
+ * Function to make a square of points with a side length 5 centered on the origin.
+ * @returns {Point[]} the points.
+ */
+function get_2_away(){
+    var points = [];
+    for(var x = -2; x <= 2; ++x){
+        for(var y = -2; y <= 2; ++y){
+            var p = new Point(x, y);
+            if(p.within_radius(2) && !p.within_radius(1)){
+                points.push(p);
+            }
+        }
+    }
+    return points;
 }
 
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */

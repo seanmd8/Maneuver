@@ -92,6 +92,7 @@ const walking_prism_description = [
     ];
 const unstable_wisp_description = `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes into a ring `
                             +`of fireballs on death.`;
+const captive_void_description = `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it turns it off for 2 turns.`;
 
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
