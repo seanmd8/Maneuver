@@ -1497,6 +1497,8 @@ const walking_prism_description = [
 const unstable_wisp_description = `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes into a ring `
                             +`of fireballs on death.`;
 const captive_void_description = `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it turns it off for 2 turns.`;
+const paper_construct_description = `Paper Construct: can shoot the player from up to 2 spaces away orthogonally. Otherwise, moves up to two `
+                            +`spaces diagonally.`
 
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
@@ -3483,6 +3485,63 @@ function orb_of_insanity_telegraph_other(location, map, self){
     }
     return area;
 }
+/** @type {TileGenerator} */
+function paper_construct_tile(){
+    return{
+        type: `enemy`,
+        name: `Paper Construct`,
+        pic: `${IMG_FOLDER.tiles}paper_construct.png`,
+        description: paper_construct_description,
+        tags: new TagList(),
+        health: 1,
+        difficulty: 3,
+        behavior: paper_construct_ai,
+        telegraph: porcuslime_horizontal_telegraph,
+        rotate: 90 * random_num(4)
+    }
+}
+
+/** @type {AIFunction} AI used by scythes.*/
+function paper_construct_ai(self, target, map){
+    if(self.tile.rotate === undefined){
+        throw new Error(ERRORS.missing_property)
+    }
+    if(target.difference.within_radius(2) && target.difference.on_axis()){
+        // If the player is within range, attacks.
+        var direction = sign(target.difference);
+        var space = self.location.plus(direction)
+        for(var i = 0; i < 2 && !map.attack(space) && map.check_empty(space); ++i){
+            space.plus_equals(direction);
+        }
+    }
+    else{
+        // Choose a open direction nearest to towards the player.
+        var directions = order_nearby(target.difference);
+        var dir = undefined;
+        for(var i = 0; i < directions.length && !dir; ++i){
+            if(directions[i].on_diagonal() && map.check_empty(self.location.plus(directions[i]))){
+                dir = directions[i];
+            }
+        }
+        if(dir){
+            // Move up to 2 spaces in that direction.
+            var moved = true;
+            for(var i = 0; i < 2 && !(target.difference.on_axis() && target.difference.within_radius(2)) && moved; ++i){
+                moved = map.move(self.location, self.location.plus(dir));
+                if(moved){
+                    self.location.plus_equals(dir);
+                    target.difference.minus_equals(dir);
+                }
+            }
+        }
+    }
+    // Face it towards the player;
+    self.tile.direction = order_nearby(target.difference).filter(p => {
+        return p.on_axis();
+    })[0];
+    set_rotation(self.tile);
+}
+
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */
 function pheonix_tile(){
     return {
@@ -5644,7 +5703,8 @@ const ENEMY_LIST = [
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, boulder_elemental_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
-    moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile
+    moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
+    paper_construct_tile
 ];
 
 // This is an array of all bosses.
