@@ -214,10 +214,10 @@ class GameState{
     #generate_add_row(table){
         // Get card choices
         var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
-        var add_list_generators = rand_no_repeates(CARD_CHOICES, amount);
+        var add_list_generators = rand_no_repeates(COMMON_CARDS, amount);
         var chance_of_rare = random_num(4);
         if(chance_of_rare < add_list_generators.length){
-            var rare = rand_no_repeates(RARE_CARD_CHOICES, 1);
+            var rare = rand_no_repeates(RARE_CARDS, 1);
             add_list_generators[chance_of_rare] = rare[0];
         }
         var add_list = add_list_generators.map(g => g());

@@ -195,6 +195,7 @@ const enticing_fruit_tree_description = `Enticing Fruit Tree: Moving you here wi
         +`the fruit.`;
 const rotting_fruit_tree_description = `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell could still attract `
         +`creatures if it is disturbed.`;
+const bookshelf_description = `Bookshelf: When damaged, adds a random temporary card to your deck.`
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;

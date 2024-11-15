@@ -5,6 +5,6 @@ function wall_tile(){
         name: `Wall`,
         pic: `${IMG_FOLDER.tiles}wall.png`,
         description: wall_description,
-        tags: new TagList(),
+        tags: new TagList([TAGS.unmovable]),
     }
 }

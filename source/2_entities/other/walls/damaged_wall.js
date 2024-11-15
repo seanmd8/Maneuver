@@ -7,7 +7,7 @@ function damaged_wall_tile(){
         name: `Damaged Wall`,
         pic: pic_arr[health - 1],
         description: damaged_wall_description,
-        tags: new TagList(),
+        tags: new TagList([TAGS.unmovable]),
         health,
         on_hit: damaged_wall_on_hit,
         on_death: damaged_wall_death,
@@ -17,14 +17,14 @@ function damaged_wall_tile(){
 }
 
 /** @type {AIFunction} Function used when a wall is damaged to update it's image.*/
-
 function damaged_wall_on_hit(self, target, map){
     if(self.tile.pic_arr === undefined ||
         self.tile.health === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    self.tile.pic = self.tile.pic_arr[Math.min(2, self.tile.health - 1)];
-}
+    if(self.tile.health > 0){
+        self.tile.pic = self.tile.pic_arr[Math.min(1, self.tile.health - 1)];
+    }}
 
 /** @type {AIFunction} Function used when a damaged wall is destroyed to potentially spawn something.*/
 function damaged_wall_death(self, target, map){

@@ -1,8 +1,12 @@
 // ----------------CardUtils.js----------------
 // File containing utility functions used by cards.
 
+const BASIC_CARDS = [
+    basic_horizontal, basic_diagonal, basic_slice
+]
+
 // Cards that can be given on level up.
-const CARD_CHOICES = [
+const COMMON_CARDS = [
     short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
     sprint, trident, spin_attack, butterfly, fork,
@@ -18,7 +22,7 @@ const CARD_CHOICES = [
     stunning_leap, stunning_side_leap, stunning_slice,
 ];
 
-const RARE_CARD_CHOICES = [
+const RARE_CARDS = [
     teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
     sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
     punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport,
@@ -217,9 +221,6 @@ function telegraph_card(behavior, map){
     }
     return telegraphs;
 }
-/*
-*
-*/
 function get_all_points(){
     var points = [];
     for(var x = 0; x < FLOOR_WIDTH; ++x){
@@ -228,4 +229,12 @@ function get_all_points(){
         }
     }
     return points;
+}
+
+function get_boss_cards(){
+    var boss_cards = [];
+    for(var boss of BOSS_LIST){
+        boss_cards = [...boss_cards, ...boss().card_drops];
+    }
+    return boss_cards;
 }

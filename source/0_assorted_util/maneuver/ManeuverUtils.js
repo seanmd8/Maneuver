@@ -244,7 +244,7 @@ function confuse_player(){
     if(1 + random_num(2) - GS.boons.has(boon_names.stable_mind) > 0){
         var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
         GS.give_temp_card(card);
-        GS.refresh_deck_display
+        GS.refresh_deck_display();
     } 
 }
 

@@ -1382,7 +1382,7 @@ function confuse_player(){
     if(1 + random_num(2) - GS.boons.has(boon_names.stable_mind) > 0){
         var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
         GS.give_temp_card(card);
-        GS.refresh_deck_display
+        GS.refresh_deck_display();
     } 
 }
 
@@ -1599,6 +1599,7 @@ const enticing_fruit_tree_description = `Enticing Fruit Tree: Moving you here wi
         +`the fruit.`;
 const rotting_fruit_tree_description = `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell could still attract `
         +`creatures if it is disturbed.`;
+const bookshelf_description = `Bookshelf: When damaged, adds a random temporary card to your deck.`
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;
@@ -4857,6 +4858,42 @@ function walking_prism_telegraph(location, map, self){
     }
     return turret_d_telegraph(location, map, self);
 }
+/** @type {TileGenerator}.*/
+function bookshelf_tile(){
+    var health = random_num(2) + 2;
+    var pic_arr = [
+        `${IMG_FOLDER.tiles}bookshelf_empty.png`, 
+        `${IMG_FOLDER.tiles}bookshelf_half.png`, 
+        `${IMG_FOLDER.tiles}bookshelf_full.png`
+    ];
+    return {
+        type: `terrain`,
+        name: `Bookshelf`,
+        pic: pic_arr[health - 1],
+        description: bookshelf_description,
+        tags: new TagList([TAGS.unmovable]),
+        health,
+        on_hit: bookshelf_on_hit,
+        pic_arr
+    }
+}
+
+/** @type {AIFunction} Function used when a wall is damaged to update it's image.*/
+function bookshelf_on_hit(self, target, map){
+    if(self.tile.pic_arr === undefined ||
+        self.tile.health === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    if(self.tile.health > 0){
+        self.tile.pic = self.tile.pic_arr[Math.min(2, self.tile.health - 1)];
+    }
+    var boss_cards = get_boss_cards();
+    var card_list = [...BASIC_CARDS, ...CONFUSION_CARDS, ...COMMON_CARDS, ...RARE_CARDS, ...boss_cards];
+    var card = randomize_arr(card_list)[0]();
+    GS.give_temp_card(card);
+    GS.refresh_deck_display();
+}
+
 /** @type {TileGenerator} Like the normal chest, but it is invulnerable.*/
 function armored_chest_tile(){
     return {
@@ -5025,7 +5062,7 @@ function coffin_tile(){
         on_enter: decay_ai,
         on_death: coffin_tile_death,
         summons: [rat_tile, carrion_flies_tile, vampire_tile, appropriate_chest_tile],
-        card_drops: RARE_CARD_CHOICES
+        card_drops: RARE_CARDS
     }
 }
 
@@ -5406,7 +5443,7 @@ function damaged_wall_tile(){
         name: `Damaged Wall`,
         pic: pic_arr[health - 1],
         description: damaged_wall_description,
-        tags: new TagList(),
+        tags: new TagList([TAGS.unmovable]),
         health,
         on_hit: damaged_wall_on_hit,
         on_death: damaged_wall_death,
@@ -5416,14 +5453,14 @@ function damaged_wall_tile(){
 }
 
 /** @type {AIFunction} Function used when a wall is damaged to update it's image.*/
-
 function damaged_wall_on_hit(self, target, map){
     if(self.tile.pic_arr === undefined ||
         self.tile.health === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    self.tile.pic = self.tile.pic_arr[Math.min(2, self.tile.health - 1)];
-}
+    if(self.tile.health > 0){
+        self.tile.pic = self.tile.pic_arr[Math.min(1, self.tile.health - 1)];
+    }}
 
 /** @type {AIFunction} Function used when a damaged wall is destroyed to potentially spawn something.*/
 function damaged_wall_death(self, target, map){
@@ -5444,7 +5481,7 @@ function wall_tile(){
         name: `Wall`,
         pic: `${IMG_FOLDER.tiles}wall.png`,
         description: wall_description,
-        tags: new TagList(),
+        tags: new TagList([TAGS.unmovable]),
     }
 }
 /** @type {TileGenerator} Empty space.*/
@@ -8037,10 +8074,10 @@ class GameState{
     #generate_add_row(table){
         // Get card choices
         var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
-        var add_list_generators = rand_no_repeates(CARD_CHOICES, amount);
+        var add_list_generators = rand_no_repeates(COMMON_CARDS, amount);
         var chance_of_rare = random_num(4);
         if(chance_of_rare < add_list_generators.length){
-            var rare = rand_no_repeates(RARE_CARD_CHOICES, 1);
+            var rare = rand_no_repeates(RARE_CARDS, 1);
             add_list_generators[chance_of_rare] = rare[0];
         }
         var add_list = add_list_generators.map(g => g());
@@ -9399,8 +9436,12 @@ function soar(){
 // ----------------CardUtils.js----------------
 // File containing utility functions used by cards.
 
+const BASIC_CARDS = [
+    basic_horizontal, basic_diagonal, basic_slice
+]
+
 // Cards that can be given on level up.
-const CARD_CHOICES = [
+const COMMON_CARDS = [
     short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
     sprint, trident, spin_attack, butterfly, fork,
@@ -9416,7 +9457,7 @@ const CARD_CHOICES = [
     stunning_leap, stunning_side_leap, stunning_slice,
 ];
 
-const RARE_CARD_CHOICES = [
+const RARE_CARDS = [
     teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
     sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
     punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport,
@@ -9615,9 +9656,6 @@ function telegraph_card(behavior, map){
     }
     return telegraphs;
 }
-/*
-*
-*/
 function get_all_points(){
     var points = [];
     for(var x = 0; x < FLOOR_WIDTH; ++x){
@@ -9626,6 +9664,14 @@ function get_all_points(){
         }
     }
     return points;
+}
+
+function get_boss_cards(){
+    var boss_cards = [];
+    for(var boss of BOSS_LIST){
+        boss_cards = [...boss_cards, ...boss().card_drops];
+    }
+    return boss_cards;
 }
 // ----------------ConfusionCards.js----------------
 // File containing cards that can be given to the player as a debuff.
