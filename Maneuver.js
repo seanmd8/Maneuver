@@ -1599,7 +1599,8 @@ const enticing_fruit_tree_description = `Enticing Fruit Tree: Moving you here wi
         +`the fruit.`;
 const rotting_fruit_tree_description = `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell could still attract `
         +`creatures if it is disturbed.`;
-const bookshelf_description = `Bookshelf: When damaged, adds a random temporary card to your deck.`
+const bookshelf_description = `Bookshelf: When damaged, adds a random temporary card to your deck.`;
+const floating_barrier_description = `Moving Barrier: Moves in a straight line. Changes direction when it hits something.`;
 
 // Chest descriptions.
 const chest_inner_discription = `Choose up to one reward:`;
@@ -5158,6 +5159,42 @@ function shoot_fireball(direction){
     fireball.direction = direction;
     fireball.pic = ifexists(fireball.pic_arr)[set_rotation(fireball)];
     return fireball;
+}
+/** @type {TileGenerator} */
+function floating_barrier_tile(){
+    var direction = ALL_DIRECTIONS[random_num(ALL_DIRECTIONS.length)].copy();
+    var pic_arr = [`${IMG_FOLDER.tiles}floating_barrier_n.png`, `${IMG_FOLDER.tiles}floating_barrier_nw.png`];
+    var tile = {
+        type: `enemy`,
+        name: `Floating Barrier`,
+        pic: pic_arr[direction.on_axis() ? 0 : 1],
+        description: floating_barrier_description,
+        tags: new TagList(),
+        behavior: floating_barrier_ai,
+        pic_arr,
+        rotate: 0,
+        direction
+    }
+    set_rotation(tile);
+    return tile;
+}
+
+/** @type {AIFunction}.*/
+function floating_barrier_ai(self, target, map){
+    if( self.tile.rotate === undefined || 
+        self.tile.direction === undefined){
+        throw new Error(ERRORS.missing_property)
+    }
+    // Try to move. Change direction if it hits something.
+    if(!map.move(self.location, self.location.plus(self.tile.direction))){
+        var directions = random_nearby();
+        for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
+        if(i < directions.length){
+            self.tile.direction = directions[i];
+            self.tile.pic = self.tile.pic_arr[self.tile.direction.on_axis() ? 0 : 1]
+            set_rotation(self.tile);
+        }
+    }
 }
 /** @type {TileGenerator} A healing fruit that spawns enemies.*/
 function enticing_fruit_tree_tile(){
