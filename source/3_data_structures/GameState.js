@@ -131,7 +131,19 @@ class GameState{
     player_action(action){
         switch(action.type){
             case `attack`:
-                if(this.boons.has(boon_names.pacifism) && !point_equals(action.change, new Point(0, 0))){
+                var target = this.map.get_player_location().plus(action.change);
+                if( // Dazing Blows
+                    this.boons.has(boon_names.dazing_blows) && 
+                    !point_equals(action.change, new Point(0, 0)) &&
+                    this.map.is_in_bounds(target) &&
+                    !this.map.get_tile(target).tags.has(TAGS.boss)
+                ){
+                    this.map.player_stun(action.change);
+                }
+                if( // Pacifism
+                    this.boons.has(boon_names.pacifism) && 
+                    !point_equals(action.change, new Point(0, 0))
+                ){
                     this.map.player_stun(action.change);
                     this.map.player_stun(action.change);
                 }

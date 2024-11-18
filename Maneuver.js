@@ -8235,7 +8235,19 @@ class GameState{
     player_action(action){
         switch(action.type){
             case `attack`:
-                if(this.boons.has(boon_names.pacifism) && !point_equals(action.change, new Point(0, 0))){
+                var target = this.map.get_player_location().plus(action.change);
+                if( // Dazing Blows
+                    this.boons.has(boon_names.dazing_blows) && 
+                    !point_equals(action.change, new Point(0, 0)) &&
+                    this.map.is_in_bounds(target) &&
+                    !this.map.get_tile(target).tags.has(TAGS.boss)
+                ){
+                    this.map.player_stun(action.change);
+                }
+                if( // Pacifism
+                    this.boons.has(boon_names.pacifism) && 
+                    !point_equals(action.change, new Point(0, 0))
+                ){
                     this.map.player_stun(action.change);
                     this.map.player_stun(action.change);
                 }
@@ -11098,10 +11110,11 @@ function adrenaline_rush(){
 
 BOON_LIST = [
     ancient_card, bitter_determination, boss_slayer, brag_and_boast, chilly_presence, 
-    creative, escape_artist, expend_vitality, fleeting_thoughts, fortitude, 
-    future_sight, hoarder, limitless, pacifism, pain_reflexes, 
-    picky_shopper, rebirth, repetition, roar_of_challenge, safe_passage, 
-    serenity, spiked_shoes, spontaneous, stable_mind, stealthy
+    creative, dazing_blows, escape_artist, expend_vitality, fleeting_thoughts, 
+    fortitude, future_sight, hoarder, limitless, pacifism, 
+    pain_reflexes, picky_shopper, rebirth, repetition, roar_of_challenge, 
+    safe_passage, serenity, spiked_shoes, spontaneous, stable_mind, 
+    stealthy
 ];
 
 /**
@@ -11217,6 +11230,14 @@ function pick_creative(){
     GS.deck.alter_hand_size(1);
     GS.deck.deal();
     GS.refresh_deck_display();
+}
+
+function dazing_blows(){
+    return {
+        name: boon_names.dazing_blows,
+        pic: `${IMG_FOLDER.boons}dazing_blows.png`,
+        description: dazing_blows_description,
+    }
 }
 
 function escape_artist(){
@@ -11475,14 +11496,6 @@ function stealthy(){
         name: boon_names.stealthy,
         pic: `${IMG_FOLDER.boons}stealthy.png`,
         description: stealthy_description,
-    }
-}
-
-function dazing_blows(){
-    return {
-        name: boon_names.dazing_blows,
-        pic: `${IMG_FOLDER.boons}dazing_blows.png`,
-        description: dazing_blows_description,
     }
 }
 
