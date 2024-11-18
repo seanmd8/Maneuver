@@ -6,3 +6,5 @@ function adrenaline_rush(){
         description: adrenaline_rush_description,
     }
 }
+
+// Hitting more than 1 enemy gives an extra turn.
