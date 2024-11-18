@@ -34,15 +34,12 @@ class GameState{
         create_sidebar();
 
         // Prep map
-        for(var i = 0; i < STARTING_ENEMY_AMOUNT; ++i){
-            this.map.spawn_safely(STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
+        for(var enemy of STARTING_ENEMIES){
+            this.map.spawn_safely(enemy(), SAFE_SPAWN_ATTEMPTS, true);
         }
-        for(var i = 0; i < SECOND_STARTING_ENEMY_AMOUNT; ++i){
-            this.map.spawn_safely(SECOND_STARTING_ENEMY(), SAFE_SPAWN_ATTEMPTS, true);
-        }
-        for(var i = 0; i < STARTING_CHEST_AMOUNT; ++i){
+        for(var boon of STARTING_CHEST_CONTENTS){
             var chest = chest_tile();
-            add_boon_to_chest(chest, STARTING_CHEST_CONTENTS());
+            add_boon_to_chest(chest, boon());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
         display_map(this.map);

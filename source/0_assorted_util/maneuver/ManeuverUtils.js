@@ -36,10 +36,10 @@ function make_starting_deck(){
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
-    for(var card of CARDS_TO_TEST){
+    for(var card of TEST_INIT.cards){
         deck.add(card());
     }
-    var size = CARDS_TO_TEST.length;
+    var size = TEST_INIT.cards.length;
     for(var i = 0; i < Math.max(4 - size, 1); ++i){
         deck.add(basic_horizontal());
     }

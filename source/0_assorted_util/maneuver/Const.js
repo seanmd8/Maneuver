@@ -1,6 +1,15 @@
 // ----------------Const.js----------------
 // File containing global constants used throughout the program.
 
+// Settings just used for testing. Leave as undefined when not in use.
+const TEST_INIT = {
+    enemies: undefined,
+    chest: undefined,
+    cards: undefined,
+    area: undefined,
+    area_size: undefined
+}
+
 
 // Starting player stats.
 const PLAYER_STARTING_HEALTH = 3;
@@ -9,24 +18,17 @@ const ADD_CHOICE_COUNT = 3;
 const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
 
-// Settings just used for testing.
-const SECOND_STARTING_ENEMY = spider_tile;
-const SECOND_STARTING_ENEMY_AMOUNT = 0;
-const STARTING_CHEST_CONTENTS = future_sight;
-const STARTING_CHEST_AMOUNT = 0;
-const CARDS_TO_TEST = [];
-
 // Initialization settings.
-const STARTING_ENEMY = spider_tile;
-const STARTING_ENEMY_AMOUNT = 1;
-const STARTING_DECK = CARDS_TO_TEST.length > 0 ? make_test_deck : make_starting_deck;
-const STARTING_AREA = [generate_ruins_area];
+const STARTING_ENEMIES = TEST_INIT.enemies ? TEST_INIT.enemies : [spider_tile];
+const STARTING_CHEST_CONTENTS = TEST_INIT.chest ? TEST_INIT.chest : [];
+const STARTING_DECK = TEST_INIT.cards ? make_test_deck : make_starting_deck;
+const STARTING_AREA = TEST_INIT.area ? TEST_INIT.area : [generate_ruins_area];
 var GS;
 
 // Dungeon generation settings.
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
-const AREA_SIZE = 5;
+const AREA_SIZE = TEST_INIT.area_size ? TEST_INIT.area_size : 5;
 const CHEST_LOCATION = 3;
 const BOON_CHOICES = 3;
 const SAFE_SPAWN_ATTEMPTS = 5;
