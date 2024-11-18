@@ -37,7 +37,7 @@ class GameState{
         for(var enemy of STARTING_ENEMIES){
             this.map.spawn_safely(enemy(), SAFE_SPAWN_ATTEMPTS, true);
         }
-        for(var boon of STARTING_CHEST_CONTENTS){
+        for(var boon of STARTING_CHESTS){
             var chest = chest_tile();
             add_boon_to_chest(chest, boon());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);

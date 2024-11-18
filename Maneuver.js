@@ -362,7 +362,7 @@ function point_equals(p1, p2){
 // Settings just used for testing. Leave as undefined when not in use.
 const TEST_INIT = {
     enemies: undefined,
-    chest: undefined,
+    chest: [future_sight],
     cards: undefined,
     area: undefined,
     area_size: undefined
@@ -378,7 +378,7 @@ const MIN_DECK_SIZE = 5;
 
 // Initialization settings.
 const STARTING_ENEMIES = TEST_INIT.enemies ? TEST_INIT.enemies : [spider_tile];
-const STARTING_CHEST_CONTENTS = TEST_INIT.chest ? TEST_INIT.chest : [];
+const STARTING_CHESTS = TEST_INIT.chest ? TEST_INIT.chest : [];
 const STARTING_DECK = TEST_INIT.cards ? make_test_deck : make_starting_deck;
 const STARTING_AREA = TEST_INIT.area ? TEST_INIT.area : [generate_ruins_area];
 var GS;
@@ -8165,7 +8165,7 @@ class GameState{
         for(var enemy of STARTING_ENEMIES){
             this.map.spawn_safely(enemy(), SAFE_SPAWN_ATTEMPTS, true);
         }
-        for(var boon of STARTING_CHEST_CONTENTS){
+        for(var boon of STARTING_CHESTS){
             var chest = chest_tile();
             add_boon_to_chest(chest, boon());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
