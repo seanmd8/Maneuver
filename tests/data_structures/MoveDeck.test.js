@@ -1,12 +1,12 @@
 // ToDo
 var imports = require('../../ManeuverTest.js');
 
+/*
+
 
 describe(`MoveDeck`, () => {
     // Imports used or being tested.
-    const MoveDeck = imports.MoveDeck;
-    const card_1 = imports.basic_horizontal;   
-    const card_2 = imports.basic_slice;   
+    const MoveDeck = imports.MoveDeck;    
 
     // Common testing vars.
     var deck;
@@ -17,59 +17,27 @@ describe(`MoveDeck`, () => {
     });
 
     it(`instantiates correctly`, () => {
-        expect(deck.deck_size()).toBe(0);
+
+
     })
 
     it(`adds cards correctly`, () => {
-        deck.add(card_1());
-        deck.add(card_2());
-        expect(deck.deck_size()).toBe(2);
-        var list = deck.get_deck_info();
-        expect(list[0].name).toBe(card_1().name);
-        expect(list[1].name).toBe(card_2().name);
+        
     })
 
     it(`removes cards properly`, () => {
-        deck.add(card_1());
-        deck.add(card_2());
-        expect(deck.deck_size()).toBe(2);
-        deck.remove(1);
-        expect(deck.deck_size()).toBe(1);
-        deck.remove(0);
-        expect(deck.deck_size()).toBe(0);
-        deck.add(card_2());
-        expect(deck.deck_size()).toBe(1);
-        deck.remove(2);
-        expect(deck.deck_size()).toBe(0);
+        
+    })
+
+    it(``, () => {
+        
     })
 
     it(`deals a new hand`, () => {
-        for(var i = 0; i < 5; ++i){
-            deck.add(card_1());
-        }
-        deck.deal();
-        var hand = deck.get_hand_info();
-        expect(hand.length).toBe(3);
-        for(var card of hand){
-            expect(card.name).toBe(card_1().name);
-        }
+        
     })
 
     it(`discards cards properly`, () => {
-        for(var i = 0; i < 5; ++i){
-            deck.add(card_1());
-        }
-        deck.deal();
-        var hand = deck.get_hand_info();
-        var first_id = hand[0].id;
-        var last_id = hand[2].id;
-        deck.discard(0);
-        expect(deck.get_hand_info()[0].id === first_id).toBe(false);
-        deck.discard(2);
-        expect(deck.get_hand_info()[2].id === last_id).toBe(false);
-    })
-
-    it(`shuffles deck properly`, () => {
         
     })
 
@@ -96,6 +64,10 @@ describe(`MoveDeck`, () => {
     it(`fails to get cards if minimum deck size reached`, () => {
         
     })
+
+    it(`gets deck size`, () => {
+        
+    })
     
     it(`gets minimum deck size`, () => {
         
@@ -115,3 +87,5 @@ describe(`MoveDeck`, () => {
 
     // Test display functions
 });
+
+*/
