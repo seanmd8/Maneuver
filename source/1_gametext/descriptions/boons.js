@@ -51,7 +51,7 @@ const bitter_determination_description =
 const boss_slayer_description = 
     `Bosses start with 2 less hp.`;
 const brag_and_boast_description = 
-    `Add 2 random boss cards and 1 random debuff card to your deck.`;
+    `Add 2 random boss cards and 2 random debuff cards to your deck.`;
 const chilly_presence_description = 
     `Enemies have a 1/6 chance to become stunned at the end of their `
     +`turn. Bosses are not affected.`;

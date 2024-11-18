@@ -10,6 +10,7 @@ Gameplay Changelog:
 
 11/18/24
 - Added 3 new boons
+- Brag and Boast now gives 2 debuff cards
 
 11/17/24
 - Added 2 new boons

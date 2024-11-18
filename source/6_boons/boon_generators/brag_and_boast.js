@@ -14,7 +14,7 @@ function pick_brag_and_boast(){
         var boss = rand_no_repeates(BOSS_LIST, 1)[0]();
         var card = rand_no_repeates(boss.card_drops, 1)[0]();
         GS.deck.add(card);
+        var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
+        GS.deck.add(card);
     }
-    var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
-    GS.deck.add(card);
 }
