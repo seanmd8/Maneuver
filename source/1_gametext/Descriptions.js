@@ -253,13 +253,17 @@ const boon_names = {
     adrenaline_rush: `Adrenaline Rush`,
     ancient_card: `Ancient Card`,
     bitter_determination: `Bitter Determination`,
+    boss_slayer: `Boss Slayer`,
     brag_and_boast: `Brag & Boast`,
+    chilly_presence: `Chilly Presence`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
     escape_artist: `Escape Artist`,
     expend_vitality: `Expend Vitality`,
     fleeting_thoughts: `Fleeting Thoughts`,
     fortitude: `Fortitude`,
+    frenzy: `Frenzy`,
+    frugivore: `Frugivore`,
     future_sight: `Future Sight`,
     hoarder: `Hoarder`,
     learn_from_mistakes: `Learn From Mistakes`,
@@ -267,6 +271,8 @@ const boon_names = {
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
     picky_shopper: `Picky Shopper`,
+    practice_makes_perfect: `Practice Makes Perfect`,
+    pressure_points: `Preassure Points`,
     rebirth: `Rebirth`,
     repetition: `Repetition`,
     roar_of_challenge: `Roar of Challenge`,
@@ -288,13 +294,17 @@ Object.freeze(move_types);
 const adrenaline_rush_description = `Dealing at least 2 damage in 1 turn gives you an extra turn.`;
 const ancient_card_description = add_card_description;
 const bitter_determination_description = `At the start of each floor, heal 1 if your health is exactly 1.`;
+const boss_slayer_description = `Bosses start with 2 less hp.`;
 const brag_and_boast_description = `Add 2 random boss cards and 1 random debuff card to your deck.`;
+const chilly_presence_description = `Enemies have a 10% chance to become stunned at the end of their turn.`;
 const creative_description = `Increase your hand size by 1. Increases minimum deck size by 5.`;
 const dazing_blows_description = `Your attacks stun enemies. Bosses are unaffected.`;
 const escape_artist_description = `Teleport away when attacked.`;
 const expend_vitality_description =  `Heal 1 life at the start of each floor. Your max health is decreased by 1.`;
 const fleeting_thoughts_description = `Temporary cards added to your deck will happen instantly.`;
 const fortitude_description = `Gain an extra max health.`;
+const frenzy_description = `Deal double damage while you only have 1 health.`
+const frugivore_description = `50% chance to encounter an enticing fruit tree on each floor.`;
 const future_sight_description = `You may look at the order of your deck.`;
 const hoarder_description = `All treasure chests contain 2 additional choices and are invulnerable.`;
 const learn_from_mistakes_description = `Remove any 2 cards from your deck.`;
@@ -303,6 +313,8 @@ const pacifism_description = `If you would attack an enemy, stun them twice inst
                             +`All boss floor exits unlock.`;
 const pain_reflexes_description = `Take a turn whenever you are attacked.`;
 const picky_shopper_description = `Recieve an extra card choice for adding and removing cards in the shop.`;
+const practice_makes_perfect_description = `Defeating a boss while at max health increases your max health by 1.`;
+const pressure_points_description = `When you stun an enemy, there is a 50% chance you also deal it 1 damage.`;
 const rebirth_description = `When you die, you are revived at full health and this boon is removed.`;
 const rebirth_revival_message = `You died, but were brought back to life.`;
 const repetition_description = `Every 3rd turn, your cards happen twice.`;
@@ -311,7 +323,6 @@ const safe_passage_description = `Fully heal and travel to the next floor.`;
 const serenity_description = `Reduce your minimum deck size to 4.`;
 const shattered_glass_description = `Enemies explode on death damaging each other nearby enemy. Reduce your max health by 1.`;
 const skill_trading_description = `You may both add a card and remove a card at each shop.`;
-const slayer_description = `When you damage an enemy 3 turns in a row, heal for 1.`;
 const spiked_shoes_description = `Attempting to move onto enemies damages them. Reduces your max health by 1.`;
 const spined_armor_description = `Retaliate for 1 damage when attacked. Bosses are immune.`;
 const spontaneous_description = `After using a non instant card, discard your whole hand. Minimum deck size increased by 5.`;
