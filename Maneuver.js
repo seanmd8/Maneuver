@@ -1509,7 +1509,7 @@ const practice_makes_perfect_description =
 const practice_makes_perfect_message =
     `Your maximum health has increased.`
 const pressure_points_description = 
-    `When you stun an enemy, there is a 50% chance you also deal it 1 damage.`;
+    `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`;
 const rebirth_description = 
     `When you die, you are revived at full health and this boon is removed.`;
 const rebirth_revival_message = 
@@ -8023,7 +8023,15 @@ class GameMap{
      */
     player_stun(direction){
         var pos = this.#entity_list.get_player_pos();
-        return this.stun_tile(pos.plus(direction));
+        var stunned = this.stun_tile(pos.plus(direction));
+        if( // Pressure points boon
+            stunned && 
+            GS.boons.has(boon_names.pressure_points) > random_num(3) && 
+            !point_equals(direction, new Point(0, 0))
+        ){
+            this.player_attack(direction);
+        }
+        return stunned;
     }
     /**
      * Function to heal the tile at the given location.
@@ -11119,9 +11127,9 @@ BOON_LIST = [
     ancient_card, bitter_determination, boss_slayer, brag_and_boast, chilly_presence, 
     creative, dazing_blows, escape_artist, expend_vitality, fleeting_thoughts, 
     fortitude, frugivore, future_sight, hoarder, limitless, 
-    pacifism, pain_reflexes, picky_shopper, practice_makes_perfect, rebirth, 
-    repetition, roar_of_challenge, safe_passage, serenity, spiked_shoes, 
-    spontaneous, stable_mind, stealthy
+    pacifism, pain_reflexes, picky_shopper, practice_makes_perfect, pressure_points,
+    rebirth, repetition, roar_of_challenge, safe_passage, serenity, 
+    spiked_shoes, spontaneous, stable_mind, stealthy
 ];
 
 /**
@@ -11401,6 +11409,15 @@ function prereq_practice_makes_perfect(){
     return GS.map.get_player().max_health !== undefined;
 }
 
+function pressure_points(){
+    return {
+        name: boon_names.pressure_points,
+        pic: `${IMG_FOLDER.boons}pressure_points.png`,
+        description: pressure_points_description,
+    }
+}
+
+
 function rebirth(){
     return {
         name: boon_names.rebirth,
@@ -11564,15 +11581,6 @@ function learn_from_mistakes(){
 // Todo:
 //  description
 //  implement on_pick
-
-function pressure_points(){
-    return {
-        name: boon_names.pressure_points,
-        pic: `${IMG_FOLDER.boons}pressure_points.png`,
-        description: pressure_points_description,
-    }
-}
-
 function shattered_glass(){
     return {
         name: boon_names.shattered_glass,

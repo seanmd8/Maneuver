@@ -94,7 +94,7 @@ const practice_makes_perfect_description =
 const practice_makes_perfect_message =
     `Your maximum health has increased.`
 const pressure_points_description = 
-    `When you stun an enemy, there is a 50% chance you also deal it 1 damage.`;
+    `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`;
 const rebirth_description = 
     `When you die, you are revived at full health and this boon is removed.`;
 const rebirth_revival_message = 

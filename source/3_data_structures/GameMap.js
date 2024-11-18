@@ -748,7 +748,15 @@ class GameMap{
      */
     player_stun(direction){
         var pos = this.#entity_list.get_player_pos();
-        return this.stun_tile(pos.plus(direction));
+        var stunned = this.stun_tile(pos.plus(direction));
+        if( // Pressure points boon
+            stunned && 
+            GS.boons.has(boon_names.pressure_points) > random_num(3) && 
+            !point_equals(direction, new Point(0, 0))
+        ){
+            this.player_attack(direction);
+        }
+        return stunned;
     }
     /**
      * Function to heal the tile at the given location.
