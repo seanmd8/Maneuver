@@ -12,6 +12,18 @@ function boss_death(self, target, map){
         }
         map.add_tile(chest, self.location);
     }
-    say(`${self.tile.death_message}\n${boss_death_description}`);
     map.unlock();
+    var death_message = `${self.tile.death_message}\n${boss_death_description}`;
+    var player_tile = map.get_player();
+    if( // Practice makes perfect
+        GS.boons.has(boon_names.practice_makes_perfect) && 
+        player_tile.max_health !== undefined && 
+        player_tile.max_health === player_tile.health
+    ){
+        ++player_tile.max_health;
+        death_message = `${death_message}\n${practice_makes_perfect_message}`
+    }
+    map.player_heal(new Point(0, 0));
+    say(death_message);
+
 }

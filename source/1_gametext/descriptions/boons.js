@@ -91,6 +91,8 @@ const picky_shopper_description =
     `Recieve an extra card choice for adding and removing cards in the shop.`;
 const practice_makes_perfect_description = 
     `Defeating a boss while at max health increases your max health by 1.`;
+const practice_makes_perfect_message =
+    `Your maximum health has increased.`
 const pressure_points_description = 
     `When you stun an enemy, there is a 50% chance you also deal it 1 damage.`;
 const rebirth_description = 

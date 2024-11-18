@@ -560,7 +560,6 @@ class GameMap{
     unlock(){
         var pos = this.#entity_list.get_exit_pos();
         this.#set_tile(pos, exit_tile());
-        this.player_heal(new Point(0, 0));
     }
     /**
      * Schedules an event to happen at end of turn.

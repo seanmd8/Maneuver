@@ -1506,6 +1506,8 @@ const picky_shopper_description =
     `Recieve an extra card choice for adding and removing cards in the shop.`;
 const practice_makes_perfect_description = 
     `Defeating a boss while at max health increases your max health by 1.`;
+const practice_makes_perfect_message =
+    `Your maximum health has increased.`
 const pressure_points_description = 
     `When you stun an enemy, there is a 50% chance you also deal it 1 damage.`;
 const rebirth_description = 
@@ -2163,8 +2165,20 @@ function boss_death(self, target, map){
         }
         map.add_tile(chest, self.location);
     }
-    say(`${self.tile.death_message}\n${boss_death_description}`);
     map.unlock();
+    var death_message = `${self.tile.death_message}\n${boss_death_description}`;
+    var player_tile = map.get_player();
+    if( // Practice makes perfect
+        GS.boons.has(boon_names.practice_makes_perfect) && 
+        player_tile.max_health !== undefined && 
+        player_tile.max_health === player_tile.health
+    ){
+        ++player_tile.max_health;
+        death_message = `${death_message}\n${practice_makes_perfect_message}`
+    }
+    map.player_heal(new Point(0, 0));
+    say(death_message);
+
 }
 // ToDo
 //      Handle Death
@@ -7821,7 +7835,6 @@ class GameMap{
     unlock(){
         var pos = this.#entity_list.get_exit_pos();
         this.#set_tile(pos, exit_tile());
-        this.player_heal(new Point(0, 0));
     }
     /**
      * Schedules an event to happen at end of turn.
@@ -11116,9 +11129,9 @@ BOON_LIST = [
     ancient_card, bitter_determination, boss_slayer, brag_and_boast, chilly_presence, 
     creative, dazing_blows, escape_artist, expend_vitality, fleeting_thoughts, 
     fortitude, frugivore, future_sight, hoarder, limitless, 
-    pacifism, pain_reflexes, picky_shopper, rebirth, repetition, 
-    roar_of_challenge, safe_passage, serenity, spiked_shoes, spontaneous, 
-    stable_mind, stealthy
+    pacifism, pain_reflexes, picky_shopper, practice_makes_perfect, rebirth, 
+    repetition, roar_of_challenge, safe_passage, serenity, spiked_shoes, 
+    spontaneous, stable_mind, stealthy
 ];
 
 /**
@@ -11385,6 +11398,19 @@ function picky_shopper(){
     }
 }
 
+function practice_makes_perfect(){
+    return {
+        name: boon_names.practice_makes_perfect,
+        pic: `${IMG_FOLDER.boons}practice_makes_perfect.png`,
+        description: practice_makes_perfect_description,
+        prereq: prereq_practice_makes_perfect
+    }
+}
+
+function prereq_practice_makes_perfect(){
+    return GS.map.get_player().max_health !== undefined;
+}
+
 function rebirth(){
     return {
         name: boon_names.rebirth,
@@ -11538,15 +11564,6 @@ function learn_from_mistakes(){
 // Todo:
 //  description
 //  implement on_pick
-
-function practice_makes_perfect(){
-    return {
-        name: boon_names.practice_makes_perfect,
-        pic: `${IMG_FOLDER.boons}practice_makes_perfect.png`,
-        description: practice_makes_perfect_description,
-    }
-}
-
 
 function pressure_points(){
     return {
