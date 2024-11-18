@@ -71,7 +71,8 @@ const fortitude_description =
 const frenzy_description = 
     `Deal double damage while you only have 1 health.`
 const frugivore_description = 
-    `50% chance to encounter an enticing fruit tree on each floor.`;
+    `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
+    +`for 1, but might attract enemies.`;
 const future_sight_description = 
     `You may look at the order of your deck.`;
 const hoarder_description = 

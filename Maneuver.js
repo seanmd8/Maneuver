@@ -1486,7 +1486,8 @@ const fortitude_description =
 const frenzy_description = 
     `Deal double damage while you only have 1 health.`
 const frugivore_description = 
-    `50% chance to encounter an enticing fruit tree on each floor.`;
+    `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
+    +`for 1, but might attract enemies.`;
 const future_sight_description = 
     `You may look at the order of your deck.`;
 const hoarder_description = 
@@ -9240,7 +9241,7 @@ function generate_normal_floor(floor_num, area, map){
         var choice = random_num(enemy_list.length);
         var new_enemy = enemy_list[choice]();
         if(new_enemy.difficulty !== undefined){
-            var spawned = map.spawn_safely(new_enemy, SAFE_SPAWN_ATTEMPTS, false)
+            var spawned = map.spawn_safely(new_enemy, SAFE_SPAWN_ATTEMPTS, false);
             if(spawned !== undefined){
                 i -= new_enemy.difficulty;
                 for(var j = 0; j < 2 * GS.boons.has(boon_names.stealthy); ++j){
@@ -9251,6 +9252,9 @@ function generate_normal_floor(floor_num, area, map){
                 --i;
             }
         }
+    }
+    if(GS.boons.has(boon_names.frugivore) > random_num(2)){
+        var spawned = map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
 
@@ -11111,10 +11115,10 @@ function adrenaline_rush(){
 BOON_LIST = [
     ancient_card, bitter_determination, boss_slayer, brag_and_boast, chilly_presence, 
     creative, dazing_blows, escape_artist, expend_vitality, fleeting_thoughts, 
-    fortitude, future_sight, hoarder, limitless, pacifism, 
-    pain_reflexes, picky_shopper, rebirth, repetition, roar_of_challenge, 
-    safe_passage, serenity, spiked_shoes, spontaneous, stable_mind, 
-    stealthy
+    fortitude, frugivore, future_sight, hoarder, limitless, 
+    pacifism, pain_reflexes, picky_shopper, rebirth, repetition, 
+    roar_of_challenge, safe_passage, serenity, spiked_shoes, spontaneous, 
+    stable_mind, stealthy
 ];
 
 /**
@@ -11304,6 +11308,19 @@ function prereq_fortitude(){
 
 function pick_fortitude(){
     change_max_health(1);
+}
+
+function frugivore(){
+    return {
+        name: boon_names.frugivore,
+        pic: `${IMG_FOLDER.boons}frugivore.png`,
+        description: frugivore_description,
+        prereq: prereq_frugivore,
+        unlocks: [frugivore]
+    }
+}
+function prereq_frugivore(){
+    return GS.boons.has(boon_names.frugivore) < 2;
 }
 
 function future_sight(){
@@ -11504,15 +11521,6 @@ function frenzy(){
         name: boon_names.frenzy,
         pic: `${IMG_FOLDER.boons}frenzy.png`,
         description: frenzy_description,
-    }
-}
-
-
-function frugivore(){
-    return {
-        name: boon_names.frugivore,
-        pic: `${IMG_FOLDER.boons}frugivore.png`,
-        description: frugivore_description,
     }
 }
 
