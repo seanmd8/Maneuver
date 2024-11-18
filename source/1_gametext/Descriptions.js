@@ -296,7 +296,8 @@ const ancient_card_description = add_card_description;
 const bitter_determination_description = `At the start of each floor, heal 1 if your health is exactly 1.`;
 const boss_slayer_description = `Bosses start with 2 less hp.`;
 const brag_and_boast_description = `Add 2 random boss cards and 1 random debuff card to your deck.`;
-const chilly_presence_description = `Enemies have a 10% chance to become stunned at the end of their turn.`;
+const chilly_presence_description = `Enemies have a 1/6 chance to become stunned at the end of their turn. Bosses are `
+                            +`not affected.`;
 const creative_description = `Increase your hand size by 1. Increases minimum deck size by 5.`;
 const dazing_blows_description = `Your attacks stun enemies. Bosses are unaffected.`;
 const escape_artist_description = `Teleport away when attacked.`;

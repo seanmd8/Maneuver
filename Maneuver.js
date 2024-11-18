@@ -1700,7 +1700,8 @@ const ancient_card_description = add_card_description;
 const bitter_determination_description = `At the start of each floor, heal 1 if your health is exactly 1.`;
 const boss_slayer_description = `Bosses start with 2 less hp.`;
 const brag_and_boast_description = `Add 2 random boss cards and 1 random debuff card to your deck.`;
-const chilly_presence_description = `Enemies have a 10% chance to become stunned at the end of their turn.`;
+const chilly_presence_description = `Enemies have a 1/6 chance to become stunned at the end of their turn. Bosses are `
+                            +`not affected.`;
 const creative_description = `Increase your hand size by 1. Increases minimum deck size by 5.`;
 const dazing_blows_description = `Your attacks stun enemies. Bosses are unaffected.`;
 const escape_artist_description = `Teleport away when attacked.`;
@@ -7042,11 +7043,13 @@ class EntityList{
                                     difference: this.get_player_pos().minus(e.location)
                                 }
                                 e.enemy.behavior(self, target, map);
+                                proc_chilly_presence(e.enemy);
                             }
                         }
                         catch(error){
                             if(error.message === ERRORS.skip_animation){
                                 do_delay = false;
+                                proc_chilly_presence(e.enemy);
                             }
                             else if(!(error.message === ERRORS.creature_died)){
                                 throw error
@@ -10926,11 +10929,11 @@ function adrenaline_rush(){
 // Hitting more than 1 enemy gives an extra turn.
 
 BOON_LIST = [
-    ancient_card, bitter_determination, brag_and_boast, creative, escape_artist, 
-    expend_vitality, fleeting_thoughts, fortitude, future_sight, hoarder, 
-    limitless, pacifism, pain_reflexes, picky_shopper, rebirth, 
-    repetition, roar_of_challenge, safe_passage, serenity, spiked_shoes, 
-    spontaneous, stable_mind, stealthy, boss_slayer
+    ancient_card, bitter_determination, boss_slayer, brag_and_boast, chilly_presence, 
+    creative, escape_artist, expend_vitality, fleeting_thoughts, fortitude, 
+    future_sight, hoarder, limitless, pacifism, pain_reflexes, 
+    picky_shopper, rebirth, repetition, roar_of_challenge, safe_passage, 
+    serenity, spiked_shoes, spontaneous, stable_mind, stealthy
 ];
 
 /**
@@ -11006,6 +11009,26 @@ function pick_brag_and_boast(){
     GS.deck.add(card);
 }
 
+
+function chilly_presence(){
+    return {
+        name: boon_names.chilly_presence,
+        pic: `${IMG_FOLDER.boons}chilly_presence.png`,
+        description: chilly_presence_description,
+        prereq: prereq_chilly_presence,
+        unlocks: [chilly_presence]
+    }
+}
+
+function prereq_chilly_presence(){
+    return GS.boons.has(boon_names.chilly_presence) < 5;
+}
+
+function proc_chilly_presence(tile){
+    if(!tile.tags.has(TAGS.boss) && GS.boons.has(boon_names.chilly_presence) > random_num(6)){
+        stun(tile);
+    }
+}
 
 function creative(){
     return {
@@ -11286,15 +11309,6 @@ function stealthy(){
         description: stealthy_description,
     }
 }
-
-function chilly_presence(){
-    return {
-        name: boon_names.chilly_presence,
-        pic: `${IMG_FOLDER.boons}chilly_presence.png`,
-        description: chilly_presence_description,
-    }
-}
-
 
 function dazing_blows(){
     return {

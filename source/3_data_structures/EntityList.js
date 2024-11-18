@@ -161,11 +161,13 @@ class EntityList{
                                     difference: this.get_player_pos().minus(e.location)
                                 }
                                 e.enemy.behavior(self, target, map);
+                                proc_chilly_presence(e.enemy);
                             }
                         }
                         catch(error){
                             if(error.message === ERRORS.skip_animation){
                                 do_delay = false;
+                                proc_chilly_presence(e.enemy);
                             }
                             else if(!(error.message === ERRORS.creature_died)){
                                 throw error
