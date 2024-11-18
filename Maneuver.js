@@ -11115,16 +11115,6 @@ function deck_at_minimum_symbol(){
     }
 }
 
-function adrenaline_rush(){
-    return {
-        name: boon_names.adrenaline_rush,
-        pic: `${IMG_FOLDER.boons}adrenaline_rush.png`,
-        description: adrenaline_rush_description,
-    }
-}
-
-// Hitting more than 1 enemy gives an extra turn.
-
 BOON_LIST = [
     ancient_card, bitter_determination, boss_slayer, brag_and_boast, chilly_presence, 
     creative, dazing_blows, escape_artist, expend_vitality, fleeting_thoughts, 
@@ -11541,6 +11531,16 @@ function stealthy(){
         description: stealthy_description,
     }
 }
+
+function adrenaline_rush(){
+    return {
+        name: boon_names.adrenaline_rush,
+        pic: `${IMG_FOLDER.boons}adrenaline_rush.png`,
+        description: adrenaline_rush_description,
+    }
+}
+
+// Hitting more than 1 enemy gives an extra turn.
 
 function frenzy(){
     return {
