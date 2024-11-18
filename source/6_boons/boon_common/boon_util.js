@@ -4,7 +4,7 @@ BOON_LIST = [
     expend_vitality, fleeting_thoughts, fortitude, future_sight, hoarder, 
     limitless, pacifism, pain_reflexes, picky_shopper, rebirth, 
     repetition, roar_of_challenge, safe_passage, serenity, spiked_shoes, 
-    spontaneous, stable_mind, stealthy,
+    spontaneous, stable_mind, stealthy, boss_slayer
 ];
 
 /**

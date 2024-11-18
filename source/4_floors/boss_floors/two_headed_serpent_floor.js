@@ -1,6 +1,9 @@
 /** @type {FloorGenerator} Generates the floor where the Two Headed Serpent appears.*/
 function two_headed_serpent_floor(floor_num, area, map){
     var serpent_length = 8;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        serpent_length -= 2;
+    }
     var finished = false;
     // Finds enough adjacent empty spaces to spawn the serpent in.
     do{

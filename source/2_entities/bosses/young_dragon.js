@@ -1,19 +1,24 @@
 /** @type {TileGenerator} */
 function young_dragon_tile(){
-    var pic_arr = [ `${IMG_FOLDER.tiles}young_dragon_flight.png`, 
-                    `${IMG_FOLDER.tiles}young_dragon_diagonal_flight.png`,
-                    `${IMG_FOLDER.tiles}young_dragon_walk.png`,
-                    `${IMG_FOLDER.tiles}young_dragon_diagonal_walk.png`,
-                    `${IMG_FOLDER.tiles}young_dragon_breath.png`,
-                    `${IMG_FOLDER.tiles}young_dragon_diagonal_breath.png`];
-
+    var pic_arr = [
+        `${IMG_FOLDER.tiles}young_dragon_flight.png`, 
+        `${IMG_FOLDER.tiles}young_dragon_diagonal_flight.png`,
+        `${IMG_FOLDER.tiles}young_dragon_walk.png`,
+        `${IMG_FOLDER.tiles}young_dragon_diagonal_walk.png`,
+        `${IMG_FOLDER.tiles}young_dragon_breath.png`,
+        `${IMG_FOLDER.tiles}young_dragon_diagonal_breath.png`
+    ];
+    var health = 5;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
     return {
         type: `enemy`,
         name: `Young Dragon`,
         pic: pic_arr[0],
         description: `${young_dragon_description_arr[0]}${young_dragon_description_arr[1]}`,
         tags: new TagList([TAGS.boss]),
-        health: 5,
+        health,
         death_message: young_dragon_death_message,
         behavior: young_dragon_behavior,
         telegraph: young_dragon_telegraph,

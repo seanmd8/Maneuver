@@ -21,6 +21,10 @@ function lich_tile(){
         pheonix_tile,
         darkling_tile,
     ];
+    var health = 4;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
     var starting_cycle = 0;
     return{
         type: `enemy`,
@@ -28,7 +32,7 @@ function lich_tile(){
         pic: spells[starting_cycle].pic,
         description: `${lich_description}${spells[starting_cycle].description}`,
         tags: new TagList([TAGS.boss]),
-        health: 4,
+        health,
         death_message: lich_death_message,
         behavior: lich_ai,
         telegraph: lich_telegraph,

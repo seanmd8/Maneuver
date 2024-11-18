@@ -2017,7 +2017,6 @@ function forest_heart_tile(){
         `${IMG_FOLDER.tiles}forest_heart.png`,
         `${IMG_FOLDER.tiles}forest_heart_invincible.png`
     ]
-    var health = 12
     var spells = [
         // Index + 1 corresponds with the health it's triggered at.
         /*1*/greater_thorn_bush_spell_generator(),
@@ -2032,13 +2031,14 @@ function forest_heart_tile(){
         /*10*/vinesnare_bush_spell_generator(),
         /*11*/forest_heart_rest_spell_generator(),
     ];
-    return{
+    var health = 12
+    var tile = {
         type: `enemy`,
         name: `Forest Heart`,
         pic: pic_arr[0],
         description: forest_heart_description + forest_heart_rest_description,
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
-        health,
+        health: 12,
         death_message: forest_heart_death_message,
         behavior: forest_heart_ai,
         on_hit: forest_heart_on_hit,
@@ -2050,6 +2050,14 @@ function forest_heart_tile(){
         spells,
         card_drops: [snack, branch_strike]
     }
+    if(GS.boons.has(boon_names.boss_slayer)){
+        tile.health -= 2;
+        var next_spell = spells[tile.health - 2];
+        tile.description = forest_heart_description + next_spell.description;
+        tile.pic = next_spell.pic;
+        tile.telegraph_other = next_spell.telegraph_other;
+    }
+    return tile;
 }
 
 /** @type {AIFunction} */
@@ -2181,6 +2189,10 @@ function lich_tile(){
         pheonix_tile,
         darkling_tile,
     ];
+    var health = 4;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
     var starting_cycle = 0;
     return{
         type: `enemy`,
@@ -2188,7 +2200,7 @@ function lich_tile(){
         pic: spells[starting_cycle].pic,
         description: `${lich_description}${spells[starting_cycle].description}`,
         tags: new TagList([TAGS.boss]),
-        health: 4,
+        health,
         death_message: lich_death_message,
         behavior: lich_ai,
         telegraph: lich_telegraph,
@@ -2272,13 +2284,17 @@ function lich_hit(self, target, map){
 }
 /** @type {TileGenerator} */
 function spider_queen_tile(){
+    var health = 3;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
     return{
         type: `enemy`,
         name: `Spider Queen`,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
         description: spider_queen_description,
         tags: new TagList([TAGS.boss]),
-        health: 3,
+        health,
         death_message: spider_queen_death_message,
         behavior: spider_ai,
         telegraph: spider_telegraph,
@@ -2565,13 +2581,17 @@ function two_headed_serpent_telegraph(location, map, self){
 
 /** @type {TileGenerator} */
 function velociphile_tile(){
+    var health = 3;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
     return{
         type: `enemy`,
         name: `Velociphile`,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
         description: velociphile_description,
         tags: new TagList([TAGS.boss]),
-        health: 3,
+        health,
         death_message: velociphile_death_message,
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,
@@ -2610,20 +2630,25 @@ function velociphile_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function young_dragon_tile(){
-    var pic_arr = [ `${IMG_FOLDER.tiles}young_dragon_flight.png`, 
-                    `${IMG_FOLDER.tiles}young_dragon_diagonal_flight.png`,
-                    `${IMG_FOLDER.tiles}young_dragon_walk.png`,
-                    `${IMG_FOLDER.tiles}young_dragon_diagonal_walk.png`,
-                    `${IMG_FOLDER.tiles}young_dragon_breath.png`,
-                    `${IMG_FOLDER.tiles}young_dragon_diagonal_breath.png`];
-
+    var pic_arr = [
+        `${IMG_FOLDER.tiles}young_dragon_flight.png`, 
+        `${IMG_FOLDER.tiles}young_dragon_diagonal_flight.png`,
+        `${IMG_FOLDER.tiles}young_dragon_walk.png`,
+        `${IMG_FOLDER.tiles}young_dragon_diagonal_walk.png`,
+        `${IMG_FOLDER.tiles}young_dragon_breath.png`,
+        `${IMG_FOLDER.tiles}young_dragon_diagonal_breath.png`
+    ];
+    var health = 5;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
     return {
         type: `enemy`,
         name: `Young Dragon`,
         pic: pic_arr[0],
         description: `${young_dragon_description_arr[0]}${young_dragon_description_arr[1]}`,
         tags: new TagList([TAGS.boss]),
-        health: 5,
+        health,
         death_message: young_dragon_death_message,
         behavior: young_dragon_behavior,
         telegraph: young_dragon_telegraph,
@@ -8924,6 +8949,9 @@ function spider_queen_floor(floor_num, area, map){
 /** @type {FloorGenerator} Generates the floor where the Two Headed Serpent appears.*/
 function two_headed_serpent_floor(floor_num, area, map){
     var serpent_length = 8;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        serpent_length -= 2;
+    }
     var finished = false;
     // Finds enough adjacent empty spaces to spawn the serpent in.
     do{
@@ -10902,7 +10930,7 @@ BOON_LIST = [
     expend_vitality, fleeting_thoughts, fortitude, future_sight, hoarder, 
     limitless, pacifism, pain_reflexes, picky_shopper, rebirth, 
     repetition, roar_of_challenge, safe_passage, serenity, spiked_shoes, 
-    spontaneous, stable_mind, stealthy,
+    spontaneous, stable_mind, stealthy, boss_slayer
 ];
 
 /**
@@ -10948,6 +10976,15 @@ function bitter_determination(){
         description: bitter_determination_description,
     }
 }
+
+function boss_slayer(){
+    return {
+        name: boon_names.boss_slayer,
+        pic: `${IMG_FOLDER.boons}boss_slayer.png`,
+        description: boss_slayer_description,
+    }
+}
+
 
 function brag_and_boast(){
     return {
@@ -11249,15 +11286,6 @@ function stealthy(){
         description: stealthy_description,
     }
 }
-
-function boss_slayer(){
-    return {
-        name: boon_names.boss_slayer,
-        pic: `${IMG_FOLDER.boons}boss_slayer.png`,
-        description: boss_slayer_description,
-    }
-}
-
 
 function chilly_presence(){
     return {

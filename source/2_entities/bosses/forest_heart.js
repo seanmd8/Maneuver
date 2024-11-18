@@ -19,7 +19,6 @@ function forest_heart_tile(){
         `${IMG_FOLDER.tiles}forest_heart.png`,
         `${IMG_FOLDER.tiles}forest_heart_invincible.png`
     ]
-    var health = 12
     var spells = [
         // Index + 1 corresponds with the health it's triggered at.
         /*1*/greater_thorn_bush_spell_generator(),
@@ -34,13 +33,14 @@ function forest_heart_tile(){
         /*10*/vinesnare_bush_spell_generator(),
         /*11*/forest_heart_rest_spell_generator(),
     ];
-    return{
+    var health = 12
+    var tile = {
         type: `enemy`,
         name: `Forest Heart`,
         pic: pic_arr[0],
         description: forest_heart_description + forest_heart_rest_description,
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
-        health,
+        health: 12,
         death_message: forest_heart_death_message,
         behavior: forest_heart_ai,
         on_hit: forest_heart_on_hit,
@@ -52,6 +52,14 @@ function forest_heart_tile(){
         spells,
         card_drops: [snack, branch_strike]
     }
+    if(GS.boons.has(boon_names.boss_slayer)){
+        tile.health -= 2;
+        var next_spell = spells[tile.health - 2];
+        tile.description = forest_heart_description + next_spell.description;
+        tile.pic = next_spell.pic;
+        tile.telegraph_other = next_spell.telegraph_other;
+    }
+    return tile;
 }
 
 /** @type {AIFunction} */

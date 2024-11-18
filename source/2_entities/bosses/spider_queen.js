@@ -1,12 +1,16 @@
 /** @type {TileGenerator} */
 function spider_queen_tile(){
+    var health = 3;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
     return{
         type: `enemy`,
         name: `Spider Queen`,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
         description: spider_queen_description,
         tags: new TagList([TAGS.boss]),
-        health: 3,
+        health,
         death_message: spider_queen_death_message,
         behavior: spider_ai,
         telegraph: spider_telegraph,
