@@ -1481,7 +1481,7 @@ const dazing_blows_description =
 const duplicate_description =
     `Get a copy of any card in your deck.`
 const empty_rooms_description = 
-    `Difficulty decreases by 5 floors`;
+    `Difficulty decreases by 3 floors`;
 const escape_artist_description = 
     `Teleport away when attacked.`;
 const expend_vitality_description =  
@@ -7909,6 +7909,7 @@ class GameMap{
         }
         else{
             var extra_difficulty = 5 * GS.boons.has(boon_names.roar_of_challenge);
+            extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
         if(this.#floor_num % AREA_SIZE === CHEST_LOCATION){
@@ -9519,7 +9520,8 @@ function chipped_superweapon(){
     return{
         name: `chipped superweapon`,
         pic: `${IMG_FOLDER.cards}chipped_superweapon.png`,
-        options
+        options,
+        evolutions: [superweapon]
     }
 }
 
@@ -11217,11 +11219,12 @@ function deck_at_minimum_symbol(){
 
 BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
-    chilly_presence, creative, dazing_blows, escape_artist, expend_vitality, 
-    fleeting_thoughts, fortitude, frugivore, future_sight, hoarder, 
-    limitless, pacifism, pain_reflexes, picky_shopper, practice_makes_perfect, 
-    pressure_points, rebirth, repetition, roar_of_challenge, safe_passage, 
-    serenity, spiked_shoes, spontaneous, stable_mind, stealthy
+    chilly_presence, creative, dazing_blows, empty_rooms, escape_artist, 
+    expend_vitality, fleeting_thoughts, fortitude, frugivore, future_sight, 
+    hoarder, limitless, pacifism, pain_reflexes, picky_shopper, 
+    practice_makes_perfect, pressure_points, rebirth, repetition, roar_of_challenge, 
+    safe_passage, serenity, spiked_shoes, spontaneous, stable_mind, 
+    stealthy
 ];
 
 /**
@@ -11358,6 +11361,15 @@ function dazing_blows(){
         name: boon_names.dazing_blows,
         pic: `${IMG_FOLDER.boons}dazing_blows.png`,
         description: dazing_blows_description,
+    }
+}
+
+function empty_rooms(){
+    return {
+        name: boon_names.empty_rooms,
+        pic: `${IMG_FOLDER.boons}empty_rooms.png`,
+        description: empty_rooms_description,
+        unlocks: [empty_rooms]
     }
 }
 
@@ -11673,14 +11685,6 @@ function duplicate(){
     }
 }
 
-function empty_rooms(){
-    return {
-        name: boon_names.empty_rooms,
-        pic: `${IMG_FOLDER.boons}empty_rooms.png`,
-        description: empty_rooms_description
-    }
-}
-
 function frenzy(){
     return {
         name: boon_names.frenzy,
@@ -11712,9 +11716,6 @@ function retaliate(){
         on_pick: pick_retaliate
     }
 }
-// Todo:
-//  description
-//  implement
 function shattered_glass(){
     return {
         name: boon_names.shattered_glass,

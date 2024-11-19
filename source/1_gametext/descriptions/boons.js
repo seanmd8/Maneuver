@@ -64,7 +64,7 @@ const dazing_blows_description =
 const duplicate_description =
     `Get a copy of any card in your deck.`
 const empty_rooms_description = 
-    `Difficulty decreases by 5 floors`;
+    `Difficulty decreases by 3 floors`;
 const escape_artist_description = 
     `Teleport away when attacked.`;
 const expend_vitality_description =  

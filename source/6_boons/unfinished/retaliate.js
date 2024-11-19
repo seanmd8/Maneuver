@@ -7,6 +7,3 @@ function retaliate(){
         on_pick: pick_retaliate
     }
 }
-// Todo:
-//  description
-//  implement

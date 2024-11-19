@@ -16,7 +16,8 @@ function chipped_superweapon(){
     return{
         name: `chipped superweapon`,
         pic: `${IMG_FOLDER.cards}chipped_superweapon.png`,
-        options
+        options,
+        evolutions: [superweapon]
     }
 }
 

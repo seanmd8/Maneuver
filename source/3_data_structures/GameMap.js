@@ -626,6 +626,7 @@ class GameMap{
         }
         else{
             var extra_difficulty = 5 * GS.boons.has(boon_names.roar_of_challenge);
+            extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
         if(this.#floor_num % AREA_SIZE === CHEST_LOCATION){

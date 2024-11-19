@@ -1,11 +1,12 @@
 
 BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
-    chilly_presence, creative, dazing_blows, escape_artist, expend_vitality, 
-    fleeting_thoughts, fortitude, frugivore, future_sight, hoarder, 
-    limitless, pacifism, pain_reflexes, picky_shopper, practice_makes_perfect, 
-    pressure_points, rebirth, repetition, roar_of_challenge, safe_passage, 
-    serenity, spiked_shoes, spontaneous, stable_mind, stealthy
+    chilly_presence, creative, dazing_blows, empty_rooms, escape_artist, 
+    expend_vitality, fleeting_thoughts, fortitude, frugivore, future_sight, 
+    hoarder, limitless, pacifism, pain_reflexes, picky_shopper, 
+    practice_makes_perfect, pressure_points, rebirth, repetition, roar_of_challenge, 
+    safe_passage, serenity, spiked_shoes, spontaneous, stable_mind, 
+    stealthy
 ];
 
 /**
