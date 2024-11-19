@@ -1440,6 +1440,7 @@ const boon_names = {
     limitless: `Limitless`,
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
+    perfect_the_basics: `Perfect the Basics`,
     picky_shopper: `Picky Shopper`,
     practice_makes_perfect: `Practice Makes Perfect`,
     pressure_points: `Preassure Points`,
@@ -1510,6 +1511,8 @@ const pacifism_description =
     +`the start of each floor. All boss floor exits unlock.`;
 const pain_reflexes_description = 
     `Take a turn whenever you are attacked.`;
+const perfect_the_basics_description =
+    `Replace all your basic cards with better ones.`;
 const picky_shopper_description = 
     `Recieve an extra card choice for adding and removing cards in the shop.`;
 const practice_makes_perfect_description = 
@@ -11221,10 +11224,10 @@ BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
     chilly_presence, creative, dazing_blows, empty_rooms, escape_artist, 
     expend_vitality, fleeting_thoughts, fortitude, frugivore, future_sight, 
-    hoarder, limitless, pacifism, pain_reflexes, picky_shopper, 
-    practice_makes_perfect, pressure_points, rebirth, repetition, roar_of_challenge, 
-    safe_passage, serenity, spiked_shoes, spontaneous, stable_mind, 
-    stealthy
+    hoarder, limitless, pacifism, pain_reflexes, perfect_the_basics, 
+    picky_shopper, practice_makes_perfect, pressure_points, rebirth, repetition, 
+    roar_of_challenge, safe_passage, serenity, spiked_shoes, spontaneous, 
+    stable_mind, stealthy
 ];
 
 /**
@@ -11707,6 +11710,53 @@ function learn_from_mistakes(){
 // Todo:
 //  description
 //  implement on_pick
+
+function perfect_the_basics(){
+    return {
+        name: boon_names.perfect_the_basics,
+        pic: `${IMG_FOLDER.boons}perfect_the_basics.png`,
+        description: perfect_the_basics_description,
+        prereq: prereq_perfect_the_basics,
+        on_pick: pick_perfect_the_basics
+    }
+}
+
+function prereq_perfect_the_basics(){
+    var basic_count = get_card_matches(BASIC_CARDS).length;
+    return basic_count >= 2;
+}
+
+function pick_perfect_the_basics(){
+    var basics = get_card_matches(BASIC_CARDS);
+    for(var basic of basics){
+        GS.deck.remove(basic.id);
+        switch(basic.name){
+            case basic_horizontal().name:
+                GS.deck.add(short_charge());
+                break;
+            case basic_diagonal().name:
+                GS.deck.add(short_charge_diagonal());
+                break;
+            case basic_slice().name:
+                GS.deck.add(spin_attack());
+                break;
+            default:
+                throw Error(ERRORS.value_not_found);
+        }
+    }
+    GS.deck.deal();
+    GS.refresh_deck_display();
+}
+
+function get_card_matches(card_list){
+    var list = GS.deck.get_deck_info();
+    var names = card_list.map(card => {
+        return card().name;
+    });
+    return list.filter(card => {
+        return names.includes(card.name);
+    });
+}
 
 function retaliate(){
     return {

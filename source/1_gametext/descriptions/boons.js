@@ -23,6 +23,7 @@ const boon_names = {
     limitless: `Limitless`,
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
+    perfect_the_basics: `Perfect the Basics`,
     picky_shopper: `Picky Shopper`,
     practice_makes_perfect: `Practice Makes Perfect`,
     pressure_points: `Preassure Points`,
@@ -93,6 +94,8 @@ const pacifism_description =
     +`the start of each floor. All boss floor exits unlock.`;
 const pain_reflexes_description = 
     `Take a turn whenever you are attacked.`;
+const perfect_the_basics_description =
+    `Replace all your basic cards with better ones.`;
 const picky_shopper_description = 
     `Recieve an extra card choice for adding and removing cards in the shop.`;
 const practice_makes_perfect_description = 
