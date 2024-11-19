@@ -362,7 +362,7 @@ function point_equals(p1, p2){
 // Settings just used for testing. Leave as undefined when not in use.
 const TEST_INIT = {
     enemies: undefined,
-    chest: [future_sight],
+    chest: undefined,
     cards: undefined,
     area: undefined,
     area_size: undefined
@@ -1426,6 +1426,8 @@ const boon_names = {
     chilly_presence: `Chilly Presence`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
+    duplicate: `Duplicate`,
+    empty_rooms: `Empty Rooms`,
     escape_artist: `Escape Artist`,
     expend_vitality: `Expend Vitality`,
     fleeting_thoughts: `Fleeting Thoughts`,
@@ -1443,6 +1445,7 @@ const boon_names = {
     pressure_points: `Preassure Points`,
     rebirth: `Rebirth`,
     repetition: `Repetition`,
+    retaliate: `Retaliate`,
     roar_of_challenge: `Roar of Challenge`,
     safe_passage: `Safe Passage`,
     serenity: `Serenity`,
@@ -1450,7 +1453,6 @@ const boon_names = {
     skill_trading: `Skill Trading`,
     slayer: `Slayer`,
     spiked_shoes: `Spiked Shoes`,
-    spined_armor: `Spined Armor`,
     spontaneous: `Spontaneous`,
     stable_mind: `Stable Mind`,
     stealthy: `Stealthy`,
@@ -1476,6 +1478,10 @@ const creative_description =
     `Increase your hand size by 1. Increases minimum deck size by 5.`;
 const dazing_blows_description = 
     `Your attacks stun enemies. Bosses are unaffected.`;
+const duplicate_description =
+    `Get a copy of any card in your deck.`
+const empty_rooms_description = 
+    `Difficulty decreases by 5 floors`;
 const escape_artist_description = 
     `Teleport away when attacked.`;
 const expend_vitality_description =  
@@ -1518,6 +1524,8 @@ const rebirth_revival_message =
     `You died, but were brought back to life.`;
 const repetition_description = 
     `Every 3rd turn, your cards happen twice.`;
+const retaliate_description = 
+    `When you are dealt damage, attack a nearby non boss enemy.`;
 const roar_of_challenge_description = 
     `Gain 2 max health. Difficulty increases by 5 floors.`;
 const safe_passage_description = 
@@ -1531,8 +1539,6 @@ const skill_trading_description =
     `You may both add a card and remove a card at each shop.`;
 const spiked_shoes_description = 
     `Attempting to move onto enemies damages them. Reduces your max health by 1.`;
-const spined_armor_description = 
-    `Retaliate for 1 damage when attacked. Bosses are immune.`;
 const spontaneous_description = 
     `After using a non instant card, discard your whole hand. Minimum deck size `
     +`increased by 5.`;
@@ -9296,6 +9302,73 @@ function generate_sanctum_floor(floor_num, area, map){
 
 
 
+
+/** @type {CardGenerator}*/
+function chipped_execution(){
+    var options = new ButtonGrid();
+    var spin = [
+        pattack(1, 1), 
+        pattack(1, 0),
+        pattack(1, -1),
+        pattack(0, 1),
+        pattack(0, -1),
+        pattack(-1, 1),
+        pattack(-1, 0),
+        pattack(-1, -1)
+    ];
+    options.add_button(SPIN, spin);
+    return{
+        name: `chipped execution`,
+        pic: `${IMG_FOLDER.cards}chipped_execution.png`,
+        options,
+        evolutions: [unpolished_execution]
+    }
+}
+
+/** @type {CardGenerator}*/
+function unpolished_execution(){
+    var options = new ButtonGrid();
+    var spin = [
+        pattack(1, 1),
+        pattack(1, 0),
+        pattack(1, -1),
+        pattack(0, 1),
+        pattack(0, -1),
+        pattack(-1, 1),
+        pattack(-1, 0),
+        pattack(-1, -1)
+    ];
+    spin = [...spin, ...spin];
+    options.add_button(SPIN, spin);
+    return{
+        name: `unpolished execution`,
+        pic: `${IMG_FOLDER.cards}unpolished_execution.png`,
+        options,
+        evolutions: [execution]
+    }
+}
+
+/** @type {CardGenerator}*/
+function execution(){
+    var options = new ButtonGrid();
+    var spin = [
+        pattack(1, 1),
+        pattack(1, 0),
+        pattack(1, -1),
+        pattack(0, 1),
+        pattack(0, -1),
+        pattack(-1, 1),
+        pattack(-1, 0),
+        pattack(-1, -1)
+    ];
+    spin = [...spin, ...spin, ...spin];
+    options.add_button(SPIN, spin);
+    return{
+        name: `execution`,
+        pic: `${IMG_FOLDER.cards}execution.png`,
+        options
+    }
+}
 /** @type {CardGenerator}*/
 function lost_technique(){
     var options = new ButtonGrid();
@@ -9309,16 +9382,95 @@ function lost_technique(){
 }
 
 /** @type {CardGenerator}*/
+function lost_maneuver(){
+    var options = new ButtonGrid();
+    options.add_button(C, [], 5);
+    return{
+        name: `lost maneuver`,
+        pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
+        options,
+        evolutions: [simple_maneuver]
+    }
+}
+
+
+
+/** @type {CardGenerator}*/
+function simple_maneuver(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    return{
+        name: `simple maneuver`,
+        pic: `${IMG_FOLDER.cards}simple_maneuver.png`,
+        options,
+        evolutions: [medium_maneuver]
+    }
+}
+
+/** @type {CardGenerator}*/
+function medium_maneuver(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    options.add_button(N, [pmove(0, -2)]);
+    options.add_button(E, [pmove(2, 0)]);
+    options.add_button(S, [pmove(0, 2)]);
+    options.add_button(W, [pmove(-2, 0)]);
+    return{
+        name: `medium maneuver`,
+        pic: `${IMG_FOLDER.cards}medium_maneuver.png`,
+        options,
+        evolutions: [advanced_maneuver]
+    }
+}
+
+/** @type {CardGenerator}*/
+function advanced_maneuver(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    options.add_button(N, [pmove(0, -2)]);
+    options.add_button(E, [pmove(2, 0)]);
+    options.add_button(S, [pmove(0, 2)]);
+    options.add_button(W, [pmove(-2, 0)]);
+    var spin = [
+        pstun(1, 1),
+        pstun(1, 0),
+        pstun(1, -1),
+        pstun(0, 1),
+        pstun(0, -1),
+        pstun(-1, 1),
+        pstun(-1, 0),
+        pstun(-1, -1)
+    ];
+    options.add_button(SPIN, spin);
+    return{
+        name: `advanced maneuver`,
+        pic: `${IMG_FOLDER.cards}advanced_maneuver.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
 function chipped_split_second(){
     var options = new ButtonGrid();
-    var spin = [pattack(1, 1),
-                pattack(1, 0),
-                pattack(1, -1),
-                pattack(0, 1),
-                pattack(0, -1),
-                pattack(-1, 1),
-                pattack(-1, 0),
-                pattack(-1, -1)];
+    var spin = [
+        pattack(1, 1),
+        pattack(1, 0),
+        pattack(1, -1),
+        pattack(0, 1),
+        pattack(0, -1),
+        pattack(-1, 1),
+        pattack(-1, 0),
+        pattack(-1, -1)
+    ];
     options.add_button(SPIN, spin);
     return{
         name: `chipped split second`,
@@ -9351,77 +9503,18 @@ function split_second(){
 }
 
 /** @type {CardGenerator}*/
-function chipped_execution(){
-    var options = new ButtonGrid();
-    var spin = [pattack(1, 1),
-                pattack(1, 0),
-                pattack(1, -1),
-                pattack(0, 1),
-                pattack(0, -1),
-                pattack(-1, 1),
-                pattack(-1, 0),
-                pattack(-1, -1)];
-    options.add_button(SPIN, spin);
-    return{
-        name: `chipped execution`,
-        pic: `${IMG_FOLDER.cards}chipped_execution.png`,
-        options,
-        evolutions: [unpolished_execution]
-    }
-}
-
-/** @type {CardGenerator}*/
-function unpolished_execution(){
-    var options = new ButtonGrid();
-    var spin = [pattack(1, 1),
-                pattack(1, 0),
-                pattack(1, -1),
-                pattack(0, 1),
-                pattack(0, -1),
-                pattack(-1, 1),
-                pattack(-1, 0),
-                pattack(-1, -1)];
-    spin = [...spin, ...spin];
-    options.add_button(SPIN, spin);
-    return{
-        name: `unpolished execution`,
-        pic: `${IMG_FOLDER.cards}unpolished_execution.png`,
-        options,
-        evolutions: [execution]
-    }
-}
-
-/** @type {CardGenerator}*/
-function execution(){
-    var options = new ButtonGrid();
-    var spin = [pattack(1, 1),
-                pattack(1, 0),
-                pattack(1, -1),
-                pattack(0, 1),
-                pattack(0, -1),
-                pattack(-1, 1),
-                pattack(-1, 0),
-                pattack(-1, -1)];
-    spin = [...spin, ...spin, ...spin];
-    options.add_button(SPIN, spin);
-    return{
-        name: `execution`,
-        pic: `${IMG_FOLDER.cards}execution.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
 function chipped_superweapon(){
     var options = new ButtonGrid();
-    var spin = [pattack(1, 1),
-                pattack(1, 0),
-                pattack(1, -1),
-                pattack(0, 1),
-                pattack(0, -1),
-                pattack(-1, 1),
-                pattack(-1, 0),
-                pattack(-1, -1)];
+    var spin = [
+        pattack(1, 1),
+        pattack(1, 0),
+        pattack(1, -1),
+        pattack(0, 1),
+        pattack(0, -1),
+        pattack(-1, 1),
+        pattack(-1, 0),
+        pattack(-1, -1)
+    ];
     options.add_button(SPIN, spin);
     return{
         name: `chipped superweapon`,
@@ -11123,12 +11216,12 @@ function deck_at_minimum_symbol(){
 }
 
 BOON_LIST = [
-    ancient_card, bitter_determination, boss_slayer, brag_and_boast, chilly_presence, 
-    creative, dazing_blows, escape_artist, expend_vitality, fleeting_thoughts, 
-    fortitude, frugivore, future_sight, hoarder, limitless, 
-    pacifism, pain_reflexes, picky_shopper, practice_makes_perfect, pressure_points,
-    rebirth, repetition, roar_of_challenge, safe_passage, serenity, 
-    spiked_shoes, spontaneous, stable_mind, stealthy
+    ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
+    chilly_presence, creative, dazing_blows, escape_artist, expend_vitality, 
+    fleeting_thoughts, fortitude, frugivore, future_sight, hoarder, 
+    limitless, pacifism, pain_reflexes, picky_shopper, practice_makes_perfect, 
+    pressure_points, rebirth, repetition, roar_of_challenge, safe_passage, 
+    serenity, spiked_shoes, spontaneous, stable_mind, stealthy
 ];
 
 /**
@@ -11164,6 +11257,20 @@ function ancient_card(){
 
 function pick_ancient_card(){
     GS.deck.add(lost_technique());
+}
+
+function ancient_card_2(){
+    return {
+        name: boon_names.ancient_card,
+        pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
+        description: add_card_description,
+        on_pick: pick_ancient_card_2,
+        unlocks: [ancient_card_2]
+    }
+}
+
+function pick_ancient_card_2(){
+    GS.deck.add(lost_maneuver());
 }
 
 
@@ -11558,6 +11665,22 @@ function adrenaline_rush(){
 
 // Hitting more than 1 enemy gives an extra turn.
 
+function duplicate(){
+    return {
+        name: boon_names.duplicate,
+        pic: `${IMG_FOLDER.boons}duplicate.png`,
+        description: duplicate_description
+    }
+}
+
+function empty_rooms(){
+    return {
+        name: boon_names.empty_rooms,
+        pic: `${IMG_FOLDER.boons}empty_rooms.png`,
+        description: empty_rooms_description
+    }
+}
+
 function frenzy(){
     return {
         name: boon_names.frenzy,
@@ -11580,6 +11703,18 @@ function learn_from_mistakes(){
 // Todo:
 //  description
 //  implement on_pick
+
+function retaliate(){
+    return {
+        name: boon_names.retaliate,
+        pic: `${IMG_FOLDER.boons}retaliate.png`,
+        description: retaliate_description,
+        on_pick: pick_retaliate
+    }
+}
+// Todo:
+//  description
+//  implement
 function shattered_glass(){
     return {
         name: boon_names.shattered_glass,
@@ -11606,18 +11741,6 @@ function skill_trading(){
     }
 }
 
-
-function spined_armor(){
-    return {
-        name: boon_names.spined_armor,
-        pic: `${IMG_FOLDER.boons}spined_armor.png`,
-        description: spined_armor_description,
-        on_pick: pick_spined_armor
-    }
-}
-// Todo:
-//  description
-//  implement
 
 function stubborn(){
     return {

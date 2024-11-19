@@ -9,6 +9,8 @@ const boon_names = {
     chilly_presence: `Chilly Presence`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
+    duplicate: `Duplicate`,
+    empty_rooms: `Empty Rooms`,
     escape_artist: `Escape Artist`,
     expend_vitality: `Expend Vitality`,
     fleeting_thoughts: `Fleeting Thoughts`,
@@ -26,6 +28,7 @@ const boon_names = {
     pressure_points: `Preassure Points`,
     rebirth: `Rebirth`,
     repetition: `Repetition`,
+    retaliate: `Retaliate`,
     roar_of_challenge: `Roar of Challenge`,
     safe_passage: `Safe Passage`,
     serenity: `Serenity`,
@@ -33,7 +36,6 @@ const boon_names = {
     skill_trading: `Skill Trading`,
     slayer: `Slayer`,
     spiked_shoes: `Spiked Shoes`,
-    spined_armor: `Spined Armor`,
     spontaneous: `Spontaneous`,
     stable_mind: `Stable Mind`,
     stealthy: `Stealthy`,
@@ -59,6 +61,10 @@ const creative_description =
     `Increase your hand size by 1. Increases minimum deck size by 5.`;
 const dazing_blows_description = 
     `Your attacks stun enemies. Bosses are unaffected.`;
+const duplicate_description =
+    `Get a copy of any card in your deck.`
+const empty_rooms_description = 
+    `Difficulty decreases by 5 floors`;
 const escape_artist_description = 
     `Teleport away when attacked.`;
 const expend_vitality_description =  
@@ -101,6 +107,8 @@ const rebirth_revival_message =
     `You died, but were brought back to life.`;
 const repetition_description = 
     `Every 3rd turn, your cards happen twice.`;
+const retaliate_description = 
+    `When you are dealt damage, attack a nearby non boss enemy.`;
 const roar_of_challenge_description = 
     `Gain 2 max health. Difficulty increases by 5 floors.`;
 const safe_passage_description = 
@@ -114,8 +122,6 @@ const skill_trading_description =
     `You may both add a card and remove a card at each shop.`;
 const spiked_shoes_description = 
     `Attempting to move onto enemies damages them. Reduces your max health by 1.`;
-const spined_armor_description = 
-    `Retaliate for 1 damage when attacked. Bosses are immune.`;
 const spontaneous_description = 
     `After using a non instant card, discard your whole hand. Minimum deck size `
     +`increased by 5.`;
