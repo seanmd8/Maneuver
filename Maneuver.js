@@ -11508,6 +11508,53 @@ function pain_reflexes(){
     }
 }
 
+function perfect_the_basics(){
+    return {
+        name: boon_names.perfect_the_basics,
+        pic: `${IMG_FOLDER.boons}perfect_the_basics.png`,
+        description: perfect_the_basics_description,
+        prereq: prereq_perfect_the_basics,
+        on_pick: pick_perfect_the_basics
+    }
+}
+
+function prereq_perfect_the_basics(){
+    var basic_count = get_card_matches(BASIC_CARDS).length;
+    return basic_count >= 2;
+}
+
+function pick_perfect_the_basics(){
+    var basics = get_card_matches(BASIC_CARDS);
+    for(var basic of basics){
+        GS.deck.remove(basic.id);
+        switch(basic.name){
+            case basic_horizontal().name:
+                GS.deck.add(short_charge());
+                break;
+            case basic_diagonal().name:
+                GS.deck.add(short_charge_diagonal());
+                break;
+            case basic_slice().name:
+                GS.deck.add(spin_attack());
+                break;
+            default:
+                throw Error(ERRORS.value_not_found);
+        }
+    }
+    GS.deck.deal();
+    GS.refresh_deck_display();
+}
+
+function get_card_matches(card_list){
+    var list = GS.deck.get_deck_info();
+    var names = card_list.map(card => {
+        return card().name;
+    });
+    return list.filter(card => {
+        return names.includes(card.name);
+    });
+}
+
 function picky_shopper(){
     return {
         name: boon_names.picky_shopper,
@@ -11710,53 +11757,6 @@ function learn_from_mistakes(){
 // Todo:
 //  description
 //  implement on_pick
-
-function perfect_the_basics(){
-    return {
-        name: boon_names.perfect_the_basics,
-        pic: `${IMG_FOLDER.boons}perfect_the_basics.png`,
-        description: perfect_the_basics_description,
-        prereq: prereq_perfect_the_basics,
-        on_pick: pick_perfect_the_basics
-    }
-}
-
-function prereq_perfect_the_basics(){
-    var basic_count = get_card_matches(BASIC_CARDS).length;
-    return basic_count >= 2;
-}
-
-function pick_perfect_the_basics(){
-    var basics = get_card_matches(BASIC_CARDS);
-    for(var basic of basics){
-        GS.deck.remove(basic.id);
-        switch(basic.name){
-            case basic_horizontal().name:
-                GS.deck.add(short_charge());
-                break;
-            case basic_diagonal().name:
-                GS.deck.add(short_charge_diagonal());
-                break;
-            case basic_slice().name:
-                GS.deck.add(spin_attack());
-                break;
-            default:
-                throw Error(ERRORS.value_not_found);
-        }
-    }
-    GS.deck.deal();
-    GS.refresh_deck_display();
-}
-
-function get_card_matches(card_list){
-    var list = GS.deck.get_deck_info();
-    var names = card_list.map(card => {
-        return card().name;
-    });
-    return list.filter(card => {
-        return names.includes(card.name);
-    });
-}
 
 function retaliate(){
     return {
