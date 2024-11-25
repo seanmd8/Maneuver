@@ -8,6 +8,9 @@ If you want to try it, download it as a zip file using the "<>Code" button, unpa
 
 Gameplay Changelog:
 
+11/24/24
+- Added 1 new boon
+
 11/18/24
 - Added 7 new boons
 - Rebalanced Brag and Boast Boon: Now gives 2 debuff cards

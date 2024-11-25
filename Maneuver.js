@@ -5791,7 +5791,17 @@ function player_tile(){
         description: player_description,
         tags: new TagList(),
         health: PLAYER_STARTING_HEALTH,
-        max_health: PLAYER_STARTING_HEALTH
+        max_health: PLAYER_STARTING_HEALTH,
+        on_hit: player_hit
+    }
+}
+
+function player_hit(self, target, map){
+    if(GS.boons.has(boon_names.retaliate)){
+        retaliate_behavior(self, target, map);
+    }
+    if(GS.boons.has(boon_names.escape_artist)){
+        escape_artist_behavior(self, target, map);
     }
 }
 // ----------------AIUtil.js----------------
@@ -11226,17 +11236,9 @@ BOON_LIST = [
     expend_vitality, fleeting_thoughts, fortitude, frugivore, future_sight, 
     hoarder, limitless, pacifism, pain_reflexes, perfect_the_basics, 
     picky_shopper, practice_makes_perfect, pressure_points, rebirth, repetition, 
-    roar_of_challenge, safe_passage, serenity, spiked_shoes, spontaneous, 
-    stable_mind, stealthy
+    retaliate, roar_of_challenge, safe_passage, serenity, spiked_shoes, 
+    spontaneous, stable_mind, stealthy
 ];
-
-/**
- * Checks to make sure there is no previous player on_hit function since they are mutually exclusive.
- * @returns 
- */
-function no_player_on_hit(){
-    return GS.map.get_player().on_hit === undefined;
-}
 
 function change_max_health(amount){
     if(GS.map.get_player().max_health === undefined){
@@ -11381,13 +11383,7 @@ function escape_artist(){
         name: boon_names.escape_artist,
         pic: `${IMG_FOLDER.boons}escape_artist.png`,
         description: escape_artist_description,
-        prereq: no_player_on_hit,
-        on_pick: pick_escape_artist
     }
-}
-
-function pick_escape_artist(){
-    GS.map.get_player().on_hit = escape_artist_behavior;
 }
 
 /** @type {AIFunction}*/
@@ -11762,8 +11758,27 @@ function retaliate(){
     return {
         name: boon_names.retaliate,
         pic: `${IMG_FOLDER.boons}retaliate.png`,
-        description: retaliate_description,
-        on_pick: pick_retaliate
+        description: retaliate_description
+    }
+}
+
+/** @type {AIFunction}*/
+function retaliate_behavior(self, target, map){
+    var hit = false;
+    var spaces = random_nearby().map(p => {
+        return p.plus(self.location);
+    })
+    for(var i = 0; i < spaces.length && !hit; ++i){
+        if(!map.check_empty(spaces[i]) &&                   // Space is not empty/edge.
+           !map.get_tile(spaces[i]).tags.has(TAGS.boss) &&  // Space is not a boss.
+           (map.get_tile(spaces[i]).health !== undefined || // Space has health or
+            map.get_tile(spaces[i]).on_hit !== undefined)    // Space has on_hit
+        ){
+            hit = map.attack(spaces[i]);
+        }
+    }
+    if(!hit){
+        map.attack(spaces[0]);
     }
 }
 function shattered_glass(){

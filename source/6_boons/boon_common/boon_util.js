@@ -5,17 +5,9 @@ BOON_LIST = [
     expend_vitality, fleeting_thoughts, fortitude, frugivore, future_sight, 
     hoarder, limitless, pacifism, pain_reflexes, perfect_the_basics, 
     picky_shopper, practice_makes_perfect, pressure_points, rebirth, repetition, 
-    roar_of_challenge, safe_passage, serenity, spiked_shoes, spontaneous, 
-    stable_mind, stealthy
+    retaliate, roar_of_challenge, safe_passage, serenity, spiked_shoes, 
+    spontaneous, stable_mind, stealthy
 ];
-
-/**
- * Checks to make sure there is no previous player on_hit function since they are mutually exclusive.
- * @returns 
- */
-function no_player_on_hit(){
-    return GS.map.get_player().on_hit === undefined;
-}
 
 function change_max_health(amount){
     if(GS.map.get_player().max_health === undefined){
