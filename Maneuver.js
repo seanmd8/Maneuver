@@ -976,6 +976,7 @@ function display_boons(boon_list){
 }
 
 function display_move_buttons(card, hand_position){
+    display.select(UIIDS.hand_display, 0, hand_position);
     display.remove_children(UIIDS.move_buttons);
     var button_data = card.options.show_buttons(hand_position);
     for(let row of button_data){
@@ -8686,7 +8687,6 @@ class MoveDeck{
                 if(!GS.check_lock_player_turn()){
                     return;
                 }
-                display.select(UIIDS.hand_display, 0, hand_pos);
                 say(``, false);
                 display_move_buttons(card, hand_pos);
             }
@@ -11605,6 +11605,34 @@ function prereq_repetition(){
     return GS.boons.has(boon_names.repetition) < 3;
 }
 
+function retaliate(){
+    return {
+        name: boon_names.retaliate,
+        pic: `${IMG_FOLDER.boons}retaliate.png`,
+        description: retaliate_description
+    }
+}
+
+/** @type {AIFunction}*/
+function retaliate_behavior(self, target, map){
+    var hit = false;
+    var spaces = random_nearby().map(p => {
+        return p.plus(self.location);
+    })
+    for(var i = 0; i < spaces.length && !hit; ++i){
+        if(!map.check_empty(spaces[i]) &&                   // Space is not empty/edge.
+           !map.get_tile(spaces[i]).tags.has(TAGS.boss) &&  // Space is not a boss.
+           (map.get_tile(spaces[i]).health !== undefined || // Space has health or
+            map.get_tile(spaces[i]).on_hit !== undefined)    // Space has on_hit
+        ){
+            hit = map.attack(spaces[i]);
+        }
+    }
+    if(!hit){
+        map.attack(spaces[0]);
+    }
+}
+
 function roar_of_challenge(){
     return {
         name: boon_names.roar_of_challenge,
@@ -11753,34 +11781,6 @@ function learn_from_mistakes(){
 // Todo:
 //  description
 //  implement on_pick
-
-function retaliate(){
-    return {
-        name: boon_names.retaliate,
-        pic: `${IMG_FOLDER.boons}retaliate.png`,
-        description: retaliate_description
-    }
-}
-
-/** @type {AIFunction}*/
-function retaliate_behavior(self, target, map){
-    var hit = false;
-    var spaces = random_nearby().map(p => {
-        return p.plus(self.location);
-    })
-    for(var i = 0; i < spaces.length && !hit; ++i){
-        if(!map.check_empty(spaces[i]) &&                   // Space is not empty/edge.
-           !map.get_tile(spaces[i]).tags.has(TAGS.boss) &&  // Space is not a boss.
-           (map.get_tile(spaces[i]).health !== undefined || // Space has health or
-            map.get_tile(spaces[i]).on_hit !== undefined)    // Space has on_hit
-        ){
-            hit = map.attack(spaces[i]);
-        }
-    }
-    if(!hit){
-        map.attack(spaces[0]);
-    }
-}
 function shattered_glass(){
     return {
         name: boon_names.shattered_glass,

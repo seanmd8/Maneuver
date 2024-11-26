@@ -143,7 +143,6 @@ class MoveDeck{
                 if(!GS.check_lock_player_turn()){
                     return;
                 }
-                display.select(UIIDS.hand_display, 0, hand_pos);
                 say(``, false);
                 display_move_buttons(card, hand_pos);
             }

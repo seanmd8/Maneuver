@@ -13,6 +13,7 @@ function display_boons(boon_list){
 }
 
 function display_move_buttons(card, hand_position){
+    display.select(UIIDS.hand_display, 0, hand_position);
     display.remove_children(UIIDS.move_buttons);
     var button_data = card.options.show_buttons(hand_position);
     for(let row of button_data){
