@@ -25,6 +25,7 @@ def staple(folders, destination, jsd_enabled = False):
     write_file(destination, body)
 
 def read_files_recursively(folder):
+    # Concatonates all files within the current folder as well as ones within folders in the current folder.
     source = os.listdir(folder)
     body = ""
     for f in source:
@@ -50,6 +51,7 @@ def write_file(file_name, text):
     f.close()
 
 def get_folders_in(folder):
+    # Gets all folders within the given folder.
     source = os.listdir(folder)
     folders = []
     for f in source:
@@ -62,8 +64,9 @@ def get_folders_in(folder):
 
 
 if __name__ == '__main__':
+    # `test` creates a file for running tests.
+    # `build` creates a final build file.
     parser = argparse.ArgumentParser()
     parser.add_argument('mode', type=str, help='build || test')
     args = parser.parse_args()
-
     main(args.mode)
