@@ -5,7 +5,6 @@ It is a roguelike dungeon crawler where your movement is based on a deck of card
 If you want to try it, download it as a zip file using the "<>Code" button, unpack it, then run the HTML file "Maneuver.html".
 
 
-
 Gameplay Changelog:
 
 11/24/24
