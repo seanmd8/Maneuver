@@ -7,7 +7,7 @@ function unstable_wisp_tile(){
         description: unstable_wisp_description,
         tags: new TagList(),
         health: 1,
-        difficulty: 4,
+        difficulty: 3,
         behavior: unstable_wisp_ai,
         telegraph_other: spider_telegraph,
         on_death: unstable_wisp_death,

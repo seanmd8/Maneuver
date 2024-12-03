@@ -7,7 +7,7 @@ function strider_tile(){
         description: strider_description,
         tags: new TagList(),
         health: 2,
-        difficulty: 5,
+        difficulty: 4,
         behavior: strider_ai,
         telegraph: strider_telegraph
     }
