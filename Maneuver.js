@@ -1068,6 +1068,7 @@ function display_map(map){
 
 function explain_card(card){
     var text = ``;
+    text += card.evolutions !== undefined ? `${move_types.evolutions}\n` : ``;
     text += `${move_types.alt}\n`;
     text += `\n`;
     text += `${card.options.explain_buttons()}`;
@@ -1594,6 +1595,8 @@ const four_directions = {
 // Move types.
 const move_types = {
     alt: `Shift click on a button to show what it will do on the map.`,
+    evolutions: `Dust seems to be covering part of this card obscuring some of the options. `
+                +`Maybe you can find some way to remove it?`,
     intro: `Move Options (actions will be performed in order):\n`,
 
     attack: `Attack`,
