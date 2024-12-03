@@ -264,3 +264,13 @@ function create_sidebar(){
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
     swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log)();
 }
+
+function floor_has_chest(floor_of_area){
+    if(floor_of_area === CHEST_LOCATION){
+        return true;
+    }
+    if(GS.boons.has(boon_names.hoarder) && floor_of_area === SECOND_CHEST_LOCATION){
+        return true;
+    }
+    return false;
+}

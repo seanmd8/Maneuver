@@ -388,6 +388,7 @@ const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
 const AREA_SIZE = TEST_INIT.area_size ? TEST_INIT.area_size : 5;
 const CHEST_LOCATION = 3;
+const SECOND_CHEST_LOCATION = 2;
 const BOON_CHOICES = 3;
 const SAFE_SPAWN_ATTEMPTS = 5;
 
@@ -1405,6 +1406,16 @@ function create_sidebar(){
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
     swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log)();
 }
+
+function floor_has_chest(floor_of_area){
+    if(floor_of_area === CHEST_LOCATION){
+        return true;
+    }
+    if(GS.boons.has(boon_names.hoarder) && floor_of_area === SECOND_CHEST_LOCATION){
+        return true;
+    }
+    return false;
+}
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
 const sewers_description = `You have entered the sewers.`;
@@ -1437,6 +1448,7 @@ const boon_names = {
     frugivore: `Frugivore`,
     future_sight: `Future Sight`,
     hoarder: `Hoarder`,
+    larger_chests: `Larger Chests`,
     learn_from_mistakes: `Learn From Mistakes`,
     limitless: `Limitless`,
     pacifism: `Pacifism`,
@@ -1501,6 +1513,8 @@ const frugivore_description =
 const future_sight_description = 
     `You may look at the order of your deck.`;
 const hoarder_description = 
+    `Encounter two chests in each area.`;
+const larger_chests_description = 
     `All treasure chests contain 2 additional choices and are invulnerable.`;
 const learn_from_mistakes_description = 
     `Remove any 2 cards from your deck.`;
@@ -2171,7 +2185,7 @@ function boss_death(self, target, map){
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
         // Create a chest containing a random card from it's loot table.
         var chest = appropriate_chest_tile();
-        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.hoarder));
+        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(var card of cards){
             add_card_to_chest(chest, card());
         }
@@ -5162,7 +5176,7 @@ function chest_tile(){
 
 /** @type {TileGenerator} Makes the correct type of chest*/
 function appropriate_chest_tile(){
-    if(GS.boons.has(boon_names.hoarder)){
+    if(GS.boons.has(boon_names.larger_chests)){
         return armored_chest_tile();
     }
     return chest_tile();
@@ -5311,7 +5325,7 @@ function coffin_tile_death(self, target, map){
     }
     var new_enemy = self.tile.summons[random_num(self.tile.summons.length)]();
     if(new_enemy.type === `chest`){
-        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.hoarder));
+        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(let card of cards){
             add_card_to_chest(new_enemy, card());
         }
@@ -7930,9 +7944,10 @@ class GameMap{
             extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
-        if(this.#floor_num % AREA_SIZE === CHEST_LOCATION){
+        if(floor_has_chest(this.#floor_num % AREA_SIZE)){
+            var chest_count = 1 + GS.boons.has(boon_names.hoarder);
             var chest = appropriate_chest_tile();
-            var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.hoarder)));
+            var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));
             for(var boon of choices){
                 add_boon_to_chest(chest, boon);
             }
@@ -8910,7 +8925,7 @@ function generate_forest_area(){
 
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){
-    if(random_num(16) === 0 && floor_num % AREA_SIZE !== CHEST_LOCATION){
+    if(random_num(16) === 0 && !floor_has_chest(floor_num % AREA_SIZE)){
         swaying_nettle_terrain(floor_num, area, map);
         generate_normal_floor(floor_num / 2, area, map);
     }
@@ -11238,10 +11253,10 @@ BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
     chilly_presence, creative, dazing_blows, empty_rooms, escape_artist, 
     expend_vitality, fleeting_thoughts, fortitude, frugivore, future_sight, 
-    hoarder, limitless, pacifism, pain_reflexes, perfect_the_basics, 
-    picky_shopper, practice_makes_perfect, pressure_points, rebirth, repetition, 
-    retaliate, roar_of_challenge, safe_passage, serenity, spiked_shoes, 
-    spontaneous, stable_mind, stealthy
+    hoarder, larger_chests, limitless, pacifism, pain_reflexes, 
+    perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, 
+    rebirth, repetition, retaliate, roar_of_challenge, safe_passage, serenity, 
+    spiked_shoes, spontaneous, stable_mind, stealthy
 ];
 
 function change_max_health(amount){
@@ -11471,11 +11486,11 @@ function pick_future_sight(){
     display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
 }
 
-function hoarder(){
+function larger_chests(){
     return {
-        name: boon_names.hoarder,
-        pic: `${IMG_FOLDER.boons}hoarder.png`,
-        description: hoarder_description
+        name: boon_names.larger_chests,
+        pic: `${IMG_FOLDER.boons}larger_chests.png`,
+        description: larger_chests_description
     }
 }
 function limitless(){
@@ -11771,6 +11786,14 @@ function frenzy(){
     }
 }
 
+
+function hoarder(){
+    return {
+        name: boon_names.hoarder,
+        pic: `${IMG_FOLDER.boons}hoarder.png`,
+        description: hoarder_description
+    }
+}
 
 function learn_from_mistakes(){
     return {

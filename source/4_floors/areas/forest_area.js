@@ -13,7 +13,7 @@ function generate_forest_area(){
 
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){
-    if(random_num(16) === 0 && floor_num % AREA_SIZE !== CHEST_LOCATION){
+    if(random_num(16) === 0 && !floor_has_chest(floor_num % AREA_SIZE)){
         swaying_nettle_terrain(floor_num, area, map);
         generate_normal_floor(floor_num / 2, area, map);
     }

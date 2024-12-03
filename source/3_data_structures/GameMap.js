@@ -629,7 +629,8 @@ class GameMap{
             extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
-        if(this.#floor_num % AREA_SIZE === CHEST_LOCATION){
+        if(floor_has_chest(this.#floor_num % AREA_SIZE)){
+            var chest_count = 1 + GS.boons.has(boon_names.hoarder);
             var chest = appropriate_chest_tile();
             var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));
             for(var boon of choices){
