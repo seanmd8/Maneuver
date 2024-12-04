@@ -1796,10 +1796,10 @@ const carrion_flies_description =
 const magma_spewer_description = 
     `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
     +`get close.`
-const boulder_elemental_description = 
-    `Boulder Elemental: Wakes up stunned when something touches it. Each turn, `
+const animated_boulder_description = 
+    `Animated Boulder: Wakes up when something touches it. Each turn, `
     +`it damages anyone close to it, then moves 1 space closer to the player. `
-    +`After 3 turns of failing to hit anything, it will go back to sleep.`;
+    +`After 3 turns, it will go back to sleep.`;
 const pheonix_description = 
     `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `
     +`Everything it flies over will be damaged and set on fire. When it dies, `
@@ -3060,32 +3060,32 @@ function acid_bug_death(self, target, map){
     }
 }
 /** @type {TileGenerator} Generates a camoflauged boulder elemental. */
-function boulder_elemental_tile(){
-    var tile = boulder_elemental_look();
+function animated_boulder_tile(){
+    var tile = animated_boulder_look();
     shapeshift(tile, ifexists(tile.look_arr)[0]);
     return tile;
 }
 
-/** @type {TileGenerator} Generates an uncomoflauged boulder elemental. */
-function boulder_elemental_look(){
+/** @type {TileGenerator} Generates an uncamoflauged animated boulder. */
+function animated_boulder_look(){
     return {
         type: `enemy`,
-        name: `Boulder Elemental`,
-        pic: `${IMG_FOLDER.tiles}boulder_elemental.png`,
-        description: boulder_elemental_description,
+        name: `Animated Boulder`,
+        pic: `${IMG_FOLDER.tiles}animated_boulder.png`,
+        description: animated_boulder_description,
         tags: new TagList([TAGS.unmovable, TAGS.hidden]),
-        behavior: boulder_elemental_ai,
+        behavior: animated_boulder_ai,
         telegraph: spider_telegraph,
-        on_enter: boulder_elemental_wake_up,
-        on_hit: boulder_elemental_wake_up,
-        look_arr: [magmatic_boulder_tile, boulder_elemental_look],
+        on_enter: animated_boulder_wake_up,
+        on_hit: animated_boulder_wake_up,
+        look_arr: [magmatic_boulder_tile, animated_boulder_look],
         cycle: 0
     }
 }
 
 
-/** @type {AIFunction} AI used by boulder elementals.*/
-function boulder_elemental_ai(self, target, map){
+/** @type {AIFunction} AI used by animated boulders.*/
+function animated_boulder_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.look_arr === undefined){
         throw new Error(ERRORS.missing_property)
@@ -3122,8 +3122,8 @@ function boulder_elemental_ai(self, target, map){
         move_closer_ai(self, target, map);
     }
 }
-/** @type {AIFunction} boulder elemental wakes up when touched.*/
-function boulder_elemental_wake_up(self, target, map){
+/** @type {AIFunction} animated boulder wakes up when touched.*/
+function animated_boulder_wake_up(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.look_arr === undefined){
         throw new Error(ERRORS.missing_property)
@@ -6047,7 +6047,7 @@ const ENEMY_LIST = [
     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
-    orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, boulder_elemental_tile,
+    orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, animated_boulder_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
     paper_construct_tile
@@ -9031,7 +9031,7 @@ function boulder_terrain(floor_num, area, map){
     }
     boulder_amount = random_num(6) - 2;
     for(var i = 0; i < boulder_amount; ++i){
-        map.spawn_safely(boulder_elemental_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(animated_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false)
     }
 
 }

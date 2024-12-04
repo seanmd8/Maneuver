@@ -11,7 +11,7 @@ Gameplay Changelog:
 
 12/1/24
 - Added the ability to play without downloading anything. Following the link above will take you 
-  to the latest version. You can still download it if you want to play offline.
+  to the latest version. You can still download it if you want to play offline
 
 11/24/24
 - Added 1 new boon

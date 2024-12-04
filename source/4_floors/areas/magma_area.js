@@ -62,7 +62,7 @@ function boulder_terrain(floor_num, area, map){
     }
     boulder_amount = random_num(6) - 2;
     for(var i = 0; i < boulder_amount; ++i){
-        map.spawn_safely(boulder_elemental_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(animated_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false)
     }
 
 }

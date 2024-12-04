@@ -81,10 +81,10 @@ const carrion_flies_description =
 const magma_spewer_description = 
     `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
     +`get close.`
-const boulder_elemental_description = 
-    `Boulder Elemental: Wakes up stunned when something touches it. Each turn, `
+const animated_boulder_description = 
+    `Animated Boulder: Wakes up when something touches it. Each turn, `
     +`it damages anyone close to it, then moves 1 space closer to the player. `
-    +`After 3 turns of failing to hit anything, it will go back to sleep.`;
+    +`After 3 turns, it will go back to sleep.`;
 const pheonix_description = 
     `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `
     +`Everything it flies over will be damaged and set on fire. When it dies, `
