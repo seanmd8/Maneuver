@@ -68,8 +68,11 @@ class GameState{
         display.remove_children(UIIDS.move_buttons);
         this.map.clear_marked();
         say(``, false);
+        if(GS.boons.has(boon_names.thick_soles)){
+            GS.map.get_player().tags.add(TAGS.invulnerable);
+        }
         try{
-            // The repetition boon will double movements one in every 3 turns.
+            // The repetition boon will double movements 1 in every 3 turns.
             var repetition_count = GS.boons.has(boon_names.repetition);
             var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? 2 : 1;
             for(var i = 0; i < repeat; ++i){
@@ -84,6 +87,9 @@ class GameState{
             }
             else{
                 this.deck.discard(hand_pos);
+            }
+            if(GS.boons.has(boon_names.thick_soles)){
+                GS.map.get_player().tags.remove(TAGS.invulnerable);
             }
             display_map(this.map);
             await delay(ANIMATION_DELAY);

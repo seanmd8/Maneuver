@@ -75,6 +75,7 @@ const TAGS = {
     unmovable: `Unmovable`,
     unstunnable: `Unstunnable`,
     hidden: `Hidden`,
+    invulnerable: `Invulnerable`,
     thorn_bush_roots: `Thorn Bush Roots`,
     nettle_immune: `Nettle Immune`
 }

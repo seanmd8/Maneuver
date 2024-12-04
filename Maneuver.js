@@ -433,6 +433,7 @@ const TAGS = {
     unmovable: `Unmovable`,
     unstunnable: `Unstunnable`,
     hidden: `Hidden`,
+    invulnerable: `Invulnerable`,
     thorn_bush_roots: `Thorn Bush Roots`,
     nettle_immune: `Nettle Immune`
 }
@@ -7757,7 +7758,7 @@ class GameMap{
         var space = this.get_grid(location);
         space.action = `${IMG_FOLDER.actions}hit.png`;
         var target = space.tile;
-        if(target.health !== undefined){
+        if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
             if(target.on_hit !== undefined){
                 // Trigger on_hit.
@@ -7811,7 +7812,7 @@ class GameMap{
             }
             return true;
         }
-        if(target.health === undefined && target.on_hit !== undefined){
+        if((target.health === undefined || !target.tags.has(TAGS.invulnerable)) && target.on_hit !== undefined){
             // Trigger on_hit
             var player_pos = this.#entity_list.get_player_pos();
             var hit_entity = {
@@ -7943,6 +7944,7 @@ class GameMap{
             floor_description += `\n${boss_message}`;
         }
         else{
+            // Normal floor.
             var extra_difficulty = 5 * GS.boons.has(boon_names.roar_of_challenge);
             extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
@@ -8239,8 +8241,11 @@ class GameState{
         display.remove_children(UIIDS.move_buttons);
         this.map.clear_marked();
         say(``, false);
+        if(GS.boons.has(boon_names.thick_soles)){
+            GS.map.get_player().tags.add(TAGS.invulnerable);
+        }
         try{
-            // The repetition boon will double movements one in every 3 turns.
+            // The repetition boon will double movements 1 in every 3 turns.
             var repetition_count = GS.boons.has(boon_names.repetition);
             var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? 2 : 1;
             for(var i = 0; i < repeat; ++i){
@@ -8255,6 +8260,9 @@ class GameState{
             }
             else{
                 this.deck.discard(hand_pos);
+            }
+            if(GS.boons.has(boon_names.thick_soles)){
+                GS.map.get_player().tags.remove(TAGS.invulnerable);
             }
             display_map(this.map);
             await delay(ANIMATION_DELAY);
@@ -11259,7 +11267,7 @@ BOON_LIST = [
     hoarder, larger_chests, limitless, pacifism, pain_reflexes, 
     perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, 
     rebirth, repetition, retaliate, roar_of_challenge, safe_passage, serenity, 
-    spiked_shoes, spontaneous, stable_mind, stealthy
+    spiked_shoes, spontaneous, stable_mind, stealthy, thick_soles
 ];
 
 function change_max_health(amount){

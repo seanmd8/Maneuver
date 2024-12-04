@@ -6,7 +6,7 @@ BOON_LIST = [
     hoarder, larger_chests, limitless, pacifism, pain_reflexes, 
     perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, 
     rebirth, repetition, retaliate, roar_of_challenge, safe_passage, serenity, 
-    spiked_shoes, spontaneous, stable_mind, stealthy
+    spiked_shoes, spontaneous, stable_mind, stealthy, thick_soles
 ];
 
 function change_max_health(amount){
