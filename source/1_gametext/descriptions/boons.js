@@ -19,6 +19,7 @@ const boon_names = {
     frugivore: `Frugivore`,
     future_sight: `Future Sight`,
     hoarder: `Hoarder`,
+    larger_chests: `Larger Chests`,
     learn_from_mistakes: `Learn From Mistakes`,
     limitless: `Limitless`,
     pacifism: `Pacifism`,
@@ -83,6 +84,8 @@ const frugivore_description =
 const future_sight_description = 
     `You may look at the order of your deck.`;
 const hoarder_description = 
+    `Encounter two chests in each area.`;
+const larger_chests_description = 
     `All treasure chests contain 2 additional choices and are invulnerable.`;
 const learn_from_mistakes_description = 
     `Remove any 2 cards from your deck.`;

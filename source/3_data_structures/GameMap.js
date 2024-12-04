@@ -439,7 +439,7 @@ class GameMap{
         var space = this.get_grid(location);
         space.action = `${IMG_FOLDER.actions}hit.png`;
         var target = space.tile;
-        if(target.health !== undefined){
+        if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
             if(target.on_hit !== undefined){
                 // Trigger on_hit.
@@ -493,7 +493,7 @@ class GameMap{
             }
             return true;
         }
-        if(target.health === undefined && target.on_hit !== undefined){
+        if((target.health === undefined || !target.tags.has(TAGS.invulnerable)) && target.on_hit !== undefined){
             // Trigger on_hit
             var player_pos = this.#entity_list.get_player_pos();
             var hit_entity = {
@@ -625,13 +625,15 @@ class GameMap{
             floor_description += `\n${boss_message}`;
         }
         else{
+            // Normal floor.
             var extra_difficulty = 5 * GS.boons.has(boon_names.roar_of_challenge);
             extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
-        if(this.#floor_num % AREA_SIZE === CHEST_LOCATION){
+        if(floor_has_chest(this.#floor_num % AREA_SIZE)){
+            var chest_count = 1 + GS.boons.has(boon_names.hoarder);
             var chest = appropriate_chest_tile();
-            var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.hoarder)));
+            var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));
             for(var boon of choices){
                 add_boon_to_chest(chest, boon);
             }

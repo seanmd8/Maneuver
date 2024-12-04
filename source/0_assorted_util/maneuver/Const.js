@@ -30,6 +30,7 @@ const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
 const AREA_SIZE = TEST_INIT.area_size ? TEST_INIT.area_size : 5;
 const CHEST_LOCATION = 3;
+const SECOND_CHEST_LOCATION = 2;
 const BOON_CHOICES = 3;
 const SAFE_SPAWN_ATTEMPTS = 5;
 
@@ -74,6 +75,7 @@ const TAGS = {
     unmovable: `Unmovable`,
     unstunnable: `Unstunnable`,
     hidden: `Hidden`,
+    invulnerable: `Invulnerable`,
     thorn_bush_roots: `Thorn Bush Roots`,
     nettle_immune: `Nettle Immune`
 }

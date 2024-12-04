@@ -1,30 +1,30 @@
 /** @type {TileGenerator} Generates a camoflauged boulder elemental. */
-function boulder_elemental_tile(){
-    var tile = boulder_elemental_look();
+function animated_boulder_tile(){
+    var tile = animated_boulder_look();
     shapeshift(tile, ifexists(tile.look_arr)[0]);
     return tile;
 }
 
-/** @type {TileGenerator} Generates an uncomoflauged boulder elemental. */
-function boulder_elemental_look(){
+/** @type {TileGenerator} Generates an uncamoflauged animated boulder. */
+function animated_boulder_look(){
     return {
         type: `enemy`,
-        name: `Boulder Elemental`,
-        pic: `${IMG_FOLDER.tiles}boulder_elemental.png`,
-        description: boulder_elemental_description,
+        name: `Animated Boulder`,
+        pic: `${IMG_FOLDER.tiles}animated_boulder.png`,
+        description: animated_boulder_description,
         tags: new TagList([TAGS.unmovable, TAGS.hidden]),
-        behavior: boulder_elemental_ai,
+        behavior: animated_boulder_ai,
         telegraph: spider_telegraph,
-        on_enter: boulder_elemental_wake_up,
-        on_hit: boulder_elemental_wake_up,
-        look_arr: [magmatic_boulder_tile, boulder_elemental_look],
+        on_enter: animated_boulder_wake_up,
+        on_hit: animated_boulder_wake_up,
+        look_arr: [magmatic_boulder_tile, animated_boulder_look],
         cycle: 0
     }
 }
 
 
-/** @type {AIFunction} AI used by boulder elementals.*/
-function boulder_elemental_ai(self, target, map){
+/** @type {AIFunction} AI used by animated boulders.*/
+function animated_boulder_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.look_arr === undefined){
         throw new Error(ERRORS.missing_property)
@@ -41,8 +41,11 @@ function boulder_elemental_ai(self, target, map){
     var nearby = order_nearby(target.difference);
     var hit = false;
     for(let space of nearby){
-        // Attacks everything nearby.
-        hit = map.attack(self.location.plus(space)) || hit;
+        // Attacks everything nearby that's not another elemental.
+        var target_space = self.location.plus(space)
+        if(map.is_in_bounds(target_space) && !map.get_tile(target_space).tags.has(TAGS.hidden)){
+            hit = map.attack(target_space) || hit;
+        }
     }
     // Gets sleepier
     --self.tile.cycle;
@@ -50,15 +53,16 @@ function boulder_elemental_ai(self, target, map){
         // Falls asleep.
         shapeshift(self.tile, self.tile.look_arr[0]);
         self.tile.tags.add(TAGS.hidden);
-        self.tile.cycle = -2;
+        // Stays asleep for a turn before it can wake up.
+        self.tile.cycle = -1;
     }
     else if(!target.difference.within_radius(1)){
         // If not asleep, moves towards the player.
         move_closer_ai(self, target, map);
     }
 }
-/** @type {AIFunction} boulder elemental wakes up when touched.*/
-function boulder_elemental_wake_up(self, target, map){
+/** @type {AIFunction} animated boulder wakes up when touched.*/
+function animated_boulder_wake_up(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.look_arr === undefined){
         throw new Error(ERRORS.missing_property)

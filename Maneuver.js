@@ -388,6 +388,7 @@ const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
 const AREA_SIZE = TEST_INIT.area_size ? TEST_INIT.area_size : 5;
 const CHEST_LOCATION = 3;
+const SECOND_CHEST_LOCATION = 2;
 const BOON_CHOICES = 3;
 const SAFE_SPAWN_ATTEMPTS = 5;
 
@@ -432,6 +433,7 @@ const TAGS = {
     unmovable: `Unmovable`,
     unstunnable: `Unstunnable`,
     hidden: `Hidden`,
+    invulnerable: `Invulnerable`,
     thorn_bush_roots: `Thorn Bush Roots`,
     nettle_immune: `Nettle Immune`
 }
@@ -1067,6 +1069,7 @@ function display_map(map){
 
 function explain_card(card){
     var text = ``;
+    text += card.evolutions !== undefined ? `${move_types.evolutions}\n` : ``;
     text += `${move_types.alt}\n`;
     text += `\n`;
     text += `${card.options.explain_buttons()}`;
@@ -1405,6 +1408,16 @@ function create_sidebar(){
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
     swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log)();
 }
+
+function floor_has_chest(floor_of_area){
+    if(floor_of_area === CHEST_LOCATION){
+        return true;
+    }
+    if(GS.boons.has(boon_names.hoarder) && floor_of_area === SECOND_CHEST_LOCATION){
+        return true;
+    }
+    return false;
+}
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
 const sewers_description = `You have entered the sewers.`;
@@ -1437,6 +1450,7 @@ const boon_names = {
     frugivore: `Frugivore`,
     future_sight: `Future Sight`,
     hoarder: `Hoarder`,
+    larger_chests: `Larger Chests`,
     learn_from_mistakes: `Learn From Mistakes`,
     limitless: `Limitless`,
     pacifism: `Pacifism`,
@@ -1501,6 +1515,8 @@ const frugivore_description =
 const future_sight_description = 
     `You may look at the order of your deck.`;
 const hoarder_description = 
+    `Encounter two chests in each area.`;
+const larger_chests_description = 
     `All treasure chests contain 2 additional choices and are invulnerable.`;
 const learn_from_mistakes_description = 
     `Remove any 2 cards from your deck.`;
@@ -1580,6 +1596,8 @@ const four_directions = {
 // Move types.
 const move_types = {
     alt: `Shift click on a button to show what it will do on the map.`,
+    evolutions: `Dust seems to be covering part of this card obscuring some of the options. `
+                +`Maybe you can find some way to remove it?`,
     intro: `Move Options (actions will be performed in order):\n`,
 
     attack: `Attack`,
@@ -1778,10 +1796,10 @@ const carrion_flies_description =
 const magma_spewer_description = 
     `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
     +`get close.`
-const boulder_elemental_description = 
-    `Boulder Elemental: Wakes up stunned when something touches it. Each turn, `
+const animated_boulder_description = 
+    `Animated Boulder: Wakes up when something touches it. Each turn, `
     +`it damages anyone close to it, then moves 1 space closer to the player. `
-    +`After 3 turns of failing to hit anything, it will go back to sleep.`;
+    +`After 3 turns, it will go back to sleep.`;
 const pheonix_description = 
     `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `
     +`Everything it flies over will be damaged and set on fire. When it dies, `
@@ -2171,7 +2189,7 @@ function boss_death(self, target, map){
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
         // Create a chest containing a random card from it's loot table.
         var chest = appropriate_chest_tile();
-        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.hoarder));
+        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(var card of cards){
             add_card_to_chest(chest, card());
         }
@@ -3042,32 +3060,32 @@ function acid_bug_death(self, target, map){
     }
 }
 /** @type {TileGenerator} Generates a camoflauged boulder elemental. */
-function boulder_elemental_tile(){
-    var tile = boulder_elemental_look();
+function animated_boulder_tile(){
+    var tile = animated_boulder_look();
     shapeshift(tile, ifexists(tile.look_arr)[0]);
     return tile;
 }
 
-/** @type {TileGenerator} Generates an uncomoflauged boulder elemental. */
-function boulder_elemental_look(){
+/** @type {TileGenerator} Generates an uncamoflauged animated boulder. */
+function animated_boulder_look(){
     return {
         type: `enemy`,
-        name: `Boulder Elemental`,
-        pic: `${IMG_FOLDER.tiles}boulder_elemental.png`,
-        description: boulder_elemental_description,
+        name: `Animated Boulder`,
+        pic: `${IMG_FOLDER.tiles}animated_boulder.png`,
+        description: animated_boulder_description,
         tags: new TagList([TAGS.unmovable, TAGS.hidden]),
-        behavior: boulder_elemental_ai,
+        behavior: animated_boulder_ai,
         telegraph: spider_telegraph,
-        on_enter: boulder_elemental_wake_up,
-        on_hit: boulder_elemental_wake_up,
-        look_arr: [magmatic_boulder_tile, boulder_elemental_look],
+        on_enter: animated_boulder_wake_up,
+        on_hit: animated_boulder_wake_up,
+        look_arr: [magmatic_boulder_tile, animated_boulder_look],
         cycle: 0
     }
 }
 
 
-/** @type {AIFunction} AI used by boulder elementals.*/
-function boulder_elemental_ai(self, target, map){
+/** @type {AIFunction} AI used by animated boulders.*/
+function animated_boulder_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.look_arr === undefined){
         throw new Error(ERRORS.missing_property)
@@ -3084,8 +3102,11 @@ function boulder_elemental_ai(self, target, map){
     var nearby = order_nearby(target.difference);
     var hit = false;
     for(let space of nearby){
-        // Attacks everything nearby.
-        hit = map.attack(self.location.plus(space)) || hit;
+        // Attacks everything nearby that's not another elemental.
+        var target_space = self.location.plus(space)
+        if(map.is_in_bounds(target_space) && !map.get_tile(target_space).tags.has(TAGS.hidden)){
+            hit = map.attack(target_space) || hit;
+        }
     }
     // Gets sleepier
     --self.tile.cycle;
@@ -3093,15 +3114,16 @@ function boulder_elemental_ai(self, target, map){
         // Falls asleep.
         shapeshift(self.tile, self.tile.look_arr[0]);
         self.tile.tags.add(TAGS.hidden);
-        self.tile.cycle = -2;
+        // Stays asleep for a turn before it can wake up.
+        self.tile.cycle = -1;
     }
     else if(!target.difference.within_radius(1)){
         // If not asleep, moves towards the player.
         move_closer_ai(self, target, map);
     }
 }
-/** @type {AIFunction} boulder elemental wakes up when touched.*/
-function boulder_elemental_wake_up(self, target, map){
+/** @type {AIFunction} animated boulder wakes up when touched.*/
+function animated_boulder_wake_up(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.look_arr === undefined){
         throw new Error(ERRORS.missing_property)
@@ -4460,7 +4482,7 @@ function strider_tile(){
         description: strider_description,
         tags: new TagList(),
         health: 2,
-        difficulty: 5,
+        difficulty: 4,
         behavior: strider_ai,
         telegraph: strider_telegraph
     }
@@ -4813,7 +4835,7 @@ function unstable_wisp_tile(){
         description: unstable_wisp_description,
         tags: new TagList(),
         health: 1,
-        difficulty: 4,
+        difficulty: 3,
         behavior: unstable_wisp_ai,
         telegraph_other: spider_telegraph,
         on_death: unstable_wisp_death,
@@ -4844,14 +4866,22 @@ function unstable_wisp_ai(self, target, map){
 /** @type {AIFunction} Function used when unstable wisps die to explode and send out fireballs.*/
 function unstable_wisp_death(self, target, map){
     var attacks = random_nearby();
+    var fireballs = [];
     for(var dir of attacks){
         var spawnpoint = self.location.plus(dir)
         if(!map.attack(spawnpoint)){
             var fireball = shoot_fireball(dir);
             stun(fireball);
             map.add_tile(fireball, spawnpoint);
+            fireballs.push(fireball);
         }
     }
+    var unstun = (map_to_use) => {
+        for(var fireball of fireballs){
+            fireball.stun = undefined;
+        }
+    }
+    map.add_event({name: `Unstun`, behavior: unstun});
 }
 /** @type {TileGenerator} */
 function vampire_tile(){
@@ -5158,7 +5188,7 @@ function chest_tile(){
 
 /** @type {TileGenerator} Makes the correct type of chest*/
 function appropriate_chest_tile(){
-    if(GS.boons.has(boon_names.hoarder)){
+    if(GS.boons.has(boon_names.larger_chests)){
         return armored_chest_tile();
     }
     return chest_tile();
@@ -5307,7 +5337,7 @@ function coffin_tile_death(self, target, map){
     }
     var new_enemy = self.tile.summons[random_num(self.tile.summons.length)]();
     if(new_enemy.type === `chest`){
-        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.hoarder));
+        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(let card of cards){
             add_card_to_chest(new_enemy, card());
         }
@@ -6017,7 +6047,7 @@ const ENEMY_LIST = [
     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
-    orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, boulder_elemental_tile,
+    orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, animated_boulder_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
     paper_construct_tile
@@ -7736,7 +7766,7 @@ class GameMap{
         var space = this.get_grid(location);
         space.action = `${IMG_FOLDER.actions}hit.png`;
         var target = space.tile;
-        if(target.health !== undefined){
+        if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
             if(target.on_hit !== undefined){
                 // Trigger on_hit.
@@ -7790,7 +7820,7 @@ class GameMap{
             }
             return true;
         }
-        if(target.health === undefined && target.on_hit !== undefined){
+        if((target.health === undefined || !target.tags.has(TAGS.invulnerable)) && target.on_hit !== undefined){
             // Trigger on_hit
             var player_pos = this.#entity_list.get_player_pos();
             var hit_entity = {
@@ -7922,13 +7952,15 @@ class GameMap{
             floor_description += `\n${boss_message}`;
         }
         else{
+            // Normal floor.
             var extra_difficulty = 5 * GS.boons.has(boon_names.roar_of_challenge);
             extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
-        if(this.#floor_num % AREA_SIZE === CHEST_LOCATION){
+        if(floor_has_chest(this.#floor_num % AREA_SIZE)){
+            var chest_count = 1 + GS.boons.has(boon_names.hoarder);
             var chest = appropriate_chest_tile();
-            var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.hoarder)));
+            var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));
             for(var boon of choices){
                 add_boon_to_chest(chest, boon);
             }
@@ -8217,8 +8249,11 @@ class GameState{
         display.remove_children(UIIDS.move_buttons);
         this.map.clear_marked();
         say(``, false);
+        if(GS.boons.has(boon_names.thick_soles)){
+            GS.map.get_player().tags.add(TAGS.invulnerable);
+        }
         try{
-            // The repetition boon will double movements one in every 3 turns.
+            // The repetition boon will double movements 1 in every 3 turns.
             var repetition_count = GS.boons.has(boon_names.repetition);
             var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? 2 : 1;
             for(var i = 0; i < repeat; ++i){
@@ -8233,6 +8268,9 @@ class GameState{
             }
             else{
                 this.deck.discard(hand_pos);
+            }
+            if(GS.boons.has(boon_names.thick_soles)){
+                GS.map.get_player().tags.remove(TAGS.invulnerable);
             }
             display_map(this.map);
             await delay(ANIMATION_DELAY);
@@ -8906,7 +8944,7 @@ function generate_forest_area(){
 
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){
-    if(random_num(16) === 0 && floor_num % AREA_SIZE !== CHEST_LOCATION){
+    if(random_num(16) === 0 && !floor_has_chest(floor_num % AREA_SIZE)){
         swaying_nettle_terrain(floor_num, area, map);
         generate_normal_floor(floor_num / 2, area, map);
     }
@@ -8935,7 +8973,7 @@ function generate_magma_area(){
         background: `${IMG_FOLDER.backgrounds}magma.png`,
         generate_floor: generate_magma_floor,
         enemy_list: [magma_spewer_tile, turret_r_tile, brightling_tile, igneous_crab_tile, strider_tile,
-                    pheonix_tile],
+                    pheonix_tile, unstable_wisp_tile],
         boss_floor_list: [young_dragon_floor],
         next_area_list: area4,
         description: magma_description
@@ -8993,7 +9031,7 @@ function boulder_terrain(floor_num, area, map){
     }
     boulder_amount = random_num(6) - 2;
     for(var i = 0; i < boulder_amount; ++i){
-        map.spawn_safely(boulder_elemental_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(animated_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false)
     }
 
 }
@@ -11234,10 +11272,10 @@ BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
     chilly_presence, creative, dazing_blows, empty_rooms, escape_artist, 
     expend_vitality, fleeting_thoughts, fortitude, frugivore, future_sight, 
-    hoarder, limitless, pacifism, pain_reflexes, perfect_the_basics, 
-    picky_shopper, practice_makes_perfect, pressure_points, rebirth, repetition, 
-    retaliate, roar_of_challenge, safe_passage, serenity, spiked_shoes, 
-    spontaneous, stable_mind, stealthy
+    hoarder, larger_chests, limitless, pacifism, pain_reflexes, 
+    perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, 
+    rebirth, repetition, retaliate, roar_of_challenge, safe_passage, serenity, 
+    spiked_shoes, spontaneous, stable_mind, stealthy, thick_soles
 ];
 
 function change_max_health(amount){
@@ -11472,6 +11510,14 @@ function hoarder(){
         name: boon_names.hoarder,
         pic: `${IMG_FOLDER.boons}hoarder.png`,
         description: hoarder_description
+    }
+}
+
+function larger_chests(){
+    return {
+        name: boon_names.larger_chests,
+        pic: `${IMG_FOLDER.boons}larger_chests.png`,
+        description: larger_chests_description
     }
 }
 function limitless(){
@@ -11741,6 +11787,17 @@ function stealthy(){
     }
 }
 
+function thick_soles(){
+    return {
+        name: boon_names.thick_soles,
+        pic: `${IMG_FOLDER.boons}thick_soles.png`,
+        description: thick_soles_description,
+    }
+}
+// Todo:
+//  description
+//  implement
+
 function adrenaline_rush(){
     return {
         name: boon_names.adrenaline_rush,
@@ -11813,17 +11870,6 @@ function stubborn(){
         name: boon_names.stubborn,
         pic: `${IMG_FOLDER.boons}stubborn.png`,
         description: stubborn_description,
-    }
-}
-// Todo:
-//  description
-//  implement
-
-function thick_soles(){
-    return {
-        name: boon_names.thick_soles,
-        pic: `${IMG_FOLDER.boons}thick_soles.png`,
-        description: thick_soles_description,
     }
 }
 // Todo:

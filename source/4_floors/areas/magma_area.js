@@ -4,7 +4,7 @@ function generate_magma_area(){
         background: `${IMG_FOLDER.backgrounds}magma.png`,
         generate_floor: generate_magma_floor,
         enemy_list: [magma_spewer_tile, turret_r_tile, brightling_tile, igneous_crab_tile, strider_tile,
-                    pheonix_tile],
+                    pheonix_tile, unstable_wisp_tile],
         boss_floor_list: [young_dragon_floor],
         next_area_list: area4,
         description: magma_description
@@ -62,7 +62,7 @@ function boulder_terrain(floor_num, area, map){
     }
     boulder_amount = random_num(6) - 2;
     for(var i = 0; i < boulder_amount; ++i){
-        map.spawn_safely(boulder_elemental_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(animated_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false)
     }
 
 }

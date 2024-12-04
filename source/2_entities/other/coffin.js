@@ -22,7 +22,7 @@ function coffin_tile_death(self, target, map){
     }
     var new_enemy = self.tile.summons[random_num(self.tile.summons.length)]();
     if(new_enemy.type === `chest`){
-        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.hoarder));
+        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(let card of cards){
             add_card_to_chest(new_enemy, card());
         }

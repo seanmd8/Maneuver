@@ -1,6 +1,6 @@
 /** @type {TileGenerator} Makes the correct type of chest*/
 function appropriate_chest_tile(){
-    if(GS.boons.has(boon_names.hoarder)){
+    if(GS.boons.has(boon_names.larger_chests)){
         return armored_chest_tile();
     }
     return chest_tile();

@@ -104,6 +104,7 @@ function display_map(map){
 
 function explain_card(card){
     var text = ``;
+    text += card.evolutions !== undefined ? `${move_types.evolutions}\n` : ``;
     text += `${move_types.alt}\n`;
     text += `\n`;
     text += `${card.options.explain_buttons()}`;
