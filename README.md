@@ -9,6 +9,14 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+12/3/24
+- Added 2 new boons
+- Renamed Hoarder boon to Larger Chests
+- Boulder elementals renamed to Animated Boulders
+- Animated Boulders can no longer wake each other up
+- The information button now gives extra information about certain cards gained from boons
+- Added new enemy: Unstable Wisp
+
 12/1/24
 - Added the ability to play without downloading anything. Following the link above will take you 
   to the latest version. You can still download it if you want to play offline
