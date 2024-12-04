@@ -38,12 +38,20 @@ function unstable_wisp_ai(self, target, map){
 /** @type {AIFunction} Function used when unstable wisps die to explode and send out fireballs.*/
 function unstable_wisp_death(self, target, map){
     var attacks = random_nearby();
+    var fireballs = [];
     for(var dir of attacks){
         var spawnpoint = self.location.plus(dir)
         if(!map.attack(spawnpoint)){
             var fireball = shoot_fireball(dir);
             stun(fireball);
             map.add_tile(fireball, spawnpoint);
+            fireballs.push(fireball);
         }
     }
+    var unstun = (map_to_use) => {
+        for(var fireball of fireballs){
+            fireball.stun = undefined;
+        }
+    }
+    map.add_event({name: `Unstun`, behavior: unstun});
 }

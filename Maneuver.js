@@ -4866,14 +4866,22 @@ function unstable_wisp_ai(self, target, map){
 /** @type {AIFunction} Function used when unstable wisps die to explode and send out fireballs.*/
 function unstable_wisp_death(self, target, map){
     var attacks = random_nearby();
+    var fireballs = [];
     for(var dir of attacks){
         var spawnpoint = self.location.plus(dir)
         if(!map.attack(spawnpoint)){
             var fireball = shoot_fireball(dir);
             stun(fireball);
             map.add_tile(fireball, spawnpoint);
+            fireballs.push(fireball);
         }
     }
+    var unstun = (map_to_use) => {
+        for(var fireball of fireballs){
+            fireball.stun = undefined;
+        }
+    }
+    map.add_event({name: `Unstun`, behavior: unstun});
 }
 /** @type {TileGenerator} */
 function vampire_tile(){
@@ -11497,6 +11505,14 @@ function pick_future_sight(){
     display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
 }
 
+function hoarder(){
+    return {
+        name: boon_names.hoarder,
+        pic: `${IMG_FOLDER.boons}hoarder.png`,
+        description: hoarder_description
+    }
+}
+
 function larger_chests(){
     return {
         name: boon_names.larger_chests,
@@ -11771,6 +11787,17 @@ function stealthy(){
     }
 }
 
+function thick_soles(){
+    return {
+        name: boon_names.thick_soles,
+        pic: `${IMG_FOLDER.boons}thick_soles.png`,
+        description: thick_soles_description,
+    }
+}
+// Todo:
+//  description
+//  implement
+
 function adrenaline_rush(){
     return {
         name: boon_names.adrenaline_rush,
@@ -11797,14 +11824,6 @@ function frenzy(){
     }
 }
 
-
-function hoarder(){
-    return {
-        name: boon_names.hoarder,
-        pic: `${IMG_FOLDER.boons}hoarder.png`,
-        description: hoarder_description
-    }
-}
 
 function learn_from_mistakes(){
     return {
@@ -11851,17 +11870,6 @@ function stubborn(){
         name: boon_names.stubborn,
         pic: `${IMG_FOLDER.boons}stubborn.png`,
         description: stubborn_description,
-    }
-}
-// Todo:
-//  description
-//  implement
-
-function thick_soles(){
-    return {
-        name: boon_names.thick_soles,
-        pic: `${IMG_FOLDER.boons}thick_soles.png`,
-        description: thick_soles_description,
     }
 }
 // Todo:
