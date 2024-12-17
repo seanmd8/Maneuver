@@ -85,6 +85,13 @@ function pmove_until(x, y){
         change: new Point(x, y)
     }
 }
+/** @type {PlayerCommandGenerator} Function to attack in a direction until you hit the edge of the board.*/
+function pattack_until(x, y){
+    return {
+        type: `attack_until`,
+        change: new Point(x, y)
+    }
+}
 /** @type {PlayerCommandGenerator} Function to heal the thing at the specified spot by 1.*/
 function pheal(x, y){
     return {
@@ -130,9 +137,11 @@ function explain_action(action){
             if(point_equals(action.change, new Point(0, 0))){
                 return move_types.confuse;
             }
-            return `${move_types.stun}: ${target}`
+            return `${move_types.stun}: ${target}`;
         case `move_until`:
-            return `${move_types.move_until}: ${target}`
+            return `${move_types.move_until}: ${target}`;
+        case `attack_until`:
+            return `${move_types.attack_until}: ${target}`;
         case `heal`:
             return `${move_types.heal}: ${target}`;
         default:
@@ -210,6 +219,13 @@ function telegraph_card(behavior, map){
                 }
                 if(map.looks_movable(next_position)){
                     telegraphs.moves.push(next_position);
+                }
+                break;
+            case `attack_until`:
+                while(map.is_in_bounds(next_position)){
+                    telegraphs.attacks.push(next_position);
+                    start_position = next_position;
+                    next_position = start_position.plus(action.change);
                 }
                 break;
             case `heal`:

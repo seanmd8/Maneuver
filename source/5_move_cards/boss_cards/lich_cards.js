@@ -31,3 +31,31 @@ function debilitating_confusion(){
         options
     }
 }
+
+/** @type {CardGenerator} Dropped by the lich*/
+function beam_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack_until(0, -1)]);
+    options.add_button(E, [pattack_until(1, 0)]);
+    options.add_button(S, [pattack_until(0, 1)]);
+    options.add_button(W, [pattack_until(-1, 0)]);
+    return{
+        name: `beam orthogonal`,
+        pic: `${IMG_FOLDER.cards}beam_orthogonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the lich*/
+function beam_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack_until(1, -1)]);
+    options.add_button(SE, [pattack_until(1, 1)]);
+    options.add_button(SW, [pattack_until(-1, 1)]);
+    options.add_button(NW, [pattack_until(-1, -1)]);
+    return{
+        name: `beam diagonal`,
+        pic: `${IMG_FOLDER.cards}beam_diagonal.png`,
+        options
+    }
+}

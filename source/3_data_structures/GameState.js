@@ -181,6 +181,15 @@ class GameState{
                     this.map.player_attack(action.change);
                 }
                 break;
+            case `attack_until`:
+                var i = 0;
+                do{
+                    i += 1;
+                    var p_location = this.map.get_player_location();
+                    var target = action.change.times(i);
+                    this.player_action(pattack(target.x, target.y));
+                }while(this.map.is_in_bounds(p_location.plus(target)));
+                break;
             case `heal`:
                 this.map.player_heal(action.change, 1);
                 break;
