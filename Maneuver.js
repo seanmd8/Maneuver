@@ -1444,6 +1444,7 @@ const boon_names = {
     empty_rooms: `Empty Rooms`,
     escape_artist: `Escape Artist`,
     expend_vitality: `Expend Vitality`,
+    flame_strike: `Flame Strike`,
     fleeting_thoughts: `Fleeting Thoughts`,
     fortitude: `Fortitude`,
     frenzy: `Frenzy`,
@@ -1468,6 +1469,8 @@ const boon_names = {
     shattered_glass: `Shattere Glass`,
     skill_trading: `Skill Trading`,
     slayer: `Slayer`,
+    slime_trail: `Slime Trail`,
+    sniper: `Sniper`,
     spiked_shoes: `Spiked Shoes`,
     spontaneous: `Spontaneous`,
     stable_mind: `Stable Mind`,
@@ -1503,6 +1506,8 @@ const escape_artist_description =
 const expend_vitality_description =  
     `Heal 1 life at the start of each floor. Your max health is decreased `
     +`by 1.`;
+const flame_strike_description = 
+    `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`;
 const fleeting_thoughts_description = 
     `Temporary cards added to your deck will happen instantly.`;
 const fortitude_description = 
@@ -1557,6 +1562,10 @@ const shattered_glass_description =
     +`max health by 1.`;
 const skill_trading_description = 
     `You may both add a card and remove a card at each shop.`;
+const slime_trail_description = 
+    `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`;
+const sniper_description =
+    `Attacks deal extra damage to enemies at a distance based on how far away they are.`;
 const spiked_shoes_description = 
     `Attempting to move onto enemies damages them. Reduces your max health by 1.`;
 const spontaneous_description = 
@@ -1596,7 +1605,7 @@ const four_directions = {
 // Move types.
 const move_types = {
     alt: `Shift click on a button to show what it will do on the map.`,
-    evolutions: `Dust seems to be covering part of this card obscuring some of the options. `
+    evolutions: `Dust and paint seems to be covering part of this card obscuring some of the options. `
                 +`Maybe you can find some way to remove it?`,
     intro: `Move Options (actions will be performed in order):\n`,
 
@@ -1992,7 +2001,8 @@ const GUIDE_TEXT = {
             ` You will heal the creature on this space if it's health is less than it's max health.\n`,
             ` Each action the line goes through will be performed.\n`,
             ` Multiple actions will be performed in a specific order.\n`,
-            ` Multiple actions of the same type will be performed until you hit something.\n`,
+            ` Multiple moves will be performed until you hit something.\n`,
+            ` Multiple attacks will be performed until you hit the edge of the floor.\n`,
             ` You will be teleported to a random unoccupied location.\n`,
             `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
             ` A card with a purple grid will be performed instantly.\n`,
@@ -2083,7 +2093,8 @@ const CARD_SYMBOLS = [
     {src: `${IMG_FOLDER.symbols}multiple.png`,          name: `multiple actions`,   x: 3, y: 1},
     {src: `${IMG_FOLDER.symbols}multiple_ordered.png`,  name: `actions in order`,   x: 3, y: 1},
     {src: `${IMG_FOLDER.symbols}move_until.png`,        name: `move until`,         x: 4, y: 1},
-    {src: `${IMG_FOLDER.symbols}teleport.png`,          name: `teleport`,         x: 3, y: 1},
+    {src: `${IMG_FOLDER.symbols}attack_until.png`,      name: `attack until`,       x: 4, y: 1},
+    {src: `${IMG_FOLDER.symbols}teleport.png`,          name: `teleport`,           x: 3, y: 1},
     {src: `${IMG_FOLDER.symbols}attack_move.png`,       name: `attack then move`,   x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}triple_attack.png`,     name: `tripple attack`,     x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}instant.png`,           name: `instant`,            x: 2, y: 2},
@@ -8388,6 +8399,15 @@ class GameState{
                     this.map.player_attack(action.change);
                 }
                 break;
+            case `attack_until`:
+                var i = 0;
+                do{
+                    i += 1;
+                    var p_location = this.map.get_player_location();
+                    var target = action.change.times(i);
+                    this.player_action(pattack(target.x, target.y));
+                }while(this.map.is_in_bounds(p_location.plus(target)));
+                break;
             case `heal`:
                 this.map.player_heal(action.change, 1);
                 break;
@@ -9683,6 +9703,35 @@ function debilitating_confusion(){
         options
     }
 }
+
+/** @type {CardGenerator} Dropped by the lich*/
+function beam_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack_until(0, -1)]);
+    options.add_button(E, [pattack_until(1, 0)]);
+    options.add_button(S, [pattack_until(0, 1)]);
+    options.add_button(W, [pattack_until(-1, 0)]);
+    return{
+        name: `beam orthogonal`,
+        pic: `${IMG_FOLDER.cards}beam_orthogonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the lich*/
+function beam_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack_until(1, -1)]);
+    options.add_button(SE, [pattack_until(1, 1)]);
+    options.add_button(SW, [pattack_until(-1, 1)]);
+    options.add_button(NW, [pattack_until(-1, -1)]);
+    return{
+        name: `beam diagonal`,
+        pic: `${IMG_FOLDER.cards}beam_diagonal.png`,
+        options
+    }
+}
+
 // ----------------spider_queen_cards.js----------------
 // File containing cards that can be dropped as rewards for defeating the spider queen.
 
@@ -9722,6 +9771,24 @@ function skitter(){
         options
     }
 }
+
+/** @type {CardGenerator} Dropped by the spider queen*/
+function chomp(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(0, -1), pattack(0, -1)]);
+    options.add_button(E, [pattack(1, 0), pattack(1, 0)]);
+    options.add_button(S, [pattack(0, 1), pattack(0, 1)]);
+    options.add_button(W, [pattack(-1, 0), pattack(-1, 0)]);
+    options.add_button(NE, [pattack(1, -1), pattack(1, -1)]);
+    options.add_button(SE, [pattack(1, 1), pattack(1, 1)]);
+    options.add_button(SW, [pattack(-1, 1), pattack(-1, 1)]);
+    options.add_button(NW, [pattack(-1, -1), pattack(-1, -1)]);
+    return{
+        name: `chomp`,
+        pic: `${IMG_FOLDER.cards}chomp.png`,
+        options
+    }
+}
 // ----------------two_headed_serpent_cards.js----------------
 // File containing cards that can be dropped as rewards for defeating the two headed serpent.
 
@@ -9737,7 +9804,7 @@ function regenerate(){
     }
 }
 
-/** @type {CardGenerator} Dropped by the two headed serpent*/
+/** @type {CardGenerator} Dropped by the two headed serpent.*/
 function fangs(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);
@@ -9747,6 +9814,21 @@ function fangs(){
     return{
         name: `fangs`,
         pic: `${IMG_FOLDER.cards}fangs.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the two headed serpent.*/
+function slither(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pmove(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pstun(0, 0), pmove(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 0), pmove(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pstun(0, 0), pmove(-1, 0), pmove(-1, 0)]);
+    options.make_instant();
+    return{
+        name: `slither`,
+        pic: `${IMG_FOLDER.cards}slither.png`,
         options
     }
 }
@@ -9975,6 +10057,13 @@ function pmove_until(x, y){
         change: new Point(x, y)
     }
 }
+/** @type {PlayerCommandGenerator} Function to attack in a direction until you hit the edge of the board.*/
+function pattack_until(x, y){
+    return {
+        type: `attack_until`,
+        change: new Point(x, y)
+    }
+}
 /** @type {PlayerCommandGenerator} Function to heal the thing at the specified spot by 1.*/
 function pheal(x, y){
     return {
@@ -10020,9 +10109,11 @@ function explain_action(action){
             if(point_equals(action.change, new Point(0, 0))){
                 return move_types.confuse;
             }
-            return `${move_types.stun}: ${target}`
+            return `${move_types.stun}: ${target}`;
         case `move_until`:
-            return `${move_types.move_until}: ${target}`
+            return `${move_types.move_until}: ${target}`;
+        case `attack_until`:
+            return `${move_types.attack_until}: ${target}`;
         case `heal`:
             return `${move_types.heal}: ${target}`;
         default:
@@ -10100,6 +10191,13 @@ function telegraph_card(behavior, map){
                 }
                 if(map.looks_movable(next_position)){
                     telegraphs.moves.push(next_position);
+                }
+                break;
+            case `attack_until`:
+                while(map.is_in_bounds(next_position)){
+                    telegraphs.attacks.push(next_position);
+                    start_position = next_position;
+                    next_position = start_position.plus(action.change);
                 }
                 break;
             case `heal`:
@@ -11841,6 +11939,13 @@ function duplicate(){
         description: duplicate_description
     }
 }
+function flame_strike(){
+    return {
+        name: boon_names.flame_strike,
+        pic: `${IMG_FOLDER.boons}flame_strike.png`,
+        description: flame_strike_description,
+    }
+}
 
 function frenzy(){
     return {
@@ -11890,6 +11995,20 @@ function skill_trading(){
     }
 }
 
+function slime_trail(){
+    return {
+        name: boon_names.slime_trail,
+        pic: `${IMG_FOLDER.boons}slime_trail.png`,
+        description: slime_trail_description,
+    }
+}
+function sniper(){
+    return {
+        name: boon_names.sniper,
+        pic: `${IMG_FOLDER.boons}sniper.png`,
+        description: sniper_description,
+    }
+}
 
 function stubborn(){
     return {

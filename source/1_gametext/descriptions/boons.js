@@ -13,6 +13,7 @@ const boon_names = {
     empty_rooms: `Empty Rooms`,
     escape_artist: `Escape Artist`,
     expend_vitality: `Expend Vitality`,
+    flame_strike: `Flame Strike`,
     fleeting_thoughts: `Fleeting Thoughts`,
     fortitude: `Fortitude`,
     frenzy: `Frenzy`,
@@ -37,6 +38,8 @@ const boon_names = {
     shattered_glass: `Shattere Glass`,
     skill_trading: `Skill Trading`,
     slayer: `Slayer`,
+    slime_trail: `Slime Trail`,
+    sniper: `Sniper`,
     spiked_shoes: `Spiked Shoes`,
     spontaneous: `Spontaneous`,
     stable_mind: `Stable Mind`,
@@ -72,6 +75,8 @@ const escape_artist_description =
 const expend_vitality_description =  
     `Heal 1 life at the start of each floor. Your max health is decreased `
     +`by 1.`;
+const flame_strike_description = 
+    `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`;
 const fleeting_thoughts_description = 
     `Temporary cards added to your deck will happen instantly.`;
 const fortitude_description = 
@@ -126,6 +131,10 @@ const shattered_glass_description =
     +`max health by 1.`;
 const skill_trading_description = 
     `You may both add a card and remove a card at each shop.`;
+const slime_trail_description = 
+    `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`;
+const sniper_description =
+    `Attacks deal extra damage to enemies at a distance based on how far away they are.`;
 const spiked_shoes_description = 
     `Attempting to move onto enemies damages them. Reduces your max health by 1.`;
 const spontaneous_description = 
