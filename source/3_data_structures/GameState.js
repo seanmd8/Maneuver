@@ -141,6 +141,9 @@ class GameState{
                     var distance = Math.max(Math.abs(action.change.x), Math.abs(action.change.y));
                     attack_count += Math.max(0, distance - 1);
                 }
+                if(this.boons.has(boon_names.frenzy) && this.map.get_player().health === 1){
+                    attack_count *= 2;
+                }
                 if( // Dazing Blows
                     this.boons.has(boon_names.dazing_blows) && 
                     !point_equals(action.change, new Point(0, 0)) &&
