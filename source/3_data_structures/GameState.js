@@ -155,11 +155,14 @@ class GameState{
                 }
                 break;
             case `move`:
+                var previous_location = this.map.get_player_location();
                 var moved = this.map.player_move(action.change);
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
                     this.map.player_attack(action.change);
                 }
-                
+                if(moved && random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                    this.map.add_tile(corrosive_slime_tile(), previous_location);
+                }
                 break;
             case `teleport`:
                 try{
@@ -176,7 +179,13 @@ class GameState{
                 break;
             case `move_until`:
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
-                while(this.map.player_move(action.change)){};
+                var previous_location = this.map.get_player_location();
+                while(this.map.player_move(action.change)){
+                    if(random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                        this.map.add_tile(corrosive_slime_tile(), previous_location);
+                    }
+                    previous_location = this.map.get_player_location();
+                };
                 if(spiked_shoes){
                     this.map.player_attack(action.change);
                 }

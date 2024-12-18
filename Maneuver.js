@@ -8373,11 +8373,14 @@ class GameState{
                 }
                 break;
             case `move`:
+                var previous_location = this.map.get_player_location();
                 var moved = this.map.player_move(action.change);
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
                     this.map.player_attack(action.change);
                 }
-                
+                if(moved && random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                    this.map.add_tile(corrosive_slime_tile(), previous_location);
+                }
                 break;
             case `teleport`:
                 try{
@@ -8394,7 +8397,13 @@ class GameState{
                 break;
             case `move_until`:
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
-                while(this.map.player_move(action.change)){};
+                var previous_location = this.map.get_player_location();
+                while(this.map.player_move(action.change)){
+                    if(random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                        this.map.add_tile(corrosive_slime_tile(), previous_location);
+                    }
+                    previous_location = this.map.get_player_location();
+                };
                 if(spiked_shoes){
                     this.map.player_attack(action.change);
                 }
@@ -11399,7 +11408,8 @@ BOON_LIST = [
     hoarder, larger_chests, limitless, pacifism, pain_reflexes, 
     perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, 
     rebirth, repetition, retaliate, roar_of_challenge, safe_passage, serenity, 
-    spiked_shoes, spontaneous, stable_mind, stealthy, thick_soles
+    slime_trail, spiked_shoes, spontaneous, stable_mind, stealthy, 
+    thick_soles
 ];
 
 function change_max_health(amount){
@@ -11857,6 +11867,19 @@ function pick_serenity(){
         GS.deck.alter_min(-1);
     }
 }
+function slime_trail(){
+    return {
+        name: boon_names.slime_trail,
+        pic: `${IMG_FOLDER.boons}slime_trail.png`,
+        description: slime_trail_description,
+        prereq: prereq_slime_trail,
+        unlocks: [slime_trail]
+    }
+}
+
+function prereq_slime_trail(){
+    return GS.boons.has(boon_names.slime_trail) < 2;
+}
 
 function spiked_shoes(){
     return {
@@ -11900,7 +11923,13 @@ function stable_mind(){
         name: boon_names.stable_mind,
         pic: `${IMG_FOLDER.boons}stable_mind.png`,
         description: stable_mind_description,
+        prereq: prereq_stable_mind,
+        unlocks: [stable_mind]
     }
+}
+
+function prereq_stable_mind(){
+    return GS.boons.has(boon_names.stable_mind) < 2;
 }
 
 function stealthy(){
@@ -11995,13 +12024,6 @@ function skill_trading(){
     }
 }
 
-function slime_trail(){
-    return {
-        name: boon_names.slime_trail,
-        pic: `${IMG_FOLDER.boons}slime_trail.png`,
-        description: slime_trail_description,
-    }
-}
 function sniper(){
     return {
         name: boon_names.sniper,
