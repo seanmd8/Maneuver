@@ -8355,6 +8355,10 @@ class GameState{
                 var attack_count = 1;
                 var stun_count = 0;
                 var target = this.map.get_player_location().plus(action.change);
+                if(this.boons.has(boon_names.sniper)){
+                    var distance = Math.max(Math.abs(action.change.x), Math.abs(action.change.y));
+                    attack_count += Math.max(0, distance - 1);
+                }
                 if( // Dazing Blows
                     this.boons.has(boon_names.dazing_blows) && 
                     !point_equals(action.change, new Point(0, 0)) &&
@@ -11413,8 +11417,8 @@ BOON_LIST = [
     hoarder, larger_chests, limitless, pacifism, pain_reflexes, 
     perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, 
     rebirth, repetition, retaliate, roar_of_challenge, safe_passage, serenity, 
-    slime_trail, spiked_shoes, spontaneous, stable_mind, stealthy, 
-    thick_soles
+    slime_trail, sniper, spiked_shoes, spontaneous, stable_mind, 
+    stealthy, thick_soles
 ];
 
 function change_max_health(amount){
@@ -11885,6 +11889,13 @@ function slime_trail(){
 function prereq_slime_trail(){
     return GS.boons.has(boon_names.slime_trail) < 2;
 }
+function sniper(){
+    return {
+        name: boon_names.sniper,
+        pic: `${IMG_FOLDER.boons}sniper.png`,
+        description: sniper_description,
+    }
+}
 
 function spiked_shoes(){
     return {
@@ -12029,13 +12040,6 @@ function skill_trading(){
     }
 }
 
-function sniper(){
-    return {
-        name: boon_names.sniper,
-        pic: `${IMG_FOLDER.boons}sniper.png`,
-        description: sniper_description,
-    }
-}
 
 function stubborn(){
     return {

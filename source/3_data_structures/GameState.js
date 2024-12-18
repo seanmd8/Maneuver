@@ -137,6 +137,10 @@ class GameState{
                 var attack_count = 1;
                 var stun_count = 0;
                 var target = this.map.get_player_location().plus(action.change);
+                if(this.boons.has(boon_names.sniper)){
+                    var distance = Math.max(Math.abs(action.change.x), Math.abs(action.change.y));
+                    attack_count += Math.max(0, distance - 1);
+                }
                 if( // Dazing Blows
                     this.boons.has(boon_names.dazing_blows) && 
                     !point_equals(action.change, new Point(0, 0)) &&
