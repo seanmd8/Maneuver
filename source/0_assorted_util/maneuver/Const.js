@@ -4,7 +4,7 @@
 // Settings just used for testing. Leave as undefined when not in use.
 const TEST_INIT = {
     enemies: undefined,
-    chest: undefined,
+    chest: [retaliate],
     cards: undefined,
     area: undefined,
     area_size: undefined

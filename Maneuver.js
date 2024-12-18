@@ -362,7 +362,7 @@ function point_equals(p1, p2){
 // Settings just used for testing. Leave as undefined when not in use.
 const TEST_INIT = {
     enemies: undefined,
-    chest: undefined,
+    chest: [retaliate],
     cards: undefined,
     area: undefined,
     area_size: undefined
@@ -11643,6 +11643,15 @@ function pick_fortitude(){
     change_max_health(1);
 }
 
+function frenzy(){
+    return {
+        name: boon_names.frenzy,
+        pic: `${IMG_FOLDER.boons}frenzy.png`,
+        description: frenzy_description,
+    }
+}
+
+
 function frugivore(){
     return {
         name: boon_names.frugivore,
@@ -11833,9 +11842,10 @@ function retaliate_behavior(self, target, map){
         return p.plus(self.location);
     })
     for(var i = 0; i < spaces.length && !hit; ++i){
-        if(!map.check_empty(spaces[i]) &&                   // Space is not empty/edge.
-           !map.get_tile(spaces[i]).tags.has(TAGS.boss) &&  // Space is not a boss.
-           (map.get_tile(spaces[i]).health !== undefined || // Space has health or
+        if( map.is_in_bounds(spaces[i]) &&                            // Space is not edge.
+            !map.check_empty(spaces[i]) &&                   // Space is not empty.
+            !map.get_tile(spaces[i]).tags.has(TAGS.boss) &&  // Space is not a boss.
+            (map.get_tile(spaces[i]).health !== undefined || // Space has health or
             map.get_tile(spaces[i]).on_hit !== undefined)    // Space has on_hit
         ){
             hit = map.attack(spaces[i]);
@@ -12008,15 +12018,6 @@ function duplicate(){
         description: duplicate_description
     }
 }
-
-function frenzy(){
-    return {
-        name: boon_names.frenzy,
-        pic: `${IMG_FOLDER.boons}frenzy.png`,
-        description: frenzy_description,
-    }
-}
-
 
 function learn_from_mistakes(){
     return {
