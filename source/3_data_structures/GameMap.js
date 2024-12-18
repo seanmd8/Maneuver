@@ -517,6 +517,14 @@ class GameMap{
     player_attack(direction){
         var pos = this.#entity_list.get_player_pos().plus(direction);
         try{
+            if(
+                GS.boons.has(boon_names.flame_strike) > random_num(3) && 
+                direction.within_radius(1) && !direction.within_radius(0) &&
+                this.check_empty(pos)
+            ){
+                var fireball = shoot_fireball(direction);
+                this.add_tile(fireball, pos);
+            }
             return this.attack(pos);
         }
         catch (error){

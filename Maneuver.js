@@ -7881,6 +7881,14 @@ class GameMap{
     player_attack(direction){
         var pos = this.#entity_list.get_player_pos().plus(direction);
         try{
+            if(
+                GS.boons.has(boon_names.flame_strike) > random_num(3) && 
+                direction.within_radius(1) && !direction.within_radius(0) &&
+                this.check_empty(pos)
+            ){
+                var fireball = shoot_fireball(direction);
+                this.add_tile(fireball, pos);
+            }
             return this.attack(pos);
         }
         catch (error){
@@ -11413,12 +11421,12 @@ function deck_at_minimum_symbol(){
 BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
     chilly_presence, creative, dazing_blows, empty_rooms, escape_artist, 
-    expend_vitality, fleeting_thoughts, fortitude, frugivore, future_sight, 
-    hoarder, larger_chests, limitless, pacifism, pain_reflexes, 
-    perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, 
-    rebirth, repetition, retaliate, roar_of_challenge, safe_passage, serenity, 
-    slime_trail, sniper, spiked_shoes, spontaneous, stable_mind, 
-    stealthy, thick_soles
+    expend_vitality, flame_strike, fleeting_thoughts, fortitude, frugivore, 
+    future_sight, hoarder, larger_chests, limitless, pacifism, 
+    pain_reflexes, perfect_the_basics, picky_shopper, practice_makes_perfect, 
+    pressure_points, rebirth, repetition, retaliate, roar_of_challenge, safe_passage, 
+    serenity, slime_trail, sniper, spiked_shoes, spontaneous, 
+    stable_mind, stealthy, thick_soles
 ];
 
 function change_max_health(amount){
@@ -11590,6 +11598,19 @@ function prereq_expend_vitality(){
 
 function pick_expend_vitality(){
     change_max_health(-1);
+}
+function flame_strike(){
+    return {
+        name: boon_names.flame_strike,
+        pic: `${IMG_FOLDER.boons}flame_strike.png`,
+        description: flame_strike_description,
+        prereq: prereq_flame_strike,
+        unlocks: [flame_strike]
+    }
+}
+
+function prereq_flame_strike(){
+    return GS.boons.has(boon_names.flame_strike) < 3;
 }
 
 function fleeting_thoughts(){
@@ -11982,13 +12003,6 @@ function duplicate(){
         name: boon_names.duplicate,
         pic: `${IMG_FOLDER.boons}duplicate.png`,
         description: duplicate_description
-    }
-}
-function flame_strike(){
-    return {
-        name: boon_names.flame_strike,
-        pic: `${IMG_FOLDER.boons}flame_strike.png`,
-        description: flame_strike_description,
     }
 }
 
