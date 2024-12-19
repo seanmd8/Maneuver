@@ -19,6 +19,7 @@ const boon_names = {
     frenzy: `Frenzy`,
     frugivore: `Frugivore`,
     future_sight: `Future Sight`,
+    gruntwork: `Gruntwork`,
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
     learn_from_mistakes: `Learn From Mistakes`,
@@ -35,7 +36,7 @@ const boon_names = {
     roar_of_challenge: `Roar of Challenge`,
     safe_passage: `Safe Passage`,
     serenity: `Serenity`,
-    shattered_glass: `Shattere Glass`,
+    shattered_glass: `Shattered Glass`,
     skill_trading: `Skill Trading`,
     slayer: `Slayer`,
     slime_trail: `Slime Trail`,
@@ -88,6 +89,8 @@ const frugivore_description =
     +`for 1, but might attract enemies.`;
 const future_sight_description = 
     `You may look at the order of your deck.`;
+const gruntwork_description =
+    `Gain 3 extra max health. Decrease your hand size by 1.`;
 const hoarder_description = 
     `Encounter two chests in each area.`;
 const larger_chests_description = 
