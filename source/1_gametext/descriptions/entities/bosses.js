@@ -95,3 +95,11 @@ const forest_heart_growth_description =
 const forest_heart_summon_description = 
     `Currently, the Forest Heart is preparing to summon forest creatures.`;
 
+// Shadow of Self
+const shadow_of_self_floor_message = 
+    `A familiar face watches you from the shadows.`;
+const shadow_of_self_description = 
+    `You?`;
+const shadow_of_self_death_message = 
+    `Shadows cannot hold a candle to the real thing.`
+

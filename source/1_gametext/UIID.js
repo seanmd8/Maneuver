@@ -74,6 +74,8 @@ const HTML_UIIDS = {
                     text_scroll: `textScroll`,
                 deck_order: `deckOrder`,
                     deck_order_table: `deckOrderTable`,
+                shadow_hand: `shadowHand`,
+                    shadow_hand_table: `shadowHandTable`,
             health_display: `healthDisplay`,
             remaining_deck: `remainingDeck`,
                 deck_image: `deckImage`,
@@ -111,4 +113,4 @@ const GAME_SCREEN_DIVISIONS = [UIIDS.stage, UIIDS.shop, UIIDS.chest];
 const DISPLAY_DIVISIONS = [UIIDS.game_screen, UIIDS.guide];
 const DISPLAY_DIVISION_NAMES = [gameplay_screen_name, guide_screen_name];
 
-const SIDEBAR_DIVISIONS = [UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order];
+const SIDEBAR_DIVISIONS = [UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand];

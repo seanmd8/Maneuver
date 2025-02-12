@@ -42,7 +42,7 @@ function lich_tile(){
         cycle: starting_cycle,
         spells,
         summons,
-        card_drops: [instant_teleport, debilitating_confusion]
+        card_drops: [instant_teleport, debilitating_confusion, beam_orthogonal, beam_diagonal]
     }
 }
 

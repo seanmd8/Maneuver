@@ -8,7 +8,7 @@
  * @returns {MapEventFunction} The event.
  */
 function delay_event(turn_count, delayed_function){
-    var delay = function(){
+    var delay_function = function(){
         return function(map_to_use){
             if(turn_count > 1){
                 map_to_use.add_event({name: `Delay`, behavior: delay_event(turn_count - 1, delayed_function)});
@@ -18,5 +18,5 @@ function delay_event(turn_count, delayed_function){
             }
         }
     }
-    return delay();
+    return delay_function();
 }

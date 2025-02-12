@@ -1120,6 +1120,26 @@ function update_initiative(map){
     display.remove_children(UIIDS.initiative);
     display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
 }
+
+/**
+ * Refreshes the display of a Shadow of Self's hand
+ */
+function refresh_shadow_hand_display(hand){
+    hand = hand.map(choice => {
+        return {
+            pic: choice.pic,
+            name: choice.name,
+            background: choice.background,
+            card: choice.card
+        }
+    })
+    display.remove_children(UIIDS.shadow_hand_table);
+    display.add_tb_row(UIIDS.shadow_hand_table, hand, SMALL_CARD_SCALE);
+}
+
+function shadow_hand_select(position){
+    display.select(UIIDS.shadow_hand_table, 0, position)
+}
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
     invalid_type: `invalid type`,
@@ -1724,6 +1744,14 @@ const forest_heart_growth_description =
 const forest_heart_summon_description = 
     `Currently, the Forest Heart is preparing to summon forest creatures.`;
 
+// Shadow of Self
+const shadow_of_self_floor_message = 
+    `A familiar face watches you from the shadows.`;
+const shadow_of_self_description = 
+    `You?`;
+const shadow_of_self_death_message = 
+    `Shadows cannot hold a candle to the real thing.`
+
 
 // Normal Enemy Descriptions.
 
@@ -1957,6 +1985,7 @@ const SIDEBAR_BUTTONS = {
     discard_pile: `Discard`, 
     initiative: `Initiative`, 
     deck_order: `Deck`,
+    shadow_hand: `Shadow Hand`,
     sidebar: `Sidebar`
 }
 Object.freeze(SIDEBAR_BUTTONS);
@@ -2182,6 +2211,8 @@ const HTML_UIIDS = {
                     text_scroll: `textScroll`,
                 deck_order: `deckOrder`,
                     deck_order_table: `deckOrderTable`,
+                shadow_hand: `shadowHand`,
+                    shadow_hand_table: `shadowHandTable`,
             health_display: `healthDisplay`,
             remaining_deck: `remainingDeck`,
                 deck_image: `deckImage`,
@@ -2219,7 +2250,7 @@ const GAME_SCREEN_DIVISIONS = [UIIDS.stage, UIIDS.shop, UIIDS.chest];
 const DISPLAY_DIVISIONS = [UIIDS.game_screen, UIIDS.guide];
 const DISPLAY_DIVISION_NAMES = [gameplay_screen_name, guide_screen_name];
 
-const SIDEBAR_DIVISIONS = [UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order];
+const SIDEBAR_DIVISIONS = [UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand];
 
 /** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
 function boss_death(self, target, map){
@@ -2464,7 +2495,7 @@ function lich_tile(){
         cycle: starting_cycle,
         spells,
         summons,
-        card_drops: [instant_teleport, debilitating_confusion]
+        card_drops: [instant_teleport, debilitating_confusion, beam_orthogonal, beam_diagonal]
     }
 }
 
@@ -2537,6 +2568,179 @@ function lich_hit(self, target, map){
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
 }
 /** @type {TileGenerator} */
+function shadow_of_self_tile(){
+    var health = 3; // Playermax?
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
+    var deck = GS.deck.copy();
+    deck.deal();
+    return{
+        type: `enemy`,
+        name: `Shadow of Self`,
+        pic: `${IMG_FOLDER.tiles}shadow_of_self.png`,
+        description: shadow_of_self_description,
+        tags: new TagList([TAGS.boss]),
+        health,
+        death_message: shadow_of_self_death_message,
+        behavior: shadow_of_self_ai,
+        on_hit: shadow_of_self_hit,
+        on_death: boss_death,
+        card_drops: [],
+        deck
+    }
+}
+
+/** @type {AIFunction} Function used when the Shadow of Self is hit to teleport it and the player then make
+ * clones of the player.*/
+function shadow_of_self_hit(self, target, map){
+    // Teleports away, teleports player away, disguises, makes <cycle> clones
+}
+
+/** @type {AIFunction} AI used by the Shadow of Self.*/
+async function shadow_of_self_ai(self, target, map){
+    // If was hit, do the teleporting thing
+
+    // Get hand.
+    var hand = self.tile.deck.get_hand_info();
+    // Get moves from each card in hand.
+    var moves = get_shadow_move_options(hand);
+    moves = moves.map(move => {
+        return {
+            hand_position: move.hand_position,
+            behavior: move.behavior,
+            telegraph: telegraph_card(move.behavior, map, self.location)
+        }
+    })
+    // Pick which move to do, then select the card from the hand.
+    var choice = get_shadow_move(moves, self.location, self.location.plus(target.difference));
+    shadow_hand_select(choice.hand_position);
+    var instant = hand[choice.hand_position].card.options.is_instant();
+    await delay(3 * ANIMATION_DELAY);
+
+    // Perform the move and update the map.
+    do_shadow_move(map, choice.behavior, self.location);
+    display_map(map);
+
+    // Wait, then update the hand to discard the selected card.
+    await delay(3 * ANIMATION_DELAY);
+    self.tile.deck.discard(choice.hand_position);
+    refresh_shadow_hand_display(self.tile.deck.get_hand_info());
+
+    if(instant){
+        // Take another turn
+        await delay(3 * ANIMATION_DELAY);
+        await shadow_of_self_ai(self, target, map)
+    }
+}
+
+function get_shadow_move_options(hand){
+    var move_options = [];
+    for(var i = 0; i < hand.length; ++i){
+        var card = hand[i].card;
+        for(var j = 1; j < 10; ++j){
+            var behavior = card.options.get_behavior(j);
+            if(behavior !== undefined){
+                move_options.push({
+                    hand_position: i,
+                    behavior
+                })
+            }
+        }
+    }
+    return move_options;
+}
+
+function get_shadow_move(moves, self, target){
+    moves = randomize_arr(moves);
+    // Can it attack the player?
+    for(var move of moves){
+        for(var point of move.telegraph.attacks){
+            if(point_equals(point, target)){
+                return move;
+            }
+        }
+    }
+    // Can it heal itself?
+    for(var move of moves){
+        for(var point of move.telegraph.healing){
+            if(point_equals(point, self)){
+                return move;
+            }
+        }
+    }
+    // Can it confuse the player?
+    for(var move of moves){
+        for(var point of move.telegraph.stun){
+            if(point_equals(point, target)){
+                return move;
+            }
+        }
+    }
+    // Does anything move closer?
+    for(var move of moves){
+        for(var point of move.telegraph.moves){
+            var move_difference = point.minus(target).taxicab_distance();
+            var stay_difference = self.minus(target).taxicab_distance();
+            if(move_difference < stay_difference){
+                return move;
+            }
+        }
+    }
+    // Pick randomly.
+    return moves[random_num(moves.length)];
+}
+
+function do_shadow_move(map, moves, location){
+    for(var move of moves){
+        switch(move.type){
+            case `attack`:
+                map.attack(location.plus(move.change));
+                break;
+            case `move`:
+                var moved = map.move(location, location.plus(move.change));
+                if(moved){
+                    location.plus_equals(move.change);
+                }
+                break;
+            case `teleport`:
+                var destination = map.random_empty();
+                if( // If the shadow is teleported, update it's location.
+                    map.move(location.plus(move.change), destination) && 
+                    point_equals(move.change, new Point(0, 0))
+                ){
+                    location.x = destination.x;
+                    location.y = destination.y;
+                }
+                break;
+            case `stun`:
+                map.stun_tile(location.plus(move.change));
+                break;
+            case `move_until`:
+                var moved = true;
+                while(moved){
+                    moved = map.move(location, location.plus(move.change));
+                    if(moved){
+                        location.plus_equals(move.change);
+                    }
+                }
+                break;
+            case `attack_until`:
+                var target = location.plus(move.change);
+                while(map.is_in_bounds(target)){
+                    map.attack(target);
+                    target.plus_equals(move.change);
+                }
+                break;
+            case `heal`:
+                map.heal(location.plus(move.change));
+                break;
+            default:
+                throw new Error(ERRORS.invalid_value);
+        }
+    }
+}
+/** @type {TileGenerator} */
 function spider_queen_tile(){
     var health = 3;
     if(GS.boons.has(boon_names.boss_slayer)){
@@ -2554,7 +2758,7 @@ function spider_queen_tile(){
         telegraph: spider_telegraph,
         on_hit: spider_queen_hit,
         on_death: boss_death,
-        card_drops: [skitter, bite]
+        card_drops: [skitter, bite, chomp]
     }
 }
 
@@ -2583,7 +2787,7 @@ function two_headed_serpent_tile(){
         pic_arr,
         cycle: 1,
         segment_list: [undefined, undefined],
-        card_drops: [regenerate, fangs]
+        card_drops: [regenerate, fangs, slither]
     }
 }
 /** @type {TileGenerator} */
@@ -5937,7 +6141,7 @@ function move_attack_ai(self, target, map){
  * @returns {MapEventFunction} The event.
  */
 function delay_event(turn_count, delayed_function){
-    var delay = function(){
+    var delay_function = function(){
         return function(map_to_use){
             if(turn_count > 1){
                 map_to_use.add_event({name: `Delay`, behavior: delay_event(turn_count - 1, delayed_function)});
@@ -5947,7 +6151,7 @@ function delay_event(turn_count, delayed_function){
             }
         }
     }
-    return delay();
+    return delay_function();
 }
 
 /**
@@ -7078,7 +7282,7 @@ class ButtonGrid{
         var grid = [];
         var telegraph = function(behavior){
             return function(){
-                var t = telegraph_card(behavior, GS.map);
+                var t = telegraph_card(behavior, GS.map, GS.map.get_player_location());
                 GS.map.clear_telegraphs();
                 GS.map.mark_telegraph(t.moves, `${IMG_FOLDER.actions}move_telegraph.png`);
                 GS.map.mark_telegraph(t.attacks, `${IMG_FOLDER.actions}hit_telegraph.png`);
@@ -7153,6 +7357,13 @@ class ButtonGrid{
      */
     is_instant(){
         return this.#instant;
+    }
+    get_behavior(num){
+        if(num < 1 || 9 < num){
+            throw new Error(ERRORS.invalid_value);
+        }
+        --num;
+        return this.#buttons[Math.floor(num / 3)][num % 3].behavior;
     }
 }
 // ----------------EntityList.js----------------
@@ -7317,7 +7528,7 @@ class EntityList{
                                     tile: map.get_player(),
                                     difference: this.get_player_pos().minus(e.location)
                                 }
-                                e.enemy.behavior(self, target, map);
+                                await e.enemy.behavior(self, target, map);
                                 proc_chilly_presence(e.enemy);
                             }
                         }
@@ -8920,6 +9131,12 @@ class MoveDeck{
         }
         return this.#hand[hand_position].options.is_instant();
     }
+    copy(){
+        var new_deck = new this.constructor(this.#hand_size, this.#min_deck_size);
+        new_deck.#id_count = this.#id_count;
+        new_deck.#decklist = this.#decklist;
+        return new_deck;
+    }
 }
 // ----------------TagList.js----------------
 // Class to contain a list of tags for true or false questions about a tile.
@@ -9273,6 +9490,26 @@ function lich_floor(floor_num,  area, map){
     }
     map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
     return lich_floor_message;
+}
+/** @type {FloorGenerator} Generates the floor where the Shadow of Self appears.*/
+function shadow_of_self_floor(floor_num,  area, map){
+    // Change to spawn on far wall mirroring player
+    var shadow = shadow_of_self_tile();
+    map.spawn_safely(shadow, SAFE_SPAWN_ATTEMPTS, true);
+
+    // Swaps tab to the one containing it's hand
+    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.shadow_hand, function(){
+        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.shadow_hand);
+    });
+    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.shadow_hand);
+    refresh_shadow_hand_display(shadow.deck.get_hand_info());
+
+
+    for(var i = 0; i < 6; ++i){
+        map.add_tile(wall_tile());
+    }
+
+    return shadow_of_self_floor_message;
 }
 /** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){
@@ -10179,8 +10416,7 @@ function explain_point(p){
 /**
  * 
  */
-function telegraph_card(behavior, map){
-    var start_position = map.get_player_location(); 
+function telegraph_card(behavior, map, start_position){
     var telegraphs = {
         moves: [],
         attacks: [],
@@ -10238,6 +10474,16 @@ function telegraph_card(behavior, map){
             default:
                 throw new Error(ERRORS.invalid_value);
         }
+    }
+    if([ 
+        ...telegraphs.moves, 
+        ...telegraphs.attacks, 
+        ...telegraphs.stun, 
+        ...telegraphs.healing, 
+        ...telegraphs.teleport
+    ].length === 0){
+        // If they aren't doing anything, show that.
+        telegraphs.moves.push(start_position);
     }
     return telegraphs;
 }

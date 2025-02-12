@@ -160,7 +160,7 @@ class EntityList{
                                     tile: map.get_player(),
                                     difference: this.get_player_pos().minus(e.location)
                                 }
-                                e.enemy.behavior(self, target, map);
+                                await e.enemy.behavior(self, target, map);
                                 proc_chilly_presence(e.enemy);
                             }
                         }

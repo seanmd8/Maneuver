@@ -4,6 +4,7 @@ const SIDEBAR_BUTTONS = {
     discard_pile: `Discard`, 
     initiative: `Initiative`, 
     deck_order: `Deck`,
+    shadow_hand: `Shadow Hand`,
     sidebar: `Sidebar`
 }
 Object.freeze(SIDEBAR_BUTTONS);

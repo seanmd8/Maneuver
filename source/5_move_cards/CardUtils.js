@@ -175,8 +175,7 @@ function explain_point(p){
 /**
  * 
  */
-function telegraph_card(behavior, map){
-    var start_position = map.get_player_location(); 
+function telegraph_card(behavior, map, start_position){
     var telegraphs = {
         moves: [],
         attacks: [],
@@ -234,6 +233,16 @@ function telegraph_card(behavior, map){
             default:
                 throw new Error(ERRORS.invalid_value);
         }
+    }
+    if([ 
+        ...telegraphs.moves, 
+        ...telegraphs.attacks, 
+        ...telegraphs.stun, 
+        ...telegraphs.healing, 
+        ...telegraphs.teleport
+    ].length === 0){
+        // If they aren't doing anything, show that.
+        telegraphs.moves.push(start_position);
     }
     return telegraphs;
 }
