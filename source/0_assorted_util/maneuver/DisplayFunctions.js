@@ -175,3 +175,8 @@ function refresh_shadow_hand_display(hand){
 function shadow_hand_select(position){
     display.select(UIIDS.shadow_hand_table, 0, position)
 }
+
+function player_hand_greyed(is_greyed){
+    var toggle = is_greyed ? display.add_class : display.remove_class;
+    toggle(UIIDS.hand_display, `greyed-out`);
+}

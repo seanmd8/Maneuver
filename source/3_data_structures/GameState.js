@@ -373,6 +373,7 @@ class GameState{
     lock_player_turn(){
         if(this.#player_turn_lock){
             this.#player_turn_lock = false;
+            player_hand_greyed(true);
             return true;
         }
         return false;
@@ -382,6 +383,7 @@ class GameState{
      */
     unlock_player_turn(){
         this.#player_turn_lock = true;
+        player_hand_greyed(false);
     }
     /** 
      * Ensures the player can't make moves during the enemies' turn.

@@ -1140,6 +1140,11 @@ function refresh_shadow_hand_display(hand){
 function shadow_hand_select(position){
     display.select(UIIDS.shadow_hand_table, 0, position)
 }
+
+function player_hand_greyed(is_greyed){
+    var toggle = is_greyed ? display.add_class : display.remove_class;
+    toggle(UIIDS.hand_display, `greyed-out`);
+}
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
     invalid_type: `invalid type`,
@@ -8136,7 +8141,7 @@ class GameMap{
      */
     lock(){
         var pos = this.#entity_list.get_exit_pos();
-        this.#set_tile(pos, lock_tile())
+        this.#set_tile(pos, lock_tile());
     }
     /**
      * Replaces the lock tile with an exit one and heals the player to max.
@@ -8813,6 +8818,7 @@ class GameState{
     lock_player_turn(){
         if(this.#player_turn_lock){
             this.#player_turn_lock = false;
+            player_hand_greyed(true);
             return true;
         }
         return false;
@@ -8822,6 +8828,7 @@ class GameState{
      */
     unlock_player_turn(){
         this.#player_turn_lock = true;
+        player_hand_greyed(false);
     }
     /** 
      * Ensures the player can't make moves during the enemies' turn.

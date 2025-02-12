@@ -558,7 +558,7 @@ class GameMap{
      */
     lock(){
         var pos = this.#entity_list.get_exit_pos();
-        this.#set_tile(pos, lock_tile())
+        this.#set_tile(pos, lock_tile());
     }
     /**
      * Replaces the lock tile with an exit one and heals the player to max.
