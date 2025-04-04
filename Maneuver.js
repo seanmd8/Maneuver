@@ -1656,6 +1656,7 @@ const move_types = {
     stun: `Stun`,
     confuse: `Confuse: you. Adds a bad temporary card to your deck.`,
     move_until: `Keep Moving`,
+    attack_until: `Keep Moving`,
     heal: `Heal`,
     you: `you`,
     nothing: `Do nothing`,
@@ -2327,7 +2328,7 @@ function arcane_sentry_tile(){
         on_hit: sentry_core_on_hit,
         on_death: arcane_sentry_death,
         cycle: 0,
-        card_drops: []
+        card_drops: [beam_ne, beam_se, beam_sw, beam_nw, saw_ns, saw_ew]
     }
 }
 
@@ -10417,6 +10418,81 @@ function superweapon(){
         options
     }
 }
+
+// ----------------arcane_sentry_cards.js----------------
+// File containing cards that can be dropped as rewards for defeating the arcane sentry.
+
+/** @type {CardGenerator} Dropped by the Arcane Sentry*/
+function beam_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack_until(0, -1), pattack_until(1, 0)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    return{
+        name: `beam ne`,
+        pic: `${IMG_FOLDER.cards}beam_ne.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the Arcane Sentry*/
+function beam_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NW, [pattack_until(0, -1), pattack_until(-1, 0)]);
+    options.add_button(SE, [pmove(1, 1)]);
+    return{
+        name: `beam nw`,
+        pic: `${IMG_FOLDER.cards}beam_nw.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the Arcane Sentry*/
+function beam_se(){
+    var options = new ButtonGrid();
+    options.add_button(SE, [pattack_until(0, 1), pattack_until(1, 0)]);
+    options.add_button(NW, [pmove(-1, -1)]);
+    return{
+        name: `beam se`,
+        pic: `${IMG_FOLDER.cards}beam_se.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the Arcane Sentry*/
+function beam_sw(){
+    var options = new ButtonGrid();
+    options.add_button(SW, [pattack_until(0, 1), pattack_until(-1, 0)]);
+    options.add_button(NE, [pmove(1, -1)]);
+    return{
+        name: `beam sw`,
+        pic: `${IMG_FOLDER.cards}beam_sw.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function saw_ns(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), pmove(0, -1)]);
+    options.add_button(S, [pattack(0, 1), pattack(1, 0), pattack(0, -1), pattack(-1, 0), pmove(0, 1)]);
+    return{
+        name: `saw ns`,
+        pic: `${IMG_FOLDER.cards}saw_ns.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function saw_ew(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pattack(1, 0), pattack(0, 1), pattack(-1, 0), pattack(0, -1), pmove(1, 0)]);
+    options.add_button(W, [pattack(-1, 0), pattack(0, 1), pattack(1, 0), pattack(0, -1), pmove(-1, 0)]);
+    return{
+        name: `saw ew`,
+        pic: `${IMG_FOLDER.cards}saw_ew.png`,
+        options
+    }
+}
 // ----------------two_headed_serpent_cards.js----------------
 // File containing cards that can be dropped as rewards for defeating the forest heart.
 
@@ -10969,10 +11045,12 @@ function telegraph_card(behavior, map, start_position){
                 }
                 break;
             case `attack_until`:
-                while(map.is_in_bounds(next_position)){
-                    telegraphs.attacks.push(next_position);
-                    start_position = next_position;
-                    next_position = start_position.plus(action.change);
+                var temp_next = next_position;
+                var temp_start = start_position;
+                while(map.is_in_bounds(temp_next)){
+                    telegraphs.attacks.push(temp_next);
+                    temp_start = temp_next;
+                    temp_next = temp_start.plus(action.change);
                 }
                 break;
             case `heal`:

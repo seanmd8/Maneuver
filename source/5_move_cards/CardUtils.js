@@ -221,10 +221,12 @@ function telegraph_card(behavior, map, start_position){
                 }
                 break;
             case `attack_until`:
-                while(map.is_in_bounds(next_position)){
-                    telegraphs.attacks.push(next_position);
-                    start_position = next_position;
-                    next_position = start_position.plus(action.change);
+                var temp_next = next_position;
+                var temp_start = start_position;
+                while(map.is_in_bounds(temp_next)){
+                    telegraphs.attacks.push(temp_next);
+                    temp_start = temp_next;
+                    temp_next = temp_start.plus(action.change);
                 }
                 break;
             case `heal`:

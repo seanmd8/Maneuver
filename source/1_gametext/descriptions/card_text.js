@@ -33,6 +33,7 @@ const move_types = {
     stun: `Stun`,
     confuse: `Confuse: you. Adds a bad temporary card to your deck.`,
     move_until: `Keep Moving`,
+    attack_until: `Keep Moving`,
     heal: `Heal`,
     you: `you`,
     nothing: `Do nothing`,
