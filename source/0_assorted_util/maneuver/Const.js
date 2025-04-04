@@ -76,7 +76,9 @@ const TAGS = {
     unstunnable: `Unstunnable`,
     hidden: `Hidden`,
     invulnerable: `Invulnerable`,
+    controlled: `Controlled`,
     thorn_bush_roots: `Thorn Bush Roots`,
-    nettle_immune: `Nettle Immune`
+    nettle_immune: `Nettle Immune`,
+    arcane_sentry: `Arcane Sentry`
 }
 Object.freeze(TAGS);

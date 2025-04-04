@@ -6,6 +6,7 @@ function shadow_of_self_tile(){
     }
     var deck = GS.deck.copy();
     deck.deal();
+    var look_arr = [illusion_of_self_tile, shadow_of_self_tile];
     return{
         type: `enemy`,
         name: `Shadow of Self`,
@@ -13,24 +14,31 @@ function shadow_of_self_tile(){
         description: shadow_of_self_description,
         tags: new TagList([TAGS.boss]),
         health,
+        max_health: health,
         death_message: shadow_of_self_death_message,
         behavior: shadow_of_self_ai,
         on_hit: shadow_of_self_hit,
         on_death: boss_death,
+        look_arr,
+        cycle: 0,
         card_drops: [],
         deck
     }
 }
 
-/** @type {AIFunction} Function used when the Shadow of Self is hit to teleport it and the player then make
- * clones of the player.*/
-function shadow_of_self_hit(self, target, map){
-    // Teleports away, teleports player away, disguises, makes <cycle> clones
-}
-
 /** @type {AIFunction} AI used by the Shadow of Self.*/
 async function shadow_of_self_ai(self, target, map){
     // If was hit, do the teleporting thing
+    if(self.tile.cycle === 1){
+        map.player_teleport(new Point(0, 0));
+        var lost_health = self.tile.max_health - self.tile.health;
+        for(var i = 0; i < 2 * lost_health; ++i){
+            teleport_spell(self, target, map);
+            spawn_nearby(map, illusion_of_self_tile(), self.location);
+        }
+        self.tile.cycle = 0;
+        return;
+    }
 
     // Get hand.
     var hand = self.tile.deck.get_hand_info();
@@ -170,4 +178,8 @@ function do_shadow_move(map, moves, location){
                 throw new Error(ERRORS.invalid_value);
         }
     }
+}
+
+function shadow_of_self_hit(self, target, map){
+    self.tile.cycle = 1;
 }

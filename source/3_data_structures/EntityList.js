@@ -151,6 +151,9 @@ class EntityList{
                     else{
                         var do_delay = true;
                         try{
+                            if(e.enemy.tags.has(TAGS.controlled)){
+                                throw Error(ERRORS.skip_animation);
+                            }
                             if(e.enemy.behavior !== undefined){
                                 var self = {
                                     tile: e.enemy,

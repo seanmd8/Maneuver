@@ -95,6 +95,37 @@ const forest_heart_growth_description =
 const forest_heart_summon_description = 
     `Currently, the Forest Heart is preparing to summon forest creatures.`;
 
+// Arcane Sentry
+const arcane_sentry_floor_message =
+    `An alarm begins to blare.\n`
+    +`INTRUDER DETECTED!`
+const arcane_sentry_description =
+    `An automated defense station. Changes modes in response to damage.`;
+const arcane_sentry_death_message =
+    `MAIN SYSTEMS FAILING!\n`
+    +`The wailing alarm falls silent.`;
+const arcane_sentry_node_description =
+    `A transformable node controlled by the Arcane Sentry.`
+const arcane_sentry_node_death_message =
+    `NODE OFFLINE!`;
+
+// Arcane Sentry Modes
+const sentry_core_turret_description =
+    `Currently the nodes are set to act as turrets.`
+const sentry_node_turret_description =
+    `Fires beams orthogonally that hit the first thing in their path.`
+const sentry_core_saw_description =
+    `Spinning saws will damage everything around it, then it will move 1 space orthogonally.`
+const sentry_node_saw_description =
+    `Spinning saws will damage everything around it.`
+const sentry_core_cannon_description =
+    `Currently preparing to shoot a volley of fireballs.`
+const sentry_node_cannon_description =
+    `Shoots a fireball in the direction it is aimed.`
+const sentry_node_double_cannon_description =
+    `Shoots 2 fireballs in the direction it is aimed.`
+
+/**
 // Shadow of Self
 const shadow_of_self_floor_message = 
     `A familiar face watches you from the shadows.`;
@@ -102,4 +133,4 @@ const shadow_of_self_description =
     `You?`;
 const shadow_of_self_death_message = 
     `Shadows cannot hold a candle to the real thing.`
-
+*/

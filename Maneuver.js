@@ -181,6 +181,17 @@ function ifexists(exists){
     return exists;
 }
 
+function range(start = 0, stop, step = 1){
+    if(stop === undefined){
+        stop = start;
+        start = 0;
+    }
+    var nums = [];
+    for(var i = start; i < stop; i += step){
+        nums.push(i);
+    }
+    return nums;
+}
 // ----------------Point.js----------------
 // File contains Point class and associated functions.
 
@@ -434,8 +445,10 @@ const TAGS = {
     unstunnable: `Unstunnable`,
     hidden: `Hidden`,
     invulnerable: `Invulnerable`,
+    controlled: `Controlled`,
     thorn_bush_roots: `Thorn Bush Roots`,
-    nettle_immune: `Nettle Immune`
+    nettle_immune: `Nettle Immune`,
+    arcane_sentry: `Arcane Sentry`
 }
 Object.freeze(TAGS);
 // ----------------Display.js----------------
@@ -1749,6 +1762,37 @@ const forest_heart_growth_description =
 const forest_heart_summon_description = 
     `Currently, the Forest Heart is preparing to summon forest creatures.`;
 
+// Arcane Sentry
+const arcane_sentry_floor_message =
+    `An alarm begins to blare.\n`
+    +`INTRUDER DETECTED!`
+const arcane_sentry_description =
+    `An automated defense station. Changes modes in response to damage.`;
+const arcane_sentry_death_message =
+    `MAIN SYSTEMS FAILING!\n`
+    +`The wailing alarm falls silent.`;
+const arcane_sentry_node_description =
+    `A transformable node controlled by the Arcane Sentry.`
+const arcane_sentry_node_death_message =
+    `NODE OFFLINE!`;
+
+// Arcane Sentry Modes
+const sentry_core_turret_description =
+    `Currently the nodes are set to act as turrets.`
+const sentry_node_turret_description =
+    `Fires beams orthogonally that hit the first thing in their path.`
+const sentry_core_saw_description =
+    `Spinning saws will damage everything around it, then it will move 1 space orthogonally.`
+const sentry_node_saw_description =
+    `Spinning saws will damage everything around it.`
+const sentry_core_cannon_description =
+    `Currently preparing to shoot a volley of fireballs.`
+const sentry_node_cannon_description =
+    `Shoots a fireball in the direction it is aimed.`
+const sentry_node_double_cannon_description =
+    `Shoots 2 fireballs in the direction it is aimed.`
+
+/**
 // Shadow of Self
 const shadow_of_self_floor_message = 
     `A familiar face watches you from the shadows.`;
@@ -1756,7 +1800,7 @@ const shadow_of_self_description =
     `You?`;
 const shadow_of_self_death_message = 
     `Shadows cannot hold a candle to the real thing.`
-
+*/
 
 // Normal Enemy Descriptions.
 
@@ -2257,6 +2301,189 @@ const DISPLAY_DIVISION_NAMES = [gameplay_screen_name, guide_screen_name];
 
 const SIDEBAR_DIVISIONS = [UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand];
 
+SENTRY_MODES = Object.freeze({
+    saw: "Saw",
+    cannon: "Cannon",
+    turret: "Turret"
+});
+
+const SENTRY_MAX_CYCLE = 3;
+
+/** @type {TileGenerator} */
+function arcane_sentry_tile(){
+    var health = 5;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
+    return{
+        type: `enemy`,
+        name: `Arcane Sentry`,
+        pic: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
+        description: arcane_sentry_description,
+        tags: new TagList([TAGS.boss, TAGS.arcane_sentry]),
+        health,
+        death_message: arcane_sentry_death_message,
+        behavior: sentry_core_ai,
+        on_hit: sentry_core_on_hit,
+        on_death: arcane_sentry_death,
+        cycle: 0,
+        card_drops: []
+    }
+}
+
+function arcane_node_tile(){
+    var health = 4;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
+    return{
+        type: `enemy`,
+        name: `Arcane Sentry Node`,
+        pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret`,
+        description: arcane_sentry_node_description,
+        tags: new TagList([TAGS.boss, TAGS.arcane_sentry, TAGS.controlled, TAGS.unstunnable]),
+        health,
+        death_message: arcane_sentry_node_death_message,
+        on_hit: node_on_hit,
+        on_death: node_on_death,
+    }
+}
+
+function sentry_core_ai(self, target, map){
+    var nodes = get_sentry_nodes(self, target, map);
+    switch(self.tile.mode){
+        case SENTRY_MODES.saw:
+            if(self.tile.cycle === SENTRY_MAX_CYCLE){
+                sentry_transform_saw(self, target, map);
+            }
+            else{
+                for(var node of nodes){
+                    node.self.tile.behavior(node.self, node.target, node.map);
+                }
+                node_saw_behavior(self, target, map);
+                sentry_move(self, target, map);
+            }
+            decrement_sentry_cycle(self, target, map)
+            break;
+        case SENTRY_MODES.cannon:
+            switch(self.tile.cycle){
+                case SENTRY_MAX_CYCLE:
+                    sentry_transform_cannon(self, target, map);
+                    break;
+                case SENTRY_MAX_CYCLE - 1:
+                    for(var node of nodes){
+                        node.self.tile.behavior(node.self, node.target, node.map);
+                        node.self.tile.telegraph = undefined;
+                    }
+                    if(self.tile.direction !== undefined){
+                        node_cannon_behavior(self, target, map);
+                        self.tile.telegraph = undefined;
+                    }
+                    break;
+                default:
+                    // Pass
+                    break;
+            }
+            decrement_sentry_cycle(self, target, map)
+            break;
+        case SENTRY_MODES.turret:
+            for(var node of nodes){
+                node.self.tile.behavior(node.self, node.target, node.map);
+            }
+            break;
+        default:
+            throw Error(ERRORS.invalid_value);
+    }
+}
+
+function arcane_sentry_death(self, target, map){
+    var nodes = get_sentry_nodes(self, target, map);
+    for(var node of nodes){
+        node.self.tile.health = 1;
+        node.self.tile.on_hit = undefined;
+        map.attack(node.self.location);
+    }
+    boss_death(self, target, map);
+}
+function node_on_death(self, target, map){
+    say(self.tile.death_message);
+}
+
+function sentry_core_on_hit(self, target, map){
+    if(self.tile.mode === SENTRY_MODES.turret){
+        self.tile.mode = SENTRY_MODES.saw;
+        self.tile.cycle = SENTRY_MAX_CYCLE;
+    }
+}
+function node_on_hit(self, target, map){
+    var core = sentry_get_core(self.location, map);
+    if(core.mode === SENTRY_MODES.turret){
+        core.mode = SENTRY_MODES.cannon;
+        core.cycle = SENTRY_MAX_CYCLE;
+    }
+}
+
+function sentry_move(self, target, map){
+    var locations = get_sentry_nodes(self, target, map).map((node) => {
+        return node.self.location;
+    });
+    locations.push(self.location);
+    var can_move = move_check(locations, self.tile.direction, map);
+    if(can_move){
+        for(var location of locations){
+            map.move(location, location.plus(self.tile.direction));
+        }
+        self.location.plus_equals(self.tile.direction)
+    }
+}
+function move_check(locations, direction, map){
+    for(var position of locations){
+        if(!map.check_empty(position.plus(direction))){
+            return false;
+        }
+    }
+    return true;
+}
+
+function decrement_sentry_cycle(self, target, map){
+    if(--self.tile.cycle === 0){
+        self.tile.mode = SENTRY_MODES.turret;
+        sentry_transform_turret(self, target, map);
+    }
+}
+
+function get_sentry_nodes(self, target, map){
+    return DIAGONAL_DIRECTIONS.filter((direction) => {
+        // Only includes the remaining nodes.
+        var location = self.location.plus(direction);
+        return map.is_in_bounds(location) && map.get_tile(location).tags.has(TAGS.arcane_sentry);
+    }).map((direction) => {
+        // Returns a list of objects with the info required to call their ai functions.
+        var location = self.location.plus(direction);
+        return {
+            self: {
+                tile: map.get_tile(location),
+                location
+            },
+            target: {
+                tile: target.tile,
+                difference: target.difference.minus(direction)
+            },
+            map: map
+        }
+    })
+}
+function sentry_get_core(location, map){
+    for(var direction of DIAGONAL_DIRECTIONS){
+        var space = direction.plus(location);
+        if(map.is_in_bounds(space)){
+            var tile = map.get_tile(space);
+            if(tile.tags.has(TAGS.arcane_sentry)){
+                return tile;
+            }
+        }
+    }    
+}
 /** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
 function boss_death(self, target, map){
     if(self.tile.death_message === undefined){
@@ -2580,6 +2807,7 @@ function shadow_of_self_tile(){
     }
     var deck = GS.deck.copy();
     deck.deal();
+    var look_arr = [illusion_of_self_tile, shadow_of_self_tile];
     return{
         type: `enemy`,
         name: `Shadow of Self`,
@@ -2587,24 +2815,31 @@ function shadow_of_self_tile(){
         description: shadow_of_self_description,
         tags: new TagList([TAGS.boss]),
         health,
+        max_health: health,
         death_message: shadow_of_self_death_message,
         behavior: shadow_of_self_ai,
         on_hit: shadow_of_self_hit,
         on_death: boss_death,
+        look_arr,
+        cycle: 0,
         card_drops: [],
         deck
     }
 }
 
-/** @type {AIFunction} Function used when the Shadow of Self is hit to teleport it and the player then make
- * clones of the player.*/
-function shadow_of_self_hit(self, target, map){
-    // Teleports away, teleports player away, disguises, makes <cycle> clones
-}
-
 /** @type {AIFunction} AI used by the Shadow of Self.*/
 async function shadow_of_self_ai(self, target, map){
     // If was hit, do the teleporting thing
+    if(self.tile.cycle === 1){
+        map.player_teleport(new Point(0, 0));
+        var lost_health = self.tile.max_health - self.tile.health;
+        for(var i = 0; i < 2 * lost_health; ++i){
+            teleport_spell(self, target, map);
+            spawn_nearby(map, illusion_of_self_tile(), self.location);
+        }
+        self.tile.cycle = 0;
+        return;
+    }
 
     // Get hand.
     var hand = self.tile.deck.get_hand_info();
@@ -2744,6 +2979,10 @@ function do_shadow_move(map, moves, location){
                 throw new Error(ERRORS.invalid_value);
         }
     }
+}
+
+function shadow_of_self_hit(self, target, map){
+    self.tile.cycle = 1;
 }
 /** @type {TileGenerator} */
 function spider_queen_tile(){
@@ -5767,6 +6006,25 @@ function rotting_fruit_tree_on_death(self, target, map){
         spawn_nearby(map, new_spawn, self.location);
     }
 }
+/** @type {TileGenerator} Illusion created by Shadow of Self.*/
+function illusion_of_self_tile(){
+    var player = GS.map.get_player();
+    return {
+        type: `enemy`,
+        name: `Player`,
+        pic: `${IMG_FOLDER.tiles}helmet.png`,
+        description: player_description,
+        tags: new TagList(),
+        behavior: self_destruct,
+        health: player.health,
+        max_health: player.max_health    
+    }
+}
+
+function self_destruct(self, target, map){
+    self.tile.health = 1;
+    map.attack(self.location);
+}
 /** @type {TileGenerator} A hazardous pool of lava.*/
 function lava_pool_tile(){
     return {
@@ -6278,6 +6536,7 @@ function growth_event(points, root, grown){
  * @property {TileGenerator[]=} summons A array of tiles it can spawn.
  * @property {Content[]=} contents The contents of a chest.
  * @property {CardGenerator[]=} card_drops The cards a boss can drop on death.
+ * @property {string=} mode The current behavior mode.
  * 
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
@@ -6304,7 +6563,8 @@ const ENEMY_LIST = [
 
 // This is an array of all bosses.
 const BOSS_LIST = [
-    lich_tile, spider_queen_tile, two_headed_serpent_tile, velociphile_tile, young_dragon_tile
+    lich_tile, spider_queen_tile, two_headed_serpent_tile, velociphile_tile, young_dragon_tile, 
+    forest_heart_tile, arcane_sentry_tile
 ]
 
 /**
@@ -6496,8 +6756,7 @@ function set_rotation(tile){
         SW = (-1,  1) -> 270
         W  = (-1,  0) -> 270 
     */
-    if( tile.direction === undefined ||
-        tile.rotate === undefined){
+    if(tile.direction === undefined){
         throw new Error(ERRORS.missing_property);
     }
     var direction = tile.direction;
@@ -6619,6 +6878,202 @@ function generic_tile(){
         is_hit: undefined,
         event_happening: undefined
     }
+}
+
+function node_cannon_behavior(self, target, map){
+    var spawnpoint = self.location.plus(self.tile.direction);
+    var fireball = shoot_fireball(self.tile.direction);
+    if(!map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
+        map.attack(spawnpoint);
+        map.add_tile(fireball, spawnpoint);
+    }
+}
+function node_cannon_telegraph(location, map, self){
+    return [location.plus(self.direction)];
+}
+
+function sentry_transform_cannon(self, target, map){
+    var nodes = get_sentry_nodes(self, target, map);
+    var direction = sentry_cannon_direction(target.difference);
+    if(direction.on_axis()){
+        for(var node of nodes){
+            var tile = node.self.tile;
+            tile.direction = direction;
+            set_rotation(tile);
+            var node_difference = target.difference.minus(node.target.difference);
+            if(node_difference.plus(direction).on_axis()){
+                // Node is behind the core so should be double cannon.
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_h.png`;
+                tile.behavior = node_double_cannon_behavior;
+                tile.telegraph = node_double_cannon_telegraph;
+                tile.description = arcane_sentry_node_description + `\n` + sentry_node_double_cannon_description;
+            }
+            else{
+                // Single cannon.
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_h.png`;
+                tile.behavior = node_cannon_behavior;
+                tile.telegraph = node_cannon_telegraph;
+                tile.description = arcane_sentry_node_description + `\n` + sentry_node_cannon_description;
+            }
+        }
+        // Core is single cannon.
+        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_h.png`;
+        self.tile.direction = direction;
+        set_rotation(self.tile);
+        self.tile.telegraph = node_cannon_telegraph;
+        self.tile.description = arcane_sentry_description+ `\n` + sentry_core_cannon_description;
+    }
+    else{
+        for(var node of nodes){
+            var tile = node.self.tile;
+            tile.direction = direction;
+            set_rotation(tile);
+            var node_difference = target.difference.minus(node.target.difference);
+            if(point_equals(node_difference.plus(direction), new Point(0, 0))){
+                // Node is behind core so should be double cannon.
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_d.png`;
+                tile.behavior = node_double_cannon_behavior;
+                tile.telegraph = node_double_cannon_telegraph;
+                tile.description = arcane_sentry_node_description + `\n` + sentry_node_double_cannon_description;
+            }
+            else{
+                // Single cannon.
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_d.png`;
+                tile.behavior = node_cannon_behavior;
+                tile.telegraph = node_cannon_telegraph;
+                tile.description = arcane_sentry_node_description + `\n` + sentry_node_cannon_description;
+            }
+        }
+        self.tile.description = arcane_sentry_description+ `\n` + sentry_core_cannon_description;
+    }
+}
+
+function sentry_cannon_direction(difference){
+    // ToDo: orthogonal is trippled
+    return sign(difference)
+}
+
+
+function node_double_cannon_behavior(self, target, map){
+    if(self.tile.direction.on_axis()){
+        node_h_double_cannon_ai(self, target, map);
+    }
+    else{
+        node_d_double_cannon_ai(self, target, map);
+    }
+}
+function node_h_double_cannon_ai(self, target, map){
+    var dir = self.tile.direction;    
+    var spawnpoints = [
+        self.location.plus(dir.plus(dir.rotate(90))), 
+        self.location.plus(dir.plus(dir.rotate(-90)))
+    ];
+    for(var spawnpoint of spawnpoints){
+        var fireball = shoot_fireball(self.tile.direction);
+        if(!map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
+            map.attack(spawnpoint);
+            map.add_tile(fireball, spawnpoint);
+        }
+    }
+
+}
+function node_d_double_cannon_ai(self, target, map){
+    var dir = self.tile.direction;    
+    var spawnpoints = [
+        self.location.plus(dir.times(new Point(1, 0))), 
+        self.location.plus(dir.times(new Point(0, 1)))
+    ];
+    for(var spawnpoint of spawnpoints){
+        var fireball = shoot_fireball(self.tile.direction);
+        if(!map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
+            map.attack(spawnpoint);
+            map.add_tile(fireball, spawnpoint);
+        }
+    }
+}
+
+function node_double_cannon_telegraph(location, map, self){
+    var dir = self.direction
+    if(dir.on_axis()){
+        var locations = [
+            location.plus(dir.plus(dir.rotate(90))), 
+            location.plus(dir.plus(dir.rotate(-90)))
+        ];
+    }
+    else{
+        var locations = [
+            location.plus(dir.times(new Point(1, 0))), 
+            location.plus(dir.times(new Point(0, 1)))
+        ];
+    }
+    return locations.filter((p) => {
+        map.is_in_bounds(p) && !map.get_tile(p).tags.has(TAGS.arcane_sentry);
+    });
+}
+
+function node_saw_behavior(self, target, map){
+    for(var direction of HORIZONTAL_DIRECTIONS){
+        map.attack(self.location.plus(direction));
+    }
+}
+
+function node_saw_telegraph(location, map, self){
+    return HORIZONTAL_DIRECTIONS.map((p) => {return p.plus(location)});
+}
+
+function sentry_transform_saw(self, target, map){
+    var nodes = get_sentry_nodes(self, target, map);
+    for(var node of nodes){
+        var tile = node.self.tile;
+        tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_saw.png`;
+        tile.behavior = node_saw_behavior;
+        tile.telegraph = node_saw_telegraph;
+        tile.description = arcane_sentry_node_description + `\n` + sentry_node_saw_description;
+    }
+    self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_saw.png`;
+    self.tile.direction = sentry_saw_direction(target.difference);
+    self.tile.telegraph = node_saw_telegraph;
+    self.tile.description = arcane_sentry_description+ `\n` + sentry_core_saw_description;
+}
+
+function sentry_saw_direction(difference){
+    return order_nearby(difference).filter((dir) => {
+        return dir.on_axis();
+    })[0];
+}
+
+
+function node_turret_behavior(self, target, map){
+    var sign_dif = sign(target.difference);
+    var sign_dir = sign(self.tile.direction);
+    var same_x_dir = sign_dif.x === sign_dir.x;
+    var same_y_dir = sign_dif.y === sign_dir.y;
+    if(target.difference.on_axis() && (same_x_dir || same_y_dir)){
+        turret_fire_ai(self, target, map);
+    }
+}
+function node_turret_telegraph(location, map, self){
+    var x_points = get_points_in_direction(location, new Point(self.direction.x, 0), map);
+    var y_points = get_points_in_direction(location, new Point(0, self.direction.y), map);
+    return [...x_points, ...y_points];
+}
+
+function sentry_transform_turret(self, target, map){
+    var nodes = get_sentry_nodes(self, target, map);
+    for(var node of nodes){
+        var tile = node.self.tile;
+        tile.direction = node.self.location.minus(self.location);
+        set_rotation(tile);
+        tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_turret.png`;
+        tile.behavior = node_turret_behavior;
+        tile.telegraph = node_turret_telegraph;
+        tile.description = arcane_sentry_node_description + `\n` + sentry_node_turret_description;
+    }
+    self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core.png`;
+    self.tile.telegraph = undefined;
+    self.tile.direction = undefined;
+    self.tile.rotate = undefined;
+    self.tile.description = arcane_sentry_description + `\n` + sentry_core_turret_description;
 }
 /** @type {SpellGenerator} */
 function forest_heart_rest_spell_generator(){
@@ -7524,6 +7979,9 @@ class EntityList{
                     else{
                         var do_delay = true;
                         try{
+                            if(e.enemy.tags.has(TAGS.controlled)){
+                                throw Error(ERRORS.skip_animation);
+                            }
                             if(e.enemy.behavior !== undefined){
                                 var self = {
                                     tile: e.enemy,
@@ -9270,6 +9728,25 @@ function swaying_nettle_terrain(floor_num, area, map){
     }
 }
 /** @type {AreaGenerator}*/
+function generate_library_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}ruins.png`,
+        generate_floor: generate_library_floor,
+        enemy_list: [
+            moving_turret_h_tile, moving_turret_d_tile, brightling_tile, captive_void_tile, paper_construct_tile,
+            unstable_wisp_tile, walking_prism_tile
+        ],
+        boss_floor_list: [arcane_sentry_floor],
+        next_area_list: area5,
+        description: library_description
+    }
+}
+
+/** @type {FloorGenerator}*/
+function generate_library_floor(floor_num, area, map){
+    generate_normal_floor(floor_num, area, map);
+}
+/** @type {AreaGenerator}*/
 function generate_magma_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}magma.png`,
@@ -9397,7 +9874,7 @@ const area_end = [generate_default_area]; // Once they have finished the complet
 const area1 = STARTING_AREA;
 const area2 = [generate_sewers_area, generate_basement_area];
 const area3 = [generate_magma_area, generate_crypt_area];
-const area4 = [generate_forest_area];//, generate_library_area];
+const area4 = [generate_forest_area, generate_library_area];
 const area5 = area_end;//[generate_sanctum_area];
 
 /**
@@ -9417,17 +9894,6 @@ const area5 = area_end;//[generate_sanctum_area];
 
 // ---Unfinished Areas---
 
-/** @type {AreaGenerator}*/
-function generate_library_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}library.png`,
-        generate_floor: generate_library_floor,
-        enemy_list: [],
-        boss_floor_list: [],
-        next_area_list: area5,
-        description: ruins_description
-    }
-}
 /** @type {AreaGenerator}*/
 function generate_sanctum_area(){
     return {
@@ -9450,6 +9916,40 @@ function generate_default_area(){
         next_area_list: [generate_default_area],
         description: default_area_description
     }
+}
+/** @type {FloorGenerator} Generates the floor where the Arcane Sentry appears.*/
+function arcane_sentry_floor(floor_num,  area, map){
+    // Randomly select a point where the player is not in range.
+    var offset = 2;
+    var x_range = randomize_arr(range(offset, FLOOR_WIDTH - offset));
+    var y_range = randomize_arr(range(offset, FLOOR_HEIGHT - offset));
+    var player_x = map.get_player_location().x;
+    var x_range = x_range.filter((x) => {
+        return x !== player_x + 1 && x !== player_x - 1;
+    });
+
+    // Spawn the core.
+    var core_pos = new Point(x_range[0], y_range[0]);
+    var core = arcane_sentry_tile();
+    map.add_tile(core, core_pos);
+
+    // Spawn the nodes.
+    for(var direction of DIAGONAL_DIRECTIONS){
+        map.add_tile(arcane_node_tile(), core_pos.plus(direction));
+    }
+    
+    // Swap to turret mode for setup.
+    var self = {
+        tile: core,
+        location: core_pos
+    }
+    var target = {
+        tile: map.get_player(),
+        difference: map.get_player_location().minus(core_pos)
+    }
+    core.mode = SENTRY_MODES.turret
+    sentry_transform_turret(self, target, map);
+    return arcane_sentry_floor_message;
 }
 /** @type {FloorGenerator} Generates the floor where the Forest Heart appears.*/
 function forest_heart_floor(floor_num,  area, map){
