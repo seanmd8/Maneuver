@@ -146,16 +146,20 @@ class Point{
      * (0, 0) returns false.
      */
     on_axis(){
-        var is_origin = point_equals(this, new Point(0, 0));
-        return (this.x === 0 || this.y === 0) && !is_origin;
+        return (this.x === 0 || this.y === 0) && !this.is_origin();
     }
     /**
      * @returns true if the point is on the lines y = x or y = -x, false otherwise.
      * (0, 0) returns false.
      */
     on_diagonal(){
-        var is_origin = point_equals(this, new Point(0, 0));
-        return Math.abs(this.x) === Math.abs(this.y) && !is_origin;
+        return Math.abs(this.x) === Math.abs(this.y) && !this.is_origin()
+    }
+    /**
+     * @returns true if the point is the origin (0, 0).
+     */
+    is_origin(){
+        return point_equals(this, new Point(0, 0));
     }
 }
 

@@ -83,7 +83,7 @@ const young_dragon_death_message =
 const forest_heart_floor_message = 
     `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`;
 const forest_heart_description = 
-    `An ancient tree warped by dark magic. Cannot take more than 1 damage each turn. `;
+    `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage each turn. `;
 const forest_heart_death_message = 
     `Branches rain from above as the ancient tree is felled.`
 
@@ -100,12 +100,12 @@ const arcane_sentry_floor_message =
     `An alarm begins to blare.\n`
     +`INTRUDER DETECTED!`
 const arcane_sentry_description =
-    `An automated defense station. Changes modes in response to damage.`;
+    `Arcane Sentry (Boss): An automated defense station. Changes modes in response to damage.`;
 const arcane_sentry_death_message =
     `MAIN SYSTEMS FAILING!\n`
     +`The wailing alarm falls silent.`;
 const arcane_sentry_node_description =
-    `A transformable node controlled by the Arcane Sentry.`
+    `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry.`
 const arcane_sentry_node_death_message =
     `NODE OFFLINE!`;
 

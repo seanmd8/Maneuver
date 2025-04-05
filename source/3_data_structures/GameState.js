@@ -146,7 +146,7 @@ class GameState{
                 }
                 if( // Dazing Blows
                     this.boons.has(boon_names.dazing_blows) && 
-                    !point_equals(action.change, new Point(0, 0)) &&
+                    !action.change.is_origin() &&
                     this.map.is_in_bounds(target) &&
                     !this.map.get_tile(target).tags.has(TAGS.boss)
                 ){
@@ -154,7 +154,7 @@ class GameState{
                 }
                 if( // Pacifism
                     this.boons.has(boon_names.pacifism) && 
-                    !point_equals(action.change, new Point(0, 0))
+                    !action.change.is_origin()
                 ){
                     stun_count += 2 * attack_count;
                     attack_count = 0;

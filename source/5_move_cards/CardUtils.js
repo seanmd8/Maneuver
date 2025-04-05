@@ -134,7 +134,7 @@ function explain_action(action){
         case `teleport`:
             return move_types.teleport;
         case `stun`:
-            if(point_equals(action.change, new Point(0, 0))){
+            if(action.change.is_origin()){
                 return move_types.confuse;
             }
             return `${move_types.stun}: ${target}`;

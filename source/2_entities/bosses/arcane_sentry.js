@@ -9,7 +9,7 @@ const SENTRY_MAX_CANNON_CYCLE = 3;
 
 /** @type {TileGenerator} */
 function arcane_sentry_tile(){
-    var health = 5;
+    var health = 6;
     if(GS.boons.has(boon_names.boss_slayer)){
         health -= 2;
     }
@@ -100,6 +100,7 @@ function arcane_sentry_death(self, target, map){
     for(var node of nodes){
         node.self.tile.health = 1;
         node.self.tile.on_hit = undefined;
+        node.self.tile.on_death = undefined;
         map.attack(node.self.location);
     }
     boss_death(self, target, map);

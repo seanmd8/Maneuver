@@ -340,16 +340,20 @@ class Point{
      * (0, 0) returns false.
      */
     on_axis(){
-        var is_origin = point_equals(this, new Point(0, 0));
-        return (this.x === 0 || this.y === 0) && !is_origin;
+        return (this.x === 0 || this.y === 0) && !this.is_origin();
     }
     /**
      * @returns true if the point is on the lines y = x or y = -x, false otherwise.
      * (0, 0) returns false.
      */
     on_diagonal(){
-        var is_origin = point_equals(this, new Point(0, 0));
-        return Math.abs(this.x) === Math.abs(this.y) && !is_origin;
+        return Math.abs(this.x) === Math.abs(this.y) && !this.is_origin()
+    }
+    /**
+     * @returns true if the point is the origin (0, 0).
+     */
+    is_origin(){
+        return point_equals(this, new Point(0, 0));
     }
 }
 
@@ -1752,7 +1756,7 @@ const young_dragon_death_message =
 const forest_heart_floor_message = 
     `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`;
 const forest_heart_description = 
-    `An ancient tree warped by dark magic. Cannot take more than 1 damage each turn. `;
+    `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage each turn. `;
 const forest_heart_death_message = 
     `Branches rain from above as the ancient tree is felled.`
 
@@ -1769,12 +1773,12 @@ const arcane_sentry_floor_message =
     `An alarm begins to blare.\n`
     +`INTRUDER DETECTED!`
 const arcane_sentry_description =
-    `An automated defense station. Changes modes in response to damage.`;
+    `Arcane Sentry (Boss): An automated defense station. Changes modes in response to damage.`;
 const arcane_sentry_death_message =
     `MAIN SYSTEMS FAILING!\n`
     +`The wailing alarm falls silent.`;
 const arcane_sentry_node_description =
-    `A transformable node controlled by the Arcane Sentry.`
+    `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry.`
 const arcane_sentry_node_death_message =
     `NODE OFFLINE!`;
 
@@ -2317,7 +2321,7 @@ const SENTRY_MAX_CANNON_CYCLE = 3;
 
 /** @type {TileGenerator} */
 function arcane_sentry_tile(){
-    var health = 5;
+    var health = 6;
     if(GS.boons.has(boon_names.boss_slayer)){
         health -= 2;
     }
@@ -2408,6 +2412,7 @@ function arcane_sentry_death(self, target, map){
     for(var node of nodes){
         node.self.tile.health = 1;
         node.self.tile.on_hit = undefined;
+        node.self.tile.on_death = undefined;
         map.attack(node.self.location);
     }
     boss_death(self, target, map);
@@ -6939,7 +6944,7 @@ function sentry_transform_cannon(self, target, map){
             tile.direction = direction;
             set_rotation(tile);
             var node_difference = target.difference.minus(node.target.difference);
-            if(point_equals(node_difference.plus(direction), new Point(0, 0))){
+            if(node_difference.plus(direction).is_origin()){
                 // Node is behind core so should be double cannon.
                 tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_d.png`;
                 tile.behavior = node_double_cannon_behavior;
@@ -6954,7 +6959,7 @@ function sentry_transform_cannon(self, target, map){
                 tile.description = arcane_sentry_node_description + `\n` + sentry_node_cannon_description;
             }
         }
-        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core.png`;
+        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_d.png`;
         self.tile.telegraph = undefined;
         self.tile.direction = undefined;
         self.tile.description = arcane_sentry_description+ `\n` + sentry_core_cannon_description;
@@ -6962,7 +6967,7 @@ function sentry_transform_cannon(self, target, map){
 }
 
 function sentry_cannon_direction(difference){
-    if(difference.on_diagonal()){
+    if(difference.on_diagonal() || difference.on_axis()){
         return sign(difference);
     }
     if(-1 <= difference.x && difference.x <= 1){
@@ -8841,7 +8846,7 @@ class GameMap{
         if( // Pressure points boon
             stunned && 
             GS.boons.has(boon_names.pressure_points) > random_num(3) && 
-            !point_equals(direction, new Point(0, 0))
+            !direction.is_origin()
         ){
             this.player_attack(direction);
         }
@@ -9086,7 +9091,7 @@ class GameState{
                 }
                 if( // Dazing Blows
                     this.boons.has(boon_names.dazing_blows) && 
-                    !point_equals(action.change, new Point(0, 0)) &&
+                    !action.change.is_origin() &&
                     this.map.is_in_bounds(target) &&
                     !this.map.get_tile(target).tags.has(TAGS.boss)
                 ){
@@ -9094,7 +9099,7 @@ class GameState{
                 }
                 if( // Pacifism
                     this.boons.has(boon_names.pacifism) && 
-                    !point_equals(action.change, new Point(0, 0))
+                    !action.change.is_origin()
                 ){
                     stun_count += 2 * attack_count;
                     attack_count = 0;
@@ -10994,7 +10999,7 @@ function explain_action(action){
         case `teleport`:
             return move_types.teleport;
         case `stun`:
-            if(point_equals(action.change, new Point(0, 0))){
+            if(action.change.is_origin()){
                 return move_types.confuse;
             }
             return `${move_types.stun}: ${target}`;

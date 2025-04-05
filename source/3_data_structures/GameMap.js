@@ -763,7 +763,7 @@ class GameMap{
         if( // Pressure points boon
             stunned && 
             GS.boons.has(boon_names.pressure_points) > random_num(3) && 
-            !point_equals(direction, new Point(0, 0))
+            !direction.is_origin()
         ){
             this.player_attack(direction);
         }
