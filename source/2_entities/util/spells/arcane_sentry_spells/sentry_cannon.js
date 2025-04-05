@@ -71,6 +71,14 @@ function sentry_transform_cannon(self, target, map){
 }
 
 function sentry_cannon_direction(difference){
-    // ToDo: orthogonal is trippled
-    return sign(difference)
+    if(difference.on_diagonal()){
+        return sign(difference);
+    }
+    if(-1 <= difference.x && difference.x <= 1){
+        return new Point(0, sign(difference.y));
+    }
+    if(-1 <= difference.y && difference.y <= 1){
+        return new Point(sign(difference.x), 0);
+    }
+    return sign(difference);
 }
