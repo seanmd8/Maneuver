@@ -9767,7 +9767,7 @@ function swaying_nettle_terrain(floor_num, area, map){
 /** @type {AreaGenerator}*/
 function generate_library_area(){
     return {
-        background: `${IMG_FOLDER.backgrounds}ruins.png`,
+        background: `${IMG_FOLDER.backgrounds}library.png`,
         generate_floor: generate_library_floor,
         enemy_list: [
             moving_turret_h_tile, moving_turret_d_tile, brightling_tile, captive_void_tile, paper_construct_tile,
