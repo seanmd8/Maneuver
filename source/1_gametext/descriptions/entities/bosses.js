@@ -111,7 +111,8 @@ const arcane_sentry_node_death_message =
 
 // Arcane Sentry Modes
 const sentry_core_turret_description =
-    `Currently the nodes are set to act as turrets.`
+    `Currently the nodes are set to act as turrets.\n`
+    +`While in this mode, the sentry will continuously create paper constructs.`
 const sentry_node_turret_description =
     `Fires beams orthogonally that hit the first thing in their path.`
 const sentry_core_saw_description =

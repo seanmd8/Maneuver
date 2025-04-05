@@ -1,5 +1,4 @@
 
-
 function node_double_cannon_behavior(self, target, map){
     if(self.tile.direction.on_axis()){
         node_h_double_cannon_ai(self, target, map);
@@ -16,7 +15,7 @@ function node_h_double_cannon_ai(self, target, map){
     ];
     for(var spawnpoint of spawnpoints){
         var fireball = shoot_fireball(self.tile.direction);
-        if(!map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
+        if(map.is_in_bounds(spawnpoint) && !map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
             map.attack(spawnpoint);
             map.add_tile(fireball, spawnpoint);
         }
@@ -31,7 +30,7 @@ function node_d_double_cannon_ai(self, target, map){
     ];
     for(var spawnpoint of spawnpoints){
         var fireball = shoot_fireball(self.tile.direction);
-        if(!map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
+        if(map.is_in_bounds(spawnpoint) && !map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
             map.attack(spawnpoint);
             map.add_tile(fireball, spawnpoint);
         }
@@ -39,7 +38,7 @@ function node_d_double_cannon_ai(self, target, map){
 }
 
 function node_double_cannon_telegraph(location, map, self){
-    var dir = self.direction
+    var dir = self.direction;
     if(dir.on_axis()){
         var locations = [
             location.plus(dir.plus(dir.rotate(90))), 

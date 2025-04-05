@@ -4,7 +4,8 @@ SENTRY_MODES = Object.freeze({
     turret: "Turret"
 });
 
-const SENTRY_MAX_CYCLE = 3;
+const SENTRY_MAX_SAW_CYCLE = 4;
+const SENTRY_MAX_CANNON_CYCLE = 3;
 
 /** @type {TileGenerator} */
 function arcane_sentry_tile(){
@@ -24,6 +25,7 @@ function arcane_sentry_tile(){
         on_hit: sentry_core_on_hit,
         on_death: arcane_sentry_death,
         cycle: 0,
+        spawn_timer: 3,
         card_drops: [beam_ne, beam_se, beam_sw, beam_nw, saw_ns, saw_ew]
     }
 }
@@ -50,7 +52,7 @@ function sentry_core_ai(self, target, map){
     var nodes = get_sentry_nodes(self, target, map);
     switch(self.tile.mode){
         case SENTRY_MODES.saw:
-            if(self.tile.cycle === SENTRY_MAX_CYCLE){
+            if(self.tile.cycle === SENTRY_MAX_SAW_CYCLE){
                 sentry_transform_saw(self, target, map);
             }
             else{
@@ -64,28 +66,28 @@ function sentry_core_ai(self, target, map){
             break;
         case SENTRY_MODES.cannon:
             switch(self.tile.cycle){
-                case SENTRY_MAX_CYCLE:
+                case SENTRY_MAX_CANNON_CYCLE:
                     sentry_transform_cannon(self, target, map);
                     break;
-                case SENTRY_MAX_CYCLE - 1:
+                default:
                     for(var node of nodes){
                         node.self.tile.behavior(node.self, node.target, node.map);
-                        node.self.tile.telegraph = undefined;
                     }
                     if(self.tile.direction !== undefined){
                         node_cannon_behavior(self, target, map);
-                        self.tile.telegraph = undefined;
                     }
                     break;
-                default:
-                    // Pass
-                    break;
             }
-            decrement_sentry_cycle(self, target, map)
+            decrement_sentry_cycle(self, target, map);
             break;
         case SENTRY_MODES.turret:
             for(var node of nodes){
                 node.self.tile.behavior(node.self, node.target, node.map);
+            }
+            ++self.tile.cycle;
+            if(self.tile.cycle >= self.tile.spawn_timer){
+                spawn_nearby(map, paper_construct_tile(), self.location);
+                self.tile.cycle = 0;                                
             }
             break;
         default:
@@ -109,14 +111,14 @@ function node_on_death(self, target, map){
 function sentry_core_on_hit(self, target, map){
     if(self.tile.mode === SENTRY_MODES.turret){
         self.tile.mode = SENTRY_MODES.saw;
-        self.tile.cycle = SENTRY_MAX_CYCLE;
+        self.tile.cycle = SENTRY_MAX_SAW_CYCLE;
     }
 }
 function node_on_hit(self, target, map){
     var core = sentry_get_core(self.location, map);
     if(core.mode === SENTRY_MODES.turret){
         core.mode = SENTRY_MODES.cannon;
-        core.cycle = SENTRY_MAX_CYCLE;
+        core.cycle = SENTRY_MAX_CANNON_CYCLE;
     }
 }
 
@@ -146,6 +148,7 @@ function decrement_sentry_cycle(self, target, map){
     if(--self.tile.cycle === 0){
         self.tile.mode = SENTRY_MODES.turret;
         sentry_transform_turret(self, target, map);
+        self.tile.cycle = 2;
     }
 }
 

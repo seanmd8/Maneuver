@@ -2,7 +2,7 @@
 function node_cannon_behavior(self, target, map){
     var spawnpoint = self.location.plus(self.tile.direction);
     var fireball = shoot_fireball(self.tile.direction);
-    if(!map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
+    if(map.is_in_bounds(spawnpoint) && !map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
         map.attack(spawnpoint);
         map.add_tile(fireball, spawnpoint);
     }
@@ -63,6 +63,9 @@ function sentry_transform_cannon(self, target, map){
                 tile.description = arcane_sentry_node_description + `\n` + sentry_node_cannon_description;
             }
         }
+        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core.png`;
+        self.tile.telegraph = undefined;
+        self.tile.direction = undefined;
         self.tile.description = arcane_sentry_description+ `\n` + sentry_core_cannon_description;
     }
 }

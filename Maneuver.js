@@ -375,8 +375,8 @@ const TEST_INIT = {
     enemies: undefined,
     chest: undefined,
     cards: undefined,
-    area: undefined,
-    area_size: undefined
+    area: [generate_library_area],
+    area_size: 2 
 }
 
 
@@ -448,7 +448,8 @@ const TAGS = {
     controlled: `Controlled`,
     thorn_bush_roots: `Thorn Bush Roots`,
     nettle_immune: `Nettle Immune`,
-    arcane_sentry: `Arcane Sentry`
+    arcane_sentry: `Arcane Sentry`,
+    fireball: `Fireball`
 }
 Object.freeze(TAGS);
 // ----------------Display.js----------------
@@ -1779,7 +1780,8 @@ const arcane_sentry_node_death_message =
 
 // Arcane Sentry Modes
 const sentry_core_turret_description =
-    `Currently the nodes are set to act as turrets.`
+    `Currently the nodes are set to act as turrets.\n`
+    +`While in this mode, the sentry will continuously create paper constructs.`
 const sentry_node_turret_description =
     `Fires beams orthogonally that hit the first thing in their path.`
 const sentry_core_saw_description =
@@ -2308,7 +2310,8 @@ SENTRY_MODES = Object.freeze({
     turret: "Turret"
 });
 
-const SENTRY_MAX_CYCLE = 3;
+const SENTRY_MAX_SAW_CYCLE = 4;
+const SENTRY_MAX_CANNON_CYCLE = 3;
 
 /** @type {TileGenerator} */
 function arcane_sentry_tile(){
@@ -2328,6 +2331,7 @@ function arcane_sentry_tile(){
         on_hit: sentry_core_on_hit,
         on_death: arcane_sentry_death,
         cycle: 0,
+        spawn_timer: 3,
         card_drops: [beam_ne, beam_se, beam_sw, beam_nw, saw_ns, saw_ew]
     }
 }
@@ -2354,7 +2358,7 @@ function sentry_core_ai(self, target, map){
     var nodes = get_sentry_nodes(self, target, map);
     switch(self.tile.mode){
         case SENTRY_MODES.saw:
-            if(self.tile.cycle === SENTRY_MAX_CYCLE){
+            if(self.tile.cycle === SENTRY_MAX_SAW_CYCLE){
                 sentry_transform_saw(self, target, map);
             }
             else{
@@ -2368,28 +2372,28 @@ function sentry_core_ai(self, target, map){
             break;
         case SENTRY_MODES.cannon:
             switch(self.tile.cycle){
-                case SENTRY_MAX_CYCLE:
+                case SENTRY_MAX_CANNON_CYCLE:
                     sentry_transform_cannon(self, target, map);
                     break;
-                case SENTRY_MAX_CYCLE - 1:
+                default:
                     for(var node of nodes){
                         node.self.tile.behavior(node.self, node.target, node.map);
-                        node.self.tile.telegraph = undefined;
                     }
                     if(self.tile.direction !== undefined){
                         node_cannon_behavior(self, target, map);
-                        self.tile.telegraph = undefined;
                     }
                     break;
-                default:
-                    // Pass
-                    break;
             }
-            decrement_sentry_cycle(self, target, map)
+            decrement_sentry_cycle(self, target, map);
             break;
         case SENTRY_MODES.turret:
             for(var node of nodes){
                 node.self.tile.behavior(node.self, node.target, node.map);
+            }
+            ++self.tile.cycle;
+            if(self.tile.cycle >= self.tile.spawn_timer){
+                spawn_nearby(map, paper_construct_tile(), self.location);
+                self.tile.cycle = 0;                                
             }
             break;
         default:
@@ -2413,14 +2417,14 @@ function node_on_death(self, target, map){
 function sentry_core_on_hit(self, target, map){
     if(self.tile.mode === SENTRY_MODES.turret){
         self.tile.mode = SENTRY_MODES.saw;
-        self.tile.cycle = SENTRY_MAX_CYCLE;
+        self.tile.cycle = SENTRY_MAX_SAW_CYCLE;
     }
 }
 function node_on_hit(self, target, map){
     var core = sentry_get_core(self.location, map);
     if(core.mode === SENTRY_MODES.turret){
         core.mode = SENTRY_MODES.cannon;
-        core.cycle = SENTRY_MAX_CYCLE;
+        core.cycle = SENTRY_MAX_CANNON_CYCLE;
     }
 }
 
@@ -2450,6 +2454,7 @@ function decrement_sentry_cycle(self, target, map){
     if(--self.tile.cycle === 0){
         self.tile.mode = SENTRY_MODES.turret;
         sentry_transform_turret(self, target, map);
+        self.tile.cycle = 2;
     }
 }
 
@@ -4270,10 +4275,12 @@ function paper_construct_ai(self, target, map){
         }
         if(dir){
             // Move up to 2 spaces in that direction.
-            var moved = true;
-            for(var i = 0; i < 2 && !(target.difference.on_axis() && target.difference.within_radius(2)) && moved; ++i){
-                moved = map.move(self.location, self.location.plus(dir));
-                if(moved){
+            var could_move = true;
+            for(var i = 0; i < 2 && !(target.difference.on_axis() && target.difference.within_radius(2)) && could_move; ++i){
+                var destination = self.location.plus(dir);
+                could_move = map.check_empty(destination);
+                if(could_move){
+                    map.move(self.location, destination);
                     self.location.plus_equals(dir);
                     target.difference.minus_equals(dir);
                 }
@@ -4489,11 +4496,11 @@ function porcuslime_horizontal_ai(self, target, map){
 
 /** @type {TelegraphFunction} */
 function porcuslime_diagonal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, DIAGONAL_DIRECTIONS).concat(hazard_telegraph(location, map, self));
+    return move_attack_telegraph(location, map, DIAGONAL_DIRECTIONS);
 }
 /** @type {TelegraphFunction} */
 function porcuslime_horizontal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, HORIZONTAL_DIRECTIONS).concat(hazard_telegraph(location, map, self));
+    return move_attack_telegraph(location, map, HORIZONTAL_DIRECTIONS);
 }
 /** @type {TileGenerator} */
 function small_d_porcuslime_tile(){
@@ -5863,7 +5870,7 @@ function fireball_tile(){
         name: `Fireball`,
         pic: `${IMG_FOLDER.tiles}fireball.png`,
         description: fireball_description,
-        tags: new TagList(),
+        tags: new TagList([TAGS.fireball]),
         behavior: fireball_ai,
         telegraph: fireball_telegraph,
         on_enter: fireball_on_enter,
@@ -6884,7 +6891,7 @@ function generic_tile(){
 function node_cannon_behavior(self, target, map){
     var spawnpoint = self.location.plus(self.tile.direction);
     var fireball = shoot_fireball(self.tile.direction);
-    if(!map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
+    if(map.is_in_bounds(spawnpoint) && !map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
         map.attack(spawnpoint);
         map.add_tile(fireball, spawnpoint);
     }
@@ -6945,6 +6952,9 @@ function sentry_transform_cannon(self, target, map){
                 tile.description = arcane_sentry_node_description + `\n` + sentry_node_cannon_description;
             }
         }
+        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core.png`;
+        self.tile.telegraph = undefined;
+        self.tile.direction = undefined;
         self.tile.description = arcane_sentry_description+ `\n` + sentry_core_cannon_description;
     }
 }
@@ -6953,7 +6963,6 @@ function sentry_cannon_direction(difference){
     // ToDo: orthogonal is trippled
     return sign(difference)
 }
-
 
 function node_double_cannon_behavior(self, target, map){
     if(self.tile.direction.on_axis()){
@@ -6971,7 +6980,7 @@ function node_h_double_cannon_ai(self, target, map){
     ];
     for(var spawnpoint of spawnpoints){
         var fireball = shoot_fireball(self.tile.direction);
-        if(!map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
+        if(map.is_in_bounds(spawnpoint) && !map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
             map.attack(spawnpoint);
             map.add_tile(fireball, spawnpoint);
         }
@@ -6986,7 +6995,7 @@ function node_d_double_cannon_ai(self, target, map){
     ];
     for(var spawnpoint of spawnpoints){
         var fireball = shoot_fireball(self.tile.direction);
-        if(!map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
+        if(map.is_in_bounds(spawnpoint) && !map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
             map.attack(spawnpoint);
             map.add_tile(fireball, spawnpoint);
         }
@@ -6994,7 +7003,7 @@ function node_d_double_cannon_ai(self, target, map){
 }
 
 function node_double_cannon_telegraph(location, map, self){
-    var dir = self.direction
+    var dir = self.direction;
     if(dir.on_axis()){
         var locations = [
             location.plus(dir.plus(dir.rotate(90))), 
@@ -7899,7 +7908,17 @@ class EntityList{
      */
     add_enemy(location, enemy){
         enemy.id = this.next_id();
-        this.#enemy_list.push({location: location.copy(), enemy});
+        var to_add = {location: location.copy(), enemy};
+        if(enemy.tags.has(TAGS.fireball)){
+            // Fireballs move before everything else and in the order they are created to avoid collisions.
+            var index = this.#enemy_list.findIndex((e) =>{
+                return !e.enemy.tags.has(TAGS.fireball);
+            });
+            this.#enemy_list.splice(index, 0, to_add);
+        }
+        else{
+            this.#enemy_list.push(to_add);
+        }
         ++this.count_non_empty;
     }
     /**

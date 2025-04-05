@@ -70,7 +70,17 @@ class EntityList{
      */
     add_enemy(location, enemy){
         enemy.id = this.next_id();
-        this.#enemy_list.push({location: location.copy(), enemy});
+        var to_add = {location: location.copy(), enemy};
+        if(enemy.tags.has(TAGS.fireball)){
+            // Fireballs move before everything else and in the order they are created to avoid collisions.
+            var index = this.#enemy_list.findIndex((e) =>{
+                return !e.enemy.tags.has(TAGS.fireball);
+            });
+            this.#enemy_list.splice(index, 0, to_add);
+        }
+        else{
+            this.#enemy_list.push(to_add);
+        }
         ++this.count_non_empty;
     }
     /**
