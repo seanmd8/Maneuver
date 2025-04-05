@@ -116,11 +116,13 @@ const sentry_core_turret_description =
 const sentry_node_turret_description =
     `Fires beams orthogonally that hit the first thing in their path.`
 const sentry_core_saw_description =
-    `Spinning saws will damage everything around it, then it will move 1 space orthogonally.`
+    `Spinning saws will damage everything around it or touching it, then it will move 1 space orthogonally.\n`
+    +`After 3 turns, it will revert.`
 const sentry_node_saw_description =
-    `Spinning saws will damage everything around it.`
+    `Spinning saws will damage everything around it or touching it.`
 const sentry_core_cannon_description =
-    `Currently preparing to shoot a volley of fireballs.`
+    `Currently preparing to shoot volleys of fireballs.\n`
+    +`After 2 volleys, it will revert.`
 const sentry_node_cannon_description =
     `Shoots a fireball in the direction it is aimed.`
 const sentry_node_double_cannon_description =

@@ -6,7 +6,10 @@ function node_saw_behavior(self, target, map){
 }
 
 function node_saw_telegraph(location, map, self){
-    return HORIZONTAL_DIRECTIONS.map((p) => {return p.plus(location)});
+    return [
+        ...HORIZONTAL_DIRECTIONS.map((p) => {return p.plus(location)}), 
+        ...hazard_telegraph(location, map, self)
+    ];
 }
 
 function sentry_transform_saw(self, target, map){
@@ -15,11 +18,13 @@ function sentry_transform_saw(self, target, map){
         var tile = node.self.tile;
         tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_saw.png`;
         tile.behavior = node_saw_behavior;
+        tile.on_enter = hazard;
         tile.telegraph = node_saw_telegraph;
         tile.description = arcane_sentry_node_description + `\n` + sentry_node_saw_description;
     }
     self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_saw.png`;
     self.tile.direction = sentry_saw_direction(target.difference);
+    self.tile.on_enter = hazard;
     self.tile.telegraph = node_saw_telegraph;
     self.tile.description = arcane_sentry_description+ `\n` + sentry_core_saw_description;
 }

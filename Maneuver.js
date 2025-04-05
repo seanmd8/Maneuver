@@ -375,8 +375,8 @@ const TEST_INIT = {
     enemies: undefined,
     chest: undefined,
     cards: undefined,
-    area: [generate_library_area],
-    area_size: 2 
+    area: undefined,
+    area_size: undefined
 }
 
 
@@ -1785,11 +1785,13 @@ const sentry_core_turret_description =
 const sentry_node_turret_description =
     `Fires beams orthogonally that hit the first thing in their path.`
 const sentry_core_saw_description =
-    `Spinning saws will damage everything around it, then it will move 1 space orthogonally.`
+    `Spinning saws will damage everything around it or touching it, then it will move 1 space orthogonally.\n`
+    +`After 3 turns, it will revert.`
 const sentry_node_saw_description =
-    `Spinning saws will damage everything around it.`
+    `Spinning saws will damage everything around it or touching it.`
 const sentry_core_cannon_description =
-    `Currently preparing to shoot a volley of fireballs.`
+    `Currently preparing to shoot volleys of fireballs.\n`
+    +`After 2 volleys, it will revert.`
 const sentry_node_cannon_description =
     `Shoots a fireball in the direction it is aimed.`
 const sentry_node_double_cannon_description =
@@ -2331,7 +2333,7 @@ function arcane_sentry_tile(){
         on_hit: sentry_core_on_hit,
         on_death: arcane_sentry_death,
         cycle: 0,
-        spawn_timer: 3,
+        spawn_timer: 4,
         card_drops: [beam_ne, beam_se, beam_sw, beam_nw, saw_ns, saw_ew]
     }
 }
@@ -2454,7 +2456,7 @@ function decrement_sentry_cycle(self, target, map){
     if(--self.tile.cycle === 0){
         self.tile.mode = SENTRY_MODES.turret;
         sentry_transform_turret(self, target, map);
-        self.tile.cycle = 2;
+        self.tile.cycle = self.tile.spawn_timer - 1;
     }
 }
 
@@ -7028,7 +7030,10 @@ function node_saw_behavior(self, target, map){
 }
 
 function node_saw_telegraph(location, map, self){
-    return HORIZONTAL_DIRECTIONS.map((p) => {return p.plus(location)});
+    return [
+        ...HORIZONTAL_DIRECTIONS.map((p) => {return p.plus(location)}), 
+        ...hazard_telegraph(location, map, self)
+    ];
 }
 
 function sentry_transform_saw(self, target, map){
@@ -7037,11 +7042,13 @@ function sentry_transform_saw(self, target, map){
         var tile = node.self.tile;
         tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_saw.png`;
         tile.behavior = node_saw_behavior;
+        tile.on_enter = hazard;
         tile.telegraph = node_saw_telegraph;
         tile.description = arcane_sentry_node_description + `\n` + sentry_node_saw_description;
     }
     self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_saw.png`;
     self.tile.direction = sentry_saw_direction(target.difference);
+    self.tile.on_enter = hazard;
     self.tile.telegraph = node_saw_telegraph;
     self.tile.description = arcane_sentry_description+ `\n` + sentry_core_saw_description;
 }
@@ -7076,10 +7083,12 @@ function sentry_transform_turret(self, target, map){
         set_rotation(tile);
         tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_turret.png`;
         tile.behavior = node_turret_behavior;
+        tile.on_enter = undefined;
         tile.telegraph = node_turret_telegraph;
         tile.description = arcane_sentry_node_description + `\n` + sentry_node_turret_description;
     }
     self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core.png`;
+    self.tile.on_enter = undefined;
     self.tile.telegraph = undefined;
     self.tile.direction = undefined;
     self.tile.rotate = undefined;

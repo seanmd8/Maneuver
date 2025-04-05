@@ -25,7 +25,7 @@ function arcane_sentry_tile(){
         on_hit: sentry_core_on_hit,
         on_death: arcane_sentry_death,
         cycle: 0,
-        spawn_timer: 3,
+        spawn_timer: 4,
         card_drops: [beam_ne, beam_se, beam_sw, beam_nw, saw_ns, saw_ew]
     }
 }
@@ -148,7 +148,7 @@ function decrement_sentry_cycle(self, target, map){
     if(--self.tile.cycle === 0){
         self.tile.mode = SENTRY_MODES.turret;
         sentry_transform_turret(self, target, map);
-        self.tile.cycle = 2;
+        self.tile.cycle = self.tile.spawn_timer - 1;
     }
 }
 
