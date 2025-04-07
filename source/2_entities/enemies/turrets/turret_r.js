@@ -54,6 +54,8 @@ function turret_r_telegraph(location, map, self){
     if(self.direction === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var attacks = get_points_in_direction(location, self.direction, map);
-    return attacks.concat(get_points_in_direction(location, self.direction.times(-1), map));
+    return [
+        ...get_points_in_direction(location, self.direction, map),
+        ...get_points_in_direction(location, self.direction.times(-1), map)
+    ];
 }

@@ -65,7 +65,7 @@ const ENEMY_LIST = [
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, animated_boulder_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
-    paper_construct_tile
+    paper_construct_tile, specter_tile, gem_crawler_tile
 ];
 
 // This is an array of all bosses.

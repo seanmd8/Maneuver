@@ -355,6 +355,17 @@ class Point{
     is_origin(){
         return point_equals(this, new Point(0, 0));
     }
+    /**
+     * Function to set this equal to another point.
+     * @param {Point} p the point it will be set equal to.
+     */
+    set(p){
+        if(p.x === undefined || p.y === undefined){
+            throw new Error(ERRORS.invalid_type);
+        }
+        this.x = p.x;
+        this.y = p.y;
+    }
 }
 
 /**
@@ -1341,7 +1352,7 @@ function display_guide(){
     // Create the image arrays for the sections with images.
     var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
     var ctrl_symbol_arr = get_control_symbols();
-    var cards_inline_arr = cards_symbol_arr.concat(ctrl_symbol_arr);
+    var cards_inline_arr = [...cards_symbol_arr, ...ctrl_symbol_arr];
     var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
         card = card();
         return {
@@ -1416,7 +1427,7 @@ function make_guidebook_images(arr){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var button_symbols = CONTROLS.card.concat(CONTROLS.directional);
+    var button_symbols = [...CONTROLS.card, ...CONTROLS.directional];
     var buttons = [];
     for(var symbol of button_symbols){
         buttons.push(display.create_button(symbol, `${symbol} key`));
@@ -1756,7 +1767,8 @@ const young_dragon_death_message =
 const forest_heart_floor_message = 
     `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`;
 const forest_heart_description = 
-    `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage each turn. `;
+    `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage `
+    +`each turn and cannot be stunned. `;
 const forest_heart_death_message = 
     `Branches rain from above as the ancient tree is felled.`
 
@@ -1778,7 +1790,7 @@ const arcane_sentry_death_message =
     `MAIN SYSTEMS FAILING!\n`
     +`The wailing alarm falls silent.`;
 const arcane_sentry_node_description =
-    `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry.`
+    `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry. Cannot be stunned.`
 const arcane_sentry_node_death_message =
     `NODE OFFLINE!`;
 
@@ -1789,7 +1801,8 @@ const sentry_core_turret_description =
 const sentry_node_turret_description =
     `Fires beams orthogonally that hit the first thing in their path.`
 const sentry_core_saw_description =
-    `Spinning saws will damage everything around it or touching it, then it will move 1 space orthogonally.\n`
+    `Spinning saws will damage everything around it or touching it, then it will move 1 space `
+    +`orthogonally.\n`
     +`After 3 turns, it will revert.`
 const sentry_node_saw_description =
     `Spinning saws will damage everything around it or touching it.`
@@ -1939,8 +1952,15 @@ const captive_void_description =
     `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it `
     +`turns it off for 2 turns.`;
 const paper_construct_description = 
-    `Paper Construct: can shoot the player from up to 2 spaces away orthogonally. Otherwise, `
+    `Paper Construct: Can shoot the player from up to 2 spaces away orthogonally. Otherwise, `
     +`moves up to two spaces diagonally.`;
+const specter_description =
+    `Specter: Can travel up to 3 spaces orthogonally. While doing so, it can pass through tiles `
+    +`without costing movement. Passing through a tile damages and stuns/confuses it.`;
+const gem_crawler_description =
+    `Gem Crawler: Every other turn it will move 1 space closer to the player, then attack them if `
+    +`it is next to them.`;
+
 const lava_pool_description = 
     `Lava Pool: Attempting to move here will hurt.`;
 const corrosive_slime_description = 
@@ -3926,6 +3946,56 @@ function darkling_telegraph(location, map, self){
     }
     return spider_telegraph(self.direction, map, self);
 }
+
+/** @type {TileGenerator}*/
+function gem_crawler_tile(){
+    var cycle = random_num(2);
+    var pic_arr = [`${IMG_FOLDER.tiles}gem_crawler_recharging.png`, `${IMG_FOLDER.tiles}gem_crawler.png`]
+    return {
+        type: `enemy`,
+        name: `Gem Crawler`,
+        pic: pic_arr[cycle],
+        description: gem_crawler_description,
+        tags: new TagList(),
+        health: 1,
+        difficulty: 4,
+        pic_arr,
+        cycle,
+        behavior: gem_crawler_ai,
+        telegraph: gem_crawler_telegraph
+    }
+}
+
+/** @type {AIFunction}*/
+function gem_crawler_ai(self, target, map){
+    if(self.tile.cycle === 1){
+        move_closer_ai(self, target, map);
+        if(target.difference.within_radius(1)){
+            map.attack(self.location.plus(target.difference));
+        }
+    }
+    self.tile.cycle = 1 - self.tile.cycle;
+    self.tile.pic = self.tile.pic_arr[self.tile.cycle];
+}
+
+/** @type {TelegraphFunction} */
+function gem_crawler_telegraph(location, map, self){
+    var attacks = [];
+    if(self.cycle === 1){
+        for(var direction of ALL_DIRECTIONS){
+            var space = direction.plus(location);
+            if(map.is_in_bounds(space) && map.check_empty(space)){
+                // Shows all the spaces it can attack by moving other than the one it's in.
+                attacks.push(
+                    ...ALL_DIRECTIONS
+                        .map((p) => {return p.plus(space)})
+                        .filter((p) => {return !point_equals(p, location)})
+                );
+            }
+        }
+    }
+    return attacks;
+}
 /** @type {TileGenerator} A crab which flees when hit. */
 function igneous_crab_tile(){
     return {
@@ -4301,7 +4371,7 @@ function paper_construct_ai(self, target, map){
     set_rotation(self.tile);
 }
 
-/** @type {TileGenerator} Function to act as a starting point for making new enemies. */
+/** @type {TileGenerator}*/
 function pheonix_tile(){
     return {
         type: `enemy`,
@@ -4417,7 +4487,10 @@ function large_porcuslime_ai(self, target, map){
 
 /** @type {TelegraphFunction} */
 function large_porcuslime_telegraph(location, map, self){
-    return porcuslime_diagonal_telegraph(location, map, self).concat(porcuslime_horizontal_telegraph(location, map, self));
+    return [
+        ...porcuslime_diagonal_telegraph(location, map, self),
+        ...porcuslime_horizontal_telegraph(location, map, self)
+    ]
 }
 /** @type {TileGenerator} */
 function medium_porcuslime_tile(){
@@ -4910,6 +4983,105 @@ function shadow_scout_ai(self, target, map){
     self.tile.cycle === 0 ? self.tile.tags.add(TAGS.hidden) : self.tile.tags.remove(TAGS.hidden);
     spider_ai(self, target, map);
 }
+/** @type {TileGenerator}*/
+function specter_tile(){
+    return {
+        type: `enemy`,
+        name: `Specter`,
+        pic: `${IMG_FOLDER.tiles}specter.png`,
+        description: specter_description,
+        tags: new TagList(),
+        health: 1,
+        difficulty: 5,
+        behavior: specter_ai,
+        telegraph: specter_telegraph
+    }
+}
+
+/** @type {AIFunction} AI used by specters.*/
+function specter_ai(self, target, map){
+    if(target.difference.on_axis()){
+        // If orthogonal, move towards player.
+        var direction = sign(target.difference);
+        var locations = get_specter_moves(self.location, direction, map);
+        specter_move(self.location, locations, map);
+        return;
+    }
+    var dir1 = sign(new Point(target.difference.x, 0));
+    var dir2 = sign(new Point(0, target.difference.y));
+    var direction = random_num(2) === 1 ? dir1 : dir2;
+    var target_location = self.location.plus(target.difference);
+    var locations = get_specter_moves(self.location, direction, map);
+    for(var i = 0; i < locations.length; ++i){
+        if(
+            map.check_empty(locations[i]) && 
+            target_location.minus(locations[i]).on_axis() &&
+            !target_location.minus(locations[i]).within_radius(1)
+        ){
+            // If can move to the axis and the destination is not next to the player, do so.
+            specter_move(self.location, locations.slice(0, i + 1), map);
+            return;
+        }
+    }
+    if(
+        point_equals(sign(locations[locations.length - 1]), sign(self.location)) && // Same quadrant
+        !target_location.minus(locations[locations.length - 1]).within_radius(1)
+    ){
+        // If it cant reach the axis, go as far is it can as long as it doesn't end next to a player.
+        specter_move(self.location, locations, map);
+        return;
+    }
+    var directions = order_nearby(target.difference).reverse().filter((p) => {return p.on_axis()});
+    for(var direction of directions){
+        var locations = get_specter_moves(self.location, direction, map);
+        if(locations.length > 0){
+            // Try to move away from the player.
+            specter_move(self.location, locations, map);
+            return;
+        }
+    }
+}
+
+function get_specter_moves(current, direction, map){
+    var locations = [];
+    var last_open = 0;
+    for(var i = 0; i < 3; ++i){
+        current = current.plus(direction);
+        if(map.is_in_bounds(current)){
+            locations.push(current);
+            if(map.check_empty(current)){
+                last_open = locations.length;
+            }
+            else{
+                i -= 1;
+            }
+        }
+    }
+    return locations.splice(0, last_open);
+}
+
+function specter_move(current, passing, map){
+    if(passing.length === 0){
+        return;
+    }
+    var destination = passing.pop();
+    map.move(current, destination);
+    current.set(destination);
+    for(var location of passing){
+        map.stun_tile(location);
+        map.attack(location);
+    }
+    return;                
+}
+
+/** @type {TelegraphFunction} */
+function specter_telegraph(location, map, self){
+    var attacks = [];
+    for(var direction of HORIZONTAL_DIRECTIONS){
+        attacks.push(...get_specter_moves(location, direction, map));
+    }
+    return attacks;
+}
 /** @type {TileGenerator} */
 function spider_tile(){
     return {
@@ -5107,8 +5279,8 @@ function moving_turret_d_tile(){
         pic: `${IMG_FOLDER.tiles}moving_turret_d.png`,
         description: moving_turret_description,
         tags: new TagList(),
-        health: 2,
-        difficulty: 4,
+        health: 1,
+        difficulty: 3,
         behavior: moving_turret_d_ai,
         telegraph: moving_turret_d_telegraph,
         rotate: 0,
@@ -5156,8 +5328,8 @@ function moving_turret_h_tile(){
         pic: `${IMG_FOLDER.tiles}moving_turret_h.png`,
         description: moving_turret_description,
         tags: new TagList(),
-        health: 2,
-        difficulty: 4,
+        health: 1,
+        difficulty: 3,
         behavior: moving_turret_h_ai,
         telegraph: moving_turret_h_telegraph,
         rotate: 0,
@@ -5326,8 +5498,10 @@ function turret_r_telegraph(location, map, self){
     if(self.direction === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var attacks = get_points_in_direction(location, self.direction, map);
-    return attacks.concat(get_points_in_direction(location, self.direction.times(-1), map));
+    return [
+        ...get_points_in_direction(location, self.direction, map),
+        ...get_points_in_direction(location, self.direction.times(-1), map)
+    ];
 }
 /** @type {TileGenerator} */
 function unstable_wisp_tile(){
@@ -5338,7 +5512,7 @@ function unstable_wisp_tile(){
         description: unstable_wisp_description,
         tags: new TagList(),
         health: 1,
-        difficulty: 3,
+        difficulty: 2,
         behavior: unstable_wisp_ai,
         telegraph_other: spider_telegraph,
         on_death: unstable_wisp_death,
@@ -5604,14 +5778,15 @@ function walking_prism_on_hit(self, target, map){
     else{
         var directions = DIAGONAL_DIRECTIONS;
     }
-    // Attacks in a + or x depending on the cycle.
-    for(var direction of directions){
-        for(var space = self.location.plus(direction); !map.attack(space) && map.check_empty(space); space.plus_equals(direction)){}
-    }
     // Changes cycle.
     self.tile.cycle = 1 - self.tile.cycle;
     self.tile.pic = self.tile.pic_arr[self.tile.cycle];
     self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[1 + self.tile.cycle]}`
+
+    // Attacks in a + or x depending on the old cycle.
+    for(var direction of directions){
+        for(var space = self.location.plus(direction); !map.attack(space) && map.check_empty(space); space.plus_equals(direction)){}
+    }
 }
 
 /** @type {TelegraphFunction} */
@@ -6395,13 +6570,14 @@ function move_closer_ai(self, target, map){
     for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health > 0); ++i){
         if(map.move(self.location, self.location.plus(directions[i]))){
             self.location.plus_equals(directions[i]);
+            target.difference.minus_equals(directions[i]);
             return;
         }
     }
 }
 /** @type {AIFunction} AI used when a entity should move and attack in a direction (the target's difference field).*/
 function move_attack_ai(self, target, map){
-    if(target.difference.within_radius(0)){
+    if(target.difference.is_origin()){
         throw new Error(ERRORS.invalid_value)
     }
     if(map.move(self.location, self.location.plus(target.difference))){
@@ -6573,7 +6749,7 @@ const ENEMY_LIST = [
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, animated_boulder_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
-    paper_construct_tile
+    paper_construct_tile, specter_tile, gem_crawler_tile
 ];
 
 // This is an array of all bosses.
@@ -7606,7 +7782,7 @@ function teleport_spell(self, target, map){
 
 const HORIZONTAL_DIRECTIONS = [new Point(1, 0), new Point(-1, 0), new Point(0, -1), new Point(0, 1)];
 const DIAGONAL_DIRECTIONS = [new Point(1, 1), new Point(-1, 1), new Point(1, -1), new Point(-1, -1)];
-const ALL_DIRECTIONS = HORIZONTAL_DIRECTIONS.concat(DIAGONAL_DIRECTIONS);
+const ALL_DIRECTIONS = [...HORIZONTAL_DIRECTIONS, ...DIAGONAL_DIRECTIONS];
 
 /** @type {TelegraphFunction} */
 function hazard_telegraph(location, map, self){
@@ -8522,8 +8698,12 @@ class GameMap{
         var space = this.get_grid(location);
         space.action = `${IMG_FOLDER.actions}hit.png`;
         var target = space.tile;
+        if(target.health === 0){
+            return false;
+        }
         if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
+            var current_health = target.health;
             if(target.on_hit !== undefined){
                 // Trigger on_hit.
                 var player_pos = this.#entity_list.get_player_pos();
@@ -8537,7 +8717,7 @@ class GameMap{
                 }
                 target.on_hit(hit_entity, aggressor_info, this);
             }
-            if(target.health <= 0){
+            if(current_health <= 0){
                 // Player death.
                 if(target.type === `player`){
                     if(GS.boons.has(boon_names.rebirth)){
@@ -8602,7 +8782,7 @@ class GameMap{
         try{
             if(
                 GS.boons.has(boon_names.flame_strike) > random_num(3) && 
-                direction.within_radius(1) && !direction.within_radius(0) &&
+                direction.within_radius(1) && !direction.is_origin() &&
                 this.check_empty(pos)
             ){
                 var fireball = shoot_fireball(direction);
@@ -9279,6 +9459,7 @@ class GameState{
         var restart = function(game){
             return function(message, position){
                 display.remove_children(UIIDS.retry_button);
+                player_hand_greyed(false);
                 game.setup();
             };
         }
@@ -9776,7 +9957,7 @@ function generate_library_area(){
         generate_floor: generate_library_floor,
         enemy_list: [
             moving_turret_h_tile, moving_turret_d_tile, brightling_tile, captive_void_tile, paper_construct_tile,
-            unstable_wisp_tile, walking_prism_tile
+            unstable_wisp_tile, walking_prism_tile, specter_tile, clay_golem_tile, gem_crawler_tile
         ],
         boss_floor_list: [arcane_sentry_floor],
         next_area_list: area5,
@@ -10589,7 +10770,7 @@ function debilitating_confusion(){
                 pstun(-1, 1),
                 pstun(-1, 0),
                 pstun(-1, -1)];
-    options.add_button(SPIN, spin.concat(spin));
+    options.add_button(SPIN, [...spin, ...spin]);
     return{
         name: `debilitating confusion`,
         pic: `${IMG_FOLDER.cards}debilitating_confusion.png`,

@@ -24,7 +24,7 @@ function debilitating_confusion(){
                 pstun(-1, 1),
                 pstun(-1, 0),
                 pstun(-1, -1)];
-    options.add_button(SPIN, spin.concat(spin));
+    options.add_button(SPIN, [...spin, ...spin]);
     return{
         name: `debilitating confusion`,
         pic: `${IMG_FOLDER.cards}debilitating_confusion.png`,

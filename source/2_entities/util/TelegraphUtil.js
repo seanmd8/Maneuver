@@ -11,7 +11,7 @@
 
 const HORIZONTAL_DIRECTIONS = [new Point(1, 0), new Point(-1, 0), new Point(0, -1), new Point(0, 1)];
 const DIAGONAL_DIRECTIONS = [new Point(1, 1), new Point(-1, 1), new Point(1, -1), new Point(-1, -1)];
-const ALL_DIRECTIONS = HORIZONTAL_DIRECTIONS.concat(DIAGONAL_DIRECTIONS);
+const ALL_DIRECTIONS = [...HORIZONTAL_DIRECTIONS, ...DIAGONAL_DIRECTIONS];
 
 /** @type {TelegraphFunction} */
 function hazard_telegraph(location, map, self){

@@ -5,7 +5,7 @@ function generate_library_area(){
         generate_floor: generate_library_floor,
         enemy_list: [
             moving_turret_h_tile, moving_turret_d_tile, brightling_tile, captive_void_tile, paper_construct_tile,
-            unstable_wisp_tile, walking_prism_tile
+            unstable_wisp_tile, walking_prism_tile, specter_tile, clay_golem_tile, gem_crawler_tile
         ],
         boss_floor_list: [arcane_sentry_floor],
         next_area_list: area5,

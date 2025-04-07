@@ -1,4 +1,4 @@
-/** @type {TileGenerator} Function to act as a starting point for making new enemies. */
+/** @type {TileGenerator}*/
 function pheonix_tile(){
     return {
         type: `enemy`,

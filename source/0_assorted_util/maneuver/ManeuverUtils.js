@@ -154,7 +154,7 @@ function display_guide(){
     // Create the image arrays for the sections with images.
     var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
     var ctrl_symbol_arr = get_control_symbols();
-    var cards_inline_arr = cards_symbol_arr.concat(ctrl_symbol_arr);
+    var cards_inline_arr = [...cards_symbol_arr, ...ctrl_symbol_arr];
     var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
         card = card();
         return {
@@ -229,7 +229,7 @@ function make_guidebook_images(arr){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var button_symbols = CONTROLS.card.concat(CONTROLS.directional);
+    var button_symbols = [...CONTROLS.card, ...CONTROLS.directional];
     var buttons = [];
     for(var symbol of button_symbols){
         buttons.push(display.create_button(symbol, `${symbol} key`));

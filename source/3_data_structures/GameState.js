@@ -334,6 +334,7 @@ class GameState{
         var restart = function(game){
             return function(message, position){
                 display.remove_children(UIIDS.retry_button);
+                player_hand_greyed(false);
                 game.setup();
             };
         }

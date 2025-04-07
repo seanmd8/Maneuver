@@ -161,6 +161,17 @@ class Point{
     is_origin(){
         return point_equals(this, new Point(0, 0));
     }
+    /**
+     * Function to set this equal to another point.
+     * @param {Point} p the point it will be set equal to.
+     */
+    set(p){
+        if(p.x === undefined || p.y === undefined){
+            throw new Error(ERRORS.invalid_type);
+        }
+        this.x = p.x;
+        this.y = p.y;
+    }
 }
 
 /**

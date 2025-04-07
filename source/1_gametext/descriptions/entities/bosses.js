@@ -83,7 +83,8 @@ const young_dragon_death_message =
 const forest_heart_floor_message = 
     `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`;
 const forest_heart_description = 
-    `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage each turn. `;
+    `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage `
+    +`each turn and cannot be stunned. `;
 const forest_heart_death_message = 
     `Branches rain from above as the ancient tree is felled.`
 
@@ -105,7 +106,7 @@ const arcane_sentry_death_message =
     `MAIN SYSTEMS FAILING!\n`
     +`The wailing alarm falls silent.`;
 const arcane_sentry_node_description =
-    `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry.`
+    `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry. Cannot be stunned.`
 const arcane_sentry_node_death_message =
     `NODE OFFLINE!`;
 
@@ -116,7 +117,8 @@ const sentry_core_turret_description =
 const sentry_node_turret_description =
     `Fires beams orthogonally that hit the first thing in their path.`
 const sentry_core_saw_description =
-    `Spinning saws will damage everything around it or touching it, then it will move 1 space orthogonally.\n`
+    `Spinning saws will damage everything around it or touching it, then it will move 1 space `
+    +`orthogonally.\n`
     +`After 3 turns, it will revert.`
 const sentry_node_saw_description =
     `Spinning saws will damage everything around it or touching it.`
