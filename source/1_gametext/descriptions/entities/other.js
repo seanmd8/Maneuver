@@ -46,6 +46,3 @@ const rotting_fruit_tree_description =
     +`could still attract creatures if it is disturbed.`;
 const bookshelf_description = 
     `Bookshelf: When damaged, adds a random temporary card to your deck.`;
-const floating_barrier_description = 
-    `Moving Barrier: Moves in a straight line. Changes direction when it hits `
-    +`something.`;
