@@ -7,7 +7,7 @@ function raging_fire_tile(){
         name: `Raging Fire`,
         pic: pic_arr[health - 1],
         description: raging_fire_description,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
         health,
         behavior: decay_ai,
         telegraph: hazard_telegraph,
