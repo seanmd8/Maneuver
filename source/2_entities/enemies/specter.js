@@ -7,7 +7,7 @@ function specter_tile(){
         description: specter_description,
         tags: new TagList(),
         health: 1,
-        difficulty: 5,
+        difficulty: 3,
         behavior: specter_ai,
         telegraph: specter_telegraph
     }

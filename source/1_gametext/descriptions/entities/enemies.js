@@ -82,8 +82,8 @@ const magma_spewer_description =
     `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
     +`get close.`
 const animated_boulder_description = 
-    `Animated Boulder: Wakes up when something touches it. Each turn, `
-    +`it damages anyone close to it, then moves 1 space closer to the player. `
+    `Animated Boulder: Wakes up when something touches it. Each turn it will `
+    +`damage everything close to it, then move 1 space closer to the player. `
     +`After 3 turns, it will go back to sleep.`;
 const pheonix_description = 
     `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `

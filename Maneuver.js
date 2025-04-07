@@ -1908,8 +1908,8 @@ const magma_spewer_description =
     `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
     +`get close.`
 const animated_boulder_description = 
-    `Animated Boulder: Wakes up when something touches it. Each turn, `
-    +`it damages anyone close to it, then moves 1 space closer to the player. `
+    `Animated Boulder: Wakes up when something touches it. Each turn it will `
+    +`damage everything close to it, then move 1 space closer to the player. `
     +`After 3 turns, it will go back to sleep.`;
 const pheonix_description = 
     `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `
@@ -4321,7 +4321,7 @@ function paper_construct_tile(){
         description: paper_construct_description,
         tags: new TagList(),
         health: 1,
-        difficulty: 3,
+        difficulty: 2,
         behavior: paper_construct_ai,
         telegraph: porcuslime_horizontal_telegraph,
         rotate: 90 * random_num(4)
@@ -4992,7 +4992,7 @@ function specter_tile(){
         description: specter_description,
         tags: new TagList(),
         health: 1,
-        difficulty: 5,
+        difficulty: 3,
         behavior: specter_ai,
         telegraph: specter_telegraph
     }
@@ -9876,15 +9876,28 @@ function generate_basement_area(){
 
 /** @type {FloorGenerator}*/
 function generate_basement_floor(floor_num, area, map){
-    wall_terrain(floor_num, area, map)
+    if(random_num(7) === 0){
+        many_walls_terrain(floor_num, area, map)
+    }
+    else{
+        wall_terrain(floor_num, area, map)
+    }
     generate_normal_floor(floor_num, area, map);
 }
 /** @type {FloorGenerator}*/
 function wall_terrain(floor_num, area, map){
     var wall_amount = Math.min(random_num(8), random_num(8));
     for(var i = 0; i < wall_amount; ++i){
-        map.spawn_safely(damaged_wall_tile(), SAFE_SPAWN_ATTEMPTS, false)
-        map.spawn_safely(wall_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(damaged_wall_tile(), SAFE_SPAWN_ATTEMPTS, false);
+        map.spawn_safely(wall_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+}
+/** @type {FloorGenerator}*/
+function many_walls_terrain(floor_num, area, map){
+    var wall_amount = 10 + random_num(5);
+    for(var i = 0; i < wall_amount; ++i){
+        map.spawn_safely(damaged_wall_tile(), SAFE_SPAWN_ATTEMPTS, false);
+        map.spawn_safely(wall_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
 /** @type {AreaGenerator}*/
@@ -9967,7 +9980,18 @@ function generate_library_area(){
 
 /** @type {FloorGenerator}*/
 function generate_library_floor(floor_num, area, map){
+    if(random_num(3) !== 0){
+        bookshelf_terrain(floor_num, area, map);
+    }
     generate_normal_floor(floor_num, area, map);
+}
+
+/** @type {FloorGenerator}*/
+function bookshelf_terrain(floor_num, area, map){
+    var bookshelf_amount = random_num(10);
+    for(var i = 0; i < bookshelf_amount; ++i){
+        map.spawn_safely(bookshelf_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
 }
 /** @type {AreaGenerator}*/
 function generate_magma_area(){
@@ -10385,11 +10409,6 @@ function boss_floor_common(floor_num,  area, map){
     if(GS.boons.has(boon_names.pacifism) === 0){
         map.lock();
     }
-}
-
-/** @type {FloorGenerator}*/
-function generate_library_floor(floor_num, area, map){
-    generate_normal_floor(floor_num, area, map);
 }
 
 /** @type {FloorGenerator}*/

@@ -15,5 +15,16 @@ function generate_library_area(){
 
 /** @type {FloorGenerator}*/
 function generate_library_floor(floor_num, area, map){
+    if(random_num(3) !== 0){
+        bookshelf_terrain(floor_num, area, map);
+    }
     generate_normal_floor(floor_num, area, map);
+}
+
+/** @type {FloorGenerator}*/
+function bookshelf_terrain(floor_num, area, map){
+    var bookshelf_amount = random_num(10);
+    for(var i = 0; i < bookshelf_amount; ++i){
+        map.spawn_safely(bookshelf_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
 }
