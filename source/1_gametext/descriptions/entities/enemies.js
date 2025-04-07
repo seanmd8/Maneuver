@@ -82,8 +82,8 @@ const magma_spewer_description =
     `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
     +`get close.`
 const animated_boulder_description = 
-    `Animated Boulder: Wakes up when something touches it. Each turn, `
-    +`it damages anyone close to it, then moves 1 space closer to the player. `
+    `Animated Boulder: Wakes up when something touches it. Each turn it will `
+    +`damage everything close to it, then move 1 space closer to the player. `
     +`After 3 turns, it will go back to sleep.`;
 const pheonix_description = 
     `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `
@@ -126,5 +126,11 @@ const captive_void_description =
     `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it `
     +`turns it off for 2 turns.`;
 const paper_construct_description = 
-    `Paper Construct: can shoot the player from up to 2 spaces away orthogonally. Otherwise, `
+    `Paper Construct: Can shoot the player from up to 2 spaces away orthogonally. Otherwise, `
     +`moves up to two spaces diagonally.`;
+const specter_description =
+    `Specter: Can travel up to 3 spaces orthogonally. While doing so, it can pass through tiles `
+    +`without costing movement. Passing through a tile damages and stuns/confuses it.`;
+const gem_crawler_description =
+    `Gem Crawler: Every other turn it will move 1 space closer to the player, then attack them if `
+    +`it is next to them.`;

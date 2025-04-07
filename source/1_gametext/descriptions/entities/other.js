@@ -9,7 +9,7 @@ const damaged_wall_description =
     `Damaged Wall: Something might live inside.`;
 const fireball_description = 
     `Fireball: Moves forwards until it comes into contact with `
-    +`something, then damages it.`;
+    +`something, then damages it. Cannot be stunned.`;
 const falling_rubble_description = 
     `Watch out, something is about to fall here.`;
 const darkling_rift_description = 
@@ -24,7 +24,7 @@ const smoldering_ashes_description = [
 ];
 const raging_fire_description = 
     `Raging Fire: The very ground here is burning. It will grow weaker `
-    +`every turn, but it's not safe to move through.`;
+    +`every turn, but it's not safe to move through. Cannot be stunned.`;
 const coffin_description = 
     `Coffin: There is no telling whether whatever is inside is still `
     +`alive or not. Touch it at your own risk.`;
@@ -46,6 +46,3 @@ const rotting_fruit_tree_description =
     +`could still attract creatures if it is disturbed.`;
 const bookshelf_description = 
     `Bookshelf: When damaged, adds a random temporary card to your deck.`;
-const floating_barrier_description = 
-    `Moving Barrier: Moves in a straight line. Changes direction when it hits `
-    +`something.`;

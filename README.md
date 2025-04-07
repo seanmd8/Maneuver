@@ -9,6 +9,20 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+4/7/25
+- Added new fourth area: Arcane Library
+- Added Arcane Library boss: Arcane Sentry
+- Added new enemy: Moving Turret
+- Added new enemy: Paper Construct
+- Added new enemy: Walking Prism
+- Added new enemy: Specter
+- Added new enemy: Gem Crawler
+- Added new terrain: Bookshelf
+- Added new terrain: Captive Void
+- Added 5 new boons
+- Added new boss cards for the Lich and Two Headed Serpent
+- The player's hand is now greyed out while it is not their turn
+
 12/3/24
 - Added 2 new boons
 - Renamed Hoarder boon to Larger Chests

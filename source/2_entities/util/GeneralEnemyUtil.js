@@ -43,6 +43,7 @@
  * @property {TileGenerator[]=} summons A array of tiles it can spawn.
  * @property {Content[]=} contents The contents of a chest.
  * @property {CardGenerator[]=} card_drops The cards a boss can drop on death.
+ * @property {string=} mode The current behavior mode.
  * 
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
@@ -64,12 +65,13 @@ const ENEMY_LIST = [
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, animated_boulder_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
-    paper_construct_tile
+    paper_construct_tile, specter_tile, gem_crawler_tile
 ];
 
 // This is an array of all bosses.
 const BOSS_LIST = [
-    lich_tile, spider_queen_tile, two_headed_serpent_tile, velociphile_tile, young_dragon_tile
+    lich_tile, spider_queen_tile, two_headed_serpent_tile, velociphile_tile, young_dragon_tile, 
+    forest_heart_tile, arcane_sentry_tile
 ]
 
 /**
@@ -261,8 +263,7 @@ function set_rotation(tile){
         SW = (-1,  1) -> 270
         W  = (-1,  0) -> 270 
     */
-    if( tile.direction === undefined ||
-        tile.rotate === undefined){
+    if(tile.direction === undefined){
         throw new Error(ERRORS.missing_property);
     }
     var direction = tile.direction;

@@ -155,3 +155,28 @@ function update_initiative(map){
     display.remove_children(UIIDS.initiative);
     display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
 }
+
+/**
+ * Refreshes the display of a Shadow of Self's hand
+ */
+function refresh_shadow_hand_display(hand){
+    hand = hand.map(choice => {
+        return {
+            pic: choice.pic,
+            name: choice.name,
+            background: choice.background,
+            card: choice.card
+        }
+    })
+    display.remove_children(UIIDS.shadow_hand_table);
+    display.add_tb_row(UIIDS.shadow_hand_table, hand, SMALL_CARD_SCALE);
+}
+
+function shadow_hand_select(position){
+    display.select(UIIDS.shadow_hand_table, 0, position)
+}
+
+function player_hand_greyed(is_greyed){
+    var toggle = is_greyed ? display.add_class : display.remove_class;
+    toggle(UIIDS.hand_display, `greyed-out`);
+}

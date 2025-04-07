@@ -44,7 +44,7 @@ class ButtonGrid{
         var grid = [];
         var telegraph = function(behavior){
             return function(){
-                var t = telegraph_card(behavior, GS.map);
+                var t = telegraph_card(behavior, GS.map, GS.map.get_player_location());
                 GS.map.clear_telegraphs();
                 GS.map.mark_telegraph(t.moves, `${IMG_FOLDER.actions}move_telegraph.png`);
                 GS.map.mark_telegraph(t.attacks, `${IMG_FOLDER.actions}hit_telegraph.png`);
@@ -119,5 +119,12 @@ class ButtonGrid{
      */
     is_instant(){
         return this.#instant;
+    }
+    get_behavior(num){
+        if(num < 1 || 9 < num){
+            throw new Error(ERRORS.invalid_value);
+        }
+        --num;
+        return this.#buttons[Math.floor(num / 3)][num % 3].behavior;
     }
 }

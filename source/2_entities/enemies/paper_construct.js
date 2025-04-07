@@ -7,7 +7,7 @@ function paper_construct_tile(){
         description: paper_construct_description,
         tags: new TagList(),
         health: 1,
-        difficulty: 3,
+        difficulty: 2,
         behavior: paper_construct_ai,
         telegraph: porcuslime_horizontal_telegraph,
         rotate: 90 * random_num(4)
@@ -38,10 +38,12 @@ function paper_construct_ai(self, target, map){
         }
         if(dir){
             // Move up to 2 spaces in that direction.
-            var moved = true;
-            for(var i = 0; i < 2 && !(target.difference.on_axis() && target.difference.within_radius(2)) && moved; ++i){
-                moved = map.move(self.location, self.location.plus(dir));
-                if(moved){
+            var could_move = true;
+            for(var i = 0; i < 2 && !(target.difference.on_axis() && target.difference.within_radius(2)) && could_move; ++i){
+                var destination = self.location.plus(dir);
+                could_move = map.check_empty(destination);
+                if(could_move){
+                    map.move(self.location, destination);
                     self.location.plus_equals(dir);
                     target.difference.minus_equals(dir);
                 }

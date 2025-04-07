@@ -439,8 +439,12 @@ class GameMap{
         var space = this.get_grid(location);
         space.action = `${IMG_FOLDER.actions}hit.png`;
         var target = space.tile;
+        if(target.health === 0){
+            return false;
+        }
         if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
+            var current_health = target.health;
             if(target.on_hit !== undefined){
                 // Trigger on_hit.
                 var player_pos = this.#entity_list.get_player_pos();
@@ -454,7 +458,7 @@ class GameMap{
                 }
                 target.on_hit(hit_entity, aggressor_info, this);
             }
-            if(target.health <= 0){
+            if(current_health <= 0){
                 // Player death.
                 if(target.type === `player`){
                     if(GS.boons.has(boon_names.rebirth)){
@@ -517,6 +521,14 @@ class GameMap{
     player_attack(direction){
         var pos = this.#entity_list.get_player_pos().plus(direction);
         try{
+            if(
+                GS.boons.has(boon_names.flame_strike) > random_num(3) && 
+                direction.within_radius(1) && !direction.is_origin() &&
+                this.check_empty(pos)
+            ){
+                var fireball = shoot_fireball(direction);
+                this.add_tile(fireball, pos);
+            }
             return this.attack(pos);
         }
         catch (error){
@@ -550,7 +562,7 @@ class GameMap{
      */
     lock(){
         var pos = this.#entity_list.get_exit_pos();
-        this.#set_tile(pos, lock_tile())
+        this.#set_tile(pos, lock_tile());
     }
     /**
      * Replaces the lock tile with an exit one and heals the player to max.
@@ -755,7 +767,7 @@ class GameMap{
         if( // Pressure points boon
             stunned && 
             GS.boons.has(boon_names.pressure_points) > random_num(3) && 
-            !point_equals(direction, new Point(0, 0))
+            !direction.is_origin()
         ){
             this.player_attack(direction);
         }

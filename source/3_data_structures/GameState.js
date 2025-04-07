@@ -134,32 +134,47 @@ class GameState{
     player_action(action){
         switch(action.type){
             case `attack`:
+                var attack_count = 1;
+                var stun_count = 0;
                 var target = this.map.get_player_location().plus(action.change);
+                if(this.boons.has(boon_names.sniper)){
+                    var distance = Math.max(Math.abs(action.change.x), Math.abs(action.change.y));
+                    attack_count += Math.max(0, distance - 1);
+                }
+                if(this.boons.has(boon_names.frenzy) && this.map.get_player().health === 1){
+                    attack_count *= 2;
+                }
                 if( // Dazing Blows
                     this.boons.has(boon_names.dazing_blows) && 
-                    !point_equals(action.change, new Point(0, 0)) &&
+                    !action.change.is_origin() &&
                     this.map.is_in_bounds(target) &&
                     !this.map.get_tile(target).tags.has(TAGS.boss)
                 ){
-                    this.map.player_stun(action.change);
+                    stun_count += 1
                 }
                 if( // Pacifism
                     this.boons.has(boon_names.pacifism) && 
-                    !point_equals(action.change, new Point(0, 0))
+                    !action.change.is_origin()
                 ){
-                    this.map.player_stun(action.change);
-                    this.map.player_stun(action.change);
+                    stun_count += 2 * attack_count;
+                    attack_count = 0;
                 }
-                else{
+                for(var i = 0; i < attack_count; ++i){
                     this.map.player_attack(action.change);
+                }
+                for(var i = 0; i < stun_count; ++i){
+                    this.player_action(pstun(action.change.x, action.change.y));
                 }
                 break;
             case `move`:
+                var previous_location = this.map.get_player_location();
                 var moved = this.map.player_move(action.change);
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
-                    this.map.player_attack(action.change);
+                    this.player_action(pattack(action.change.x, action.change.y));
                 }
-                
+                if(moved && random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                    this.map.add_tile(corrosive_slime_tile(), previous_location);
+                }
                 break;
             case `teleport`:
                 try{
@@ -176,10 +191,25 @@ class GameState{
                 break;
             case `move_until`:
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
-                while(this.map.player_move(action.change)){};
+                var previous_location = this.map.get_player_location();
+                while(this.map.player_move(action.change)){
+                    if(random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                        this.map.add_tile(corrosive_slime_tile(), previous_location);
+                    }
+                    previous_location = this.map.get_player_location();
+                };
                 if(spiked_shoes){
-                    this.map.player_attack(action.change);
+                    this.player_action(pattack(action.change.x, action.change.y));
                 }
+                break;
+            case `attack_until`:
+                var i = 0;
+                do{
+                    i += 1;
+                    var p_location = this.map.get_player_location();
+                    var target = action.change.times(i);
+                    this.player_action(pattack(target.x, target.y));
+                }while(this.map.is_in_bounds(p_location.plus(target)));
                 break;
             case `heal`:
                 this.map.player_heal(action.change, 1);
@@ -304,6 +334,7 @@ class GameState{
         var restart = function(game){
             return function(message, position){
                 display.remove_children(UIIDS.retry_button);
+                player_hand_greyed(false);
                 game.setup();
             };
         }
@@ -343,6 +374,7 @@ class GameState{
     lock_player_turn(){
         if(this.#player_turn_lock){
             this.#player_turn_lock = false;
+            player_hand_greyed(true);
             return true;
         }
         return false;
@@ -352,6 +384,7 @@ class GameState{
      */
     unlock_player_turn(){
         this.#player_turn_lock = true;
+        player_hand_greyed(false);
     }
     /** 
      * Ensures the player can't make moves during the enemies' turn.

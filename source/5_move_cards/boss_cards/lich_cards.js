@@ -24,10 +24,38 @@ function debilitating_confusion(){
                 pstun(-1, 1),
                 pstun(-1, 0),
                 pstun(-1, -1)];
-    options.add_button(SPIN, spin.concat(spin));
+    options.add_button(SPIN, [...spin, ...spin]);
     return{
         name: `debilitating confusion`,
         pic: `${IMG_FOLDER.cards}debilitating_confusion.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the lich*/
+function beam_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack_until(0, -1)]);
+    options.add_button(E, [pattack_until(1, 0)]);
+    options.add_button(S, [pattack_until(0, 1)]);
+    options.add_button(W, [pattack_until(-1, 0)]);
+    return{
+        name: `beam orthogonal`,
+        pic: `${IMG_FOLDER.cards}beam_orthogonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the lich*/
+function beam_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack_until(1, -1)]);
+    options.add_button(SE, [pattack_until(1, 1)]);
+    options.add_button(SW, [pattack_until(-1, 1)]);
+    options.add_button(NW, [pattack_until(-1, -1)]);
+    return{
+        name: `beam diagonal`,
+        pic: `${IMG_FOLDER.cards}beam_diagonal.png`,
         options
     }
 }

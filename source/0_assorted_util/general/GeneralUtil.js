@@ -179,3 +179,15 @@ function ifexists(exists){
     }
     return exists;
 }
+
+function range(start = 0, stop, step = 1){
+    if(stop === undefined){
+        stop = start;
+        start = 0;
+    }
+    var nums = [];
+    for(var i = start; i < stop; i += step){
+        nums.push(i);
+    }
+    return nums;
+}

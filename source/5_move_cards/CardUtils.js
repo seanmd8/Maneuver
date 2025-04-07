@@ -85,6 +85,13 @@ function pmove_until(x, y){
         change: new Point(x, y)
     }
 }
+/** @type {PlayerCommandGenerator} Function to attack in a direction until you hit the edge of the board.*/
+function pattack_until(x, y){
+    return {
+        type: `attack_until`,
+        change: new Point(x, y)
+    }
+}
 /** @type {PlayerCommandGenerator} Function to heal the thing at the specified spot by 1.*/
 function pheal(x, y){
     return {
@@ -127,12 +134,14 @@ function explain_action(action){
         case `teleport`:
             return move_types.teleport;
         case `stun`:
-            if(point_equals(action.change, new Point(0, 0))){
+            if(action.change.is_origin()){
                 return move_types.confuse;
             }
-            return `${move_types.stun}: ${target}`
+            return `${move_types.stun}: ${target}`;
         case `move_until`:
-            return `${move_types.move_until}: ${target}`
+            return `${move_types.move_until}: ${target}`;
+        case `attack_until`:
+            return `${move_types.attack_until}: ${target}`;
         case `heal`:
             return `${move_types.heal}: ${target}`;
         default:
@@ -166,8 +175,7 @@ function explain_point(p){
 /**
  * 
  */
-function telegraph_card(behavior, map){
-    var start_position = map.get_player_location(); 
+function telegraph_card(behavior, map, start_position){
     var telegraphs = {
         moves: [],
         attacks: [],
@@ -212,12 +220,31 @@ function telegraph_card(behavior, map){
                     telegraphs.moves.push(next_position);
                 }
                 break;
+            case `attack_until`:
+                var temp_next = next_position;
+                var temp_start = start_position;
+                while(map.is_in_bounds(temp_next)){
+                    telegraphs.attacks.push(temp_next);
+                    temp_start = temp_next;
+                    temp_next = temp_start.plus(action.change);
+                }
+                break;
             case `heal`:
                 telegraphs.healing.push(next_position);
                 break;
             default:
                 throw new Error(ERRORS.invalid_value);
         }
+    }
+    if([ 
+        ...telegraphs.moves, 
+        ...telegraphs.attacks, 
+        ...telegraphs.stun, 
+        ...telegraphs.healing, 
+        ...telegraphs.teleport
+    ].length === 0){
+        // If they aren't doing anything, show that.
+        telegraphs.moves.push(start_position);
     }
     return telegraphs;
 }

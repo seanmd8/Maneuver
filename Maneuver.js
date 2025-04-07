@@ -181,6 +181,17 @@ function ifexists(exists){
     return exists;
 }
 
+function range(start = 0, stop, step = 1){
+    if(stop === undefined){
+        stop = start;
+        start = 0;
+    }
+    var nums = [];
+    for(var i = start; i < stop; i += step){
+        nums.push(i);
+    }
+    return nums;
+}
 // ----------------Point.js----------------
 // File contains Point class and associated functions.
 
@@ -329,16 +340,31 @@ class Point{
      * (0, 0) returns false.
      */
     on_axis(){
-        var is_origin = point_equals(this, new Point(0, 0));
-        return (this.x === 0 || this.y === 0) && !is_origin;
+        return (this.x === 0 || this.y === 0) && !this.is_origin();
     }
     /**
      * @returns true if the point is on the lines y = x or y = -x, false otherwise.
      * (0, 0) returns false.
      */
     on_diagonal(){
-        var is_origin = point_equals(this, new Point(0, 0));
-        return Math.abs(this.x) === Math.abs(this.y) && !is_origin;
+        return Math.abs(this.x) === Math.abs(this.y) && !this.is_origin()
+    }
+    /**
+     * @returns true if the point is the origin (0, 0).
+     */
+    is_origin(){
+        return point_equals(this, new Point(0, 0));
+    }
+    /**
+     * Function to set this equal to another point.
+     * @param {Point} p the point it will be set equal to.
+     */
+    set(p){
+        if(p.x === undefined || p.y === undefined){
+            throw new Error(ERRORS.invalid_type);
+        }
+        this.x = p.x;
+        this.y = p.y;
     }
 }
 
@@ -380,7 +406,7 @@ const MIN_DECK_SIZE = 5;
 const STARTING_ENEMIES = TEST_INIT.enemies ? TEST_INIT.enemies : [spider_tile];
 const STARTING_CHESTS = TEST_INIT.chest ? TEST_INIT.chest : [];
 const STARTING_DECK = TEST_INIT.cards ? make_test_deck : make_starting_deck;
-const STARTING_AREA = TEST_INIT.area ? TEST_INIT.area : [generate_ruins_area];
+const STARTING_AREA = TEST_INIT.area ? [TEST_INIT.area] : [generate_ruins_area];
 var GS;
 
 // Dungeon generation settings.
@@ -434,8 +460,11 @@ const TAGS = {
     unstunnable: `Unstunnable`,
     hidden: `Hidden`,
     invulnerable: `Invulnerable`,
+    controlled: `Controlled`,
     thorn_bush_roots: `Thorn Bush Roots`,
-    nettle_immune: `Nettle Immune`
+    nettle_immune: `Nettle Immune`,
+    arcane_sentry: `Arcane Sentry`,
+    fireball: `Fireball`
 }
 Object.freeze(TAGS);
 // ----------------Display.js----------------
@@ -1120,6 +1149,31 @@ function update_initiative(map){
     display.remove_children(UIIDS.initiative);
     display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
 }
+
+/**
+ * Refreshes the display of a Shadow of Self's hand
+ */
+function refresh_shadow_hand_display(hand){
+    hand = hand.map(choice => {
+        return {
+            pic: choice.pic,
+            name: choice.name,
+            background: choice.background,
+            card: choice.card
+        }
+    })
+    display.remove_children(UIIDS.shadow_hand_table);
+    display.add_tb_row(UIIDS.shadow_hand_table, hand, SMALL_CARD_SCALE);
+}
+
+function shadow_hand_select(position){
+    display.select(UIIDS.shadow_hand_table, 0, position)
+}
+
+function player_hand_greyed(is_greyed){
+    var toggle = is_greyed ? display.add_class : display.remove_class;
+    toggle(UIIDS.hand_display, `greyed-out`);
+}
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
     invalid_type: `invalid type`,
@@ -1298,7 +1352,7 @@ function display_guide(){
     // Create the image arrays for the sections with images.
     var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
     var ctrl_symbol_arr = get_control_symbols();
-    var cards_inline_arr = cards_symbol_arr.concat(ctrl_symbol_arr);
+    var cards_inline_arr = [...cards_symbol_arr, ...ctrl_symbol_arr];
     var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
         card = card();
         return {
@@ -1373,7 +1427,7 @@ function make_guidebook_images(arr){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var button_symbols = CONTROLS.card.concat(CONTROLS.directional);
+    var button_symbols = [...CONTROLS.card, ...CONTROLS.directional];
     var buttons = [];
     for(var symbol of button_symbols){
         buttons.push(display.create_button(symbol, `${symbol} key`));
@@ -1425,7 +1479,7 @@ const basement_description = `You have entered the basement.`;
 const magma_description = `You have entered the magmatic caves.`;
 const crypt_description = `You have entered the crypt.`;
 const forest_description = `You have entered the subteranean forest.`;
-const library_description = `You have entered the library.`;
+const library_description = `You have entered the arcane library.`;
 const sanctum_description = `You have entered the sanctum.`;
 const default_area_description = `You have reached the end of the current content. Floors will continue to generate but there will `
                                 +`be no more boss fights. Good luck.`;
@@ -1444,11 +1498,13 @@ const boon_names = {
     empty_rooms: `Empty Rooms`,
     escape_artist: `Escape Artist`,
     expend_vitality: `Expend Vitality`,
+    flame_strike: `Flame Strike`,
     fleeting_thoughts: `Fleeting Thoughts`,
     fortitude: `Fortitude`,
     frenzy: `Frenzy`,
     frugivore: `Frugivore`,
     future_sight: `Future Sight`,
+    gruntwork: `Gruntwork`,
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
     learn_from_mistakes: `Learn From Mistakes`,
@@ -1465,9 +1521,11 @@ const boon_names = {
     roar_of_challenge: `Roar of Challenge`,
     safe_passage: `Safe Passage`,
     serenity: `Serenity`,
-    shattered_glass: `Shattere Glass`,
+    shattered_glass: `Shattered Glass`,
     skill_trading: `Skill Trading`,
     slayer: `Slayer`,
+    slime_trail: `Slime Trail`,
+    sniper: `Sniper`,
     spiked_shoes: `Spiked Shoes`,
     spontaneous: `Spontaneous`,
     stable_mind: `Stable Mind`,
@@ -1503,6 +1561,8 @@ const escape_artist_description =
 const expend_vitality_description =  
     `Heal 1 life at the start of each floor. Your max health is decreased `
     +`by 1.`;
+const flame_strike_description = 
+    `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`;
 const fleeting_thoughts_description = 
     `Temporary cards added to your deck will happen instantly.`;
 const fortitude_description = 
@@ -1514,6 +1574,8 @@ const frugivore_description =
     +`for 1, but might attract enemies.`;
 const future_sight_description = 
     `You may look at the order of your deck.`;
+const gruntwork_description =
+    `Gain 3 extra max health. Decrease your hand size by 1.`;
 const hoarder_description = 
     `Encounter two chests in each area.`;
 const larger_chests_description = 
@@ -1557,6 +1619,10 @@ const shattered_glass_description =
     +`max health by 1.`;
 const skill_trading_description = 
     `You may both add a card and remove a card at each shop.`;
+const slime_trail_description = 
+    `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`;
+const sniper_description =
+    `Attacks deal extra damage to enemies at a distance based on how far away they are.`;
 const spiked_shoes_description = 
     `Attempting to move onto enemies damages them. Reduces your max health by 1.`;
 const spontaneous_description = 
@@ -1596,7 +1662,7 @@ const four_directions = {
 // Move types.
 const move_types = {
     alt: `Shift click on a button to show what it will do on the map.`,
-    evolutions: `Dust seems to be covering part of this card obscuring some of the options. `
+    evolutions: `Dust and paint seems to be covering part of this card obscuring some of the options. `
                 +`Maybe you can find some way to remove it?`,
     intro: `Move Options (actions will be performed in order):\n`,
 
@@ -1606,6 +1672,7 @@ const move_types = {
     stun: `Stun`,
     confuse: `Confuse: you. Adds a bad temporary card to your deck.`,
     move_until: `Keep Moving`,
+    attack_until: `Keep Moving`,
     heal: `Heal`,
     you: `you`,
     nothing: `Do nothing`,
@@ -1700,7 +1767,8 @@ const young_dragon_death_message =
 const forest_heart_floor_message = 
     `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`;
 const forest_heart_description = 
-    `An ancient tree warped by dark magic. Cannot take more than 1 damage each turn. `;
+    `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage `
+    +`each turn and cannot be stunned. `;
 const forest_heart_death_message = 
     `Branches rain from above as the ancient tree is felled.`
 
@@ -1712,6 +1780,49 @@ const forest_heart_growth_description =
 const forest_heart_summon_description = 
     `Currently, the Forest Heart is preparing to summon forest creatures.`;
 
+// Arcane Sentry
+const arcane_sentry_floor_message =
+    `An alarm begins to blare.\n`
+    +`INTRUDER DETECTED!`
+const arcane_sentry_description =
+    `Arcane Sentry (Boss): An automated defense station. Changes modes in response to damage.`;
+const arcane_sentry_death_message =
+    `MAIN SYSTEMS FAILING!\n`
+    +`The wailing alarm falls silent.`;
+const arcane_sentry_node_description =
+    `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry. Cannot be stunned.`
+const arcane_sentry_node_death_message =
+    `NODE OFFLINE!`;
+
+// Arcane Sentry Modes
+const sentry_core_turret_description =
+    `Currently the nodes are set to act as turrets.\n`
+    +`While in this mode, the sentry will continuously create paper constructs.`
+const sentry_node_turret_description =
+    `Fires beams orthogonally that hit the first thing in their path.`
+const sentry_core_saw_description =
+    `Spinning saws will damage everything around it or touching it, then it will move 1 space `
+    +`orthogonally.\n`
+    +`After 3 turns, it will revert.`
+const sentry_node_saw_description =
+    `Spinning saws will damage everything around it or touching it.`
+const sentry_core_cannon_description =
+    `Currently preparing to shoot volleys of fireballs.\n`
+    +`After 2 volleys, it will revert.`
+const sentry_node_cannon_description =
+    `Shoots a fireball in the direction it is aimed.`
+const sentry_node_double_cannon_description =
+    `Shoots 2 fireballs in the direction it is aimed.`
+
+/**
+// Shadow of Self
+const shadow_of_self_floor_message = 
+    `A familiar face watches you from the shadows.`;
+const shadow_of_self_description = 
+    `You?`;
+const shadow_of_self_death_message = 
+    `Shadows cannot hold a candle to the real thing.`
+*/
 
 // Normal Enemy Descriptions.
 
@@ -1797,8 +1908,8 @@ const magma_spewer_description =
     `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
     +`get close.`
 const animated_boulder_description = 
-    `Animated Boulder: Wakes up when something touches it. Each turn, `
-    +`it damages anyone close to it, then moves 1 space closer to the player. `
+    `Animated Boulder: Wakes up when something touches it. Each turn it will `
+    +`damage everything close to it, then move 1 space closer to the player. `
     +`After 3 turns, it will go back to sleep.`;
 const pheonix_description = 
     `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `
@@ -1841,8 +1952,15 @@ const captive_void_description =
     `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it `
     +`turns it off for 2 turns.`;
 const paper_construct_description = 
-    `Paper Construct: can shoot the player from up to 2 spaces away orthogonally. Otherwise, `
+    `Paper Construct: Can shoot the player from up to 2 spaces away orthogonally. Otherwise, `
     +`moves up to two spaces diagonally.`;
+const specter_description =
+    `Specter: Can travel up to 3 spaces orthogonally. While doing so, it can pass through tiles `
+    +`without costing movement. Passing through a tile damages and stuns/confuses it.`;
+const gem_crawler_description =
+    `Gem Crawler: Every other turn it will move 1 space closer to the player, then attack them if `
+    +`it is next to them.`;
+
 const lava_pool_description = 
     `Lava Pool: Attempting to move here will hurt.`;
 const corrosive_slime_description = 
@@ -1854,7 +1972,7 @@ const damaged_wall_description =
     `Damaged Wall: Something might live inside.`;
 const fireball_description = 
     `Fireball: Moves forwards until it comes into contact with `
-    +`something, then damages it.`;
+    +`something, then damages it. Cannot be stunned.`;
 const falling_rubble_description = 
     `Watch out, something is about to fall here.`;
 const darkling_rift_description = 
@@ -1869,7 +1987,7 @@ const smoldering_ashes_description = [
 ];
 const raging_fire_description = 
     `Raging Fire: The very ground here is burning. It will grow weaker `
-    +`every turn, but it's not safe to move through.`;
+    +`every turn, but it's not safe to move through. Cannot be stunned.`;
 const coffin_description = 
     `Coffin: There is no telling whether whatever is inside is still `
     +`alive or not. Touch it at your own risk.`;
@@ -1891,9 +2009,6 @@ const rotting_fruit_tree_description =
     +`could still attract creatures if it is disturbed.`;
 const bookshelf_description = 
     `Bookshelf: When damaged, adds a random temporary card to your deck.`;
-const floating_barrier_description = 
-    `Moving Barrier: Moves in a straight line. Changes direction when it hits `
-    +`something.`;
 
 
 const empty_description = 
@@ -1945,6 +2060,7 @@ const SIDEBAR_BUTTONS = {
     discard_pile: `Discard`, 
     initiative: `Initiative`, 
     deck_order: `Deck`,
+    shadow_hand: `Shadow Hand`,
     sidebar: `Sidebar`
 }
 Object.freeze(SIDEBAR_BUTTONS);
@@ -1964,87 +2080,114 @@ const GUIDE_HEADERS = {
 Object.freeze(GUIDE_HEADERS);
 
 const GUIDE_TEXT = {
-    basics: [`Welcome to Maneuver. The goal of the game is to progress as deep into the dungeon as possible by completing each floor. `
-            +`To finish a floor, you need to reach the stairs that lead down to the next one. Enemies will spawn on each floor which will `
-            +`try to stop you from continuing. You do not need to defeat everything on the current floor to continue, but will often need to `
-            +`fight most of them to survive. Read more about controlling your character in the next section. Good luck!\n\n`],
+    basics: 
+        [`Welcome to Maneuver!\n\n`
+        +`The goal of the game is to progress as deep into the dungeon as possible by completing each floor. `
+        +`To finish a floor, you need to reach the stairs that lead down to the next one. Enemies will spawn `
+        +`on each floor which will try to stop you from continuing. You do not need to defeat everything on `
+        +`the current floor to continue, but may need to fight most of them to survive.\n\n`
+        +`Read more about controlling your character in the next section.\n`
+        +`Good luck!\n\n`],
 
-    cards: [`To control your character's actions, you have a deck of cards. Each card gives you several options for a set of actions `
-            +`to take. The actions on the card will be performed relative to your current location (the black dot). Clicking on a card will `
-            +`bring up a grid of buttons which will let you use it. When you finish using a card, it will be discarded and replaced with another `
-            +`from your deck, then everything else on the floor will get a chance to act (read more in the next section). When your deck runs out, `
-            +`your discard pile will be shuffled back into it. The amount of cards remaining in your deck is shown next to your health bar.\n`
-            +`\n`
-            +`Colors and symbols that make up a card:\n`,
-                ` Your relative starting location.\n`,
-                ` You will attack this space.\n`,
-                ` You will move to this space.\n`,
-                ` If applied to an enemy, it will stun them. If applied to the player, it will instead add a temporary debuff card to your deck.\n`,
-                ` You will heal the creature on this space if it's health is less than it's max health.\n`,
-                ` Each action the line goes through will be performed.\n`,
-                ` Multiple actions will be performed in a specific order.\n`,
-                ` Multiple actions of the same type will be performed until you hit something.\n`,
-                ` You will be teleported to a random unoccupied location.\n`,
-                `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
-                ` A card with a purple grid will be performed instantly.\n`,
-                ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
-                ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
-            +`\n`
-            +`You can use the (?) button next to your move options to learn exactly what a selected card does, or shift click to `
-            +`display what the card does on the map.\n`
-            +`\n`
-            +`In addition to clicking on cards to use them, you can use the keys\n`,
-                ` `, ` `, ` `, `\n`
-            +`to select a card in your hand.\n`
-            +`Press the keys\n`,
-                ` `, ` `, `\n`,
-                ` `, ` `, `\n`,
-                ` `, ` `, `\n`
-            +`to use a card once it is selected.\n\n`],
+    cards: 
+        [`To control your character's actions, you have a deck of cards. Each card gives you several `
+        +`options for a set of actions to take. The actions on the card will be performed relative to `
+        +`your current location (the black dot). Clicking on a card will bring up a grid of buttons which `
+        +`will let you decide which of the card's options to use.\n\n`
+        +`When you finish using a card, it will be discarded and replaced with another from your deck, then `
+        +`everything else on the floor will get a chance to act before you get another turn.\n\n`
+        +`When your deck runs out, your discard pile will be shuffled back into it. The amount of cards `
+        +`remaining in your deck is shown next to your health bar.\n`
+        +`\n`
+        +`Colors and symbols that make up a card:\n\n`,
+            ` Your relative starting location.\n`,
+            ` You will attack this space.\n`,
+            ` You will move to this space.\n`,
+            ` If applied to an enemy, it will stun them. If applied to the player, it will instead add a `
+            +`temporary debuff card to your deck (see these in Confusion).\n`,
+            ` You will heal the creature on this space if it's health is less than it's max health.\n`,
+            ` Each action the line goes through will be performed.\n`,
+            ` Multiple actions will be performed in a specific order.\n`,
+            ` Multiple moves will be performed until you hit something.\n`,
+            ` Multiple attacks will be performed until you hit the edge of the floor.\n`,
+            ` You will be teleported to a random unoccupied location.\n`,
+            `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
+            ` A card with a purple grid will be performed instantly.\n`,
+            ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
+            ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
+        +`\n`
+        +`You can use the (?) button next to your move options to learn exactly what a selected card does, `
+        +`or shift click to display what the card does on the map.\n`
+        +`\n`
+        +`In addition to clicking on cards to use them, you can use the keys\n`,
+            ` `, ` `, ` `, `\n`
+        +`to select a card in your hand and\n`,
+            ` `, ` `, `\n`,
+            ` `, ` `, `\n`,
+            ` `, ` `, `\n`
+        +`to use a card once it is selected.\n\n`],
 
-    enemies: [`As you travel through the dungeon, you will encounter various other creatures, many of whom want to kill you. Each creature has `
-            +`different patterns of attack and movement and many of them have other unique abilities. Click on a tile to learn more about it. `
-            +`Clicking will show you a description of it, how much health it has, and which squares it might be able to attack on it's next `
-            +`turn. Some enemies also have the ability to move you during their turn. When this happens, you will get the chance to respond.\n`
-            +`Remember that you do not need to kill everything to go to the next stage. Sometimes it's better to run past an enemy than to `
-            +`fight it and risk getting surrounded or cornered. There may also be some creatures you encounter that are more helpful than `
-            +`harmful.\n`
-            +`Some effects will cause an enemy to become stunned. Stunned enemies will skip their next turn. Multiple instances of stun `
-            +`will cause multiple turns to get skipped.\n\n`],
+    enemies: 
+        [`As you travel through the dungeon, you will encounter various other creatures, many of whom want `
+        +`to kill you. Each creature has different patterns of attack and movement. Many of them also have `
+        +`other unique abilities.\n\n`
+        +`Click on a tile to learn more about creatures and terrain there. Clicking will show you a `
+        +`description of everything on the tile, and which squares they might be able to attack next `
+        +`turn. Also pay attention to how much health they have since some enemies might take several `
+        +`hits to kill.\n\n`
+        +`Remember that you do not need to kill everything to go to the next stage. Sometimes it's better `
+        +`to run past an enemy than to fight it and risk getting surrounded or cornered. There may also be `
+        +`some creatures you encounter that are more helpful than harmful.\n\n`
+        +`Some enemies also have the ability to move you during their turn. When this happens, you will `
+        +`immediately get another turn.\n\n`
+        +`Some effects will cause an enemy to become stunned. They will be hightlighted in yellow. Stunned `
+        +`enemies will skip their next turn. Multiple instances of stun will cause multiple turns to get `
+        +`skipped.\n\n`],
 
-    shop: [`When you complete a floor, you will enter a shop where you must either add or remove a card from your deck. You will get `
-            +`${ADD_CHOICE_COUNT} options of random cards to add, and ${REMOVE_CHOICE_COUNT} options of random cards from your deck to remove. `
-            +`The current contents of your deck will be shown to help you choose. You cannot go below your minimum deck size.\n`
-            +`Some enemies or effects may add temporary cards to your deck. They will go away after you play them or go to the next `
-            +`floor.\n\n`],
+    shop: 
+        [`When you complete a floor, you will enter a shop where you must either add or remove a card from `
+        +`your deck. You will get ${ADD_CHOICE_COUNT} options of random cards to add, and `
+        +`${REMOVE_CHOICE_COUNT} options of random cards from your deck to remove. The current contents of `
+        +`your deck will be shown to help you choose. You cannot go below your minimum deck size.\n\n`
+        +`In addition to the shop, there are several other ways to get cards. You can find them from `
+        +`defeating certain bosses or aquiring certain boons. Some enemies or effects may also add `
+        +`temporary cards to your deck. They will go away after you play them or go to the next floor.\n\n`],
 
-    bosses: [`Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be locked until you defeat it's `
-            +`powerful occupant. When you defeat the boss, the stairs will be unlocked, you will be fully healed, and it might drop a chest `
-            +`containing a powerful new card as a reward.\n`
-            +`When leaving the floor, you will enter a new area of the dungeon with a different set of inhabitants and a new boss at `
-            +`the end.\n\n`],
+    bosses: 
+        [`Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be `
+        +`locked until you defeat it's powerful occupant. When you defeat the boss, the stairs will be `
+        +`unlocked, you will be fully healed, and it will drop a chest containing a powerful new card as a `
+        +`reward.\n\n`
+        +`When leaving the floor, you will enter a new area of the dungeon with a different set of `
+        +`inhabitants and a new boss at the end.\n\n`],
 
-    chests: [`On floor ${CHEST_LOCATION} of every area, you will find a treasure chest. Moving onto this chest will allow you to pick `
-            +`a boon. Boons are powerful abilities that can give your character a unique edge when it comes to surviving.\n\n`
-            +`Chests will also be dropped after a boss is defeated. Rather than boons, these ones will contain a card that lets you `
-            +`imitate one of the bosses abilities.\n\n`
-            +`Be careful when killing bosses and picking up chests. Breaking a chest will destroy it's contents.\n\n`],
+    chests: 
+        [`On floor ${CHEST_LOCATION} of every area, you will find a treasure chest. Moving onto this chest `
+        +`will allow you to pick a boon. Boons are powerful abilities that can give your character a unique `
+        +`edge when it comes to surviving.\n\n`
+        +`Chests will also be dropped after a boss is defeated. Rather than boons, these ones will contain `
+        +`a card that lets you imitate one of the boss's abilities.\n\n`
+        +`Be careful. Breaking a chest will destroy it's contents.\n\n`],
 
-    sidebar: [`The sidebar contains several tabs which keep track of useful information so you don't need to remember it.\n\n`
-            +`- The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like the descriptions `
-            +`given by clicking on a tile will not be tracked.\n\n`
-            +`- The Discard tab will keep track of which cards in your deck have been used so far, to help you figure out what might `
-            +`be left to draw. It resets after shuffling.\n\n`
-            +`- The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it when trying to `
-            +`use one enemy to block the attack of another. It will not track hidden enemies.\n\n`
-            +`- The Boons tab will become available when you pick up your first boon. It will keep track of each boon you pick up `
-            +`and allow you to view their descriptions again by clicking on them. It will also track when certain boons are lost.\n\n`
-            +`More tabs might become available as you play.\n\n`],
+    sidebar: 
+        [`The sidebar contains several tabs which keep track of useful information so you don't need to `
+        +`remember it.\n\n`
+        +`- The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like `
+        +`the descriptions given by clicking on a tile will not be tracked.\n\n`
+        +`- The Discard tab will keep track of which cards in your deck have been used so far to help you `
+        +`figure out what might be left to draw. It resets after shuffling.\n\n`
+        +`- The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it `
+        +`when trying to use one enemy to block the attack of another. It will not track hidden enemies.\n\n`
+        +`- The Boons tab will become available when you pick up your first boon. It will keep track of each `
+        +`boon you pick up and allow you to view their descriptions again by clicking on them. It will also `
+        +`track when certain boons are lost.\n\n`
+        +`More tabs might become available as you play.\n\n`],
 
-    confusion: [`Certain enemies and cards will confuse you. Confusion adds a temporary bad card to your deck which will go away after `
-            +`it goes to your discard pile, or when you go to the next floor. Cards will do this if they highlight your current square `
-            +`in yellow.\n\n`
-            +`Here is a list of the possible confusion cards:\n\n`]
+    confusion: 
+        [`Certain enemies and cards will confuse you. Confusion adds a temporary bad card to your deck which `
+        +`will go away after it goes to your discard pile, or when you go to the next floor. Cards will do `
+        +`this if they highlight your current square in yellow.\n\n`
+        +`Here is a list of the possible confusion cards:\n\n`]
 }
 Object.freeze(GUIDE_TEXT);
 
@@ -2057,7 +2200,8 @@ const CARD_SYMBOLS = [
     {src: `${IMG_FOLDER.symbols}multiple.png`,          name: `multiple actions`,   x: 3, y: 1},
     {src: `${IMG_FOLDER.symbols}multiple_ordered.png`,  name: `actions in order`,   x: 3, y: 1},
     {src: `${IMG_FOLDER.symbols}move_until.png`,        name: `move until`,         x: 4, y: 1},
-    {src: `${IMG_FOLDER.symbols}teleport.png`,          name: `teleport`,         x: 3, y: 1},
+    {src: `${IMG_FOLDER.symbols}attack_until.png`,      name: `attack until`,       x: 4, y: 1},
+    {src: `${IMG_FOLDER.symbols}teleport.png`,          name: `teleport`,           x: 3, y: 1},
     {src: `${IMG_FOLDER.symbols}attack_move.png`,       name: `attack then move`,   x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}triple_attack.png`,     name: `tripple attack`,     x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}instant.png`,           name: `instant`,            x: 2, y: 2},
@@ -2142,6 +2286,8 @@ const HTML_UIIDS = {
                     text_scroll: `textScroll`,
                 deck_order: `deckOrder`,
                     deck_order_table: `deckOrderTable`,
+                shadow_hand: `shadowHand`,
+                    shadow_hand_table: `shadowHandTable`,
             health_display: `healthDisplay`,
             remaining_deck: `remainingDeck`,
                 deck_image: `deckImage`,
@@ -2179,8 +2325,195 @@ const GAME_SCREEN_DIVISIONS = [UIIDS.stage, UIIDS.shop, UIIDS.chest];
 const DISPLAY_DIVISIONS = [UIIDS.game_screen, UIIDS.guide];
 const DISPLAY_DIVISION_NAMES = [gameplay_screen_name, guide_screen_name];
 
-const SIDEBAR_DIVISIONS = [UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order];
+const SIDEBAR_DIVISIONS = [UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand];
 
+SENTRY_MODES = Object.freeze({
+    saw: "Saw",
+    cannon: "Cannon",
+    turret: "Turret"
+});
+
+const SENTRY_MAX_SAW_CYCLE = 4;
+const SENTRY_MAX_CANNON_CYCLE = 3;
+
+/** @type {TileGenerator} */
+function arcane_sentry_tile(){
+    var health = 6;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
+    return{
+        type: `enemy`,
+        name: `Arcane Sentry`,
+        pic: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
+        description: arcane_sentry_description,
+        tags: new TagList([TAGS.boss, TAGS.arcane_sentry]),
+        health,
+        death_message: arcane_sentry_death_message,
+        behavior: sentry_core_ai,
+        on_hit: sentry_core_on_hit,
+        on_death: arcane_sentry_death,
+        cycle: 0,
+        spawn_timer: 4,
+        card_drops: [beam_ne, beam_se, beam_sw, beam_nw, saw_ns, saw_ew]
+    }
+}
+
+function arcane_node_tile(){
+    var health = 4;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
+    return{
+        type: `enemy`,
+        name: `Arcane Sentry Node`,
+        pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret`,
+        description: arcane_sentry_node_description,
+        tags: new TagList([TAGS.boss, TAGS.arcane_sentry, TAGS.controlled, TAGS.unstunnable]),
+        health,
+        death_message: arcane_sentry_node_death_message,
+        on_hit: node_on_hit,
+        on_death: node_on_death,
+    }
+}
+
+function sentry_core_ai(self, target, map){
+    var nodes = get_sentry_nodes(self, target, map);
+    switch(self.tile.mode){
+        case SENTRY_MODES.saw:
+            if(self.tile.cycle === SENTRY_MAX_SAW_CYCLE){
+                sentry_transform_saw(self, target, map);
+            }
+            else{
+                for(var node of nodes){
+                    node.self.tile.behavior(node.self, node.target, node.map);
+                }
+                node_saw_behavior(self, target, map);
+                sentry_move(self, target, map);
+            }
+            decrement_sentry_cycle(self, target, map)
+            break;
+        case SENTRY_MODES.cannon:
+            switch(self.tile.cycle){
+                case SENTRY_MAX_CANNON_CYCLE:
+                    sentry_transform_cannon(self, target, map);
+                    break;
+                default:
+                    for(var node of nodes){
+                        node.self.tile.behavior(node.self, node.target, node.map);
+                    }
+                    if(self.tile.direction !== undefined){
+                        node_cannon_behavior(self, target, map);
+                    }
+                    break;
+            }
+            decrement_sentry_cycle(self, target, map);
+            break;
+        case SENTRY_MODES.turret:
+            for(var node of nodes){
+                node.self.tile.behavior(node.self, node.target, node.map);
+            }
+            ++self.tile.cycle;
+            if(self.tile.cycle >= self.tile.spawn_timer){
+                spawn_nearby(map, paper_construct_tile(), self.location);
+                self.tile.cycle = 0;                                
+            }
+            break;
+        default:
+            throw Error(ERRORS.invalid_value);
+    }
+}
+
+function arcane_sentry_death(self, target, map){
+    var nodes = get_sentry_nodes(self, target, map);
+    for(var node of nodes){
+        node.self.tile.health = 1;
+        node.self.tile.on_hit = undefined;
+        node.self.tile.on_death = undefined;
+        map.attack(node.self.location);
+    }
+    boss_death(self, target, map);
+}
+function node_on_death(self, target, map){
+    say(self.tile.death_message);
+}
+
+function sentry_core_on_hit(self, target, map){
+    if(self.tile.mode === SENTRY_MODES.turret){
+        self.tile.mode = SENTRY_MODES.saw;
+        self.tile.cycle = SENTRY_MAX_SAW_CYCLE;
+    }
+}
+function node_on_hit(self, target, map){
+    var core = sentry_get_core(self.location, map);
+    if(core.mode === SENTRY_MODES.turret){
+        core.mode = SENTRY_MODES.cannon;
+        core.cycle = SENTRY_MAX_CANNON_CYCLE;
+    }
+}
+
+function sentry_move(self, target, map){
+    var locations = get_sentry_nodes(self, target, map).map((node) => {
+        return node.self.location;
+    });
+    locations.push(self.location);
+    var can_move = move_check(locations, self.tile.direction, map);
+    if(can_move){
+        for(var location of locations){
+            map.move(location, location.plus(self.tile.direction));
+        }
+        self.location.plus_equals(self.tile.direction)
+    }
+}
+function move_check(locations, direction, map){
+    for(var position of locations){
+        if(!map.check_empty(position.plus(direction))){
+            return false;
+        }
+    }
+    return true;
+}
+
+function decrement_sentry_cycle(self, target, map){
+    if(--self.tile.cycle === 0){
+        self.tile.mode = SENTRY_MODES.turret;
+        sentry_transform_turret(self, target, map);
+        self.tile.cycle = self.tile.spawn_timer - 1;
+    }
+}
+
+function get_sentry_nodes(self, target, map){
+    return DIAGONAL_DIRECTIONS.filter((direction) => {
+        // Only includes the remaining nodes.
+        var location = self.location.plus(direction);
+        return map.is_in_bounds(location) && map.get_tile(location).tags.has(TAGS.arcane_sentry);
+    }).map((direction) => {
+        // Returns a list of objects with the info required to call their ai functions.
+        var location = self.location.plus(direction);
+        return {
+            self: {
+                tile: map.get_tile(location),
+                location
+            },
+            target: {
+                tile: target.tile,
+                difference: target.difference.minus(direction)
+            },
+            map: map
+        }
+    })
+}
+function sentry_get_core(location, map){
+    for(var direction of DIAGONAL_DIRECTIONS){
+        var space = direction.plus(location);
+        if(map.is_in_bounds(space)){
+            var tile = map.get_tile(space);
+            if(tile.tags.has(TAGS.arcane_sentry)){
+                return tile;
+            }
+        }
+    }    
+}
 /** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
 function boss_death(self, target, map){
     if(self.tile.death_message === undefined){
@@ -2424,7 +2757,7 @@ function lich_tile(){
         cycle: starting_cycle,
         spells,
         summons,
-        card_drops: [instant_teleport, debilitating_confusion]
+        card_drops: [instant_teleport, debilitating_confusion, beam_orthogonal, beam_diagonal]
     }
 }
 
@@ -2497,6 +2830,191 @@ function lich_hit(self, target, map){
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
 }
 /** @type {TileGenerator} */
+function shadow_of_self_tile(){
+    var health = 3; // Playermax?
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
+    var deck = GS.deck.copy();
+    deck.deal();
+    var look_arr = [illusion_of_self_tile, shadow_of_self_tile];
+    return{
+        type: `enemy`,
+        name: `Shadow of Self`,
+        pic: `${IMG_FOLDER.tiles}shadow_of_self.png`,
+        description: shadow_of_self_description,
+        tags: new TagList([TAGS.boss]),
+        health,
+        max_health: health,
+        death_message: shadow_of_self_death_message,
+        behavior: shadow_of_self_ai,
+        on_hit: shadow_of_self_hit,
+        on_death: boss_death,
+        look_arr,
+        cycle: 0,
+        card_drops: [],
+        deck
+    }
+}
+
+/** @type {AIFunction} AI used by the Shadow of Self.*/
+async function shadow_of_self_ai(self, target, map){
+    // If was hit, do the teleporting thing
+    if(self.tile.cycle === 1){
+        map.player_teleport(new Point(0, 0));
+        var lost_health = self.tile.max_health - self.tile.health;
+        for(var i = 0; i < 2 * lost_health; ++i){
+            teleport_spell(self, target, map);
+            spawn_nearby(map, illusion_of_self_tile(), self.location);
+        }
+        self.tile.cycle = 0;
+        return;
+    }
+
+    // Get hand.
+    var hand = self.tile.deck.get_hand_info();
+    // Get moves from each card in hand.
+    var moves = get_shadow_move_options(hand);
+    moves = moves.map(move => {
+        return {
+            hand_position: move.hand_position,
+            behavior: move.behavior,
+            telegraph: telegraph_card(move.behavior, map, self.location)
+        }
+    })
+    // Pick which move to do, then select the card from the hand.
+    var choice = get_shadow_move(moves, self.location, self.location.plus(target.difference));
+    shadow_hand_select(choice.hand_position);
+    var instant = hand[choice.hand_position].card.options.is_instant();
+    await delay(3 * ANIMATION_DELAY);
+
+    // Perform the move and update the map.
+    do_shadow_move(map, choice.behavior, self.location);
+    display_map(map);
+
+    // Wait, then update the hand to discard the selected card.
+    await delay(3 * ANIMATION_DELAY);
+    self.tile.deck.discard(choice.hand_position);
+    refresh_shadow_hand_display(self.tile.deck.get_hand_info());
+
+    if(instant){
+        // Take another turn
+        await delay(3 * ANIMATION_DELAY);
+        await shadow_of_self_ai(self, target, map)
+    }
+}
+
+function get_shadow_move_options(hand){
+    var move_options = [];
+    for(var i = 0; i < hand.length; ++i){
+        var card = hand[i].card;
+        for(var j = 1; j < 10; ++j){
+            var behavior = card.options.get_behavior(j);
+            if(behavior !== undefined){
+                move_options.push({
+                    hand_position: i,
+                    behavior
+                })
+            }
+        }
+    }
+    return move_options;
+}
+
+function get_shadow_move(moves, self, target){
+    moves = randomize_arr(moves);
+    // Can it attack the player?
+    for(var move of moves){
+        for(var point of move.telegraph.attacks){
+            if(point_equals(point, target)){
+                return move;
+            }
+        }
+    }
+    // Can it heal itself?
+    for(var move of moves){
+        for(var point of move.telegraph.healing){
+            if(point_equals(point, self)){
+                return move;
+            }
+        }
+    }
+    // Can it confuse the player?
+    for(var move of moves){
+        for(var point of move.telegraph.stun){
+            if(point_equals(point, target)){
+                return move;
+            }
+        }
+    }
+    // Does anything move closer?
+    for(var move of moves){
+        for(var point of move.telegraph.moves){
+            var move_difference = point.minus(target).taxicab_distance();
+            var stay_difference = self.minus(target).taxicab_distance();
+            if(move_difference < stay_difference){
+                return move;
+            }
+        }
+    }
+    // Pick randomly.
+    return moves[random_num(moves.length)];
+}
+
+function do_shadow_move(map, moves, location){
+    for(var move of moves){
+        switch(move.type){
+            case `attack`:
+                map.attack(location.plus(move.change));
+                break;
+            case `move`:
+                var moved = map.move(location, location.plus(move.change));
+                if(moved){
+                    location.plus_equals(move.change);
+                }
+                break;
+            case `teleport`:
+                var destination = map.random_empty();
+                if( // If the shadow is teleported, update it's location.
+                    map.move(location.plus(move.change), destination) && 
+                    point_equals(move.change, new Point(0, 0))
+                ){
+                    location.x = destination.x;
+                    location.y = destination.y;
+                }
+                break;
+            case `stun`:
+                map.stun_tile(location.plus(move.change));
+                break;
+            case `move_until`:
+                var moved = true;
+                while(moved){
+                    moved = map.move(location, location.plus(move.change));
+                    if(moved){
+                        location.plus_equals(move.change);
+                    }
+                }
+                break;
+            case `attack_until`:
+                var target = location.plus(move.change);
+                while(map.is_in_bounds(target)){
+                    map.attack(target);
+                    target.plus_equals(move.change);
+                }
+                break;
+            case `heal`:
+                map.heal(location.plus(move.change));
+                break;
+            default:
+                throw new Error(ERRORS.invalid_value);
+        }
+    }
+}
+
+function shadow_of_self_hit(self, target, map){
+    self.tile.cycle = 1;
+}
+/** @type {TileGenerator} */
 function spider_queen_tile(){
     var health = 3;
     if(GS.boons.has(boon_names.boss_slayer)){
@@ -2514,7 +3032,7 @@ function spider_queen_tile(){
         telegraph: spider_telegraph,
         on_hit: spider_queen_hit,
         on_death: boss_death,
-        card_drops: [skitter, bite]
+        card_drops: [skitter, bite, chomp]
     }
 }
 
@@ -2543,7 +3061,7 @@ function two_headed_serpent_tile(){
         pic_arr,
         cycle: 1,
         segment_list: [undefined, undefined],
-        card_drops: [regenerate, fangs]
+        card_drops: [regenerate, fangs, slither]
     }
 }
 /** @type {TileGenerator} */
@@ -3425,6 +3943,56 @@ function darkling_telegraph(location, map, self){
     }
     return spider_telegraph(self.direction, map, self);
 }
+
+/** @type {TileGenerator}*/
+function gem_crawler_tile(){
+    var cycle = random_num(2);
+    var pic_arr = [`${IMG_FOLDER.tiles}gem_crawler_recharging.png`, `${IMG_FOLDER.tiles}gem_crawler.png`]
+    return {
+        type: `enemy`,
+        name: `Gem Crawler`,
+        pic: pic_arr[cycle],
+        description: gem_crawler_description,
+        tags: new TagList(),
+        health: 1,
+        difficulty: 4,
+        pic_arr,
+        cycle,
+        behavior: gem_crawler_ai,
+        telegraph: gem_crawler_telegraph
+    }
+}
+
+/** @type {AIFunction}*/
+function gem_crawler_ai(self, target, map){
+    if(self.tile.cycle === 1){
+        move_closer_ai(self, target, map);
+        if(target.difference.within_radius(1)){
+            map.attack(self.location.plus(target.difference));
+        }
+    }
+    self.tile.cycle = 1 - self.tile.cycle;
+    self.tile.pic = self.tile.pic_arr[self.tile.cycle];
+}
+
+/** @type {TelegraphFunction} */
+function gem_crawler_telegraph(location, map, self){
+    var attacks = [];
+    if(self.cycle === 1){
+        for(var direction of ALL_DIRECTIONS){
+            var space = direction.plus(location);
+            if(map.is_in_bounds(space) && map.check_empty(space)){
+                // Shows all the spaces it can attack by moving other than the one it's in.
+                attacks.push(
+                    ...ALL_DIRECTIONS
+                        .map((p) => {return p.plus(space)})
+                        .filter((p) => {return !point_equals(p, location)})
+                );
+            }
+        }
+    }
+    return attacks;
+}
 /** @type {TileGenerator} A crab which flees when hit. */
 function igneous_crab_tile(){
     return {
@@ -3750,7 +4318,7 @@ function paper_construct_tile(){
         description: paper_construct_description,
         tags: new TagList(),
         health: 1,
-        difficulty: 3,
+        difficulty: 2,
         behavior: paper_construct_ai,
         telegraph: porcuslime_horizontal_telegraph,
         rotate: 90 * random_num(4)
@@ -3781,10 +4349,12 @@ function paper_construct_ai(self, target, map){
         }
         if(dir){
             // Move up to 2 spaces in that direction.
-            var moved = true;
-            for(var i = 0; i < 2 && !(target.difference.on_axis() && target.difference.within_radius(2)) && moved; ++i){
-                moved = map.move(self.location, self.location.plus(dir));
-                if(moved){
+            var could_move = true;
+            for(var i = 0; i < 2 && !(target.difference.on_axis() && target.difference.within_radius(2)) && could_move; ++i){
+                var destination = self.location.plus(dir);
+                could_move = map.check_empty(destination);
+                if(could_move){
+                    map.move(self.location, destination);
                     self.location.plus_equals(dir);
                     target.difference.minus_equals(dir);
                 }
@@ -3798,7 +4368,7 @@ function paper_construct_ai(self, target, map){
     set_rotation(self.tile);
 }
 
-/** @type {TileGenerator} Function to act as a starting point for making new enemies. */
+/** @type {TileGenerator}*/
 function pheonix_tile(){
     return {
         type: `enemy`,
@@ -3914,7 +4484,10 @@ function large_porcuslime_ai(self, target, map){
 
 /** @type {TelegraphFunction} */
 function large_porcuslime_telegraph(location, map, self){
-    return porcuslime_diagonal_telegraph(location, map, self).concat(porcuslime_horizontal_telegraph(location, map, self));
+    return [
+        ...porcuslime_diagonal_telegraph(location, map, self),
+        ...porcuslime_horizontal_telegraph(location, map, self)
+    ]
 }
 /** @type {TileGenerator} */
 function medium_porcuslime_tile(){
@@ -4000,11 +4573,11 @@ function porcuslime_horizontal_ai(self, target, map){
 
 /** @type {TelegraphFunction} */
 function porcuslime_diagonal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, DIAGONAL_DIRECTIONS).concat(hazard_telegraph(location, map, self));
+    return move_attack_telegraph(location, map, DIAGONAL_DIRECTIONS);
 }
 /** @type {TelegraphFunction} */
 function porcuslime_horizontal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, HORIZONTAL_DIRECTIONS).concat(hazard_telegraph(location, map, self));
+    return move_attack_telegraph(location, map, HORIZONTAL_DIRECTIONS);
 }
 /** @type {TileGenerator} */
 function small_d_porcuslime_tile(){
@@ -4407,6 +4980,105 @@ function shadow_scout_ai(self, target, map){
     self.tile.cycle === 0 ? self.tile.tags.add(TAGS.hidden) : self.tile.tags.remove(TAGS.hidden);
     spider_ai(self, target, map);
 }
+/** @type {TileGenerator}*/
+function specter_tile(){
+    return {
+        type: `enemy`,
+        name: `Specter`,
+        pic: `${IMG_FOLDER.tiles}specter.png`,
+        description: specter_description,
+        tags: new TagList(),
+        health: 1,
+        difficulty: 3,
+        behavior: specter_ai,
+        telegraph: specter_telegraph
+    }
+}
+
+/** @type {AIFunction} AI used by specters.*/
+function specter_ai(self, target, map){
+    if(target.difference.on_axis()){
+        // If orthogonal, move towards player.
+        var direction = sign(target.difference);
+        var locations = get_specter_moves(self.location, direction, map);
+        specter_move(self.location, locations, map);
+        return;
+    }
+    var dir1 = sign(new Point(target.difference.x, 0));
+    var dir2 = sign(new Point(0, target.difference.y));
+    var direction = random_num(2) === 1 ? dir1 : dir2;
+    var target_location = self.location.plus(target.difference);
+    var locations = get_specter_moves(self.location, direction, map);
+    for(var i = 0; i < locations.length; ++i){
+        if(
+            map.check_empty(locations[i]) && 
+            target_location.minus(locations[i]).on_axis() &&
+            !target_location.minus(locations[i]).within_radius(1)
+        ){
+            // If can move to the axis and the destination is not next to the player, do so.
+            specter_move(self.location, locations.slice(0, i + 1), map);
+            return;
+        }
+    }
+    if(
+        point_equals(sign(locations[locations.length - 1]), sign(self.location)) && // Same quadrant
+        !target_location.minus(locations[locations.length - 1]).within_radius(1)
+    ){
+        // If it cant reach the axis, go as far is it can as long as it doesn't end next to a player.
+        specter_move(self.location, locations, map);
+        return;
+    }
+    var directions = order_nearby(target.difference).reverse().filter((p) => {return p.on_axis()});
+    for(var direction of directions){
+        var locations = get_specter_moves(self.location, direction, map);
+        if(locations.length > 0){
+            // Try to move away from the player.
+            specter_move(self.location, locations, map);
+            return;
+        }
+    }
+}
+
+function get_specter_moves(current, direction, map){
+    var locations = [];
+    var last_open = 0;
+    for(var i = 0; i < 3; ++i){
+        current = current.plus(direction);
+        if(map.is_in_bounds(current)){
+            locations.push(current);
+            if(map.check_empty(current)){
+                last_open = locations.length;
+            }
+            else{
+                i -= 1;
+            }
+        }
+    }
+    return locations.splice(0, last_open);
+}
+
+function specter_move(current, passing, map){
+    if(passing.length === 0){
+        return;
+    }
+    var destination = passing.pop();
+    map.move(current, destination);
+    current.set(destination);
+    for(var location of passing){
+        map.stun_tile(location);
+        map.attack(location);
+    }
+    return;                
+}
+
+/** @type {TelegraphFunction} */
+function specter_telegraph(location, map, self){
+    var attacks = [];
+    for(var direction of HORIZONTAL_DIRECTIONS){
+        attacks.push(...get_specter_moves(location, direction, map));
+    }
+    return attacks;
+}
 /** @type {TileGenerator} */
 function spider_tile(){
     return {
@@ -4604,8 +5276,8 @@ function moving_turret_d_tile(){
         pic: `${IMG_FOLDER.tiles}moving_turret_d.png`,
         description: moving_turret_description,
         tags: new TagList(),
-        health: 2,
-        difficulty: 4,
+        health: 1,
+        difficulty: 3,
         behavior: moving_turret_d_ai,
         telegraph: moving_turret_d_telegraph,
         rotate: 0,
@@ -4653,8 +5325,8 @@ function moving_turret_h_tile(){
         pic: `${IMG_FOLDER.tiles}moving_turret_h.png`,
         description: moving_turret_description,
         tags: new TagList(),
-        health: 2,
-        difficulty: 4,
+        health: 1,
+        difficulty: 3,
         behavior: moving_turret_h_ai,
         telegraph: moving_turret_h_telegraph,
         rotate: 0,
@@ -4823,8 +5495,10 @@ function turret_r_telegraph(location, map, self){
     if(self.direction === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var attacks = get_points_in_direction(location, self.direction, map);
-    return attacks.concat(get_points_in_direction(location, self.direction.times(-1), map));
+    return [
+        ...get_points_in_direction(location, self.direction, map),
+        ...get_points_in_direction(location, self.direction.times(-1), map)
+    ];
 }
 /** @type {TileGenerator} */
 function unstable_wisp_tile(){
@@ -4835,7 +5509,7 @@ function unstable_wisp_tile(){
         description: unstable_wisp_description,
         tags: new TagList(),
         health: 1,
-        difficulty: 3,
+        difficulty: 2,
         behavior: unstable_wisp_ai,
         telegraph_other: spider_telegraph,
         on_death: unstable_wisp_death,
@@ -5101,14 +5775,15 @@ function walking_prism_on_hit(self, target, map){
     else{
         var directions = DIAGONAL_DIRECTIONS;
     }
-    // Attacks in a + or x depending on the cycle.
-    for(var direction of directions){
-        for(var space = self.location.plus(direction); !map.attack(space) && map.check_empty(space); space.plus_equals(direction)){}
-    }
     // Changes cycle.
     self.tile.cycle = 1 - self.tile.cycle;
     self.tile.pic = self.tile.pic_arr[self.tile.cycle];
     self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[1 + self.tile.cycle]}`
+
+    // Attacks in a + or x depending on the old cycle.
+    for(var direction of directions){
+        for(var space = self.location.plus(direction); !map.attack(space) && map.check_empty(space); space.plus_equals(direction)){}
+    }
 }
 
 /** @type {TelegraphFunction} */
@@ -5374,7 +6049,7 @@ function fireball_tile(){
         name: `Fireball`,
         pic: `${IMG_FOLDER.tiles}fireball.png`,
         description: fireball_description,
-        tags: new TagList(),
+        tags: new TagList([TAGS.fireball, TAGS.unstunnable]),
         behavior: fireball_ai,
         telegraph: fireball_telegraph,
         on_enter: fireball_on_enter,
@@ -5421,42 +6096,6 @@ function shoot_fireball(direction){
     fireball.direction = direction;
     fireball.pic = ifexists(fireball.pic_arr)[set_rotation(fireball)];
     return fireball;
-}
-/** @type {TileGenerator} */
-function floating_barrier_tile(){
-    var direction = ALL_DIRECTIONS[random_num(ALL_DIRECTIONS.length)].copy();
-    var pic_arr = [`${IMG_FOLDER.tiles}floating_barrier_n.png`, `${IMG_FOLDER.tiles}floating_barrier_nw.png`];
-    var tile = {
-        type: `enemy`,
-        name: `Floating Barrier`,
-        pic: pic_arr[direction.on_axis() ? 0 : 1],
-        description: floating_barrier_description,
-        tags: new TagList(),
-        behavior: floating_barrier_ai,
-        pic_arr,
-        rotate: 0,
-        direction
-    }
-    set_rotation(tile);
-    return tile;
-}
-
-/** @type {AIFunction}.*/
-function floating_barrier_ai(self, target, map){
-    if( self.tile.rotate === undefined || 
-        self.tile.direction === undefined){
-        throw new Error(ERRORS.missing_property)
-    }
-    // Try to move. Change direction if it hits something.
-    if(!map.move(self.location, self.location.plus(self.tile.direction))){
-        var directions = random_nearby();
-        for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
-        if(i < directions.length){
-            self.tile.direction = directions[i];
-            self.tile.pic = self.tile.pic_arr[self.tile.direction.on_axis() ? 0 : 1]
-            set_rotation(self.tile);
-        }
-    }
 }
 /** @type {TileGenerator} A healing fruit that spawns enemies.*/
 function enticing_fruit_tree_tile(){
@@ -5518,6 +6157,25 @@ function rotting_fruit_tree_on_death(self, target, map){
         spawn_nearby(map, new_spawn, self.location);
     }
 }
+/** @type {TileGenerator} Illusion created by Shadow of Self.*/
+function illusion_of_self_tile(){
+    var player = GS.map.get_player();
+    return {
+        type: `enemy`,
+        name: `Player`,
+        pic: `${IMG_FOLDER.tiles}helmet.png`,
+        description: player_description,
+        tags: new TagList(),
+        behavior: self_destruct,
+        health: player.health,
+        max_health: player.max_health    
+    }
+}
+
+function self_destruct(self, target, map){
+    self.tile.health = 1;
+    map.attack(self.location);
+}
 /** @type {TileGenerator} A hazardous pool of lava.*/
 function lava_pool_tile(){
     return {
@@ -5550,7 +6208,7 @@ function raging_fire_tile(){
         name: `Raging Fire`,
         pic: pic_arr[health - 1],
         description: raging_fire_description,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
         health,
         behavior: decay_ai,
         telegraph: hazard_telegraph,
@@ -5873,13 +6531,14 @@ function move_closer_ai(self, target, map){
     for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health > 0); ++i){
         if(map.move(self.location, self.location.plus(directions[i]))){
             self.location.plus_equals(directions[i]);
+            target.difference.minus_equals(directions[i]);
             return;
         }
     }
 }
 /** @type {AIFunction} AI used when a entity should move and attack in a direction (the target's difference field).*/
 function move_attack_ai(self, target, map){
-    if(target.difference.within_radius(0)){
+    if(target.difference.is_origin()){
         throw new Error(ERRORS.invalid_value)
     }
     if(map.move(self.location, self.location.plus(target.difference))){
@@ -5897,7 +6556,7 @@ function move_attack_ai(self, target, map){
  * @returns {MapEventFunction} The event.
  */
 function delay_event(turn_count, delayed_function){
-    var delay = function(){
+    var delay_function = function(){
         return function(map_to_use){
             if(turn_count > 1){
                 map_to_use.add_event({name: `Delay`, behavior: delay_event(turn_count - 1, delayed_function)});
@@ -5907,7 +6566,7 @@ function delay_event(turn_count, delayed_function){
             }
         }
     }
-    return delay();
+    return delay_function();
 }
 
 /**
@@ -6029,6 +6688,7 @@ function growth_event(points, root, grown){
  * @property {TileGenerator[]=} summons A array of tiles it can spawn.
  * @property {Content[]=} contents The contents of a chest.
  * @property {CardGenerator[]=} card_drops The cards a boss can drop on death.
+ * @property {string=} mode The current behavior mode.
  * 
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
@@ -6050,12 +6710,13 @@ const ENEMY_LIST = [
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, animated_boulder_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
-    paper_construct_tile
+    paper_construct_tile, specter_tile, gem_crawler_tile
 ];
 
 // This is an array of all bosses.
 const BOSS_LIST = [
-    lich_tile, spider_queen_tile, two_headed_serpent_tile, velociphile_tile, young_dragon_tile
+    lich_tile, spider_queen_tile, two_headed_serpent_tile, velociphile_tile, young_dragon_tile, 
+    forest_heart_tile, arcane_sentry_tile
 ]
 
 /**
@@ -6247,8 +6908,7 @@ function set_rotation(tile){
         SW = (-1,  1) -> 270
         W  = (-1,  0) -> 270 
     */
-    if( tile.direction === undefined ||
-        tile.rotate === undefined){
+    if(tile.direction === undefined){
         throw new Error(ERRORS.missing_property);
     }
     var direction = tile.direction;
@@ -6370,6 +7030,219 @@ function generic_tile(){
         is_hit: undefined,
         event_happening: undefined
     }
+}
+
+function node_cannon_behavior(self, target, map){
+    var spawnpoint = self.location.plus(self.tile.direction);
+    var fireball = shoot_fireball(self.tile.direction);
+    if(map.is_in_bounds(spawnpoint) && !map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
+        map.attack(spawnpoint);
+        map.add_tile(fireball, spawnpoint);
+    }
+}
+function node_cannon_telegraph(location, map, self){
+    return [location.plus(self.direction)];
+}
+
+function sentry_transform_cannon(self, target, map){
+    var nodes = get_sentry_nodes(self, target, map);
+    var direction = sentry_cannon_direction(target.difference);
+    if(direction.on_axis()){
+        for(var node of nodes){
+            var tile = node.self.tile;
+            tile.direction = direction;
+            set_rotation(tile);
+            var node_difference = target.difference.minus(node.target.difference);
+            if(node_difference.plus(direction).on_axis()){
+                // Node is behind the core so should be double cannon.
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_h.png`;
+                tile.behavior = node_double_cannon_behavior;
+                tile.telegraph = node_double_cannon_telegraph;
+                tile.description = arcane_sentry_node_description + `\n` + sentry_node_double_cannon_description;
+            }
+            else{
+                // Single cannon.
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_h.png`;
+                tile.behavior = node_cannon_behavior;
+                tile.telegraph = node_cannon_telegraph;
+                tile.description = arcane_sentry_node_description + `\n` + sentry_node_cannon_description;
+            }
+        }
+        // Core is single cannon.
+        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_h.png`;
+        self.tile.direction = direction;
+        set_rotation(self.tile);
+        self.tile.telegraph = node_cannon_telegraph;
+        self.tile.description = arcane_sentry_description+ `\n` + sentry_core_cannon_description;
+    }
+    else{
+        for(var node of nodes){
+            var tile = node.self.tile;
+            tile.direction = direction;
+            set_rotation(tile);
+            var node_difference = target.difference.minus(node.target.difference);
+            if(node_difference.plus(direction).is_origin()){
+                // Node is behind core so should be double cannon.
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_d.png`;
+                tile.behavior = node_double_cannon_behavior;
+                tile.telegraph = node_double_cannon_telegraph;
+                tile.description = arcane_sentry_node_description + `\n` + sentry_node_double_cannon_description;
+            }
+            else{
+                // Single cannon.
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_d.png`;
+                tile.behavior = node_cannon_behavior;
+                tile.telegraph = node_cannon_telegraph;
+                tile.description = arcane_sentry_node_description + `\n` + sentry_node_cannon_description;
+            }
+        }
+        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_d.png`;
+        self.tile.telegraph = undefined;
+        self.tile.direction = undefined;
+        self.tile.description = arcane_sentry_description+ `\n` + sentry_core_cannon_description;
+    }
+}
+
+function sentry_cannon_direction(difference){
+    if(difference.on_diagonal() || difference.on_axis()){
+        return sign(difference);
+    }
+    if(-1 <= difference.x && difference.x <= 1){
+        return new Point(0, sign(difference.y));
+    }
+    if(-1 <= difference.y && difference.y <= 1){
+        return new Point(sign(difference.x), 0);
+    }
+    return sign(difference);
+}
+
+function node_double_cannon_behavior(self, target, map){
+    if(self.tile.direction.on_axis()){
+        node_h_double_cannon_ai(self, target, map);
+    }
+    else{
+        node_d_double_cannon_ai(self, target, map);
+    }
+}
+function node_h_double_cannon_ai(self, target, map){
+    var dir = self.tile.direction;    
+    var spawnpoints = [
+        self.location.plus(dir.plus(dir.rotate(90))), 
+        self.location.plus(dir.plus(dir.rotate(-90)))
+    ];
+    for(var spawnpoint of spawnpoints){
+        var fireball = shoot_fireball(self.tile.direction);
+        if(map.is_in_bounds(spawnpoint) && !map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
+            map.attack(spawnpoint);
+            map.add_tile(fireball, spawnpoint);
+        }
+    }
+
+}
+function node_d_double_cannon_ai(self, target, map){
+    var dir = self.tile.direction;    
+    var spawnpoints = [
+        self.location.plus(dir.times(new Point(1, 0))), 
+        self.location.plus(dir.times(new Point(0, 1)))
+    ];
+    for(var spawnpoint of spawnpoints){
+        var fireball = shoot_fireball(self.tile.direction);
+        if(map.is_in_bounds(spawnpoint) && !map.get_tile(spawnpoint).tags.has(TAGS.arcane_sentry)){
+            map.attack(spawnpoint);
+            map.add_tile(fireball, spawnpoint);
+        }
+    }
+}
+
+function node_double_cannon_telegraph(location, map, self){
+    var dir = self.direction;
+    if(dir.on_axis()){
+        var locations = [
+            location.plus(dir.plus(dir.rotate(90))), 
+            location.plus(dir.plus(dir.rotate(-90)))
+        ];
+    }
+    else{
+        var locations = [
+            location.plus(dir.times(new Point(1, 0))), 
+            location.plus(dir.times(new Point(0, 1)))
+        ];
+    }
+    return locations.filter((p) => {
+        map.is_in_bounds(p) && !map.get_tile(p).tags.has(TAGS.arcane_sentry);
+    });
+}
+
+function node_saw_behavior(self, target, map){
+    for(var direction of HORIZONTAL_DIRECTIONS){
+        map.attack(self.location.plus(direction));
+    }
+}
+
+function node_saw_telegraph(location, map, self){
+    return [
+        ...HORIZONTAL_DIRECTIONS.map((p) => {return p.plus(location)}), 
+        ...hazard_telegraph(location, map, self)
+    ];
+}
+
+function sentry_transform_saw(self, target, map){
+    var nodes = get_sentry_nodes(self, target, map);
+    for(var node of nodes){
+        var tile = node.self.tile;
+        tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_saw.png`;
+        tile.behavior = node_saw_behavior;
+        tile.on_enter = hazard;
+        tile.telegraph = node_saw_telegraph;
+        tile.description = arcane_sentry_node_description + `\n` + sentry_node_saw_description;
+    }
+    self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_saw.png`;
+    self.tile.direction = sentry_saw_direction(target.difference);
+    self.tile.on_enter = hazard;
+    self.tile.telegraph = node_saw_telegraph;
+    self.tile.description = arcane_sentry_description+ `\n` + sentry_core_saw_description;
+}
+
+function sentry_saw_direction(difference){
+    return order_nearby(difference).filter((dir) => {
+        return dir.on_axis();
+    })[0];
+}
+
+
+function node_turret_behavior(self, target, map){
+    var sign_dif = sign(target.difference);
+    var sign_dir = sign(self.tile.direction);
+    var same_x_dir = sign_dif.x === sign_dir.x;
+    var same_y_dir = sign_dif.y === sign_dir.y;
+    if(target.difference.on_axis() && (same_x_dir || same_y_dir)){
+        turret_fire_ai(self, target, map);
+    }
+}
+function node_turret_telegraph(location, map, self){
+    var x_points = get_points_in_direction(location, new Point(self.direction.x, 0), map);
+    var y_points = get_points_in_direction(location, new Point(0, self.direction.y), map);
+    return [...x_points, ...y_points];
+}
+
+function sentry_transform_turret(self, target, map){
+    var nodes = get_sentry_nodes(self, target, map);
+    for(var node of nodes){
+        var tile = node.self.tile;
+        tile.direction = node.self.location.minus(self.location);
+        set_rotation(tile);
+        tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_turret.png`;
+        tile.behavior = node_turret_behavior;
+        tile.on_enter = undefined;
+        tile.telegraph = node_turret_telegraph;
+        tile.description = arcane_sentry_node_description + `\n` + sentry_node_turret_description;
+    }
+    self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core.png`;
+    self.tile.on_enter = undefined;
+    self.tile.telegraph = undefined;
+    self.tile.direction = undefined;
+    self.tile.rotate = undefined;
+    self.tile.description = arcane_sentry_description + `\n` + sentry_core_turret_description;
 }
 /** @type {SpellGenerator} */
 function forest_heart_rest_spell_generator(){
@@ -6870,7 +7743,7 @@ function teleport_spell(self, target, map){
 
 const HORIZONTAL_DIRECTIONS = [new Point(1, 0), new Point(-1, 0), new Point(0, -1), new Point(0, 1)];
 const DIAGONAL_DIRECTIONS = [new Point(1, 1), new Point(-1, 1), new Point(1, -1), new Point(-1, -1)];
-const ALL_DIRECTIONS = HORIZONTAL_DIRECTIONS.concat(DIAGONAL_DIRECTIONS);
+const ALL_DIRECTIONS = [...HORIZONTAL_DIRECTIONS, ...DIAGONAL_DIRECTIONS];
 
 /** @type {TelegraphFunction} */
 function hazard_telegraph(location, map, self){
@@ -7038,7 +7911,7 @@ class ButtonGrid{
         var grid = [];
         var telegraph = function(behavior){
             return function(){
-                var t = telegraph_card(behavior, GS.map);
+                var t = telegraph_card(behavior, GS.map, GS.map.get_player_location());
                 GS.map.clear_telegraphs();
                 GS.map.mark_telegraph(t.moves, `${IMG_FOLDER.actions}move_telegraph.png`);
                 GS.map.mark_telegraph(t.attacks, `${IMG_FOLDER.actions}hit_telegraph.png`);
@@ -7114,6 +7987,13 @@ class ButtonGrid{
     is_instant(){
         return this.#instant;
     }
+    get_behavior(num){
+        if(num < 1 || 9 < num){
+            throw new Error(ERRORS.invalid_value);
+        }
+        --num;
+        return this.#buttons[Math.floor(num / 3)][num % 3].behavior;
+    }
 }
 // ----------------EntityList.js----------------
 // EntityList class is used by the GameMap class to keep track of entities without having to search through the map each time.
@@ -7187,7 +8067,17 @@ class EntityList{
      */
     add_enemy(location, enemy){
         enemy.id = this.next_id();
-        this.#enemy_list.push({location: location.copy(), enemy});
+        var to_add = {location: location.copy(), enemy};
+        if(enemy.tags.has(TAGS.fireball)){
+            // Fireballs move before everything else and in the order they are created to avoid collisions.
+            var index = this.#enemy_list.findIndex((e) =>{
+                return !e.enemy.tags.has(TAGS.fireball);
+            });
+            this.#enemy_list.splice(index, 0, to_add);
+        }
+        else{
+            this.#enemy_list.push(to_add);
+        }
         ++this.count_non_empty;
     }
     /**
@@ -7268,6 +8158,9 @@ class EntityList{
                     else{
                         var do_delay = true;
                         try{
+                            if(e.enemy.tags.has(TAGS.controlled)){
+                                throw Error(ERRORS.skip_animation);
+                            }
                             if(e.enemy.behavior !== undefined){
                                 var self = {
                                     tile: e.enemy,
@@ -7277,7 +8170,7 @@ class EntityList{
                                     tile: map.get_player(),
                                     difference: this.get_player_pos().minus(e.location)
                                 }
-                                e.enemy.behavior(self, target, map);
+                                await e.enemy.behavior(self, target, map);
                                 proc_chilly_presence(e.enemy);
                             }
                         }
@@ -7766,8 +8659,12 @@ class GameMap{
         var space = this.get_grid(location);
         space.action = `${IMG_FOLDER.actions}hit.png`;
         var target = space.tile;
+        if(target.health === 0){
+            return false;
+        }
         if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
+            var current_health = target.health;
             if(target.on_hit !== undefined){
                 // Trigger on_hit.
                 var player_pos = this.#entity_list.get_player_pos();
@@ -7781,7 +8678,7 @@ class GameMap{
                 }
                 target.on_hit(hit_entity, aggressor_info, this);
             }
-            if(target.health <= 0){
+            if(current_health <= 0){
                 // Player death.
                 if(target.type === `player`){
                     if(GS.boons.has(boon_names.rebirth)){
@@ -7844,6 +8741,14 @@ class GameMap{
     player_attack(direction){
         var pos = this.#entity_list.get_player_pos().plus(direction);
         try{
+            if(
+                GS.boons.has(boon_names.flame_strike) > random_num(3) && 
+                direction.within_radius(1) && !direction.is_origin() &&
+                this.check_empty(pos)
+            ){
+                var fireball = shoot_fireball(direction);
+                this.add_tile(fireball, pos);
+            }
             return this.attack(pos);
         }
         catch (error){
@@ -7877,7 +8782,7 @@ class GameMap{
      */
     lock(){
         var pos = this.#entity_list.get_exit_pos();
-        this.#set_tile(pos, lock_tile())
+        this.#set_tile(pos, lock_tile());
     }
     /**
      * Replaces the lock tile with an exit one and heals the player to max.
@@ -8082,7 +8987,7 @@ class GameMap{
         if( // Pressure points boon
             stunned && 
             GS.boons.has(boon_names.pressure_points) > random_num(3) && 
-            !point_equals(direction, new Point(0, 0))
+            !direction.is_origin()
         ){
             this.player_attack(direction);
         }
@@ -8315,32 +9220,47 @@ class GameState{
     player_action(action){
         switch(action.type){
             case `attack`:
+                var attack_count = 1;
+                var stun_count = 0;
                 var target = this.map.get_player_location().plus(action.change);
+                if(this.boons.has(boon_names.sniper)){
+                    var distance = Math.max(Math.abs(action.change.x), Math.abs(action.change.y));
+                    attack_count += Math.max(0, distance - 1);
+                }
+                if(this.boons.has(boon_names.frenzy) && this.map.get_player().health === 1){
+                    attack_count *= 2;
+                }
                 if( // Dazing Blows
                     this.boons.has(boon_names.dazing_blows) && 
-                    !point_equals(action.change, new Point(0, 0)) &&
+                    !action.change.is_origin() &&
                     this.map.is_in_bounds(target) &&
                     !this.map.get_tile(target).tags.has(TAGS.boss)
                 ){
-                    this.map.player_stun(action.change);
+                    stun_count += 1
                 }
                 if( // Pacifism
                     this.boons.has(boon_names.pacifism) && 
-                    !point_equals(action.change, new Point(0, 0))
+                    !action.change.is_origin()
                 ){
-                    this.map.player_stun(action.change);
-                    this.map.player_stun(action.change);
+                    stun_count += 2 * attack_count;
+                    attack_count = 0;
                 }
-                else{
+                for(var i = 0; i < attack_count; ++i){
                     this.map.player_attack(action.change);
+                }
+                for(var i = 0; i < stun_count; ++i){
+                    this.player_action(pstun(action.change.x, action.change.y));
                 }
                 break;
             case `move`:
+                var previous_location = this.map.get_player_location();
                 var moved = this.map.player_move(action.change);
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
-                    this.map.player_attack(action.change);
+                    this.player_action(pattack(action.change.x, action.change.y));
                 }
-                
+                if(moved && random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                    this.map.add_tile(corrosive_slime_tile(), previous_location);
+                }
                 break;
             case `teleport`:
                 try{
@@ -8357,10 +9277,25 @@ class GameState{
                 break;
             case `move_until`:
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
-                while(this.map.player_move(action.change)){};
+                var previous_location = this.map.get_player_location();
+                while(this.map.player_move(action.change)){
+                    if(random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                        this.map.add_tile(corrosive_slime_tile(), previous_location);
+                    }
+                    previous_location = this.map.get_player_location();
+                };
                 if(spiked_shoes){
-                    this.map.player_attack(action.change);
+                    this.player_action(pattack(action.change.x, action.change.y));
                 }
+                break;
+            case `attack_until`:
+                var i = 0;
+                do{
+                    i += 1;
+                    var p_location = this.map.get_player_location();
+                    var target = action.change.times(i);
+                    this.player_action(pattack(target.x, target.y));
+                }while(this.map.is_in_bounds(p_location.plus(target)));
                 break;
             case `heal`:
                 this.map.player_heal(action.change, 1);
@@ -8485,6 +9420,7 @@ class GameState{
         var restart = function(game){
             return function(message, position){
                 display.remove_children(UIIDS.retry_button);
+                player_hand_greyed(false);
                 game.setup();
             };
         }
@@ -8524,6 +9460,7 @@ class GameState{
     lock_player_turn(){
         if(this.#player_turn_lock){
             this.#player_turn_lock = false;
+            player_hand_greyed(true);
             return true;
         }
         return false;
@@ -8533,6 +9470,7 @@ class GameState{
      */
     unlock_player_turn(){
         this.#player_turn_lock = true;
+        player_hand_greyed(false);
     }
     /** 
      * Ensures the player can't make moves during the enemies' turn.
@@ -8842,6 +9780,12 @@ class MoveDeck{
         }
         return this.#hand[hand_position].options.is_instant();
     }
+    copy(){
+        var new_deck = new this.constructor(this.#hand_size, this.#min_deck_size);
+        new_deck.#id_count = this.#id_count;
+        new_deck.#decklist = this.#decklist;
+        return new_deck;
+    }
 }
 // ----------------TagList.js----------------
 // Class to contain a list of tags for true or false questions about a tile.
@@ -8893,15 +9837,28 @@ function generate_basement_area(){
 
 /** @type {FloorGenerator}*/
 function generate_basement_floor(floor_num, area, map){
-    wall_terrain(floor_num, area, map)
+    if(random_num(7) === 0){
+        many_walls_terrain(floor_num, area, map)
+    }
+    else{
+        wall_terrain(floor_num, area, map)
+    }
     generate_normal_floor(floor_num, area, map);
 }
 /** @type {FloorGenerator}*/
 function wall_terrain(floor_num, area, map){
     var wall_amount = Math.min(random_num(8), random_num(8));
     for(var i = 0; i < wall_amount; ++i){
-        map.spawn_safely(damaged_wall_tile(), SAFE_SPAWN_ATTEMPTS, false)
-        map.spawn_safely(wall_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(damaged_wall_tile(), SAFE_SPAWN_ATTEMPTS, false);
+        map.spawn_safely(wall_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+}
+/** @type {FloorGenerator}*/
+function many_walls_terrain(floor_num, area, map){
+    var wall_amount = 10 + random_num(5);
+    for(var i = 0; i < wall_amount; ++i){
+        map.spawn_safely(damaged_wall_tile(), SAFE_SPAWN_ATTEMPTS, false);
+        map.spawn_safely(wall_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
 /** @type {AreaGenerator}*/
@@ -8965,6 +9922,36 @@ function swaying_nettle_terrain(floor_num, area, map){
     var amount = 15 + random_num(8);
     for(var i = 0; i < amount; ++i){
         map.spawn_safely(swaying_nettle_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+}
+/** @type {AreaGenerator}*/
+function generate_library_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}library.png`,
+        generate_floor: generate_library_floor,
+        enemy_list: [
+            moving_turret_h_tile, moving_turret_d_tile, brightling_tile, captive_void_tile, paper_construct_tile,
+            unstable_wisp_tile, walking_prism_tile, specter_tile, clay_golem_tile, gem_crawler_tile
+        ],
+        boss_floor_list: [arcane_sentry_floor],
+        next_area_list: area5,
+        description: library_description
+    }
+}
+
+/** @type {FloorGenerator}*/
+function generate_library_floor(floor_num, area, map){
+    if(random_num(3) !== 0){
+        bookshelf_terrain(floor_num, area, map);
+    }
+    generate_normal_floor(floor_num, area, map);
+}
+
+/** @type {FloorGenerator}*/
+function bookshelf_terrain(floor_num, area, map){
+    var bookshelf_amount = random_num(10);
+    for(var i = 0; i < bookshelf_amount; ++i){
+        map.spawn_safely(bookshelf_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
 /** @type {AreaGenerator}*/
@@ -9095,7 +10082,7 @@ const area_end = [generate_default_area]; // Once they have finished the complet
 const area1 = STARTING_AREA;
 const area2 = [generate_sewers_area, generate_basement_area];
 const area3 = [generate_magma_area, generate_crypt_area];
-const area4 = [generate_forest_area];//, generate_library_area];
+const area4 = [generate_forest_area, generate_library_area];
 const area5 = area_end;//[generate_sanctum_area];
 
 /**
@@ -9115,17 +10102,6 @@ const area5 = area_end;//[generate_sanctum_area];
 
 // ---Unfinished Areas---
 
-/** @type {AreaGenerator}*/
-function generate_library_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}library.png`,
-        generate_floor: generate_library_floor,
-        enemy_list: [],
-        boss_floor_list: [],
-        next_area_list: area5,
-        description: ruins_description
-    }
-}
 /** @type {AreaGenerator}*/
 function generate_sanctum_area(){
     return {
@@ -9148,6 +10124,40 @@ function generate_default_area(){
         next_area_list: [generate_default_area],
         description: default_area_description
     }
+}
+/** @type {FloorGenerator} Generates the floor where the Arcane Sentry appears.*/
+function arcane_sentry_floor(floor_num,  area, map){
+    // Randomly select a point where the player is not in range.
+    var offset = 2;
+    var x_range = randomize_arr(range(offset, FLOOR_WIDTH - offset));
+    var y_range = randomize_arr(range(offset, FLOOR_HEIGHT - offset));
+    var player_x = map.get_player_location().x;
+    var x_range = x_range.filter((x) => {
+        return x !== player_x + 1 && x !== player_x - 1;
+    });
+
+    // Spawn the core.
+    var core_pos = new Point(x_range[0], y_range[0]);
+    var core = arcane_sentry_tile();
+    map.add_tile(core, core_pos);
+
+    // Spawn the nodes.
+    for(var direction of DIAGONAL_DIRECTIONS){
+        map.add_tile(arcane_node_tile(), core_pos.plus(direction));
+    }
+    
+    // Swap to turret mode for setup.
+    var self = {
+        tile: core,
+        location: core_pos
+    }
+    var target = {
+        tile: map.get_player(),
+        difference: map.get_player_location().minus(core_pos)
+    }
+    core.mode = SENTRY_MODES.turret
+    sentry_transform_turret(self, target, map);
+    return arcane_sentry_floor_message;
 }
 /** @type {FloorGenerator} Generates the floor where the Forest Heart appears.*/
 function forest_heart_floor(floor_num,  area, map){
@@ -9195,6 +10205,26 @@ function lich_floor(floor_num,  area, map){
     }
     map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
     return lich_floor_message;
+}
+/** @type {FloorGenerator} Generates the floor where the Shadow of Self appears.*/
+function shadow_of_self_floor(floor_num,  area, map){
+    // Change to spawn on far wall mirroring player
+    var shadow = shadow_of_self_tile();
+    map.spawn_safely(shadow, SAFE_SPAWN_ATTEMPTS, true);
+
+    // Swaps tab to the one containing it's hand
+    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.shadow_hand, function(){
+        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.shadow_hand);
+    });
+    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.shadow_hand);
+    refresh_shadow_hand_display(shadow.deck.get_hand_info());
+
+
+    for(var i = 0; i < 6; ++i){
+        map.add_tile(wall_tile());
+    }
+
+    return shadow_of_self_floor_message;
 }
 /** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){
@@ -9340,11 +10370,6 @@ function boss_floor_common(floor_num,  area, map){
     if(GS.boons.has(boon_names.pacifism) === 0){
         map.lock();
     }
-}
-
-/** @type {FloorGenerator}*/
-function generate_library_floor(floor_num, area, map){
-    generate_normal_floor(floor_num, area, map);
 }
 
 /** @type {FloorGenerator}*/
@@ -9595,6 +10620,81 @@ function superweapon(){
         options
     }
 }
+
+// ----------------arcane_sentry_cards.js----------------
+// File containing cards that can be dropped as rewards for defeating the arcane sentry.
+
+/** @type {CardGenerator} Dropped by the Arcane Sentry*/
+function beam_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack_until(0, -1), pattack_until(1, 0)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    return{
+        name: `beam ne`,
+        pic: `${IMG_FOLDER.cards}beam_ne.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the Arcane Sentry*/
+function beam_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NW, [pattack_until(0, -1), pattack_until(-1, 0)]);
+    options.add_button(SE, [pmove(1, 1)]);
+    return{
+        name: `beam nw`,
+        pic: `${IMG_FOLDER.cards}beam_nw.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the Arcane Sentry*/
+function beam_se(){
+    var options = new ButtonGrid();
+    options.add_button(SE, [pattack_until(0, 1), pattack_until(1, 0)]);
+    options.add_button(NW, [pmove(-1, -1)]);
+    return{
+        name: `beam se`,
+        pic: `${IMG_FOLDER.cards}beam_se.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the Arcane Sentry*/
+function beam_sw(){
+    var options = new ButtonGrid();
+    options.add_button(SW, [pattack_until(0, 1), pattack_until(-1, 0)]);
+    options.add_button(NE, [pmove(1, -1)]);
+    return{
+        name: `beam sw`,
+        pic: `${IMG_FOLDER.cards}beam_sw.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function saw_ns(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), pmove(0, -1)]);
+    options.add_button(S, [pattack(0, 1), pattack(1, 0), pattack(0, -1), pattack(-1, 0), pmove(0, 1)]);
+    return{
+        name: `saw ns`,
+        pic: `${IMG_FOLDER.cards}saw_ns.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function saw_ew(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pattack(1, 0), pattack(0, 1), pattack(-1, 0), pattack(0, -1), pmove(1, 0)]);
+    options.add_button(W, [pattack(-1, 0), pattack(0, 1), pattack(1, 0), pattack(0, -1), pmove(-1, 0)]);
+    return{
+        name: `saw ew`,
+        pic: `${IMG_FOLDER.cards}saw_ew.png`,
+        options
+    }
+}
 // ----------------two_headed_serpent_cards.js----------------
 // File containing cards that can be dropped as rewards for defeating the forest heart.
 
@@ -9650,13 +10750,42 @@ function debilitating_confusion(){
                 pstun(-1, 1),
                 pstun(-1, 0),
                 pstun(-1, -1)];
-    options.add_button(SPIN, spin.concat(spin));
+    options.add_button(SPIN, [...spin, ...spin]);
     return{
         name: `debilitating confusion`,
         pic: `${IMG_FOLDER.cards}debilitating_confusion.png`,
         options
     }
 }
+
+/** @type {CardGenerator} Dropped by the lich*/
+function beam_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack_until(0, -1)]);
+    options.add_button(E, [pattack_until(1, 0)]);
+    options.add_button(S, [pattack_until(0, 1)]);
+    options.add_button(W, [pattack_until(-1, 0)]);
+    return{
+        name: `beam orthogonal`,
+        pic: `${IMG_FOLDER.cards}beam_orthogonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the lich*/
+function beam_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack_until(1, -1)]);
+    options.add_button(SE, [pattack_until(1, 1)]);
+    options.add_button(SW, [pattack_until(-1, 1)]);
+    options.add_button(NW, [pattack_until(-1, -1)]);
+    return{
+        name: `beam diagonal`,
+        pic: `${IMG_FOLDER.cards}beam_diagonal.png`,
+        options
+    }
+}
+
 // ----------------spider_queen_cards.js----------------
 // File containing cards that can be dropped as rewards for defeating the spider queen.
 
@@ -9696,6 +10825,24 @@ function skitter(){
         options
     }
 }
+
+/** @type {CardGenerator} Dropped by the spider queen*/
+function chomp(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(0, -1), pattack(0, -1)]);
+    options.add_button(E, [pattack(1, 0), pattack(1, 0)]);
+    options.add_button(S, [pattack(0, 1), pattack(0, 1)]);
+    options.add_button(W, [pattack(-1, 0), pattack(-1, 0)]);
+    options.add_button(NE, [pattack(1, -1), pattack(1, -1)]);
+    options.add_button(SE, [pattack(1, 1), pattack(1, 1)]);
+    options.add_button(SW, [pattack(-1, 1), pattack(-1, 1)]);
+    options.add_button(NW, [pattack(-1, -1), pattack(-1, -1)]);
+    return{
+        name: `chomp`,
+        pic: `${IMG_FOLDER.cards}chomp.png`,
+        options
+    }
+}
 // ----------------two_headed_serpent_cards.js----------------
 // File containing cards that can be dropped as rewards for defeating the two headed serpent.
 
@@ -9711,7 +10858,7 @@ function regenerate(){
     }
 }
 
-/** @type {CardGenerator} Dropped by the two headed serpent*/
+/** @type {CardGenerator} Dropped by the two headed serpent.*/
 function fangs(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);
@@ -9721,6 +10868,21 @@ function fangs(){
     return{
         name: `fangs`,
         pic: `${IMG_FOLDER.cards}fangs.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the two headed serpent.*/
+function slither(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pmove(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pstun(0, 0), pmove(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 0), pmove(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pstun(0, 0), pmove(-1, 0), pmove(-1, 0)]);
+    options.make_instant();
+    return{
+        name: `slither`,
+        pic: `${IMG_FOLDER.cards}slither.png`,
         options
     }
 }
@@ -9949,6 +11111,13 @@ function pmove_until(x, y){
         change: new Point(x, y)
     }
 }
+/** @type {PlayerCommandGenerator} Function to attack in a direction until you hit the edge of the board.*/
+function pattack_until(x, y){
+    return {
+        type: `attack_until`,
+        change: new Point(x, y)
+    }
+}
 /** @type {PlayerCommandGenerator} Function to heal the thing at the specified spot by 1.*/
 function pheal(x, y){
     return {
@@ -9991,12 +11160,14 @@ function explain_action(action){
         case `teleport`:
             return move_types.teleport;
         case `stun`:
-            if(point_equals(action.change, new Point(0, 0))){
+            if(action.change.is_origin()){
                 return move_types.confuse;
             }
-            return `${move_types.stun}: ${target}`
+            return `${move_types.stun}: ${target}`;
         case `move_until`:
-            return `${move_types.move_until}: ${target}`
+            return `${move_types.move_until}: ${target}`;
+        case `attack_until`:
+            return `${move_types.attack_until}: ${target}`;
         case `heal`:
             return `${move_types.heal}: ${target}`;
         default:
@@ -10030,8 +11201,7 @@ function explain_point(p){
 /**
  * 
  */
-function telegraph_card(behavior, map){
-    var start_position = map.get_player_location(); 
+function telegraph_card(behavior, map, start_position){
     var telegraphs = {
         moves: [],
         attacks: [],
@@ -10076,12 +11246,31 @@ function telegraph_card(behavior, map){
                     telegraphs.moves.push(next_position);
                 }
                 break;
+            case `attack_until`:
+                var temp_next = next_position;
+                var temp_start = start_position;
+                while(map.is_in_bounds(temp_next)){
+                    telegraphs.attacks.push(temp_next);
+                    temp_start = temp_next;
+                    temp_next = temp_start.plus(action.change);
+                }
+                break;
             case `heal`:
                 telegraphs.healing.push(next_position);
                 break;
             default:
                 throw new Error(ERRORS.invalid_value);
         }
+    }
+    if([ 
+        ...telegraphs.moves, 
+        ...telegraphs.attacks, 
+        ...telegraphs.stun, 
+        ...telegraphs.healing, 
+        ...telegraphs.teleport
+    ].length === 0){
+        // If they aren't doing anything, show that.
+        telegraphs.moves.push(start_position);
     }
     return telegraphs;
 }
@@ -11271,10 +12460,11 @@ function deck_at_minimum_symbol(){
 BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
     chilly_presence, creative, dazing_blows, empty_rooms, escape_artist, 
-    expend_vitality, fleeting_thoughts, fortitude, frugivore, future_sight, 
-    hoarder, larger_chests, limitless, pacifism, pain_reflexes, 
-    perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, 
-    rebirth, repetition, retaliate, roar_of_challenge, safe_passage, serenity, 
+    expend_vitality, flame_strike, fleeting_thoughts, fortitude, frenzy, 
+    frugivore, future_sight, gruntwork, hoarder, larger_chests, 
+    limitless, pacifism, pain_reflexes, perfect_the_basics, picky_shopper, 
+    practice_makes_perfect, pressure_points, rebirth, repetition, retaliate, 
+    roar_of_challenge, safe_passage, serenity, slime_trail, sniper, 
     spiked_shoes, spontaneous, stable_mind, stealthy, thick_soles
 ];
 
@@ -11448,6 +12638,19 @@ function prereq_expend_vitality(){
 function pick_expend_vitality(){
     change_max_health(-1);
 }
+function flame_strike(){
+    return {
+        name: boon_names.flame_strike,
+        pic: `${IMG_FOLDER.boons}flame_strike.png`,
+        description: flame_strike_description,
+        prereq: prereq_flame_strike,
+        unlocks: [flame_strike]
+    }
+}
+
+function prereq_flame_strike(){
+    return GS.boons.has(boon_names.flame_strike) < 3;
+}
 
 function fleeting_thoughts(){
     return {
@@ -11476,6 +12679,15 @@ function pick_fortitude(){
     change_max_health(1);
 }
 
+function frenzy(){
+    return {
+        name: boon_names.frenzy,
+        pic: `${IMG_FOLDER.boons}frenzy.png`,
+        description: frenzy_description,
+    }
+}
+
+
 function frugivore(){
     return {
         name: boon_names.frugivore,
@@ -11503,6 +12715,27 @@ function pick_future_sight(){
         display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
     });
     display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
+}
+
+function gruntwork(){
+    return {
+        name: boon_names.gruntwork,
+        pic: `${IMG_FOLDER.boons}gruntwork.png`,
+        description: gruntwork_description,
+        prereq: prereq_gruntwork,
+        on_pick: pick_gruntwork
+    }
+}
+
+function prereq_gruntwork(){
+    return GS.map.get_player().max_health !== undefined;
+}
+
+function pick_gruntwork(){
+    change_max_health(3);
+    GS.deck.alter_hand_size(-1);
+    GS.deck.deal();
+    GS.refresh_deck_display();
 }
 
 function hoarder(){
@@ -11666,9 +12899,10 @@ function retaliate_behavior(self, target, map){
         return p.plus(self.location);
     })
     for(var i = 0; i < spaces.length && !hit; ++i){
-        if(!map.check_empty(spaces[i]) &&                   // Space is not empty/edge.
-           !map.get_tile(spaces[i]).tags.has(TAGS.boss) &&  // Space is not a boss.
-           (map.get_tile(spaces[i]).health !== undefined || // Space has health or
+        if( map.is_in_bounds(spaces[i]) &&                   // Space is not edge.
+            !map.check_empty(spaces[i]) &&                   // Space is not empty.
+            !map.get_tile(spaces[i]).tags.has(TAGS.boss) &&  // Space is not a boss.
+            (map.get_tile(spaces[i]).health !== undefined || // Space has health or
             map.get_tile(spaces[i]).on_hit !== undefined)    // Space has on_hit
         ){
             hit = map.attack(spaces[i]);
@@ -11733,6 +12967,26 @@ function pick_serenity(){
         GS.deck.alter_min(-1);
     }
 }
+function slime_trail(){
+    return {
+        name: boon_names.slime_trail,
+        pic: `${IMG_FOLDER.boons}slime_trail.png`,
+        description: slime_trail_description,
+        prereq: prereq_slime_trail,
+        unlocks: [slime_trail]
+    }
+}
+
+function prereq_slime_trail(){
+    return GS.boons.has(boon_names.slime_trail) < 2;
+}
+function sniper(){
+    return {
+        name: boon_names.sniper,
+        pic: `${IMG_FOLDER.boons}sniper.png`,
+        description: sniper_description,
+    }
+}
 
 function spiked_shoes(){
     return {
@@ -11776,7 +13030,13 @@ function stable_mind(){
         name: boon_names.stable_mind,
         pic: `${IMG_FOLDER.boons}stable_mind.png`,
         description: stable_mind_description,
+        prereq: prereq_stable_mind,
+        unlocks: [stable_mind]
     }
+}
+
+function prereq_stable_mind(){
+    return GS.boons.has(boon_names.stable_mind) < 2;
 }
 
 function stealthy(){
@@ -11815,15 +13075,6 @@ function duplicate(){
         description: duplicate_description
     }
 }
-
-function frenzy(){
-    return {
-        name: boon_names.frenzy,
-        pic: `${IMG_FOLDER.boons}frenzy.png`,
-        description: frenzy_description,
-    }
-}
-
 
 function learn_from_mistakes(){
     return {

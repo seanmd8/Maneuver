@@ -16,7 +16,7 @@ function spider_queen_tile(){
         telegraph: spider_telegraph,
         on_hit: spider_queen_hit,
         on_death: boss_death,
-        card_drops: [skitter, bite]
+        card_drops: [skitter, bite, chomp]
     }
 }
 

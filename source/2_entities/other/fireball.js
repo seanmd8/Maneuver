@@ -6,7 +6,7 @@ function fireball_tile(){
         name: `Fireball`,
         pic: `${IMG_FOLDER.tiles}fireball.png`,
         description: fireball_description,
-        tags: new TagList(),
+        tags: new TagList([TAGS.fireball, TAGS.unstunnable]),
         behavior: fireball_ai,
         telegraph: fireball_telegraph,
         on_enter: fireball_on_enter,

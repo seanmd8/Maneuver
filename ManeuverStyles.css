@@ -115,11 +115,17 @@
     border-color: slategrey;
 }
 
+/* Shows or hides guidebook parts.*/
 .visible-section {
     display: block;
 }
 .hidden-section {
     display: none;
+}
+
+/* Class to show something as 'Greyed Out'.*/
+.greyed-out {
+    opacity: 0.8;
 }
 /* File containing styles used by the guidebook screen. */
 

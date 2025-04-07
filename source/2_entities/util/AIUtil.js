@@ -36,13 +36,14 @@ function move_closer_ai(self, target, map){
     for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health > 0); ++i){
         if(map.move(self.location, self.location.plus(directions[i]))){
             self.location.plus_equals(directions[i]);
+            target.difference.minus_equals(directions[i]);
             return;
         }
     }
 }
 /** @type {AIFunction} AI used when a entity should move and attack in a direction (the target's difference field).*/
 function move_attack_ai(self, target, map){
-    if(target.difference.within_radius(0)){
+    if(target.difference.is_origin()){
         throw new Error(ERRORS.invalid_value)
     }
     if(map.move(self.location, self.location.plus(target.difference))){

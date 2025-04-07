@@ -48,14 +48,15 @@ function walking_prism_on_hit(self, target, map){
     else{
         var directions = DIAGONAL_DIRECTIONS;
     }
-    // Attacks in a + or x depending on the cycle.
-    for(var direction of directions){
-        for(var space = self.location.plus(direction); !map.attack(space) && map.check_empty(space); space.plus_equals(direction)){}
-    }
     // Changes cycle.
     self.tile.cycle = 1 - self.tile.cycle;
     self.tile.pic = self.tile.pic_arr[self.tile.cycle];
     self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[1 + self.tile.cycle]}`
+
+    // Attacks in a + or x depending on the old cycle.
+    for(var direction of directions){
+        for(var space = self.location.plus(direction); !map.attack(space) && map.check_empty(space); space.plus_equals(direction)){}
+    }
 }
 
 /** @type {TelegraphFunction} */

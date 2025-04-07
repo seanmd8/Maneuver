@@ -260,4 +260,10 @@ class MoveDeck{
         }
         return this.#hand[hand_position].options.is_instant();
     }
+    copy(){
+        var new_deck = new this.constructor(this.#hand_size, this.#min_deck_size);
+        new_deck.#id_count = this.#id_count;
+        new_deck.#decklist = this.#decklist;
+        return new_deck;
+    }
 }

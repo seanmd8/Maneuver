@@ -22,7 +22,7 @@ const MIN_DECK_SIZE = 5;
 const STARTING_ENEMIES = TEST_INIT.enemies ? TEST_INIT.enemies : [spider_tile];
 const STARTING_CHESTS = TEST_INIT.chest ? TEST_INIT.chest : [];
 const STARTING_DECK = TEST_INIT.cards ? make_test_deck : make_starting_deck;
-const STARTING_AREA = TEST_INIT.area ? TEST_INIT.area : [generate_ruins_area];
+const STARTING_AREA = TEST_INIT.area ? [TEST_INIT.area] : [generate_ruins_area];
 var GS;
 
 // Dungeon generation settings.
@@ -76,7 +76,10 @@ const TAGS = {
     unstunnable: `Unstunnable`,
     hidden: `Hidden`,
     invulnerable: `Invulnerable`,
+    controlled: `Controlled`,
     thorn_bush_roots: `Thorn Bush Roots`,
-    nettle_immune: `Nettle Immune`
+    nettle_immune: `Nettle Immune`,
+    arcane_sentry: `Arcane Sentry`,
+    fireball: `Fireball`
 }
 Object.freeze(TAGS);

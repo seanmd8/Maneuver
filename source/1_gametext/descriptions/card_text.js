@@ -23,7 +23,7 @@ const four_directions = {
 // Move types.
 const move_types = {
     alt: `Shift click on a button to show what it will do on the map.`,
-    evolutions: `Dust seems to be covering part of this card obscuring some of the options. `
+    evolutions: `Dust and paint seems to be covering part of this card obscuring some of the options. `
                 +`Maybe you can find some way to remove it?`,
     intro: `Move Options (actions will be performed in order):\n`,
 
@@ -33,6 +33,7 @@ const move_types = {
     stun: `Stun`,
     confuse: `Confuse: you. Adds a bad temporary card to your deck.`,
     move_until: `Keep Moving`,
+    attack_until: `Keep Moving`,
     heal: `Heal`,
     you: `you`,
     nothing: `Do nothing`,
