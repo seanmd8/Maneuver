@@ -14,7 +14,7 @@ function generate_sewers_area(){
 /** @type {FloorGenerator}*/
 function generate_sewers_floor(floor_num, area, map){
     var terrains = [slime_terrain, grate_terrain];
-    terrains[random_num(terrains.length)](floor_num, area, map);
+    rand_from(terrains)(floor_num, area, map);
     generate_normal_floor(floor_num, area, map);
 }
 

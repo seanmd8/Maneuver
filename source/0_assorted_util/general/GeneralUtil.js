@@ -35,6 +35,18 @@ function rand_no_repeates(source, draws){
     return result;
 }
 /**
+ * Gets a random element from an array
+ * @template T
+ * @param {T[]} source Array to draw from.
+ * @returns {T} Random element.
+ */
+function rand_from(source){
+    if(source.length === 0){
+        throw new Error(ERRORS.array_size);
+    }
+    return rand_no_repeates(source, 1)[0];
+}
+/**
  * Wraps a string so each line has a maximum number of characters before automatically inserting a newline character.
  * @param {string} message The string to be wrapped.
  * @param {number} wrap_length How many characters maximum.

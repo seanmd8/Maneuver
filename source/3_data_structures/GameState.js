@@ -263,8 +263,7 @@ class GameState{
         var index_of_rare = random_num(4);
         if(index_of_rare < add_list_generators.length){
             // Growing the number of options guarantees a rare.
-            var rare = rand_no_repeates(RARE_CARDS, 1);
-            add_list_generators[index_of_rare] = rare[0];
+            add_list_generators[index_of_rare] = rand_from(RARE_CARDS);
         }
         var add_list = add_list_generators.map(g => g());
         add_list.unshift(add_card_symbol())

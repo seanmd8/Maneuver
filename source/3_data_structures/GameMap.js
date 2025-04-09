@@ -626,12 +626,12 @@ class GameMap{
         if(this.#floor_num % AREA_SIZE === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
-            this.#area = next_list[random_num(next_list.length)]();
+            this.#area = rand_from(next_list)();
             floor_description += `\n${this.#area.description}`;
         }
         if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
-            var boss_floor = this.#area.boss_floor_list[random_num(this.#area.boss_floor_list.length)];
+            var boss_floor = rand_from(this.#area.boss_floor_list);
             boss_floor_common(this.#floor_num, this.#area, this); 
             var boss_message = boss_floor(this.#floor_num, this.#area, this);
             floor_description += `\n${boss_message}`;

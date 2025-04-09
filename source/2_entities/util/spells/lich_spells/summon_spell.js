@@ -12,6 +12,6 @@ function summon_spell(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var tile = self.tile.summons[random_num(self.tile.summons.length)]();
+    var tile = rand_from(self.tile.summons)();
     spawn_nearby(map, tile, self.location);
 }

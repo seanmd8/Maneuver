@@ -127,7 +127,7 @@ function get_shadow_move(moves, self, target){
         }
     }
     // Pick randomly.
-    return moves[random_num(moves.length)];
+    return rand_from(moves);
 }
 
 function do_shadow_move(map, moves, location){

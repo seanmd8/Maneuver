@@ -36,6 +36,18 @@ function rand_no_repeates(source, draws){
     return result;
 }
 /**
+ * Gets a random element from an array
+ * @template T
+ * @param {T[]} source Array to draw from.
+ * @returns {T} Random element.
+ */
+function rand_from(source){
+    if(source.length === 0){
+        throw new Error(ERRORS.array_size);
+    }
+    return rand_no_repeates(source, 1)[0];
+}
+/**
  * Wraps a string so each line has a maximum number of characters before automatically inserting a newline character.
  * @param {string} message The string to be wrapped.
  * @param {number} wrap_length How many characters maximum.
@@ -1448,8 +1460,8 @@ function get_control_symbols(){
  */
 function confuse_player(){
     // Chance redused by 50% for each stable_mind boon.
-    if(!chance(gs.boons.has(boon_names.stable_mind), 2)){
-        var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
+    if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
+        var card = rand_from(CONFUSION_CARDS)();
         GS.give_temp_card(card);
         GS.refresh_deck_display();
     } 
@@ -2974,7 +2986,7 @@ function get_shadow_move(moves, self, target){
         }
     }
     // Pick randomly.
-    return moves[random_num(moves.length)];
+    return rand_from(moves);
 }
 
 function do_shadow_move(map, moves, location){
@@ -5288,7 +5300,7 @@ function thorn_bush_ai(self, target, map){
 }
 /** @type {TileGenerator} */
 function moving_turret_d_tile(){
-    var direction = DIAGONAL_DIRECTIONS[random_num(DIAGONAL_DIRECTIONS.length)].copy();
+    var direction = rand_from(DIAGONAL_DIRECTIONS).copy();
     var tile = {
         type: `enemy`,
         name: `Moving Turret`,
@@ -5337,7 +5349,7 @@ function moving_turret_d_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function moving_turret_h_tile(){
-    var direction = HORIZONTAL_DIRECTIONS[random_num(HORIZONTAL_DIRECTIONS.length)].copy();
+    var direction = rand_from(HORIZONTAL_DIRECTIONS).copy();
     var tile = {
         type: `enemy`,
         name: `Moving Turret`,
@@ -6029,7 +6041,7 @@ function coffin_tile_death(self, target, map){
         self.tile.card_drops === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var new_enemy = self.tile.summons[random_num(self.tile.summons.length)]();
+    var new_enemy = rand_from(self.tile.summons)();
     if(new_enemy.type === `chest`){
         var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(let card of cards){
@@ -6141,7 +6153,7 @@ function enticing_fruit_tree_on_enter(self, target, map){
     map.heal(self.location.plus(target.difference), 1);
     var spawns = random_num(3);
     for(var i = 0; i < spawns; ++i){
-        var new_spawn = self.tile.summons[random_num(self.tile.summons.length)]();
+        var new_spawn = rand_from(self.tile.summons)();
         stun(new_spawn);
         spawn_nearby(map, new_spawn, self.location);
     }
@@ -6171,7 +6183,7 @@ function rotting_fruit_tree_on_death(self, target, map){
     }
     var spawns = random_num(3);
     if(spawns !== 0){
-        var new_spawn = self.tile.summons[random_num(self.tile.summons.length)]();
+        var new_spawn = rand_from(self.tile.summons)();
         stun(new_spawn);
         spawn_nearby(map, new_spawn, self.location);
     }
@@ -7712,7 +7724,7 @@ function summon_spell(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var tile = self.tile.summons[random_num(self.tile.summons.length)]();
+    var tile = rand_from(self.tile.summons)();
     spawn_nearby(map, tile, self.location);
 }
 /** @type {SpellGenerator} */
@@ -8865,12 +8877,12 @@ class GameMap{
         if(this.#floor_num % AREA_SIZE === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
-            this.#area = next_list[random_num(next_list.length)]();
+            this.#area = rand_from(next_list)();
             floor_description += `\n${this.#area.description}`;
         }
         if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
-            var boss_floor = this.#area.boss_floor_list[random_num(this.#area.boss_floor_list.length)];
+            var boss_floor = rand_from(this.#area.boss_floor_list);
             boss_floor_common(this.#floor_num, this.#area, this); 
             var boss_message = boss_floor(this.#floor_num, this.#area, this);
             floor_description += `\n${boss_message}`;
@@ -9368,8 +9380,7 @@ class GameState{
         var index_of_rare = random_num(4);
         if(index_of_rare < add_list_generators.length){
             // Growing the number of options guarantees a rare.
-            var rare = rand_no_repeates(RARE_CARDS, 1);
-            add_list_generators[index_of_rare] = rare[0];
+            add_list_generators[index_of_rare] = rand_from(RARE_CARDS);
         }
         var add_list = add_list_generators.map(g => g());
         add_list.unshift(add_card_symbol())
@@ -10076,7 +10087,7 @@ function generate_sewers_area(){
 /** @type {FloorGenerator}*/
 function generate_sewers_floor(floor_num, area, map){
     var terrains = [slime_terrain, grate_terrain];
-    terrains[random_num(terrains.length)](floor_num, area, map);
+    rand_from(terrains)(floor_num, area, map);
     generate_normal_floor(floor_num, area, map);
 }
 
@@ -10276,7 +10287,7 @@ function two_headed_serpent_floor(floor_num, area, map){
         var position = current.copy();
         var dirs = [new Point(random_sign(), 0), new Point(0, random_sign())];
         for(var i = 1; i < serpent_length; ++i){
-            var next = rand_no_repeates(dirs, 1)[0];
+            var next = rand_from(dirs);
             position.plus_equals(next);
             if(map.check_empty(position)){
                 locations.push(next);
@@ -10321,7 +10332,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     for(var i = 0; i < 8; ++i){
         var position = map.random_empty();
         map.add_tile(wall_tile(), position);
-        map.add_tile(damaged_wall_tile(), position.plus(rand_no_repeates(ALL_DIRECTIONS, 1)[0]));
+        map.add_tile(damaged_wall_tile(), position.plus(rand_from(ALL_DIRECTIONS)));
     }
     return two_headed_serpent_floor_message;
 }
@@ -12559,10 +12570,10 @@ function brag_and_boast(){
 
 function pick_brag_and_boast(){
     for(var i = 0; i < 2; ++i){
-        var boss = rand_no_repeates(BOSS_LIST, 1)[0]();
-        var card = rand_no_repeates(boss.card_drops, 1)[0]();
+        var boss = rand_from(BOSS_LIST)();
+        var card = rand_from(boss.card_drops)();
         GS.deck.add(card);
-        var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
+        card = rand_from(CONFUSION_CARDS)();
         GS.deck.add(card);
     }
 }
