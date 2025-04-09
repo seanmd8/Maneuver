@@ -522,7 +522,7 @@ class GameMap{
         var pos = this.#entity_list.get_player_pos().plus(direction);
         try{
             if(
-                GS.boons.has(boon_names.flame_strike) > random_num(3) && 
+                chance(GS.boons.has(boon_names.flame_strike), 3) && 
                 direction.within_radius(1) && !direction.is_origin() &&
                 this.check_empty(pos)
             ){
@@ -766,7 +766,7 @@ class GameMap{
         var stunned = this.stun_tile(pos.plus(direction));
         if( // Pressure points boon
             stunned && 
-            GS.boons.has(boon_names.pressure_points) > random_num(3) && 
+            chance(GS.boons.has(boon_names.pressure_points), 3) && 
             !direction.is_origin()
         ){
             this.player_attack(direction);

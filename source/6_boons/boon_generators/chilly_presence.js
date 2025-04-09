@@ -14,7 +14,10 @@ function prereq_chilly_presence(){
 }
 
 function proc_chilly_presence(tile){
-    if(!tile.tags.has(TAGS.boss) && GS.boons.has(boon_names.chilly_presence) > random_num(6)){
+    if(
+        !tile.tags.has(TAGS.boss) && 
+        chance(GS.boons.has(boon_names.chilly_presence), 6)
+    ){
         stun(tile);
     }
 }

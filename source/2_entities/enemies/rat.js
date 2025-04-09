@@ -10,7 +10,7 @@ function rat_tile(){
         difficulty: 2,
         behavior: rat_ai,
         telegraph: rat_telegraph,
-        flip: random_num(2) === 0,
+        flip: chance(1, 2),
         cycle: 1
     }
 }

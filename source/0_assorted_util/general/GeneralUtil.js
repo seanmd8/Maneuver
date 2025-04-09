@@ -151,6 +151,15 @@ function random_num(x){
     return Math.floor(Math.random() * x);
 }
 /**
+ * Function to return true n/d of the time.
+ * @param {number} numerator
+ * @param {number} denominator 
+ * @returns {boolean} If the chance succeeded.
+ */
+function chance(numerator, denominator){
+    return random_num(denominator) < numerator;
+}
+/**
  * Function to check if the contents of two arrays are ===.
  * @param {[]} a1 The first array to be compared.
  * @param {[]} a2 the second array to be compared.

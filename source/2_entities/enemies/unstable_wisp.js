@@ -27,7 +27,7 @@ function unstable_wisp_ai(self, target, map){
             moved = directions[i];
         }
     }
-    if(moved && random_num(3) === 0){
+    if(moved && chance(1, 3)){
         // Chance to shoot a fireball after moving.
         moved.times_equals(-1);
         var fireball = shoot_fireball(moved);

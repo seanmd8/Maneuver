@@ -13,7 +13,7 @@ function generate_forest_area(){
 
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){
-    if(random_num(16) === 0 && !floor_has_chest(floor_num % AREA_SIZE)){
+    if(chance(1, 12) && !floor_has_chest(floor_num % AREA_SIZE)){
         swaying_nettle_terrain(floor_num, area, map);
         generate_normal_floor(floor_num / 2, area, map);
     }
@@ -24,7 +24,7 @@ function generate_forest_floor(floor_num, area, map){
 }
 /** @type {FloorGenerator}*/
 function enticing_fruit_tree_terrain(floor_num, area, map){
-    if(random_num(5) > 2){
+    if(chance(2, 5)){
         map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }

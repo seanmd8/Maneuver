@@ -31,7 +31,7 @@ function damaged_wall_death(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(random_num(10) < 7){
+    if(chance(7, 10)){
         var ran = random_num(self.tile.summons.length);
         var new_enemy = self.tile.summons[ran]();
         stun(new_enemy);

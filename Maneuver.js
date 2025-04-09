@@ -152,6 +152,15 @@ function random_num(x){
     return Math.floor(Math.random() * x);
 }
 /**
+ * Function to return true n/d of the time.
+ * @param {number} numerator
+ * @param {number} denominator 
+ * @returns {boolean} If the chance succeeded.
+ */
+function chance(numerator, denominator){
+    return random_num(denominator) < numerator;
+}
+/**
  * Function to check if the contents of two arrays are ===.
  * @param {[]} a1 The first array to be compared.
  * @param {[]} a2 the second array to be compared.
@@ -1439,7 +1448,7 @@ function get_control_symbols(){
  */
 function confuse_player(){
     // Chance redused by 50% for each stable_mind boon.
-    if(1 + random_num(2) - GS.boons.has(boon_names.stable_mind) > 0){
+    if(!chance(gs.boons.has(boon_names.stable_mind), 2)){
         var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
         GS.give_temp_card(card);
         GS.refresh_deck_display();
@@ -3341,9 +3350,9 @@ function velociphile_tile(){
 
 /** @type {AIFunction} AI used by the Velociphile.*/
 function velociphile_ai(self, target, map){
-    // Moves towards the player 2/3 of the time, otherwise moves randomly.
     var directions = order_nearby(target.difference);
-    if(random_num(3) === 0){
+    if(chance(1, 3)){
+        // 1/3 of the time, moves randomly.
         directions = randomize_arr(directions);
     }
     // Direction is reselected until an unobstructed one is found.
@@ -3691,7 +3700,7 @@ function brightling_ai(self, target, map){
         return;
     }
     var near_points = random_nearby();
-    if(random_num(4) < self.tile.cycle && !target.tile.tags.has(TAGS.unmovable)){
+    if(chance(self.tile.cycle, 4) && !target.tile.tags.has(TAGS.unmovable)){
         // Attempts to teleport the player next to it, then cycle goes to -1 to prepare to teleport next turn.
         for(var near of near_points){
             if(map.check_empty(self.location.plus(near))){
@@ -4725,7 +4734,7 @@ function rat_tile(){
         difficulty: 2,
         behavior: rat_ai,
         telegraph: rat_telegraph,
-        flip: random_num(2) === 0,
+        flip: chance(1, 2),
         cycle: 1
     }
 }
@@ -4788,7 +4797,7 @@ function scorpion_tile(){
         difficulty: 3,
         behavior: scorpion_ai,
         telegraph: spider_telegraph,
-        flip: random_num(2) === 0,
+        flip: chance(1, 2),
         cycle: random_num(2)
     }
 }
@@ -5013,7 +5022,7 @@ function specter_ai(self, target, map){
     }
     var dir1 = sign(new Point(target.difference.x, 0));
     var dir2 = sign(new Point(0, target.difference.y));
-    var direction = random_num(2) === 1 ? dir1 : dir2;
+    var direction = chance(1, 2) ? dir1 : dir2;
     var target_location = self.location.plus(target.difference);
     var locations = get_specter_moves(self.location, direction, map);
     for(var i = 0; i < locations.length; ++i){
@@ -5167,9 +5176,9 @@ function strider_tile(){
     }
 }
 
-/** @type {AIFunction} AI used by shadow knights.*/
+/** @type {AIFunction} AI used by strider.*/
 function strider_ai(self, target, map){
-    if(random_num(2) === 0){
+    if(chance(1, 2)){
         var moves = random_nearby();
     }
     else{
@@ -5265,7 +5274,10 @@ function thorn_bush_ai(self, target, map){
         var next = current.plus(random_nearby()[0]);
         if(map.is_in_bounds(next)){
             var space = map.get_tile(next);
-            if(space.tags.has(TAGS.thorn_bush_roots) || (space.type === `empty` && random_num(4) === 0)){
+            if(
+                space.tags.has(TAGS.thorn_bush_roots) || 
+                (space.type === `empty` && chance(1, 4))
+            ){
                 current = next;
             }
         }
@@ -5536,7 +5548,7 @@ function unstable_wisp_ai(self, target, map){
             moved = directions[i];
         }
     }
-    if(moved && random_num(3) === 0){
+    if(moved && chance(1, 3)){
         // Chance to shoot a fireball after moving.
         moved.times_equals(-1);
         var fireball = shoot_fireball(moved);
@@ -6431,7 +6443,7 @@ function damaged_wall_death(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(random_num(10) < 7){
+    if(chance(7, 10)){
         var ran = random_num(self.tile.summons.length);
         var new_enemy = self.tile.summons[ran]();
         stun(new_enemy);
@@ -8749,7 +8761,7 @@ class GameMap{
         var pos = this.#entity_list.get_player_pos().plus(direction);
         try{
             if(
-                GS.boons.has(boon_names.flame_strike) > random_num(3) && 
+                chance(GS.boons.has(boon_names.flame_strike), 3) && 
                 direction.within_radius(1) && !direction.is_origin() &&
                 this.check_empty(pos)
             ){
@@ -8993,7 +9005,7 @@ class GameMap{
         var stunned = this.stun_tile(pos.plus(direction));
         if( // Pressure points boon
             stunned && 
-            GS.boons.has(boon_names.pressure_points) > random_num(3) && 
+            chance(GS.boons.has(boon_names.pressure_points), 3) && 
             !direction.is_origin()
         ){
             this.player_attack(direction);
@@ -9265,7 +9277,7 @@ class GameState{
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
                     this.player_action(pattack(action.change.x, action.change.y));
                 }
-                if(moved && random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                if(moved && chance(GS.boons.has(boon_names.slime_trail), 2)){
                     this.map.add_tile(corrosive_slime_tile(), previous_location);
                 }
                 break;
@@ -9286,7 +9298,7 @@ class GameState{
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
                 var previous_location = this.map.get_player_location();
                 while(this.map.player_move(action.change)){
-                    if(random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                    if(chance(GS.boons.has(boon_names.slime_trail), 2)){
                         this.map.add_tile(corrosive_slime_tile(), previous_location);
                     }
                     previous_location = this.map.get_player_location();
@@ -9353,10 +9365,11 @@ class GameState{
         // Get card choices
         var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
         var add_list_generators = rand_no_repeates(COMMON_CARDS, amount);
-        var chance_of_rare = random_num(4);
-        if(chance_of_rare < add_list_generators.length){
+        var index_of_rare = random_num(4);
+        if(index_of_rare < add_list_generators.length){
+            // Growing the number of options guarantees a rare.
             var rare = rand_no_repeates(RARE_CARDS, 1);
-            add_list_generators[chance_of_rare] = rare[0];
+            add_list_generators[index_of_rare] = rare[0];
         }
         var add_list = add_list_generators.map(g => g());
         add_list.unshift(add_card_symbol())
@@ -9844,7 +9857,7 @@ function generate_basement_area(){
 
 /** @type {FloorGenerator}*/
 function generate_basement_floor(floor_num, area, map){
-    if(random_num(7) === 0){
+    if(chance(1, 7)){
         many_walls_terrain(floor_num, area, map)
     }
     else{
@@ -9908,7 +9921,7 @@ function generate_forest_area(){
 
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){
-    if(random_num(16) === 0 && !floor_has_chest(floor_num % AREA_SIZE)){
+    if(chance(1, 12) && !floor_has_chest(floor_num % AREA_SIZE)){
         swaying_nettle_terrain(floor_num, area, map);
         generate_normal_floor(floor_num / 2, area, map);
     }
@@ -9919,7 +9932,7 @@ function generate_forest_floor(floor_num, area, map){
 }
 /** @type {FloorGenerator}*/
 function enticing_fruit_tree_terrain(floor_num, area, map){
-    if(random_num(5) > 2){
+    if(chance(2, 5)){
         map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
@@ -9948,7 +9961,7 @@ function generate_library_area(){
 
 /** @type {FloorGenerator}*/
 function generate_library_floor(floor_num, area, map){
-    if(random_num(3) !== 0){
+    if(chance(2, 3)){
         bookshelf_terrain(floor_num, area, map);
     }
     generate_normal_floor(floor_num, area, map);
@@ -9975,7 +9988,7 @@ function generate_magma_area(){
 }
 /** @type {FloorGenerator}*/
 function generate_magma_floor(floor_num, area, map){
-    if(random_num(4) === 0){
+    if(chance(1, 4)){
         magma_border_terrain(floor_num, area, map);
     }
     else{
@@ -10009,7 +10022,7 @@ function magma_terrain(floor_num, area, map){
 function repulsor_terrain(floor_num, area, map){
     var repulsor_amount = 0;
     for(var i = 0; i < 3; ++i){
-        if(random_num(4) === 0){
+        if(chance(1, 4)){
             ++repulsor_amount;
         }
     }
@@ -10368,7 +10381,7 @@ function generate_normal_floor(floor_num, area, map){
             }
         }
     }
-    if(GS.boons.has(boon_names.frugivore) > random_num(2)){
+    if(chance(GS.boons.has(boon_names.frugivore), 2)){
         var spawned = map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
@@ -12570,7 +12583,10 @@ function prereq_chilly_presence(){
 }
 
 function proc_chilly_presence(tile){
-    if(!tile.tags.has(TAGS.boss) && GS.boons.has(boon_names.chilly_presence) > random_num(6)){
+    if(
+        !tile.tags.has(TAGS.boss) && 
+        chance(GS.boons.has(boon_names.chilly_presence), 6)
+    ){
         stun(tile);
     }
 }

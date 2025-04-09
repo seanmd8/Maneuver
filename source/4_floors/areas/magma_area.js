@@ -12,7 +12,7 @@ function generate_magma_area(){
 }
 /** @type {FloorGenerator}*/
 function generate_magma_floor(floor_num, area, map){
-    if(random_num(4) === 0){
+    if(chance(1, 4)){
         magma_border_terrain(floor_num, area, map);
     }
     else{
@@ -46,7 +46,7 @@ function magma_terrain(floor_num, area, map){
 function repulsor_terrain(floor_num, area, map){
     var repulsor_amount = 0;
     for(var i = 0; i < 3; ++i){
-        if(random_num(4) === 0){
+        if(chance(1, 4)){
             ++repulsor_amount;
         }
     }

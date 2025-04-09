@@ -15,7 +15,7 @@ function generate_library_area(){
 
 /** @type {FloorGenerator}*/
 function generate_library_floor(floor_num, area, map){
-    if(random_num(3) !== 0){
+    if(chance(2, 3)){
         bookshelf_terrain(floor_num, area, map);
     }
     generate_normal_floor(floor_num, area, map);

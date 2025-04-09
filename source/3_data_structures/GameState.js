@@ -172,7 +172,7 @@ class GameState{
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
                     this.player_action(pattack(action.change.x, action.change.y));
                 }
-                if(moved && random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                if(moved && chance(GS.boons.has(boon_names.slime_trail), 2)){
                     this.map.add_tile(corrosive_slime_tile(), previous_location);
                 }
                 break;
@@ -193,7 +193,7 @@ class GameState{
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
                 var previous_location = this.map.get_player_location();
                 while(this.map.player_move(action.change)){
-                    if(random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                    if(chance(GS.boons.has(boon_names.slime_trail), 2)){
                         this.map.add_tile(corrosive_slime_tile(), previous_location);
                     }
                     previous_location = this.map.get_player_location();
@@ -260,10 +260,11 @@ class GameState{
         // Get card choices
         var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
         var add_list_generators = rand_no_repeates(COMMON_CARDS, amount);
-        var chance_of_rare = random_num(4);
-        if(chance_of_rare < add_list_generators.length){
+        var index_of_rare = random_num(4);
+        if(index_of_rare < add_list_generators.length){
+            // Growing the number of options guarantees a rare.
             var rare = rand_no_repeates(RARE_CARDS, 1);
-            add_list_generators[chance_of_rare] = rare[0];
+            add_list_generators[index_of_rare] = rare[0];
         }
         var add_list = add_list_generators.map(g => g());
         add_list.unshift(add_card_symbol())
