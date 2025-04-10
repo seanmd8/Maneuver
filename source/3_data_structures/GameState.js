@@ -244,80 +244,11 @@ class GameState{
         // Their deck contents are also displayed.
         // Options to remove cards will not be displayed if the deck is at the minimum size already.
         display.remove_children(UIIDS.move_buttons);
-        display.remove_children(UIIDS.add_card);
-        display.remove_children(UIIDS.remove_card);
         display.remove_children(UIIDS.display_deck);
+        var shop = new Shop(this.deck);
         display_entire_deck(this.deck);
-        this.#generate_add_row(UIIDS.add_card);
-        this.#generate_remove_row(UIIDS.remove_card);
+        refresh_shop_display(shop);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.shop);
-    }
-    /** 
-     * Creates the row of cards that can be added to the deck.
-     * @param {string} table The table where it should be displayed.
-    */
-    #generate_add_row(table){
-        // Get card choices
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
-        var add_list_generators = rand_no_repeates(COMMON_CARDS, amount);
-        var index_of_rare = random_num(4);
-        if(index_of_rare < add_list_generators.length){
-            // Growing the number of options guarantees a rare.
-            add_list_generators[index_of_rare] = rand_from(RARE_CARDS);
-        }
-        var add_list = add_list_generators.map(g => g());
-        add_list.unshift(add_card_symbol())
-        // Display cards
-        var make_add_card = function(card, position, gamestate){
-            return function(){
-                if(position > 0){
-                    gamestate.deck.add(card);
-                    gamestate.new_floor();
-                }
-            }
-        }
-        var row = [];
-        for(var i = 0; i < add_list.length; ++i){
-            let card = add_list[i];
-            row.push({
-                name: card.name,
-                pic: card.pic,
-                on_click: make_add_card(card, i, this)
-            })
-        }
-        display.add_tb_row(table, row, CARD_SCALE);
-    }
-    /** 
-     * Creates the row of cards that can be removed from the deck.
-     * @param {string} table The table where it should be displayed.
-     * */
-    #generate_remove_row(table){
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
-        var remove_list = this.deck.get_rand_cards(amount);
-        if(remove_list.length > 0){
-            remove_list.unshift(remove_card_symbol());
-        }
-        else{
-            remove_list.unshift(deck_at_minimum_symbol());
-        }
-        var make_remove_card = function(card, position, gamestate){
-            return function(){
-                if(position > 0){
-                    gamestate.deck.remove(card.id);
-                    gamestate.new_floor();
-                }
-            }
-        }
-        var row = [];
-        for(var i = 0; i < remove_list.length; ++i){
-            let card = remove_list[i];
-            row.push({
-                name: card.name,
-                pic: card.pic,
-                on_click: make_remove_card(card, i, this)
-            });
-        }
-        display.add_tb_row(table, row, CARD_SCALE);
     }
     /**
      * Called when the player dies. Gives the option to restart.

@@ -180,3 +180,38 @@ function player_hand_greyed(is_greyed){
     var toggle = is_greyed ? display.add_class : display.remove_class;
     toggle(UIIDS.hand_display, `greyed-out`);
 }
+
+function refresh_shop_display(shop){
+    var refresh = (f) => {
+        return () => {
+            f();
+            refresh_shop_display(shop);
+        }
+    };
+    display.remove_children(UIIDS.add_card);
+    display.remove_children(UIIDS.remove_card);
+
+    var add_row = shop.get_add_row();
+    for(var a of add_row){
+        if(a.on_click !== undefined){
+            a.on_click = refresh(a.on_click);
+        }
+    }
+    display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
+
+    var remove_row = shop.get_remove_row();
+    for(var r of remove_row){
+        if(r.on_click !== undefined){
+            r.on_click = refresh(r.on_click);
+        }
+    }
+    display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
+    
+    var confirm = () => {
+        if(shop.is_valid_selection()){
+            shop.confirm();
+            GS.new_floor();
+        }
+    }
+    display.set_button(UIIDS.shop_confirm, `Confirm >`, confirm, shop.is_valid_selection());
+}

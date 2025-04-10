@@ -706,6 +706,9 @@ const DisplayHTML = {
             if(to_display.name !== undefined){
                 cell.title = to_display.name;
             }
+            if(to_display.selected === true){
+                cell.classList.add(`selected-element`);
+            }
             var layers = [];
             var image;
             // Foreground images
@@ -904,6 +907,17 @@ const DisplayHTML = {
         }
         button.value = label;
         return button;
+    },
+    set_button: function(location, text, on_click, clickable){
+        var button = DisplayHTML.get_element(location, HTMLInputElement);
+        button.onclick = on_click;
+        button.value = text;
+        if(clickable){
+            button.classList.remove(`greyed-out`);
+        }
+        else{
+            button.classList.add(`greyed-out`);
+        }
     },
     create_image: function(src, id, size){
         var image = document.createElement(`img`);
@@ -1194,6 +1208,41 @@ function shadow_hand_select(position){
 function player_hand_greyed(is_greyed){
     var toggle = is_greyed ? display.add_class : display.remove_class;
     toggle(UIIDS.hand_display, `greyed-out`);
+}
+
+function refresh_shop_display(shop){
+    var refresh = (f) => {
+        return () => {
+            f();
+            refresh_shop_display(shop);
+        }
+    };
+    display.remove_children(UIIDS.add_card);
+    display.remove_children(UIIDS.remove_card);
+
+    var add_row = shop.get_add_row();
+    for(var a of add_row){
+        if(a.on_click !== undefined){
+            a.on_click = refresh(a.on_click);
+        }
+    }
+    display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
+
+    var remove_row = shop.get_remove_row();
+    for(var r of remove_row){
+        if(r.on_click !== undefined){
+            r.on_click = refresh(r.on_click);
+        }
+    }
+    display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
+    
+    var confirm = () => {
+        if(shop.is_valid_selection()){
+            shop.confirm();
+            GS.new_floor();
+        }
+    }
+    display.set_button(UIIDS.shop_confirm, `Confirm >`, confirm, shop.is_valid_selection());
 }
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
@@ -2281,6 +2330,7 @@ function get_uiids(language){
  *          @property {string} shop_instructions Lets the player know they can add or remove a card.
  *          @property {string} add_card Displays which cards that could be added to their deck.
  *          @property {string} remove_card Displays which cards that could be removed from their deck.
+ *          @property {string} shop_confirm Clicking this confirms their picks and moves to next floor.
  *          @property {string} current_deck Tells them the next element is their current deck.
  *          @property {string} display_deck Displays their entire deck.
  *      @property {string} chest Controls the visibility of the chest contents.
@@ -2333,6 +2383,7 @@ const HTML_UIIDS = {
             shop_instructions: `shopInstructions`,
             add_card: `addCard`,
             remove_card: `removeCard`,
+            shop_confirm: `shopConfirm`,
             current_deck: `currentDeck`,
             display_deck: `displayDeck`,
         chest: `chest`,
@@ -9361,80 +9412,11 @@ class GameState{
         // Their deck contents are also displayed.
         // Options to remove cards will not be displayed if the deck is at the minimum size already.
         display.remove_children(UIIDS.move_buttons);
-        display.remove_children(UIIDS.add_card);
-        display.remove_children(UIIDS.remove_card);
         display.remove_children(UIIDS.display_deck);
+        var shop = new Shop(this.deck);
         display_entire_deck(this.deck);
-        this.#generate_add_row(UIIDS.add_card);
-        this.#generate_remove_row(UIIDS.remove_card);
+        refresh_shop_display(shop);
         display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.shop);
-    }
-    /** 
-     * Creates the row of cards that can be added to the deck.
-     * @param {string} table The table where it should be displayed.
-    */
-    #generate_add_row(table){
-        // Get card choices
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
-        var add_list_generators = rand_no_repeates(COMMON_CARDS, amount);
-        var index_of_rare = random_num(4);
-        if(index_of_rare < add_list_generators.length){
-            // Growing the number of options guarantees a rare.
-            add_list_generators[index_of_rare] = rand_from(RARE_CARDS);
-        }
-        var add_list = add_list_generators.map(g => g());
-        add_list.unshift(add_card_symbol())
-        // Display cards
-        var make_add_card = function(card, position, gamestate){
-            return function(){
-                if(position > 0){
-                    gamestate.deck.add(card);
-                    gamestate.new_floor();
-                }
-            }
-        }
-        var row = [];
-        for(var i = 0; i < add_list.length; ++i){
-            let card = add_list[i];
-            row.push({
-                name: card.name,
-                pic: card.pic,
-                on_click: make_add_card(card, i, this)
-            })
-        }
-        display.add_tb_row(table, row, CARD_SCALE);
-    }
-    /** 
-     * Creates the row of cards that can be removed from the deck.
-     * @param {string} table The table where it should be displayed.
-     * */
-    #generate_remove_row(table){
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
-        var remove_list = this.deck.get_rand_cards(amount);
-        if(remove_list.length > 0){
-            remove_list.unshift(remove_card_symbol());
-        }
-        else{
-            remove_list.unshift(deck_at_minimum_symbol());
-        }
-        var make_remove_card = function(card, position, gamestate){
-            return function(){
-                if(position > 0){
-                    gamestate.deck.remove(card.id);
-                    gamestate.new_floor();
-                }
-            }
-        }
-        var row = [];
-        for(var i = 0; i < remove_list.length; ++i){
-            let card = remove_list[i];
-            row.push({
-                name: card.name,
-                pic: card.pic,
-                on_click: make_remove_card(card, i, this)
-            });
-        }
-        display.add_tb_row(table, row, CARD_SCALE);
     }
     /**
      * Called when the player dies. Gives the option to restart.
@@ -9816,6 +9798,112 @@ class MoveDeck{
         new_deck.#id_count = this.#id_count;
         new_deck.#decklist = this.#decklist;
         return new_deck;
+    }
+}
+
+class Shop{
+    #deck;
+    #has_skill_trading;
+    #add_row;
+    #add_index;
+    #remove_row;
+    #remove_index;
+
+    constructor(deck){
+        this.#deck = deck;
+        this.#has_skill_trading = GS.boons.has(boon_names.skill_trading) > 0;
+        this.#generate_add_row();
+        this.#generate_remove_row();
+    }
+    #generate_add_row(){
+        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        var add_list_generators = rand_no_repeates(COMMON_CARDS, amount);
+        var index_of_rare = random_num(4);
+        if(index_of_rare < add_list_generators.length){
+            // Growing the number of options guarantees a rare.
+            var rare = rand_no_repeates(RARE_CARDS, 1);
+            add_list_generators[index_of_rare] = rare[0];
+        }
+        this.#add_row = add_list_generators.map((g) => {return g()});
+    }
+    #generate_remove_row(){
+        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        this.#remove_row = this.#deck.get_rand_cards(amount);
+    }
+    select_add_row(index){
+        if(!this.#has_skill_trading){
+            this.#remove_index = undefined;
+        }
+        if(this.#add_index === index){
+            this.#add_index = undefined;
+        }
+        else{
+            this.#add_index = index;
+        }
+    }
+    select_remove_row(index){
+        if(!this.#has_skill_trading){
+            this.#add_index = undefined;
+        }
+        if(this.#remove_index === index){
+            this.#remove_index = undefined;
+        }           
+        else{
+            this.#remove_index = index;
+        }
+    }
+    get_add_row(){
+        var s = this;
+        var make_add_card = function(position){
+            return function(){
+                s.select_add_row(position);
+            }
+        }
+        var row = this.#add_row.map((card, i) => {
+            return {
+                name: card.name,
+                pic: card.pic,
+                on_click: make_add_card(i),
+                selected: s.#add_index === i
+            }
+        })
+        row.unshift(add_card_symbol());
+        return row;
+    }
+    get_remove_row(){
+        var s = this;
+        var make_remove_card = function(position){
+            return function(){
+                s.select_remove_row(position);
+            }
+        }
+        var row = this.#remove_row.map((card, i) => {
+            return {
+                name: card.name,
+                pic: card.pic,
+                on_click: make_remove_card(i),
+                selected: s.#remove_index === i
+            }
+        });
+        var symbol = this.#remove_row.length > 0 ? remove_card_symbol() : deck_at_minimum_symbol();
+        row.unshift(symbol);
+        return row;
+    }
+    confirm(){
+        if(this.#add_index){
+            this.#deck.add(this.#add_row[this.#add_index]);
+        }
+        if(this.#remove_index){
+            this.#deck.remove(this.#remove_row[this.#remove_index].id)
+        }
+    }
+    is_valid_selection(){
+        var adding = this.#add_index !== undefined;
+        var removing = this.#remove_index !== undefined;
+        if(this.#has_skill_trading){
+            return adding || removing;
+        }
+        return adding || removing && !(adding && removing);
     }
 }
 // ----------------TagList.js----------------

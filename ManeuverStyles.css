@@ -125,7 +125,7 @@
 
 /* Class to show something as 'Greyed Out'.*/
 .greyed-out {
-    opacity: 0.8;
+    opacity: 0.7;
 }
 /* File containing styles used by the guidebook screen. */
 
@@ -182,12 +182,13 @@
 
 /* Styles a section of the shop.*/
 .shop-section-box {
+    text-align: left;
     height: fit-content;
     width: fit-content;
     border-color: slategray;
     border-style: solid;
     padding: 5px;
-    margin-top: 5px;
+    margin: 5px 0px 5px 0px;
 }
 .shop-section-box legend {
     font-weight: bold;
@@ -196,6 +197,19 @@
     border-width: 2px;
 }
 
+.shop-width{
+    text-align: right;
+    width: fit-content;
+}
+.shop-confirm {
+    height: 35px;
+    width: 80px;
+    margin-right: 5px;
+    border-width: medium;
+    border-color: darkblue;
+    background-color: cadetblue;
+    font-weight: bolder;
+}
 /* File containing styles used by the shop screen. */
 
 /* Styles the game map. */

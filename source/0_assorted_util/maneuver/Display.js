@@ -216,6 +216,9 @@ const DisplayHTML = {
             if(to_display.name !== undefined){
                 cell.title = to_display.name;
             }
+            if(to_display.selected === true){
+                cell.classList.add(`selected-element`);
+            }
             var layers = [];
             var image;
             // Foreground images
@@ -414,6 +417,17 @@ const DisplayHTML = {
         }
         button.value = label;
         return button;
+    },
+    set_button: function(location, text, on_click, clickable){
+        var button = DisplayHTML.get_element(location, HTMLInputElement);
+        button.onclick = on_click;
+        button.value = text;
+        if(clickable){
+            button.classList.remove(`greyed-out`);
+        }
+        else{
+            button.classList.add(`greyed-out`);
+        }
     },
     create_image: function(src, id, size){
         var image = document.createElement(`img`);

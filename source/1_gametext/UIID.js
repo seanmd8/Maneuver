@@ -41,6 +41,7 @@ function get_uiids(language){
  *          @property {string} shop_instructions Lets the player know they can add or remove a card.
  *          @property {string} add_card Displays which cards that could be added to their deck.
  *          @property {string} remove_card Displays which cards that could be removed from their deck.
+ *          @property {string} shop_confirm Clicking this confirms their picks and moves to next floor.
  *          @property {string} current_deck Tells them the next element is their current deck.
  *          @property {string} display_deck Displays their entire deck.
  *      @property {string} chest Controls the visibility of the chest contents.
@@ -93,6 +94,7 @@ const HTML_UIIDS = {
             shop_instructions: `shopInstructions`,
             add_card: `addCard`,
             remove_card: `removeCard`,
+            shop_confirm: `shopConfirm`,
             current_deck: `currentDeck`,
             display_deck: `displayDeck`,
         chest: `chest`,
