@@ -88,11 +88,11 @@ class Shop{
         return row;
     }
     confirm(){
-        if(this.#add_index){
+        if(this.#add_index !== undefined){
             this.#deck.add(this.#add_row[this.#add_index]);
         }
-        if(this.#remove_index){
-            this.#deck.remove(this.#remove_row[this.#remove_index].id)
+        if(this.#remove_index !== undefined){
+            this.#deck.remove(this.#remove_row[this.#remove_index].id);
         }
     }
     is_valid_selection(){

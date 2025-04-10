@@ -9890,11 +9890,11 @@ class Shop{
         return row;
     }
     confirm(){
-        if(this.#add_index){
+        if(this.#add_index !== undefined){
             this.#deck.add(this.#add_row[this.#add_index]);
         }
-        if(this.#remove_index){
-            this.#deck.remove(this.#remove_row[this.#remove_index].id)
+        if(this.#remove_index !== undefined){
+            this.#deck.remove(this.#remove_row[this.#remove_index].id);
         }
     }
     is_valid_selection(){
@@ -12583,8 +12583,9 @@ BOON_LIST = [
     frugivore, future_sight, gruntwork, hoarder, larger_chests, 
     limitless, pacifism, pain_reflexes, perfect_the_basics, picky_shopper, 
     practice_makes_perfect, pressure_points, rebirth, repetition, retaliate, 
-    roar_of_challenge, safe_passage, serenity, slime_trail, sniper, 
-    spiked_shoes, spontaneous, stable_mind, stealthy, thick_soles
+    roar_of_challenge, safe_passage, serenity, skill_trading, slime_trail, 
+    sniper, spiked_shoes, spontaneous, stable_mind, stealthy, 
+    thick_soles
 ];
 
 function change_max_health(amount){
