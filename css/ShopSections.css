@@ -28,7 +28,7 @@
     background-color: cadetblue;
     font-weight: bolder;
 }
-.shop-center-box {
+.shop-button-container{
     height: 120px;
     width: fit-content;
     display: inline-block;

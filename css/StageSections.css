@@ -266,3 +266,14 @@
 .selected-tile {
     box-shadow: 0 0 0 1px darkslategray;
 }
+
+.message-box {
+    overflow-y: scroll;
+    height: 100px;
+    width: 450px;
+    padding: 5px;
+    border-color:rgb(128, 57, 25);
+    border-style: solid;
+    border-width: 4px;
+    font-size: 18px;
+}

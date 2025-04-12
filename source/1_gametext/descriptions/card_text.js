@@ -23,7 +23,7 @@ const four_directions = {
 
 // Move types.
 const move_types = {
-    alt: `Shift click on a button to show what it will do on the map.`,
+    alt: `Shift click on a button to show actions on the map.`,
     evolutions: `Dust and paint seems to be covering part of this card obscuring some of the options. `
                 +`Maybe you can find some way to remove it?`,
     intro: `Move Options (actions will be performed in order):\n`,
