@@ -47,8 +47,8 @@ class GameState{
 
         this.refresh_deck_display();
         display.display_message(UIIDS.shop_instructions, mod_deck);
-        display.swap_screen(DISPLAY_DIVISIONS, UIIDS.game_screen);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         this.#player_turn_lock = true;
     }
     /** 
@@ -230,7 +230,7 @@ class GameState{
         display_map(this.map);
         this.deck.deal();
         this.refresh_deck_display();
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         await delay(ANIMATION_DELAY);
         display_map(this.map);
         this.unlock_player_turn();
@@ -249,7 +249,7 @@ class GameState{
         var shop = new Shop(this.deck);
         display_entire_deck(this.deck);
         refresh_shop_display(shop);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.shop);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.shop);
     }
     /**
      * Called when the player dies. Gives the option to restart.

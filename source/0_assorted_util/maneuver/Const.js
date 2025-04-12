@@ -51,9 +51,14 @@ const MARKUP_LANGUAGE = `html`;
 
 // Keyboard controls.
 const CONTROLS = {
+    // Stage controls.
     directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
     card: [`h`, `j`, `k`, `l`],
-    alt: [`shift`, `shiftleft`, `shiftright`]
+    alt: [`shift`, `shiftleft`, `shiftright`],
+    // Shop controls.
+    select_add: [`q`, `w`, `e`, `r`, `t`, `y`],
+    select_remove: [`a`, `s`, `d`, `f`, `g`, `h`],
+    confirm: [`enter`],
 }
 Object.freeze(CONTROLS);
 

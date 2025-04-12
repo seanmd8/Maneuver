@@ -113,8 +113,3 @@ Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
 
-const GAME_SCREEN_DIVISIONS = [UIIDS.stage, UIIDS.shop, UIIDS.chest];
-const DISPLAY_DIVISIONS = [UIIDS.game_screen, UIIDS.guide];
-const DISPLAY_DIVISION_NAMES = [gameplay_screen_name, guide_screen_name];
-
-const SIDEBAR_DIVISIONS = [UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand];

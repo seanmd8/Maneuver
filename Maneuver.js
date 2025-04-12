@@ -456,9 +456,14 @@ const MARKUP_LANGUAGE = `html`;
 
 // Keyboard controls.
 const CONTROLS = {
+    // Stage controls.
     directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
     card: [`h`, `j`, `k`, `l`],
-    alt: [`shift`, `shiftleft`, `shiftright`]
+    alt: [`shift`, `shiftleft`, `shiftright`],
+    // Shop controls.
+    select_add: [`q`, `w`, `e`, `r`, `t`, `y`],
+    select_remove: [`a`, `s`, `d`, `f`, `g`, `h`],
+    confirm: [`enter`],
 }
 Object.freeze(CONTROLS);
 
@@ -1294,7 +1299,7 @@ Object.freeze(ERRORS);
  */
 function initiate_game(){
     display.detect_keys();
-    display.swap_screen(DISPLAY_DIVISIONS);
+    DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
     display.display_message(UIIDS.title, `${game_title}    `);
     create_main_dropdown(UIIDS.title);
     display_guide();
@@ -1413,22 +1418,16 @@ function display_health(player, scale){
  * @param {string} location Where to create it.
  */
 function create_main_dropdown(location){
-    var options = [];
-    var make_on_change = function(screens, screen){
-        return function(){
-            display.swap_screen(screens, screen);
+    var options = [
+        {
+            label: gameplay_screen_name,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
+        }, 
+        {
+            label: guide_screen_name,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
         }
-    }
-    if(DISPLAY_DIVISION_NAMES.length !== DISPLAY_DIVISIONS.length){
-        throw new Error("list length mismatch");
-    }
-    for(var i = 0; i < DISPLAY_DIVISIONS.length; ++i){
-        var option = {
-            label: DISPLAY_DIVISION_NAMES[i],
-            on_change: make_on_change(DISPLAY_DIVISIONS, DISPLAY_DIVISIONS[i])
-        }
-        options.push(option);
-    }
+    ];
     display.create_dropdown(location, options);
 }
 /**
@@ -1542,14 +1541,14 @@ function create_sidebar(){
     var location = UIIDS.sidebar_header;
     var swap_visibility = function(id_list, id){
         return function(){
-            display.swap_screen(id_list, id);
+            id_list.swap(id);
         }
     }
     display.remove_children(location);
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
-    swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log)();
+    SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
 }
 
 function floor_has_chest(floor_of_area){
@@ -2427,11 +2426,6 @@ Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
 
-const GAME_SCREEN_DIVISIONS = [UIIDS.stage, UIIDS.shop, UIIDS.chest];
-const DISPLAY_DIVISIONS = [UIIDS.game_screen, UIIDS.guide];
-const DISPLAY_DIVISION_NAMES = [gameplay_screen_name, guide_screen_name];
-
-const SIDEBAR_DIVISIONS = [UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand];
 
 SENTRY_MODES = Object.freeze({
     saw: "Saw",
@@ -5989,7 +5983,7 @@ function chest_on_enter(self, target, map){
     self.tile.health = 1;
     map.attack(self.location);
     var leave_chest = function(){
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         display.display_message(UIIDS.chest_instructions, ``);
         display.remove_children(UIIDS.chest_confirm_row);
         display.remove_children(UIIDS.contents);
@@ -6042,7 +6036,7 @@ function chest_on_enter(self, target, map){
     display.display_message(UIIDS.chest_instructions, chest_inner_discription);
     display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
     display.add_button_row(UIIDS.chest_confirm_row, [abandon_button]);
-    display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.chest);
+    GAME_SCREEN_DIVISIONS.swap(UIIDS.chest);
     throw new Error(ERRORS.pass_turn);
 }
 
@@ -6086,9 +6080,9 @@ function add_boon_to_chest(chest, boon){
         on_choose: function(){
             if(GS.boons.total === 0){
                 display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
-                    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
+                    SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
                 });
-                display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
+                SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
             }
             GS.boons.pick(boon.name);
             GS.refresh_boon_display();
@@ -9242,8 +9236,8 @@ class GameState{
 
         this.refresh_deck_display();
         display.display_message(UIIDS.shop_instructions, mod_deck);
-        display.swap_screen(DISPLAY_DIVISIONS, UIIDS.game_screen);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         this.#player_turn_lock = true;
     }
     /** 
@@ -9425,7 +9419,7 @@ class GameState{
         display_map(this.map);
         this.deck.deal();
         this.refresh_deck_display();
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         await delay(ANIMATION_DELAY);
         display_map(this.map);
         this.unlock_player_turn();
@@ -9444,7 +9438,7 @@ class GameState{
         var shop = new Shop(this.deck);
         display_entire_deck(this.deck);
         refresh_shop_display(shop);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.shop);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.shop);
     }
     /**
      * Called when the player dies. Gives the option to restart.
@@ -9830,6 +9824,25 @@ class MoveDeck{
         return new_deck;
     }
 }
+
+class ScreenTracker{
+    div;
+    current;
+    constructor(divisions){
+        this.div = divisions;
+    }
+    swap(division){
+        if(division !== undefined && this.div.find((d) => {d === division}) === -1){
+            throw new Error(ERRORS.value_not_found)
+        }
+        display.swap_screen(this.div, division);
+        this.current = division;
+    }
+}
+
+const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest]);
+const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide]);
+const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand]);
 
 class Shop{
     #deck;
@@ -10365,9 +10378,9 @@ function shadow_of_self_floor(floor_num,  area, map){
 
     // Swaps tab to the one containing it's hand
     display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.shadow_hand, function(){
-        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.shadow_hand);
+        SIDEBAR_DIVISIONS.swap(UIIDS.shadow_hand);
     });
-    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.shadow_hand);
+    SIDEBAR_DIVISIONS.swap(UIIDS.shadow_hand);
     refresh_shadow_hand_display(shadow.deck.get_hand_info());
 
 
@@ -12867,9 +12880,9 @@ function future_sight(){
 
 function pick_future_sight(){
     display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.deck_order, function(){
-        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
+        SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
     });
-    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
+    SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
 }
 
 function gruntwork(){

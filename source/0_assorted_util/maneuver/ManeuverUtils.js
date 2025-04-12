@@ -7,7 +7,7 @@
  */
 function initiate_game(){
     display.detect_keys();
-    display.swap_screen(DISPLAY_DIVISIONS);
+    DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
     display.display_message(UIIDS.title, `${game_title}    `);
     create_main_dropdown(UIIDS.title);
     display_guide();
@@ -126,22 +126,16 @@ function display_health(player, scale){
  * @param {string} location Where to create it.
  */
 function create_main_dropdown(location){
-    var options = [];
-    var make_on_change = function(screens, screen){
-        return function(){
-            display.swap_screen(screens, screen);
+    var options = [
+        {
+            label: gameplay_screen_name,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
+        }, 
+        {
+            label: guide_screen_name,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
         }
-    }
-    if(DISPLAY_DIVISION_NAMES.length !== DISPLAY_DIVISIONS.length){
-        throw new Error("list length mismatch");
-    }
-    for(var i = 0; i < DISPLAY_DIVISIONS.length; ++i){
-        var option = {
-            label: DISPLAY_DIVISION_NAMES[i],
-            on_change: make_on_change(DISPLAY_DIVISIONS, DISPLAY_DIVISIONS[i])
-        }
-        options.push(option);
-    }
+    ];
     display.create_dropdown(location, options);
 }
 /**
@@ -255,14 +249,14 @@ function create_sidebar(){
     var location = UIIDS.sidebar_header;
     var swap_visibility = function(id_list, id){
         return function(){
-            display.swap_screen(id_list, id);
+            id_list.swap(id);
         }
     }
     display.remove_children(location);
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
-    swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log)();
+    SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
 }
 
 function floor_has_chest(floor_of_area){

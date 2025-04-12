@@ -17,7 +17,7 @@ function chest_on_enter(self, target, map){
     self.tile.health = 1;
     map.attack(self.location);
     var leave_chest = function(){
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         display.display_message(UIIDS.chest_instructions, ``);
         display.remove_children(UIIDS.chest_confirm_row);
         display.remove_children(UIIDS.contents);
@@ -70,7 +70,7 @@ function chest_on_enter(self, target, map){
     display.display_message(UIIDS.chest_instructions, chest_inner_discription);
     display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
     display.add_button_row(UIIDS.chest_confirm_row, [abandon_button]);
-    display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.chest);
+    GAME_SCREEN_DIVISIONS.swap(UIIDS.chest);
     throw new Error(ERRORS.pass_turn);
 }
 
@@ -114,9 +114,9 @@ function add_boon_to_chest(chest, boon){
         on_choose: function(){
             if(GS.boons.total === 0){
                 display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
-                    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
+                    SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
                 });
-                display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
+                SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
             }
             GS.boons.pick(boon.name);
             GS.refresh_boon_display();
