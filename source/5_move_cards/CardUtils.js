@@ -162,13 +162,13 @@ function explain_point(p){
         return move_types.you;
     }
     else if(vertical === undefined){
-        return `${horizontal} ${Math.abs(p.x)}`;
+        return `${horizontal}${Math.abs(p.x)}`;
     }
     else if(horizontal === undefined){
-        return `${vertical} ${Math.abs(p.y)}`;
+        return `${vertical}${Math.abs(p.y)}`;
     }
     else{
-        return `${horizontal} ${Math.abs(p.x)}, ${vertical} ${Math.abs(p.y)}`;
+        return `${horizontal}${Math.abs(p.x)}, ${vertical}${Math.abs(p.y)}`;
     }
 }
 

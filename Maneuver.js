@@ -447,7 +447,7 @@ const TILE_SCALE = 40;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 160;
-const DECK_DISPLAY_WIDTH = 4;
+const DECK_DISPLAY_WIDTH = 5;
 const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
 
@@ -759,8 +759,7 @@ const DisplayHTML = {
         table.append(row);
     },
     display_message: function(location, message){
-        var output = message;//wrap_str(message, TEXT_WRAP_WIDTH, ` `);
-        DisplayHTML.get_element(location).innerText = output;
+        DisplayHTML.get_element(location).innerText = message;
     },
     remove_children: function(location){
         var element = DisplayHTML.get_element(location);
@@ -1054,7 +1053,8 @@ function display_move_buttons(card, hand_position){
         }});
         display.add_button_row(UIIDS.move_buttons, button_row);
     }
-    display.add_on_click(UIIDS.move_info, function(){explain_card(card)});
+    var explanation = move_types.alt + `\n` + explain_card(card);
+    display.add_on_click(UIIDS.move_info, function(){say(explanation, false)});
 }
 
 /**
@@ -1109,6 +1109,14 @@ function display_entire_deck(deck){
     display.display_message(UIIDS.current_deck, `${current_deck}${min_deck_size}):`);
     // Display deck with limited cards per line.
     var decklist = deck.get_deck_info();
+    var card_explanation = (card) => {
+        return () => {
+            display.display_message(UIIDS.shop_message, explain_card(card))       
+        }
+    };
+    for(var card of decklist){
+            card.on_click = card_explanation(card);
+    }
     for(var i = 0; i < Math.ceil(decklist.length / DECK_DISPLAY_WIDTH); ++i){
         var row = decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
         display.add_tb_row(UIIDS.display_deck, row, CARD_SCALE);
@@ -1133,9 +1141,7 @@ function display_map(map){
 
 function explain_card(card){
     var text = ``;
-    text += card.evolutions !== undefined ? `${move_types.evolutions}\n` : ``;
-    text += `${move_types.alt}\n`;
-    text += `\n`;
+    text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
     text += `${card.options.explain_buttons()}`;
     text += `\n`;
     if(card.per_floor !== undefined){
@@ -1147,7 +1153,7 @@ function explain_card(card){
     if(card.options.is_instant()){
         text += `${move_types.instant}\n`;
     }
-    say(text, false);
+    return text.trimEnd();
 }
 
 /**
@@ -1211,9 +1217,10 @@ function player_hand_greyed(is_greyed){
 }
 
 function refresh_shop_display(shop){
-    var refresh = (f) => {
+    var refresh = (f, card) => {
         return () => {
             f();
+            display.display_message(UIIDS.shop_message, explain_card(card));
             refresh_shop_display(shop);
         }
     };
@@ -1223,7 +1230,10 @@ function refresh_shop_display(shop){
     var add_row = shop.get_add_row();
     for(var a of add_row){
         if(a.on_click !== undefined){
-            a.on_click = refresh(a.on_click);
+            a.on_click = refresh(a.on_click, a.card);
+        }
+        else{
+            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_add_description)};
         }
     }
     display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
@@ -1231,7 +1241,13 @@ function refresh_shop_display(shop){
     var remove_row = shop.get_remove_row();
     for(var r of remove_row){
         if(r.on_click !== undefined){
-            r.on_click = refresh(r.on_click);
+            r.on_click = refresh(r.on_click, r.card);
+        }
+        else if(r.name === `Remove`){
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_remove_description)};
+        }
+        else{
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_min_description)};
         }
     }
     display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
@@ -1241,8 +1257,11 @@ function refresh_shop_display(shop){
             shop.confirm();
             GS.new_floor();
         }
+        else{
+            display.display_message(UIIDS.shop_message, shop_confirm_description);
+        }
     }
-    display.set_button(UIIDS.shop_confirm, `Confirm >`, confirm, shop.is_valid_selection());
+    display.set_button(UIIDS.shop_confirm, confirm_text, confirm, shop.is_valid_selection());
 }
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
@@ -1730,10 +1749,11 @@ const SPIN = `Spin`;
 
 // Directions.
 const four_directions = {
-    up: `Up`,
-    down: `Down`,
-    left: `Left`,
-    right: `Right`
+    // Unicode arrows
+    left:   `\u2B9C`,
+    up:     `\u2B9D`,
+    right:  `\u2B9E`,
+    down:   `\u2B9F`
 }
 
 // Move types.
@@ -1745,18 +1765,18 @@ const move_types = {
 
     attack: `Attack`,
     move: `Move`,
-    teleport: `Teleport you to a random space`,
+    teleport: `Teleport to a random space`,
     stun: `Stun`,
-    confuse: `Confuse: you. Adds a bad temporary card to your deck.`,
+    confuse: `Confuse: you`,
     move_until: `Keep Moving`,
     attack_until: `Keep Moving`,
     heal: `Heal`,
     you: `you`,
     nothing: `Do nothing`,
     
-    per_floor: `Once Per Floor: after being played, this card will disapear for the rest of the floor.`,
-    temp: `Temporary: this card will be removed from your deck when used, or at the end of the floor.`,
-    instant: `Instant: you will take an extra turn after playing this card.`
+    per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
+    temp: `Temporary: Removed from your deck when used, or at the end of the floor.`,
+    instant: `Instant: Take an extra turn.`
 }
 Object.freeze(move_types);
 // Boss Descriptions
@@ -2117,6 +2137,11 @@ const game_title = `Maneuver`;
 const hand_label_text = `Hand of cards`;
 const move_label_text = `Moves`;
 const mod_deck = `Choose one card to add or remove:`;
+const shop_add_description = `Add a card to your deck.`
+const shop_remove_description = `Remove a card from your deck.`
+const shop_min_description = `Your deck is at the minimum size.`
+const shop_confirm_description = `Please choose a card to add or remove.`
+const confirm_text = `Confirm >`;
 const current_deck = `Current Deck (minimum `;
 const welcome_message = `Use cards to move (blue) and attack (red).\n` 
                         + `Click on things to learn more about them.\n`
@@ -2331,6 +2356,7 @@ function get_uiids(language){
  *          @property {string} add_card Displays which cards that could be added to their deck.
  *          @property {string} remove_card Displays which cards that could be removed from their deck.
  *          @property {string} shop_confirm Clicking this confirms their picks and moves to next floor.
+ *          @property {string} shop_message Gives information about the last card clicked on.
  *          @property {string} current_deck Tells them the next element is their current deck.
  *          @property {string} display_deck Displays their entire deck.
  *      @property {string} chest Controls the visibility of the chest contents.
@@ -2384,6 +2410,7 @@ const HTML_UIIDS = {
             add_card: `addCard`,
             remove_card: `removeCard`,
             shop_confirm: `shopConfirm`,
+            shop_message: `shopMessage`,
             current_deck: `currentDeck`,
             display_deck: `displayDeck`,
         chest: `chest`,
@@ -9413,6 +9440,7 @@ class GameState{
         // Options to remove cards will not be displayed if the deck is at the minimum size already.
         display.remove_children(UIIDS.move_buttons);
         display.remove_children(UIIDS.display_deck);
+        display.display_message(UIIDS.shop_message, ``);
         var shop = new Shop(this.deck);
         display_entire_deck(this.deck);
         refresh_shop_display(shop);
@@ -9711,7 +9739,9 @@ class MoveDeck{
      * Returns the whole decklist.
      */
     get_deck_info(){
-        return [...this.#decklist];
+        return this.#decklist.map((card) => {
+            return Object.assign({}, card);
+        });
     }
     /**
      * Displays the whole discard pile.
@@ -9863,6 +9893,7 @@ class Shop{
             return {
                 name: card.name,
                 pic: card.pic,
+                card,
                 on_click: make_add_card(i),
                 selected: s.#add_index === i
             }
@@ -9881,6 +9912,7 @@ class Shop{
             return {
                 name: card.name,
                 pic: card.pic,
+                card,
                 on_click: make_remove_card(i),
                 selected: s.#remove_index === i
             }
@@ -11307,13 +11339,13 @@ function explain_point(p){
         return move_types.you;
     }
     else if(vertical === undefined){
-        return `${horizontal} ${Math.abs(p.x)}`;
+        return `${horizontal}${Math.abs(p.x)}`;
     }
     else if(horizontal === undefined){
-        return `${vertical} ${Math.abs(p.y)}`;
+        return `${vertical}${Math.abs(p.y)}`;
     }
     else{
-        return `${horizontal} ${Math.abs(p.x)}, ${vertical} ${Math.abs(p.y)}`;
+        return `${horizontal}${Math.abs(p.x)}, ${vertical}${Math.abs(p.y)}`;
     }
 }
 
@@ -12554,7 +12586,7 @@ function stunning_punch_diagonal(){
 /** @type {CardGenerator} Shown in shop to denote adding a card to your deck.*/
 function add_card_symbol(){
     return{
-        name: `Add a card to your deck`,
+        name: `Add`,
         pic: `${IMG_FOLDER.other}plus.png`,
         options: new ButtonGrid()
     }
@@ -12562,7 +12594,7 @@ function add_card_symbol(){
 /** @type {CardGenerator} Shown in show to denote removing a card from your deck.*/
 function remove_card_symbol(){
     return{
-        name: `Remove a card from your deck`,
+        name: `Remove`,
         pic: `${IMG_FOLDER.other}minus.png`,
         options: new ButtonGrid()
     }
@@ -12570,7 +12602,7 @@ function remove_card_symbol(){
 /** @type {CardGenerator} Shown in shop ind=stead of the remove symbol when your deck is at the minimum size.*/
 function deck_at_minimum_symbol(){
     return{
-        name: `Your deck is at the minimum size`,
+        name: `Minimum`,
         pic: `${IMG_FOLDER.other}x.png`,
         options: new ButtonGrid()
     }

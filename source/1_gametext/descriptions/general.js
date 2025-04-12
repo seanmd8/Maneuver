@@ -3,6 +3,11 @@ const game_title = `Maneuver`;
 const hand_label_text = `Hand of cards`;
 const move_label_text = `Moves`;
 const mod_deck = `Choose one card to add or remove:`;
+const shop_add_description = `Add a card to your deck.`
+const shop_remove_description = `Remove a card from your deck.`
+const shop_min_description = `Your deck is at the minimum size.`
+const shop_confirm_description = `Please choose a card to add or remove.`
+const confirm_text = `Confirm >`;
 const current_deck = `Current Deck (minimum `;
 const welcome_message = `Use cards to move (blue) and attack (red).\n` 
                         + `Click on things to learn more about them.\n`

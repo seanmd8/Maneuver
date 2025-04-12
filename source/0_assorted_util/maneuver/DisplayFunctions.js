@@ -25,7 +25,8 @@ function display_move_buttons(card, hand_position){
         }});
         display.add_button_row(UIIDS.move_buttons, button_row);
     }
-    display.add_on_click(UIIDS.move_info, function(){explain_card(card)});
+    var explanation = move_types.alt + `\n` + explain_card(card);
+    display.add_on_click(UIIDS.move_info, function(){say(explanation, false)});
 }
 
 /**
@@ -80,6 +81,14 @@ function display_entire_deck(deck){
     display.display_message(UIIDS.current_deck, `${current_deck}${min_deck_size}):`);
     // Display deck with limited cards per line.
     var decklist = deck.get_deck_info();
+    var card_explanation = (card) => {
+        return () => {
+            display.display_message(UIIDS.shop_message, explain_card(card))       
+        }
+    };
+    for(var card of decklist){
+            card.on_click = card_explanation(card);
+    }
     for(var i = 0; i < Math.ceil(decklist.length / DECK_DISPLAY_WIDTH); ++i){
         var row = decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
         display.add_tb_row(UIIDS.display_deck, row, CARD_SCALE);
@@ -104,9 +113,7 @@ function display_map(map){
 
 function explain_card(card){
     var text = ``;
-    text += card.evolutions !== undefined ? `${move_types.evolutions}\n` : ``;
-    text += `${move_types.alt}\n`;
-    text += `\n`;
+    text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
     text += `${card.options.explain_buttons()}`;
     text += `\n`;
     if(card.per_floor !== undefined){
@@ -118,7 +125,7 @@ function explain_card(card){
     if(card.options.is_instant()){
         text += `${move_types.instant}\n`;
     }
-    say(text, false);
+    return text.trimEnd();
 }
 
 /**
@@ -182,9 +189,10 @@ function player_hand_greyed(is_greyed){
 }
 
 function refresh_shop_display(shop){
-    var refresh = (f) => {
+    var refresh = (f, card) => {
         return () => {
             f();
+            display.display_message(UIIDS.shop_message, explain_card(card));
             refresh_shop_display(shop);
         }
     };
@@ -194,7 +202,10 @@ function refresh_shop_display(shop){
     var add_row = shop.get_add_row();
     for(var a of add_row){
         if(a.on_click !== undefined){
-            a.on_click = refresh(a.on_click);
+            a.on_click = refresh(a.on_click, a.card);
+        }
+        else{
+            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_add_description)};
         }
     }
     display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
@@ -202,7 +213,13 @@ function refresh_shop_display(shop){
     var remove_row = shop.get_remove_row();
     for(var r of remove_row){
         if(r.on_click !== undefined){
-            r.on_click = refresh(r.on_click);
+            r.on_click = refresh(r.on_click, r.card);
+        }
+        else if(r.name === `Remove`){
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_remove_description)};
+        }
+        else{
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_min_description)};
         }
     }
     display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
@@ -212,6 +229,9 @@ function refresh_shop_display(shop){
             shop.confirm();
             GS.new_floor();
         }
+        else{
+            display.display_message(UIIDS.shop_message, shop_confirm_description);
+        }
     }
-    display.set_button(UIIDS.shop_confirm, `Confirm >`, confirm, shop.is_valid_selection());
+    display.set_button(UIIDS.shop_confirm, confirm_text, confirm, shop.is_valid_selection());
 }

@@ -14,10 +14,11 @@ const SPIN = `Spin`;
 
 // Directions.
 const four_directions = {
-    up: `Up`,
-    down: `Down`,
-    left: `Left`,
-    right: `Right`
+    // Unicode arrows
+    left:   `\u2B9C`,
+    up:     `\u2B9D`,
+    right:  `\u2B9E`,
+    down:   `\u2B9F`
 }
 
 // Move types.
@@ -29,17 +30,17 @@ const move_types = {
 
     attack: `Attack`,
     move: `Move`,
-    teleport: `Teleport you to a random space`,
+    teleport: `Teleport to a random space`,
     stun: `Stun`,
-    confuse: `Confuse: you. Adds a bad temporary card to your deck.`,
+    confuse: `Confuse: you`,
     move_until: `Keep Moving`,
     attack_until: `Keep Moving`,
     heal: `Heal`,
     you: `you`,
     nothing: `Do nothing`,
     
-    per_floor: `Once Per Floor: after being played, this card will disapear for the rest of the floor.`,
-    temp: `Temporary: this card will be removed from your deck when used, or at the end of the floor.`,
-    instant: `Instant: you will take an extra turn after playing this card.`
+    per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
+    temp: `Temporary: Removed from your deck when used, or at the end of the floor.`,
+    instant: `Instant: Take an extra turn.`
 }
 Object.freeze(move_types);

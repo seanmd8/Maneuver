@@ -61,6 +61,7 @@ class Shop{
             return {
                 name: card.name,
                 pic: card.pic,
+                card,
                 on_click: make_add_card(i),
                 selected: s.#add_index === i
             }
@@ -79,6 +80,7 @@ class Shop{
             return {
                 name: card.name,
                 pic: card.pic,
+                card,
                 on_click: make_remove_card(i),
                 selected: s.#remove_index === i
             }

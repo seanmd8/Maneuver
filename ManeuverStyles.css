@@ -182,7 +182,6 @@
 
 /* Styles a section of the shop.*/
 .shop-section-box {
-    text-align: left;
     height: fit-content;
     width: fit-content;
     border-color: slategray;
@@ -198,7 +197,6 @@
 }
 
 .shop-width{
-    text-align: right;
     width: fit-content;
 }
 .shop-confirm {
@@ -209,6 +207,26 @@
     border-color: darkblue;
     background-color: cadetblue;
     font-weight: bolder;
+}
+.shop-center-box {
+    height: 120px;
+    width: fit-content;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.scrollable-text {
+    overflow-y: scroll;
+    overflow-x: scroll;
+    text-align: left;
+    height: 120px;
+    width: 375px;
+    padding: 5px;
+    border-color: slategrey;
+    border-style: solid;
+    border-width: medium;
+    text-wrap: nowrap;
+    display: inline-block;
 }
 /* File containing styles used by the shop screen. */
 

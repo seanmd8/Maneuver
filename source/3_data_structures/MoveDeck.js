@@ -178,7 +178,9 @@ class MoveDeck{
      * Returns the whole decklist.
      */
     get_deck_info(){
-        return [...this.#decklist];
+        return this.#decklist.map((card) => {
+            return Object.assign({}, card);
+        });
     }
     /**
      * Displays the whole discard pile.

@@ -269,8 +269,7 @@ const DisplayHTML = {
         table.append(row);
     },
     display_message: function(location, message){
-        var output = message;//wrap_str(message, TEXT_WRAP_WIDTH, ` `);
-        DisplayHTML.get_element(location).innerText = output;
+        DisplayHTML.get_element(location).innerText = message;
     },
     remove_children: function(location){
         var element = DisplayHTML.get_element(location);

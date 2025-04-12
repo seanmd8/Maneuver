@@ -245,6 +245,7 @@ class GameState{
         // Options to remove cards will not be displayed if the deck is at the minimum size already.
         display.remove_children(UIIDS.move_buttons);
         display.remove_children(UIIDS.display_deck);
+        display.display_message(UIIDS.shop_message, ``);
         var shop = new Shop(this.deck);
         display_entire_deck(this.deck);
         refresh_shop_display(shop);
