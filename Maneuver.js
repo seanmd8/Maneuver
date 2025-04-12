@@ -461,8 +461,8 @@ const CONTROLS = {
     card: [`h`, `j`, `k`, `l`],
     alt: [`shift`, `shiftleft`, `shiftright`],
     // Shop controls.
-    select_add: [`q`, `w`, `e`, `r`, `t`, `y`],
-    select_remove: [`a`, `s`, `d`, `f`, `g`, `h`],
+    add: [`q`, `w`, `e`, `r`, `t`, `y`],
+    remove: [`a`, `s`, `d`, `f`, `g`, `h`],
     confirm: [`enter`],
 }
 Object.freeze(CONTROLS);
@@ -793,34 +793,59 @@ const DisplayHTML = {
         DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add("selected-element");
     },
     press: function(key_press){
-        // Pick direction via keyboard.
+        var attempt = (f) => {
+            try{
+                f();
+            }
+            catch(error){
+                if(error.message !== ERRORS.value_not_found){
+                    throw error;
+                }
+            }
+        }
         var key = key_press.key.toLowerCase();
-        var key_num = CONTROLS.directional.indexOf(key);
-        if(key_num >= 0){
-            try{
-                DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
+        var key_num;
+        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
+            // Pick direction
+            var key_num = CONTROLS.directional.indexOf(key);
+            if(key_num >= 0){
+                attempt(() =>{
+                    DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
+                });
             }
-            catch(error){
-                if(error.message !== ERRORS.value_not_found){
-                    throw error;
-                }
+            // Select card
+            key_num = CONTROLS.card.indexOf(key);
+            if(key_num >= 0){
+                attempt(() => {
+                    var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
+                    element && element.click();
+                });
             }
-            
         }
-        // Select card via keyboard.
-        key_num = CONTROLS.card.indexOf(key);
-        if(key_num >= 0){
-            try{
-                var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
-                element && element.click();
+        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
+            // Select add card
+            key_num = CONTROLS.add.indexOf(key);
+            if(key_num >= 0){
+                attempt(() => {
+                    var element = DisplayHTML.get_element(`${UIIDS.add_card} 0 ${key_num + 1}`);
+                    element && element.click();
+                });
             }
-            catch(error){
-                if(error.message !== ERRORS.value_not_found){
-                    throw error;
-                }
+            // Select remove card
+            key_num = CONTROLS.remove.indexOf(key);
+            if(key_num >= 0){
+                attempt(() => {
+                    var element = DisplayHTML.get_element(`${UIIDS.remove_card} 0 ${key_num + 1}`);
+                    element && element.click();
+                });
             }
-            
+            // Confirm
+            key_num = CONTROLS.confirm.indexOf(key);
+            if(key_num >= 0){
+                DisplayHTML.get_element(UIIDS.shop_confirm).click();
+            }
         }
+        // Toggle shift
         key_num = CONTROLS.alt.indexOf(key);
         if(key_num >= 0){
             display.shift_is_pressed = true;
@@ -9838,10 +9863,13 @@ class ScreenTracker{
         display.swap_screen(this.div, division);
         this.current = division;
     }
+    is(division){
+        return division === this.current;
+    }
 }
 
-const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest]);
 const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide]);
+const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand]);
 
 class Shop{

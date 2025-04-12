@@ -56,8 +56,8 @@ const CONTROLS = {
     card: [`h`, `j`, `k`, `l`],
     alt: [`shift`, `shiftleft`, `shiftright`],
     // Shop controls.
-    select_add: [`q`, `w`, `e`, `r`, `t`, `y`],
-    select_remove: [`a`, `s`, `d`, `f`, `g`, `h`],
+    add: [`q`, `w`, `e`, `r`, `t`, `y`],
+    remove: [`a`, `s`, `d`, `f`, `g`, `h`],
     confirm: [`enter`],
 }
 Object.freeze(CONTROLS);
