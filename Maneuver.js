@@ -456,14 +456,21 @@ const MARKUP_LANGUAGE = `html`;
 
 // Keyboard controls.
 const CONTROLS = {
-    // Stage controls.
-    directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
-    card: [`h`, `j`, `k`, `l`],
-    alt: [`shift`, `shiftleft`, `shiftright`],
-    // Shop controls.
-    add: [`q`, `w`, `e`, `r`, `t`, `y`],
-    remove: [`a`, `s`, `d`, `f`, `g`, `h`],
-    confirm: [`enter`],
+    stage: {
+        directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
+        card: [`h`, `j`, `k`, `l`],
+    },
+    shop: {
+        add: [`q`, `w`, `e`, `r`, `t`, `y`],
+        remove: [`a`, `s`, `d`, `f`, `g`, `h`],
+        confirm: [` `, `enter`],
+    },
+    chest: {
+        choose: [`h`, `j`, `k`, `l`, `;`],
+        confirm: [` `, `enter`],
+        reject: [`escape`]
+    },
+    alt: [`shift`, `shiftleft`, `shiftright`]
 }
 Object.freeze(CONTROLS);
 
@@ -807,14 +814,14 @@ const DisplayHTML = {
         var key_num;
         if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
             // Pick direction
-            var key_num = CONTROLS.directional.indexOf(key);
+            var key_num = CONTROLS.stage.directional.indexOf(key);
             if(key_num >= 0){
                 attempt(() =>{
                     DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
                 });
             }
             // Select card
-            key_num = CONTROLS.card.indexOf(key);
+            key_num = CONTROLS.stage.card.indexOf(key);
             if(key_num >= 0){
                 attempt(() => {
                     var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
@@ -822,9 +829,9 @@ const DisplayHTML = {
                 });
             }
         }
-        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
+        else if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
             // Select add card
-            key_num = CONTROLS.add.indexOf(key);
+            key_num = CONTROLS.shop.add.indexOf(key);
             if(key_num >= 0){
                 attempt(() => {
                     var element = DisplayHTML.get_element(`${UIIDS.add_card} 0 ${key_num + 1}`);
@@ -832,7 +839,7 @@ const DisplayHTML = {
                 });
             }
             // Select remove card
-            key_num = CONTROLS.remove.indexOf(key);
+            key_num = CONTROLS.shop.remove.indexOf(key);
             if(key_num >= 0){
                 attempt(() => {
                     var element = DisplayHTML.get_element(`${UIIDS.remove_card} 0 ${key_num + 1}`);
@@ -840,9 +847,35 @@ const DisplayHTML = {
                 });
             }
             // Confirm
-            key_num = CONTROLS.confirm.indexOf(key);
+            key_num = CONTROLS.shop.confirm.indexOf(key);
             if(key_num >= 0){
                 DisplayHTML.get_element(UIIDS.shop_confirm).click();
+            }
+        }
+        else if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
+            // Choose contents
+            key_num = CONTROLS.chest.choose.indexOf(key);
+            if(key_num >= 0){
+                attempt(() => {
+                    var element = DisplayHTML.get_element(`${UIIDS.contents} 0 ${key_num}`);
+                    element && element.click();
+                });
+            }
+            // Confirm
+            key_num = CONTROLS.chest.confirm.indexOf(key);
+            if(key_num >= 0){
+                attempt(() => {
+                    var element = DisplayHTML.get_element(`${UIIDS.chest_confirm_row} 0 ${1}`);
+                    element && element.click();
+                });
+            }
+            // Abandon
+            key_num = CONTROLS.chest.reject.indexOf(key);
+            if(key_num >= 0){
+                attempt(() => {
+                    var element = DisplayHTML.get_element(`${UIIDS.chest_confirm_row} 0 ${0}`);
+                    element && element.click();
+                });
             }
         }
         // Toggle shift
@@ -1540,7 +1573,7 @@ function make_guidebook_images(arr){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var button_symbols = [...CONTROLS.card, ...CONTROLS.directional];
+    var button_symbols = [...CONTROLS.stage.card, ...CONTROLS.stage.directional];
     var buttons = [];
     for(var symbol of button_symbols){
         buttons.push(display.create_button(symbol, `${symbol} key`));
@@ -5960,162 +5993,6 @@ function bookshelf_on_hit(self, target, map){
     GS.refresh_deck_display();
 }
 
-/** @type {TileGenerator} Like the normal chest, but it is invulnerable.*/
-function armored_chest_tile(){
-    return {
-        type: `chest`,
-        name: `Armored Chest`,
-        pic: `${IMG_FOLDER.tiles}armored_chest.png`,
-        description: armored_chest_description,
-        tags: new TagList([TAGS.unmovable]),
-        on_enter: chest_on_enter,
-        contents: []
-    }
-}
-
-
-/** @type {TileGenerator} A chest letting the user choose a reward. Currently empty.*/
-function chest_tile(){
-    return {
-        type: `chest`,
-        name: `Chest`,
-        pic: `${IMG_FOLDER.tiles}chest.png`,
-        description: chest_description,
-        tags: new TagList([TAGS.unmovable]),
-        health: 1,
-        on_enter: chest_on_enter,
-        contents: []
-    }
-}
-
-
-/** @type {TileGenerator} Makes the correct type of chest*/
-function appropriate_chest_tile(){
-    if(GS.boons.has(boon_names.larger_chests)){
-        return armored_chest_tile();
-    }
-    return chest_tile();
-}
-
-/** @type {AIFunction} Function to open a chest when the player moves onto it.*/
-function chest_on_enter(self, target, map){
-    if(self.tile.contents === undefined){
-        throw new Error(ERRORS.missing_property);
-    }
-    if(target.tile.type !== `player`){
-        return;
-    }
-    self.tile.health = 1;
-    map.attack(self.location);
-    var leave_chest = function(){
-        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
-        display.display_message(UIIDS.chest_instructions, ``);
-        display.remove_children(UIIDS.chest_confirm_row);
-        display.remove_children(UIIDS.contents);
-        display.display_message(UIIDS.content_description, ``);
-        GS.refresh_deck_display();
-        display_map(map);
-        if(GS.boons.has(boon_names.safe_passage)){
-            GS.boons.lose(boon_names.safe_passage);
-            GS.refresh_boon_display();
-            GS.map.heal(GS.map.get_player_location());
-            GS.map.display_stats(UIIDS.stats);
-            GS.enter_shop();
-        }
-    }
-    var abandon_button = {
-        description: abandon_chest,
-        on_click: leave_chest
-    };
-    var pick = function(on_choose){
-        return function(){
-            if(on_choose !== undefined){
-                on_choose();
-            }
-            leave_chest();
-        }
-    }
-    var content_row = [];
-    for(var i = 0; i < self.tile.contents.length; ++i){
-        let item = self.tile.contents[i];
-        let make_on_click = function(position){
-            return function(){
-                let confirm_button = {
-                    description: take_from_chest,
-                    on_click: pick(item.on_choose)
-                };
-                display.display_message(UIIDS.content_description, item.description);
-                display.remove_children(UIIDS.chest_confirm_row);
-                display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button]);
-                display.select(UIIDS.contents, 0, position);
-            };
-        }
-        
-        content_row.push({
-            pic: item.pic,
-            name: item.name,
-            on_click: make_on_click(i)
-        });
-    }
-
-    display.display_message(UIIDS.chest_instructions, chest_inner_discription);
-    display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
-    display.add_button_row(UIIDS.chest_confirm_row, [abandon_button]);
-    GAME_SCREEN_DIVISIONS.swap(UIIDS.chest);
-    throw new Error(ERRORS.pass_turn);
-}
-
-/**
- * @typedef {Object} Content
- * @property {string} pic
- * @property {function} on_choose
- * @property {string} description
- */
-
-/**
- * @param {Tile} chest 
- * @param {Card} card 
- */
-function add_card_to_chest(chest, card){
-    if(chest.contents === undefined){
-        throw new Error(ERRORS.missing_property);
-    }
-    var content = {
-        pic: card.pic,
-        name: card.name,
-        on_choose: function(){
-            GS.deck.add(card);
-        },
-        description: add_card_description
-    }
-    chest.contents.push(content);
-}
-
-/**
- * @param {Tile} chest 
- * @param {Card} card 
- */
-function add_boon_to_chest(chest, boon){
-    if(chest.contents === undefined){
-        throw new Error(ERRORS.missing_property);
-    }
-    var content = {
-        pic: boon.pic,
-        name: boon.name,
-        on_choose: function(){
-            if(GS.boons.total === 0){
-                display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
-                    SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
-                });
-                SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
-            }
-            GS.boons.pick(boon.name);
-            GS.refresh_boon_display();
-        },
-        description: `${boon.name}: ${boon.description}`
-    }
-    chest.contents.push(content);
-}
 /** @type {TileGenerator} A damaged wall that might spawn something on death.*/
 function coffin_tile(){
     return {
@@ -6568,6 +6445,162 @@ function wall_tile(){
         description: wall_description,
         tags: new TagList([TAGS.unmovable]),
     }
+}
+/** @type {TileGenerator} Like the normal chest, but it is invulnerable.*/
+function armored_chest_tile(){
+    return {
+        type: `chest`,
+        name: `Armored Chest`,
+        pic: `${IMG_FOLDER.tiles}armored_chest.png`,
+        description: armored_chest_description,
+        tags: new TagList([TAGS.unmovable]),
+        on_enter: chest_on_enter,
+        contents: []
+    }
+}
+
+
+/** @type {TileGenerator} A chest letting the user choose a reward. Currently empty.*/
+function chest_tile(){
+    return {
+        type: `chest`,
+        name: `Chest`,
+        pic: `${IMG_FOLDER.tiles}chest.png`,
+        description: chest_description,
+        tags: new TagList([TAGS.unmovable]),
+        health: 1,
+        on_enter: chest_on_enter,
+        contents: []
+    }
+}
+
+
+/** @type {TileGenerator} Makes the correct type of chest*/
+function appropriate_chest_tile(){
+    if(GS.boons.has(boon_names.larger_chests)){
+        return armored_chest_tile();
+    }
+    return chest_tile();
+}
+
+/** @type {AIFunction} Function to open a chest when the player moves onto it.*/
+function chest_on_enter(self, target, map){
+    if(self.tile.contents === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    if(target.tile.type !== `player`){
+        return;
+    }
+    self.tile.health = 1;
+    map.attack(self.location);
+    var leave_chest = function(){
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+        display.display_message(UIIDS.chest_instructions, ``);
+        display.remove_children(UIIDS.chest_confirm_row);
+        display.remove_children(UIIDS.contents);
+        display.display_message(UIIDS.content_description, ``);
+        GS.refresh_deck_display();
+        display_map(map);
+        if(GS.boons.has(boon_names.safe_passage)){
+            GS.boons.lose(boon_names.safe_passage);
+            GS.refresh_boon_display();
+            GS.map.heal(GS.map.get_player_location());
+            GS.map.display_stats(UIIDS.stats);
+            GS.enter_shop();
+        }
+    }
+    var abandon_button = {
+        description: abandon_chest,
+        on_click: leave_chest
+    };
+    var pick = function(on_choose){
+        return function(){
+            if(on_choose !== undefined){
+                on_choose();
+            }
+            leave_chest();
+        }
+    }
+    var content_row = [];
+    for(var i = 0; i < self.tile.contents.length; ++i){
+        let item = self.tile.contents[i];
+        let make_on_click = function(position){
+            return function(){
+                let confirm_button = {
+                    description: take_from_chest,
+                    on_click: pick(item.on_choose)
+                };
+                display.display_message(UIIDS.content_description, item.description);
+                display.remove_children(UIIDS.chest_confirm_row);
+                display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button]);
+                display.select(UIIDS.contents, 0, position);
+            };
+        }
+        
+        content_row.push({
+            pic: item.pic,
+            name: item.name,
+            on_click: make_on_click(i)
+        });
+    }
+
+    display.display_message(UIIDS.chest_instructions, chest_inner_discription);
+    display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
+    display.add_button_row(UIIDS.chest_confirm_row, [abandon_button]);
+    GAME_SCREEN_DIVISIONS.swap(UIIDS.chest);
+    throw new Error(ERRORS.pass_turn);
+}
+
+/**
+ * @typedef {Object} Content
+ * @property {string} pic
+ * @property {function} on_choose
+ * @property {string} description
+ */
+
+/**
+ * @param {Tile} chest 
+ * @param {Card} card 
+ */
+function add_card_to_chest(chest, card){
+    if(chest.contents === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    var content = {
+        pic: card.pic,
+        name: card.name,
+        on_choose: function(){
+            GS.deck.add(card);
+        },
+        description: add_card_description
+    }
+    chest.contents.push(content);
+}
+
+/**
+ * @param {Tile} chest 
+ * @param {Card} card 
+ */
+function add_boon_to_chest(chest, boon){
+    if(chest.contents === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    var content = {
+        pic: boon.pic,
+        name: boon.name,
+        on_choose: function(){
+            if(GS.boons.total === 0){
+                display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
+                    SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
+                });
+                SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
+            }
+            GS.boons.pick(boon.name);
+            GS.refresh_boon_display();
+        },
+        description: `${boon.name}: ${boon.description}`
+    }
+    chest.contents.push(content);
 }
 /** @type {TileGenerator} Empty space.*/
 function empty_tile(){

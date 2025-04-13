@@ -223,7 +223,7 @@ function make_guidebook_images(arr){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var button_symbols = [...CONTROLS.card, ...CONTROLS.directional];
+    var button_symbols = [...CONTROLS.stage.card, ...CONTROLS.stage.directional];
     var buttons = [];
     for(var symbol of button_symbols){
         buttons.push(display.create_button(symbol, `${symbol} key`));

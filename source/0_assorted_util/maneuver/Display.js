@@ -312,14 +312,14 @@ const DisplayHTML = {
         var key_num;
         if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
             // Pick direction
-            var key_num = CONTROLS.directional.indexOf(key);
+            var key_num = CONTROLS.stage.directional.indexOf(key);
             if(key_num >= 0){
                 attempt(() =>{
                     DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
                 });
             }
             // Select card
-            key_num = CONTROLS.card.indexOf(key);
+            key_num = CONTROLS.stage.card.indexOf(key);
             if(key_num >= 0){
                 attempt(() => {
                     var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
@@ -327,9 +327,9 @@ const DisplayHTML = {
                 });
             }
         }
-        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
+        else if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
             // Select add card
-            key_num = CONTROLS.add.indexOf(key);
+            key_num = CONTROLS.shop.add.indexOf(key);
             if(key_num >= 0){
                 attempt(() => {
                     var element = DisplayHTML.get_element(`${UIIDS.add_card} 0 ${key_num + 1}`);
@@ -337,7 +337,7 @@ const DisplayHTML = {
                 });
             }
             // Select remove card
-            key_num = CONTROLS.remove.indexOf(key);
+            key_num = CONTROLS.shop.remove.indexOf(key);
             if(key_num >= 0){
                 attempt(() => {
                     var element = DisplayHTML.get_element(`${UIIDS.remove_card} 0 ${key_num + 1}`);
@@ -345,9 +345,35 @@ const DisplayHTML = {
                 });
             }
             // Confirm
-            key_num = CONTROLS.confirm.indexOf(key);
+            key_num = CONTROLS.shop.confirm.indexOf(key);
             if(key_num >= 0){
                 DisplayHTML.get_element(UIIDS.shop_confirm).click();
+            }
+        }
+        else if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
+            // Choose contents
+            key_num = CONTROLS.chest.choose.indexOf(key);
+            if(key_num >= 0){
+                attempt(() => {
+                    var element = DisplayHTML.get_element(`${UIIDS.contents} 0 ${key_num}`);
+                    element && element.click();
+                });
+            }
+            // Confirm
+            key_num = CONTROLS.chest.confirm.indexOf(key);
+            if(key_num >= 0){
+                attempt(() => {
+                    var element = DisplayHTML.get_element(`${UIIDS.chest_confirm_row} 0 ${1}`);
+                    element && element.click();
+                });
+            }
+            // Abandon
+            key_num = CONTROLS.chest.reject.indexOf(key);
+            if(key_num >= 0){
+                attempt(() => {
+                    var element = DisplayHTML.get_element(`${UIIDS.chest_confirm_row} 0 ${0}`);
+                    element && element.click();
+                });
             }
         }
         // Toggle shift
