@@ -1825,8 +1825,8 @@ const move_types = {
     teleport: `Teleport to a random space`,
     stun: `Stun`,
     confuse: `Confuse: you`,
-    move_until: `Keep Moving`,
-    attack_until: `Keep Moving`,
+    move_until: `Move continuously`,
+    attack_until: `Attack continuously`,
     heal: `Heal`,
     you: `you`,
     nothing: `Do nothing`,
@@ -6566,13 +6566,14 @@ function add_card_to_chest(chest, card){
     if(chest.contents === undefined){
         throw new Error(ERRORS.missing_property);
     }
+    var description = add_card_description + `\n` + explain_card(card);
     var content = {
         pic: card.pic,
         name: card.name,
         on_choose: function(){
             GS.deck.add(card);
         },
-        description: add_card_description
+        description
     }
     chest.contents.push(content);
 }
