@@ -459,6 +459,7 @@ const CONTROLS = {
     stage: {
         directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
         card: [`h`, `j`, `k`, `l`],
+        info: [`i`]
     },
     shop: {
         add: [`q`, `w`, `e`, `r`, `t`, `y`],
@@ -827,6 +828,14 @@ const DisplayHTML = {
                     var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
                     element && element.click();
                 });
+            }
+            // Show card info
+            key_num = CONTROLS.stage.info.indexOf(key);
+            if(key_num >= 0){
+                attempt(() => {
+                    DisplayHTML.get_element(UIIDS.move_info).click();
+                });
+                
             }
         }
         else if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){

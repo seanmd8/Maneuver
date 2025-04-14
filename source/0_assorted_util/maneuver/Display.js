@@ -326,6 +326,14 @@ const DisplayHTML = {
                     element && element.click();
                 });
             }
+            // Show card info
+            key_num = CONTROLS.stage.info.indexOf(key);
+            if(key_num >= 0){
+                attempt(() => {
+                    DisplayHTML.get_element(UIIDS.move_info).click();
+                });
+                
+            }
         }
         else if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
             // Select add card

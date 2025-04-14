@@ -54,6 +54,7 @@ const CONTROLS = {
     stage: {
         directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
         card: [`h`, `j`, `k`, `l`],
+        info: [`i`]
     },
     shop: {
         add: [`q`, `w`, `e`, `r`, `t`, `y`],
