@@ -6,3 +6,6 @@ function choose_your_path(){
         description: choose_your_path_description
     }
 }
+
+// Pick where to go after each boss fight
+// Boss exits have the background

@@ -6,3 +6,5 @@ function deck_stacking(){
         description: deck_stacking_description
     }
 }
+
+// Choose the order of your deck when shuffling.

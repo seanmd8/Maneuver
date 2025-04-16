@@ -13206,6 +13206,15 @@ function pick_serenity(){
         GS.deck.alter_min(-1);
     }
 }
+
+function skill_trading(){
+    return {
+        name: boon_names.skill_trading,
+        pic: `${IMG_FOLDER.boons}skill_trading.png`,
+        description: skill_trading_description,
+    }
+}
+
 function slime_trail(){
     return {
         name: boon_names.slime_trail,
@@ -13315,6 +13324,9 @@ function choose_your_path(){
     }
 }
 
+// Pick where to go after each boss fight
+// Boss exits have the background
+
 function deck_stacking(){
     return {
         name: boon_names.deck_stacking,
@@ -13323,6 +13335,8 @@ function deck_stacking(){
     }
 }
 
+// Choose the order of your deck when shuffling.
+
 function duplicate(){
     return {
         name: boon_names.duplicate,
@@ -13330,6 +13344,8 @@ function duplicate(){
         description: duplicate_description
     }
 }
+
+// Get a copy of any card in your deck
 
 function learn_from_mistakes(){
     return {
@@ -13340,10 +13356,8 @@ function learn_from_mistakes(){
         unlocks: [learn_from_mistakes]
     }
 }
-// Not Finished
-// Todo:
-//  description
-//  implement on_pick
+
+// Delete any card twice
 function shattered_glass(){
     return {
         name: boon_names.shattered_glass,
@@ -13362,14 +13376,7 @@ function on_pick_shattered_glass(){
     change_max_health(-1);
 }
 
-function skill_trading(){
-    return {
-        name: boon_names.skill_trading,
-        pic: `${IMG_FOLDER.boons}skill_trading.png`,
-        description: skill_trading_description,
-    }
-}
-
+// Enemies explode on death
 
 function stubborn(){
     return {
@@ -13378,6 +13385,5 @@ function stubborn(){
         description: stubborn_description,
     }
 }
-// Todo:
-//  description
-//  implement
+
+// skip the shop
