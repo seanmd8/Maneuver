@@ -212,3 +212,11 @@ function range(start = 0, stop, step = 1){
     }
     return nums;
 }
+
+function cross(arr1, arr2, f){
+    for(var e1 of arr1){
+        for(e2 of arr2){
+            f(e1, e2);
+        }
+    }
+}

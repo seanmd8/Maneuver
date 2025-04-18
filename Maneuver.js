@@ -213,6 +213,14 @@ function range(start = 0, stop, step = 1){
     }
     return nums;
 }
+
+function cross(arr1, arr2, f){
+    for(var e1 of arr1){
+        for(e2 of arr2){
+            f(e1, e2);
+        }
+    }
+}
 // ----------------Point.js----------------
 // File contains Point class and associated functions.
 
@@ -10203,7 +10211,14 @@ function generate_magma_area(){
 }
 /** @type {FloorGenerator}*/
 function generate_magma_floor(floor_num, area, map){
-    if(chance(1, 4)){
+    if(chance(1, 6)){
+        magma_lake_terrain(floor_num, area, map);
+        magma_lake_terrain(floor_num, area, map);
+        boulder_terrain(floor_num, area, map);
+        generate_normal_floor(floor_num, area, map);
+        return;
+    }
+    else if(chance(1, 4)){
         magma_border_terrain(floor_num, area, map);
     }
     else{
@@ -10230,7 +10245,7 @@ function magma_border_terrain(floor_num, area, map){
 function magma_terrain(floor_num, area, map){
     var magma_amount = random_num(20) + 5;
     for(var i = 0; i < magma_amount; ++i){
-        map.spawn_safely(lava_pool_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(lava_pool_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
 /** @type {FloorGenerator}*/
@@ -10242,20 +10257,38 @@ function repulsor_terrain(floor_num, area, map){
         }
     }
     for(var i = 0; i < repulsor_amount; ++i){
-        map.spawn_safely(repulsor_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(repulsor_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
 /** @type {FloorGenerator}*/
 function boulder_terrain(floor_num, area, map){
     var boulder_amount = random_num(6) - 2;
     for(var i = 0; i < boulder_amount; ++i){
-        map.spawn_safely(magmatic_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(magmatic_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
     boulder_amount = random_num(6) - 2;
     for(var i = 0; i < boulder_amount; ++i){
-        map.spawn_safely(animated_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(animated_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 
+}
+
+/** @type {FloorGenerator}*/
+function magma_lake_terrain(floor_num, area, map){
+    var x_start = random_num(FLOOR_WIDTH - 5) + 1;
+    var x_end = x_start + 3;
+    var y_start = random_num(FLOOR_HEIGHT - 5) + 1;
+    var y_end = y_start + 3;
+    cross(
+        range(x_start, x_end + 1),
+        range(y_start, y_end + 1),
+        (x, y) => {
+            if(!(x === x_start || x === x_end) || !(y === y_start || y === y_end)){
+                try{map.add_tile(lava_pool_tile(), new Point(x, y))}
+                catch{}
+            }
+        }
+    )
 }
 /** @type {AreaGenerator}*/
 function generate_ruins_area(){
@@ -10290,8 +10323,13 @@ function generate_sewers_area(){
 
 /** @type {FloorGenerator}*/
 function generate_sewers_floor(floor_num, area, map){
-    var terrains = [slime_terrain, grate_terrain];
-    rand_from(terrains)(floor_num, area, map);
+    if(chance(1, 8)){
+        river_terrain(floor_num, area, map);
+    }
+    else{
+        var terrains = [slime_terrain, grate_terrain];
+        rand_from(terrains)(floor_num, area, map);
+    }
     generate_normal_floor(floor_num, area, map);
 }
 
@@ -10308,6 +10346,25 @@ function grate_terrain(floor_num, area, map){
     for(var i = 0; i < grate_amount; ++i){
         map.spawn_safely(sewer_grate_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
+}
+
+function river_terrain(floor_num, area, map){
+    var left = random_num(FLOOR_WIDTH / 2 - 1) + 1;
+    var right = (FLOOR_WIDTH / 2) - left;
+    var x_vals = [...range(0, left), ...range(FLOOR_WIDTH - right, FLOOR_WIDTH)];
+    var y = random_num(FLOOR_HEIGHT - 4) + 2;
+    for(var x of x_vals){
+        map.add_tile(sewer_grate_tile(), new Point(x, y));
+        map.add_tile(corrosive_slime_tile(), new Point(x, y + 1));        
+        map.add_tile(corrosive_slime_tile(), new Point(x, y - 1));        
+    }
+    cross(
+        [left, FLOOR_WIDTH - (right + 1)], 
+        [1, 0, -1],
+        (e1, e2) => {
+            map.add_tile(corrosive_slime_tile(), new Point(e1, y + e2));
+        }
+    )
 }
 // ----------------Areas.js----------------
 // File containing functions used by areas.
