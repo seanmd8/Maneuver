@@ -54,7 +54,8 @@ const DEFAULT_CONTROLS = {
     stage: {
         direction: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
         card: [`h`, `j`, `k`, `l`],
-        info: [`i`]
+        info: [`i`],
+        retry: [`r`]
     },
     shop: {
         add: [`q`, `w`, `e`, `r`, `t`, `y`],

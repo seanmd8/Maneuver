@@ -481,7 +481,8 @@ const DEFAULT_CONTROLS = {
     stage: {
         direction: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
         card: [`h`, `j`, `k`, `l`],
-        info: [`i`]
+        info: [`i`],
+        retry: [`r`]
     },
     shop: {
         add: [`q`, `w`, `e`, `r`, `t`, `y`],
@@ -846,7 +847,9 @@ const DisplayHTML = {
     click: function(location){
         try{
             var element = DisplayHTML.get_element(location);
-            element && element.click();
+            if(element !== undefined && element.onclick !== undefined){
+                element.click();
+            }
         }
         catch(error){
             if(error.message !== ERRORS.value_not_found){
@@ -1017,13 +1020,6 @@ const DisplayHTML = {
             location.append(container);
         }
     },
-    click(location){
-        var element = DisplayHTML.get_element(location);
-        if(element.onclick !== undefined){
-            element.click();
-        }
-    },
-    shift_is_pressed: false,
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -9605,6 +9601,11 @@ class KeyBind{
             display.click(UIIDS.move_info);
             return true;
         }
+        key_num = stage.retry.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.retry_button} 0 0`);
+            return true;
+        }
         return false;
     }
     shop(key){
@@ -9693,7 +9694,8 @@ class KeyBind{
             stage: {
                 direction: [...this.#controls.stage.direction],
                 card: [...this.#controls.stage.card],
-                info: [...this.#controls.stage.info]
+                info: [...this.#controls.stage.info],
+                retry: [...this.#controls.stage.retry]
             },
             shop: {
                 add: [...this.#controls.shop.add],

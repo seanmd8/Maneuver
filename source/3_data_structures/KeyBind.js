@@ -27,6 +27,11 @@ class KeyBind{
             display.click(UIIDS.move_info);
             return true;
         }
+        key_num = stage.retry.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.retry_button} 0 0`);
+            return true;
+        }
         return false;
     }
     shop(key){
@@ -115,7 +120,8 @@ class KeyBind{
             stage: {
                 direction: [...this.#controls.stage.direction],
                 card: [...this.#controls.stage.card],
-                info: [...this.#controls.stage.info]
+                info: [...this.#controls.stage.info],
+                retry: [...this.#controls.stage.retry]
             },
             shop: {
                 add: [...this.#controls.shop.add],

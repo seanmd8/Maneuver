@@ -319,7 +319,9 @@ const DisplayHTML = {
     click: function(location){
         try{
             var element = DisplayHTML.get_element(location);
-            element && element.click();
+            if(element !== undefined && element.onclick !== undefined){
+                element.click();
+            }
         }
         catch(error){
             if(error.message !== ERRORS.value_not_found){
@@ -490,13 +492,6 @@ const DisplayHTML = {
             location.append(container);
         }
     },
-    click(location){
-        var element = DisplayHTML.get_element(location);
-        if(element.onclick !== undefined){
-            element.click();
-        }
-    },
-    shift_is_pressed: false,
 
     // Non Required helper functions.
     get_transformation: function(to_display){

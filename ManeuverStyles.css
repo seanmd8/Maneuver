@@ -338,6 +338,13 @@
 }
 
 /* Styles the button that lets you restart after dying. */
+.center-retry-box {
+    width: 140px;
+    height: 140px;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: top;
+}
 .retry-button-box tr input {
     background-color: black;
     color: aqua;
@@ -347,6 +354,7 @@
     border-radius: 15px / 50%;
     padding: 5px 10px;
     font-weight: bold;
+    font-size: large;
 }
 .retry-button-box tr input:hover {
     background-color: gold;
