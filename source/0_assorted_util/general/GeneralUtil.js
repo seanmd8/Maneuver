@@ -220,3 +220,17 @@ function cross(arr1, arr2, f){
         }
     }
 }
+
+function same_structure(obj1, obj2){
+    if(typeof obj1 !== typeof obj2){
+        return false;
+    }
+    if(typeof obj1 === `object`){
+        for(var property in obj1){
+            if(!same_structure(obj1[property], obj2[property])){
+                return false;
+            }
+        }
+    }
+    return true;
+}

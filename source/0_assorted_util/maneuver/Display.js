@@ -298,103 +298,33 @@ const DisplayHTML = {
         DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add("selected-element");
     },
     press: function(key_press){
-        var attempt = (f) => {
-            try{
-                f();
-            }
-            catch(error){
-                if(error.message !== ERRORS.value_not_found){
-                    throw error;
-                }
-            }
-        }
         var key = key_press.key.toLowerCase();
-        var key_num;
-        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
-            // Pick direction
-            var key_num = CONTROLS.stage.directional.indexOf(key);
-            if(key_num >= 0){
-                attempt(() =>{
-                    DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
-                });
+        GS.controls.toggle_press(key);
+        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
+            if(GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
+                GS.controls.stage(key);
             }
-            // Select card
-            key_num = CONTROLS.stage.card.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
-                    element && element.click();
-                });
+            else if(GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
+                GS.controls.shop(key);
             }
-            // Show card info
-            key_num = CONTROLS.stage.info.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    DisplayHTML.get_element(UIIDS.move_info).click();
-                });
-                
+            else if(GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
+                GS.controls.chest(key);
             }
-        }
-        else if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
-            // Select add card
-            key_num = CONTROLS.shop.add.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    var element = DisplayHTML.get_element(`${UIIDS.add_card} 0 ${key_num + 1}`);
-                    element && element.click();
-                });
-            }
-            // Select remove card
-            key_num = CONTROLS.shop.remove.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    var element = DisplayHTML.get_element(`${UIIDS.remove_card} 0 ${key_num + 1}`);
-                    element && element.click();
-                });
-            }
-            // Confirm
-            key_num = CONTROLS.shop.confirm.indexOf(key);
-            if(key_num >= 0){
-                DisplayHTML.get_element(UIIDS.shop_confirm).click();
-            }
-        }
-        else if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
-            // Choose contents
-            key_num = CONTROLS.chest.choose.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    var element = DisplayHTML.get_element(`${UIIDS.contents} 0 ${key_num}`);
-                    element && element.click();
-                });
-            }
-            // Confirm
-            key_num = CONTROLS.chest.confirm.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    var element = DisplayHTML.get_element(`${UIIDS.chest_confirm_row} 0 ${1}`);
-                    element && element.click();
-                });
-            }
-            // Abandon
-            key_num = CONTROLS.chest.reject.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    var element = DisplayHTML.get_element(`${UIIDS.chest_confirm_row} 0 ${0}`);
-                    element && element.click();
-                });
-            }
-        }
-        // Toggle shift
-        key_num = CONTROLS.alt.indexOf(key);
-        if(key_num >= 0){
-            display.shift_is_pressed = true;
         }
     },
     unpress: function(key_press){
         var key = key_press.key.toLowerCase();
-        var key_num = CONTROLS.alt.indexOf(key);
-        if(key_num >= 0){
-            display.shift_is_pressed = false;
+        GS.controls.toggle_unpress(key);
+    },
+    click: function(location){
+        try{
+            var element = DisplayHTML.get_element(location);
+            element && element.click();
+        }
+        catch(error){
+            if(error.message !== ERRORS.value_not_found){
+                throw error;
+            }
         }
     },
     create_visibility_toggle: function(location, header, on_click){

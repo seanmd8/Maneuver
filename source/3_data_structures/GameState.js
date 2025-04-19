@@ -3,11 +3,10 @@
 
 
 class GameState{
-    /** @type {GameMap} The map of the current floor.*/
     map;
-    /** @type {MoveDeck} The player's deck of cards.*/
     deck;
     boons;
+    controls;
     #player_turn_lock;
     #text_log;
     constructor(){
@@ -25,6 +24,7 @@ class GameState{
         var start = randomize_arr(STARTING_AREA)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = STARTING_DECK();
+        this.controls = new KeyBind();
 
         var starting_text = `${start.description}\n${welcome_message}`;
         say(starting_text, false);

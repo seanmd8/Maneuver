@@ -20,7 +20,7 @@ function display_move_buttons(card, hand_position){
         let button_row = row.map(button => {return {
             description: button.description,
             on_click: function(){
-                display.shift_is_pressed ? button.alt_click() : button.on_click();
+                GS.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
             }
         }});
         display.add_button_row(UIIDS.move_buttons, button_row);

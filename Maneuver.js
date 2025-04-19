@@ -221,6 +221,20 @@ function cross(arr1, arr2, f){
         }
     }
 }
+
+function same_structure(obj1, obj2){
+    if(typeof obj1 !== typeof obj2){
+        return false;
+    }
+    if(typeof obj1 === `object`){
+        for(var property in obj1){
+            if(!same_structure(obj1[property], obj2[property])){
+                return false;
+            }
+        }
+    }
+    return true;
+}
 // ----------------Point.js----------------
 // File contains Point class and associated functions.
 
@@ -463,25 +477,27 @@ const MARKUP_LANGUAGE = `html`;
 
 
 // Keyboard controls.
-const CONTROLS = {
+const DEFAULT_CONTROLS = {
     stage: {
-        directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
+        direction: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
         card: [`h`, `j`, `k`, `l`],
         info: [`i`]
     },
     shop: {
         add: [`q`, `w`, `e`, `r`, `t`, `y`],
         remove: [`a`, `s`, `d`, `f`, `g`, `h`],
-        confirm: [` `, `enter`],
+        confirm: [` `],
     },
     chest: {
         choose: [`h`, `j`, `k`, `l`, `;`],
-        confirm: [` `, `enter`],
+        confirm: [` `],
         reject: [`escape`]
     },
-    alt: [`shift`, `shiftleft`, `shiftright`]
+    toggle: {
+        alt: [`shift`]
+    }
 }
-Object.freeze(CONTROLS);
+Object.freeze(DEFAULT_CONTROLS);
 
 // Image folder file structure.
 const IMG_FOLDER = {
@@ -809,103 +825,33 @@ const DisplayHTML = {
         DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add("selected-element");
     },
     press: function(key_press){
-        var attempt = (f) => {
-            try{
-                f();
-            }
-            catch(error){
-                if(error.message !== ERRORS.value_not_found){
-                    throw error;
-                }
-            }
-        }
         var key = key_press.key.toLowerCase();
-        var key_num;
-        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
-            // Pick direction
-            var key_num = CONTROLS.stage.directional.indexOf(key);
-            if(key_num >= 0){
-                attempt(() =>{
-                    DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
-                });
+        GS.controls.toggle_press(key);
+        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
+            if(GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
+                GS.controls.stage(key);
             }
-            // Select card
-            key_num = CONTROLS.stage.card.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
-                    element && element.click();
-                });
+            else if(GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
+                GS.controls.shop(key);
             }
-            // Show card info
-            key_num = CONTROLS.stage.info.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    DisplayHTML.get_element(UIIDS.move_info).click();
-                });
-                
+            else if(GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
+                GS.controls.chest(key);
             }
-        }
-        else if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
-            // Select add card
-            key_num = CONTROLS.shop.add.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    var element = DisplayHTML.get_element(`${UIIDS.add_card} 0 ${key_num + 1}`);
-                    element && element.click();
-                });
-            }
-            // Select remove card
-            key_num = CONTROLS.shop.remove.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    var element = DisplayHTML.get_element(`${UIIDS.remove_card} 0 ${key_num + 1}`);
-                    element && element.click();
-                });
-            }
-            // Confirm
-            key_num = CONTROLS.shop.confirm.indexOf(key);
-            if(key_num >= 0){
-                DisplayHTML.get_element(UIIDS.shop_confirm).click();
-            }
-        }
-        else if(DISPLAY_DIVISIONS.is(UIIDS.game_screen) && GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
-            // Choose contents
-            key_num = CONTROLS.chest.choose.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    var element = DisplayHTML.get_element(`${UIIDS.contents} 0 ${key_num}`);
-                    element && element.click();
-                });
-            }
-            // Confirm
-            key_num = CONTROLS.chest.confirm.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    var element = DisplayHTML.get_element(`${UIIDS.chest_confirm_row} 0 ${1}`);
-                    element && element.click();
-                });
-            }
-            // Abandon
-            key_num = CONTROLS.chest.reject.indexOf(key);
-            if(key_num >= 0){
-                attempt(() => {
-                    var element = DisplayHTML.get_element(`${UIIDS.chest_confirm_row} 0 ${0}`);
-                    element && element.click();
-                });
-            }
-        }
-        // Toggle shift
-        key_num = CONTROLS.alt.indexOf(key);
-        if(key_num >= 0){
-            display.shift_is_pressed = true;
         }
     },
     unpress: function(key_press){
         var key = key_press.key.toLowerCase();
-        var key_num = CONTROLS.alt.indexOf(key);
-        if(key_num >= 0){
-            display.shift_is_pressed = false;
+        GS.controls.toggle_unpress(key);
+    },
+    click: function(location){
+        try{
+            var element = DisplayHTML.get_element(location);
+            element && element.click();
+        }
+        catch(error){
+            if(error.message !== ERRORS.value_not_found){
+                throw error;
+            }
         }
     },
     create_visibility_toggle: function(location, header, on_click){
@@ -1128,7 +1074,7 @@ function display_move_buttons(card, hand_position){
         let button_row = row.map(button => {return {
             description: button.description,
             on_click: function(){
-                display.shift_is_pressed ? button.alt_click() : button.on_click();
+                GS.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
             }
         }});
         display.add_button_row(UIIDS.move_buttons, button_row);
@@ -1346,7 +1292,7 @@ function refresh_shop_display(shop){
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
     invalid_type: `invalid type`,
-    missing_property: `tile missing property`,
+    missing_property: `missing property`,
     pass_turn: `pass turn to player`,
     skip_animation: `skip animation delay`,
     game_over: `game over`,
@@ -1377,8 +1323,8 @@ function initiate_game(){
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
     display.display_message(UIIDS.title, `${game_title}    `);
     create_main_dropdown(UIIDS.title);
-    display_guide();
     GS = new GameState();
+    display_guide();
 }
 
 
@@ -1590,7 +1536,8 @@ function make_guidebook_images(arr){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var button_symbols = [...CONTROLS.stage.card, ...CONTROLS.stage.directional];
+    var current_controls = GS.controls.get();
+    var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
     var buttons = [];
     for(var symbol of button_symbols){
         buttons.push(display.create_button(symbol, `${symbol} key`));
@@ -9268,11 +9215,10 @@ function grid_space(area){
 
 
 class GameState{
-    /** @type {GameMap} The map of the current floor.*/
     map;
-    /** @type {MoveDeck} The player's deck of cards.*/
     deck;
     boons;
+    controls;
     #player_turn_lock;
     #text_log;
     constructor(){
@@ -9290,6 +9236,7 @@ class GameState{
         var start = randomize_arr(STARTING_AREA)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = STARTING_DECK();
+        this.controls = new KeyBind();
 
         var starting_text = `${start.description}\n${welcome_message}`;
         say(starting_text, false);
@@ -9629,6 +9576,150 @@ class GameState{
 
 
 
+
+
+class KeyBind{
+    #controls
+    alternate_is_pressed
+    constructor(){
+        if(!KeyBind.is_valid(DEFAULT_CONTROLS)){
+            throw new Error(ERRORS.invalid_value);
+        }
+        this.#controls = DEFAULT_CONTROLS;   
+        this.alternate_is_pressed = false;
+    }
+    stage(key){
+        var stage = this.#controls.stage;
+        var key_num = stage.direction.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`);
+            return true;
+        }
+        key_num = stage.card.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.hand_display} 0 ${key_num}`);
+            return true;
+        }
+        key_num = stage.info.indexOf(key);
+        if(key_num >= 0){
+            display.click(UIIDS.move_info);
+            return true;
+        }
+        return false;
+    }
+    shop(key){
+        var shop = this.#controls.shop;
+        var key_num = shop.add.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.add_card} 0 ${key_num + 1}`);
+            return true;
+        }
+        var key_num = shop.remove.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.remove_card} 0 ${key_num + 1}`);
+            return true;
+        }
+        var key_num = shop.confirm.indexOf(key);
+        if(key_num >= 0){
+            display.click(UIIDS.shop_confirm);
+            return true;
+        }
+        return false;
+    }
+    chest(key){
+        var chest = this.#controls.chest;
+        var key_num = chest.choose.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.contents} 0 ${key_num}`);
+            return true;
+        }
+        var key_num = chest.confirm.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.chest_confirm_row} 0 ${1}`);
+            return true;
+        }
+        var key_num = chest.reject.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.chest_confirm_row} 0 ${0}`);
+            return true;
+        }
+        return false;
+    }
+    toggle_press(key){
+        if(this.#controls.toggle.alt.indexOf(key) >= 0){
+            this.alternate_is_pressed = true;
+            return true;
+        }
+        return false;
+    }
+    toggle_unpress(key){
+        if(this.#controls.toggle.alt.indexOf(key) >= 0){
+            this.alternate_is_pressed = false;
+            return true;
+        }
+        return false;
+    }
+    static is_valid(controls){
+        if(!same_structure(DEFAULT_CONTROLS, controls)){
+            throw new Error(ERRORS.missing_property);
+        }
+        var toggle = KeyBind.#join_all(controls.toggle);
+        var stage = [
+            ...toggle,
+            this.#join_all(controls.stage)
+        ];
+        var shop = [
+            ...toggle,
+            this.#join_all(controls.shop)
+        ];
+        var chest = [
+            ...toggle,
+            this.#join_all(controls.chest)
+        ];
+        for(var list of [toggle, stage, shop, chest]){
+            var unique = new Set(list);
+            if(unique.size !== list.length){
+                return false;
+            }
+        }
+        return true;
+    }
+    set(controls){
+        this.#controls = controls;
+        this.alternate_is_pressed = false;
+    }
+    get(){
+        return {
+            stage: {
+                direction: [...this.#controls.stage.direction],
+                card: [...this.#controls.stage.card],
+                info: [...this.#controls.stage.info]
+            },
+            shop: {
+                add: [...this.#controls.shop.add],
+                remove: [...this.#controls.shop.remove],
+                confirm: [...this.#controls.shop.confirm],
+            },
+            chest: {
+                choose: [...this.#controls.chest.choose],
+                confirm: [...this.#controls.chest.confirm],
+                reject: [...this.#controls.chest.reject]
+            },
+            toggle: {
+                alt: [...this.#controls.toggle.alt]
+            }
+        }
+    }
+    static #join_all(obj){
+        var list = [];
+        for(var prop in obj){
+            if(Array.isArray(prop)){
+                list.concat(prop);
+            }
+        }
+        return list;
+    }
+}
 // ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.
 

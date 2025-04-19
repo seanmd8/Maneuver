@@ -10,8 +10,8 @@ function initiate_game(){
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
     display.display_message(UIIDS.title, `${game_title}    `);
     create_main_dropdown(UIIDS.title);
-    display_guide();
     GS = new GameState();
+    display_guide();
 }
 
 
@@ -223,7 +223,8 @@ function make_guidebook_images(arr){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var button_symbols = [...CONTROLS.stage.card, ...CONTROLS.stage.directional];
+    var current_controls = GS.controls.get();
+    var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
     var buttons = [];
     for(var symbol of button_symbols){
         buttons.push(display.create_button(symbol, `${symbol} key`));

@@ -50,25 +50,27 @@ const MARKUP_LANGUAGE = `html`;
 
 
 // Keyboard controls.
-const CONTROLS = {
+const DEFAULT_CONTROLS = {
     stage: {
-        directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
+        direction: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
         card: [`h`, `j`, `k`, `l`],
         info: [`i`]
     },
     shop: {
         add: [`q`, `w`, `e`, `r`, `t`, `y`],
         remove: [`a`, `s`, `d`, `f`, `g`, `h`],
-        confirm: [` `, `enter`],
+        confirm: [` `],
     },
     chest: {
         choose: [`h`, `j`, `k`, `l`, `;`],
-        confirm: [` `, `enter`],
+        confirm: [` `],
         reject: [`escape`]
     },
-    alt: [`shift`, `shiftleft`, `shiftright`]
+    toggle: {
+        alt: [`shift`]
+    }
 }
-Object.freeze(CONTROLS);
+Object.freeze(DEFAULT_CONTROLS);
 
 // Image folder file structure.
 const IMG_FOLDER = {
