@@ -80,6 +80,34 @@
     height: fit-content;
     min-height: 23px;
 }
+
+.control-box {
+    display: flex;
+    align-items: center;
+    border-style: solid;
+    height: 91px;
+    width: 500px;
+    margin: 2px;
+    font-size: 20px;
+}
+.control-box div{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 91px;
+    width: 90px;
+    border-right: solid;
+}
+.control-box p{
+    margin-left: 10px;
+}
+.control-box div table tr input{
+    min-width: 27px;
+    height: 27px;
+    margin-top: 1px;
+    margin-left: 1px;
+    font-size: 17px;
+}
 /* File containing assorted styles used in multiple places. */
 
 /* Class to remove the space between certain elements. */

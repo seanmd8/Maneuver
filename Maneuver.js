@@ -926,7 +926,7 @@ const DisplayHTML = {
         destination.append(body_div);
         return body_div_id;
     },
-    create_button: function(label, id, on_click = undefined){
+    create_button: function(label, id = undefined, on_click = undefined){
         var button = document.createElement(`input`);
         button.type = `button`;
         button.id = id;
@@ -1019,6 +1019,37 @@ const DisplayHTML = {
             container.append(parbox);
             location.append(container);
         }
+    },
+    add_header: function(location, description){
+        var header = document.createElement(`h2`);
+        header.innerText = description;
+        var place = DisplayHTML.get_element(location);
+        place.append(header);
+    },
+    control_box: function(location, controls, description){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-box`);
+        var tb = document.createElement(`table`);
+        for(var r = 0; r < Math.ceil(controls.length / 3); ++r){
+            var start = r * 3;
+            var row = document.createElement(`tr`);
+            for(var c = 0; c < 3 && c + start < controls.length; ++c){
+                var button_text = controls[start + c];
+                if(KEYBOARD_SYMBOL_MAP.has(button_text)){
+                    button_text = KEYBOARD_SYMBOL_MAP.get(button_text);
+                }
+                row.append(DisplayHTML.create_button(button_text));
+            }
+            tb.append(row);
+        }
+        var table_div = document.createElement(`div`);
+        table_div.append(tb);
+        div.append(table_div);
+        var p = document.createElement(`p`);
+        p.innerText = description;
+        div.append(p);
+        var place = DisplayHTML.get_element(location);
+        place.append(div);
     },
 
     // Non Required helper functions.
@@ -1285,6 +1316,27 @@ function refresh_shop_display(shop){
     }
     display.set_button(UIIDS.shop_confirm, confirm_text, confirm, shop.is_valid_selection());
 }
+
+function setup_controls_page(){
+    var controls = GS.controls.get();
+
+    display.add_header(UIIDS.controls, CONTROLS_TEXT.stage.header);
+    display.control_box(UIIDS.controls, controls.stage.card, CONTROLS_TEXT.stage.card);
+    display.control_box(UIIDS.controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_box(UIIDS.controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_box(UIIDS.controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_box(UIIDS.controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+
+    display.add_header(UIIDS.controls, CONTROLS_TEXT.shop.header);
+    display.control_box(UIIDS.controls, controls.shop.add, CONTROLS_TEXT.shop.add);
+    display.control_box(UIIDS.controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
+    display.control_box(UIIDS.controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+
+    display.add_header(UIIDS.controls, CONTROLS_TEXT.chest.header);
+    display.control_box(UIIDS.controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
+    display.control_box(UIIDS.controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_box(UIIDS.controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
     invalid_type: `invalid type`,
@@ -1321,6 +1373,7 @@ function initiate_game(){
     create_main_dropdown(UIIDS.title);
     GS = new GameState();
     display_guide();
+    setup_controls_page();
 }
 
 
@@ -1443,6 +1496,10 @@ function create_main_dropdown(location){
         {
             label: guide_screen_name,
             on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
+        },
+        {
+            label: controls_screen_name,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.controls)}
         }
     ];
     display.create_dropdown(location, options);
@@ -1796,6 +1853,34 @@ const move_types = {
     instant: `Instant: Take an extra turn.`
 }
 Object.freeze(move_types);
+
+const CONTROLS_TEXT = {
+    header: `Controls`,
+    stage: {
+        header: `Stage Controls`,
+        card: `Choose card`,
+        direction: `Make move`,
+        toggle: `Preview move`,
+        info: `View card info`,
+        retry: `Retry`
+    },
+    shop: {
+        header: `Shop Controls`,
+        add: `Choose card to add`,
+        remove: `Choose card to remove`,
+        confirm: `Confirm choice`
+    },
+    chest: {
+        header: `Chest Controls`,
+        choose: `Choose item`,
+        confirm: `Confirm choice`,
+        reject: `Abandon chest`
+    }
+}
+Object.freeze(CONTROLS_TEXT);
+
+const KEYBOARD_SYMBOL_MAP = new Map();
+KEYBOARD_SYMBOL_MAP.set(` `, `space`);
 // Boss Descriptions
 const boss_death_description = 
     `The exit opens.\nYou feel your wounds begin to heal.`;
@@ -2170,6 +2255,7 @@ const retry_message = `Retry?`;
 const stunned_msg = `Stunned x`;
 const gameplay_screen_name = `Gameplay`;
 const guide_screen_name = `Guidebook`;
+const controls_screen_name = `Controls`;
 const tile_description_divider = `\n--------------------\n`;
 const card_explanation_start = `Move Options (actions will be performed in order):\n`;
 const card_explanation_end = `Shift click on a button to show what it will do on the map.\n`;
@@ -2385,6 +2471,7 @@ function get_uiids(language){
  *              @property {string} content_description: A description of whichever one of the contents you last clicked on.
  * @property {string} guide Controls the visibility of the guide screen.
  *      @property {string} guide_navbar Controls the visibility of each guidebook section.
+ * @property {string} controls
  */
 
 
@@ -2439,6 +2526,7 @@ const HTML_UIIDS = {
                 content_description: `contentDescription`,
     guide: `guide`,
         guide_navbar: `guideNavbar`,
+    controls: `controls`,
 }
 Object.freeze(HTML_UIIDS);
 
@@ -10012,7 +10100,7 @@ class ScreenTracker{
     }
 }
 
-const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide]);
+const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.controls]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand]);
 

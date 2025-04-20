@@ -398,7 +398,7 @@ const DisplayHTML = {
         destination.append(body_div);
         return body_div_id;
     },
-    create_button: function(label, id, on_click = undefined){
+    create_button: function(label, id = undefined, on_click = undefined){
         var button = document.createElement(`input`);
         button.type = `button`;
         button.id = id;
@@ -491,6 +491,37 @@ const DisplayHTML = {
             container.append(parbox);
             location.append(container);
         }
+    },
+    add_header: function(location, description){
+        var header = document.createElement(`h2`);
+        header.innerText = description;
+        var place = DisplayHTML.get_element(location);
+        place.append(header);
+    },
+    control_box: function(location, controls, description){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-box`);
+        var tb = document.createElement(`table`);
+        for(var r = 0; r < Math.ceil(controls.length / 3); ++r){
+            var start = r * 3;
+            var row = document.createElement(`tr`);
+            for(var c = 0; c < 3 && c + start < controls.length; ++c){
+                var button_text = controls[start + c];
+                if(KEYBOARD_SYMBOL_MAP.has(button_text)){
+                    button_text = KEYBOARD_SYMBOL_MAP.get(button_text);
+                }
+                row.append(DisplayHTML.create_button(button_text));
+            }
+            tb.append(row);
+        }
+        var table_div = document.createElement(`div`);
+        table_div.append(tb);
+        div.append(table_div);
+        var p = document.createElement(`p`);
+        p.innerText = description;
+        div.append(p);
+        var place = DisplayHTML.get_element(location);
+        place.append(div);
     },
 
     // Non Required helper functions.

@@ -12,6 +12,7 @@ function initiate_game(){
     create_main_dropdown(UIIDS.title);
     GS = new GameState();
     display_guide();
+    setup_controls_page();
 }
 
 
@@ -134,6 +135,10 @@ function create_main_dropdown(location){
         {
             label: guide_screen_name,
             on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
+        },
+        {
+            label: controls_screen_name,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.controls)}
         }
     ];
     display.create_dropdown(location, options);

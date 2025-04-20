@@ -54,6 +54,7 @@ function get_uiids(language){
  *              @property {string} content_description: A description of whichever one of the contents you last clicked on.
  * @property {string} guide Controls the visibility of the guide screen.
  *      @property {string} guide_navbar Controls the visibility of each guidebook section.
+ * @property {string} controls
  */
 
 
@@ -108,6 +109,7 @@ const HTML_UIIDS = {
                 content_description: `contentDescription`,
     guide: `guide`,
         guide_navbar: `guideNavbar`,
+    controls: `controls`,
 }
 Object.freeze(HTML_UIIDS);
 
