@@ -1321,19 +1321,19 @@ function setup_controls_page(){
     var controls = GS.controls.get();
 
     display.add_header(UIIDS.controls, CONTROLS_TEXT.stage.header);
-    display.control_box(UIIDS.controls, controls.stage.card, CONTROLS_TEXT.stage.card);
+    display.control_box(UIIDS.controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
     display.control_box(UIIDS.controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
     display.control_box(UIIDS.controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
     display.control_box(UIIDS.controls, controls.stage.info, CONTROLS_TEXT.stage.info);
     display.control_box(UIIDS.controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
 
     display.add_header(UIIDS.controls, CONTROLS_TEXT.shop.header);
-    display.control_box(UIIDS.controls, controls.shop.add, CONTROLS_TEXT.shop.add);
-    display.control_box(UIIDS.controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
+    display.control_box(UIIDS.controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
+    display.control_box(UIIDS.controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
     display.control_box(UIIDS.controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
 
     display.add_header(UIIDS.controls, CONTROLS_TEXT.chest.header);
-    display.control_box(UIIDS.controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
+    display.control_box(UIIDS.controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
     display.control_box(UIIDS.controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
     display.control_box(UIIDS.controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
 }
