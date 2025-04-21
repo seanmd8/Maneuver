@@ -7,6 +7,7 @@
  */
 function initiate_game(){
     display.detect_keys();
+    display.stop_space_scrolling();
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
     display.display_message(UIIDS.title, `${game_title}    `);
     create_main_dropdown(UIIDS.title);

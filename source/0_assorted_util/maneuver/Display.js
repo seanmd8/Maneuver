@@ -385,7 +385,7 @@ const DisplayHTML = {
         for(var i = 0; i < par_arr.length; ++i){
             var body_text = document.createElement(`p`);
             body_text.id = `${body_div_id} text ${i}`;
-            body_text.innerText = par_arr[i];//wrap_str(par_arr[i], TEXT_WRAP_WIDTH, ` `);
+            body_text.innerText = par_arr[i];
             body_text.style.display = `inline`;
             body_div.append(body_text);
             if(i < inline_arr.length){
@@ -522,6 +522,13 @@ const DisplayHTML = {
         div.append(p);
         var place = DisplayHTML.get_element(location);
         place.append(div);
+    },
+    stop_space_scrolling: function(){
+        window.addEventListener('keydown', (e) => {
+            if (e.key === ` ` && e.target === document.body) {
+              e.preventDefault();
+            }
+        });
     },
 
     // Non Required helper functions.
