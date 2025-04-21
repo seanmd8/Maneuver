@@ -6193,8 +6193,7 @@ function rotting_fruit_tree_on_death(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var spawns = random_num(3);
-    if(spawns !== 0){
+    if(chance(1, 3)){
         var new_spawn = rand_from(self.tile.summons)();
         stun(new_spawn);
         spawn_nearby(map, new_spawn, self.location);
@@ -6467,7 +6466,7 @@ function damaged_wall_death(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(chance(7, 10)){
+    if(chance(3, 4)){
         var ran = random_num(self.tile.summons.length);
         var new_enemy = self.tile.summons[ran]();
         stun(new_enemy);
@@ -7893,8 +7892,10 @@ function summon_spell(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var tile = rand_from(self.tile.summons)();
-    spawn_nearby(map, tile, self.location);
+    for(var i = 0; i < 2; ++i){
+        var tile = rand_from(self.tile.summons)();
+        spawn_nearby(map, tile, self.location);
+    }
 }
 /** @type {SpellGenerator} */
 function teleport_spell_generator(){
