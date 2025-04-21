@@ -1513,8 +1513,6 @@ function display_guide(){
 
     // Create the image arrays for the sections with images.
     var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
-    var ctrl_symbol_arr = get_control_symbols();
-    var cards_inline_arr = [...cards_symbol_arr, ...ctrl_symbol_arr];
     var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
         card = card();
         return {
@@ -1527,7 +1525,7 @@ function display_guide(){
 
     // Create guidebook text sections.
     var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
-    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_inline_arr);
+    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_symbol_arr);
     var enemies_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
     var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
     var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
@@ -2322,15 +2320,7 @@ const GUIDE_TEXT = {
             ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
         +`\n`
         +`You can use the (?) button next to your move options to learn exactly what a selected card does, `
-        +`or shift click to display what the card does on the map.\n`
-        +`\n`
-        +`In addition to clicking on cards to use them, you can use the keys\n`,
-            ` `, ` `, ` `, `\n`
-        +`to select a card in your hand and\n`,
-            ` `, ` `, `\n`,
-            ` `, ` `, `\n`,
-            ` `, ` `, `\n`
-        +`to use a card once it is selected.\n\n`],
+        +`or shift click to display what the card does on the map.\n\n`],
 
     enemies: 
         [`As you travel through the dungeon, you will encounter various other creatures, many of whom want `

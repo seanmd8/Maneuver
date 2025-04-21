@@ -152,8 +152,6 @@ function display_guide(){
 
     // Create the image arrays for the sections with images.
     var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
-    var ctrl_symbol_arr = get_control_symbols();
-    var cards_inline_arr = [...cards_symbol_arr, ...ctrl_symbol_arr];
     var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
         card = card();
         return {
@@ -166,7 +164,7 @@ function display_guide(){
 
     // Create guidebook text sections.
     var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
-    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_inline_arr);
+    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_symbol_arr);
     var enemies_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
     var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
     var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);

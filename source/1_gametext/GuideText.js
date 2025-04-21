@@ -51,15 +51,7 @@ const GUIDE_TEXT = {
             ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
         +`\n`
         +`You can use the (?) button next to your move options to learn exactly what a selected card does, `
-        +`or shift click to display what the card does on the map.\n`
-        +`\n`
-        +`In addition to clicking on cards to use them, you can use the keys\n`,
-            ` `, ` `, ` `, `\n`
-        +`to select a card in your hand and\n`,
-            ` `, ` `, `\n`,
-            ` `, ` `, `\n`,
-            ` `, ` `, `\n`
-        +`to use a card once it is selected.\n\n`],
+        +`or shift click to display what the card does on the map.\n\n`],
 
     enemies: 
         [`As you travel through the dungeon, you will encounter various other creatures, many of whom want `

@@ -89,6 +89,7 @@
     width: 500px;
     margin: 2px;
     font-size: 20px;
+    background-color: lightblue;
 }
 .control-box div{
     display: flex;
@@ -97,6 +98,7 @@
     height: 91px;
     width: 90px;
     border-right: solid;
+    background-color: cadetblue;
 }
 .control-box p{
     margin-left: 10px;
