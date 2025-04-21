@@ -1,6 +1,6 @@
 /** @type {TileGenerator} */
 function moving_turret_d_tile(){
-    var direction = DIAGONAL_DIRECTIONS[random_num(DIAGONAL_DIRECTIONS.length)].copy();
+    var direction = rand_from(DIAGONAL_DIRECTIONS).copy();
     var tile = {
         type: `enemy`,
         name: `Moving Turret`,

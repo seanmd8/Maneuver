@@ -1,7 +1,7 @@
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
     invalid_type: `invalid type`,
-    missing_property: `tile missing property`,
+    missing_property: `missing property`,
     pass_turn: `pass turn to player`,
     skip_animation: `skip animation delay`,
     game_over: `game over`,

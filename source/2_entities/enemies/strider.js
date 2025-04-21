@@ -13,9 +13,9 @@ function strider_tile(){
     }
 }
 
-/** @type {AIFunction} AI used by shadow knights.*/
+/** @type {AIFunction} AI used by strider.*/
 function strider_ai(self, target, map){
-    if(random_num(2) === 0){
+    if(chance(1, 2)){
         var moves = random_nearby();
     }
     else{

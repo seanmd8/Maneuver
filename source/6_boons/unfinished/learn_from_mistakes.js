@@ -8,7 +8,5 @@ function learn_from_mistakes(){
         unlocks: [learn_from_mistakes]
     }
 }
-// Not Finished
-// Todo:
-//  description
-//  implement on_pick
+
+// Delete any card twice

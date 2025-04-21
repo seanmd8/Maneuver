@@ -7,11 +7,12 @@
  */
 function initiate_game(){
     display.detect_keys();
-    display.swap_screen(DISPLAY_DIVISIONS);
+    DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
     display.display_message(UIIDS.title, `${game_title}    `);
     create_main_dropdown(UIIDS.title);
-    display_guide();
     GS = new GameState();
+    display_guide();
+    setup_controls_page();
 }
 
 
@@ -126,22 +127,20 @@ function display_health(player, scale){
  * @param {string} location Where to create it.
  */
 function create_main_dropdown(location){
-    var options = [];
-    var make_on_change = function(screens, screen){
-        return function(){
-            display.swap_screen(screens, screen);
+    var options = [
+        {
+            label: gameplay_screen_name,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
+        }, 
+        {
+            label: guide_screen_name,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
+        },
+        {
+            label: controls_screen_name,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.controls)}
         }
-    }
-    if(DISPLAY_DIVISION_NAMES.length !== DISPLAY_DIVISIONS.length){
-        throw new Error("list length mismatch");
-    }
-    for(var i = 0; i < DISPLAY_DIVISIONS.length; ++i){
-        var option = {
-            label: DISPLAY_DIVISION_NAMES[i],
-            on_change: make_on_change(DISPLAY_DIVISIONS, DISPLAY_DIVISIONS[i])
-        }
-        options.push(option);
-    }
+    ];
     display.create_dropdown(location, options);
 }
 /**
@@ -153,8 +152,6 @@ function display_guide(){
 
     // Create the image arrays for the sections with images.
     var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
-    var ctrl_symbol_arr = get_control_symbols();
-    var cards_inline_arr = [...cards_symbol_arr, ...ctrl_symbol_arr];
     var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
         card = card();
         return {
@@ -167,7 +164,7 @@ function display_guide(){
 
     // Create guidebook text sections.
     var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
-    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_inline_arr);
+    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_symbol_arr);
     var enemies_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
     var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
     var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
@@ -229,7 +226,8 @@ function make_guidebook_images(arr){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var button_symbols = [...CONTROLS.card, ...CONTROLS.directional];
+    var current_controls = GS.controls.get();
+    var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
     var buttons = [];
     for(var symbol of button_symbols){
         buttons.push(display.create_button(symbol, `${symbol} key`));
@@ -241,8 +239,8 @@ function get_control_symbols(){
  */
 function confuse_player(){
     // Chance redused by 50% for each stable_mind boon.
-    if(1 + random_num(2) - GS.boons.has(boon_names.stable_mind) > 0){
-        var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
+    if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
+        var card = rand_from(CONFUSION_CARDS)();
         GS.give_temp_card(card);
         GS.refresh_deck_display();
     } 
@@ -255,14 +253,14 @@ function create_sidebar(){
     var location = UIIDS.sidebar_header;
     var swap_visibility = function(id_list, id){
         return function(){
-            display.swap_screen(id_list, id);
+            id_list.swap(id);
         }
     }
     display.remove_children(location);
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
-    swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log)();
+    SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
 }
 
 function floor_has_chest(floor_of_area){

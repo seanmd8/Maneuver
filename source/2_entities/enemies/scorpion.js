@@ -10,7 +10,7 @@ function scorpion_tile(){
         difficulty: 3,
         behavior: scorpion_ai,
         telegraph: spider_telegraph,
-        flip: random_num(2) === 0,
+        flip: chance(1, 2),
         cycle: random_num(2)
     }
 }

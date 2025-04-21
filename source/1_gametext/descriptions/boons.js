@@ -7,8 +7,10 @@ const boon_names = {
     boss_slayer: `Boss Slayer`,
     brag_and_boast: `Brag & Boast`,
     chilly_presence: `Chilly Presence`,
+    choose_your_path: `Choose Your Path`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
+    deck_stacking: `Deck Stacking`,
     duplicate: `Duplicate`,
     empty_rooms: `Empty Rooms`,
     escape_artist: `Escape Artist`,
@@ -63,10 +65,15 @@ const brag_and_boast_description =
 const chilly_presence_description = 
     `Enemies have a 1/6 chance to become stunned at the end of their `
     +`turn. Bosses are not affected.`;
+const choose_your_path_description =
+    `You get to decide which area to go to after each boss fight.`;
 const creative_description = 
     `Increase your hand size by 1. Increases minimum deck size by 5.`;
 const dazing_blows_description = 
     `Your attacks stun enemies. Bosses are unaffected.`;
+const deck_stacking_description =
+    `You pick the order of your deck when it is refilled. Reduce your `
+    +`maximum health by 1`;
 const duplicate_description =
     `Get a copy of any card in your deck.`
 const empty_rooms_description = 

@@ -6,9 +6,9 @@ function shadow_of_self_floor(floor_num,  area, map){
 
     // Swaps tab to the one containing it's hand
     display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.shadow_hand, function(){
-        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.shadow_hand);
+        SIDEBAR_DIVISIONS.swap(UIIDS.shadow_hand);
     });
-    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.shadow_hand);
+    SIDEBAR_DIVISIONS.swap(UIIDS.shadow_hand);
     refresh_shadow_hand_display(shadow.deck.get_hand_info());
 
 

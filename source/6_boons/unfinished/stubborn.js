@@ -6,6 +6,5 @@ function stubborn(){
         description: stubborn_description,
     }
 }
-// Todo:
-//  description
-//  implement
+
+// skip the shop

@@ -9,6 +9,14 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+4/20/25
+- New look for the shop and guidebook
+- You can now see information about card choices in the shop and chests
+- Added new keyboard controls (View more about them in the Controls section)
+- Added 1 new boon
+- Added new floor types to Magma and Sewer areas
+- Rebalanced Lich: Summon spell now summons 2 enemies
+
 4/7/25
 - Added new fourth area: Arcane Library
 - Added Arcane Library boss: Arcane Sentry

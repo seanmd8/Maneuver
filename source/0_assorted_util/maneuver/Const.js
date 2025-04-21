@@ -42,7 +42,7 @@ const TILE_SCALE = 40;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 160;
-const DECK_DISPLAY_WIDTH = 4;
+const DECK_DISPLAY_WIDTH = 5;
 const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
 
@@ -50,12 +50,28 @@ const MARKUP_LANGUAGE = `html`;
 
 
 // Keyboard controls.
-const CONTROLS = {
-    directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
-    card: [`h`, `j`, `k`, `l`],
-    alt: [`shift`, `shiftleft`, `shiftright`]
+const DEFAULT_CONTROLS = {
+    stage: {
+        direction: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
+        card: [`h`, `j`, `k`, `l`],
+        info: [`i`],
+        retry: [`r`]
+    },
+    shop: {
+        add: [`q`, `w`, `e`, `r`, `t`, `y`],
+        remove: [`a`, `s`, `d`, `f`, `g`, `h`],
+        confirm: [` `],
+    },
+    chest: {
+        choose: [`h`, `j`, `k`, `l`, `;`],
+        confirm: [` `],
+        reject: [`escape`]
+    },
+    toggle: {
+        alt: [`shift`]
+    }
 }
-Object.freeze(CONTROLS);
+Object.freeze(DEFAULT_CONTROLS);
 
 // Image folder file structure.
 const IMG_FOLDER = {

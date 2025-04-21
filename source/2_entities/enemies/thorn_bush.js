@@ -21,7 +21,10 @@ function thorn_bush_ai(self, target, map){
         var next = current.plus(random_nearby()[0]);
         if(map.is_in_bounds(next)){
             var space = map.get_tile(next);
-            if(space.tags.has(TAGS.thorn_bush_roots) || (space.type === `empty` && random_num(4) === 0)){
+            if(
+                space.tags.has(TAGS.thorn_bush_roots) || 
+                (space.type === `empty` && chance(1, 4))
+            ){
                 current = next;
             }
         }

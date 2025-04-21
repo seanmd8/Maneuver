@@ -21,9 +21,9 @@ function velociphile_tile(){
 
 /** @type {AIFunction} AI used by the Velociphile.*/
 function velociphile_ai(self, target, map){
-    // Moves towards the player 2/3 of the time, otherwise moves randomly.
     var directions = order_nearby(target.difference);
-    if(random_num(3) === 0){
+    if(chance(1, 3)){
+        // 1/3 of the time, moves randomly.
         directions = randomize_arr(directions);
     }
     // Direction is reselected until an unobstructed one is found.

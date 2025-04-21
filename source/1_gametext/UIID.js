@@ -41,6 +41,8 @@ function get_uiids(language){
  *          @property {string} shop_instructions Lets the player know they can add or remove a card.
  *          @property {string} add_card Displays which cards that could be added to their deck.
  *          @property {string} remove_card Displays which cards that could be removed from their deck.
+ *          @property {string} shop_confirm Clicking this confirms their picks and moves to next floor.
+ *          @property {string} shop_message Gives information about the last card clicked on.
  *          @property {string} current_deck Tells them the next element is their current deck.
  *          @property {string} display_deck Displays their entire deck.
  *      @property {string} chest Controls the visibility of the chest contents.
@@ -52,6 +54,7 @@ function get_uiids(language){
  *              @property {string} content_description: A description of whichever one of the contents you last clicked on.
  * @property {string} guide Controls the visibility of the guide screen.
  *      @property {string} guide_navbar Controls the visibility of each guidebook section.
+ * @property {string} controls
  */
 
 
@@ -93,6 +96,8 @@ const HTML_UIIDS = {
             shop_instructions: `shopInstructions`,
             add_card: `addCard`,
             remove_card: `removeCard`,
+            shop_confirm: `shopConfirm`,
+            shop_message: `shopMessage`,
             current_deck: `currentDeck`,
             display_deck: `displayDeck`,
         chest: `chest`,
@@ -104,13 +109,9 @@ const HTML_UIIDS = {
                 content_description: `contentDescription`,
     guide: `guide`,
         guide_navbar: `guideNavbar`,
+    controls: `controls`,
 }
 Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
 
-const GAME_SCREEN_DIVISIONS = [UIIDS.stage, UIIDS.shop, UIIDS.chest];
-const DISPLAY_DIVISIONS = [UIIDS.game_screen, UIIDS.guide];
-const DISPLAY_DIVISION_NAMES = [gameplay_screen_name, guide_screen_name];
-
-const SIDEBAR_DIVISIONS = [UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand];

@@ -10,7 +10,7 @@ function future_sight(){
 
 function pick_future_sight(){
     display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.deck_order, function(){
-        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
+        SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
     });
-    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
+    SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
 }

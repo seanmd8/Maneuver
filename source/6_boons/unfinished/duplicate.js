@@ -6,3 +6,5 @@ function duplicate(){
         description: duplicate_description
     }
 }
+
+// Get a copy of any card in your deck

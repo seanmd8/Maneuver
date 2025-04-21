@@ -7,11 +7,44 @@
     border-color: slategray;
     border-style: solid;
     padding: 5px;
-    margin-top: 5px;
+    margin: 5px 0px 5px 0px;
 }
 .shop-section-box legend {
     font-weight: bold;
     border-color: slategray;
     border-style: solid;
     border-width: 2px;
+}
+
+.shop-width{
+    width: fit-content;
+}
+.shop-confirm {
+    height: 35px;
+    width: 80px;
+    margin-right: 5px;
+    border-width: medium;
+    border-color: darkblue;
+    background-color: cadetblue;
+    font-weight: bolder;
+}
+.shop-button-container{
+    height: 120px;
+    width: fit-content;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.scrollable-text {
+    overflow-y: scroll;
+    overflow-x: scroll;
+    text-align: left;
+    height: 120px;
+    width: 375px;
+    padding: 5px;
+    border-color: slategrey;
+    border-style: solid;
+    border-width: medium;
+    text-wrap: nowrap;
+    display: inline-block;
 }

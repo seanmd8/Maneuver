@@ -20,7 +20,7 @@ function coffin_tile_death(self, target, map){
         self.tile.card_drops === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var new_enemy = self.tile.summons[random_num(self.tile.summons.length)]();
+    var new_enemy = rand_from(self.tile.summons)();
     if(new_enemy.type === `chest`){
         var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(let card of cards){

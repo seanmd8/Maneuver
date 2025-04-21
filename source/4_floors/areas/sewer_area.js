@@ -13,8 +13,13 @@ function generate_sewers_area(){
 
 /** @type {FloorGenerator}*/
 function generate_sewers_floor(floor_num, area, map){
-    var terrains = [slime_terrain, grate_terrain];
-    terrains[random_num(terrains.length)](floor_num, area, map);
+    if(chance(1, 8)){
+        river_terrain(floor_num, area, map);
+    }
+    else{
+        var terrains = [slime_terrain, grate_terrain];
+        rand_from(terrains)(floor_num, area, map);
+    }
     generate_normal_floor(floor_num, area, map);
 }
 
@@ -31,4 +36,23 @@ function grate_terrain(floor_num, area, map){
     for(var i = 0; i < grate_amount; ++i){
         map.spawn_safely(sewer_grate_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
+}
+
+function river_terrain(floor_num, area, map){
+    var left = random_num(FLOOR_WIDTH / 2 - 1) + 1;
+    var right = (FLOOR_WIDTH / 2) - left;
+    var x_vals = [...range(0, left), ...range(FLOOR_WIDTH - right, FLOOR_WIDTH)];
+    var y = random_num(FLOOR_HEIGHT - 4) + 2;
+    for(var x of x_vals){
+        map.add_tile(sewer_grate_tile(), new Point(x, y));
+        map.add_tile(corrosive_slime_tile(), new Point(x, y + 1));        
+        map.add_tile(corrosive_slime_tile(), new Point(x, y - 1));        
+    }
+    cross(
+        [left, FLOOR_WIDTH - (right + 1)], 
+        [1, 0, -1],
+        (e1, e2) => {
+            map.add_tile(corrosive_slime_tile(), new Point(e1, y + e2));
+        }
+    )
 }

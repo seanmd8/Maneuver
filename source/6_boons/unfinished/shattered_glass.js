@@ -15,3 +15,5 @@ function prereq_shattered_glass(){
 function on_pick_shattered_glass(){
     change_max_health(-1);
 }
+
+// Enemies explode on death

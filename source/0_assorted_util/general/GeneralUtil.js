@@ -35,6 +35,18 @@ function rand_no_repeates(source, draws){
     return result;
 }
 /**
+ * Gets a random element from an array
+ * @template T
+ * @param {T[]} source Array to draw from.
+ * @returns {T} Random element.
+ */
+function rand_from(source){
+    if(source.length === 0){
+        throw new Error(ERRORS.array_size);
+    }
+    return rand_no_repeates(source, 1)[0];
+}
+/**
  * Wraps a string so each line has a maximum number of characters before automatically inserting a newline character.
  * @param {string} message The string to be wrapped.
  * @param {number} wrap_length How many characters maximum.
@@ -151,6 +163,15 @@ function random_num(x){
     return Math.floor(Math.random() * x);
 }
 /**
+ * Function to return true n/d of the time.
+ * @param {number} numerator
+ * @param {number} denominator 
+ * @returns {boolean} If the chance succeeded.
+ */
+function chance(numerator, denominator){
+    return random_num(denominator) < numerator;
+}
+/**
  * Function to check if the contents of two arrays are ===.
  * @param {[]} a1 The first array to be compared.
  * @param {[]} a2 the second array to be compared.
@@ -190,4 +211,26 @@ function range(start = 0, stop, step = 1){
         nums.push(i);
     }
     return nums;
+}
+
+function cross(arr1, arr2, f){
+    for(var e1 of arr1){
+        for(e2 of arr2){
+            f(e1, e2);
+        }
+    }
+}
+
+function same_structure(obj1, obj2){
+    if(typeof obj1 !== typeof obj2){
+        return false;
+    }
+    if(typeof obj1 === `object`){
+        for(var property in obj1){
+            if(!same_structure(obj1[property], obj2[property])){
+                return false;
+            }
+        }
+    }
+    return true;
 }

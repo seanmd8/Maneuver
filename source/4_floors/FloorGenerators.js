@@ -37,7 +37,7 @@ function generate_normal_floor(floor_num, area, map){
             }
         }
     }
-    if(GS.boons.has(boon_names.frugivore) > random_num(2)){
+    if(chance(GS.boons.has(boon_names.frugivore), 2)){
         var spawned = map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }

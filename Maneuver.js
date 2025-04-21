@@ -36,6 +36,18 @@ function rand_no_repeates(source, draws){
     return result;
 }
 /**
+ * Gets a random element from an array
+ * @template T
+ * @param {T[]} source Array to draw from.
+ * @returns {T} Random element.
+ */
+function rand_from(source){
+    if(source.length === 0){
+        throw new Error(ERRORS.array_size);
+    }
+    return rand_no_repeates(source, 1)[0];
+}
+/**
  * Wraps a string so each line has a maximum number of characters before automatically inserting a newline character.
  * @param {string} message The string to be wrapped.
  * @param {number} wrap_length How many characters maximum.
@@ -152,6 +164,15 @@ function random_num(x){
     return Math.floor(Math.random() * x);
 }
 /**
+ * Function to return true n/d of the time.
+ * @param {number} numerator
+ * @param {number} denominator 
+ * @returns {boolean} If the chance succeeded.
+ */
+function chance(numerator, denominator){
+    return random_num(denominator) < numerator;
+}
+/**
  * Function to check if the contents of two arrays are ===.
  * @param {[]} a1 The first array to be compared.
  * @param {[]} a2 the second array to be compared.
@@ -191,6 +212,28 @@ function range(start = 0, stop, step = 1){
         nums.push(i);
     }
     return nums;
+}
+
+function cross(arr1, arr2, f){
+    for(var e1 of arr1){
+        for(e2 of arr2){
+            f(e1, e2);
+        }
+    }
+}
+
+function same_structure(obj1, obj2){
+    if(typeof obj1 !== typeof obj2){
+        return false;
+    }
+    if(typeof obj1 === `object`){
+        for(var property in obj1){
+            if(!same_structure(obj1[property], obj2[property])){
+                return false;
+            }
+        }
+    }
+    return true;
 }
 // ----------------Point.js----------------
 // File contains Point class and associated functions.
@@ -426,7 +469,7 @@ const TILE_SCALE = 40;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 160;
-const DECK_DISPLAY_WIDTH = 4;
+const DECK_DISPLAY_WIDTH = 5;
 const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
 
@@ -434,12 +477,28 @@ const MARKUP_LANGUAGE = `html`;
 
 
 // Keyboard controls.
-const CONTROLS = {
-    directional: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
-    card: [`h`, `j`, `k`, `l`],
-    alt: [`shift`, `shiftleft`, `shiftright`]
+const DEFAULT_CONTROLS = {
+    stage: {
+        direction: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
+        card: [`h`, `j`, `k`, `l`],
+        info: [`i`],
+        retry: [`r`]
+    },
+    shop: {
+        add: [`q`, `w`, `e`, `r`, `t`, `y`],
+        remove: [`a`, `s`, `d`, `f`, `g`, `h`],
+        confirm: [` `],
+    },
+    chest: {
+        choose: [`h`, `j`, `k`, `l`, `;`],
+        confirm: [` `],
+        reject: [`escape`]
+    },
+    toggle: {
+        alt: [`shift`]
+    }
 }
-Object.freeze(CONTROLS);
+Object.freeze(DEFAULT_CONTROLS);
 
 // Image folder file structure.
 const IMG_FOLDER = {
@@ -685,6 +744,9 @@ const DisplayHTML = {
             if(to_display.name !== undefined){
                 cell.title = to_display.name;
             }
+            if(to_display.selected === true){
+                cell.classList.add(`selected-element`);
+            }
             var layers = [];
             var image;
             // Foreground images
@@ -735,8 +797,7 @@ const DisplayHTML = {
         table.append(row);
     },
     display_message: function(location, message){
-        var output = message;//wrap_str(message, TEXT_WRAP_WIDTH, ` `);
-        DisplayHTML.get_element(location).innerText = output;
+        DisplayHTML.get_element(location).innerText = message;
     },
     remove_children: function(location){
         var element = DisplayHTML.get_element(location);
@@ -765,44 +826,35 @@ const DisplayHTML = {
         DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add("selected-element");
     },
     press: function(key_press){
-        // Pick direction via keyboard.
         var key = key_press.key.toLowerCase();
-        var key_num = CONTROLS.directional.indexOf(key);
-        if(key_num >= 0){
-            try{
-                DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
+        GS.controls.toggle_press(key);
+        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
+            if(GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
+                GS.controls.stage(key);
             }
-            catch(error){
-                if(error.message !== ERRORS.value_not_found){
-                    throw error;
-                }
+            else if(GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
+                GS.controls.shop(key);
             }
-            
-        }
-        // Select card via keyboard.
-        key_num = CONTROLS.card.indexOf(key);
-        if(key_num >= 0){
-            try{
-                var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
-                element && element.click();
+            else if(GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
+                GS.controls.chest(key);
             }
-            catch(error){
-                if(error.message !== ERRORS.value_not_found){
-                    throw error;
-                }
-            }
-            
-        }
-        key_num = CONTROLS.alt.indexOf(key);
-        if(key_num >= 0){
-            display.shift_is_pressed = true;
         }
     },
     unpress: function(key_press){
         var key = key_press.key.toLowerCase();
-        var key_num = CONTROLS.alt.indexOf(key);
-        if(key_num >= 0){
-            display.shift_is_pressed = false;
+        GS.controls.toggle_unpress(key);
+    },
+    click: function(location){
+        try{
+            var element = DisplayHTML.get_element(location);
+            if(element !== undefined && element.onclick !== undefined){
+                element.click();
+            }
+        }
+        catch(error){
+            if(error.message !== ERRORS.value_not_found){
+                throw error;
+            }
         }
     },
     create_visibility_toggle: function(location, header, on_click){
@@ -861,7 +913,7 @@ const DisplayHTML = {
         for(var i = 0; i < par_arr.length; ++i){
             var body_text = document.createElement(`p`);
             body_text.id = `${body_div_id} text ${i}`;
-            body_text.innerText = wrap_str(par_arr[i], TEXT_WRAP_WIDTH, ` `);
+            body_text.innerText = par_arr[i];//wrap_str(par_arr[i], TEXT_WRAP_WIDTH, ` `);
             body_text.style.display = `inline`;
             body_div.append(body_text);
             if(i < inline_arr.length){
@@ -874,7 +926,7 @@ const DisplayHTML = {
         destination.append(body_div);
         return body_div_id;
     },
-    create_button: function(label, id, on_click = undefined){
+    create_button: function(label, id = undefined, on_click = undefined){
         var button = document.createElement(`input`);
         button.type = `button`;
         button.id = id;
@@ -883,6 +935,17 @@ const DisplayHTML = {
         }
         button.value = label;
         return button;
+    },
+    set_button: function(location, text, on_click, clickable){
+        var button = DisplayHTML.get_element(location, HTMLInputElement);
+        button.onclick = on_click;
+        button.value = text;
+        if(clickable){
+            button.classList.remove(`greyed-out`);
+        }
+        else{
+            button.classList.add(`greyed-out`);
+        }
     },
     create_image: function(src, id, size){
         var image = document.createElement(`img`);
@@ -957,13 +1020,37 @@ const DisplayHTML = {
             location.append(container);
         }
     },
-    click(location){
-        var element = DisplayHTML.get_element(location);
-        if(element.onclick !== undefined){
-            element.click();
-        }
+    add_header: function(location, description){
+        var header = document.createElement(`h2`);
+        header.innerText = description;
+        var place = DisplayHTML.get_element(location);
+        place.append(header);
     },
-    shift_is_pressed: false,
+    control_box: function(location, controls, description){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-box`);
+        var tb = document.createElement(`table`);
+        for(var r = 0; r < Math.ceil(controls.length / 3); ++r){
+            var start = r * 3;
+            var row = document.createElement(`tr`);
+            for(var c = 0; c < 3 && c + start < controls.length; ++c){
+                var button_text = controls[start + c];
+                if(KEYBOARD_SYMBOL_MAP.has(button_text)){
+                    button_text = KEYBOARD_SYMBOL_MAP.get(button_text);
+                }
+                row.append(DisplayHTML.create_button(button_text));
+            }
+            tb.append(row);
+        }
+        var table_div = document.createElement(`div`);
+        table_div.append(tb);
+        div.append(table_div);
+        var p = document.createElement(`p`);
+        p.innerText = description;
+        div.append(p);
+        var place = DisplayHTML.get_element(location);
+        place.append(div);
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -1014,12 +1101,13 @@ function display_move_buttons(card, hand_position){
         let button_row = row.map(button => {return {
             description: button.description,
             on_click: function(){
-                display.shift_is_pressed ? button.alt_click() : button.on_click();
+                GS.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
             }
         }});
         display.add_button_row(UIIDS.move_buttons, button_row);
     }
-    display.add_on_click(UIIDS.move_info, function(){explain_card(card)});
+    var explanation = move_types.alt + `\n` + explain_card(card);
+    display.add_on_click(UIIDS.move_info, function(){say(explanation, false)});
 }
 
 /**
@@ -1074,6 +1162,14 @@ function display_entire_deck(deck){
     display.display_message(UIIDS.current_deck, `${current_deck}${min_deck_size}):`);
     // Display deck with limited cards per line.
     var decklist = deck.get_deck_info();
+    var card_explanation = (card) => {
+        return () => {
+            display.display_message(UIIDS.shop_message, explain_card(card))       
+        }
+    };
+    for(var card of decklist){
+            card.on_click = card_explanation(card);
+    }
     for(var i = 0; i < Math.ceil(decklist.length / DECK_DISPLAY_WIDTH); ++i){
         var row = decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
         display.add_tb_row(UIIDS.display_deck, row, CARD_SCALE);
@@ -1098,9 +1194,7 @@ function display_map(map){
 
 function explain_card(card){
     var text = ``;
-    text += card.evolutions !== undefined ? `${move_types.evolutions}\n` : ``;
-    text += `${move_types.alt}\n`;
-    text += `\n`;
+    text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
     text += `${card.options.explain_buttons()}`;
     text += `\n`;
     if(card.per_floor !== undefined){
@@ -1112,7 +1206,7 @@ function explain_card(card){
     if(card.options.is_instant()){
         text += `${move_types.instant}\n`;
     }
-    say(text, false);
+    return text.trimEnd();
 }
 
 /**
@@ -1174,10 +1268,79 @@ function player_hand_greyed(is_greyed){
     var toggle = is_greyed ? display.add_class : display.remove_class;
     toggle(UIIDS.hand_display, `greyed-out`);
 }
+
+function refresh_shop_display(shop){
+    var refresh = (f, card) => {
+        return () => {
+            f();
+            display.display_message(UIIDS.shop_message, explain_card(card));
+            refresh_shop_display(shop);
+        }
+    };
+    display.remove_children(UIIDS.add_card);
+    display.remove_children(UIIDS.remove_card);
+
+    var add_row = shop.get_add_row();
+    for(var a of add_row){
+        if(a.on_click !== undefined){
+            a.on_click = refresh(a.on_click, a.card);
+        }
+        else{
+            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_add_description)};
+        }
+    }
+    display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
+
+    var remove_row = shop.get_remove_row();
+    for(var r of remove_row){
+        if(r.on_click !== undefined){
+            r.on_click = refresh(r.on_click, r.card);
+        }
+        else if(r.name === `Remove`){
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_remove_description)};
+        }
+        else{
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_min_description)};
+        }
+    }
+    display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
+    
+    var confirm = () => {
+        if(shop.is_valid_selection()){
+            shop.confirm();
+            GS.new_floor();
+        }
+        else{
+            display.display_message(UIIDS.shop_message, shop_confirm_description);
+        }
+    }
+    display.set_button(UIIDS.shop_confirm, confirm_text, confirm, shop.is_valid_selection());
+}
+
+function setup_controls_page(){
+    var controls = GS.controls.get();
+
+    display.add_header(UIIDS.controls, CONTROLS_TEXT.stage.header);
+    display.control_box(UIIDS.controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
+    display.control_box(UIIDS.controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_box(UIIDS.controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_box(UIIDS.controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_box(UIIDS.controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+
+    display.add_header(UIIDS.controls, CONTROLS_TEXT.shop.header);
+    display.control_box(UIIDS.controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
+    display.control_box(UIIDS.controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
+    display.control_box(UIIDS.controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+
+    display.add_header(UIIDS.controls, CONTROLS_TEXT.chest.header);
+    display.control_box(UIIDS.controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
+    display.control_box(UIIDS.controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_box(UIIDS.controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
     invalid_type: `invalid type`,
-    missing_property: `tile missing property`,
+    missing_property: `missing property`,
     pass_turn: `pass turn to player`,
     skip_animation: `skip animation delay`,
     game_over: `game over`,
@@ -1205,11 +1368,12 @@ Object.freeze(ERRORS);
  */
 function initiate_game(){
     display.detect_keys();
-    display.swap_screen(DISPLAY_DIVISIONS);
+    DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
     display.display_message(UIIDS.title, `${game_title}    `);
     create_main_dropdown(UIIDS.title);
-    display_guide();
     GS = new GameState();
+    display_guide();
+    setup_controls_page();
 }
 
 
@@ -1324,22 +1488,20 @@ function display_health(player, scale){
  * @param {string} location Where to create it.
  */
 function create_main_dropdown(location){
-    var options = [];
-    var make_on_change = function(screens, screen){
-        return function(){
-            display.swap_screen(screens, screen);
+    var options = [
+        {
+            label: gameplay_screen_name,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
+        }, 
+        {
+            label: guide_screen_name,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
+        },
+        {
+            label: controls_screen_name,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.controls)}
         }
-    }
-    if(DISPLAY_DIVISION_NAMES.length !== DISPLAY_DIVISIONS.length){
-        throw new Error("list length mismatch");
-    }
-    for(var i = 0; i < DISPLAY_DIVISIONS.length; ++i){
-        var option = {
-            label: DISPLAY_DIVISION_NAMES[i],
-            on_change: make_on_change(DISPLAY_DIVISIONS, DISPLAY_DIVISIONS[i])
-        }
-        options.push(option);
-    }
+    ];
     display.create_dropdown(location, options);
 }
 /**
@@ -1351,8 +1513,6 @@ function display_guide(){
 
     // Create the image arrays for the sections with images.
     var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
-    var ctrl_symbol_arr = get_control_symbols();
-    var cards_inline_arr = [...cards_symbol_arr, ...ctrl_symbol_arr];
     var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
         card = card();
         return {
@@ -1365,7 +1525,7 @@ function display_guide(){
 
     // Create guidebook text sections.
     var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
-    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_inline_arr);
+    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_symbol_arr);
     var enemies_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
     var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
     var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
@@ -1427,7 +1587,8 @@ function make_guidebook_images(arr){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var button_symbols = [...CONTROLS.card, ...CONTROLS.directional];
+    var current_controls = GS.controls.get();
+    var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
     var buttons = [];
     for(var symbol of button_symbols){
         buttons.push(display.create_button(symbol, `${symbol} key`));
@@ -1439,8 +1600,8 @@ function get_control_symbols(){
  */
 function confuse_player(){
     // Chance redused by 50% for each stable_mind boon.
-    if(1 + random_num(2) - GS.boons.has(boon_names.stable_mind) > 0){
-        var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
+    if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
+        var card = rand_from(CONFUSION_CARDS)();
         GS.give_temp_card(card);
         GS.refresh_deck_display();
     } 
@@ -1453,14 +1614,14 @@ function create_sidebar(){
     var location = UIIDS.sidebar_header;
     var swap_visibility = function(id_list, id){
         return function(){
-            display.swap_screen(id_list, id);
+            id_list.swap(id);
         }
     }
     display.remove_children(location);
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
-    swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log)();
+    SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
 }
 
 function floor_has_chest(floor_of_area){
@@ -1492,8 +1653,10 @@ const boon_names = {
     boss_slayer: `Boss Slayer`,
     brag_and_boast: `Brag & Boast`,
     chilly_presence: `Chilly Presence`,
+    choose_your_path: `Choose Your Path`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
+    deck_stacking: `Deck Stacking`,
     duplicate: `Duplicate`,
     empty_rooms: `Empty Rooms`,
     escape_artist: `Escape Artist`,
@@ -1548,10 +1711,15 @@ const brag_and_boast_description =
 const chilly_presence_description = 
     `Enemies have a 1/6 chance to become stunned at the end of their `
     +`turn. Bosses are not affected.`;
+const choose_your_path_description =
+    `You get to decide which area to go to after each boss fight.`;
 const creative_description = 
     `Increase your hand size by 1. Increases minimum deck size by 5.`;
 const dazing_blows_description = 
     `Your attacks stun enemies. Bosses are unaffected.`;
+const deck_stacking_description =
+    `You pick the order of your deck when it is refilled. Reduce your `
+    +`maximum health by 1`;
 const duplicate_description =
     `Get a copy of any card in your deck.`
 const empty_rooms_description = 
@@ -1653,35 +1821,64 @@ const SPIN = `Spin`;
 
 // Directions.
 const four_directions = {
-    up: `Up`,
-    down: `Down`,
-    left: `Left`,
-    right: `Right`
+    // Unicode arrows
+    left:   `\u2B9C`,
+    up:     `\u2B9D`,
+    right:  `\u2B9E`,
+    down:   `\u2B9F`
 }
 
 // Move types.
 const move_types = {
-    alt: `Shift click on a button to show what it will do on the map.`,
+    alt: `Shift click on a button to show actions on the map.`,
     evolutions: `Dust and paint seems to be covering part of this card obscuring some of the options. `
                 +`Maybe you can find some way to remove it?`,
     intro: `Move Options (actions will be performed in order):\n`,
 
     attack: `Attack`,
     move: `Move`,
-    teleport: `Teleport you to a random space`,
+    teleport: `Teleport to a random space`,
     stun: `Stun`,
-    confuse: `Confuse: you. Adds a bad temporary card to your deck.`,
-    move_until: `Keep Moving`,
-    attack_until: `Keep Moving`,
+    confuse: `Confuse: you`,
+    move_until: `Move continuously`,
+    attack_until: `Attack continuously`,
     heal: `Heal`,
     you: `you`,
     nothing: `Do nothing`,
     
-    per_floor: `Once Per Floor: after being played, this card will disapear for the rest of the floor.`,
-    temp: `Temporary: this card will be removed from your deck when used, or at the end of the floor.`,
-    instant: `Instant: you will take an extra turn after playing this card.`
+    per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
+    temp: `Temporary: Removed from your deck when used, or at the end of the floor.`,
+    instant: `Instant: Take an extra turn.`
 }
 Object.freeze(move_types);
+
+const CONTROLS_TEXT = {
+    header: `Controls`,
+    stage: {
+        header: `Stage Controls`,
+        card: `Choose card`,
+        direction: `Make move`,
+        toggle: `Preview move`,
+        info: `View card info`,
+        retry: `Retry`
+    },
+    shop: {
+        header: `Shop Controls`,
+        add: `Choose card to add`,
+        remove: `Choose card to remove`,
+        confirm: `Confirm choice`
+    },
+    chest: {
+        header: `Chest Controls`,
+        choose: `Choose item`,
+        confirm: `Confirm choice`,
+        reject: `Abandon chest`
+    }
+}
+Object.freeze(CONTROLS_TEXT);
+
+const KEYBOARD_SYMBOL_MAP = new Map();
+KEYBOARD_SYMBOL_MAP.set(` `, `space`);
 // Boss Descriptions
 const boss_death_description = 
     `The exit opens.\nYou feel your wounds begin to heal.`;
@@ -2040,6 +2237,11 @@ const game_title = `Maneuver`;
 const hand_label_text = `Hand of cards`;
 const move_label_text = `Moves`;
 const mod_deck = `Choose one card to add or remove:`;
+const shop_add_description = `Add a card to your deck.`
+const shop_remove_description = `Remove a card from your deck.`
+const shop_min_description = `Your deck is at the minimum size.`
+const shop_confirm_description = `Please choose a card to add or remove.`
+const confirm_text = `Confirm >`;
 const current_deck = `Current Deck (minimum `;
 const welcome_message = `Use cards to move (blue) and attack (red).\n` 
                         + `Click on things to learn more about them.\n`
@@ -2051,6 +2253,7 @@ const retry_message = `Retry?`;
 const stunned_msg = `Stunned x`;
 const gameplay_screen_name = `Gameplay`;
 const guide_screen_name = `Guidebook`;
+const controls_screen_name = `Controls`;
 const tile_description_divider = `\n--------------------\n`;
 const card_explanation_start = `Move Options (actions will be performed in order):\n`;
 const card_explanation_end = `Shift click on a button to show what it will do on the map.\n`;
@@ -2117,15 +2320,7 @@ const GUIDE_TEXT = {
             ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
         +`\n`
         +`You can use the (?) button next to your move options to learn exactly what a selected card does, `
-        +`or shift click to display what the card does on the map.\n`
-        +`\n`
-        +`In addition to clicking on cards to use them, you can use the keys\n`,
-            ` `, ` `, ` `, `\n`
-        +`to select a card in your hand and\n`,
-            ` `, ` `, `\n`,
-            ` `, ` `, `\n`,
-            ` `, ` `, `\n`
-        +`to use a card once it is selected.\n\n`],
+        +`or shift click to display what the card does on the map.\n\n`],
 
     enemies: 
         [`As you travel through the dungeon, you will encounter various other creatures, many of whom want `
@@ -2253,6 +2448,8 @@ function get_uiids(language){
  *          @property {string} shop_instructions Lets the player know they can add or remove a card.
  *          @property {string} add_card Displays which cards that could be added to their deck.
  *          @property {string} remove_card Displays which cards that could be removed from their deck.
+ *          @property {string} shop_confirm Clicking this confirms their picks and moves to next floor.
+ *          @property {string} shop_message Gives information about the last card clicked on.
  *          @property {string} current_deck Tells them the next element is their current deck.
  *          @property {string} display_deck Displays their entire deck.
  *      @property {string} chest Controls the visibility of the chest contents.
@@ -2264,6 +2461,7 @@ function get_uiids(language){
  *              @property {string} content_description: A description of whichever one of the contents you last clicked on.
  * @property {string} guide Controls the visibility of the guide screen.
  *      @property {string} guide_navbar Controls the visibility of each guidebook section.
+ * @property {string} controls
  */
 
 
@@ -2305,6 +2503,8 @@ const HTML_UIIDS = {
             shop_instructions: `shopInstructions`,
             add_card: `addCard`,
             remove_card: `removeCard`,
+            shop_confirm: `shopConfirm`,
+            shop_message: `shopMessage`,
             current_deck: `currentDeck`,
             display_deck: `displayDeck`,
         chest: `chest`,
@@ -2316,16 +2516,12 @@ const HTML_UIIDS = {
                 content_description: `contentDescription`,
     guide: `guide`,
         guide_navbar: `guideNavbar`,
+    controls: `controls`,
 }
 Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
 
-const GAME_SCREEN_DIVISIONS = [UIIDS.stage, UIIDS.shop, UIIDS.chest];
-const DISPLAY_DIVISIONS = [UIIDS.game_screen, UIIDS.guide];
-const DISPLAY_DIVISION_NAMES = [gameplay_screen_name, guide_screen_name];
-
-const SIDEBAR_DIVISIONS = [UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand];
 
 SENTRY_MODES = Object.freeze({
     saw: "Saw",
@@ -2958,7 +3154,7 @@ function get_shadow_move(moves, self, target){
         }
     }
     // Pick randomly.
-    return moves[random_num(moves.length)];
+    return rand_from(moves);
 }
 
 function do_shadow_move(map, moves, location){
@@ -3334,9 +3530,9 @@ function velociphile_tile(){
 
 /** @type {AIFunction} AI used by the Velociphile.*/
 function velociphile_ai(self, target, map){
-    // Moves towards the player 2/3 of the time, otherwise moves randomly.
     var directions = order_nearby(target.difference);
-    if(random_num(3) === 0){
+    if(chance(1, 3)){
+        // 1/3 of the time, moves randomly.
         directions = randomize_arr(directions);
     }
     // Direction is reselected until an unobstructed one is found.
@@ -3684,7 +3880,7 @@ function brightling_ai(self, target, map){
         return;
     }
     var near_points = random_nearby();
-    if(random_num(4) < self.tile.cycle && !target.tile.tags.has(TAGS.unmovable)){
+    if(chance(self.tile.cycle, 4) && !target.tile.tags.has(TAGS.unmovable)){
         // Attempts to teleport the player next to it, then cycle goes to -1 to prepare to teleport next turn.
         for(var near of near_points){
             if(map.check_empty(self.location.plus(near))){
@@ -4718,7 +4914,7 @@ function rat_tile(){
         difficulty: 2,
         behavior: rat_ai,
         telegraph: rat_telegraph,
-        flip: random_num(2) === 0,
+        flip: chance(1, 2),
         cycle: 1
     }
 }
@@ -4781,7 +4977,7 @@ function scorpion_tile(){
         difficulty: 3,
         behavior: scorpion_ai,
         telegraph: spider_telegraph,
-        flip: random_num(2) === 0,
+        flip: chance(1, 2),
         cycle: random_num(2)
     }
 }
@@ -5006,7 +5202,7 @@ function specter_ai(self, target, map){
     }
     var dir1 = sign(new Point(target.difference.x, 0));
     var dir2 = sign(new Point(0, target.difference.y));
-    var direction = random_num(2) === 1 ? dir1 : dir2;
+    var direction = chance(1, 2) ? dir1 : dir2;
     var target_location = self.location.plus(target.difference);
     var locations = get_specter_moves(self.location, direction, map);
     for(var i = 0; i < locations.length; ++i){
@@ -5160,9 +5356,9 @@ function strider_tile(){
     }
 }
 
-/** @type {AIFunction} AI used by shadow knights.*/
+/** @type {AIFunction} AI used by strider.*/
 function strider_ai(self, target, map){
-    if(random_num(2) === 0){
+    if(chance(1, 2)){
         var moves = random_nearby();
     }
     else{
@@ -5258,7 +5454,10 @@ function thorn_bush_ai(self, target, map){
         var next = current.plus(random_nearby()[0]);
         if(map.is_in_bounds(next)){
             var space = map.get_tile(next);
-            if(space.tags.has(TAGS.thorn_bush_roots) || (space.type === `empty` && random_num(4) === 0)){
+            if(
+                space.tags.has(TAGS.thorn_bush_roots) || 
+                (space.type === `empty` && chance(1, 4))
+            ){
                 current = next;
             }
         }
@@ -5269,7 +5468,7 @@ function thorn_bush_ai(self, target, map){
 }
 /** @type {TileGenerator} */
 function moving_turret_d_tile(){
-    var direction = DIAGONAL_DIRECTIONS[random_num(DIAGONAL_DIRECTIONS.length)].copy();
+    var direction = rand_from(DIAGONAL_DIRECTIONS).copy();
     var tile = {
         type: `enemy`,
         name: `Moving Turret`,
@@ -5318,7 +5517,7 @@ function moving_turret_d_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function moving_turret_h_tile(){
-    var direction = HORIZONTAL_DIRECTIONS[random_num(HORIZONTAL_DIRECTIONS.length)].copy();
+    var direction = rand_from(HORIZONTAL_DIRECTIONS).copy();
     var tile = {
         type: `enemy`,
         name: `Moving Turret`,
@@ -5529,7 +5728,7 @@ function unstable_wisp_ai(self, target, map){
             moved = directions[i];
         }
     }
-    if(moved && random_num(3) === 0){
+    if(moved && chance(1, 3)){
         // Chance to shoot a fireball after moving.
         moved.times_equals(-1);
         var fireball = shoot_fireball(moved);
@@ -5832,162 +6031,6 @@ function bookshelf_on_hit(self, target, map){
     GS.refresh_deck_display();
 }
 
-/** @type {TileGenerator} Like the normal chest, but it is invulnerable.*/
-function armored_chest_tile(){
-    return {
-        type: `chest`,
-        name: `Armored Chest`,
-        pic: `${IMG_FOLDER.tiles}armored_chest.png`,
-        description: armored_chest_description,
-        tags: new TagList([TAGS.unmovable]),
-        on_enter: chest_on_enter,
-        contents: []
-    }
-}
-
-
-/** @type {TileGenerator} A chest letting the user choose a reward. Currently empty.*/
-function chest_tile(){
-    return {
-        type: `chest`,
-        name: `Chest`,
-        pic: `${IMG_FOLDER.tiles}chest.png`,
-        description: chest_description,
-        tags: new TagList([TAGS.unmovable]),
-        health: 1,
-        on_enter: chest_on_enter,
-        contents: []
-    }
-}
-
-
-/** @type {TileGenerator} Makes the correct type of chest*/
-function appropriate_chest_tile(){
-    if(GS.boons.has(boon_names.larger_chests)){
-        return armored_chest_tile();
-    }
-    return chest_tile();
-}
-
-/** @type {AIFunction} Function to open a chest when the player moves onto it.*/
-function chest_on_enter(self, target, map){
-    if(self.tile.contents === undefined){
-        throw new Error(ERRORS.missing_property);
-    }
-    if(target.tile.type !== `player`){
-        return;
-    }
-    self.tile.health = 1;
-    map.attack(self.location);
-    var leave_chest = function(){
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
-        display.display_message(UIIDS.chest_instructions, ``);
-        display.remove_children(UIIDS.chest_confirm_row);
-        display.remove_children(UIIDS.contents);
-        display.display_message(UIIDS.content_description, ``);
-        GS.refresh_deck_display();
-        display_map(map);
-        if(GS.boons.has(boon_names.safe_passage)){
-            GS.boons.lose(boon_names.safe_passage);
-            GS.refresh_boon_display();
-            GS.map.heal(GS.map.get_player_location());
-            GS.map.display_stats(UIIDS.stats);
-            GS.enter_shop();
-        }
-    }
-    var abandon_button = {
-        description: abandon_chest,
-        on_click: leave_chest
-    };
-    var pick = function(on_choose){
-        return function(){
-            if(on_choose !== undefined){
-                on_choose();
-            }
-            leave_chest();
-        }
-    }
-    var content_row = [];
-    for(var i = 0; i < self.tile.contents.length; ++i){
-        let item = self.tile.contents[i];
-        let make_on_click = function(position){
-            return function(){
-                let confirm_button = {
-                    description: take_from_chest,
-                    on_click: pick(item.on_choose)
-                };
-                display.display_message(UIIDS.content_description, item.description);
-                display.remove_children(UIIDS.chest_confirm_row);
-                display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button]);
-                display.select(UIIDS.contents, 0, position);
-            };
-        }
-        
-        content_row.push({
-            pic: item.pic,
-            name: item.name,
-            on_click: make_on_click(i)
-        });
-    }
-
-    display.display_message(UIIDS.chest_instructions, chest_inner_discription);
-    display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
-    display.add_button_row(UIIDS.chest_confirm_row, [abandon_button]);
-    display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.chest);
-    throw new Error(ERRORS.pass_turn);
-}
-
-/**
- * @typedef {Object} Content
- * @property {string} pic
- * @property {function} on_choose
- * @property {string} description
- */
-
-/**
- * @param {Tile} chest 
- * @param {Card} card 
- */
-function add_card_to_chest(chest, card){
-    if(chest.contents === undefined){
-        throw new Error(ERRORS.missing_property);
-    }
-    var content = {
-        pic: card.pic,
-        name: card.name,
-        on_choose: function(){
-            GS.deck.add(card);
-        },
-        description: add_card_description
-    }
-    chest.contents.push(content);
-}
-
-/**
- * @param {Tile} chest 
- * @param {Card} card 
- */
-function add_boon_to_chest(chest, boon){
-    if(chest.contents === undefined){
-        throw new Error(ERRORS.missing_property);
-    }
-    var content = {
-        pic: boon.pic,
-        name: boon.name,
-        on_choose: function(){
-            if(GS.boons.total === 0){
-                display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
-                    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
-                });
-                display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.boon_list);
-            }
-            GS.boons.pick(boon.name);
-            GS.refresh_boon_display();
-        },
-        description: `${boon.name}: ${boon.description}`
-    }
-    chest.contents.push(content);
-}
 /** @type {TileGenerator} A damaged wall that might spawn something on death.*/
 function coffin_tile(){
     return {
@@ -6010,7 +6053,7 @@ function coffin_tile_death(self, target, map){
         self.tile.card_drops === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var new_enemy = self.tile.summons[random_num(self.tile.summons.length)]();
+    var new_enemy = rand_from(self.tile.summons)();
     if(new_enemy.type === `chest`){
         var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(let card of cards){
@@ -6122,7 +6165,7 @@ function enticing_fruit_tree_on_enter(self, target, map){
     map.heal(self.location.plus(target.difference), 1);
     var spawns = random_num(3);
     for(var i = 0; i < spawns; ++i){
-        var new_spawn = self.tile.summons[random_num(self.tile.summons.length)]();
+        var new_spawn = rand_from(self.tile.summons)();
         stun(new_spawn);
         spawn_nearby(map, new_spawn, self.location);
     }
@@ -6150,9 +6193,8 @@ function rotting_fruit_tree_on_death(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var spawns = random_num(3);
-    if(spawns !== 0){
-        var new_spawn = self.tile.summons[random_num(self.tile.summons.length)]();
+    if(chance(1, 3)){
+        var new_spawn = rand_from(self.tile.summons)();
         stun(new_spawn);
         spawn_nearby(map, new_spawn, self.location);
     }
@@ -6424,7 +6466,7 @@ function damaged_wall_death(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(random_num(10) < 7){
+    if(chance(3, 4)){
         var ran = random_num(self.tile.summons.length);
         var new_enemy = self.tile.summons[ran]();
         stun(new_enemy);
@@ -6440,6 +6482,163 @@ function wall_tile(){
         description: wall_description,
         tags: new TagList([TAGS.unmovable]),
     }
+}
+/** @type {TileGenerator} Like the normal chest, but it is invulnerable.*/
+function armored_chest_tile(){
+    return {
+        type: `chest`,
+        name: `Armored Chest`,
+        pic: `${IMG_FOLDER.tiles}armored_chest.png`,
+        description: armored_chest_description,
+        tags: new TagList([TAGS.unmovable]),
+        on_enter: chest_on_enter,
+        contents: []
+    }
+}
+
+
+/** @type {TileGenerator} A chest letting the user choose a reward. Currently empty.*/
+function chest_tile(){
+    return {
+        type: `chest`,
+        name: `Chest`,
+        pic: `${IMG_FOLDER.tiles}chest.png`,
+        description: chest_description,
+        tags: new TagList([TAGS.unmovable]),
+        health: 1,
+        on_enter: chest_on_enter,
+        contents: []
+    }
+}
+
+
+/** @type {TileGenerator} Makes the correct type of chest*/
+function appropriate_chest_tile(){
+    if(GS.boons.has(boon_names.larger_chests)){
+        return armored_chest_tile();
+    }
+    return chest_tile();
+}
+
+/** @type {AIFunction} Function to open a chest when the player moves onto it.*/
+function chest_on_enter(self, target, map){
+    if(self.tile.contents === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    if(target.tile.type !== `player`){
+        return;
+    }
+    self.tile.health = 1;
+    map.attack(self.location);
+    var leave_chest = function(){
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+        display.display_message(UIIDS.chest_instructions, ``);
+        display.remove_children(UIIDS.chest_confirm_row);
+        display.remove_children(UIIDS.contents);
+        display.display_message(UIIDS.content_description, ``);
+        GS.refresh_deck_display();
+        display_map(map);
+        if(GS.boons.has(boon_names.safe_passage)){
+            GS.boons.lose(boon_names.safe_passage);
+            GS.refresh_boon_display();
+            GS.map.heal(GS.map.get_player_location());
+            GS.map.display_stats(UIIDS.stats);
+            GS.enter_shop();
+        }
+    }
+    var abandon_button = {
+        description: abandon_chest,
+        on_click: leave_chest
+    };
+    var pick = function(on_choose){
+        return function(){
+            if(on_choose !== undefined){
+                on_choose();
+            }
+            leave_chest();
+        }
+    }
+    var content_row = [];
+    for(var i = 0; i < self.tile.contents.length; ++i){
+        let item = self.tile.contents[i];
+        let make_on_click = function(position){
+            return function(){
+                let confirm_button = {
+                    description: take_from_chest,
+                    on_click: pick(item.on_choose)
+                };
+                display.display_message(UIIDS.content_description, item.description);
+                display.remove_children(UIIDS.chest_confirm_row);
+                display.add_button_row(UIIDS.chest_confirm_row, [abandon_button, confirm_button]);
+                display.select(UIIDS.contents, 0, position);
+            };
+        }
+        
+        content_row.push({
+            pic: item.pic,
+            name: item.name,
+            on_click: make_on_click(i)
+        });
+    }
+
+    display.display_message(UIIDS.chest_instructions, chest_inner_discription);
+    display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
+    display.add_button_row(UIIDS.chest_confirm_row, [abandon_button]);
+    GAME_SCREEN_DIVISIONS.swap(UIIDS.chest);
+    throw new Error(ERRORS.pass_turn);
+}
+
+/**
+ * @typedef {Object} Content
+ * @property {string} pic
+ * @property {function} on_choose
+ * @property {string} description
+ */
+
+/**
+ * @param {Tile} chest 
+ * @param {Card} card 
+ */
+function add_card_to_chest(chest, card){
+    if(chest.contents === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    var description = add_card_description + `\n` + explain_card(card);
+    var content = {
+        pic: card.pic,
+        name: card.name,
+        on_choose: function(){
+            GS.deck.add(card);
+        },
+        description
+    }
+    chest.contents.push(content);
+}
+
+/**
+ * @param {Tile} chest 
+ * @param {Card} card 
+ */
+function add_boon_to_chest(chest, boon){
+    if(chest.contents === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    var content = {
+        pic: boon.pic,
+        name: boon.name,
+        on_choose: function(){
+            if(GS.boons.total === 0){
+                display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
+                    SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
+                });
+                SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
+            }
+            GS.boons.pick(boon.name);
+            GS.refresh_boon_display();
+        },
+        description: `${boon.name}: ${boon.description}`
+    }
+    chest.contents.push(content);
 }
 /** @type {TileGenerator} Empty space.*/
 function empty_tile(){
@@ -7693,8 +7892,10 @@ function summon_spell(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var tile = self.tile.summons[random_num(self.tile.summons.length)]();
-    spawn_nearby(map, tile, self.location);
+    for(var i = 0; i < 2; ++i){
+        var tile = rand_from(self.tile.summons)();
+        spawn_nearby(map, tile, self.location);
+    }
 }
 /** @type {SpellGenerator} */
 function teleport_spell_generator(){
@@ -8742,7 +8943,7 @@ class GameMap{
         var pos = this.#entity_list.get_player_pos().plus(direction);
         try{
             if(
-                GS.boons.has(boon_names.flame_strike) > random_num(3) && 
+                chance(GS.boons.has(boon_names.flame_strike), 3) && 
                 direction.within_radius(1) && !direction.is_origin() &&
                 this.check_empty(pos)
             ){
@@ -8846,12 +9047,12 @@ class GameMap{
         if(this.#floor_num % AREA_SIZE === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
-            this.#area = next_list[random_num(next_list.length)]();
+            this.#area = rand_from(next_list)();
             floor_description += `\n${this.#area.description}`;
         }
         if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
-            var boss_floor = this.#area.boss_floor_list[random_num(this.#area.boss_floor_list.length)];
+            var boss_floor = rand_from(this.#area.boss_floor_list);
             boss_floor_common(this.#floor_num, this.#area, this); 
             var boss_message = boss_floor(this.#floor_num, this.#area, this);
             floor_description += `\n${boss_message}`;
@@ -8986,7 +9187,7 @@ class GameMap{
         var stunned = this.stun_tile(pos.plus(direction));
         if( // Pressure points boon
             stunned && 
-            GS.boons.has(boon_names.pressure_points) > random_num(3) && 
+            chance(GS.boons.has(boon_names.pressure_points), 3) && 
             !direction.is_origin()
         ){
             this.player_attack(direction);
@@ -9089,11 +9290,10 @@ function grid_space(area){
 
 
 class GameState{
-    /** @type {GameMap} The map of the current floor.*/
     map;
-    /** @type {MoveDeck} The player's deck of cards.*/
     deck;
     boons;
+    controls;
     #player_turn_lock;
     #text_log;
     constructor(){
@@ -9111,6 +9311,7 @@ class GameState{
         var start = randomize_arr(STARTING_AREA)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = STARTING_DECK();
+        this.controls = new KeyBind();
 
         var starting_text = `${start.description}\n${welcome_message}`;
         say(starting_text, false);
@@ -9133,8 +9334,8 @@ class GameState{
 
         this.refresh_deck_display();
         display.display_message(UIIDS.shop_instructions, mod_deck);
-        display.swap_screen(DISPLAY_DIVISIONS, UIIDS.game_screen);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         this.#player_turn_lock = true;
     }
     /** 
@@ -9258,7 +9459,7 @@ class GameState{
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
                     this.player_action(pattack(action.change.x, action.change.y));
                 }
-                if(moved && random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                if(moved && chance(GS.boons.has(boon_names.slime_trail), 2)){
                     this.map.add_tile(corrosive_slime_tile(), previous_location);
                 }
                 break;
@@ -9279,7 +9480,7 @@ class GameState{
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
                 var previous_location = this.map.get_player_location();
                 while(this.map.player_move(action.change)){
-                    if(random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                    if(chance(GS.boons.has(boon_names.slime_trail), 2)){
                         this.map.add_tile(corrosive_slime_tile(), previous_location);
                     }
                     previous_location = this.map.get_player_location();
@@ -9316,7 +9517,7 @@ class GameState{
         display_map(this.map);
         this.deck.deal();
         this.refresh_deck_display();
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         await delay(ANIMATION_DELAY);
         display_map(this.map);
         this.unlock_player_turn();
@@ -9330,80 +9531,12 @@ class GameState{
         // Their deck contents are also displayed.
         // Options to remove cards will not be displayed if the deck is at the minimum size already.
         display.remove_children(UIIDS.move_buttons);
-        display.remove_children(UIIDS.add_card);
-        display.remove_children(UIIDS.remove_card);
         display.remove_children(UIIDS.display_deck);
+        display.display_message(UIIDS.shop_message, ``);
+        var shop = new Shop(this.deck);
         display_entire_deck(this.deck);
-        this.#generate_add_row(UIIDS.add_card);
-        this.#generate_remove_row(UIIDS.remove_card);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.shop);
-    }
-    /** 
-     * Creates the row of cards that can be added to the deck.
-     * @param {string} table The table where it should be displayed.
-    */
-    #generate_add_row(table){
-        // Get card choices
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
-        var add_list_generators = rand_no_repeates(COMMON_CARDS, amount);
-        var chance_of_rare = random_num(4);
-        if(chance_of_rare < add_list_generators.length){
-            var rare = rand_no_repeates(RARE_CARDS, 1);
-            add_list_generators[chance_of_rare] = rare[0];
-        }
-        var add_list = add_list_generators.map(g => g());
-        add_list.unshift(add_card_symbol())
-        // Display cards
-        var make_add_card = function(card, position, gamestate){
-            return function(){
-                if(position > 0){
-                    gamestate.deck.add(card);
-                    gamestate.new_floor();
-                }
-            }
-        }
-        var row = [];
-        for(var i = 0; i < add_list.length; ++i){
-            let card = add_list[i];
-            row.push({
-                name: card.name,
-                pic: card.pic,
-                on_click: make_add_card(card, i, this)
-            })
-        }
-        display.add_tb_row(table, row, CARD_SCALE);
-    }
-    /** 
-     * Creates the row of cards that can be removed from the deck.
-     * @param {string} table The table where it should be displayed.
-     * */
-    #generate_remove_row(table){
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
-        var remove_list = this.deck.get_rand_cards(amount);
-        if(remove_list.length > 0){
-            remove_list.unshift(remove_card_symbol());
-        }
-        else{
-            remove_list.unshift(deck_at_minimum_symbol());
-        }
-        var make_remove_card = function(card, position, gamestate){
-            return function(){
-                if(position > 0){
-                    gamestate.deck.remove(card.id);
-                    gamestate.new_floor();
-                }
-            }
-        }
-        var row = [];
-        for(var i = 0; i < remove_list.length; ++i){
-            let card = remove_list[i];
-            row.push({
-                name: card.name,
-                pic: card.pic,
-                on_click: make_remove_card(card, i, this)
-            });
-        }
-        display.add_tb_row(table, row, CARD_SCALE);
+        refresh_shop_display(shop);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.shop);
     }
     /**
      * Called when the player dies. Gives the option to restart.
@@ -9518,6 +9651,156 @@ class GameState{
 
 
 
+
+
+class KeyBind{
+    #controls
+    alternate_is_pressed
+    constructor(){
+        if(!KeyBind.is_valid(DEFAULT_CONTROLS)){
+            throw new Error(ERRORS.invalid_value);
+        }
+        this.#controls = DEFAULT_CONTROLS;   
+        this.alternate_is_pressed = false;
+    }
+    stage(key){
+        var stage = this.#controls.stage;
+        var key_num = stage.direction.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`);
+            return true;
+        }
+        key_num = stage.card.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.hand_display} 0 ${key_num}`);
+            return true;
+        }
+        key_num = stage.info.indexOf(key);
+        if(key_num >= 0){
+            display.click(UIIDS.move_info);
+            return true;
+        }
+        key_num = stage.retry.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.retry_button} 0 0`);
+            return true;
+        }
+        return false;
+    }
+    shop(key){
+        var shop = this.#controls.shop;
+        var key_num = shop.add.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.add_card} 0 ${key_num + 1}`);
+            return true;
+        }
+        var key_num = shop.remove.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.remove_card} 0 ${key_num + 1}`);
+            return true;
+        }
+        var key_num = shop.confirm.indexOf(key);
+        if(key_num >= 0){
+            display.click(UIIDS.shop_confirm);
+            return true;
+        }
+        return false;
+    }
+    chest(key){
+        var chest = this.#controls.chest;
+        var key_num = chest.choose.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.contents} 0 ${key_num}`);
+            return true;
+        }
+        var key_num = chest.confirm.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.chest_confirm_row} 0 ${1}`);
+            return true;
+        }
+        var key_num = chest.reject.indexOf(key);
+        if(key_num >= 0){
+            display.click(`${UIIDS.chest_confirm_row} 0 ${0}`);
+            return true;
+        }
+        return false;
+    }
+    toggle_press(key){
+        if(this.#controls.toggle.alt.indexOf(key) >= 0){
+            this.alternate_is_pressed = true;
+            return true;
+        }
+        return false;
+    }
+    toggle_unpress(key){
+        if(this.#controls.toggle.alt.indexOf(key) >= 0){
+            this.alternate_is_pressed = false;
+            return true;
+        }
+        return false;
+    }
+    static is_valid(controls){
+        if(!same_structure(DEFAULT_CONTROLS, controls)){
+            throw new Error(ERRORS.missing_property);
+        }
+        var toggle = KeyBind.#join_all(controls.toggle);
+        var stage = [
+            ...toggle,
+            this.#join_all(controls.stage)
+        ];
+        var shop = [
+            ...toggle,
+            this.#join_all(controls.shop)
+        ];
+        var chest = [
+            ...toggle,
+            this.#join_all(controls.chest)
+        ];
+        for(var list of [toggle, stage, shop, chest]){
+            var unique = new Set(list);
+            if(unique.size !== list.length){
+                return false;
+            }
+        }
+        return true;
+    }
+    set(controls){
+        this.#controls = controls;
+        this.alternate_is_pressed = false;
+    }
+    get(){
+        return {
+            stage: {
+                direction: [...this.#controls.stage.direction],
+                card: [...this.#controls.stage.card],
+                info: [...this.#controls.stage.info],
+                retry: [...this.#controls.stage.retry]
+            },
+            shop: {
+                add: [...this.#controls.shop.add],
+                remove: [...this.#controls.shop.remove],
+                confirm: [...this.#controls.shop.confirm],
+            },
+            chest: {
+                choose: [...this.#controls.chest.choose],
+                confirm: [...this.#controls.chest.confirm],
+                reject: [...this.#controls.chest.reject]
+            },
+            toggle: {
+                alt: [...this.#controls.toggle.alt]
+            }
+        }
+    }
+    static #join_all(obj){
+        var list = [];
+        for(var prop in obj){
+            if(Array.isArray(prop)){
+                list.concat(prop);
+            }
+        }
+        return list;
+    }
+}
 // ----------------MoveDeck.js----------------
 // The MoveDeck class contains the player's current deck of move cards.
 
@@ -9698,7 +9981,9 @@ class MoveDeck{
      * Returns the whole decklist.
      */
     get_deck_info(){
-        return [...this.#decklist];
+        return this.#decklist.map((card) => {
+            return Object.assign({}, card);
+        });
     }
     /**
      * Displays the whole discard pile.
@@ -9787,6 +10072,136 @@ class MoveDeck{
         return new_deck;
     }
 }
+
+class ScreenTracker{
+    div;
+    current;
+    constructor(divisions){
+        this.div = divisions;
+    }
+    swap(division){
+        if(division !== undefined && this.div.find((d) => {d === division}) === -1){
+            throw new Error(ERRORS.value_not_found)
+        }
+        display.swap_screen(this.div, division);
+        this.current = division;
+    }
+    is(division){
+        return division === this.current;
+    }
+}
+
+const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.controls]);
+const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest]);
+const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand]);
+
+class Shop{
+    #deck;
+    #has_skill_trading;
+    #add_row;
+    #add_index;
+    #remove_row;
+    #remove_index;
+
+    constructor(deck){
+        this.#deck = deck;
+        this.#has_skill_trading = GS.boons.has(boon_names.skill_trading) > 0;
+        this.#generate_add_row();
+        this.#generate_remove_row();
+    }
+    #generate_add_row(){
+        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        var add_list_generators = rand_no_repeates(COMMON_CARDS, amount);
+        var index_of_rare = random_num(4);
+        if(index_of_rare < add_list_generators.length){
+            // Growing the number of options guarantees a rare.
+            var rare = rand_no_repeates(RARE_CARDS, 1);
+            add_list_generators[index_of_rare] = rare[0];
+        }
+        this.#add_row = add_list_generators.map((g) => {return g()});
+    }
+    #generate_remove_row(){
+        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        this.#remove_row = this.#deck.get_rand_cards(amount);
+    }
+    select_add_row(index){
+        if(!this.#has_skill_trading){
+            this.#remove_index = undefined;
+        }
+        if(this.#add_index === index){
+            this.#add_index = undefined;
+        }
+        else{
+            this.#add_index = index;
+        }
+    }
+    select_remove_row(index){
+        if(!this.#has_skill_trading){
+            this.#add_index = undefined;
+        }
+        if(this.#remove_index === index){
+            this.#remove_index = undefined;
+        }           
+        else{
+            this.#remove_index = index;
+        }
+    }
+    get_add_row(){
+        var s = this;
+        var make_add_card = function(position){
+            return function(){
+                s.select_add_row(position);
+            }
+        }
+        var row = this.#add_row.map((card, i) => {
+            return {
+                name: card.name,
+                pic: card.pic,
+                card,
+                on_click: make_add_card(i),
+                selected: s.#add_index === i
+            }
+        })
+        row.unshift(add_card_symbol());
+        return row;
+    }
+    get_remove_row(){
+        var s = this;
+        var make_remove_card = function(position){
+            return function(){
+                s.select_remove_row(position);
+            }
+        }
+        var row = this.#remove_row.map((card, i) => {
+            return {
+                name: card.name,
+                pic: card.pic,
+                card,
+                on_click: make_remove_card(i),
+                selected: s.#remove_index === i
+            }
+        });
+        var symbol = this.#remove_row.length > 0 ? remove_card_symbol() : deck_at_minimum_symbol();
+        row.unshift(symbol);
+        return row;
+    }
+    confirm(){
+        if(this.#add_index !== undefined){
+            this.#deck.add(this.#add_row[this.#add_index]);
+        }
+        if(this.#remove_index !== undefined){
+            this.#deck.remove(this.#remove_row[this.#remove_index].id);
+        }
+    }
+    is_valid_selection(){
+        var adding = this.#add_index !== undefined;
+        var removing = this.#remove_index !== undefined;
+        if(this.#has_skill_trading){
+            return adding || removing;
+        }
+        return adding || removing && !(adding && removing);
+    }
+}
 // ----------------TagList.js----------------
 // Class to contain a list of tags for true or false questions about a tile.
 
@@ -9837,7 +10252,7 @@ function generate_basement_area(){
 
 /** @type {FloorGenerator}*/
 function generate_basement_floor(floor_num, area, map){
-    if(random_num(7) === 0){
+    if(chance(1, 7)){
         many_walls_terrain(floor_num, area, map)
     }
     else{
@@ -9901,7 +10316,7 @@ function generate_forest_area(){
 
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){
-    if(random_num(16) === 0 && !floor_has_chest(floor_num % AREA_SIZE)){
+    if(chance(1, 12) && !floor_has_chest(floor_num % AREA_SIZE)){
         swaying_nettle_terrain(floor_num, area, map);
         generate_normal_floor(floor_num / 2, area, map);
     }
@@ -9912,7 +10327,7 @@ function generate_forest_floor(floor_num, area, map){
 }
 /** @type {FloorGenerator}*/
 function enticing_fruit_tree_terrain(floor_num, area, map){
-    if(random_num(5) > 2){
+    if(chance(2, 5)){
         map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
@@ -9941,7 +10356,7 @@ function generate_library_area(){
 
 /** @type {FloorGenerator}*/
 function generate_library_floor(floor_num, area, map){
-    if(random_num(3) !== 0){
+    if(chance(2, 3)){
         bookshelf_terrain(floor_num, area, map);
     }
     generate_normal_floor(floor_num, area, map);
@@ -9968,7 +10383,14 @@ function generate_magma_area(){
 }
 /** @type {FloorGenerator}*/
 function generate_magma_floor(floor_num, area, map){
-    if(random_num(4) === 0){
+    if(chance(1, 6)){
+        magma_lake_terrain(floor_num, area, map);
+        magma_lake_terrain(floor_num, area, map);
+        boulder_terrain(floor_num, area, map);
+        generate_normal_floor(floor_num, area, map);
+        return;
+    }
+    else if(chance(1, 4)){
         magma_border_terrain(floor_num, area, map);
     }
     else{
@@ -9995,32 +10417,50 @@ function magma_border_terrain(floor_num, area, map){
 function magma_terrain(floor_num, area, map){
     var magma_amount = random_num(20) + 5;
     for(var i = 0; i < magma_amount; ++i){
-        map.spawn_safely(lava_pool_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(lava_pool_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
 /** @type {FloorGenerator}*/
 function repulsor_terrain(floor_num, area, map){
     var repulsor_amount = 0;
     for(var i = 0; i < 3; ++i){
-        if(random_num(4) === 0){
+        if(chance(1, 4)){
             ++repulsor_amount;
         }
     }
     for(var i = 0; i < repulsor_amount; ++i){
-        map.spawn_safely(repulsor_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(repulsor_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
 /** @type {FloorGenerator}*/
 function boulder_terrain(floor_num, area, map){
     var boulder_amount = random_num(6) - 2;
     for(var i = 0; i < boulder_amount; ++i){
-        map.spawn_safely(magmatic_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(magmatic_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
     boulder_amount = random_num(6) - 2;
     for(var i = 0; i < boulder_amount; ++i){
-        map.spawn_safely(animated_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(animated_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 
+}
+
+/** @type {FloorGenerator}*/
+function magma_lake_terrain(floor_num, area, map){
+    var x_start = random_num(FLOOR_WIDTH - 5) + 1;
+    var x_end = x_start + 3;
+    var y_start = random_num(FLOOR_HEIGHT - 5) + 1;
+    var y_end = y_start + 3;
+    cross(
+        range(x_start, x_end + 1),
+        range(y_start, y_end + 1),
+        (x, y) => {
+            if(!(x === x_start || x === x_end) || !(y === y_start || y === y_end)){
+                try{map.add_tile(lava_pool_tile(), new Point(x, y))}
+                catch{}
+            }
+        }
+    )
 }
 /** @type {AreaGenerator}*/
 function generate_ruins_area(){
@@ -10055,8 +10495,13 @@ function generate_sewers_area(){
 
 /** @type {FloorGenerator}*/
 function generate_sewers_floor(floor_num, area, map){
-    var terrains = [slime_terrain, grate_terrain];
-    terrains[random_num(terrains.length)](floor_num, area, map);
+    if(chance(1, 8)){
+        river_terrain(floor_num, area, map);
+    }
+    else{
+        var terrains = [slime_terrain, grate_terrain];
+        rand_from(terrains)(floor_num, area, map);
+    }
     generate_normal_floor(floor_num, area, map);
 }
 
@@ -10073,6 +10518,25 @@ function grate_terrain(floor_num, area, map){
     for(var i = 0; i < grate_amount; ++i){
         map.spawn_safely(sewer_grate_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
+}
+
+function river_terrain(floor_num, area, map){
+    var left = random_num(FLOOR_WIDTH / 2 - 1) + 1;
+    var right = (FLOOR_WIDTH / 2) - left;
+    var x_vals = [...range(0, left), ...range(FLOOR_WIDTH - right, FLOOR_WIDTH)];
+    var y = random_num(FLOOR_HEIGHT - 4) + 2;
+    for(var x of x_vals){
+        map.add_tile(sewer_grate_tile(), new Point(x, y));
+        map.add_tile(corrosive_slime_tile(), new Point(x, y + 1));        
+        map.add_tile(corrosive_slime_tile(), new Point(x, y - 1));        
+    }
+    cross(
+        [left, FLOOR_WIDTH - (right + 1)], 
+        [1, 0, -1],
+        (e1, e2) => {
+            map.add_tile(corrosive_slime_tile(), new Point(e1, y + e2));
+        }
+    )
 }
 // ----------------Areas.js----------------
 // File containing functions used by areas.
@@ -10214,9 +10678,9 @@ function shadow_of_self_floor(floor_num,  area, map){
 
     // Swaps tab to the one containing it's hand
     display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.shadow_hand, function(){
-        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.shadow_hand);
+        SIDEBAR_DIVISIONS.swap(UIIDS.shadow_hand);
     });
-    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.shadow_hand);
+    SIDEBAR_DIVISIONS.swap(UIIDS.shadow_hand);
     refresh_shadow_hand_display(shadow.deck.get_hand_info());
 
 
@@ -10256,7 +10720,7 @@ function two_headed_serpent_floor(floor_num, area, map){
         var position = current.copy();
         var dirs = [new Point(random_sign(), 0), new Point(0, random_sign())];
         for(var i = 1; i < serpent_length; ++i){
-            var next = rand_no_repeates(dirs, 1)[0];
+            var next = rand_from(dirs);
             position.plus_equals(next);
             if(map.check_empty(position)){
                 locations.push(next);
@@ -10301,7 +10765,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     for(var i = 0; i < 8; ++i){
         var position = map.random_empty();
         map.add_tile(wall_tile(), position);
-        map.add_tile(damaged_wall_tile(), position.plus(rand_no_repeates(ALL_DIRECTIONS, 1)[0]));
+        map.add_tile(damaged_wall_tile(), position.plus(rand_from(ALL_DIRECTIONS)));
     }
     return two_headed_serpent_floor_message;
 }
@@ -10361,7 +10825,7 @@ function generate_normal_floor(floor_num, area, map){
             }
         }
     }
-    if(GS.boons.has(boon_names.frugivore) > random_num(2)){
+    if(chance(GS.boons.has(boon_names.frugivore), 2)){
         var spawned = map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
@@ -11188,13 +11652,13 @@ function explain_point(p){
         return move_types.you;
     }
     else if(vertical === undefined){
-        return `${horizontal} ${Math.abs(p.x)}`;
+        return `${horizontal}${Math.abs(p.x)}`;
     }
     else if(horizontal === undefined){
-        return `${vertical} ${Math.abs(p.y)}`;
+        return `${vertical}${Math.abs(p.y)}`;
     }
     else{
-        return `${horizontal} ${Math.abs(p.x)}, ${vertical} ${Math.abs(p.y)}`;
+        return `${horizontal}${Math.abs(p.x)}, ${vertical}${Math.abs(p.y)}`;
     }
 }
 
@@ -12435,7 +12899,7 @@ function stunning_punch_diagonal(){
 /** @type {CardGenerator} Shown in shop to denote adding a card to your deck.*/
 function add_card_symbol(){
     return{
-        name: `Add a card to your deck`,
+        name: `Add`,
         pic: `${IMG_FOLDER.other}plus.png`,
         options: new ButtonGrid()
     }
@@ -12443,7 +12907,7 @@ function add_card_symbol(){
 /** @type {CardGenerator} Shown in show to denote removing a card from your deck.*/
 function remove_card_symbol(){
     return{
-        name: `Remove a card from your deck`,
+        name: `Remove`,
         pic: `${IMG_FOLDER.other}minus.png`,
         options: new ButtonGrid()
     }
@@ -12451,7 +12915,7 @@ function remove_card_symbol(){
 /** @type {CardGenerator} Shown in shop ind=stead of the remove symbol when your deck is at the minimum size.*/
 function deck_at_minimum_symbol(){
     return{
-        name: `Your deck is at the minimum size`,
+        name: `Minimum`,
         pic: `${IMG_FOLDER.other}x.png`,
         options: new ButtonGrid()
     }
@@ -12464,8 +12928,9 @@ BOON_LIST = [
     frugivore, future_sight, gruntwork, hoarder, larger_chests, 
     limitless, pacifism, pain_reflexes, perfect_the_basics, picky_shopper, 
     practice_makes_perfect, pressure_points, rebirth, repetition, retaliate, 
-    roar_of_challenge, safe_passage, serenity, slime_trail, sniper, 
-    spiked_shoes, spontaneous, stable_mind, stealthy, thick_soles
+    roar_of_challenge, safe_passage, serenity, skill_trading, slime_trail, 
+    sniper, spiked_shoes, spontaneous, stable_mind, stealthy, 
+    thick_soles
 ];
 
 function change_max_health(amount){
@@ -12539,10 +13004,10 @@ function brag_and_boast(){
 
 function pick_brag_and_boast(){
     for(var i = 0; i < 2; ++i){
-        var boss = rand_no_repeates(BOSS_LIST, 1)[0]();
-        var card = rand_no_repeates(boss.card_drops, 1)[0]();
+        var boss = rand_from(BOSS_LIST)();
+        var card = rand_from(boss.card_drops)();
         GS.deck.add(card);
-        var card = rand_no_repeates(CONFUSION_CARDS, 1)[0]();
+        card = rand_from(CONFUSION_CARDS)();
         GS.deck.add(card);
     }
 }
@@ -12563,7 +13028,10 @@ function prereq_chilly_presence(){
 }
 
 function proc_chilly_presence(tile){
-    if(!tile.tags.has(TAGS.boss) && GS.boons.has(boon_names.chilly_presence) > random_num(6)){
+    if(
+        !tile.tags.has(TAGS.boss) && 
+        chance(GS.boons.has(boon_names.chilly_presence), 6)
+    ){
         stun(tile);
     }
 }
@@ -12712,9 +13180,9 @@ function future_sight(){
 
 function pick_future_sight(){
     display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.deck_order, function(){
-        display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
+        SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
     });
-    display.swap_screen(SIDEBAR_DIVISIONS, UIIDS.deck_order);
+    SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
 }
 
 function gruntwork(){
@@ -12967,6 +13435,15 @@ function pick_serenity(){
         GS.deck.alter_min(-1);
     }
 }
+
+function skill_trading(){
+    return {
+        name: boon_names.skill_trading,
+        pic: `${IMG_FOLDER.boons}skill_trading.png`,
+        description: skill_trading_description,
+    }
+}
+
 function slime_trail(){
     return {
         name: boon_names.slime_trail,
@@ -13068,6 +13545,27 @@ function adrenaline_rush(){
 
 // Hitting more than 1 enemy gives an extra turn.
 
+function choose_your_path(){
+    return {
+        name: boon_names.choose_your_path,
+        pic: `${IMG_FOLDER.boons}choose_your_path.png`,
+        description: choose_your_path_description
+    }
+}
+
+// Pick where to go after each boss fight
+// Boss exits have the background
+
+function deck_stacking(){
+    return {
+        name: boon_names.deck_stacking,
+        pic: `${IMG_FOLDER.boons}deck_stacking.png`,
+        description: deck_stacking_description
+    }
+}
+
+// Choose the order of your deck when shuffling.
+
 function duplicate(){
     return {
         name: boon_names.duplicate,
@@ -13075,6 +13573,8 @@ function duplicate(){
         description: duplicate_description
     }
 }
+
+// Get a copy of any card in your deck
 
 function learn_from_mistakes(){
     return {
@@ -13085,10 +13585,8 @@ function learn_from_mistakes(){
         unlocks: [learn_from_mistakes]
     }
 }
-// Not Finished
-// Todo:
-//  description
-//  implement on_pick
+
+// Delete any card twice
 function shattered_glass(){
     return {
         name: boon_names.shattered_glass,
@@ -13107,14 +13605,7 @@ function on_pick_shattered_glass(){
     change_max_health(-1);
 }
 
-function skill_trading(){
-    return {
-        name: boon_names.skill_trading,
-        pic: `${IMG_FOLDER.boons}skill_trading.png`,
-        description: skill_trading_description,
-    }
-}
-
+// Enemies explode on death
 
 function stubborn(){
     return {
@@ -13123,6 +13614,5 @@ function stubborn(){
         description: stubborn_description,
     }
 }
-// Todo:
-//  description
-//  implement
+
+// skip the shop

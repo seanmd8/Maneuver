@@ -3,11 +3,10 @@
 
 
 class GameState{
-    /** @type {GameMap} The map of the current floor.*/
     map;
-    /** @type {MoveDeck} The player's deck of cards.*/
     deck;
     boons;
+    controls;
     #player_turn_lock;
     #text_log;
     constructor(){
@@ -25,6 +24,7 @@ class GameState{
         var start = randomize_arr(STARTING_AREA)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = STARTING_DECK();
+        this.controls = new KeyBind();
 
         var starting_text = `${start.description}\n${welcome_message}`;
         say(starting_text, false);
@@ -47,8 +47,8 @@ class GameState{
 
         this.refresh_deck_display();
         display.display_message(UIIDS.shop_instructions, mod_deck);
-        display.swap_screen(DISPLAY_DIVISIONS, UIIDS.game_screen);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         this.#player_turn_lock = true;
     }
     /** 
@@ -172,7 +172,7 @@ class GameState{
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
                     this.player_action(pattack(action.change.x, action.change.y));
                 }
-                if(moved && random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                if(moved && chance(GS.boons.has(boon_names.slime_trail), 2)){
                     this.map.add_tile(corrosive_slime_tile(), previous_location);
                 }
                 break;
@@ -193,7 +193,7 @@ class GameState{
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
                 var previous_location = this.map.get_player_location();
                 while(this.map.player_move(action.change)){
-                    if(random_num(2) < GS.boons.has(boon_names.slime_trail)){
+                    if(chance(GS.boons.has(boon_names.slime_trail), 2)){
                         this.map.add_tile(corrosive_slime_tile(), previous_location);
                     }
                     previous_location = this.map.get_player_location();
@@ -230,7 +230,7 @@ class GameState{
         display_map(this.map);
         this.deck.deal();
         this.refresh_deck_display();
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.stage);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         await delay(ANIMATION_DELAY);
         display_map(this.map);
         this.unlock_player_turn();
@@ -244,80 +244,12 @@ class GameState{
         // Their deck contents are also displayed.
         // Options to remove cards will not be displayed if the deck is at the minimum size already.
         display.remove_children(UIIDS.move_buttons);
-        display.remove_children(UIIDS.add_card);
-        display.remove_children(UIIDS.remove_card);
         display.remove_children(UIIDS.display_deck);
+        display.display_message(UIIDS.shop_message, ``);
+        var shop = new Shop(this.deck);
         display_entire_deck(this.deck);
-        this.#generate_add_row(UIIDS.add_card);
-        this.#generate_remove_row(UIIDS.remove_card);
-        display.swap_screen(GAME_SCREEN_DIVISIONS, UIIDS.shop);
-    }
-    /** 
-     * Creates the row of cards that can be added to the deck.
-     * @param {string} table The table where it should be displayed.
-    */
-    #generate_add_row(table){
-        // Get card choices
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
-        var add_list_generators = rand_no_repeates(COMMON_CARDS, amount);
-        var chance_of_rare = random_num(4);
-        if(chance_of_rare < add_list_generators.length){
-            var rare = rand_no_repeates(RARE_CARDS, 1);
-            add_list_generators[chance_of_rare] = rare[0];
-        }
-        var add_list = add_list_generators.map(g => g());
-        add_list.unshift(add_card_symbol())
-        // Display cards
-        var make_add_card = function(card, position, gamestate){
-            return function(){
-                if(position > 0){
-                    gamestate.deck.add(card);
-                    gamestate.new_floor();
-                }
-            }
-        }
-        var row = [];
-        for(var i = 0; i < add_list.length; ++i){
-            let card = add_list[i];
-            row.push({
-                name: card.name,
-                pic: card.pic,
-                on_click: make_add_card(card, i, this)
-            })
-        }
-        display.add_tb_row(table, row, CARD_SCALE);
-    }
-    /** 
-     * Creates the row of cards that can be removed from the deck.
-     * @param {string} table The table where it should be displayed.
-     * */
-    #generate_remove_row(table){
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
-        var remove_list = this.deck.get_rand_cards(amount);
-        if(remove_list.length > 0){
-            remove_list.unshift(remove_card_symbol());
-        }
-        else{
-            remove_list.unshift(deck_at_minimum_symbol());
-        }
-        var make_remove_card = function(card, position, gamestate){
-            return function(){
-                if(position > 0){
-                    gamestate.deck.remove(card.id);
-                    gamestate.new_floor();
-                }
-            }
-        }
-        var row = [];
-        for(var i = 0; i < remove_list.length; ++i){
-            let card = remove_list[i];
-            row.push({
-                name: card.name,
-                pic: card.pic,
-                on_click: make_remove_card(card, i, this)
-            });
-        }
-        display.add_tb_row(table, row, CARD_SCALE);
+        refresh_shop_display(shop);
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.shop);
     }
     /**
      * Called when the player dies. Gives the option to restart.

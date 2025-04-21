@@ -216,6 +216,9 @@ const DisplayHTML = {
             if(to_display.name !== undefined){
                 cell.title = to_display.name;
             }
+            if(to_display.selected === true){
+                cell.classList.add(`selected-element`);
+            }
             var layers = [];
             var image;
             // Foreground images
@@ -266,8 +269,7 @@ const DisplayHTML = {
         table.append(row);
     },
     display_message: function(location, message){
-        var output = message;//wrap_str(message, TEXT_WRAP_WIDTH, ` `);
-        DisplayHTML.get_element(location).innerText = output;
+        DisplayHTML.get_element(location).innerText = message;
     },
     remove_children: function(location){
         var element = DisplayHTML.get_element(location);
@@ -296,44 +298,35 @@ const DisplayHTML = {
         DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add("selected-element");
     },
     press: function(key_press){
-        // Pick direction via keyboard.
         var key = key_press.key.toLowerCase();
-        var key_num = CONTROLS.directional.indexOf(key);
-        if(key_num >= 0){
-            try{
-                DisplayHTML.get_element(`${UIIDS.move_buttons} ${Math.floor(key_num / 3)} ${key_num % 3}`).click();
+        GS.controls.toggle_press(key);
+        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
+            if(GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
+                GS.controls.stage(key);
             }
-            catch(error){
-                if(error.message !== ERRORS.value_not_found){
-                    throw error;
-                }
+            else if(GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
+                GS.controls.shop(key);
             }
-            
-        }
-        // Select card via keyboard.
-        key_num = CONTROLS.card.indexOf(key);
-        if(key_num >= 0){
-            try{
-                var element = DisplayHTML.get_element(`${UIIDS.hand_display} 0 ${key_num}`);
-                element && element.click();
+            else if(GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
+                GS.controls.chest(key);
             }
-            catch(error){
-                if(error.message !== ERRORS.value_not_found){
-                    throw error;
-                }
-            }
-            
-        }
-        key_num = CONTROLS.alt.indexOf(key);
-        if(key_num >= 0){
-            display.shift_is_pressed = true;
         }
     },
     unpress: function(key_press){
         var key = key_press.key.toLowerCase();
-        var key_num = CONTROLS.alt.indexOf(key);
-        if(key_num >= 0){
-            display.shift_is_pressed = false;
+        GS.controls.toggle_unpress(key);
+    },
+    click: function(location){
+        try{
+            var element = DisplayHTML.get_element(location);
+            if(element !== undefined && element.onclick !== undefined){
+                element.click();
+            }
+        }
+        catch(error){
+            if(error.message !== ERRORS.value_not_found){
+                throw error;
+            }
         }
     },
     create_visibility_toggle: function(location, header, on_click){
@@ -392,7 +385,7 @@ const DisplayHTML = {
         for(var i = 0; i < par_arr.length; ++i){
             var body_text = document.createElement(`p`);
             body_text.id = `${body_div_id} text ${i}`;
-            body_text.innerText = wrap_str(par_arr[i], TEXT_WRAP_WIDTH, ` `);
+            body_text.innerText = par_arr[i];//wrap_str(par_arr[i], TEXT_WRAP_WIDTH, ` `);
             body_text.style.display = `inline`;
             body_div.append(body_text);
             if(i < inline_arr.length){
@@ -405,7 +398,7 @@ const DisplayHTML = {
         destination.append(body_div);
         return body_div_id;
     },
-    create_button: function(label, id, on_click = undefined){
+    create_button: function(label, id = undefined, on_click = undefined){
         var button = document.createElement(`input`);
         button.type = `button`;
         button.id = id;
@@ -414,6 +407,17 @@ const DisplayHTML = {
         }
         button.value = label;
         return button;
+    },
+    set_button: function(location, text, on_click, clickable){
+        var button = DisplayHTML.get_element(location, HTMLInputElement);
+        button.onclick = on_click;
+        button.value = text;
+        if(clickable){
+            button.classList.remove(`greyed-out`);
+        }
+        else{
+            button.classList.add(`greyed-out`);
+        }
     },
     create_image: function(src, id, size){
         var image = document.createElement(`img`);
@@ -488,13 +492,37 @@ const DisplayHTML = {
             location.append(container);
         }
     },
-    click(location){
-        var element = DisplayHTML.get_element(location);
-        if(element.onclick !== undefined){
-            element.click();
-        }
+    add_header: function(location, description){
+        var header = document.createElement(`h2`);
+        header.innerText = description;
+        var place = DisplayHTML.get_element(location);
+        place.append(header);
     },
-    shift_is_pressed: false,
+    control_box: function(location, controls, description){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-box`);
+        var tb = document.createElement(`table`);
+        for(var r = 0; r < Math.ceil(controls.length / 3); ++r){
+            var start = r * 3;
+            var row = document.createElement(`tr`);
+            for(var c = 0; c < 3 && c + start < controls.length; ++c){
+                var button_text = controls[start + c];
+                if(KEYBOARD_SYMBOL_MAP.has(button_text)){
+                    button_text = KEYBOARD_SYMBOL_MAP.get(button_text);
+                }
+                row.append(DisplayHTML.create_button(button_text));
+            }
+            tb.append(row);
+        }
+        var table_div = document.createElement(`div`);
+        table_div.append(tb);
+        div.append(table_div);
+        var p = document.createElement(`p`);
+        p.innerText = description;
+        div.append(p);
+        var place = DisplayHTML.get_element(location);
+        place.append(div);
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){

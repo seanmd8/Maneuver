@@ -80,6 +80,36 @@
     height: fit-content;
     min-height: 23px;
 }
+
+.control-box {
+    display: flex;
+    align-items: center;
+    border-style: solid;
+    height: 91px;
+    width: 500px;
+    margin: 2px;
+    font-size: 20px;
+    background-color: lightblue;
+}
+.control-box div{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 91px;
+    width: 90px;
+    border-right: solid;
+    background-color: cadetblue;
+}
+.control-box p{
+    margin-left: 10px;
+}
+.control-box div table tr input{
+    min-width: 27px;
+    height: 27px;
+    margin-top: 1px;
+    margin-left: 1px;
+    font-size: 17px;
+}
 /* File containing assorted styles used in multiple places. */
 
 /* Class to remove the space between certain elements. */
@@ -125,9 +155,15 @@
 
 /* Class to show something as 'Greyed Out'.*/
 .greyed-out {
-    opacity: 0.8;
+    opacity: 0.7;
 }
 /* File containing styles used by the guidebook screen. */
+
+.guide-style{
+    background-color: beige;
+}
+
+/* Styles the navbar */
 
 .navbar {
     background-color: blue;
@@ -149,13 +185,17 @@
 
 /* Styles a whole section of the guidebook. */
 .guidebook-section {
-    margin-left: 20px;
+    padding-left: 20px;
+    padding-top: 10px;
+    border-style: solid;
+    border-top: none;
+    border-color: burlywood;
 }
 
 /* Styles the header of a guidebook section. */
 .guidebook-section h2 {
     margin-bottom: 5px;
-    margin-top: 10px;
+    margin-top: 0px;
     font-family: Copperplate, Copperplate Gothic Light, fantasy;
     font-size: 30px;
     text-decoration: underline;
@@ -187,7 +227,7 @@
     border-color: slategray;
     border-style: solid;
     padding: 5px;
-    margin-top: 5px;
+    margin: 5px 0px 5px 0px;
 }
 .shop-section-box legend {
     font-weight: bold;
@@ -196,6 +236,38 @@
     border-width: 2px;
 }
 
+.shop-width{
+    width: fit-content;
+}
+.shop-confirm {
+    height: 35px;
+    width: 80px;
+    margin-right: 5px;
+    border-width: medium;
+    border-color: darkblue;
+    background-color: cadetblue;
+    font-weight: bolder;
+}
+.shop-button-container{
+    height: 120px;
+    width: fit-content;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.scrollable-text {
+    overflow-y: scroll;
+    overflow-x: scroll;
+    text-align: left;
+    height: 120px;
+    width: 375px;
+    padding: 5px;
+    border-color: slategrey;
+    border-style: solid;
+    border-width: medium;
+    text-wrap: nowrap;
+    display: inline-block;
+}
 /* File containing styles used by the shop screen. */
 
 /* Styles the game map. */
@@ -306,6 +378,13 @@
 }
 
 /* Styles the button that lets you restart after dying. */
+.center-retry-box {
+    width: 140px;
+    height: 140px;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: top;
+}
 .retry-button-box tr input {
     background-color: black;
     color: aqua;
@@ -315,6 +394,7 @@
     border-radius: 15px / 50%;
     padding: 5px 10px;
     font-weight: bold;
+    font-size: large;
 }
 .retry-button-box tr input:hover {
     background-color: gold;
@@ -463,4 +543,15 @@
 /* Selected map square */
 .selected-tile {
     box-shadow: 0 0 0 1px darkslategray;
+}
+
+.message-box {
+    overflow-y: scroll;
+    height: 100px;
+    width: 450px;
+    padding: 5px;
+    border-color:rgb(128, 57, 25);
+    border-style: solid;
+    border-width: 4px;
+    font-size: 18px;
 }
