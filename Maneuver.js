@@ -839,6 +839,9 @@ const DisplayHTML = {
                 GS.controls.chest(key);
             }
         }
+        if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
+            display.set_control(key);
+        }
     },
     unpress: function(key_press){
         var key = key_press.key.toLowerCase();
@@ -1020,12 +1023,49 @@ const DisplayHTML = {
             location.append(container);
         }
     },
-    add_header: function(location, description){
+    add_controls_header: function(location, description, edit_function){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-header`);
         var header = document.createElement(`h2`);
         header.innerText = description;
+        var edit_mode = function(controls){
+            return () => {
+                setup_controls_page();
+                DisplayHTML.remove_children(location);
+                edit_function(controls);
+            }
+        }
+        var edit_button = DisplayHTML.create_button(edit_controls_message, undefined, edit_mode(GS.controls.get()));
+        var default_button = DisplayHTML.create_button(default_controls_message, undefined, edit_mode(new KeyBind().get()));
+        div.append(header);
+        div.append(edit_button);
+        div.append(default_button);
         var place = DisplayHTML.get_element(location);
-        place.append(header);
+        place.append(div);
     },
+    add_edit_controls_header: function(location, description, view_function, controls){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-header`);
+        var header = document.createElement(`h2`);
+        header.innerText = description;
+        var save_button = DisplayHTML.create_button(save_controls_message, undefined, () => {
+            if(KeyBind.is_valid(controls)){
+                GS.controls.set(controls);
+                DisplayHTML.remove_children(location);
+                view_function();
+            }
+        });
+        var undo_edit_button = DisplayHTML.create_button(undo_edit_controls_message, undefined, () => {
+            DisplayHTML.remove_children(location);
+            view_function();
+        });
+        div.append(header);
+        div.append(save_button);
+        div.append(undo_edit_button);
+        var place = DisplayHTML.get_element(location);
+        place.append(div);
+    },
+
     control_box: function(location, controls, description){
         var div = document.createElement(`div`);
         div.classList.add(`control-box`);
@@ -1050,6 +1090,47 @@ const DisplayHTML = {
         div.append(p);
         var place = DisplayHTML.get_element(location);
         place.append(div);
+    },
+    control_edit_box: function(location, controls, description){
+        var edit = (display, button, controls, i) => {
+            return () => {
+                var unclicked = button.classList.contains(`edit-control`);
+                var boxes = document.querySelectorAll(`#${location} .control-edit-box div input`);
+                for(var box of boxes){
+                    box.classList.remove(`edit-control`);
+                }
+                display.set_control = undefined;
+                if(!unclicked){
+                    button.classList.add(`edit-control`);
+                    display.set_control = (key) => {
+                        controls[i] = key;
+                        button.value = KEYBOARD_SYMBOL_MAP.has(key) ? KEYBOARD_SYMBOL_MAP.get(key) : key;
+                        button.classList.remove(`edit-control`);
+                        display.set_control = undefined;
+                        console.log(key);
+                    }
+                    console.log(`${i} of ${controls}`);
+                }
+            }
+        }
+        for(var i = 0; i < controls.length; ++i){
+            var div = document.createElement(`div`);
+            div.classList.add(`control-edit-box`);
+            var button_div = document.createElement(`div`);
+            var button_text = controls[i];
+            if(KEYBOARD_SYMBOL_MAP.has(button_text)){
+                button_text = KEYBOARD_SYMBOL_MAP.get(button_text);
+            }
+            var button = DisplayHTML.create_button(button_text);
+            button.onclick = edit(this, button, controls, i);
+            button_div.append(button);
+            div.append(button_div);
+            var p = document.createElement(`p`);
+            p.innerText = (controls.length === 1 ? description : `${description} ${i + 1}`);
+            div.append(p);
+            var place = DisplayHTML.get_element(location);
+            place.append(div);
+        }
     },
     stop_space_scrolling: function(){
         window.addEventListener('keydown', (e) => {
@@ -1325,25 +1406,63 @@ function refresh_shop_display(shop){
 }
 
 function setup_controls_page(){
-    var controls = GS.controls.get();
-
-    display.add_header(UIIDS.controls, CONTROLS_TEXT.stage.header);
-    display.control_box(UIIDS.controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
-    display.control_box(UIIDS.controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
-    display.control_box(UIIDS.controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
-    display.control_box(UIIDS.controls, controls.stage.info, CONTROLS_TEXT.stage.info);
-    display.control_box(UIIDS.controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
-
-    display.add_header(UIIDS.controls, CONTROLS_TEXT.shop.header);
-    display.control_box(UIIDS.controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
-    display.control_box(UIIDS.controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
-    display.control_box(UIIDS.controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
-
-    display.add_header(UIIDS.controls, CONTROLS_TEXT.chest.header);
-    display.control_box(UIIDS.controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
-    display.control_box(UIIDS.controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
-    display.control_box(UIIDS.controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+    display.remove_children(UIIDS.stage_controls);
+    controls_stage_section();
+    display.remove_children(UIIDS.shop_controls);
+    controls_shop_section();
+    display.remove_children(UIIDS.chest_controls);
+    controls_chest_section();
 }
+
+function controls_stage_section(){
+    var controls = GS.controls.get();
+    display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
+    display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
+    display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+
+function controls_shop_section(){
+    var controls = GS.controls.get();
+    display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
+    display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
+    display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
+    display.control_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+
+function controls_chest_section(){
+    var controls = GS.controls.get();
+    display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
+    display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
+    display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+
+function edit_stage_controls(controls){
+    display.add_edit_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, controls_stage_section, controls);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.card, CONTROLS_TEXT.stage.card);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_edit_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+
+function edit_shop_controls(controls){
+    display.add_edit_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, controls_shop_section, controls);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.add, CONTROLS_TEXT.shop.add);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+
+function edit_chest_controls(controls){
+    display.add_edit_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, controls_chest_section, controls);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
     invalid_type: `invalid type`,
@@ -1507,7 +1626,10 @@ function create_main_dropdown(location){
         },
         {
             label: controls_screen_name,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.controls)}
+            on_change: () => {
+                setup_controls_page();
+                DISPLAY_DIVISIONS.swap(UIIDS.controls);
+            }
         }
     ];
     display.create_dropdown(location, options);
@@ -2262,6 +2384,10 @@ const stunned_msg = `Stunned x`;
 const gameplay_screen_name = `Gameplay`;
 const guide_screen_name = `Guidebook`;
 const controls_screen_name = `Controls`;
+const edit_controls_message = `Edit`;
+const default_controls_message = `Default`;
+const save_controls_message = `Save`;
+const undo_edit_controls_message = `Undo`;
 const tile_description_divider = `\n--------------------\n`;
 const card_explanation_start = `Move Options (actions will be performed in order):\n`;
 const card_explanation_end = `Shift click on a button to show what it will do on the map.\n`;
@@ -2469,7 +2595,10 @@ function get_uiids(language){
  *              @property {string} content_description: A description of whichever one of the contents you last clicked on.
  * @property {string} guide Controls the visibility of the guide screen.
  *      @property {string} guide_navbar Controls the visibility of each guidebook section.
- * @property {string} controls
+ * @property {string} controls Controls the visibility of the controls section.
+ *      @property {string} stage_controls Contains the controls for the stage.
+ *      @property {string} shop_control Contains the controls for the shop.
+ *      @property {string} chest_control Contains the controls for the chest.
  */
 
 
@@ -2525,6 +2654,9 @@ const HTML_UIIDS = {
     guide: `guide`,
         guide_navbar: `guideNavbar`,
     controls: `controls`,
+        stage_controls: `stageControls`,
+        shop_controls: `shopControls`,
+        chest_controls: `chestControls`,
 }
 Object.freeze(HTML_UIIDS);
 

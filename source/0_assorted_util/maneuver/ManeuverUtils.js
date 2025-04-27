@@ -139,7 +139,10 @@ function create_main_dropdown(location){
         },
         {
             label: controls_screen_name,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.controls)}
+            on_change: () => {
+                setup_controls_page();
+                DISPLAY_DIVISIONS.swap(UIIDS.controls);
+            }
         }
     ];
     display.create_dropdown(location, options);

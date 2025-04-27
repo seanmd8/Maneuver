@@ -311,6 +311,9 @@ const DisplayHTML = {
                 GS.controls.chest(key);
             }
         }
+        if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
+            display.set_control(key);
+        }
     },
     unpress: function(key_press){
         var key = key_press.key.toLowerCase();
@@ -492,12 +495,49 @@ const DisplayHTML = {
             location.append(container);
         }
     },
-    add_header: function(location, description){
+    add_controls_header: function(location, description, edit_function){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-header`);
         var header = document.createElement(`h2`);
         header.innerText = description;
+        var edit_mode = function(controls){
+            return () => {
+                setup_controls_page();
+                DisplayHTML.remove_children(location);
+                edit_function(controls);
+            }
+        }
+        var edit_button = DisplayHTML.create_button(edit_controls_message, undefined, edit_mode(GS.controls.get()));
+        var default_button = DisplayHTML.create_button(default_controls_message, undefined, edit_mode(new KeyBind().get()));
+        div.append(header);
+        div.append(edit_button);
+        div.append(default_button);
         var place = DisplayHTML.get_element(location);
-        place.append(header);
+        place.append(div);
     },
+    add_edit_controls_header: function(location, description, view_function, controls){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-header`);
+        var header = document.createElement(`h2`);
+        header.innerText = description;
+        var save_button = DisplayHTML.create_button(save_controls_message, undefined, () => {
+            if(KeyBind.is_valid(controls)){
+                GS.controls.set(controls);
+                DisplayHTML.remove_children(location);
+                view_function();
+            }
+        });
+        var undo_edit_button = DisplayHTML.create_button(undo_edit_controls_message, undefined, () => {
+            DisplayHTML.remove_children(location);
+            view_function();
+        });
+        div.append(header);
+        div.append(save_button);
+        div.append(undo_edit_button);
+        var place = DisplayHTML.get_element(location);
+        place.append(div);
+    },
+
     control_box: function(location, controls, description){
         var div = document.createElement(`div`);
         div.classList.add(`control-box`);
@@ -522,6 +562,47 @@ const DisplayHTML = {
         div.append(p);
         var place = DisplayHTML.get_element(location);
         place.append(div);
+    },
+    control_edit_box: function(location, controls, description){
+        var edit = (display, button, controls, i) => {
+            return () => {
+                var unclicked = button.classList.contains(`edit-control`);
+                var boxes = document.querySelectorAll(`#${location} .control-edit-box div input`);
+                for(var box of boxes){
+                    box.classList.remove(`edit-control`);
+                }
+                display.set_control = undefined;
+                if(!unclicked){
+                    button.classList.add(`edit-control`);
+                    display.set_control = (key) => {
+                        controls[i] = key;
+                        button.value = KEYBOARD_SYMBOL_MAP.has(key) ? KEYBOARD_SYMBOL_MAP.get(key) : key;
+                        button.classList.remove(`edit-control`);
+                        display.set_control = undefined;
+                        console.log(key);
+                    }
+                    console.log(`${i} of ${controls}`);
+                }
+            }
+        }
+        for(var i = 0; i < controls.length; ++i){
+            var div = document.createElement(`div`);
+            div.classList.add(`control-edit-box`);
+            var button_div = document.createElement(`div`);
+            var button_text = controls[i];
+            if(KEYBOARD_SYMBOL_MAP.has(button_text)){
+                button_text = KEYBOARD_SYMBOL_MAP.get(button_text);
+            }
+            var button = DisplayHTML.create_button(button_text);
+            button.onclick = edit(this, button, controls, i);
+            button_div.append(button);
+            div.append(button_div);
+            var p = document.createElement(`p`);
+            p.innerText = (controls.length === 1 ? description : `${description} ${i + 1}`);
+            div.append(p);
+            var place = DisplayHTML.get_element(location);
+            place.append(div);
+        }
     },
     stop_space_scrolling: function(){
         window.addEventListener('keydown', (e) => {
