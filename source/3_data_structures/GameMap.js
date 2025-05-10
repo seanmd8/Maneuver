@@ -610,6 +610,7 @@ class GameMap{
     next_floor(){
         this.erase();
         var player = this.get_player();
+        var area_size = init_settings().area_size
         if(player.health === 1 && GS.boons.has(boon_names.bitter_determination) > 0){
             // Bitter determination heals you if you are at exactly 1.
             this.player_heal(new Point(0, 0), 1);
@@ -623,13 +624,13 @@ class GameMap{
             this.player_heal(new Point(0, 0));
         }
         var floor_description = `${floor_message}${this.#floor_num}.`;
-        if(this.#floor_num % AREA_SIZE === 1){
+        if(this.#floor_num % area_size === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
             this.#area = rand_from(next_list)();
             floor_description += `\n${this.#area.description}`;
         }
-        if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
+        if(this.#floor_num % area_size === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
             var boss_floor = rand_from(this.#area.boss_floor_list);
             boss_floor_common(this.#floor_num, this.#area, this); 
@@ -642,7 +643,7 @@ class GameMap{
             extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
-        if(floor_has_chest(this.#floor_num % AREA_SIZE)){
+        if(floor_has_chest(this.#floor_num % area_size)){
             var chest_count = 1 + GS.boons.has(boon_names.hoarder);
             var chest = appropriate_chest_tile();
             var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));

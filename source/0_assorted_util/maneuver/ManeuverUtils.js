@@ -37,11 +37,12 @@ function make_starting_deck(){
 // Makes a deck for testing new cards.
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
+    var test_cards = TEST_INIT.cards;
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
-    for(var card of TEST_INIT.cards){
+    for(var card of test_cards){
         deck.add(card());
     }
-    var size = TEST_INIT.cards.length;
+    var size = test_cards.length;
     for(var i = 0; i < Math.max(4 - size, 1); ++i){
         deck.add(basic_horizontal());
     }
@@ -230,7 +231,7 @@ function make_guidebook_images(arr){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var current_controls = GS.controls.get();
+    var current_controls = GS.data.controls.get();
     var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
     var buttons = [];
     for(var symbol of button_symbols){

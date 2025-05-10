@@ -11,11 +11,12 @@ const BOSS_FLOOR = [velociphile_floor, spider_queen_floor, lich_floor];
  */
 /** @type {FloorGenerator} The generator ONLY used by the default area if they have finished all the content.*/
 function floor_generator(floor_num, area, map){
-    if(!(floor_num % AREA_SIZE === 0) || Math.floor(floor_num / AREA_SIZE) - 1 >= BOSS_FLOOR.length){
+    area_size = init_settings().area_size;
+    if(!(floor_num % area_size == 0) || Math.floor(floor_num / area_size) - 1 >= BOSS_FLOOR.length){
         generate_normal_floor(floor_num, area, map);
     }
     else{
-        BOSS_FLOOR[Math.floor(floor_num / AREA_SIZE) - 1](floor_num, area, map);
+        BOSS_FLOOR[Math.floor(floor_num / area_size) - 1](floor_num, area, map);
     }
 }
 /** @type {FloorGenerator} The standard generator to add random enemies from the area whose combined difficulty scales based on the floor number.*/

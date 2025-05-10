@@ -6,7 +6,7 @@ class GameState{
     map;
     deck;
     boons;
-    controls;
+    save;
     #player_turn_lock;
     #text_log;
     constructor(){
@@ -18,13 +18,14 @@ class GameState{
      * @returns {void} 
      */
     setup(){
+        var init = init_settings();
         // Function ran on page load or on restart to set up the game.
+        this.data = new SaveData(init.load, init.save);
         this.#text_log = [];
         this.boons = new BoonTracker(BOON_LIST);
-        var start = randomize_arr(STARTING_AREA)[0]();
+        var start = randomize_arr(init.area)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
-        this.deck = STARTING_DECK();
-        this.controls = new KeyBind();
+        this.deck = init.cards;
 
         var starting_text = `${start.description}\n${welcome_message}`;
         say(starting_text, false);
@@ -34,10 +35,10 @@ class GameState{
         create_sidebar();
 
         // Prep map
-        for(var enemy of STARTING_ENEMIES){
+        for(var enemy of init.enemies){
             this.map.spawn_safely(enemy(), SAFE_SPAWN_ATTEMPTS, true);
         }
-        for(var boon of STARTING_CHESTS){
+        for(var boon of init.chests){
             var chest = chest_tile();
             add_boon_to_chest(chest, boon());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);

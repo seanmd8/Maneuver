@@ -20,7 +20,7 @@ function display_move_buttons(card, hand_position){
         let button_row = row.map(button => {return {
             description: button.description,
             on_click: function(){
-                GS.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
+                GS.data.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
             }
         }});
         display.add_button_row(UIIDS.move_buttons, button_row);
@@ -246,7 +246,7 @@ function setup_controls_page(){
 }
 
 function controls_stage_section(){
-    var controls = GS.controls.get();
+    var controls = GS.data.controls.get();
     display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
     display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
     display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
@@ -256,7 +256,7 @@ function controls_stage_section(){
 }
 
 function controls_shop_section(){
-    var controls = GS.controls.get();
+    var controls = GS.data.controls.get();
     display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
     display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
     display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
@@ -264,7 +264,7 @@ function controls_shop_section(){
 }
 
 function controls_chest_section(){
-    var controls = GS.controls.get();
+    var controls = GS.data.controls.get();
     display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
     display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
     display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);

@@ -429,14 +429,27 @@ function point_equals(p1, p2){
 // File containing global constants used throughout the program.
 
 // Settings just used for testing. Leave as undefined when not in use.
-const TEST_INIT = {
-    enemies: undefined,
-    chest: undefined,
-    cards: undefined,
-    area: undefined,
-    area_size: undefined
+function init_settings(){
+    const init = {
+        enemies: undefined,
+        chests: undefined,
+        cards: undefined,
+        area: undefined,
+        area_size: undefined,
+        save: undefined,
+        load: undefined,
+    }
+    init.enemies = init.enemies ? init.enemies : [spider_tile];
+    init.chests = init.chests ? init.chests : [];
+    init.cards = init.cards ? make_test_deck(TEST_INIT.cards) : make_starting_deck();
+    init.area = init.area? [init.area] : area1;
+    init.area_size = init.area_size ? init.area_size : AREA_SIZE;
+    init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
+    init.load = init.load ? init.load: SaveData.load_local_function(`player1`);
+    return init;
 }
 
+var GS;
 
 // Starting player stats.
 const PLAYER_STARTING_HEALTH = 3;
@@ -445,17 +458,10 @@ const ADD_CHOICE_COUNT = 3;
 const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
 
-// Initialization settings.
-const STARTING_ENEMIES = TEST_INIT.enemies ? TEST_INIT.enemies : [spider_tile];
-const STARTING_CHESTS = TEST_INIT.chest ? TEST_INIT.chest : [];
-const STARTING_DECK = TEST_INIT.cards ? make_test_deck : make_starting_deck;
-const STARTING_AREA = TEST_INIT.area ? [TEST_INIT.area] : [generate_ruins_area];
-var GS;
-
 // Dungeon generation settings.
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
-const AREA_SIZE = TEST_INIT.area_size ? TEST_INIT.area_size : 5;
+const AREA_SIZE = 5;
 const CHEST_LOCATION = 3;
 const SECOND_CHEST_LOCATION = 2;
 const BOON_CHOICES = 3;
@@ -827,25 +833,25 @@ const DisplayHTML = {
     },
     press: function(key_press){
         var key = key_press.key.toLowerCase();
-        GS.controls.toggle_press(key);
+        GS.data.controls.toggle_press(key);
         if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
             if(GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
-                GS.controls.stage(key);
+                GS.data.controls.stage(key);
             }
             else if(GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
-                GS.controls.shop(key);
+                GS.data.controls.shop(key);
             }
             else if(GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
-                GS.controls.chest(key);
+                GS.data.controls.chest(key);
             }
         }
-        if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
+        else if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
             display.set_control(key);
         }
     },
     unpress: function(key_press){
         var key = key_press.key.toLowerCase();
-        GS.controls.toggle_unpress(key);
+        GS.data.controls.toggle_unpress(key);
     },
     click: function(location){
         try{
@@ -1035,7 +1041,7 @@ const DisplayHTML = {
                 edit_function(controls);
             }
         }
-        var edit_button = DisplayHTML.create_button(edit_controls_message, undefined, edit_mode(GS.controls.get()));
+        var edit_button = DisplayHTML.create_button(edit_controls_message, undefined, edit_mode(GS.data.controls.get()));
         var default_button = DisplayHTML.create_button(default_controls_message, undefined, edit_mode(new KeyBind().get()));
         div.append(header);
         div.append(edit_button);
@@ -1050,7 +1056,7 @@ const DisplayHTML = {
         header.innerText = description;
         var save_button = DisplayHTML.create_button(save_controls_message, undefined, () => {
             if(KeyBind.is_valid(controls)){
-                GS.controls.set(controls);
+                GS.data.set_controls(controls);
                 DisplayHTML.remove_children(location);
                 view_function();
             }
@@ -1107,9 +1113,7 @@ const DisplayHTML = {
                         button.value = KEYBOARD_SYMBOL_MAP.has(key) ? KEYBOARD_SYMBOL_MAP.get(key) : key;
                         button.classList.remove(`edit-control`);
                         display.set_control = undefined;
-                        console.log(key);
                     }
-                    console.log(`${i} of ${controls}`);
                 }
             }
         }
@@ -1138,6 +1142,12 @@ const DisplayHTML = {
               e.preventDefault();
             }
         });
+    },
+    set_local_storage(key, data){
+        window.localStorage.setItem(key, data);
+    },
+    get_local_storage(key){
+        return window.localStorage.getItem(key);
     },
 
     // Non Required helper functions.
@@ -1189,7 +1199,7 @@ function display_move_buttons(card, hand_position){
         let button_row = row.map(button => {return {
             description: button.description,
             on_click: function(){
-                GS.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
+                GS.data.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
             }
         }});
         display.add_button_row(UIIDS.move_buttons, button_row);
@@ -1415,7 +1425,7 @@ function setup_controls_page(){
 }
 
 function controls_stage_section(){
-    var controls = GS.controls.get();
+    var controls = GS.data.controls.get();
     display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
     display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
     display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
@@ -1425,7 +1435,7 @@ function controls_stage_section(){
 }
 
 function controls_shop_section(){
-    var controls = GS.controls.get();
+    var controls = GS.data.controls.get();
     display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
     display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
     display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
@@ -1433,7 +1443,7 @@ function controls_shop_section(){
 }
 
 function controls_chest_section(){
-    var controls = GS.controls.get();
+    var controls = GS.data.controls.get();
     display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
     display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
     display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
@@ -1480,7 +1490,8 @@ const ERRORS = {
     map_full: `map full`,
     creature_died: `creature died`,
     out_of_bounds: `out of bounds`,
-    divide_by_0: `divide by 0`
+    divide_by_0: `divide by 0`,
+    failed_to_load: `Failed to load`,
 }
 Object.freeze(ERRORS);
 
@@ -1524,11 +1535,12 @@ function make_starting_deck(){
 // Makes a deck for testing new cards.
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(){
+    var test_cards = TEST_INIT.cards;
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
-    for(var card of TEST_INIT.cards){
+    for(var card of test_cards){
         deck.add(card());
     }
-    var size = TEST_INIT.cards.length;
+    var size = test_cards.length;
     for(var i = 0; i < Math.max(4 - size, 1); ++i){
         deck.add(basic_horizontal());
     }
@@ -1717,7 +1729,7 @@ function make_guidebook_images(arr){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var current_controls = GS.controls.get();
+    var current_controls = GS.data.controls.get();
     var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
     var buttons = [];
     for(var symbol of button_symbols){
@@ -9171,6 +9183,7 @@ class GameMap{
     next_floor(){
         this.erase();
         var player = this.get_player();
+        var area_size = init_settings().area_size
         if(player.health === 1 && GS.boons.has(boon_names.bitter_determination) > 0){
             // Bitter determination heals you if you are at exactly 1.
             this.player_heal(new Point(0, 0), 1);
@@ -9184,13 +9197,13 @@ class GameMap{
             this.player_heal(new Point(0, 0));
         }
         var floor_description = `${floor_message}${this.#floor_num}.`;
-        if(this.#floor_num % AREA_SIZE === 1){
+        if(this.#floor_num % area_size === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
             this.#area = rand_from(next_list)();
             floor_description += `\n${this.#area.description}`;
         }
-        if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
+        if(this.#floor_num % area_size === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
             var boss_floor = rand_from(this.#area.boss_floor_list);
             boss_floor_common(this.#floor_num, this.#area, this); 
@@ -9203,7 +9216,7 @@ class GameMap{
             extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
-        if(floor_has_chest(this.#floor_num % AREA_SIZE)){
+        if(floor_has_chest(this.#floor_num % area_size)){
             var chest_count = 1 + GS.boons.has(boon_names.hoarder);
             var chest = appropriate_chest_tile();
             var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));
@@ -9433,7 +9446,7 @@ class GameState{
     map;
     deck;
     boons;
-    controls;
+    save;
     #player_turn_lock;
     #text_log;
     constructor(){
@@ -9445,13 +9458,14 @@ class GameState{
      * @returns {void} 
      */
     setup(){
+        var init = init_settings();
         // Function ran on page load or on restart to set up the game.
+        this.data = new SaveData(init.load, init.save);
         this.#text_log = [];
         this.boons = new BoonTracker(BOON_LIST);
-        var start = randomize_arr(STARTING_AREA)[0]();
+        var start = randomize_arr(init.area)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
-        this.deck = STARTING_DECK();
-        this.controls = new KeyBind();
+        this.deck = init.cards;
 
         var starting_text = `${start.description}\n${welcome_message}`;
         say(starting_text, false);
@@ -9461,10 +9475,10 @@ class GameState{
         create_sidebar();
 
         // Prep map
-        for(var enemy of STARTING_ENEMIES){
+        for(var enemy of init.enemies){
             this.map.spawn_safely(enemy(), SAFE_SPAWN_ATTEMPTS, true);
         }
-        for(var boon of STARTING_CHESTS){
+        for(var boon of init.chests){
             var chest = chest_tile();
             add_boon_to_chest(chest, boon());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
@@ -10213,6 +10227,110 @@ class MoveDeck{
     }
 }
 
+/*
+ * Class to save and load data to and from files and localstorage.
+ * If you want to add new fields:
+ *      - Add new default JSON fields in the default_data.
+ *      - Change the load function to move the data from a JSON to a Class object.
+ *      - Change the save function to move the data to JSON format.
+*/
+
+class SaveData{
+    controls;
+    load_function;
+    save_function;
+    constructor(load, save){
+        this.load_function = load;
+        this.save_function = save;
+        this.load();
+    }
+    load(){
+        var data = this.load_function();
+        data = SaveData.#load_missing(data);
+        this.controls = new KeyBind();
+        this.controls.set(data.controls);
+    }
+    save(){
+        var data = {
+            controls: this.controls.get()
+        }
+        this.save_function(data);        
+    }
+    set_controls(new_controls){
+        this.controls.set(new_controls);
+        this.save();
+    }
+    
+
+    // Static functions
+    static load_file_function(save_name){
+        return () => {
+            const fs = require('fs');
+            try{
+                var data = fs.readFileSync(`./saves/${save_name}.txt`, `utf8`);
+                data = JSON.parse(data);
+            }
+            catch(err){
+                console.log(err.message);
+                var data = undefined;
+            }
+            return data;
+        }
+    }
+    static load_local_function(save_name){
+        return () => {
+            const data = display.get_local_storage(`Maneuver.saves.${save_name}`);
+            return data ? JSON.parse(data) : undefined;
+        }
+    }
+    static save_file_function(save_name){
+        return (data) => {
+            const fs = require(`fs`);
+            fs.writeFile(`./saves/${save_name}.txt`, JSON.stringify(data), (err) => {
+                if(err){
+                    throw err;
+                }
+            });
+        }
+    }
+    static save_local_function(save_name){
+        return (data) => {
+            display.set_local_storage(`Maneuver.saves.${save_name}`, JSON.stringify(data));
+        }
+    }
+    static #load_missing(data){
+        var blank = SaveData.default_data();
+        if(data === undefined){
+            return blank;
+        }
+        SaveData.#load_missing_recursive(data, blank);
+        return data;
+    }
+    static #load_missing_recursive(data, default_data){
+        if( // Base case: current field is not an object.
+            typeof default_data !== 'object' || 
+            Array.isArray(default_data) || 
+            default_data === null
+        ){
+            return;
+        }
+        for(var prop in default_data){
+            if(data[prop] === undefined){
+                data[prop] = default_data[prop];
+            }
+            else{
+                this.#load_missing_recursive(data[prop], default_data[prop]);
+            }
+        }
+    }
+    static default_data(){
+        return {
+            controls: new KeyBind().get()
+        }
+    }
+}
+
+
 class ScreenTracker{
     div;
     current;
@@ -10456,7 +10574,7 @@ function generate_forest_area(){
 
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){
-    if(chance(1, 12) && !floor_has_chest(floor_num % AREA_SIZE)){
+    if(chance(1, 12) && !floor_has_chest(floor_num % init_settings().area_size)){
         swaying_nettle_terrain(floor_num, area, map);
         generate_normal_floor(floor_num / 2, area, map);
     }
@@ -10683,7 +10801,7 @@ function river_terrain(floor_num, area, map){
 
 // The structure of the dungeon. Each area can lead to a random one in the next numbered array.
 const area_end = [generate_default_area]; // Once they have finished the completed areas, they go here.
-const area1 = STARTING_AREA;
+const area1 = [generate_ruins_area];
 const area2 = [generate_sewers_area, generate_basement_area];
 const area3 = [generate_magma_area, generate_crypt_area];
 const area4 = [generate_forest_area, generate_library_area];
@@ -10939,11 +11057,12 @@ const BOSS_FLOOR = [velociphile_floor, spider_queen_floor, lich_floor];
  */
 /** @type {FloorGenerator} The generator ONLY used by the default area if they have finished all the content.*/
 function floor_generator(floor_num, area, map){
-    if(!(floor_num % AREA_SIZE === 0) || Math.floor(floor_num / AREA_SIZE) - 1 >= BOSS_FLOOR.length){
+    area_size = init_settings().area_size;
+    if(!(floor_num % area_size == 0) || Math.floor(floor_num / area_size) - 1 >= BOSS_FLOOR.length){
         generate_normal_floor(floor_num, area, map);
     }
     else{
-        BOSS_FLOOR[Math.floor(floor_num / AREA_SIZE) - 1](floor_num, area, map);
+        BOSS_FLOOR[Math.floor(floor_num / area_size) - 1](floor_num, area, map);
     }
 }
 /** @type {FloorGenerator} The standard generator to add random enemies from the area whose combined difficulty scales based on the floor number.*/

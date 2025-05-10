@@ -299,25 +299,25 @@ const DisplayHTML = {
     },
     press: function(key_press){
         var key = key_press.key.toLowerCase();
-        GS.controls.toggle_press(key);
+        GS.data.controls.toggle_press(key);
         if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
             if(GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
-                GS.controls.stage(key);
+                GS.data.controls.stage(key);
             }
             else if(GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
-                GS.controls.shop(key);
+                GS.data.controls.shop(key);
             }
             else if(GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
-                GS.controls.chest(key);
+                GS.data.controls.chest(key);
             }
         }
-        if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
+        else if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
             display.set_control(key);
         }
     },
     unpress: function(key_press){
         var key = key_press.key.toLowerCase();
-        GS.controls.toggle_unpress(key);
+        GS.data.controls.toggle_unpress(key);
     },
     click: function(location){
         try{
@@ -507,7 +507,7 @@ const DisplayHTML = {
                 edit_function(controls);
             }
         }
-        var edit_button = DisplayHTML.create_button(edit_controls_message, undefined, edit_mode(GS.controls.get()));
+        var edit_button = DisplayHTML.create_button(edit_controls_message, undefined, edit_mode(GS.data.controls.get()));
         var default_button = DisplayHTML.create_button(default_controls_message, undefined, edit_mode(new KeyBind().get()));
         div.append(header);
         div.append(edit_button);
@@ -522,7 +522,7 @@ const DisplayHTML = {
         header.innerText = description;
         var save_button = DisplayHTML.create_button(save_controls_message, undefined, () => {
             if(KeyBind.is_valid(controls)){
-                GS.controls.set(controls);
+                GS.data.set_controls(controls);
                 DisplayHTML.remove_children(location);
                 view_function();
             }
@@ -579,9 +579,7 @@ const DisplayHTML = {
                         button.value = KEYBOARD_SYMBOL_MAP.has(key) ? KEYBOARD_SYMBOL_MAP.get(key) : key;
                         button.classList.remove(`edit-control`);
                         display.set_control = undefined;
-                        console.log(key);
                     }
-                    console.log(`${i} of ${controls}`);
                 }
             }
         }
@@ -610,6 +608,12 @@ const DisplayHTML = {
               e.preventDefault();
             }
         });
+    },
+    set_local_storage(key, data){
+        window.localStorage.setItem(key, data);
+    },
+    get_local_storage(key){
+        return window.localStorage.getItem(key);
     },
 
     // Non Required helper functions.

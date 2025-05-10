@@ -2,14 +2,27 @@
 // File containing global constants used throughout the program.
 
 // Settings just used for testing. Leave as undefined when not in use.
-const TEST_INIT = {
-    enemies: undefined,
-    chest: undefined,
-    cards: undefined,
-    area: undefined,
-    area_size: undefined
+function init_settings(){
+    const init = {
+        enemies: undefined,
+        chests: undefined,
+        cards: undefined,
+        area: undefined,
+        area_size: undefined,
+        save: undefined,
+        load: undefined,
+    }
+    init.enemies = init.enemies ? init.enemies : [spider_tile];
+    init.chests = init.chests ? init.chests : [];
+    init.cards = init.cards ? make_test_deck(TEST_INIT.cards) : make_starting_deck();
+    init.area = init.area? [init.area] : area1;
+    init.area_size = init.area_size ? init.area_size : AREA_SIZE;
+    init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
+    init.load = init.load ? init.load: SaveData.load_local_function(`player1`);
+    return init;
 }
 
+var GS;
 
 // Starting player stats.
 const PLAYER_STARTING_HEALTH = 3;
@@ -18,17 +31,10 @@ const ADD_CHOICE_COUNT = 3;
 const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
 
-// Initialization settings.
-const STARTING_ENEMIES = TEST_INIT.enemies ? TEST_INIT.enemies : [spider_tile];
-const STARTING_CHESTS = TEST_INIT.chest ? TEST_INIT.chest : [];
-const STARTING_DECK = TEST_INIT.cards ? make_test_deck : make_starting_deck;
-const STARTING_AREA = TEST_INIT.area ? [TEST_INIT.area] : [generate_ruins_area];
-var GS;
-
 // Dungeon generation settings.
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
-const AREA_SIZE = TEST_INIT.area_size ? TEST_INIT.area_size : 5;
+const AREA_SIZE = 5;
 const CHEST_LOCATION = 3;
 const SECOND_CHEST_LOCATION = 2;
 const BOON_CHOICES = 3;
