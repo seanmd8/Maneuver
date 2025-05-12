@@ -28,5 +28,5 @@ function boss_death(self, target, map){
     }
     map.player_heal(new Point(0, 0));
     GS.achieve(self.tile.death_achievement);
-    say(death_message);
+    say_record(death_message);
 }

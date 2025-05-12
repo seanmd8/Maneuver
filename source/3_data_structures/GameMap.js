@@ -283,7 +283,7 @@ class GameMap{
             return function(){
                 var description = grid_space_description(space);
                 var tile = space.tile;
-                say(description, false);
+                say(description);
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
                 var telegraph_other_spaces = [];
@@ -465,7 +465,7 @@ class GameMap{
                         this.player_heal(new Point(0, 0));
                         GS.boons.lose(boon_names.rebirth);
                         GS.refresh_boon_display();
-                        say(rebirth_revival_message);
+                        say_record(rebirth_revival_message);
                         return true;
                     }
                     throw new Error(ERRORS.game_over);
@@ -652,7 +652,7 @@ class GameMap{
             }
             this.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
-        say(floor_description);
+        say_record(floor_description);
     }
     /**
      * Gets a GridSpace from a location on the grid.

@@ -37,8 +37,11 @@ class SaveData{
         this.save();
     }
     achieve(name){
-        this.achievements.achieve(name);
-        this.save();
+        var gained = this.achievements.achieve(name);
+        if(gained){
+            this.save();
+        }
+        return gained;
     }
     
 
@@ -51,7 +54,6 @@ class SaveData{
                 data = JSON.parse(data);
             }
             catch(err){
-                console.log(err.message);
                 var data = undefined;
             }
             return data;

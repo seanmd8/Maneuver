@@ -143,7 +143,7 @@ class MoveDeck{
                 if(!GS.check_lock_player_turn()){
                     return;
                 }
-                say(``, false);
+                say(``);
                 display_move_buttons(card, hand_pos);
             }
         }

@@ -28,8 +28,7 @@ class GameState{
         this.deck = init.cards;
 
         var starting_text = `${start.description}\n${welcome_message}`;
-        say(starting_text, false);
-        this.record_message(starting_text);
+        say_record(starting_text);
         display.display_message(UIIDS.hand_label, `${hand_label_text}`);
         display.display_message(UIIDS.move_label, `${move_label_text}`);
         create_sidebar();
@@ -68,7 +67,7 @@ class GameState{
         }
         display.remove_children(UIIDS.move_buttons);
         this.map.clear_marked();
-        say(``, false);
+        say(``);
         if(GS.boons.has(boon_names.thick_soles)){
             GS.map.get_player().tags.add(TAGS.invulnerable);
         }
@@ -262,7 +261,7 @@ class GameState{
         display_map(this.map);
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
-        say(`${game_over_message}${cause.toLowerCase()}.`);
+        say_record(`${game_over_message}${cause.toLowerCase()}.`);
         display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
@@ -330,8 +329,11 @@ class GameState{
      * Records a message in the text log, then displays the text log.
      * @param {string} msg The message to record.
      */
-    record_message(msg){
-        this.#text_log.push(msg);
+    record_message(str, type){
+        this.#text_log.push({
+            str, 
+            type
+        });
         this.display_messages(UIIDS.text_scroll);
     }
     /**
@@ -362,9 +364,12 @@ class GameState{
         display_boons(this.boons);
     }
     achieve(name){
-        var gained = this.data.achievements.achieve(name);
+        var gained = this.data.achieve(name);
         if(gained){
-            say(`Achievement Unlocked: ${name}`);
+            say_record(`Achievement Unlocked: ${name}`, record_types.achievement);
+        }
+        else{
+            say_record(`Achievement Repeated: ${name}`, record_types.repeated_achievement);
         }
     }
 }

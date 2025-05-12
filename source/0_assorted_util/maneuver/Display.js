@@ -448,13 +448,23 @@ const DisplayHTML = {
         var element = DisplayHTML.get_element(location);
         element.classList.remove(css_class);
     },
-    create_stacked_p: function(location, strs){
+    create_stacked_p: function(location, content){
         element = DisplayHTML.get_element(location);
-        var hr = document.createElement(`hr`);
-        element.append(hr);
-        for(var str of strs){
+        for(var message of content){
             var p = document.createElement(`p`);
-            p.innerText = str;
+            p.innerText = message.str;
+            p.classList.add(`log-text`);
+            switch(message.type){
+                case record_types.achievement:
+                    p.classList.add(`achievement-log-text`);
+                    break;
+                case record_types.repeated_achievement:
+                    p.classList.add(`repeated-achievement-log-text`);
+                    break;
+                default:
+                    p.classList.add(`normal-log-text`);
+                    break;
+            }
             element.append(p);
             hr = document.createElement(`hr`);
             element.append(hr);
@@ -613,7 +623,6 @@ const DisplayHTML = {
             div.append(img_box);
 
             var img_name = a.has ? a.image : `${IMG_FOLDER.other}locked.png`;
-            console.log(img_name);
             var img = document.createElement(`img`);
             img.src = `${IMG_FOLDER.src}${img_name}`;
             img.alt = a.has? `unlocked` : `locked`;

@@ -26,7 +26,7 @@ function display_move_buttons(card, hand_position){
         display.add_button_row(UIIDS.move_buttons, button_row);
     }
     var explanation = move_types.alt + `\n` + explain_card(card);
-    display.add_on_click(UIIDS.move_info, function(){say(explanation, false)});
+    display.add_on_click(UIIDS.move_info, function(){say(explanation)});
 }
 
 /**
@@ -44,7 +44,7 @@ function refresh_hand_display(deck){
 
     // Makes sure the card info button shows that no card is selected.
     var explain_blank_moves = function(){
-        say(blank_moves_message, false);
+        say(blank_moves_message);
     }
     display.add_on_click(UIIDS.move_info, explain_blank_moves);
 }
@@ -131,16 +131,19 @@ function explain_card(card){
 /**
  * Function to give a message to the user.
  * @param {string} msg message text.
- * @param {boolean} record If true, also adds it to the chat log.
  */
-function say(msg, record = true){
-    if(msg === ``){
-        record = false;
-    }
+function say(msg){
     display.display_message(UIIDS.display_message, msg);
-    if(record){
-        GS.record_message(msg);
-    }
+}
+
+const record_types = {
+    achievement: `achievement`,
+    repeated_achievement: `repeated achievement`,
+    normal: `normal`,
+}
+function say_record(msg, type = record_types.normal){
+    say(msg);
+    GS.record_message(msg, type);
 }
 
 function update_initiative(map){

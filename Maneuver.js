@@ -982,13 +982,23 @@ const DisplayHTML = {
         var element = DisplayHTML.get_element(location);
         element.classList.remove(css_class);
     },
-    create_stacked_p: function(location, strs){
+    create_stacked_p: function(location, content){
         element = DisplayHTML.get_element(location);
-        var hr = document.createElement(`hr`);
-        element.append(hr);
-        for(var str of strs){
+        for(var message of content){
             var p = document.createElement(`p`);
-            p.innerText = str;
+            p.innerText = message.str;
+            p.classList.add(`log-text`);
+            switch(message.type){
+                case record_types.achievement:
+                    p.classList.add(`achievement-log-text`);
+                    break;
+                case record_types.repeated_achievement:
+                    p.classList.add(`repeated-achievement-log-text`);
+                    break;
+                default:
+                    p.classList.add(`normal-log-text`);
+                    break;
+            }
             element.append(p);
             hr = document.createElement(`hr`);
             element.append(hr);
@@ -1147,7 +1157,6 @@ const DisplayHTML = {
             div.append(img_box);
 
             var img_name = a.has ? a.image : `${IMG_FOLDER.other}locked.png`;
-            console.log(img_name);
             var img = document.createElement(`img`);
             img.src = `${IMG_FOLDER.src}${img_name}`;
             img.alt = a.has? `unlocked` : `locked`;
@@ -1240,7 +1249,7 @@ function display_move_buttons(card, hand_position){
         display.add_button_row(UIIDS.move_buttons, button_row);
     }
     var explanation = move_types.alt + `\n` + explain_card(card);
-    display.add_on_click(UIIDS.move_info, function(){say(explanation, false)});
+    display.add_on_click(UIIDS.move_info, function(){say(explanation)});
 }
 
 /**
@@ -1258,7 +1267,7 @@ function refresh_hand_display(deck){
 
     // Makes sure the card info button shows that no card is selected.
     var explain_blank_moves = function(){
-        say(blank_moves_message, false);
+        say(blank_moves_message);
     }
     display.add_on_click(UIIDS.move_info, explain_blank_moves);
 }
@@ -1345,16 +1354,19 @@ function explain_card(card){
 /**
  * Function to give a message to the user.
  * @param {string} msg message text.
- * @param {boolean} record If true, also adds it to the chat log.
  */
-function say(msg, record = true){
-    if(msg === ``){
-        record = false;
-    }
+function say(msg){
     display.display_message(UIIDS.display_message, msg);
-    if(record){
-        GS.record_message(msg);
-    }
+}
+
+const record_types = {
+    achievement: `achievement`,
+    repeated_achievement: `repeated achievement`,
+    normal: `normal`,
+}
+function say_record(msg, type = record_types.normal){
+    say(msg);
+    GS.record_message(msg, type);
 }
 
 function update_initiative(map){
@@ -3027,7 +3039,7 @@ function arcane_sentry_death(self, target, map){
     boss_death(self, target, map);
 }
 function node_on_death(self, target, map){
-    say(self.tile.death_message);
+    say_record(self.tile.death_message);
 }
 
 function sentry_core_on_hit(self, target, map){
@@ -3136,7 +3148,7 @@ function boss_death(self, target, map){
     }
     map.player_heal(new Point(0, 0));
     GS.achieve(self.tile.death_achievement);
-    say(death_message);
+    say_record(death_message);
 }
 // ToDo
 //      Handle Death
@@ -3220,7 +3232,7 @@ function forest_heart_ai(self, target, map){
         var health = self.tile.cycle;
         var next_spell = self.tile.spells[health - 2];
         if(health > 1){
-            map.add_event({name: `spell announcement`, behavior: () => {say(next_spell.description)}});
+            map.add_event({name: `spell announcement`, behavior: () => {say_record(next_spell.description)}});
         }
         for(var section of sections){
             var tile = section.tile;
@@ -3387,7 +3399,7 @@ function lich_ai(self, target, map){
     self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
     var announcement = `${lich_announcement}${self.tile.spells[self.tile.cycle].description}`
-    map.add_event({name: `spell announcement`, behavior: () => {say(announcement)}});
+    map.add_event({name: `spell announcement`, behavior: () => {say_record(announcement)}});
 }
 
 /** @type {TelegraphFunction} */
@@ -8512,7 +8524,7 @@ class BoonTracker{
         return this.#boons.map(b => {return {
             name: b.name,
             pic: b.pic,
-            on_click: function(){say(b.description, false)}
+            on_click: function(){say(b.description)}
         }});
     }
     get_lost(){
@@ -8520,7 +8532,7 @@ class BoonTracker{
             name: b.name,
             foreground: [`${IMG_FOLDER.other}lost.png`],
             pic: b.pic,
-            on_click: function(){say(b.description, false)}
+            on_click: function(){say(b.description)}
         }});
     }
 
@@ -9165,7 +9177,7 @@ class GameMap{
             return function(){
                 var description = grid_space_description(space);
                 var tile = space.tile;
-                say(description, false);
+                say(description);
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
                 var telegraph_other_spaces = [];
@@ -9347,7 +9359,7 @@ class GameMap{
                         this.player_heal(new Point(0, 0));
                         GS.boons.lose(boon_names.rebirth);
                         GS.refresh_boon_display();
-                        say(rebirth_revival_message);
+                        say_record(rebirth_revival_message);
                         return true;
                     }
                     throw new Error(ERRORS.game_over);
@@ -9534,7 +9546,7 @@ class GameMap{
             }
             this.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
-        say(floor_description);
+        say_record(floor_description);
     }
     /**
      * Gets a GridSpace from a location on the grid.
@@ -9777,8 +9789,7 @@ class GameState{
         this.deck = init.cards;
 
         var starting_text = `${start.description}\n${welcome_message}`;
-        say(starting_text, false);
-        this.record_message(starting_text);
+        say_record(starting_text);
         display.display_message(UIIDS.hand_label, `${hand_label_text}`);
         display.display_message(UIIDS.move_label, `${move_label_text}`);
         create_sidebar();
@@ -9817,7 +9828,7 @@ class GameState{
         }
         display.remove_children(UIIDS.move_buttons);
         this.map.clear_marked();
-        say(``, false);
+        say(``);
         if(GS.boons.has(boon_names.thick_soles)){
             GS.map.get_player().tags.add(TAGS.invulnerable);
         }
@@ -10011,7 +10022,7 @@ class GameState{
         display_map(this.map);
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
-        say(`${game_over_message}${cause.toLowerCase()}.`);
+        say_record(`${game_over_message}${cause.toLowerCase()}.`);
         display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
@@ -10079,8 +10090,11 @@ class GameState{
      * Records a message in the text log, then displays the text log.
      * @param {string} msg The message to record.
      */
-    record_message(msg){
-        this.#text_log.push(msg);
+    record_message(str, type){
+        this.#text_log.push({
+            str, 
+            type
+        });
         this.display_messages(UIIDS.text_scroll);
     }
     /**
@@ -10111,9 +10125,12 @@ class GameState{
         display_boons(this.boons);
     }
     achieve(name){
-        var gained = this.data.achievements.achieve(name);
+        var gained = this.data.achieve(name);
         if(gained){
-            say(`Achievement Unlocked: ${name}`);
+            say_record(`Achievement Unlocked: ${name}`, record_types.achievement);
+        }
+        else{
+            say_record(`Achievement Repeated: ${name}`, record_types.repeated_achievement);
         }
     }
 }
@@ -10415,7 +10432,7 @@ class MoveDeck{
                 if(!GS.check_lock_player_turn()){
                     return;
                 }
-                say(``, false);
+                say(``);
                 display_move_buttons(card, hand_pos);
             }
         }
@@ -10580,8 +10597,11 @@ class SaveData{
         this.save();
     }
     achieve(name){
-        this.achievements.achieve(name);
-        this.save();
+        var gained = this.achievements.achieve(name);
+        if(gained){
+            this.save();
+        }
+        return gained;
     }
     
 
@@ -10594,7 +10614,6 @@ class SaveData{
                 data = JSON.parse(data);
             }
             catch(err){
-                console.log(err.message);
                 var data = undefined;
             }
             return data;

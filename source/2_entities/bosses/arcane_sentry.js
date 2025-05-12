@@ -107,7 +107,7 @@ function arcane_sentry_death(self, target, map){
     boss_death(self, target, map);
 }
 function node_on_death(self, target, map){
-    say(self.tile.death_message);
+    say_record(self.tile.death_message);
 }
 
 function sentry_core_on_hit(self, target, map){
