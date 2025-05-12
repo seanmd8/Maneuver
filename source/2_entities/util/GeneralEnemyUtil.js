@@ -16,6 +16,7 @@
  * @property {number=} max_health It can never be healed above this.
  * @property {number=} difficulty Used to determine how many things can be spawned.
  * @property {string=} death_message Displayed on death.
+ * @property {string=} death_achievement Name of the achievement granted on boss death.
  * 
  * // Functions controlling behavior. //
  * @property {AIFunction=} behavior What it does on it's turn. Targets the player.

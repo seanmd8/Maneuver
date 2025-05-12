@@ -11,6 +11,8 @@ class GameState{
     #text_log;
     constructor(){
         // Starts the game on load.
+        var init = init_settings();
+        this.data = new SaveData(init.load, init.save);
         this.setup();
     }
     /** 
@@ -20,7 +22,6 @@ class GameState{
     setup(){
         var init = init_settings();
         // Function ran on page load or on restart to set up the game.
-        this.data = new SaveData(init.load, init.save);
         this.#text_log = [];
         this.boons = new BoonTracker(BOON_LIST);
         var start = randomize_arr(init.area)[0]();
@@ -360,6 +361,12 @@ class GameState{
      */
     refresh_boon_display(){
         display_boons(this.boons);
+    }
+    achieve(name){
+        var gained = this.data.achievements.achieve(name);
+        if(gained){
+            say(`Achievement Unlocked: ${name}`);
+        }
     }
 }
 

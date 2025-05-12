@@ -42,6 +42,7 @@ function forest_heart_tile(){
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
         health: 12,
         death_message: forest_heart_death_message,
+        death_achievement: achievement_names.forest_heart,
         behavior: forest_heart_ai,
         on_hit: forest_heart_on_hit,
         on_death: forest_heart_death,

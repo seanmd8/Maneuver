@@ -9,6 +9,7 @@
 
 class SaveData{
     controls;
+    achievements;
     load_function;
     save_function;
     constructor(load, save){
@@ -21,15 +22,22 @@ class SaveData{
         data = SaveData.#load_missing(data);
         this.controls = new KeyBind();
         this.controls.set(data.controls);
+        this.achievements = new AchievementList();
+        this.achievements.set(data.achievements)
     }
     save(){
         var data = {
-            controls: this.controls.get()
+            controls: this.controls.get(),
+            achievements: this.achievements.get()
         }
         this.save_function(data);        
     }
     set_controls(new_controls){
         this.controls.set(new_controls);
+        this.save();
+    }
+    achieve(name){
+        this.achievements.achieve(name);
         this.save();
     }
     
@@ -55,6 +63,11 @@ class SaveData{
             return data ? JSON.parse(data) : undefined;
         }
     }
+    static load_blank(){
+        return () => {
+            return undefined;
+        }
+    }
     static save_file_function(save_name){
         return (data) => {
             const fs = require(`fs`);
@@ -69,6 +82,9 @@ class SaveData{
         return (data) => {
             display.set_local_storage(`Maneuver.saves.${save_name}`, JSON.stringify(data));
         }
+    }
+    static save_blank(){
+        return (data) => {}
     }
     static #load_missing(data){
         var blank = SaveData.default_data();

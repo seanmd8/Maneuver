@@ -602,6 +602,41 @@ const DisplayHTML = {
             place.append(div);
         }
     },
+    show_achievements: function(location, achievements){
+        var place = DisplayHTML.get_element(location);
+        for(var a of achievements){
+            var div = document.createElement(`div`);
+            div.classList.add(`achievement-box`);
+
+            var img_box = document.createElement(`div`);
+            img_box.classList.add(`achievement-img-box`);
+            div.append(img_box);
+
+            var img_name = a.has ? a.image : `${IMG_FOLDER.other}locked.png`;
+            console.log(img_name);
+            var img = document.createElement(`img`);
+            img.src = `${IMG_FOLDER.src}${img_name}`;
+            img.alt = a.has? `unlocked` : `locked`;
+            img_box.append(img);
+            if(a.has){
+                img_box.classList.add(`achievement-unlocked-image`);
+            }
+
+            var text_box = document.createElement(`div`);
+            text_box.classList.add(`achievement-text-box`);
+            div.append(text_box);
+
+            var h3 = document.createElement(`h3`);
+            h3.innerText = `${a.name}:`
+            text_box.append(h3);
+
+            var p = document.createElement(`p`);
+            p.innerText = a.description;
+            text_box.append(p);
+
+            place.append(div);
+        }
+    },
     stop_space_scrolling: function(){
         window.addEventListener('keydown', (e) => {
             if (e.key === ` ` && e.target === document.body) {

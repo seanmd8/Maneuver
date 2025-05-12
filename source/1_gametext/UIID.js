@@ -116,6 +116,7 @@ const HTML_UIIDS = {
         stage_controls: `stageControls`,
         shop_controls: `shopControls`,
         chest_controls: `chestControls`,
+    achievements: `achievements`,
 }
 Object.freeze(HTML_UIIDS);
 

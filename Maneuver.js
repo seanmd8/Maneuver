@@ -1136,6 +1136,41 @@ const DisplayHTML = {
             place.append(div);
         }
     },
+    show_achievements: function(location, achievements){
+        var place = DisplayHTML.get_element(location);
+        for(var a of achievements){
+            var div = document.createElement(`div`);
+            div.classList.add(`achievement-box`);
+
+            var img_box = document.createElement(`div`);
+            img_box.classList.add(`achievement-img-box`);
+            div.append(img_box);
+
+            var img_name = a.has ? a.image : `${IMG_FOLDER.other}locked.png`;
+            console.log(img_name);
+            var img = document.createElement(`img`);
+            img.src = `${IMG_FOLDER.src}${img_name}`;
+            img.alt = a.has? `unlocked` : `locked`;
+            img_box.append(img);
+            if(a.has){
+                img_box.classList.add(`achievement-unlocked-image`);
+            }
+
+            var text_box = document.createElement(`div`);
+            text_box.classList.add(`achievement-text-box`);
+            div.append(text_box);
+
+            var h3 = document.createElement(`h3`);
+            h3.innerText = `${a.name}:`
+            text_box.append(h3);
+
+            var p = document.createElement(`p`);
+            p.innerText = a.description;
+            text_box.append(p);
+
+            place.append(div);
+        }
+    },
     stop_space_scrolling: function(){
         window.addEventListener('keydown', (e) => {
             if (e.key === ` ` && e.target === document.body) {
@@ -1473,6 +1508,12 @@ function edit_chest_controls(controls){
     display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
 }
 
+function update_achievements(){
+    var achievements = GS.data.achievements.all();
+    display.remove_children(UIIDS.achievements);
+    display.show_achievements(UIIDS.achievements, achievements);
+}
+
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
     invalid_type: `invalid type`,
@@ -1642,6 +1683,13 @@ function create_main_dropdown(location){
                 setup_controls_page();
                 DISPLAY_DIVISIONS.swap(UIIDS.controls);
             }
+        },
+        {
+            label: achievements_screen_name,
+            on_change: () => {
+                update_achievements();
+                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
+            }
         }
     ];
     display.create_dropdown(location, options);
@@ -1774,6 +1822,198 @@ function floor_has_chest(floor_of_area){
         return true;
     }
     return false;
+}
+const achievement_names = {
+    // Boss
+    velociphile: `Only A Speedbump`,
+    spider_queen: `Arachno-Regicide`,
+    two_headed_serpent: `One Head Is Better Than Two`,
+    lich: `End To Unlife`,
+    young_dragon: `Novice Dragonslayer`,
+    forest_heart: `Expert Lumberjack`,
+    arcane_sentry: `Security Bypass`,
+
+    // Normal
+    non_violent: `Non Violent`,
+    not_my_fault: `Not My Fault`,
+    ancient_knowledge: `Ancient Knowledge`,
+    very_confused: `Very Confused`,
+    peerless_sprinter: `Peerless Sprinter`,
+    speed_runner: `Speed Runner`,
+    triple: `Three Of A Kind`,
+    beyond_the_basics: `Beyond The Basics`,
+    one_life: `One Is All You Need`,
+    flawless_technique: `Flawless Technique`,
+    clumsy: `Clumsy`,
+    shrug_it_off: `Shrug It Off`,
+    collector: `Collector`,
+    jack_of_all_trades: `Jack Of All Trades`,
+    monster_hunter: `Monster Hunter`,
+}
+function get_achievements(){
+    return [
+        // Boss achievements
+        {
+            name: achievement_names.velociphile,
+            description: `Defeat the Velociphile.`,
+            image: `${IMG_FOLDER.tiles}velociphile.png`,
+            has: false,
+            boons: [boss_slayer],
+            cards: [
+                teleport, sidestep_e, sidestep_n, sidestep_ne, sidestep_nw, 
+                sidestep_s, sidestep_s, sidestep_se, sidestep_sw, sidestep_w,
+                punch_orthogonal, punch_diagonal
+            ]
+        },
+        {
+            name: achievement_names.spider_queen,
+            description: `Defeat the Spider Queen.`,
+            image: `${IMG_FOLDER.tiles}spider_queen.png`,
+            has: false,
+            boons: [retaliate],
+            cards: [
+                stunning_leap, stunning_side_leap, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice
+            ]
+        },
+        {
+            name: achievement_names.two_headed_serpent,
+            description: `Defeat the Two Headed Serpent.`,
+            image: `${IMG_FOLDER.tiles}serpent_head.png`,
+            has: false,
+            boons: [slime_trail],
+            cards: [
+                reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_diagonal, reckless_horizontal, 
+                reckless_teleport
+            ]
+        },
+        {
+            name: achievement_names.lich,
+            description: `Defeat the Lich.`,
+            image: `${IMG_FOLDER.tiles}lich_rest.png`,
+            has: false,
+            boons: [sniper],
+            cards: []
+        },
+        {
+            name: achievement_names.young_dragon,
+            description: `Defeat the Young Dragon.`,
+            image: `${IMG_FOLDER.tiles}young_dragon_flight.png`,
+            has: false,
+            boons: [flame_strike],
+            cards: []
+        },
+        {
+            name: achievement_names.forest_heart,
+            description: `Defeat the Forest Heart.`,
+            image: `${IMG_FOLDER.tiles}forest_heart.png`,
+            has: false,
+            boons: [frugivore],
+            cards: []
+        },
+        {
+            name: achievement_names.arcane_sentry,
+            description: `Defeat the Arcane Sentry.`,
+            image: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
+            has: false,
+            boons: [/*choose_your_path*/],
+            cards: []
+        },
+        
+        // Other 
+        /*
+        {
+            name: achievement_names.non_violent,
+            description: `Reach the first boss without killing anything.`,
+            image: ``,
+            has: false,
+            boons: [pacifism],
+        },
+        {
+            name: achievement_names.not_my_fault,
+            description: `Let a boss die without dealing the final blow.`,
+            has: false,
+            boons: [pressure_points],
+        },
+        {
+            name: achievement_names.ancient_knowledge,
+            description: `Restore an ancient card to full power.`,
+            has: false,
+            boons: [/*learn_from_mistakes/],
+        },
+        {
+            name: achievement_names.very_confused,
+            description: `Have 6 or more temporary cards in your deck.`,
+            has: false,
+            boons: [stable_mind],
+        },
+        {
+            name: achievement_names.peerless_sprinter,
+            description: `Speed through a floor in 3 turns or less.`,
+            has: false,
+            boons: [repetition],
+        },
+        {
+            name: achievement_names.speed_runner,
+            description: `Leave floor 10 in __ turns or less.`,
+            has: false,
+            boons: [/*duplicate/],
+        },
+        {
+            name: achievement_names.triple,
+            description: `Have 3 or more of the same card in your deck.`,
+            has: false,
+            boons: [perfect_the_basics],
+        },
+        {
+            name: achievement_names.beyond_the_basics,
+            description: `Remove all basic cards from your deck.`,
+            has: false,
+            boons: [perfect_the_basics],
+        },
+        {
+            name: achievement_names.one_life,
+            description: `Defeat any boss with exactly 1 max health.`,
+            has: false,
+            boons: [frenzy],
+        },
+        {
+            name: achievement_names.flawless_technique,
+            description: `Defeat the second boss without ever taking damage.`,
+            has: false,
+            boons: [practice_makes_perfect],
+        },
+        {
+            name: achievement_names.clumsy,
+            description: `Take 5 or more damage from walking into hazards in 1 run.`,
+            has: false,
+            boons: [thick_soles],
+        },
+        {
+            name: achievement_names.shrug_it_off,
+            description: `Take 10 or more damage in 1 run.`,
+            has: false,
+            boons: [/*thick_skin/],
+        },
+        {
+            name: achievement_names.collector,
+            description: `Open 6 or more treasure chests in 1 run.`,
+            has: false,
+            boons: [hoarder],
+        },
+        {
+            name: achievement_names.jack_of_all_trades,
+            description: `Have 20 or more cards in your deck.`,
+            has: false,
+            boons: [spontaneous],
+        },
+        {
+            name: achievement_names.monster_hunter,
+            description: `Kill 5 unique bosses.`,
+            has: false,
+            boons: [brag_and_boast],
+        },
+    */
+    ]
 }
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
@@ -2396,6 +2636,7 @@ const stunned_msg = `Stunned x`;
 const gameplay_screen_name = `Gameplay`;
 const guide_screen_name = `Guidebook`;
 const controls_screen_name = `Controls`;
+const achievements_screen_name = `Achievements`;
 const edit_controls_message = `Edit`;
 const default_controls_message = `Default`;
 const save_controls_message = `Save`;
@@ -2669,6 +2910,7 @@ const HTML_UIIDS = {
         stage_controls: `stageControls`,
         shop_controls: `shopControls`,
         chest_controls: `chestControls`,
+    achievements: `achievements`,
 }
 Object.freeze(HTML_UIIDS);
 
@@ -2698,6 +2940,7 @@ function arcane_sentry_tile(){
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry]),
         health,
         death_message: arcane_sentry_death_message,
+        death_achievement: achievement_names.arcane_sentry,
         behavior: sentry_core_ai,
         on_hit: sentry_core_on_hit,
         on_death: arcane_sentry_death,
@@ -2864,7 +3107,10 @@ function sentry_get_core(location, map){
 }
 /** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
 function boss_death(self, target, map){
-    if(self.tile.death_message === undefined){
+    if(
+        self.tile.death_message === undefined ||
+        self.tile.death_achievement === undefined
+    ){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
@@ -2888,8 +3134,8 @@ function boss_death(self, target, map){
         death_message = `${death_message}\n${practice_makes_perfect_message}`
     }
     map.player_heal(new Point(0, 0));
+    GS.achieve(self.tile.death_achievement);
     say(death_message);
-
 }
 // ToDo
 //      Handle Death
@@ -2935,6 +3181,7 @@ function forest_heart_tile(){
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
         health: 12,
         death_message: forest_heart_death_message,
+        death_achievement: achievement_names.forest_heart,
         behavior: forest_heart_ai,
         on_hit: forest_heart_on_hit,
         on_death: forest_heart_death,
@@ -3097,6 +3344,7 @@ function lich_tile(){
         tags: new TagList([TAGS.boss]),
         health,
         death_message: lich_death_message,
+        death_achievement: achievement_names.lich,
         behavior: lich_ai,
         telegraph: lich_telegraph,
         telegraph_other: lich_telegraph_other,
@@ -3376,6 +3624,7 @@ function spider_queen_tile(){
         tags: new TagList([TAGS.boss]),
         health,
         death_message: spider_queen_death_message,
+        death_achievement: achievement_names.spider_queen,
         behavior: spider_ai,
         telegraph: spider_telegraph,
         on_hit: spider_queen_hit,
@@ -3403,6 +3652,7 @@ function two_headed_serpent_tile(){
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         health: 1,
         death_message: two_headed_serpent_death_message,
+        death_achievement: achievement_names.two_headed_serpent,
         behavior: two_headed_serpent_ai,
         telegraph: two_headed_serpent_telegraph,
         on_death: two_headed_serpent_hurt,
@@ -3673,6 +3923,7 @@ function velociphile_tile(){
         tags: new TagList([TAGS.boss]),
         health,
         death_message: velociphile_death_message,
+        death_achievement: achievement_names.velociphile,
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,
         on_death: boss_death,
@@ -3730,6 +3981,7 @@ function young_dragon_tile(){
         tags: new TagList([TAGS.boss]),
         health,
         death_message: young_dragon_death_message,
+        death_achievement: achievement_names.young_dragon,
         behavior: young_dragon_behavior,
         telegraph: young_dragon_telegraph,
         on_death: boss_death,
@@ -7012,6 +7264,7 @@ function growth_event(points, root, grown){
  * @property {number=} max_health It can never be healed above this.
  * @property {number=} difficulty Used to determine how many things can be spawned.
  * @property {string=} death_message Displayed on death.
+ * @property {string=} death_achievement Name of the achievement granted on boss death.
  * 
  * // Functions controlling behavior. //
  * @property {AIFunction=} behavior What it does on it's turn. Targets the player.
@@ -8137,6 +8390,61 @@ function move_attack_telegraph(location, map, directions){
 }
 
 
+
+class AchievementList{
+    #list
+    constructor(){
+        this.#list = get_achievements();
+    }
+    achieve(name){
+        // Achieves the achievement with the given name.
+        var match = this.#list.find((e) => {
+            return e.name === name;
+        });
+        if(match === undefined){
+            throw new Error(ERRORS.value_not_found);            
+        }
+        var achieved = !match.has;
+        match.has = true;
+        return achieved;
+    }
+    completed(){
+        // Returns a list of the achievements that they have achieved.
+        return this.#list.filter((e) => {
+            return e.has;
+        })
+    }
+    all(){
+        // Returns all achievements.
+        return this.#list;
+    }
+    has(name){
+        // Checks if they have the achievement with the chosen name.
+        var match = this.#list.find((e) => {
+            return e.name === name;
+        });
+        if(match === undefined){
+            throw new Error(ERRORS.value_not_found);
+        }
+        return match.has;
+    }
+    get(){
+        // Returns a list with all the achiements they have earned.
+        return this.completed().map((e) => {
+            return e.name;
+        });
+    }
+    set(list){
+        // Updates has values to match a list of JSONS that are passed in from the save data.
+        if(list === undefined){
+            return;
+        }
+        for(var element of list){
+            this.achieve(element);
+        }
+    }
+    
+}
 
 
 class BoonTracker{
@@ -9451,6 +9759,8 @@ class GameState{
     #text_log;
     constructor(){
         // Starts the game on load.
+        var init = init_settings();
+        this.data = new SaveData(init.load, init.save);
         this.setup();
     }
     /** 
@@ -9460,7 +9770,6 @@ class GameState{
     setup(){
         var init = init_settings();
         // Function ran on page load or on restart to set up the game.
-        this.data = new SaveData(init.load, init.save);
         this.#text_log = [];
         this.boons = new BoonTracker(BOON_LIST);
         var start = randomize_arr(init.area)[0]();
@@ -9800,6 +10109,12 @@ class GameState{
      */
     refresh_boon_display(){
         display_boons(this.boons);
+    }
+    achieve(name){
+        var gained = this.data.achievements.achieve(name);
+        if(gained){
+            say(`Achievement Unlocked: ${name}`);
+        }
     }
 }
 
@@ -10237,6 +10552,7 @@ class MoveDeck{
 
 class SaveData{
     controls;
+    achievements;
     load_function;
     save_function;
     constructor(load, save){
@@ -10249,15 +10565,22 @@ class SaveData{
         data = SaveData.#load_missing(data);
         this.controls = new KeyBind();
         this.controls.set(data.controls);
+        this.achievements = new AchievementList();
+        this.achievements.set(data.achievements)
     }
     save(){
         var data = {
-            controls: this.controls.get()
+            controls: this.controls.get(),
+            achievements: this.achievements.get()
         }
         this.save_function(data);        
     }
     set_controls(new_controls){
         this.controls.set(new_controls);
+        this.save();
+    }
+    achieve(name){
+        this.achievements.achieve(name);
         this.save();
     }
     
@@ -10283,6 +10606,11 @@ class SaveData{
             return data ? JSON.parse(data) : undefined;
         }
     }
+    static load_blank(){
+        return () => {
+            return undefined;
+        }
+    }
     static save_file_function(save_name){
         return (data) => {
             const fs = require(`fs`);
@@ -10297,6 +10625,9 @@ class SaveData{
         return (data) => {
             display.set_local_storage(`Maneuver.saves.${save_name}`, JSON.stringify(data));
         }
+    }
+    static save_blank(){
+        return (data) => {}
     }
     static #load_missing(data){
         var blank = SaveData.default_data();
@@ -10349,7 +10680,7 @@ class ScreenTracker{
     }
 }
 
-const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.controls]);
+const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.controls, UIIDS.achievements]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand]);
 

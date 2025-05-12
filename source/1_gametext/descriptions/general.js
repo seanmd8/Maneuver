@@ -20,6 +20,7 @@ const stunned_msg = `Stunned x`;
 const gameplay_screen_name = `Gameplay`;
 const guide_screen_name = `Guidebook`;
 const controls_screen_name = `Controls`;
+const achievements_screen_name = `Achievements`;
 const edit_controls_message = `Edit`;
 const default_controls_message = `Default`;
 const save_controls_message = `Save`;

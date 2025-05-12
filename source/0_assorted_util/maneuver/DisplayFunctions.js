@@ -293,3 +293,9 @@ function edit_chest_controls(controls){
     display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
     display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
 }
+
+function update_achievements(){
+    var achievements = GS.data.achievements.all();
+    display.remove_children(UIIDS.achievements);
+    display.show_achievements(UIIDS.achievements, achievements);
+}

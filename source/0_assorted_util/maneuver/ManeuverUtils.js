@@ -144,6 +144,13 @@ function create_main_dropdown(location){
                 setup_controls_page();
                 DISPLAY_DIVISIONS.swap(UIIDS.controls);
             }
+        },
+        {
+            label: achievements_screen_name,
+            on_change: () => {
+                update_achievements();
+                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
+            }
         }
     ];
     display.create_dropdown(location, options);

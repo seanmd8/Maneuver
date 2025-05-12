@@ -21,6 +21,7 @@ function arcane_sentry_tile(){
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry]),
         health,
         death_message: arcane_sentry_death_message,
+        death_achievement: achievement_names.arcane_sentry,
         behavior: sentry_core_ai,
         on_hit: sentry_core_on_hit,
         on_death: arcane_sentry_death,

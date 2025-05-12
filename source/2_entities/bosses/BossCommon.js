@@ -1,6 +1,9 @@
 /** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
 function boss_death(self, target, map){
-    if(self.tile.death_message === undefined){
+    if(
+        self.tile.death_message === undefined ||
+        self.tile.death_achievement === undefined
+    ){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
@@ -24,6 +27,6 @@ function boss_death(self, target, map){
         death_message = `${death_message}\n${practice_makes_perfect_message}`
     }
     map.player_heal(new Point(0, 0));
+    GS.achieve(self.tile.death_achievement);
     say(death_message);
-
 }

@@ -9,6 +9,7 @@ function two_headed_serpent_tile(){
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         health: 1,
         death_message: two_headed_serpent_death_message,
+        death_achievement: achievement_names.two_headed_serpent,
         behavior: two_headed_serpent_ai,
         telegraph: two_headed_serpent_telegraph,
         on_death: two_headed_serpent_hurt,
