@@ -12,6 +12,7 @@ function initiate_game(){
     display.display_message(UIIDS.title, `${game_title}    `);
     create_main_dropdown(UIIDS.title);
     GS = new GameState();
+    GS.setup();
     display_guide();
     setup_controls_page();
 }

@@ -13,7 +13,6 @@ class GameState{
         // Starts the game on load.
         var init = init_settings();
         this.data = new SaveData(init.load, init.save);
-        this.setup();
     }
     /** 
      * Function to set up or reset the game.
