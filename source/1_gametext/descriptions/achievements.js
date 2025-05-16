@@ -46,7 +46,7 @@ const achievement_description = {
     beyond_the_basics: `Remove all basic cards from your deck.`,
     one_life: `Defeat any boss with exactly 1 max health.`,
     without_a_scratch: `Defeat the second boss without ever taking damage.`,
-    clumsy: `Take 5 or more damage from walking into hazards in 1 run.`,
+    clumsy: `Take 5 or more damage during your turn in 1 run.`,
     shrug_it_off: `Take 10 or more damage in 1 run.`,
     collector: `Open 6 or more treasure chests in 1 run.`,
     jack_of_all_trades: `Have 20 or more cards in your deck.`,
@@ -153,26 +153,30 @@ function get_achievements(){
             name: achievement_names.peerless_sprinter,
             description: achievement_description.peerless_sprinter,
             has: false,
-            boons: [repetition],
+            boons: [stealthy],
         },
         {
             name: achievement_names.speed_runner,
             description: achievement_description.speed_runner,
             has: false,
-            boons: [/*duplicate/],
+            boons: [/*repetition/],
         },
+        */
         {
             name: achievement_names.triple,
             description: achievement_description.triple,
+            image: `${IMG_FOLDER.achievements}triple.png`,
             has: false,
-            boons: [perfect_the_basics],
+            boons: [/*duplicate*/],
         },
         {
             name: achievement_names.beyond_the_basics,
             description: achievement_description.beyond_the_basics,
+            image: `${IMG_FOLDER.achievements}beyond_the_basics.png`,
             has: false,
             boons: [perfect_the_basics],
         },
+        /*
         {
             name: achievement_names.one_life,
             description: achievement_description.one_life,

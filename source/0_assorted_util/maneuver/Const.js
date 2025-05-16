@@ -14,7 +14,7 @@ function init_settings(){
     }
     init.enemies = init.enemies ? init.enemies : [spider_tile];
     init.chests = init.chests ? init.chests : [];
-    init.cards = init.cards ? make_test_deck(TEST_INIT.cards) : make_starting_deck();
+    init.cards = init.cards ? make_test_deck(init.cards) : make_starting_deck();
     init.area = init.area? [init.area] : area1;
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
     init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
@@ -82,6 +82,7 @@ Object.freeze(DEFAULT_CONTROLS);
 // Image folder file structure.
 const IMG_FOLDER = {
     src: `images/`,
+    achievements: `achievements/`,
     actions: `actions/`,
     backgrounds: `backgrounds/`,
     cards: `cards/`,

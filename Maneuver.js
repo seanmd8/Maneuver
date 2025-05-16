@@ -441,7 +441,7 @@ function init_settings(){
     }
     init.enemies = init.enemies ? init.enemies : [spider_tile];
     init.chests = init.chests ? init.chests : [];
-    init.cards = init.cards ? make_test_deck(TEST_INIT.cards) : make_starting_deck();
+    init.cards = init.cards ? make_test_deck(init.cards) : make_starting_deck();
     init.area = init.area? [init.area] : area1;
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
     init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
@@ -509,6 +509,7 @@ Object.freeze(DEFAULT_CONTROLS);
 // Image folder file structure.
 const IMG_FOLDER = {
     src: `images/`,
+    achievements: `achievements/`,
     actions: `actions/`,
     backgrounds: `backgrounds/`,
     cards: `cards/`,
@@ -1588,8 +1589,7 @@ function make_starting_deck(){
 }
 // Makes a deck for testing new cards.
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
-function make_test_deck(){
-    var test_cards = TEST_INIT.cards;
+function make_test_deck(test_cards){
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
     for(var card of test_cards){
         deck.add(card());
@@ -1884,7 +1884,7 @@ const achievement_description = {
     beyond_the_basics: `Remove all basic cards from your deck.`,
     one_life: `Defeat any boss with exactly 1 max health.`,
     without_a_scratch: `Defeat the second boss without ever taking damage.`,
-    clumsy: `Take 5 or more damage from walking into hazards in 1 run.`,
+    clumsy: `Take 5 or more damage during your turn in 1 run.`,
     shrug_it_off: `Take 10 or more damage in 1 run.`,
     collector: `Open 6 or more treasure chests in 1 run.`,
     jack_of_all_trades: `Have 20 or more cards in your deck.`,
@@ -1991,26 +1991,30 @@ function get_achievements(){
             name: achievement_names.peerless_sprinter,
             description: achievement_description.peerless_sprinter,
             has: false,
-            boons: [repetition],
+            boons: [stealthy],
         },
         {
             name: achievement_names.speed_runner,
             description: achievement_description.speed_runner,
             has: false,
-            boons: [/*duplicate/],
+            boons: [/*repetition/],
         },
+        */
         {
             name: achievement_names.triple,
             description: achievement_description.triple,
+            image: `${IMG_FOLDER.achievements}triple.png`,
             has: false,
-            boons: [perfect_the_basics],
+            boons: [/*duplicate*/],
         },
         {
             name: achievement_names.beyond_the_basics,
             description: achievement_description.beyond_the_basics,
+            image: `${IMG_FOLDER.achievements}beyond_the_basics.png`,
             has: false,
             boons: [perfect_the_basics],
         },
+        /*
         {
             name: achievement_names.one_life,
             description: achievement_description.one_life,
@@ -10451,6 +10455,7 @@ class MoveDeck{
             this.#library.push(new_card);
         }
         this.#library = randomize_arr(this.#library);
+        this.#check_three_kind_achievement(new_card.name);
     }
     /**
      * Adds a new card to the library after giving it a temp tag.
@@ -10553,6 +10558,7 @@ class MoveDeck{
                 if(card.evolutions !== undefined){
                     this.add(randomize_arr(card.evolutions)[0]());
                 }
+                this.#check_remaining_basics_achievement();
                 return true;
             }
         }
@@ -10598,6 +10604,20 @@ class MoveDeck{
         new_deck.#id_count = this.#id_count;
         new_deck.#decklist = this.#decklist;
         return new_deck;
+    }
+    #check_three_kind_achievement(name){
+        var repeats = this.#decklist.filter((e) => {return e.name === name});
+        if(GS !== undefined && repeats.length >= 3){
+            GS.achieve(achievement_names.triple);
+        }
+    }
+    #check_remaining_basics_achievement(){
+        var remaining = this.#decklist.filter((card) => {
+            return card.basic === true;
+        });
+        if(remaining.length === 0){
+            GS.achieve(achievement_names.beyond_the_basics);
+        }
     }
 }
 
@@ -12583,7 +12603,8 @@ function basic_horizontal(){
     return{
         name: `basic horizontal`,
         pic: `${IMG_FOLDER.cards}basic_horizontal.png`,
-        options
+        options,
+        basic: true
     }
 }
 /** @type {CardGenerator}*/
@@ -12596,7 +12617,8 @@ function basic_diagonal(){
     return{
         name: `basic diagonal`,
         pic: `${IMG_FOLDER.cards}basic_diagonal.png`,
-        options
+        options,
+        basic: true
     }
 }
 /** @type {CardGenerator}*/
@@ -12609,7 +12631,8 @@ function basic_slice(){
     return{
         name: `basic slice`,
         pic: `${IMG_FOLDER.cards}basic_slice.png`,
-        options
+        options,
+        basic: true
     }
 }
 /** @type {CardGenerator}*/
@@ -13651,7 +13674,7 @@ function pick_ancient_card(){
 
 function ancient_card_2(){
     return {
-        name: boon_names.ancient_card,
+        name: boon_names.ancient_card_2,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         description: add_card_description,
         on_pick: pick_ancient_card_2,

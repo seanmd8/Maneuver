@@ -12,7 +12,8 @@ function basic_horizontal(){
     return{
         name: `basic horizontal`,
         pic: `${IMG_FOLDER.cards}basic_horizontal.png`,
-        options
+        options,
+        basic: true
     }
 }
 /** @type {CardGenerator}*/
@@ -25,7 +26,8 @@ function basic_diagonal(){
     return{
         name: `basic diagonal`,
         pic: `${IMG_FOLDER.cards}basic_diagonal.png`,
-        options
+        options,
+        basic: true
     }
 }
 /** @type {CardGenerator}*/
@@ -38,7 +40,8 @@ function basic_slice(){
     return{
         name: `basic slice`,
         pic: `${IMG_FOLDER.cards}basic_slice.png`,
-        options
+        options,
+        basic: true
     }
 }
 /** @type {CardGenerator}*/

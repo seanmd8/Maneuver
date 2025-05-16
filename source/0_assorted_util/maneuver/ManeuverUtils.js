@@ -37,8 +37,7 @@ function make_starting_deck(){
 }
 // Makes a deck for testing new cards.
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
-function make_test_deck(){
-    var test_cards = TEST_INIT.cards;
+function make_test_deck(test_cards){
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
     for(var card of test_cards){
         deck.add(card());
