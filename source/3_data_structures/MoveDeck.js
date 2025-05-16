@@ -223,7 +223,9 @@ class MoveDeck{
                 if(card.evolutions !== undefined){
                     this.add(randomize_arr(card.evolutions)[0]());
                 }
-                this.#check_remaining_basics_achievement();
+                if(card.basic === true){
+                    this.#check_remaining_basics_achievement();
+                }
                 return true;
             }
         }
