@@ -12,7 +12,6 @@ const achievement_names = {
     non_violent: `Non Violent`,
     not_my_fault: `Not My Fault`,
     //ancient_knowledge: `Ancient Knowledge`,
-    very_confused: `Very Confused`,
     peerless_sprinter: `Peerless Sprinter`,
     speed_runner: `Speed Runner`,
     triple: `Three Of A Kind`,
@@ -39,7 +38,6 @@ const achievement_description = {
     non_violent: `Reach the first boss without killing anything.`,
     not_my_fault: `Let a boss die without dealing the final blow.`,
     //ancient_knowledge: `Restore an ancient card to full power.`,
-    very_confused: `Have 6 or more temporary cards in your deck.`,
     peerless_sprinter: `Speed through a floor in 3 turns or less.`,
     speed_runner: `Leave floor 10 in __ turns or less.`,
     triple: `Have 3 or more of the same card in your deck.`,
@@ -142,12 +140,6 @@ function get_achievements(){
             description: achievement_description.ancient_knowledge,
             has: false,
             boons: [/*learn_from_mistakes/],
-        },
-        {
-            name: achievement_names.very_confused,
-            description: achievement_description.very_confused,
-            has: false,
-            boons: [stable_mind],
         },
         {
             name: achievement_names.peerless_sprinter,
