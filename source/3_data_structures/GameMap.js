@@ -38,12 +38,14 @@ class GameMap{
     #grid;
     /** @type {number} Which number floor this is.*/
     #floor_num;
-    /** @type {number} Total number of turns that have elapsed.*/
-    #turn_count;
+    /** @type {StatTracker} Tracks various statistics about the game.*/
+    #stats;
     /** @type {MapEvent[]} Events that will happen at the end of the turn.*/
     #events;
     /** @type {Area} The current area of the dungeon they are in.*/
     #area;
+    /**@type {boolean} Keeps track of if it is currently the player's turn or not.*/
+    #is_player_turn;
     /**
      * @param {number} x_max The x size of floors in this dungeon.
      * @param {number} y_max The y size of floors in this dungeon.
@@ -54,9 +56,10 @@ class GameMap{
         this.#y_max = y_max;
         this.#entity_list = new EntityList();
         this.#floor_num = 0;
-        this.#turn_count = 0;
+        this.#stats = new StatTracker();
         this.#events = [];
         this.#area = starting_area;
+        this.#is_player_turn = true;
         this.erase()
     }
     /**
@@ -351,7 +354,8 @@ class GameMap{
         var start = this.get_tile(start_point);
         var end = this.get_tile(end_point);
         if(start.type === `player` && end.type === `exit`){
-            ++this.#turn_count;
+            this.#stats.increment_turn();
+            this.#stats.finish_floor();
             throw new Error(ERRORS.floor_complete);
         }
         if(end.on_enter !== undefined){
@@ -444,6 +448,12 @@ class GameMap{
         }
         if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
+            if(target.type === `player`){
+                this.#stats.increment_damage();
+                if(this.#is_player_turn){
+                    this.#stats.increment_turn_damage();
+                }
+            }
             var current_health = target.health;
             if(target.on_hit !== undefined){
                 // Trigger on_hit.
@@ -545,15 +555,18 @@ class GameMap{
      */
     async enemy_turn(){
         // Causes each enemy to execute their behavior.
-        ++this.#turn_count;
+        this.#stats.increment_turn();
+        this.#is_player_turn = false;
         await this.#entity_list.enemy_turn(this);
+        this.#is_player_turn = true;
     }
     /**
      * Displays the current floor number and turn count.
      * @param {string} location Where they should be displayed.
      */
     display_stats(location){
-        display.display_message(location, `Floor ${this.#floor_num} Turn: ${this.#turn_count}`);
+        var stats = this.#stats.get_stats();
+        display.display_message(location, `Floor ${this.#floor_num} Turn: ${stats.turn_number}`);
     }
     /**
      * Replaces the exit tile with a lock tile.
@@ -833,7 +846,8 @@ class GameMap{
      * @returns {number} The number of turns that have elapsed.
      */
     get_turn_count(){
-        return this.#turn_count;
+        var stats = this.#stats.get_stats();
+        return stats.turn_number;
     }
     /**
      * Checks if a location is in bounds and looks empty, or has a on_enter function.

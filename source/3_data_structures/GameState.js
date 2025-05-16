@@ -6,7 +6,7 @@ class GameState{
     map;
     deck;
     boons;
-    save;
+    data;
     #player_turn_lock;
     #text_log;
     constructor(){
