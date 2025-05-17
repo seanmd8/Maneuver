@@ -1162,13 +1162,15 @@ const DisplayHTML = {
             img.src = `${IMG_FOLDER.src}${img_name}`;
             img.alt = a.has? `unlocked` : `locked`;
             img_box.append(img);
-            if(a.has){
-                img_box.classList.add(`achievement-unlocked-image`);
-            }
 
             var text_box = document.createElement(`div`);
             text_box.classList.add(`achievement-text-box`);
             div.append(text_box);
+
+            if(a.has){
+                img_box.classList.add(`achievement-unlocked-image`);
+                text_box.classList.add(`achievement-unlocked-text`);
+            }
 
             var h3 = document.createElement(`h3`);
             h3.innerText = `${a.name}:`
