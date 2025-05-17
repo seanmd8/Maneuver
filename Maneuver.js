@@ -1877,11 +1877,11 @@ const achievement_description = {
     not_my_fault: `Let a boss die without dealing the final blow.`,
     //ancient_knowledge: `Restore an ancient card to full power.`,
     peerless_sprinter: `Speed through a floor in 3 turns or less.`,
-    speed_runner: `Leave floor 10 in __ turns or less.`,
+    speed_runner: `Leave floor 10 in 90 turns or less.`,
     triple: `Have 3 or more of the same card in your deck.`,
     beyond_the_basics: `Remove all basic cards from your deck.`,
     one_life: `Defeat any boss with exactly 1 max health.`,
-    without_a_scratch: `Defeat the second boss without ever taking damage.`,
+    without_a_scratch: `Leave floor 10 without taking any damage.`,
     clumsy: `Take 5 or more damage during your turn in 1 run.`,
     shrug_it_off: `Take 10 or more damage in 1 run.`,
     collector: `Open 6 or more treasure chests in 1 run.`,
@@ -1987,14 +1987,13 @@ function get_achievements(){
             has: false,
             boons: [stealthy],
         },
-        /*
         {
             name: achievement_names.speed_runner,
             description: achievement_description.speed_runner,
+            image: `${IMG_FOLDER.achievements}speed_runner.png`,
             has: false,
-            boons: [/*repetition/],
+            boons: [repetition],
         },
-        */
         {
             name: achievement_names.triple,
             description: achievement_description.triple,
@@ -2016,13 +2015,14 @@ function get_achievements(){
             has: false,
             boons: [frenzy],
         },
-        /*
         {
             name: achievement_names.without_a_scratch,
             description: achievement_description.without_a_scratch,
+            image: `${IMG_FOLDER.achievements}without_a_scratch.png`,
             has: false,
             boons: [practice_makes_perfect],
         },
+        /*
         {
             name: achievement_names.clumsy,
             description: achievement_description.clumsy,
@@ -10894,6 +10894,15 @@ class StatTracker{
     }
     finish_floor(){
         this.#turns_per_floor.push(this.#turn_number);
+        var floor_count = this.#turns_per_floor.length;
+        if(floor_count === 11){
+            if(this.#turn_number <= 90){
+                GS.achieve(achievement_names.speed_runner);
+            }
+            if(this.#damage === 0){
+                GS.achieve(achievement_names.without_a_scratch);
+            }
+        }
         var last_two = this.#turns_per_floor.slice(-2);
         return last_two[1] - last_two[0];
     }

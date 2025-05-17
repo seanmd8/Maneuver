@@ -16,6 +16,15 @@ class StatTracker{
     }
     finish_floor(){
         this.#turns_per_floor.push(this.#turn_number);
+        var floor_count = this.#turns_per_floor.length;
+        if(floor_count === 11){
+            if(this.#turn_number <= 90){
+                GS.achieve(achievement_names.speed_runner);
+            }
+            if(this.#damage === 0){
+                GS.achieve(achievement_names.without_a_scratch);
+            }
+        }
         var last_two = this.#turns_per_floor.slice(-2);
         return last_two[1] - last_two[0];
     }
