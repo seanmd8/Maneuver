@@ -30,6 +30,10 @@ function boss_death(self, target, map){
         death_message = `${death_message}\n${practice_makes_perfect_message}`
     }
     map.player_heal(new Point(0, 0));
-    GS.achieve(self.tile.death_achievement);
+    var new_boss_kill = GS.achieve(self.tile.death_achievement);
+    if(new_boss_kill && GS.data.achievements.count_bosses() === 5){
+        GS.achieve(achievement_names.monster_hunter);
+    }
+    
     say_record(death_message);
 }

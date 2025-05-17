@@ -51,5 +51,13 @@ class AchievementList{
             this.achieve(element);
         }
     }
+    count_bosses(){
+        // Counts how many unique boss killing achievements have been earned
+        var filtered = this.#list.filter((a) => {
+            return boss_achievements.find((n) => {return a.name === n &&  a.has}) !== undefined;
+        });
+        console.log(filtered);
+        return filtered.length;
+    }
     
 }

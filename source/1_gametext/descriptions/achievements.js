@@ -22,7 +22,7 @@ const achievement_names = {
     shrug_it_off: `Shrug It Off`,
     collector: `Collector`,
     jack_of_all_trades: `Jack Of All Trades`,
-    //monster_hunter: `Monster Hunter`,
+    monster_hunter: `Monster Hunter`,
 }
 const achievement_description = {
     // Boss
@@ -48,8 +48,19 @@ const achievement_description = {
     shrug_it_off: `Take 10 or more damage without dying in 1 run.`,
     collector: `Open 6 or more treasure chests in 1 run.`,
     jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
-    //monster_hunter: `Kill 5 total unique bosses.`,
+    monster_hunter: `Kill 5 total unique bosses.`,
 }
+
+const boss_achievements = [
+    achievement_names.velociphile,
+    achievement_names.spider_queen,
+    achievement_names.two_headed_serpent,
+    achievement_names.lich,
+    achievement_names.young_dragon,
+    achievement_names.forest_heart,
+    achievement_names.arcane_sentry,
+
+]
 
 function get_achievements(){
     return [
@@ -212,13 +223,12 @@ function get_achievements(){
             has: false,
             boons: [spontaneous],
         },
-        /*
         {
             name: achievement_names.monster_hunter,
             description: achievement_description.monster_hunter,
+            image: `${IMG_FOLDER.achievements}monster_hunter.png`,
             has: false,
             boons: [brag_and_boast],
         },
-    */
     ]
 }

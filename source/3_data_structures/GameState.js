@@ -367,10 +367,10 @@ class GameState{
         var gained = this.data.achieve(name);
         if(gained){
             say_record(`Achievement Unlocked: ${name}`, record_types.achievement);
+            return true;
         }
-        else{
-            say_record(`Achievement Repeated: ${name}`, record_types.repeated_achievement);
-        }
+        say_record(`Achievement Repeated: ${name}`, record_types.repeated_achievement);
+        return false;
     }
 }
 

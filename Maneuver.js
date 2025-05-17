@@ -435,7 +435,7 @@ function init_settings(){
         chests: undefined,
         cards: undefined,
         area: undefined,
-        area_size: undefined,
+        area_size: 2,
         save: undefined,
         load: undefined,
     }
@@ -1860,7 +1860,7 @@ const achievement_names = {
     shrug_it_off: `Shrug It Off`,
     collector: `Collector`,
     jack_of_all_trades: `Jack Of All Trades`,
-    //monster_hunter: `Monster Hunter`,
+    monster_hunter: `Monster Hunter`,
 }
 const achievement_description = {
     // Boss
@@ -1886,8 +1886,19 @@ const achievement_description = {
     shrug_it_off: `Take 10 or more damage without dying in 1 run.`,
     collector: `Open 6 or more treasure chests in 1 run.`,
     jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
-    //monster_hunter: `Kill 5 total unique bosses.`,
+    monster_hunter: `Kill 5 total unique bosses.`,
 }
+
+const boss_achievements = [
+    achievement_names.velociphile,
+    achievement_names.spider_queen,
+    achievement_names.two_headed_serpent,
+    achievement_names.lich,
+    achievement_names.young_dragon,
+    achievement_names.forest_heart,
+    achievement_names.arcane_sentry,
+
+]
 
 function get_achievements(){
     return [
@@ -2050,14 +2061,13 @@ function get_achievements(){
             has: false,
             boons: [spontaneous],
         },
-        /*
         {
             name: achievement_names.monster_hunter,
             description: achievement_description.monster_hunter,
+            image: `${IMG_FOLDER.achievements}monster_hunter.png`,
             has: false,
             boons: [brag_and_boast],
         },
-    */
     ]
 }
 // Area Descriptions.
@@ -3182,7 +3192,11 @@ function boss_death(self, target, map){
         death_message = `${death_message}\n${practice_makes_perfect_message}`
     }
     map.player_heal(new Point(0, 0));
-    GS.achieve(self.tile.death_achievement);
+    var new_boss_kill = GS.achieve(self.tile.death_achievement);
+    if(new_boss_kill && GS.data.achievements.count_bosses() === 5){
+        GS.achieve(achievement_names.monster_hunter);
+    }
+    
     say_record(death_message);
 }
 // ToDo
@@ -8492,6 +8506,14 @@ class AchievementList{
             this.achieve(element);
         }
     }
+    count_bosses(){
+        // Counts how many unique boss killing achievements have been earned
+        var filtered = this.#list.filter((a) => {
+            return boss_achievements.find((n) => {return a.name === n &&  a.has}) !== undefined;
+        });
+        console.log(filtered);
+        return filtered.length;
+    }
     
 }
 
@@ -10183,10 +10205,10 @@ class GameState{
         var gained = this.data.achieve(name);
         if(gained){
             say_record(`Achievement Unlocked: ${name}`, record_types.achievement);
+            return true;
         }
-        else{
-            say_record(`Achievement Repeated: ${name}`, record_types.repeated_achievement);
-        }
+        say_record(`Achievement Repeated: ${name}`, record_types.repeated_achievement);
+        return false;
     }
 }
 
