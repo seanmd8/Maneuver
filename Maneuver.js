@@ -1977,14 +1977,13 @@ function get_achievements(){
             has: false,
             boons: [pacifism],
         },
-        /*
         {
             name: achievement_names.not_my_fault,
             description: achievement_description.not_my_fault,
+            image: `${IMG_FOLDER.achievements}not_my_fault.png`,
             has: false,
             boons: [pressure_points],
         },
-        */
         {
             name: achievement_names.ancient_knowledge,
             description: achievement_description.ancient_knowledge,
@@ -3183,6 +3182,10 @@ function boss_death(self, target, map){
     var player_tile = map.get_player();
     if(player_tile.max_health === 1){
         GS.achieve(achievement_names.one_life);
+    }
+    var stats = map.stats.get_stats()
+    if(stats.damage_dealt === stats.total_damage_per_floor[stats.total_damage_per_floor.length - 1]){
+        GS.achieve(achievement_names.not_my_fault);
     }
     if( // Practice makes perfect
         GS.boons.has(boon_names.practice_makes_perfect) && 

@@ -139,14 +139,13 @@ function get_achievements(){
             has: false,
             boons: [pacifism],
         },
-        /*
         {
             name: achievement_names.not_my_fault,
             description: achievement_description.not_my_fault,
+            image: `${IMG_FOLDER.achievements}not_my_fault.png`,
             has: false,
             boons: [pressure_points],
         },
-        */
         {
             name: achievement_names.ancient_knowledge,
             description: achievement_description.ancient_knowledge,

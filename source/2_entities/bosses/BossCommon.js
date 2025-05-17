@@ -21,6 +21,10 @@ function boss_death(self, target, map){
     if(player_tile.max_health === 1){
         GS.achieve(achievement_names.one_life);
     }
+    var stats = map.stats.get_stats()
+    if(stats.damage_dealt === stats.total_damage_per_floor[stats.total_damage_per_floor.length - 1]){
+        GS.achieve(achievement_names.not_my_fault);
+    }
     if( // Practice makes perfect
         GS.boons.has(boon_names.practice_makes_perfect) && 
         player_tile.max_health !== undefined && 
