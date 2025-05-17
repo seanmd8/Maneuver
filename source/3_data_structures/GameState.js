@@ -25,7 +25,7 @@ class GameState{
         this.boons = new BoonTracker(BOON_LIST);
         var start = randomize_arr(init.area)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
-        this.deck = init.cards;
+        this.deck = init.make_deck();
 
         var starting_text = `${start.description}\n${welcome_message}`;
         say_record(starting_text);

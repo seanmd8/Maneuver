@@ -441,7 +441,7 @@ function init_settings(){
     }
     init.enemies = init.enemies ? init.enemies : [spider_tile];
     init.chests = init.chests ? init.chests : [];
-    init.cards = init.cards ? make_test_deck(init.cards) : make_starting_deck();
+    init.make_deck = init.cards ? () => {return make_test_deck(init.cards)} : () => {return make_starting_deck()};
     init.area = init.area? [init.area] : area1;
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
     init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
@@ -1979,12 +1979,15 @@ function get_achievements(){
             has: false,
             boons: [/*learn_from_mistakes/],
         },
+        */
         {
             name: achievement_names.peerless_sprinter,
             description: achievement_description.peerless_sprinter,
+            image: `${IMG_FOLDER.achievements}peerless_sprinter.png`,
             has: false,
             boons: [stealthy],
         },
+        /*
         {
             name: achievement_names.speed_runner,
             description: achievement_description.speed_runner,
@@ -9273,7 +9276,10 @@ class GameMap{
         var end = this.get_tile(end_point);
         if(start.type === `player` && end.type === `exit`){
             this.#stats.increment_turn();
-            this.#stats.finish_floor();
+            var floor_turns = this.#stats.finish_floor();
+            if(floor_turns <= 3){
+                GS.achieve(achievement_names.peerless_sprinter);
+            }
             throw new Error(ERRORS.floor_complete);
         }
         if(end.on_enter !== undefined){
@@ -9824,7 +9830,7 @@ class GameState{
         this.boons = new BoonTracker(BOON_LIST);
         var start = randomize_arr(init.area)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
-        this.deck = init.cards;
+        this.deck = init.make_deck();
 
         var starting_text = `${start.description}\n${welcome_message}`;
         say_record(starting_text);

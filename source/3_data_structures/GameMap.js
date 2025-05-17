@@ -355,7 +355,10 @@ class GameMap{
         var end = this.get_tile(end_point);
         if(start.type === `player` && end.type === `exit`){
             this.#stats.increment_turn();
-            this.#stats.finish_floor();
+            var floor_turns = this.#stats.finish_floor();
+            if(floor_turns <= 3){
+                GS.achieve(achievement_names.peerless_sprinter);
+            }
             throw new Error(ERRORS.floor_complete);
         }
         if(end.on_enter !== undefined){

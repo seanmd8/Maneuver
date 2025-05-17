@@ -141,12 +141,15 @@ function get_achievements(){
             has: false,
             boons: [/*learn_from_mistakes/],
         },
+        */
         {
             name: achievement_names.peerless_sprinter,
             description: achievement_description.peerless_sprinter,
+            image: `${IMG_FOLDER.achievements}peerless_sprinter.png`,
             has: false,
             boons: [stealthy],
         },
+        /*
         {
             name: achievement_names.speed_runner,
             description: achievement_description.speed_runner,

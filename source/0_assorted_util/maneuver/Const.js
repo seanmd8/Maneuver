@@ -14,7 +14,7 @@ function init_settings(){
     }
     init.enemies = init.enemies ? init.enemies : [spider_tile];
     init.chests = init.chests ? init.chests : [];
-    init.cards = init.cards ? make_test_deck(init.cards) : make_starting_deck();
+    init.make_deck = init.cards ? () => {return make_test_deck(init.cards)} : () => {return make_starting_deck()};
     init.area = init.area? [init.area] : area1;
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
     init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
