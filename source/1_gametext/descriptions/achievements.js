@@ -171,13 +171,14 @@ function get_achievements(){
             has: false,
             boons: [perfect_the_basics],
         },
-        /*
         {
             name: achievement_names.one_life,
             description: achievement_description.one_life,
+            image: `${IMG_FOLDER.achievements}one_life.png`,
             has: false,
             boons: [frenzy],
         },
+        /*
         {
             name: achievement_names.without_a_scratch,
             description: achievement_description.without_a_scratch,

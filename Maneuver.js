@@ -2009,13 +2009,14 @@ function get_achievements(){
             has: false,
             boons: [perfect_the_basics],
         },
-        /*
         {
             name: achievement_names.one_life,
             description: achievement_description.one_life,
+            image: `${IMG_FOLDER.achievements}one_life.png`,
             has: false,
             boons: [frenzy],
         },
+        /*
         {
             name: achievement_names.without_a_scratch,
             description: achievement_description.without_a_scratch,
@@ -3165,6 +3166,9 @@ function boss_death(self, target, map){
     map.unlock();
     var death_message = `${self.tile.death_message}\n${boss_death_description}`;
     var player_tile = map.get_player();
+    if(player_tile.max_health === 1){
+        GS.achieve(achievement_names.one_life);
+    }
     if( // Practice makes perfect
         GS.boons.has(boon_names.practice_makes_perfect) && 
         player_tile.max_health !== undefined && 
