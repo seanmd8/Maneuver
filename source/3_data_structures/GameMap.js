@@ -452,9 +452,11 @@ class GameMap{
         if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
             if(target.type === `player`){
-                this.#stats.increment_damage();
                 if(this.#is_player_turn){
                     this.#stats.increment_turn_damage();
+                }
+                else{
+                    this.#stats.increment_damage();
                 }
             }
             var current_health = target.health;

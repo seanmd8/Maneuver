@@ -30,10 +30,16 @@ class StatTracker{
     }
     increment_damage(){
         ++this.#damage;
+        if(this.#damage === 10){
+            GS.achieve(achievement_names.shrug_it_off);
+        }
     }
     increment_turn_damage(){
-        this.increment_damage()
+        this.increment_damage();
         ++this.#turn_damage;
+        if(this.#turn_damage === 5){
+            GS.achieve(achievement_names.clumsy);
+        }
     }
     get_stats(){
         return {

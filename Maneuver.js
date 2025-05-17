@@ -1882,8 +1882,8 @@ const achievement_description = {
     beyond_the_basics: `Remove all basic cards from your deck.`,
     one_life: `Defeat any boss with exactly 1 max health.`,
     without_a_scratch: `Leave floor 10 without taking any damage.`,
-    clumsy: `Take 5 or more damage during your turn in 1 run.`,
-    shrug_it_off: `Take 10 or more damage in 1 run.`,
+    clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
+    shrug_it_off: `Take 10 or more damage without dying in 1 run.`,
     collector: `Open 6 or more treasure chests in 1 run.`,
     jack_of_all_trades: `Have 20 or more cards in your deck.`,
     //monster_hunter: `Kill 5 total unique bosses.`,
@@ -2022,19 +2022,21 @@ function get_achievements(){
             has: false,
             boons: [practice_makes_perfect],
         },
-        /*
         {
             name: achievement_names.clumsy,
             description: achievement_description.clumsy,
+            image: `${IMG_FOLDER.achievements}clumsy.png`,
             has: false,
             boons: [thick_soles],
         },
         {
             name: achievement_names.shrug_it_off,
             description: achievement_description.shrug_it_off,
+            image: `${IMG_FOLDER.achievements}shrug_it_off.png`,
             has: false,
-            boons: [/*thick_skin/],
+            boons: [/*thick_skin*/],
         },
+        /*
         {
             name: achievement_names.collector,
             description: achievement_description.collector,
@@ -9377,9 +9379,11 @@ class GameMap{
         if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
             if(target.type === `player`){
-                this.#stats.increment_damage();
                 if(this.#is_player_turn){
                     this.#stats.increment_turn_damage();
+                }
+                else{
+                    this.#stats.increment_damage();
                 }
             }
             var current_health = target.health;
@@ -10908,10 +10912,16 @@ class StatTracker{
     }
     increment_damage(){
         ++this.#damage;
+        if(this.#damage === 10){
+            GS.achieve(achievement_names.shrug_it_off);
+        }
     }
     increment_turn_damage(){
-        this.increment_damage()
+        this.increment_damage();
         ++this.#turn_damage;
+        if(this.#turn_damage === 5){
+            GS.achieve(achievement_names.clumsy);
+        }
     }
     get_stats(){
         return {
