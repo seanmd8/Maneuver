@@ -1,6 +1,6 @@
 
 /** @type {CardGenerator}*/
-function chipped_execution(){
+function execution_1(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1), 
@@ -14,15 +14,15 @@ function chipped_execution(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `chipped execution`,
-        pic: `${IMG_FOLDER.cards}chipped_execution.png`,
+        name: `execution 1`,
+        pic: `${IMG_FOLDER.cards}execution_1.png`,
         options,
-        evolutions: [unpolished_execution]
+        evolutions: [execution_2]
     }
 }
 
 /** @type {CardGenerator}*/
-function unpolished_execution(){
+function execution_2(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -37,15 +37,15 @@ function unpolished_execution(){
     spin = [...spin, ...spin];
     options.add_button(SPIN, spin);
     return{
-        name: `unpolished execution`,
-        pic: `${IMG_FOLDER.cards}unpolished_execution.png`,
+        name: `execution 2`,
+        pic: `${IMG_FOLDER.cards}execution_2.png`,
         options,
-        evolutions: [execution]
+        evolutions: [execution_3]
     }
 }
 
 /** @type {CardGenerator}*/
-function execution(){
+function execution_3(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -60,8 +60,8 @@ function execution(){
     spin = [...spin, ...spin, ...spin];
     options.add_button(SPIN, spin);
     return{
-        name: `execution`,
-        pic: `${IMG_FOLDER.cards}execution.png`,
+        name: `execution 3`,
+        pic: `${IMG_FOLDER.cards}execution_3.png`,
         options
     }
 }

@@ -8,7 +8,7 @@ function init_settings(){
         chests: undefined,
         cards: undefined,
         area: undefined,
-        area_size: 5,
+        area_size: undefined,
         save: undefined,
         load: undefined,
     }

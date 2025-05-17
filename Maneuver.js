@@ -435,7 +435,7 @@ function init_settings(){
         chests: undefined,
         cards: undefined,
         area: undefined,
-        area_size: 5,
+        area_size: undefined,
         save: undefined,
         load: undefined,
     }
@@ -11617,7 +11617,7 @@ function generate_sanctum_floor(floor_num, area, map){
 
 
 /** @type {CardGenerator}*/
-function chipped_execution(){
+function execution_1(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1), 
@@ -11631,15 +11631,15 @@ function chipped_execution(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `chipped execution`,
-        pic: `${IMG_FOLDER.cards}chipped_execution.png`,
+        name: `execution 1`,
+        pic: `${IMG_FOLDER.cards}execution_1.png`,
         options,
-        evolutions: [unpolished_execution]
+        evolutions: [execution_2]
     }
 }
 
 /** @type {CardGenerator}*/
-function unpolished_execution(){
+function execution_2(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -11654,15 +11654,15 @@ function unpolished_execution(){
     spin = [...spin, ...spin];
     options.add_button(SPIN, spin);
     return{
-        name: `unpolished execution`,
-        pic: `${IMG_FOLDER.cards}unpolished_execution.png`,
+        name: `execution 2`,
+        pic: `${IMG_FOLDER.cards}execution_2.png`,
         options,
-        evolutions: [execution]
+        evolutions: [execution_3]
     }
 }
 
 /** @type {CardGenerator}*/
-function execution(){
+function execution_3(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -11677,8 +11677,8 @@ function execution(){
     spin = [...spin, ...spin, ...spin];
     options.add_button(SPIN, spin);
     return{
-        name: `execution`,
-        pic: `${IMG_FOLDER.cards}execution.png`,
+        name: `execution 3`,
+        pic: `${IMG_FOLDER.cards}execution_3.png`,
         options
     }
 }
@@ -11690,7 +11690,7 @@ function lost_technique(){
         name: `lost technique`,
         pic: `${IMG_FOLDER.cards}lost_technique.png`,
         options,
-        evolutions: [chipped_split_second, chipped_execution, chipped_superweapon]
+        evolutions: [split_second_1, execution_1, superweapon_1]
     }
 }
 
@@ -11702,29 +11702,29 @@ function lost_maneuver(){
         name: `lost maneuver`,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         options,
-        evolutions: [simple_maneuver]
+        evolutions: [maneuver_1]
     }
 }
 
 
 
 /** @type {CardGenerator}*/
-function simple_maneuver(){
+function maneuver_1(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(2, -2)]);
     options.add_button(SE, [pmove(2, 2)]);
     options.add_button(SW, [pmove(-2, 2)]);
     options.add_button(NW, [pmove(-2, -2)]);
     return{
-        name: `simple maneuver`,
-        pic: `${IMG_FOLDER.cards}simple_maneuver.png`,
+        name: `maneuver 1`,
+        pic: `${IMG_FOLDER.cards}maneuver_1.png`,
         options,
-        evolutions: [medium_maneuver]
+        evolutions: [maneuver_2]
     }
 }
 
 /** @type {CardGenerator}*/
-function medium_maneuver(){
+function maneuver_2(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(2, -2)]);
     options.add_button(SE, [pmove(2, 2)]);
@@ -11735,15 +11735,15 @@ function medium_maneuver(){
     options.add_button(S, [pmove(0, 2)]);
     options.add_button(W, [pmove(-2, 0)]);
     return{
-        name: `medium maneuver`,
-        pic: `${IMG_FOLDER.cards}medium_maneuver.png`,
+        name: `maneuver 2`,
+        pic: `${IMG_FOLDER.cards}maneuver_2.png`,
         options,
-        evolutions: [advanced_maneuver]
+        evolutions: [maneuver_3]
     }
 }
 
 /** @type {CardGenerator}*/
-function advanced_maneuver(){
+function maneuver_3(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(2, -2)]);
     options.add_button(SE, [pmove(2, 2)]);
@@ -11765,14 +11765,14 @@ function advanced_maneuver(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `advanced maneuver`,
-        pic: `${IMG_FOLDER.cards}advanced_maneuver.png`,
+        name: `maneuver 3`,
+        pic: `${IMG_FOLDER.cards}maneuver_3.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function chipped_split_second(){
+function split_second_1(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -11786,15 +11786,15 @@ function chipped_split_second(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `chipped split second`,
-        pic: `${IMG_FOLDER.cards}chipped_split_second.png`,
+        name: `split second 1`,
+        pic: `${IMG_FOLDER.cards}split_second_1.png`,
         options,
-        evolutions: [split_second]
+        evolutions: [split_second_2]
     }
 }
 
 /** @type {CardGenerator}*/
-function split_second(){
+function split_second_2(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -11809,14 +11809,14 @@ function split_second(){
     options.add_button(SPIN, spin);
     options.make_instant();
     return{
-        name: `split second`,
-        pic: `${IMG_FOLDER.cards}split_second.png`,
+        name: `split second 2`,
+        pic: `${IMG_FOLDER.cards}split_second_2.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function chipped_superweapon(){
+function superweapon_1(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -11830,15 +11830,15 @@ function chipped_superweapon(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `chipped superweapon`,
-        pic: `${IMG_FOLDER.cards}chipped_superweapon.png`,
+        name: `superweapon 1`,
+        pic: `${IMG_FOLDER.cards}superweapon_1.png`,
         options,
-        evolutions: [superweapon]
+        evolutions: [superweapon_2]
     }
 }
 
 /** @type {CardGenerator}*/
-function superweapon(){
+function superweapon_2(){
     var options = new ButtonGrid();
     var area = [];
     var radius = 2;
@@ -11851,8 +11851,8 @@ function superweapon(){
     }
     options.add_button(SPIN, area);
     return{
-        name: `superweapon`,
-        pic: `${IMG_FOLDER.cards}superweapon.png`,
+        name: `superweapon 2`,
+        pic: `${IMG_FOLDER.cards}superweapon_2.png`,
         options
     }
 }
