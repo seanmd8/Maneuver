@@ -1970,14 +1970,14 @@ function get_achievements(){
         },
         
         // Other 
-        /*
         {
             name: achievement_names.non_violent,
             description: achievement_description.non_violent,
-            image: ``,
+            image: `${IMG_FOLDER.achievements}non_violent.png`,
             has: false,
             boons: [pacifism],
         },
+        /*
         {
             name: achievement_names.not_my_fault,
             description: achievement_description.not_my_fault,
@@ -9392,7 +9392,7 @@ class GameMap{
      * @param {Point} location Where to attack.
      * @returns {boolean} Returns true if the attack hit.
      */
-    attack(location){
+    attack(location, source = undefined){
         if(!this.is_in_bounds(location)){
             return false;
         }
@@ -9404,6 +9404,9 @@ class GameMap{
         }
         if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
+            if(source !== undefined && source.tile.type === `player`){
+                this.stats.increment_damage_dealt();
+            }
             if(target.type === `player`){
                 if(this.#is_player_turn){
                     this.stats.increment_turn_damage();
@@ -9487,7 +9490,8 @@ class GameMap{
      * @returns {boolean} Returns true if the attack hits and false otherwise.
      */
     player_attack(direction){
-        var pos = this.#entity_list.get_player_pos().plus(direction);
+        var player_pos = this.#entity_list.get_player_pos();
+        var pos = player_pos.plus(direction);
         try{
             if(
                 chance(GS.boons.has(boon_names.flame_strike), 3) && 
@@ -9497,7 +9501,7 @@ class GameMap{
                 var fireball = shoot_fireball(direction);
                 this.add_tile(fireball, pos);
             }
-            return this.attack(pos);
+            return this.attack(pos, {tile: this.get_player(), location: player_pos});
         }
         catch (error){
             if(error.message !== `game over`){
@@ -9582,6 +9586,9 @@ class GameMap{
         this.erase();
         var player = this.get_player();
         var area_size = init_settings().area_size
+        if(this.#floor_num === 5 && this.stats.get_stats().damage_dealt === 0){
+            GS.achieve(achievement_names.non_violent);
+        }
         if(player.health === 1 && GS.boons.has(boon_names.bitter_determination) > 0){
             // Bitter determination heals you if you are at exactly 1.
             this.player_heal(new Point(0, 0), 1);
@@ -10923,6 +10930,8 @@ class StatTracker{
     #damage;
     #turn_damage;
     #chests;
+    #damage_dealt;
+    #total_damage_per_floor;
 
     constructor(){
         this.#turn_number = 0;
@@ -10930,12 +10939,15 @@ class StatTracker{
         this.#damage = 0;
         this.#turn_damage = 0;
         this.#chests = 0;
+        this.#damage_dealt = 0;
+        this.#total_damage_per_floor = [0];
     }
     increment_turn(){
         ++this.#turn_number;
     }
     finish_floor(){
         this.#turns_per_floor.push(this.#turn_number);
+        this.#total_damage_per_floor.push(this.#damage_dealt);
         var floor_count = this.#turns_per_floor.length;
         if(floor_count === 11){
             if(this.#turn_number <= 90){
@@ -10967,13 +10979,18 @@ class StatTracker{
             GS.achieve(achievement_names.collector);
         }
     }
+    increment_damage_dealt(){
+        ++this.#damage_dealt;
+    }
     get_stats(){
         return {
             turn_number: this.#turn_number,
             turns_per_floor: this.#turns_per_floor,
             damage: this.#damage,
             turn_damage: this.#turn_damage,
-            chests: this.#chests
+            chests: this.#chests,
+            damage_dealt: this.#damage_dealt,
+            total_damage_per_floor: this.#total_damage_per_floor
         }
     }
     

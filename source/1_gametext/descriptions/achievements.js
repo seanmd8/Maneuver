@@ -132,14 +132,14 @@ function get_achievements(){
         },
         
         // Other 
-        /*
         {
             name: achievement_names.non_violent,
             description: achievement_description.non_violent,
-            image: ``,
+            image: `${IMG_FOLDER.achievements}non_violent.png`,
             has: false,
             boons: [pacifism],
         },
+        /*
         {
             name: achievement_names.not_my_fault,
             description: achievement_description.not_my_fault,

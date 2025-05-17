@@ -5,6 +5,8 @@ class StatTracker{
     #damage;
     #turn_damage;
     #chests;
+    #damage_dealt;
+    #total_damage_per_floor;
 
     constructor(){
         this.#turn_number = 0;
@@ -12,12 +14,15 @@ class StatTracker{
         this.#damage = 0;
         this.#turn_damage = 0;
         this.#chests = 0;
+        this.#damage_dealt = 0;
+        this.#total_damage_per_floor = [0];
     }
     increment_turn(){
         ++this.#turn_number;
     }
     finish_floor(){
         this.#turns_per_floor.push(this.#turn_number);
+        this.#total_damage_per_floor.push(this.#damage_dealt);
         var floor_count = this.#turns_per_floor.length;
         if(floor_count === 11){
             if(this.#turn_number <= 90){
@@ -49,13 +54,18 @@ class StatTracker{
             GS.achieve(achievement_names.collector);
         }
     }
+    increment_damage_dealt(){
+        ++this.#damage_dealt;
+    }
     get_stats(){
         return {
             turn_number: this.#turn_number,
             turns_per_floor: this.#turns_per_floor,
             damage: this.#damage,
             turn_damage: this.#turn_damage,
-            chests: this.#chests
+            chests: this.#chests,
+            damage_dealt: this.#damage_dealt,
+            total_damage_per_floor: this.#total_damage_per_floor
         }
     }
     
