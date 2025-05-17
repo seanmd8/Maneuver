@@ -1984,13 +1984,14 @@ function get_achievements(){
             has: false,
             boons: [pressure_points],
         },
+        */
         {
             name: achievement_names.ancient_knowledge,
             description: achievement_description.ancient_knowledge,
+            image: `${IMG_FOLDER.achievements}ancient_knowledge.png`,
             has: false,
-            boons: [/*learn_from_mistakes/],
+            boons: [/*learn_from_mistakes*/],
         },
-        */
         {
             name: achievement_names.peerless_sprinter,
             description: achievement_description.peerless_sprinter,
@@ -10588,7 +10589,11 @@ class MoveDeck{
                 this.#decklist[i] = this.#decklist[this.#decklist.length - 1];
                 this.#decklist.pop()
                 if(card.evolutions !== undefined){
-                    this.add(randomize_arr(card.evolutions)[0]());
+                    var next = randomize_arr(card.evolutions)[0]() ;
+                    this.add(next);
+                    if(next.evolutions === undefined){
+                        GS.achieve(achievement_names.ancient_knowledge);
+                    }
                 }
                 if(card.basic === true){
                     this.#check_remaining_basics_achievement();

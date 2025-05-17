@@ -146,13 +146,14 @@ function get_achievements(){
             has: false,
             boons: [pressure_points],
         },
+        */
         {
             name: achievement_names.ancient_knowledge,
             description: achievement_description.ancient_knowledge,
+            image: `${IMG_FOLDER.achievements}ancient_knowledge.png`,
             has: false,
-            boons: [/*learn_from_mistakes/],
+            boons: [/*learn_from_mistakes*/],
         },
-        */
         {
             name: achievement_names.peerless_sprinter,
             description: achievement_description.peerless_sprinter,

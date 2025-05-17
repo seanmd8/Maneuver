@@ -222,7 +222,11 @@ class MoveDeck{
                 this.#decklist[i] = this.#decklist[this.#decklist.length - 1];
                 this.#decklist.pop()
                 if(card.evolutions !== undefined){
-                    this.add(randomize_arr(card.evolutions)[0]());
+                    var next = randomize_arr(card.evolutions)[0]() ;
+                    this.add(next);
+                    if(next.evolutions === undefined){
+                        GS.achieve(achievement_names.ancient_knowledge);
+                    }
                 }
                 if(card.basic === true){
                     this.#check_remaining_basics_achievement();
