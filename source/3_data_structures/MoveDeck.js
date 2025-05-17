@@ -274,7 +274,7 @@ class MoveDeck{
     }
     #check_three_kind_achievement(name){
         var repeats = this.#decklist.filter((e) => {return e.name === name});
-        if(GS !== undefined && repeats.length >= 3){
+        if(GS !== undefined && repeats.length === 3){
             GS.achieve(achievement_names.triple);
         }
     }

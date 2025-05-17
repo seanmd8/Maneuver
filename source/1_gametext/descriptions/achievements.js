@@ -198,13 +198,14 @@ function get_achievements(){
             has: false,
             boons: [/*thick_skin*/],
         },
-        /*
         {
             name: achievement_names.collector,
             description: achievement_description.collector,
+            image: `${IMG_FOLDER.achievements}collector.png`,
             has: false,
             boons: [hoarder],
         },
+        /*
         {
             name: achievement_names.jack_of_all_trades,
             description: achievement_description.jack_of_all_trades,

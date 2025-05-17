@@ -16,6 +16,7 @@ function chest_on_enter(self, target, map){
     }
     self.tile.health = 1;
     map.attack(self.location);
+    map.stats.increment_chests();
     var leave_chest = function(){
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         display.display_message(UIIDS.chest_instructions, ``);

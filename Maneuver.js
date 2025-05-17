@@ -2036,13 +2036,14 @@ function get_achievements(){
             has: false,
             boons: [/*thick_skin*/],
         },
-        /*
         {
             name: achievement_names.collector,
             description: achievement_description.collector,
+            image: `${IMG_FOLDER.achievements}collector.png`,
             has: false,
             boons: [hoarder],
         },
+        /*
         {
             name: achievement_names.jack_of_all_trades,
             description: achievement_description.jack_of_all_trades,
@@ -6980,6 +6981,7 @@ function chest_on_enter(self, target, map){
     }
     self.tile.health = 1;
     map.attack(self.location);
+    map.stats.increment_chests();
     var leave_chest = function(){
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         display.display_message(UIIDS.chest_instructions, ``);
@@ -8966,7 +8968,7 @@ class GameMap{
     /** @type {number} Which number floor this is.*/
     #floor_num;
     /** @type {StatTracker} Tracks various statistics about the game.*/
-    #stats;
+    stats;
     /** @type {MapEvent[]} Events that will happen at the end of the turn.*/
     #events;
     /** @type {Area} The current area of the dungeon they are in.*/
@@ -8983,7 +8985,7 @@ class GameMap{
         this.#y_max = y_max;
         this.#entity_list = new EntityList();
         this.#floor_num = 0;
-        this.#stats = new StatTracker();
+        this.stats = new StatTracker();
         this.#events = [];
         this.#area = starting_area;
         this.#is_player_turn = true;
@@ -9281,8 +9283,8 @@ class GameMap{
         var start = this.get_tile(start_point);
         var end = this.get_tile(end_point);
         if(start.type === `player` && end.type === `exit`){
-            this.#stats.increment_turn();
-            var floor_turns = this.#stats.finish_floor();
+            this.stats.increment_turn();
+            var floor_turns = this.stats.finish_floor();
             if(floor_turns <= 3){
                 GS.achieve(achievement_names.peerless_sprinter);
             }
@@ -9380,10 +9382,10 @@ class GameMap{
             target.health -= 1;
             if(target.type === `player`){
                 if(this.#is_player_turn){
-                    this.#stats.increment_turn_damage();
+                    this.stats.increment_turn_damage();
                 }
                 else{
-                    this.#stats.increment_damage();
+                    this.stats.increment_damage();
                 }
             }
             var current_health = target.health;
@@ -9487,7 +9489,7 @@ class GameMap{
      */
     async enemy_turn(){
         // Causes each enemy to execute their behavior.
-        this.#stats.increment_turn();
+        this.stats.increment_turn();
         this.#is_player_turn = false;
         await this.#entity_list.enemy_turn(this);
         this.#is_player_turn = true;
@@ -9497,7 +9499,7 @@ class GameMap{
      * @param {string} location Where they should be displayed.
      */
     display_stats(location){
-        var stats = this.#stats.get_stats();
+        var stats = this.stats.get_stats();
         display.display_message(location, `Floor ${this.#floor_num} Turn: ${stats.turn_number}`);
     }
     /**
@@ -9778,7 +9780,7 @@ class GameMap{
      * @returns {number} The number of turns that have elapsed.
      */
     get_turn_count(){
-        var stats = this.#stats.get_stats();
+        var stats = this.stats.get_stats();
         return stats.turn_number;
     }
     /**
@@ -10615,7 +10617,7 @@ class MoveDeck{
     }
     #check_three_kind_achievement(name){
         var repeats = this.#decklist.filter((e) => {return e.name === name});
-        if(GS !== undefined && repeats.length >= 3){
+        if(GS !== undefined && repeats.length === 3){
             GS.achieve(achievement_names.triple);
         }
     }
@@ -10886,12 +10888,14 @@ class StatTracker{
     #turns_per_floor;
     #damage;
     #turn_damage;
+    #chests;
 
     constructor(){
         this.#turn_number = 0;
         this.#turns_per_floor = [0];
         this.#damage = 0;
         this.#turn_damage = 0;
+        this.#chests = 0;
     }
     increment_turn(){
         ++this.#turn_number;
@@ -10923,12 +10927,19 @@ class StatTracker{
             GS.achieve(achievement_names.clumsy);
         }
     }
+    increment_chests(){
+        ++this.#chests
+        if(this.#chests === 6){
+            GS.achieve(achievement_names.collector);
+        }
+    }
     get_stats(){
         return {
             turn_number: this.#turn_number,
             turns_per_floor: this.#turns_per_floor,
-            damage: this.#damage ,
-            turn_damage: this.#turn_damage 
+            damage: this.#damage,
+            turn_damage: this.#turn_damage,
+            chests: this.#chests
         }
     }
     

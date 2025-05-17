@@ -4,12 +4,14 @@ class StatTracker{
     #turns_per_floor;
     #damage;
     #turn_damage;
+    #chests;
 
     constructor(){
         this.#turn_number = 0;
         this.#turns_per_floor = [0];
         this.#damage = 0;
         this.#turn_damage = 0;
+        this.#chests = 0;
     }
     increment_turn(){
         ++this.#turn_number;
@@ -41,12 +43,19 @@ class StatTracker{
             GS.achieve(achievement_names.clumsy);
         }
     }
+    increment_chests(){
+        ++this.#chests
+        if(this.#chests === 6){
+            GS.achieve(achievement_names.collector);
+        }
+    }
     get_stats(){
         return {
             turn_number: this.#turn_number,
             turns_per_floor: this.#turns_per_floor,
-            damage: this.#damage ,
-            turn_damage: this.#turn_damage 
+            damage: this.#damage,
+            turn_damage: this.#turn_damage,
+            chests: this.#chests
         }
     }
     
