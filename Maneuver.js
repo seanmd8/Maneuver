@@ -1878,14 +1878,14 @@ const achievement_description = {
     //ancient_knowledge: `Restore an ancient card to full power.`,
     peerless_sprinter: `Speed through a floor in 3 turns or less.`,
     speed_runner: `Leave floor 10 in 90 turns or less.`,
-    triple: `Have 3 or more of the same card in your deck.`,
+    triple: `Have 3 or more of the same non temporary card in your deck.`,
     beyond_the_basics: `Remove all basic cards from your deck.`,
     one_life: `Defeat any boss with exactly 1 max health.`,
     without_a_scratch: `Leave floor 10 without taking any damage.`,
     clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
     shrug_it_off: `Take 10 or more damage without dying in 1 run.`,
     collector: `Open 6 or more treasure chests in 1 run.`,
-    jack_of_all_trades: `Have 20 or more cards in your deck.`,
+    jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
     //monster_hunter: `Kill 5 total unique bosses.`,
 }
 
@@ -2043,13 +2043,14 @@ function get_achievements(){
             has: false,
             boons: [hoarder],
         },
-        /*
         {
             name: achievement_names.jack_of_all_trades,
             description: achievement_description.jack_of_all_trades,
+            image: `${IMG_FOLDER.achievements}jack_of_all_trades.png`,
             has: false,
             boons: [spontaneous],
         },
+        /*
         {
             name: achievement_names.monster_hunter,
             description: achievement_description.monster_hunter,
@@ -10464,6 +10465,7 @@ class MoveDeck{
         }
         this.#library = randomize_arr(this.#library);
         this.#check_three_kind_achievement(new_card.name);
+        this.#check_jack_of_all_trades_achievement();
     }
     /**
      * Adds a new card to the library after giving it a temp tag.
@@ -10627,6 +10629,11 @@ class MoveDeck{
         });
         if(remaining.length === 0){
             GS.achieve(achievement_names.beyond_the_basics);
+        }
+    }
+    #check_jack_of_all_trades_achievement(){
+        if(this.#decklist.length === 25){
+            GS.achieve(achievement_names.jack_of_all_trades);
         }
     }
 }

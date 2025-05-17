@@ -121,6 +121,7 @@ class MoveDeck{
         }
         this.#library = randomize_arr(this.#library);
         this.#check_three_kind_achievement(new_card.name);
+        this.#check_jack_of_all_trades_achievement();
     }
     /**
      * Adds a new card to the library after giving it a temp tag.
@@ -284,6 +285,11 @@ class MoveDeck{
         });
         if(remaining.length === 0){
             GS.achieve(achievement_names.beyond_the_basics);
+        }
+    }
+    #check_jack_of_all_trades_achievement(){
+        if(this.#decklist.length === 25){
+            GS.achieve(achievement_names.jack_of_all_trades);
         }
     }
 }
