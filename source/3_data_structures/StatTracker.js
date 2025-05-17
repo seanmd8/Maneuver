@@ -25,7 +25,7 @@ class StatTracker{
         this.#total_damage_per_floor.push(this.#damage_dealt);
         var floor_count = this.#turns_per_floor.length;
         if(floor_count === 11){
-            if(this.#turn_number <= 90){
+            if(this.#turn_number <= 100){
                 GS.achieve(achievement_names.speed_runner);
             }
             if(this.#damage === 0){

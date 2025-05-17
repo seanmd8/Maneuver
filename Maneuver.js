@@ -1877,7 +1877,7 @@ const achievement_description = {
     not_my_fault: `Let a boss die without dealing the final blow.`,
     ancient_knowledge: `Restore an ancient card to full power.`,
     peerless_sprinter: `Speed through a floor in 3 turns or less.`,
-    speed_runner: `Leave floor 10 in 90 turns or less.`,
+    speed_runner: `Leave floor 10 in 100 turns or less.`,
     triple: `Have 3 or more of the same non temporary card in your deck.`,
     beyond_the_basics: `Remove all basic cards from your deck.`,
     one_life: `Defeat any boss with exactly 1 max health.`,
@@ -10953,7 +10953,7 @@ class StatTracker{
         this.#total_damage_per_floor.push(this.#damage_dealt);
         var floor_count = this.#turns_per_floor.length;
         if(floor_count === 11){
-            if(this.#turn_number <= 90){
+            if(this.#turn_number <= 100){
                 GS.achieve(achievement_names.speed_runner);
             }
             if(this.#damage === 0){
