@@ -11,7 +11,7 @@ const achievement_names = {
     // Normal
     non_violent: `Non Violent`,
     not_my_fault: `Not My Fault`,
-    //ancient_knowledge: `Ancient Knowledge`,
+    ancient_knowledge: `Ancient Knowledge`,
     peerless_sprinter: `Peerless Sprinter`,
     speed_runner: `Speed Runner`,
     triple: `Three Of A Kind`,
@@ -37,7 +37,7 @@ const achievement_description = {
     // Normal
     non_violent: `Reach the first boss without killing anything.`,
     not_my_fault: `Let a boss die without dealing the final blow.`,
-    //ancient_knowledge: `Restore an ancient card to full power.`,
+    ancient_knowledge: `Restore an ancient card to full power.`,
     peerless_sprinter: `Speed through a floor in 3 turns or less.`,
     speed_runner: `Leave floor 10 in 90 turns or less.`,
     triple: `Have 3 or more of the same non temporary card in your deck.`,
