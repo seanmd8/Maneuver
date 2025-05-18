@@ -9,6 +9,14 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+5/17/25
+- Added 21 Achievements
+- You can now change the controls
+- New look for control screen
+- Achievements and changes to the controls are saved between sessions
+- Lich has new images for each spell to make them more visually distinct
+- Updated images for ancient cards
+
 4/20/25
 - New look for the shop and guidebook
 - You can now see information about card choices in the shop and chests
