@@ -1,21 +1,21 @@
 
 /** @type {CardGenerator}*/
-function simple_maneuver(){
+function maneuver_1(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(2, -2)]);
     options.add_button(SE, [pmove(2, 2)]);
     options.add_button(SW, [pmove(-2, 2)]);
     options.add_button(NW, [pmove(-2, -2)]);
     return{
-        name: `simple maneuver`,
-        pic: `${IMG_FOLDER.cards}simple_maneuver.png`,
+        name: `maneuver 1`,
+        pic: `${IMG_FOLDER.cards}maneuver_1.png`,
         options,
-        evolutions: [medium_maneuver]
+        evolutions: [maneuver_2]
     }
 }
 
 /** @type {CardGenerator}*/
-function medium_maneuver(){
+function maneuver_2(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(2, -2)]);
     options.add_button(SE, [pmove(2, 2)]);
@@ -26,15 +26,15 @@ function medium_maneuver(){
     options.add_button(S, [pmove(0, 2)]);
     options.add_button(W, [pmove(-2, 0)]);
     return{
-        name: `medium maneuver`,
-        pic: `${IMG_FOLDER.cards}medium_maneuver.png`,
+        name: `maneuver 2`,
+        pic: `${IMG_FOLDER.cards}maneuver_2.png`,
         options,
-        evolutions: [advanced_maneuver]
+        evolutions: [maneuver_3]
     }
 }
 
 /** @type {CardGenerator}*/
-function advanced_maneuver(){
+function maneuver_3(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(2, -2)]);
     options.add_button(SE, [pmove(2, 2)]);
@@ -56,8 +56,8 @@ function advanced_maneuver(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `advanced maneuver`,
-        pic: `${IMG_FOLDER.cards}advanced_maneuver.png`,
+        name: `maneuver 3`,
+        pic: `${IMG_FOLDER.cards}maneuver_3.png`,
         options
     }
 }

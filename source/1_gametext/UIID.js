@@ -54,7 +54,10 @@ function get_uiids(language){
  *              @property {string} content_description: A description of whichever one of the contents you last clicked on.
  * @property {string} guide Controls the visibility of the guide screen.
  *      @property {string} guide_navbar Controls the visibility of each guidebook section.
- * @property {string} controls
+ * @property {string} controls Controls the visibility of the controls section.
+ *      @property {string} stage_controls Contains the controls for the stage.
+ *      @property {string} shop_control Contains the controls for the shop.
+ *      @property {string} chest_control Contains the controls for the chest.
  */
 
 
@@ -110,6 +113,11 @@ const HTML_UIIDS = {
     guide: `guide`,
         guide_navbar: `guideNavbar`,
     controls: `controls`,
+        stage_controls: `stageControls`,
+        shop_controls: `shopControls`,
+        chest_controls: `chestControls`,
+    achievements: `achievements`,
+        achievement_list: `achievement-list`
 }
 Object.freeze(HTML_UIIDS);
 

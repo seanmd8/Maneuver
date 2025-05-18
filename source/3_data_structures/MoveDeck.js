@@ -120,6 +120,8 @@ class MoveDeck{
             this.#library.push(new_card);
         }
         this.#library = randomize_arr(this.#library);
+        this.#check_three_kind_achievement(new_card.name);
+        this.#check_jack_of_all_trades_achievement();
     }
     /**
      * Adds a new card to the library after giving it a temp tag.
@@ -143,7 +145,7 @@ class MoveDeck{
                 if(!GS.check_lock_player_turn()){
                     return;
                 }
-                say(``, false);
+                say(``);
                 display_move_buttons(card, hand_pos);
             }
         }
@@ -220,7 +222,14 @@ class MoveDeck{
                 this.#decklist[i] = this.#decklist[this.#decklist.length - 1];
                 this.#decklist.pop()
                 if(card.evolutions !== undefined){
-                    this.add(randomize_arr(card.evolutions)[0]());
+                    var next = randomize_arr(card.evolutions)[0]() ;
+                    this.add(next);
+                    if(next.evolutions === undefined){
+                        GS.achieve(achievement_names.ancient_knowledge);
+                    }
+                }
+                if(card.basic === true){
+                    this.#check_remaining_basics_achievement();
                 }
                 return true;
             }
@@ -267,5 +276,24 @@ class MoveDeck{
         new_deck.#id_count = this.#id_count;
         new_deck.#decklist = this.#decklist;
         return new_deck;
+    }
+    #check_three_kind_achievement(name){
+        var repeats = this.#decklist.filter((e) => {return e.name === name});
+        if(GS !== undefined && repeats.length === 3){
+            GS.achieve(achievement_names.triple);
+        }
+    }
+    #check_remaining_basics_achievement(){
+        var remaining = this.#decklist.filter((card) => {
+            return card.basic === true;
+        });
+        if(remaining.length === 0){
+            GS.achieve(achievement_names.beyond_the_basics);
+        }
+    }
+    #check_jack_of_all_trades_achievement(){
+        if(this.#decklist.length === 25){
+            GS.achieve(achievement_names.jack_of_all_trades);
+        }
     }
 }

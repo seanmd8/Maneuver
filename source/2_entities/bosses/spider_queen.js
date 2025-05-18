@@ -12,6 +12,7 @@ function spider_queen_tile(){
         tags: new TagList([TAGS.boss]),
         health,
         death_message: spider_queen_death_message,
+        death_achievement: achievement_names.spider_queen,
         behavior: spider_ai,
         telegraph: spider_telegraph,
         on_hit: spider_queen_hit,

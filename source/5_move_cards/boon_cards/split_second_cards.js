@@ -1,6 +1,6 @@
 
 /** @type {CardGenerator}*/
-function chipped_split_second(){
+function split_second_1(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -14,15 +14,15 @@ function chipped_split_second(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `chipped split second`,
-        pic: `${IMG_FOLDER.cards}chipped_split_second.png`,
+        name: `split second 1`,
+        pic: `${IMG_FOLDER.cards}split_second_1.png`,
         options,
-        evolutions: [split_second]
+        evolutions: [split_second_2]
     }
 }
 
 /** @type {CardGenerator}*/
-function split_second(){
+function split_second_2(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -37,8 +37,8 @@ function split_second(){
     options.add_button(SPIN, spin);
     options.make_instant();
     return{
-        name: `split second`,
-        pic: `${IMG_FOLDER.cards}split_second.png`,
+        name: `split second 2`,
+        pic: `${IMG_FOLDER.cards}split_second_2.png`,
         options
     }
 }

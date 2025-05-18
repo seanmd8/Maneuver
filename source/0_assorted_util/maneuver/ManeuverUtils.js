@@ -12,6 +12,7 @@ function initiate_game(){
     display.display_message(UIIDS.title, `${game_title}    `);
     create_main_dropdown(UIIDS.title);
     GS = new GameState();
+    GS.setup();
     display_guide();
     setup_controls_page();
 }
@@ -36,12 +37,12 @@ function make_starting_deck(){
 }
 // Makes a deck for testing new cards.
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
-function make_test_deck(){
+function make_test_deck(test_cards){
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
-    for(var card of TEST_INIT.cards){
+    for(var card of test_cards){
         deck.add(card());
     }
-    var size = TEST_INIT.cards.length;
+    var size = test_cards.length;
     for(var i = 0; i < Math.max(4 - size, 1); ++i){
         deck.add(basic_horizontal());
     }
@@ -139,7 +140,17 @@ function create_main_dropdown(location){
         },
         {
             label: controls_screen_name,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.controls)}
+            on_change: () => {
+                setup_controls_page();
+                DISPLAY_DIVISIONS.swap(UIIDS.controls);
+            }
+        },
+        {
+            label: achievements_screen_name,
+            on_change: () => {
+                update_achievements();
+                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
+            }
         }
     ];
     display.create_dropdown(location, options);
@@ -227,7 +238,7 @@ function make_guidebook_images(arr){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var current_controls = GS.controls.get();
+    var current_controls = GS.data.controls.get();
     var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
     var buttons = [];
     for(var symbol of button_symbols){

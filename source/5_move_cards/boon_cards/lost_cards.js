@@ -6,7 +6,7 @@ function lost_technique(){
         name: `lost technique`,
         pic: `${IMG_FOLDER.cards}lost_technique.png`,
         options,
-        evolutions: [chipped_split_second, chipped_execution, chipped_superweapon]
+        evolutions: [split_second_1, execution_1, superweapon_1]
     }
 }
 
@@ -18,7 +18,7 @@ function lost_maneuver(){
         name: `lost maneuver`,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         options,
-        evolutions: [simple_maneuver]
+        evolutions: [maneuver_1]
     }
 }
 

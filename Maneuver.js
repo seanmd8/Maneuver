@@ -429,14 +429,27 @@ function point_equals(p1, p2){
 // File containing global constants used throughout the program.
 
 // Settings just used for testing. Leave as undefined when not in use.
-const TEST_INIT = {
-    enemies: undefined,
-    chest: undefined,
-    cards: undefined,
-    area: undefined,
-    area_size: undefined
+function init_settings(){
+    const init = {
+        enemies: undefined,
+        chests: undefined,
+        cards: undefined,
+        area: undefined,
+        area_size: undefined,
+        save: undefined,
+        load: undefined,
+    }
+    init.enemies = init.enemies ? init.enemies : [spider_tile];
+    init.chests = init.chests ? init.chests : [];
+    init.make_deck = init.cards ? () => {return make_test_deck(init.cards)} : () => {return make_starting_deck()};
+    init.area = init.area? [init.area] : area1;
+    init.area_size = init.area_size ? init.area_size : AREA_SIZE;
+    init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
+    init.load = init.load ? init.load: SaveData.load_local_function(`player1`);
+    return init;
 }
 
+var GS;
 
 // Starting player stats.
 const PLAYER_STARTING_HEALTH = 3;
@@ -445,17 +458,10 @@ const ADD_CHOICE_COUNT = 3;
 const REMOVE_CHOICE_COUNT = 3;
 const MIN_DECK_SIZE = 5;
 
-// Initialization settings.
-const STARTING_ENEMIES = TEST_INIT.enemies ? TEST_INIT.enemies : [spider_tile];
-const STARTING_CHESTS = TEST_INIT.chest ? TEST_INIT.chest : [];
-const STARTING_DECK = TEST_INIT.cards ? make_test_deck : make_starting_deck;
-const STARTING_AREA = TEST_INIT.area ? [TEST_INIT.area] : [generate_ruins_area];
-var GS;
-
 // Dungeon generation settings.
 const FLOOR_WIDTH = 8;
 const FLOOR_HEIGHT = 8;
-const AREA_SIZE = TEST_INIT.area_size ? TEST_INIT.area_size : 5;
+const AREA_SIZE = 5;
 const CHEST_LOCATION = 3;
 const SECOND_CHEST_LOCATION = 2;
 const BOON_CHOICES = 3;
@@ -503,6 +509,7 @@ Object.freeze(DEFAULT_CONTROLS);
 // Image folder file structure.
 const IMG_FOLDER = {
     src: `images/`,
+    achievements: `achievements/`,
     actions: `actions/`,
     backgrounds: `backgrounds/`,
     cards: `cards/`,
@@ -827,22 +834,25 @@ const DisplayHTML = {
     },
     press: function(key_press){
         var key = key_press.key.toLowerCase();
-        GS.controls.toggle_press(key);
+        GS.data.controls.toggle_press(key);
         if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
             if(GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
-                GS.controls.stage(key);
+                GS.data.controls.stage(key);
             }
             else if(GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
-                GS.controls.shop(key);
+                GS.data.controls.shop(key);
             }
             else if(GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
-                GS.controls.chest(key);
+                GS.data.controls.chest(key);
             }
+        }
+        else if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
+            display.set_control(key);
         }
     },
     unpress: function(key_press){
         var key = key_press.key.toLowerCase();
-        GS.controls.toggle_unpress(key);
+        GS.data.controls.toggle_unpress(key);
     },
     click: function(location){
         try{
@@ -973,13 +983,23 @@ const DisplayHTML = {
         var element = DisplayHTML.get_element(location);
         element.classList.remove(css_class);
     },
-    create_stacked_p: function(location, strs){
+    create_stacked_p: function(location, content){
         element = DisplayHTML.get_element(location);
-        var hr = document.createElement(`hr`);
-        element.append(hr);
-        for(var str of strs){
+        for(var message of content){
             var p = document.createElement(`p`);
-            p.innerText = str;
+            p.innerText = message.str;
+            p.classList.add(`log-text`);
+            switch(message.type){
+                case record_types.achievement:
+                    p.classList.add(`achievement-log-text`);
+                    break;
+                case record_types.repeated_achievement:
+                    p.classList.add(`repeated-achievement-log-text`);
+                    break;
+                default:
+                    p.classList.add(`normal-log-text`);
+                    break;
+            }
             element.append(p);
             hr = document.createElement(`hr`);
             element.append(hr);
@@ -1020,12 +1040,49 @@ const DisplayHTML = {
             location.append(container);
         }
     },
-    add_header: function(location, description){
+    add_controls_header: function(location, description, edit_function){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-header`);
         var header = document.createElement(`h2`);
         header.innerText = description;
+        var edit_mode = function(controls){
+            return () => {
+                setup_controls_page();
+                DisplayHTML.remove_children(location);
+                edit_function(controls);
+            }
+        }
+        var edit_button = DisplayHTML.create_button(edit_controls_message, undefined, edit_mode(GS.data.controls.get()));
+        var default_button = DisplayHTML.create_button(default_controls_message, undefined, edit_mode(new KeyBind().get()));
+        div.append(header);
+        div.append(edit_button);
+        div.append(default_button);
         var place = DisplayHTML.get_element(location);
-        place.append(header);
+        place.append(div);
     },
+    add_edit_controls_header: function(location, description, view_function, controls){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-header`);
+        var header = document.createElement(`h2`);
+        header.innerText = description;
+        var save_button = DisplayHTML.create_button(save_controls_message, undefined, () => {
+            if(KeyBind.is_valid(controls)){
+                GS.data.set_controls(controls);
+                DisplayHTML.remove_children(location);
+                view_function();
+            }
+        });
+        var undo_edit_button = DisplayHTML.create_button(undo_edit_controls_message, undefined, () => {
+            DisplayHTML.remove_children(location);
+            view_function();
+        });
+        div.append(header);
+        div.append(save_button);
+        div.append(undo_edit_button);
+        var place = DisplayHTML.get_element(location);
+        place.append(div);
+    },
+
     control_box: function(location, controls, description){
         var div = document.createElement(`div`);
         div.classList.add(`control-box`);
@@ -1051,12 +1108,127 @@ const DisplayHTML = {
         var place = DisplayHTML.get_element(location);
         place.append(div);
     },
+    control_edit_box: function(location, controls, description){
+        var edit = (display, button, controls, i) => {
+            return () => {
+                var unclicked = button.classList.contains(`edit-control`);
+                var boxes = document.querySelectorAll(`#${location} .control-edit-box div input`);
+                for(var box of boxes){
+                    box.classList.remove(`edit-control`);
+                }
+                display.set_control = undefined;
+                if(!unclicked){
+                    button.classList.add(`edit-control`);
+                    display.set_control = (key) => {
+                        controls[i] = key;
+                        button.value = KEYBOARD_SYMBOL_MAP.has(key) ? KEYBOARD_SYMBOL_MAP.get(key) : key;
+                        button.classList.remove(`edit-control`);
+                        display.set_control = undefined;
+                    }
+                }
+            }
+        }
+        for(var i = 0; i < controls.length; ++i){
+            var div = document.createElement(`div`);
+            div.classList.add(`control-edit-box`);
+            var button_div = document.createElement(`div`);
+            var button_text = controls[i];
+            if(KEYBOARD_SYMBOL_MAP.has(button_text)){
+                button_text = KEYBOARD_SYMBOL_MAP.get(button_text);
+            }
+            var button = DisplayHTML.create_button(button_text);
+            button.onclick = edit(this, button, controls, i);
+            button_div.append(button);
+            div.append(button_div);
+            var p = document.createElement(`p`);
+            p.innerText = (controls.length === 1 ? description : `${description} ${i + 1}`);
+            div.append(p);
+            var place = DisplayHTML.get_element(location);
+            place.append(div);
+        }
+    },
+    show_achievements: function(location, achievements){
+        var place = DisplayHTML.get_element(location);
+
+        var toprow = document.createElement(`div`);
+        toprow.classList.add(`opposite-sides`);
+        // Header
+        var header = document.createElement(`div`);
+        header.classList.add(`achievement-header`);
+        var title = document.createElement(`h2`);
+        var complete = achievements.filter((a) => {return a.has}).length;
+        title.innerText = `${achievements_title}  (${complete} / ${achievements.length})`;
+        header.append(title);
+        toprow.append(header);
+        
+        var reset = document.createElement(`button`);
+        reset.classList.add(`achievement-button`);
+        var set_reset_button = () => {
+            reset.innerText = achievement_reset;
+            reset.classList.add(`achievement-reset`);
+            reset.classList.remove(`achievement-confirm-reset`);
+            reset.onclick = set_confirm_reset_button;
+        }
+        var set_confirm_reset_button = () => {
+            reset.innerText = achievement_confirm_reset;
+            reset.classList.add(`achievement-confirm-reset`);
+            reset.classList.remove(`achievement-reset`);
+            reset.onclick = reset_achievements;
+            setTimeout(() => {set_reset_button();}, 4000);
+        }
+        set_reset_button();
+        toprow.append(reset);
+        place.append(toprow);
+
+        for(var a of achievements){
+            var div = document.createElement(`div`);
+            div.classList.add(`achievement-box`);
+
+            var img_box = document.createElement(`div`);
+            img_box.classList.add(`achievement-img-box`);
+            div.append(img_box);
+
+            var img_name = a.has ? a.image : `${IMG_FOLDER.other}locked.png`;
+            var img = document.createElement(`img`);
+            img.src = `${IMG_FOLDER.src}${img_name}`;
+            img.alt = a.has? `unlocked` : `locked`;
+            img_box.append(img);
+
+            var text_box = document.createElement(`div`);
+            text_box.classList.add(`achievement-text-box`);
+            div.append(text_box);
+
+            if(a.has){
+                img_box.classList.add(`achievement-unlocked-image`);
+                text_box.classList.add(`achievement-unlocked-text`);
+            }
+            else{
+                text_box.classList.add(`achievement-locked-text`)
+            }
+
+            var h3 = document.createElement(`h3`);
+            h3.innerText = `${a.name}:`
+            text_box.append(h3);
+
+            var p = document.createElement(`p`);
+            p.innerText = a.description;
+            text_box.append(p);
+
+            place.append(div);
+        }
+    },
     stop_space_scrolling: function(){
         window.addEventListener('keydown', (e) => {
             if (e.key === ` ` && e.target === document.body) {
               e.preventDefault();
             }
         });
+    },
+    set_local_storage(key, data){
+        window.localStorage.setItem(key, data);
+    },
+    get_local_storage(key){
+        return window.localStorage.getItem(key);
     },
 
     // Non Required helper functions.
@@ -1108,13 +1280,13 @@ function display_move_buttons(card, hand_position){
         let button_row = row.map(button => {return {
             description: button.description,
             on_click: function(){
-                GS.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
+                GS.data.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
             }
         }});
         display.add_button_row(UIIDS.move_buttons, button_row);
     }
     var explanation = move_types.alt + `\n` + explain_card(card);
-    display.add_on_click(UIIDS.move_info, function(){say(explanation, false)});
+    display.add_on_click(UIIDS.move_info, function(){say(explanation)});
 }
 
 /**
@@ -1132,7 +1304,7 @@ function refresh_hand_display(deck){
 
     // Makes sure the card info button shows that no card is selected.
     var explain_blank_moves = function(){
-        say(blank_moves_message, false);
+        say(blank_moves_message);
     }
     display.add_on_click(UIIDS.move_info, explain_blank_moves);
 }
@@ -1219,16 +1391,19 @@ function explain_card(card){
 /**
  * Function to give a message to the user.
  * @param {string} msg message text.
- * @param {boolean} record If true, also adds it to the chat log.
  */
-function say(msg, record = true){
-    if(msg === ``){
-        record = false;
-    }
+function say(msg){
     display.display_message(UIIDS.display_message, msg);
-    if(record){
-        GS.record_message(msg);
-    }
+}
+
+const record_types = {
+    achievement: `achievement`,
+    repeated_achievement: `repeated achievement`,
+    normal: `normal`,
+}
+function say_record(msg, type = record_types.normal){
+    say(msg);
+    GS.record_message(msg, type);
 }
 
 function update_initiative(map){
@@ -1325,25 +1500,74 @@ function refresh_shop_display(shop){
 }
 
 function setup_controls_page(){
-    var controls = GS.controls.get();
-
-    display.add_header(UIIDS.controls, CONTROLS_TEXT.stage.header);
-    display.control_box(UIIDS.controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
-    display.control_box(UIIDS.controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
-    display.control_box(UIIDS.controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
-    display.control_box(UIIDS.controls, controls.stage.info, CONTROLS_TEXT.stage.info);
-    display.control_box(UIIDS.controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
-
-    display.add_header(UIIDS.controls, CONTROLS_TEXT.shop.header);
-    display.control_box(UIIDS.controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
-    display.control_box(UIIDS.controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
-    display.control_box(UIIDS.controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
-
-    display.add_header(UIIDS.controls, CONTROLS_TEXT.chest.header);
-    display.control_box(UIIDS.controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
-    display.control_box(UIIDS.controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
-    display.control_box(UIIDS.controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+    display.remove_children(UIIDS.stage_controls);
+    controls_stage_section();
+    display.remove_children(UIIDS.shop_controls);
+    controls_shop_section();
+    display.remove_children(UIIDS.chest_controls);
+    controls_chest_section();
 }
+
+function controls_stage_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
+    display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
+    display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+
+function controls_shop_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
+    display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
+    display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
+    display.control_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+
+function controls_chest_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
+    display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
+    display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+
+function edit_stage_controls(controls){
+    display.add_edit_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, controls_stage_section, controls);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.card, CONTROLS_TEXT.stage.card);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_edit_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+
+function edit_shop_controls(controls){
+    display.add_edit_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, controls_shop_section, controls);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.add, CONTROLS_TEXT.shop.add);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+
+function edit_chest_controls(controls){
+    display.add_edit_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, controls_chest_section, controls);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+
+function update_achievements(){
+    var achievements = GS.data.achievements.all();
+    display.remove_children(UIIDS.achievement_list);
+    display.show_achievements(UIIDS.achievement_list, achievements);
+}
+
+function reset_achievements(){
+    GS.data.reset_achievements();
+    update_achievements();
+}
+
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
     invalid_type: `invalid type`,
@@ -1361,7 +1585,8 @@ const ERRORS = {
     map_full: `map full`,
     creature_died: `creature died`,
     out_of_bounds: `out of bounds`,
-    divide_by_0: `divide by 0`
+    divide_by_0: `divide by 0`,
+    failed_to_load: `Failed to load`,
 }
 Object.freeze(ERRORS);
 
@@ -1380,6 +1605,7 @@ function initiate_game(){
     display.display_message(UIIDS.title, `${game_title}    `);
     create_main_dropdown(UIIDS.title);
     GS = new GameState();
+    GS.setup();
     display_guide();
     setup_controls_page();
 }
@@ -1404,12 +1630,12 @@ function make_starting_deck(){
 }
 // Makes a deck for testing new cards.
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
-function make_test_deck(){
+function make_test_deck(test_cards){
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
-    for(var card of TEST_INIT.cards){
+    for(var card of test_cards){
         deck.add(card());
     }
-    var size = TEST_INIT.cards.length;
+    var size = test_cards.length;
     for(var i = 0; i < Math.max(4 - size, 1); ++i){
         deck.add(basic_horizontal());
     }
@@ -1507,7 +1733,17 @@ function create_main_dropdown(location){
         },
         {
             label: controls_screen_name,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.controls)}
+            on_change: () => {
+                setup_controls_page();
+                DISPLAY_DIVISIONS.swap(UIIDS.controls);
+            }
+        },
+        {
+            label: achievements_screen_name,
+            on_change: () => {
+                update_achievements();
+                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
+            }
         }
     ];
     display.create_dropdown(location, options);
@@ -1595,7 +1831,7 @@ function make_guidebook_images(arr){
  * @returns {HTMLElement[]} The array of buttons.
  */
 function get_control_symbols(){
-    var current_controls = GS.controls.get();
+    var current_controls = GS.data.controls.get();
     var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
     var buttons = [];
     for(var symbol of button_symbols){
@@ -1640,6 +1876,244 @@ function floor_has_chest(floor_of_area){
         return true;
     }
     return false;
+}
+const achievements_title = `Achievements`;
+const achievement_reset = `Reset`;
+const achievement_confirm_reset = `Confirm?`;
+
+const achievement_names = {
+    // Boss
+    velociphile: `Only A Speedbump`,
+    spider_queen: `Arachno-Regicide`,
+    two_headed_serpent: `One Head Is Better Than Two`,
+    lich: `End To Unlife`,
+    young_dragon: `Novice Dragonslayer`,
+    forest_heart: `Expert Lumberjack`,
+    arcane_sentry: `Security Bypass`,
+
+    // Normal
+    non_violent: `Non Violent`,
+    not_my_fault: `Not My Fault`,
+    ancient_knowledge: `Ancient Knowledge`,
+    peerless_sprinter: `Peerless Sprinter`,
+    speed_runner: `Speed Runner`,
+    triple: `Three Of A Kind`,
+    beyond_the_basics: `Beyond The Basics`,
+    one_life: `One Is All You Need`,
+    without_a_scratch: `Without A Scratch`,
+    clumsy: `Clumsy`,
+    shrug_it_off: `Shrug It Off`,
+    collector: `Collector`,
+    jack_of_all_trades: `Jack Of All Trades`,
+    monster_hunter: `Monster Hunter`,
+}
+const achievement_description = {
+    // Boss
+    velociphile: `Defeat the Velociphile.`,
+    spider_queen: `Defeat the Spider Queen.`,
+    two_headed_serpent: `Defeat the Two Headed Serpent.`,
+    lich: `Defeat the Lich.`,
+    young_dragon: `Defeat the Young Dragon.`,
+    forest_heart: `Defeat the Forest Heart.`,
+    arcane_sentry: `Defeat the Arcane Sentry.`,
+
+    // Normal
+    non_violent: `Reach the first boss without killing anything.`,
+    not_my_fault: `Let a boss die without dealing the final blow.`,
+    ancient_knowledge: `Restore an ancient card to full power.`,
+    peerless_sprinter: `Speed through a floor in 3 turns or less.`,
+    speed_runner: `Leave floor 10 in 100 turns or less.`,
+    triple: `Have 3 or more of the same non temporary card in your deck.`,
+    beyond_the_basics: `Remove all basic cards from your deck.`,
+    one_life: `Defeat any boss with exactly 1 max health.`,
+    without_a_scratch: `Leave floor 10 without taking any damage.`,
+    clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
+    shrug_it_off: `Take 10 or more damage without dying in 1 run.`,
+    collector: `Open 6 or more treasure chests in 1 run.`,
+    jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
+    monster_hunter: `Kill 5 total unique bosses.`,
+}
+
+const boss_achievements = [
+    achievement_names.velociphile,
+    achievement_names.spider_queen,
+    achievement_names.two_headed_serpent,
+    achievement_names.lich,
+    achievement_names.young_dragon,
+    achievement_names.forest_heart,
+    achievement_names.arcane_sentry,
+
+]
+
+function get_achievements(){
+    return [
+        // Boss achievements
+        {
+            name: achievement_names.velociphile,
+            description: achievement_description.velociphile,
+            image: `${IMG_FOLDER.tiles}velociphile.png`,
+            has: false,
+            boons: [boss_slayer],
+            cards: [
+                teleport, sidestep_e, sidestep_n, sidestep_ne, sidestep_nw, 
+                sidestep_s, sidestep_s, sidestep_se, sidestep_sw, sidestep_w,
+                punch_orthogonal, punch_diagonal
+            ]
+        },
+        {
+            name: achievement_names.spider_queen,
+            description: achievement_description.spider_queen,
+            image: `${IMG_FOLDER.tiles}spider_queen.png`,
+            has: false,
+            boons: [retaliate],
+            cards: [
+                stunning_leap, stunning_side_leap, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice
+            ]
+        },
+        {
+            name: achievement_names.two_headed_serpent,
+            description: achievement_description.two_headed_serpent,
+            image: `${IMG_FOLDER.tiles}serpent_head.png`,
+            has: false,
+            boons: [slime_trail],
+            cards: [
+                reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_diagonal, reckless_horizontal, 
+                reckless_teleport
+            ]
+        },
+        {
+            name: achievement_names.lich,
+            description: achievement_description.lich,
+            image: `${IMG_FOLDER.tiles}lich_rest.png`,
+            has: false,
+            boons: [sniper],
+            cards: []
+        },
+        {
+            name: achievement_names.young_dragon,
+            description: achievement_description.young_dragon,
+            image: `${IMG_FOLDER.tiles}young_dragon_flight.png`,
+            has: false,
+            boons: [flame_strike],
+            cards: []
+        },
+        {
+            name: achievement_names.forest_heart,
+            description: achievement_description.forest_heart,
+            image: `${IMG_FOLDER.tiles}forest_heart.png`,
+            has: false,
+            boons: [frugivore],
+            cards: []
+        },
+        {
+            name: achievement_names.arcane_sentry,
+            description: achievement_description.arcane_sentry,
+            image: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
+            has: false,
+            boons: [/*choose_your_path*/],
+            cards: []
+        },
+        
+        // Other 
+        {
+            name: achievement_names.non_violent,
+            description: achievement_description.non_violent,
+            image: `${IMG_FOLDER.achievements}non_violent.png`,
+            has: false,
+            boons: [pacifism],
+        },
+        {
+            name: achievement_names.not_my_fault,
+            description: achievement_description.not_my_fault,
+            image: `${IMG_FOLDER.achievements}not_my_fault.png`,
+            has: false,
+            boons: [pressure_points],
+        },
+        {
+            name: achievement_names.ancient_knowledge,
+            description: achievement_description.ancient_knowledge,
+            image: `${IMG_FOLDER.achievements}ancient_knowledge.png`,
+            has: false,
+            boons: [/*learn_from_mistakes*/],
+        },
+        {
+            name: achievement_names.peerless_sprinter,
+            description: achievement_description.peerless_sprinter,
+            image: `${IMG_FOLDER.achievements}peerless_sprinter.png`,
+            has: false,
+            boons: [stealthy],
+        },
+        {
+            name: achievement_names.speed_runner,
+            description: achievement_description.speed_runner,
+            image: `${IMG_FOLDER.achievements}speed_runner.png`,
+            has: false,
+            boons: [repetition],
+        },
+        {
+            name: achievement_names.triple,
+            description: achievement_description.triple,
+            image: `${IMG_FOLDER.achievements}triple.png`,
+            has: false,
+            boons: [/*duplicate*/],
+        },
+        {
+            name: achievement_names.beyond_the_basics,
+            description: achievement_description.beyond_the_basics,
+            image: `${IMG_FOLDER.achievements}beyond_the_basics.png`,
+            has: false,
+            boons: [perfect_the_basics],
+        },
+        {
+            name: achievement_names.one_life,
+            description: achievement_description.one_life,
+            image: `${IMG_FOLDER.achievements}one_life.png`,
+            has: false,
+            boons: [frenzy],
+        },
+        {
+            name: achievement_names.without_a_scratch,
+            description: achievement_description.without_a_scratch,
+            image: `${IMG_FOLDER.achievements}without_a_scratch.png`,
+            has: false,
+            boons: [practice_makes_perfect],
+        },
+        {
+            name: achievement_names.clumsy,
+            description: achievement_description.clumsy,
+            image: `${IMG_FOLDER.achievements}clumsy.png`,
+            has: false,
+            boons: [thick_soles],
+        },
+        {
+            name: achievement_names.shrug_it_off,
+            description: achievement_description.shrug_it_off,
+            image: `${IMG_FOLDER.achievements}shrug_it_off.png`,
+            has: false,
+            boons: [/*thick_skin*/],
+        },
+        {
+            name: achievement_names.collector,
+            description: achievement_description.collector,
+            image: `${IMG_FOLDER.achievements}collector.png`,
+            has: false,
+            boons: [hoarder],
+        },
+        {
+            name: achievement_names.jack_of_all_trades,
+            description: achievement_description.jack_of_all_trades,
+            image: `${IMG_FOLDER.achievements}jack_of_all_trades.png`,
+            has: false,
+            boons: [spontaneous],
+        },
+        {
+            name: achievement_names.monster_hunter,
+            description: achievement_description.monster_hunter,
+            image: `${IMG_FOLDER.achievements}monster_hunter.png`,
+            has: false,
+            boons: [brag_and_boast],
+        },
+    ]
 }
 // Area Descriptions.
 const ruins_description = `You have entered the ruins.`;
@@ -2262,6 +2736,11 @@ const stunned_msg = `Stunned x`;
 const gameplay_screen_name = `Gameplay`;
 const guide_screen_name = `Guidebook`;
 const controls_screen_name = `Controls`;
+const achievements_screen_name = `Achievements`;
+const edit_controls_message = `Edit`;
+const default_controls_message = `Default`;
+const save_controls_message = `Save`;
+const undo_edit_controls_message = `Undo`;
 const tile_description_divider = `\n--------------------\n`;
 const card_explanation_start = `Move Options (actions will be performed in order):\n`;
 const card_explanation_end = `Shift click on a button to show what it will do on the map.\n`;
@@ -2469,7 +2948,10 @@ function get_uiids(language){
  *              @property {string} content_description: A description of whichever one of the contents you last clicked on.
  * @property {string} guide Controls the visibility of the guide screen.
  *      @property {string} guide_navbar Controls the visibility of each guidebook section.
- * @property {string} controls
+ * @property {string} controls Controls the visibility of the controls section.
+ *      @property {string} stage_controls Contains the controls for the stage.
+ *      @property {string} shop_control Contains the controls for the shop.
+ *      @property {string} chest_control Contains the controls for the chest.
  */
 
 
@@ -2525,6 +3007,11 @@ const HTML_UIIDS = {
     guide: `guide`,
         guide_navbar: `guideNavbar`,
     controls: `controls`,
+        stage_controls: `stageControls`,
+        shop_controls: `shopControls`,
+        chest_controls: `chestControls`,
+    achievements: `achievements`,
+        achievement_list: `achievement-list`
 }
 Object.freeze(HTML_UIIDS);
 
@@ -2554,6 +3041,7 @@ function arcane_sentry_tile(){
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry]),
         health,
         death_message: arcane_sentry_death_message,
+        death_achievement: achievement_names.arcane_sentry,
         behavior: sentry_core_ai,
         on_hit: sentry_core_on_hit,
         on_death: arcane_sentry_death,
@@ -2639,7 +3127,7 @@ function arcane_sentry_death(self, target, map){
     boss_death(self, target, map);
 }
 function node_on_death(self, target, map){
-    say(self.tile.death_message);
+    say_record(self.tile.death_message);
 }
 
 function sentry_core_on_hit(self, target, map){
@@ -2720,7 +3208,10 @@ function sentry_get_core(location, map){
 }
 /** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
 function boss_death(self, target, map){
-    if(self.tile.death_message === undefined){
+    if(
+        self.tile.death_message === undefined ||
+        self.tile.death_achievement === undefined
+    ){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
@@ -2735,6 +3226,13 @@ function boss_death(self, target, map){
     map.unlock();
     var death_message = `${self.tile.death_message}\n${boss_death_description}`;
     var player_tile = map.get_player();
+    if(player_tile.max_health === 1){
+        GS.achieve(achievement_names.one_life);
+    }
+    var stats = map.stats.get_stats()
+    if(stats.damage_dealt === stats.total_damage_per_floor[stats.total_damage_per_floor.length - 1]){
+        GS.achieve(achievement_names.not_my_fault);
+    }
     if( // Practice makes perfect
         GS.boons.has(boon_names.practice_makes_perfect) && 
         player_tile.max_health !== undefined && 
@@ -2744,8 +3242,12 @@ function boss_death(self, target, map){
         death_message = `${death_message}\n${practice_makes_perfect_message}`
     }
     map.player_heal(new Point(0, 0));
-    say(death_message);
-
+    var new_boss_kill = GS.achieve(self.tile.death_achievement);
+    if(new_boss_kill && GS.data.achievements.count_bosses() === 5){
+        GS.achieve(achievement_names.monster_hunter);
+    }
+    
+    say_record(death_message);
 }
 // ToDo
 //      Handle Death
@@ -2791,6 +3293,7 @@ function forest_heart_tile(){
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
         health: 12,
         death_message: forest_heart_death_message,
+        death_achievement: achievement_names.forest_heart,
         behavior: forest_heart_ai,
         on_hit: forest_heart_on_hit,
         on_death: forest_heart_death,
@@ -2828,7 +3331,7 @@ function forest_heart_ai(self, target, map){
         var health = self.tile.cycle;
         var next_spell = self.tile.spells[health - 2];
         if(health > 1){
-            map.add_event({name: `spell announcement`, behavior: () => {say(next_spell.description)}});
+            map.add_event({name: `spell announcement`, behavior: () => {say_record(next_spell.description)}});
         }
         for(var section of sections){
             var tile = section.tile;
@@ -2953,6 +3456,7 @@ function lich_tile(){
         tags: new TagList([TAGS.boss]),
         health,
         death_message: lich_death_message,
+        death_achievement: achievement_names.lich,
         behavior: lich_ai,
         telegraph: lich_telegraph,
         telegraph_other: lich_telegraph_other,
@@ -2994,7 +3498,7 @@ function lich_ai(self, target, map){
     self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
     var announcement = `${lich_announcement}${self.tile.spells[self.tile.cycle].description}`
-    map.add_event({name: `spell announcement`, behavior: () => {say(announcement)}});
+    map.add_event({name: `spell announcement`, behavior: () => {say_record(announcement)}});
 }
 
 /** @type {TelegraphFunction} */
@@ -3232,6 +3736,7 @@ function spider_queen_tile(){
         tags: new TagList([TAGS.boss]),
         health,
         death_message: spider_queen_death_message,
+        death_achievement: achievement_names.spider_queen,
         behavior: spider_ai,
         telegraph: spider_telegraph,
         on_hit: spider_queen_hit,
@@ -3259,6 +3764,7 @@ function two_headed_serpent_tile(){
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         health: 1,
         death_message: two_headed_serpent_death_message,
+        death_achievement: achievement_names.two_headed_serpent,
         behavior: two_headed_serpent_ai,
         telegraph: two_headed_serpent_telegraph,
         on_death: two_headed_serpent_hurt,
@@ -3529,6 +4035,7 @@ function velociphile_tile(){
         tags: new TagList([TAGS.boss]),
         health,
         death_message: velociphile_death_message,
+        death_achievement: achievement_names.velociphile,
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,
         on_death: boss_death,
@@ -3586,6 +4093,7 @@ function young_dragon_tile(){
         tags: new TagList([TAGS.boss]),
         health,
         death_message: young_dragon_death_message,
+        death_achievement: achievement_names.young_dragon,
         behavior: young_dragon_behavior,
         telegraph: young_dragon_telegraph,
         on_death: boss_death,
@@ -6538,6 +7046,7 @@ function chest_on_enter(self, target, map){
     }
     self.tile.health = 1;
     map.attack(self.location);
+    map.stats.increment_chests();
     var leave_chest = function(){
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         display.display_message(UIIDS.chest_instructions, ``);
@@ -6868,6 +7377,7 @@ function growth_event(points, root, grown){
  * @property {number=} max_health It can never be healed above this.
  * @property {number=} difficulty Used to determine how many things can be spawned.
  * @property {string=} death_message Displayed on death.
+ * @property {string=} death_achievement Name of the achievement granted on boss death.
  * 
  * // Functions controlling behavior. //
  * @property {AIFunction=} behavior What it does on it's turn. Targets the player.
@@ -7994,6 +8504,69 @@ function move_attack_telegraph(location, map, directions){
 
 
 
+class AchievementList{
+    #list
+    constructor(){
+        this.#list = get_achievements();
+    }
+    achieve(name){
+        // Achieves the achievement with the given name.
+        var match = this.#list.find((e) => {
+            return e.name === name;
+        });
+        if(match === undefined){
+            throw new Error(ERRORS.value_not_found);            
+        }
+        var achieved = !match.has;
+        match.has = true;
+        return achieved;
+    }
+    completed(){
+        // Returns a list of the achievements that they have achieved.
+        return this.#list.filter((e) => {
+            return e.has;
+        })
+    }
+    all(){
+        // Returns all achievements.
+        return this.#list;
+    }
+    has(name){
+        // Checks if they have the achievement with the chosen name.
+        var match = this.#list.find((e) => {
+            return e.name === name;
+        });
+        if(match === undefined){
+            throw new Error(ERRORS.value_not_found);
+        }
+        return match.has;
+    }
+    get(){
+        // Returns a list with all the achiements they have earned.
+        return this.completed().map((e) => {
+            return e.name;
+        });
+    }
+    set(list){
+        // Updates has values to match a list of JSONS that are passed in from the save data.
+        if(list === undefined){
+            return;
+        }
+        for(var element of list){
+            this.achieve(element);
+        }
+    }
+    count_bosses(){
+        // Counts how many unique boss killing achievements have been earned
+        var filtered = this.#list.filter((a) => {
+            return boss_achievements.find((n) => {return a.name === n &&  a.has}) !== undefined;
+        });
+        console.log(filtered);
+        return filtered.length;
+    }
+    
+}
+
 
 class BoonTracker{
     #choices;
@@ -8059,7 +8632,7 @@ class BoonTracker{
         return this.#boons.map(b => {return {
             name: b.name,
             pic: b.pic,
-            on_click: function(){say(b.description, false)}
+            on_click: function(){say(b.description)}
         }});
     }
     get_lost(){
@@ -8067,7 +8640,7 @@ class BoonTracker{
             name: b.name,
             foreground: [`${IMG_FOLDER.other}lost.png`],
             pic: b.pic,
-            on_click: function(){say(b.description, false)}
+            on_click: function(){say(b.description)}
         }});
     }
 
@@ -8467,12 +9040,14 @@ class GameMap{
     #grid;
     /** @type {number} Which number floor this is.*/
     #floor_num;
-    /** @type {number} Total number of turns that have elapsed.*/
-    #turn_count;
+    /** @type {StatTracker} Tracks various statistics about the game.*/
+    stats;
     /** @type {MapEvent[]} Events that will happen at the end of the turn.*/
     #events;
     /** @type {Area} The current area of the dungeon they are in.*/
     #area;
+    /**@type {boolean} Keeps track of if it is currently the player's turn or not.*/
+    #is_player_turn;
     /**
      * @param {number} x_max The x size of floors in this dungeon.
      * @param {number} y_max The y size of floors in this dungeon.
@@ -8483,9 +9058,10 @@ class GameMap{
         this.#y_max = y_max;
         this.#entity_list = new EntityList();
         this.#floor_num = 0;
-        this.#turn_count = 0;
+        this.stats = new StatTracker();
         this.#events = [];
         this.#area = starting_area;
+        this.#is_player_turn = true;
         this.erase()
     }
     /**
@@ -8712,7 +9288,7 @@ class GameMap{
             return function(){
                 var description = grid_space_description(space);
                 var tile = space.tile;
-                say(description, false);
+                say(description);
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
                 var telegraph_other_spaces = [];
@@ -8780,7 +9356,11 @@ class GameMap{
         var start = this.get_tile(start_point);
         var end = this.get_tile(end_point);
         if(start.type === `player` && end.type === `exit`){
-            ++this.#turn_count;
+            this.stats.increment_turn();
+            var floor_turns = this.stats.finish_floor();
+            if(floor_turns <= 3){
+                GS.achieve(achievement_names.peerless_sprinter);
+            }
             throw new Error(ERRORS.floor_complete);
         }
         if(end.on_enter !== undefined){
@@ -8861,7 +9441,7 @@ class GameMap{
      * @param {Point} location Where to attack.
      * @returns {boolean} Returns true if the attack hit.
      */
-    attack(location){
+    attack(location, source = undefined){
         if(!this.is_in_bounds(location)){
             return false;
         }
@@ -8873,6 +9453,17 @@ class GameMap{
         }
         if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
+            if(source !== undefined && source.tile.type === `player`){
+                this.stats.increment_damage_dealt();
+            }
+            if(target.type === `player`){
+                if(this.#is_player_turn){
+                    this.stats.increment_turn_damage();
+                }
+                else{
+                    this.stats.increment_damage();
+                }
+            }
             var current_health = target.health;
             if(target.on_hit !== undefined){
                 // Trigger on_hit.
@@ -8894,7 +9485,7 @@ class GameMap{
                         this.player_heal(new Point(0, 0));
                         GS.boons.lose(boon_names.rebirth);
                         GS.refresh_boon_display();
-                        say(rebirth_revival_message);
+                        say_record(rebirth_revival_message);
                         return true;
                     }
                     throw new Error(ERRORS.game_over);
@@ -8948,7 +9539,8 @@ class GameMap{
      * @returns {boolean} Returns true if the attack hits and false otherwise.
      */
     player_attack(direction){
-        var pos = this.#entity_list.get_player_pos().plus(direction);
+        var player_pos = this.#entity_list.get_player_pos();
+        var pos = player_pos.plus(direction);
         try{
             if(
                 chance(GS.boons.has(boon_names.flame_strike), 3) && 
@@ -8958,7 +9550,7 @@ class GameMap{
                 var fireball = shoot_fireball(direction);
                 this.add_tile(fireball, pos);
             }
-            return this.attack(pos);
+            return this.attack(pos, {tile: this.get_player(), location: player_pos});
         }
         catch (error){
             if(error.message !== `game over`){
@@ -8974,15 +9566,18 @@ class GameMap{
      */
     async enemy_turn(){
         // Causes each enemy to execute their behavior.
-        ++this.#turn_count;
+        this.stats.increment_turn();
+        this.#is_player_turn = false;
         await this.#entity_list.enemy_turn(this);
+        this.#is_player_turn = true;
     }
     /**
      * Displays the current floor number and turn count.
      * @param {string} location Where they should be displayed.
      */
     display_stats(location){
-        display.display_message(location, `Floor ${this.#floor_num} Turn: ${this.#turn_count}`);
+        var stats = this.stats.get_stats();
+        display.display_message(location, `Floor ${this.#floor_num} Turn: ${stats.turn_number}`);
     }
     /**
      * Replaces the exit tile with a lock tile.
@@ -9039,6 +9634,10 @@ class GameMap{
     next_floor(){
         this.erase();
         var player = this.get_player();
+        var area_size = init_settings().area_size
+        if(this.#floor_num === 5 && this.stats.get_stats().damage_dealt === 0){
+            GS.achieve(achievement_names.non_violent);
+        }
         if(player.health === 1 && GS.boons.has(boon_names.bitter_determination) > 0){
             // Bitter determination heals you if you are at exactly 1.
             this.player_heal(new Point(0, 0), 1);
@@ -9052,13 +9651,13 @@ class GameMap{
             this.player_heal(new Point(0, 0));
         }
         var floor_description = `${floor_message}${this.#floor_num}.`;
-        if(this.#floor_num % AREA_SIZE === 1){
+        if(this.#floor_num % area_size === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
             this.#area = rand_from(next_list)();
             floor_description += `\n${this.#area.description}`;
         }
-        if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
+        if(this.#floor_num % area_size === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
             var boss_floor = rand_from(this.#area.boss_floor_list);
             boss_floor_common(this.#floor_num, this.#area, this); 
@@ -9071,7 +9670,7 @@ class GameMap{
             extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
-        if(floor_has_chest(this.#floor_num % AREA_SIZE)){
+        if(floor_has_chest(this.#floor_num % area_size)){
             var chest_count = 1 + GS.boons.has(boon_names.hoarder);
             var chest = appropriate_chest_tile();
             var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));
@@ -9080,7 +9679,7 @@ class GameMap{
             }
             this.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
-        say(floor_description);
+        say_record(floor_description);
     }
     /**
      * Gets a GridSpace from a location on the grid.
@@ -9261,7 +9860,8 @@ class GameMap{
      * @returns {number} The number of turns that have elapsed.
      */
     get_turn_count(){
-        return this.#turn_count;
+        var stats = this.stats.get_stats();
+        return stats.turn_number;
     }
     /**
      * Checks if a location is in bounds and looks empty, or has a on_enter function.
@@ -9301,38 +9901,38 @@ class GameState{
     map;
     deck;
     boons;
-    controls;
+    data;
     #player_turn_lock;
     #text_log;
     constructor(){
         // Starts the game on load.
-        this.setup();
+        var init = init_settings();
+        this.data = new SaveData(init.load, init.save);
     }
     /** 
      * Function to set up or reset the game.
      * @returns {void} 
      */
     setup(){
+        var init = init_settings();
         // Function ran on page load or on restart to set up the game.
         this.#text_log = [];
         this.boons = new BoonTracker(BOON_LIST);
-        var start = randomize_arr(STARTING_AREA)[0]();
+        var start = randomize_arr(init.area)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
-        this.deck = STARTING_DECK();
-        this.controls = new KeyBind();
+        this.deck = init.make_deck();
 
         var starting_text = `${start.description}\n${welcome_message}`;
-        say(starting_text, false);
-        this.record_message(starting_text);
+        say_record(starting_text);
         display.display_message(UIIDS.hand_label, `${hand_label_text}`);
         display.display_message(UIIDS.move_label, `${move_label_text}`);
         create_sidebar();
 
         // Prep map
-        for(var enemy of STARTING_ENEMIES){
+        for(var enemy of init.enemies){
             this.map.spawn_safely(enemy(), SAFE_SPAWN_ATTEMPTS, true);
         }
-        for(var boon of STARTING_CHESTS){
+        for(var boon of init.chests){
             var chest = chest_tile();
             add_boon_to_chest(chest, boon());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
@@ -9362,7 +9962,7 @@ class GameState{
         }
         display.remove_children(UIIDS.move_buttons);
         this.map.clear_marked();
-        say(``, false);
+        say(``);
         if(GS.boons.has(boon_names.thick_soles)){
             GS.map.get_player().tags.add(TAGS.invulnerable);
         }
@@ -9556,7 +10156,7 @@ class GameState{
         display_map(this.map);
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
-        say(`${game_over_message}${cause.toLowerCase()}.`);
+        say_record(`${game_over_message}${cause.toLowerCase()}.`);
         display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
@@ -9624,8 +10224,11 @@ class GameState{
      * Records a message in the text log, then displays the text log.
      * @param {string} msg The message to record.
      */
-    record_message(msg){
-        this.#text_log.push(msg);
+    record_message(str, type){
+        this.#text_log.push({
+            str, 
+            type
+        });
         this.display_messages(UIIDS.text_scroll);
     }
     /**
@@ -9654,6 +10257,15 @@ class GameState{
      */
     refresh_boon_display(){
         display_boons(this.boons);
+    }
+    achieve(name){
+        var gained = this.data.achieve(name);
+        if(gained){
+            say_record(`Achievement Unlocked: ${name}`, record_types.achievement);
+            return true;
+        }
+        say_record(`Achievement Repeated: ${name}`, record_types.repeated_achievement);
+        return false;
     }
 }
 
@@ -9931,6 +10543,8 @@ class MoveDeck{
             this.#library.push(new_card);
         }
         this.#library = randomize_arr(this.#library);
+        this.#check_three_kind_achievement(new_card.name);
+        this.#check_jack_of_all_trades_achievement();
     }
     /**
      * Adds a new card to the library after giving it a temp tag.
@@ -9954,7 +10568,7 @@ class MoveDeck{
                 if(!GS.check_lock_player_turn()){
                     return;
                 }
-                say(``, false);
+                say(``);
                 display_move_buttons(card, hand_pos);
             }
         }
@@ -10031,7 +10645,14 @@ class MoveDeck{
                 this.#decklist[i] = this.#decklist[this.#decklist.length - 1];
                 this.#decklist.pop()
                 if(card.evolutions !== undefined){
-                    this.add(randomize_arr(card.evolutions)[0]());
+                    var next = randomize_arr(card.evolutions)[0]() ;
+                    this.add(next);
+                    if(next.evolutions === undefined){
+                        GS.achieve(achievement_names.ancient_knowledge);
+                    }
+                }
+                if(card.basic === true){
+                    this.#check_remaining_basics_achievement();
                 }
                 return true;
             }
@@ -10079,7 +10700,152 @@ class MoveDeck{
         new_deck.#decklist = this.#decklist;
         return new_deck;
     }
+    #check_three_kind_achievement(name){
+        var repeats = this.#decklist.filter((e) => {return e.name === name});
+        if(GS !== undefined && repeats.length === 3){
+            GS.achieve(achievement_names.triple);
+        }
+    }
+    #check_remaining_basics_achievement(){
+        var remaining = this.#decklist.filter((card) => {
+            return card.basic === true;
+        });
+        if(remaining.length === 0){
+            GS.achieve(achievement_names.beyond_the_basics);
+        }
+    }
+    #check_jack_of_all_trades_achievement(){
+        if(this.#decklist.length === 25){
+            GS.achieve(achievement_names.jack_of_all_trades);
+        }
+    }
 }
+
+/*
+ * Class to save and load data to and from files and localstorage.
+ * If you want to add new fields:
+ *      - Add new default JSON fields in the default_data.
+ *      - Change the load function to move the data from a JSON to a Class object.
+ *      - Change the save function to move the data to JSON format.
+*/
+
+class SaveData{
+    controls;
+    achievements;
+    load_function;
+    save_function;
+    constructor(load, save){
+        this.load_function = load;
+        this.save_function = save;
+        this.load();
+    }
+    load(){
+        var data = this.load_function();
+        data = SaveData.#load_missing(data);
+        this.controls = new KeyBind();
+        this.controls.set(data.controls);
+        this.achievements = new AchievementList();
+        this.achievements.set(data.achievements)
+    }
+    save(){
+        var data = {
+            controls: this.controls.get(),
+            achievements: this.achievements.get()
+        }
+        this.save_function(data);        
+    }
+    set_controls(new_controls){
+        this.controls.set(new_controls);
+        this.save();
+    }
+    achieve(name){
+        var gained = this.achievements.achieve(name);
+        if(gained){
+            this.save();
+        }
+        return gained;
+    }
+    reset_achievements(){
+        this.achievements = new AchievementList();
+        this.save();
+    }
+    
+
+    // Static functions
+    static load_file_function(save_name){
+        return () => {
+            const fs = require('fs');
+            try{
+                var data = fs.readFileSync(`./saves/${save_name}.txt`, `utf8`);
+                data = JSON.parse(data);
+            }
+            catch(err){
+                var data = undefined;
+            }
+            return data;
+        }
+    }
+    static load_local_function(save_name){
+        return () => {
+            const data = display.get_local_storage(`Maneuver.saves.${save_name}`);
+            return data ? JSON.parse(data) : undefined;
+        }
+    }
+    static load_blank(){
+        return () => {
+            return undefined;
+        }
+    }
+    static save_file_function(save_name){
+        return (data) => {
+            const fs = require(`fs`);
+            fs.writeFile(`./saves/${save_name}.txt`, JSON.stringify(data), (err) => {
+                if(err){
+                    throw err;
+                }
+            });
+        }
+    }
+    static save_local_function(save_name){
+        return (data) => {
+            display.set_local_storage(`Maneuver.saves.${save_name}`, JSON.stringify(data));
+        }
+    }
+    static save_blank(){
+        return (data) => {}
+    }
+    static #load_missing(data){
+        var blank = SaveData.default_data();
+        if(data === undefined){
+            return blank;
+        }
+        SaveData.#load_missing_recursive(data, blank);
+        return data;
+    }
+    static #load_missing_recursive(data, default_data){
+        if( // Base case: current field is not an object.
+            typeof default_data !== 'object' || 
+            Array.isArray(default_data) || 
+            default_data === null
+        ){
+            return;
+        }
+        for(var prop in default_data){
+            if(data[prop] === undefined){
+                data[prop] = default_data[prop];
+            }
+            else{
+                this.#load_missing_recursive(data[prop], default_data[prop]);
+            }
+        }
+    }
+    static default_data(){
+        return {
+            controls: new KeyBind().get()
+        }
+    }
+}
+
 
 class ScreenTracker{
     div;
@@ -10099,7 +10865,7 @@ class ScreenTracker{
     }
 }
 
-const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.controls]);
+const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.controls, UIIDS.achievements]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand]);
 
@@ -10209,6 +10975,78 @@ class Shop{
         }
         return adding || removing && !(adding && removing);
     }
+}
+
+class StatTracker{
+    #turn_number;
+    #turns_per_floor;
+    #damage;
+    #turn_damage;
+    #chests;
+    #damage_dealt;
+    #total_damage_per_floor;
+
+    constructor(){
+        this.#turn_number = 0;
+        this.#turns_per_floor = [0];
+        this.#damage = 0;
+        this.#turn_damage = 0;
+        this.#chests = 0;
+        this.#damage_dealt = 0;
+        this.#total_damage_per_floor = [0];
+    }
+    increment_turn(){
+        ++this.#turn_number;
+    }
+    finish_floor(){
+        this.#turns_per_floor.push(this.#turn_number);
+        this.#total_damage_per_floor.push(this.#damage_dealt);
+        var floor_count = this.#turns_per_floor.length;
+        if(floor_count === 11){
+            if(this.#turn_number <= 100){
+                GS.achieve(achievement_names.speed_runner);
+            }
+            if(this.#damage === 0){
+                GS.achieve(achievement_names.without_a_scratch);
+            }
+        }
+        var last_two = this.#turns_per_floor.slice(-2);
+        return last_two[1] - last_two[0];
+    }
+    increment_damage(){
+        ++this.#damage;
+        if(this.#damage === 10){
+            GS.achieve(achievement_names.shrug_it_off);
+        }
+    }
+    increment_turn_damage(){
+        this.increment_damage();
+        ++this.#turn_damage;
+        if(this.#turn_damage === 5){
+            GS.achieve(achievement_names.clumsy);
+        }
+    }
+    increment_chests(){
+        ++this.#chests
+        if(this.#chests === 6){
+            GS.achieve(achievement_names.collector);
+        }
+    }
+    increment_damage_dealt(){
+        ++this.#damage_dealt;
+    }
+    get_stats(){
+        return {
+            turn_number: this.#turn_number,
+            turns_per_floor: this.#turns_per_floor,
+            damage: this.#damage,
+            turn_damage: this.#turn_damage,
+            chests: this.#chests,
+            damage_dealt: this.#damage_dealt,
+            total_damage_per_floor: this.#total_damage_per_floor
+        }
+    }
+    
 }
 // ----------------TagList.js----------------
 // Class to contain a list of tags for true or false questions about a tile.
@@ -10324,7 +11162,7 @@ function generate_forest_area(){
 
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){
-    if(chance(1, 12) && !floor_has_chest(floor_num % AREA_SIZE)){
+    if(chance(1, 12) && !floor_has_chest(floor_num % init_settings().area_size)){
         swaying_nettle_terrain(floor_num, area, map);
         generate_normal_floor(floor_num / 2, area, map);
     }
@@ -10551,7 +11389,7 @@ function river_terrain(floor_num, area, map){
 
 // The structure of the dungeon. Each area can lead to a random one in the next numbered array.
 const area_end = [generate_default_area]; // Once they have finished the completed areas, they go here.
-const area1 = STARTING_AREA;
+const area1 = [generate_ruins_area];
 const area2 = [generate_sewers_area, generate_basement_area];
 const area3 = [generate_magma_area, generate_crypt_area];
 const area4 = [generate_forest_area, generate_library_area];
@@ -10807,11 +11645,12 @@ const BOSS_FLOOR = [velociphile_floor, spider_queen_floor, lich_floor];
  */
 /** @type {FloorGenerator} The generator ONLY used by the default area if they have finished all the content.*/
 function floor_generator(floor_num, area, map){
-    if(!(floor_num % AREA_SIZE === 0) || Math.floor(floor_num / AREA_SIZE) - 1 >= BOSS_FLOOR.length){
+    area_size = init_settings().area_size;
+    if(!(floor_num % area_size == 0) || Math.floor(floor_num / area_size) - 1 >= BOSS_FLOOR.length){
         generate_normal_floor(floor_num, area, map);
     }
     else{
-        BOSS_FLOOR[Math.floor(floor_num / AREA_SIZE) - 1](floor_num, area, map);
+        BOSS_FLOOR[Math.floor(floor_num / area_size) - 1](floor_num, area, map);
     }
 }
 /** @type {FloorGenerator} The standard generator to add random enemies from the area whose combined difficulty scales based on the floor number.*/
@@ -10853,7 +11692,7 @@ function generate_sanctum_floor(floor_num, area, map){
 
 
 /** @type {CardGenerator}*/
-function chipped_execution(){
+function execution_1(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1), 
@@ -10867,15 +11706,15 @@ function chipped_execution(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `chipped execution`,
-        pic: `${IMG_FOLDER.cards}chipped_execution.png`,
+        name: `execution 1`,
+        pic: `${IMG_FOLDER.cards}execution_1.png`,
         options,
-        evolutions: [unpolished_execution]
+        evolutions: [execution_2]
     }
 }
 
 /** @type {CardGenerator}*/
-function unpolished_execution(){
+function execution_2(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -10890,15 +11729,15 @@ function unpolished_execution(){
     spin = [...spin, ...spin];
     options.add_button(SPIN, spin);
     return{
-        name: `unpolished execution`,
-        pic: `${IMG_FOLDER.cards}unpolished_execution.png`,
+        name: `execution 2`,
+        pic: `${IMG_FOLDER.cards}execution_2.png`,
         options,
-        evolutions: [execution]
+        evolutions: [execution_3]
     }
 }
 
 /** @type {CardGenerator}*/
-function execution(){
+function execution_3(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -10913,8 +11752,8 @@ function execution(){
     spin = [...spin, ...spin, ...spin];
     options.add_button(SPIN, spin);
     return{
-        name: `execution`,
-        pic: `${IMG_FOLDER.cards}execution.png`,
+        name: `execution 3`,
+        pic: `${IMG_FOLDER.cards}execution_3.png`,
         options
     }
 }
@@ -10926,7 +11765,7 @@ function lost_technique(){
         name: `lost technique`,
         pic: `${IMG_FOLDER.cards}lost_technique.png`,
         options,
-        evolutions: [chipped_split_second, chipped_execution, chipped_superweapon]
+        evolutions: [split_second_1, execution_1, superweapon_1]
     }
 }
 
@@ -10938,29 +11777,29 @@ function lost_maneuver(){
         name: `lost maneuver`,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         options,
-        evolutions: [simple_maneuver]
+        evolutions: [maneuver_1]
     }
 }
 
 
 
 /** @type {CardGenerator}*/
-function simple_maneuver(){
+function maneuver_1(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(2, -2)]);
     options.add_button(SE, [pmove(2, 2)]);
     options.add_button(SW, [pmove(-2, 2)]);
     options.add_button(NW, [pmove(-2, -2)]);
     return{
-        name: `simple maneuver`,
-        pic: `${IMG_FOLDER.cards}simple_maneuver.png`,
+        name: `maneuver 1`,
+        pic: `${IMG_FOLDER.cards}maneuver_1.png`,
         options,
-        evolutions: [medium_maneuver]
+        evolutions: [maneuver_2]
     }
 }
 
 /** @type {CardGenerator}*/
-function medium_maneuver(){
+function maneuver_2(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(2, -2)]);
     options.add_button(SE, [pmove(2, 2)]);
@@ -10971,15 +11810,15 @@ function medium_maneuver(){
     options.add_button(S, [pmove(0, 2)]);
     options.add_button(W, [pmove(-2, 0)]);
     return{
-        name: `medium maneuver`,
-        pic: `${IMG_FOLDER.cards}medium_maneuver.png`,
+        name: `maneuver 2`,
+        pic: `${IMG_FOLDER.cards}maneuver_2.png`,
         options,
-        evolutions: [advanced_maneuver]
+        evolutions: [maneuver_3]
     }
 }
 
 /** @type {CardGenerator}*/
-function advanced_maneuver(){
+function maneuver_3(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(2, -2)]);
     options.add_button(SE, [pmove(2, 2)]);
@@ -11001,14 +11840,14 @@ function advanced_maneuver(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `advanced maneuver`,
-        pic: `${IMG_FOLDER.cards}advanced_maneuver.png`,
+        name: `maneuver 3`,
+        pic: `${IMG_FOLDER.cards}maneuver_3.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function chipped_split_second(){
+function split_second_1(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -11022,15 +11861,15 @@ function chipped_split_second(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `chipped split second`,
-        pic: `${IMG_FOLDER.cards}chipped_split_second.png`,
+        name: `split second 1`,
+        pic: `${IMG_FOLDER.cards}split_second_1.png`,
         options,
-        evolutions: [split_second]
+        evolutions: [split_second_2]
     }
 }
 
 /** @type {CardGenerator}*/
-function split_second(){
+function split_second_2(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -11045,14 +11884,14 @@ function split_second(){
     options.add_button(SPIN, spin);
     options.make_instant();
     return{
-        name: `split second`,
-        pic: `${IMG_FOLDER.cards}split_second.png`,
+        name: `split second 2`,
+        pic: `${IMG_FOLDER.cards}split_second_2.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function chipped_superweapon(){
+function superweapon_1(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -11066,15 +11905,15 @@ function chipped_superweapon(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `chipped superweapon`,
-        pic: `${IMG_FOLDER.cards}chipped_superweapon.png`,
+        name: `superweapon 1`,
+        pic: `${IMG_FOLDER.cards}superweapon_1.png`,
         options,
-        evolutions: [superweapon]
+        evolutions: [superweapon_2]
     }
 }
 
 /** @type {CardGenerator}*/
-function superweapon(){
+function superweapon_2(){
     var options = new ButtonGrid();
     var area = [];
     var radius = 2;
@@ -11087,8 +11926,8 @@ function superweapon(){
     }
     options.add_button(SPIN, area);
     return{
-        name: `superweapon`,
-        pic: `${IMG_FOLDER.cards}superweapon.png`,
+        name: `superweapon 2`,
+        pic: `${IMG_FOLDER.cards}superweapon_2.png`,
         options
     }
 }
@@ -11902,7 +12741,8 @@ function basic_horizontal(){
     return{
         name: `basic horizontal`,
         pic: `${IMG_FOLDER.cards}basic_horizontal.png`,
-        options
+        options,
+        basic: true
     }
 }
 /** @type {CardGenerator}*/
@@ -11915,7 +12755,8 @@ function basic_diagonal(){
     return{
         name: `basic diagonal`,
         pic: `${IMG_FOLDER.cards}basic_diagonal.png`,
-        options
+        options,
+        basic: true
     }
 }
 /** @type {CardGenerator}*/
@@ -11928,7 +12769,8 @@ function basic_slice(){
     return{
         name: `basic slice`,
         pic: `${IMG_FOLDER.cards}basic_slice.png`,
-        options
+        options,
+        basic: true
     }
 }
 /** @type {CardGenerator}*/
@@ -12970,7 +13812,7 @@ function pick_ancient_card(){
 
 function ancient_card_2(){
     return {
-        name: boon_names.ancient_card,
+        name: boon_names.ancient_card_2,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         description: add_card_description,
         on_pick: pick_ancient_card_2,

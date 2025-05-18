@@ -20,6 +20,7 @@ function young_dragon_tile(){
         tags: new TagList([TAGS.boss]),
         health,
         death_message: young_dragon_death_message,
+        death_achievement: achievement_names.young_dragon,
         behavior: young_dragon_behavior,
         telegraph: young_dragon_telegraph,
         on_death: boss_death,

@@ -64,7 +64,7 @@ class BoonTracker{
         return this.#boons.map(b => {return {
             name: b.name,
             pic: b.pic,
-            on_click: function(){say(b.description, false)}
+            on_click: function(){say(b.description)}
         }});
     }
     get_lost(){
@@ -72,7 +72,7 @@ class BoonTracker{
             name: b.name,
             foreground: [`${IMG_FOLDER.other}lost.png`],
             pic: b.pic,
-            on_click: function(){say(b.description, false)}
+            on_click: function(){say(b.description)}
         }});
     }
 

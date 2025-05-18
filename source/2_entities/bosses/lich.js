@@ -34,6 +34,7 @@ function lich_tile(){
         tags: new TagList([TAGS.boss]),
         health,
         death_message: lich_death_message,
+        death_achievement: achievement_names.lich,
         behavior: lich_ai,
         telegraph: lich_telegraph,
         telegraph_other: lich_telegraph_other,
@@ -75,7 +76,7 @@ function lich_ai(self, target, map){
     self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
     var announcement = `${lich_announcement}${self.tile.spells[self.tile.cycle].description}`
-    map.add_event({name: `spell announcement`, behavior: () => {say(announcement)}});
+    map.add_event({name: `spell announcement`, behavior: () => {say_record(announcement)}});
 }
 
 /** @type {TelegraphFunction} */

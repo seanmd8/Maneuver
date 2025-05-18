@@ -299,22 +299,25 @@ const DisplayHTML = {
     },
     press: function(key_press){
         var key = key_press.key.toLowerCase();
-        GS.controls.toggle_press(key);
+        GS.data.controls.toggle_press(key);
         if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
             if(GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
-                GS.controls.stage(key);
+                GS.data.controls.stage(key);
             }
             else if(GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
-                GS.controls.shop(key);
+                GS.data.controls.shop(key);
             }
             else if(GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
-                GS.controls.chest(key);
+                GS.data.controls.chest(key);
             }
+        }
+        else if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
+            display.set_control(key);
         }
     },
     unpress: function(key_press){
         var key = key_press.key.toLowerCase();
-        GS.controls.toggle_unpress(key);
+        GS.data.controls.toggle_unpress(key);
     },
     click: function(location){
         try{
@@ -445,13 +448,23 @@ const DisplayHTML = {
         var element = DisplayHTML.get_element(location);
         element.classList.remove(css_class);
     },
-    create_stacked_p: function(location, strs){
+    create_stacked_p: function(location, content){
         element = DisplayHTML.get_element(location);
-        var hr = document.createElement(`hr`);
-        element.append(hr);
-        for(var str of strs){
+        for(var message of content){
             var p = document.createElement(`p`);
-            p.innerText = str;
+            p.innerText = message.str;
+            p.classList.add(`log-text`);
+            switch(message.type){
+                case record_types.achievement:
+                    p.classList.add(`achievement-log-text`);
+                    break;
+                case record_types.repeated_achievement:
+                    p.classList.add(`repeated-achievement-log-text`);
+                    break;
+                default:
+                    p.classList.add(`normal-log-text`);
+                    break;
+            }
             element.append(p);
             hr = document.createElement(`hr`);
             element.append(hr);
@@ -492,12 +505,49 @@ const DisplayHTML = {
             location.append(container);
         }
     },
-    add_header: function(location, description){
+    add_controls_header: function(location, description, edit_function){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-header`);
         var header = document.createElement(`h2`);
         header.innerText = description;
+        var edit_mode = function(controls){
+            return () => {
+                setup_controls_page();
+                DisplayHTML.remove_children(location);
+                edit_function(controls);
+            }
+        }
+        var edit_button = DisplayHTML.create_button(edit_controls_message, undefined, edit_mode(GS.data.controls.get()));
+        var default_button = DisplayHTML.create_button(default_controls_message, undefined, edit_mode(new KeyBind().get()));
+        div.append(header);
+        div.append(edit_button);
+        div.append(default_button);
         var place = DisplayHTML.get_element(location);
-        place.append(header);
+        place.append(div);
     },
+    add_edit_controls_header: function(location, description, view_function, controls){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-header`);
+        var header = document.createElement(`h2`);
+        header.innerText = description;
+        var save_button = DisplayHTML.create_button(save_controls_message, undefined, () => {
+            if(KeyBind.is_valid(controls)){
+                GS.data.set_controls(controls);
+                DisplayHTML.remove_children(location);
+                view_function();
+            }
+        });
+        var undo_edit_button = DisplayHTML.create_button(undo_edit_controls_message, undefined, () => {
+            DisplayHTML.remove_children(location);
+            view_function();
+        });
+        div.append(header);
+        div.append(save_button);
+        div.append(undo_edit_button);
+        var place = DisplayHTML.get_element(location);
+        place.append(div);
+    },
+
     control_box: function(location, controls, description){
         var div = document.createElement(`div`);
         div.classList.add(`control-box`);
@@ -523,12 +573,127 @@ const DisplayHTML = {
         var place = DisplayHTML.get_element(location);
         place.append(div);
     },
+    control_edit_box: function(location, controls, description){
+        var edit = (display, button, controls, i) => {
+            return () => {
+                var unclicked = button.classList.contains(`edit-control`);
+                var boxes = document.querySelectorAll(`#${location} .control-edit-box div input`);
+                for(var box of boxes){
+                    box.classList.remove(`edit-control`);
+                }
+                display.set_control = undefined;
+                if(!unclicked){
+                    button.classList.add(`edit-control`);
+                    display.set_control = (key) => {
+                        controls[i] = key;
+                        button.value = KEYBOARD_SYMBOL_MAP.has(key) ? KEYBOARD_SYMBOL_MAP.get(key) : key;
+                        button.classList.remove(`edit-control`);
+                        display.set_control = undefined;
+                    }
+                }
+            }
+        }
+        for(var i = 0; i < controls.length; ++i){
+            var div = document.createElement(`div`);
+            div.classList.add(`control-edit-box`);
+            var button_div = document.createElement(`div`);
+            var button_text = controls[i];
+            if(KEYBOARD_SYMBOL_MAP.has(button_text)){
+                button_text = KEYBOARD_SYMBOL_MAP.get(button_text);
+            }
+            var button = DisplayHTML.create_button(button_text);
+            button.onclick = edit(this, button, controls, i);
+            button_div.append(button);
+            div.append(button_div);
+            var p = document.createElement(`p`);
+            p.innerText = (controls.length === 1 ? description : `${description} ${i + 1}`);
+            div.append(p);
+            var place = DisplayHTML.get_element(location);
+            place.append(div);
+        }
+    },
+    show_achievements: function(location, achievements){
+        var place = DisplayHTML.get_element(location);
+
+        var toprow = document.createElement(`div`);
+        toprow.classList.add(`opposite-sides`);
+        // Header
+        var header = document.createElement(`div`);
+        header.classList.add(`achievement-header`);
+        var title = document.createElement(`h2`);
+        var complete = achievements.filter((a) => {return a.has}).length;
+        title.innerText = `${achievements_title}  (${complete} / ${achievements.length})`;
+        header.append(title);
+        toprow.append(header);
+        
+        var reset = document.createElement(`button`);
+        reset.classList.add(`achievement-button`);
+        var set_reset_button = () => {
+            reset.innerText = achievement_reset;
+            reset.classList.add(`achievement-reset`);
+            reset.classList.remove(`achievement-confirm-reset`);
+            reset.onclick = set_confirm_reset_button;
+        }
+        var set_confirm_reset_button = () => {
+            reset.innerText = achievement_confirm_reset;
+            reset.classList.add(`achievement-confirm-reset`);
+            reset.classList.remove(`achievement-reset`);
+            reset.onclick = reset_achievements;
+            setTimeout(() => {set_reset_button();}, 4000);
+        }
+        set_reset_button();
+        toprow.append(reset);
+        place.append(toprow);
+
+        for(var a of achievements){
+            var div = document.createElement(`div`);
+            div.classList.add(`achievement-box`);
+
+            var img_box = document.createElement(`div`);
+            img_box.classList.add(`achievement-img-box`);
+            div.append(img_box);
+
+            var img_name = a.has ? a.image : `${IMG_FOLDER.other}locked.png`;
+            var img = document.createElement(`img`);
+            img.src = `${IMG_FOLDER.src}${img_name}`;
+            img.alt = a.has? `unlocked` : `locked`;
+            img_box.append(img);
+
+            var text_box = document.createElement(`div`);
+            text_box.classList.add(`achievement-text-box`);
+            div.append(text_box);
+
+            if(a.has){
+                img_box.classList.add(`achievement-unlocked-image`);
+                text_box.classList.add(`achievement-unlocked-text`);
+            }
+            else{
+                text_box.classList.add(`achievement-locked-text`)
+            }
+
+            var h3 = document.createElement(`h3`);
+            h3.innerText = `${a.name}:`
+            text_box.append(h3);
+
+            var p = document.createElement(`p`);
+            p.innerText = a.description;
+            text_box.append(p);
+
+            place.append(div);
+        }
+    },
     stop_space_scrolling: function(){
         window.addEventListener('keydown', (e) => {
             if (e.key === ` ` && e.target === document.body) {
               e.preventDefault();
             }
         });
+    },
+    set_local_storage(key, data){
+        window.localStorage.setItem(key, data);
+    },
+    get_local_storage(key){
+        return window.localStorage.getItem(key);
     },
 
     // Non Required helper functions.

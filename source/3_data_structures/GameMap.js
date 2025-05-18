@@ -38,12 +38,14 @@ class GameMap{
     #grid;
     /** @type {number} Which number floor this is.*/
     #floor_num;
-    /** @type {number} Total number of turns that have elapsed.*/
-    #turn_count;
+    /** @type {StatTracker} Tracks various statistics about the game.*/
+    stats;
     /** @type {MapEvent[]} Events that will happen at the end of the turn.*/
     #events;
     /** @type {Area} The current area of the dungeon they are in.*/
     #area;
+    /**@type {boolean} Keeps track of if it is currently the player's turn or not.*/
+    #is_player_turn;
     /**
      * @param {number} x_max The x size of floors in this dungeon.
      * @param {number} y_max The y size of floors in this dungeon.
@@ -54,9 +56,10 @@ class GameMap{
         this.#y_max = y_max;
         this.#entity_list = new EntityList();
         this.#floor_num = 0;
-        this.#turn_count = 0;
+        this.stats = new StatTracker();
         this.#events = [];
         this.#area = starting_area;
+        this.#is_player_turn = true;
         this.erase()
     }
     /**
@@ -283,7 +286,7 @@ class GameMap{
             return function(){
                 var description = grid_space_description(space);
                 var tile = space.tile;
-                say(description, false);
+                say(description);
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
                 var telegraph_other_spaces = [];
@@ -351,7 +354,11 @@ class GameMap{
         var start = this.get_tile(start_point);
         var end = this.get_tile(end_point);
         if(start.type === `player` && end.type === `exit`){
-            ++this.#turn_count;
+            this.stats.increment_turn();
+            var floor_turns = this.stats.finish_floor();
+            if(floor_turns <= 3){
+                GS.achieve(achievement_names.peerless_sprinter);
+            }
             throw new Error(ERRORS.floor_complete);
         }
         if(end.on_enter !== undefined){
@@ -432,7 +439,7 @@ class GameMap{
      * @param {Point} location Where to attack.
      * @returns {boolean} Returns true if the attack hit.
      */
-    attack(location){
+    attack(location, source = undefined){
         if(!this.is_in_bounds(location)){
             return false;
         }
@@ -444,6 +451,17 @@ class GameMap{
         }
         if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
+            if(source !== undefined && source.tile.type === `player`){
+                this.stats.increment_damage_dealt();
+            }
+            if(target.type === `player`){
+                if(this.#is_player_turn){
+                    this.stats.increment_turn_damage();
+                }
+                else{
+                    this.stats.increment_damage();
+                }
+            }
             var current_health = target.health;
             if(target.on_hit !== undefined){
                 // Trigger on_hit.
@@ -465,7 +483,7 @@ class GameMap{
                         this.player_heal(new Point(0, 0));
                         GS.boons.lose(boon_names.rebirth);
                         GS.refresh_boon_display();
-                        say(rebirth_revival_message);
+                        say_record(rebirth_revival_message);
                         return true;
                     }
                     throw new Error(ERRORS.game_over);
@@ -519,7 +537,8 @@ class GameMap{
      * @returns {boolean} Returns true if the attack hits and false otherwise.
      */
     player_attack(direction){
-        var pos = this.#entity_list.get_player_pos().plus(direction);
+        var player_pos = this.#entity_list.get_player_pos();
+        var pos = player_pos.plus(direction);
         try{
             if(
                 chance(GS.boons.has(boon_names.flame_strike), 3) && 
@@ -529,7 +548,7 @@ class GameMap{
                 var fireball = shoot_fireball(direction);
                 this.add_tile(fireball, pos);
             }
-            return this.attack(pos);
+            return this.attack(pos, {tile: this.get_player(), location: player_pos});
         }
         catch (error){
             if(error.message !== `game over`){
@@ -545,15 +564,18 @@ class GameMap{
      */
     async enemy_turn(){
         // Causes each enemy to execute their behavior.
-        ++this.#turn_count;
+        this.stats.increment_turn();
+        this.#is_player_turn = false;
         await this.#entity_list.enemy_turn(this);
+        this.#is_player_turn = true;
     }
     /**
      * Displays the current floor number and turn count.
      * @param {string} location Where they should be displayed.
      */
     display_stats(location){
-        display.display_message(location, `Floor ${this.#floor_num} Turn: ${this.#turn_count}`);
+        var stats = this.stats.get_stats();
+        display.display_message(location, `Floor ${this.#floor_num} Turn: ${stats.turn_number}`);
     }
     /**
      * Replaces the exit tile with a lock tile.
@@ -610,6 +632,10 @@ class GameMap{
     next_floor(){
         this.erase();
         var player = this.get_player();
+        var area_size = init_settings().area_size
+        if(this.#floor_num === 5 && this.stats.get_stats().damage_dealt === 0){
+            GS.achieve(achievement_names.non_violent);
+        }
         if(player.health === 1 && GS.boons.has(boon_names.bitter_determination) > 0){
             // Bitter determination heals you if you are at exactly 1.
             this.player_heal(new Point(0, 0), 1);
@@ -623,13 +649,13 @@ class GameMap{
             this.player_heal(new Point(0, 0));
         }
         var floor_description = `${floor_message}${this.#floor_num}.`;
-        if(this.#floor_num % AREA_SIZE === 1){
+        if(this.#floor_num % area_size === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
             this.#area = rand_from(next_list)();
             floor_description += `\n${this.#area.description}`;
         }
-        if(this.#floor_num % AREA_SIZE === 0 && this.#area.boss_floor_list.length > 0){
+        if(this.#floor_num % area_size === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
             var boss_floor = rand_from(this.#area.boss_floor_list);
             boss_floor_common(this.#floor_num, this.#area, this); 
@@ -642,7 +668,7 @@ class GameMap{
             extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
-        if(floor_has_chest(this.#floor_num % AREA_SIZE)){
+        if(floor_has_chest(this.#floor_num % area_size)){
             var chest_count = 1 + GS.boons.has(boon_names.hoarder);
             var chest = appropriate_chest_tile();
             var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));
@@ -651,7 +677,7 @@ class GameMap{
             }
             this.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
-        say(floor_description);
+        say_record(floor_description);
     }
     /**
      * Gets a GridSpace from a location on the grid.
@@ -832,7 +858,8 @@ class GameMap{
      * @returns {number} The number of turns that have elapsed.
      */
     get_turn_count(){
-        return this.#turn_count;
+        var stats = this.stats.get_stats();
+        return stats.turn_number;
     }
     /**
      * Checks if a location is in bounds and looks empty, or has a on_enter function.

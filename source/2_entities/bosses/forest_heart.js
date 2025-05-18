@@ -42,6 +42,7 @@ function forest_heart_tile(){
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
         health: 12,
         death_message: forest_heart_death_message,
+        death_achievement: achievement_names.forest_heart,
         behavior: forest_heart_ai,
         on_hit: forest_heart_on_hit,
         on_death: forest_heart_death,
@@ -79,7 +80,7 @@ function forest_heart_ai(self, target, map){
         var health = self.tile.cycle;
         var next_spell = self.tile.spells[health - 2];
         if(health > 1){
-            map.add_event({name: `spell announcement`, behavior: () => {say(next_spell.description)}});
+            map.add_event({name: `spell announcement`, behavior: () => {say_record(next_spell.description)}});
         }
         for(var section of sections){
             var tile = section.tile;

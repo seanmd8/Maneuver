@@ -6,38 +6,38 @@ class GameState{
     map;
     deck;
     boons;
-    controls;
+    data;
     #player_turn_lock;
     #text_log;
     constructor(){
         // Starts the game on load.
-        this.setup();
+        var init = init_settings();
+        this.data = new SaveData(init.load, init.save);
     }
     /** 
      * Function to set up or reset the game.
      * @returns {void} 
      */
     setup(){
+        var init = init_settings();
         // Function ran on page load or on restart to set up the game.
         this.#text_log = [];
         this.boons = new BoonTracker(BOON_LIST);
-        var start = randomize_arr(STARTING_AREA)[0]();
+        var start = randomize_arr(init.area)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
-        this.deck = STARTING_DECK();
-        this.controls = new KeyBind();
+        this.deck = init.make_deck();
 
         var starting_text = `${start.description}\n${welcome_message}`;
-        say(starting_text, false);
-        this.record_message(starting_text);
+        say_record(starting_text);
         display.display_message(UIIDS.hand_label, `${hand_label_text}`);
         display.display_message(UIIDS.move_label, `${move_label_text}`);
         create_sidebar();
 
         // Prep map
-        for(var enemy of STARTING_ENEMIES){
+        for(var enemy of init.enemies){
             this.map.spawn_safely(enemy(), SAFE_SPAWN_ATTEMPTS, true);
         }
-        for(var boon of STARTING_CHESTS){
+        for(var boon of init.chests){
             var chest = chest_tile();
             add_boon_to_chest(chest, boon());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
@@ -67,7 +67,7 @@ class GameState{
         }
         display.remove_children(UIIDS.move_buttons);
         this.map.clear_marked();
-        say(``, false);
+        say(``);
         if(GS.boons.has(boon_names.thick_soles)){
             GS.map.get_player().tags.add(TAGS.invulnerable);
         }
@@ -261,7 +261,7 @@ class GameState{
         display_map(this.map);
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
-        say(`${game_over_message}${cause.toLowerCase()}.`);
+        say_record(`${game_over_message}${cause.toLowerCase()}.`);
         display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
@@ -329,8 +329,11 @@ class GameState{
      * Records a message in the text log, then displays the text log.
      * @param {string} msg The message to record.
      */
-    record_message(msg){
-        this.#text_log.push(msg);
+    record_message(str, type){
+        this.#text_log.push({
+            str, 
+            type
+        });
         this.display_messages(UIIDS.text_scroll);
     }
     /**
@@ -359,6 +362,15 @@ class GameState{
      */
     refresh_boon_display(){
         display_boons(this.boons);
+    }
+    achieve(name){
+        var gained = this.data.achieve(name);
+        if(gained){
+            say_record(`Achievement Unlocked: ${name}`, record_types.achievement);
+            return true;
+        }
+        say_record(`Achievement Repeated: ${name}`, record_types.repeated_achievement);
+        return false;
     }
 }
 

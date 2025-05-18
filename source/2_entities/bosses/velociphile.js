@@ -12,6 +12,7 @@ function velociphile_tile(){
         tags: new TagList([TAGS.boss]),
         health,
         death_message: velociphile_death_message,
+        death_achievement: achievement_names.velociphile,
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,
         on_death: boss_death,

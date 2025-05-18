@@ -1,6 +1,6 @@
 
 /** @type {CardGenerator}*/
-function chipped_superweapon(){
+function superweapon_1(){
     var options = new ButtonGrid();
     var spin = [
         pattack(1, 1),
@@ -14,15 +14,15 @@ function chipped_superweapon(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `chipped superweapon`,
-        pic: `${IMG_FOLDER.cards}chipped_superweapon.png`,
+        name: `superweapon 1`,
+        pic: `${IMG_FOLDER.cards}superweapon_1.png`,
         options,
-        evolutions: [superweapon]
+        evolutions: [superweapon_2]
     }
 }
 
 /** @type {CardGenerator}*/
-function superweapon(){
+function superweapon_2(){
     var options = new ButtonGrid();
     var area = [];
     var radius = 2;
@@ -35,8 +35,8 @@ function superweapon(){
     }
     options.add_button(SPIN, area);
     return{
-        name: `superweapon`,
-        pic: `${IMG_FOLDER.cards}superweapon.png`,
+        name: `superweapon 2`,
+        pic: `${IMG_FOLDER.cards}superweapon_2.png`,
         options
     }
 }
