@@ -614,6 +614,37 @@ const DisplayHTML = {
     },
     show_achievements: function(location, achievements){
         var place = DisplayHTML.get_element(location);
+
+        var toprow = document.createElement(`div`);
+        toprow.classList.add(`opposite-sides`);
+        // Header
+        var header = document.createElement(`div`);
+        header.classList.add(`achievement-header`);
+        var title = document.createElement(`h2`);
+        var complete = achievements.filter((a) => {return a.has}).length;
+        title.innerText = `${achievements_title}  (${complete} / ${achievements.length})`;
+        header.append(title);
+        toprow.append(header);
+        
+        var reset = document.createElement(`button`);
+        reset.classList.add(`achievement-button`);
+        var set_reset_button = () => {
+            reset.innerText = achievement_reset;
+            reset.classList.add(`achievement-reset`);
+            reset.classList.remove(`achievement-confirm-reset`);
+            reset.onclick = set_confirm_reset_button;
+        }
+        var set_confirm_reset_button = () => {
+            reset.innerText = achievement_confirm_reset;
+            reset.classList.add(`achievement-confirm-reset`);
+            reset.classList.remove(`achievement-reset`);
+            reset.onclick = reset_achievements;
+            setTimeout(() => {set_reset_button();}, 4000);
+        }
+        set_reset_button();
+        toprow.append(reset);
+        place.append(toprow);
+
         for(var a of achievements){
             var div = document.createElement(`div`);
             div.classList.add(`achievement-box`);
@@ -635,6 +666,9 @@ const DisplayHTML = {
             if(a.has){
                 img_box.classList.add(`achievement-unlocked-image`);
                 text_box.classList.add(`achievement-unlocked-text`);
+            }
+            else{
+                text_box.classList.add(`achievement-locked-text`)
             }
 
             var h3 = document.createElement(`h3`);

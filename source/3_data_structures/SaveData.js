@@ -43,6 +43,10 @@ class SaveData{
         }
         return gained;
     }
+    reset_achievements(){
+        this.achievements = new AchievementList();
+        this.save();
+    }
     
 
     // Static functions

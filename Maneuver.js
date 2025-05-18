@@ -1149,6 +1149,37 @@ const DisplayHTML = {
     },
     show_achievements: function(location, achievements){
         var place = DisplayHTML.get_element(location);
+
+        var toprow = document.createElement(`div`);
+        toprow.classList.add(`opposite-sides`);
+        // Header
+        var header = document.createElement(`div`);
+        header.classList.add(`achievement-header`);
+        var title = document.createElement(`h2`);
+        var complete = achievements.filter((a) => {return a.has}).length;
+        title.innerText = `${achievements_title}  (${complete} / ${achievements.length})`;
+        header.append(title);
+        toprow.append(header);
+        
+        var reset = document.createElement(`button`);
+        reset.classList.add(`achievement-button`);
+        var set_reset_button = () => {
+            reset.innerText = achievement_reset;
+            reset.classList.add(`achievement-reset`);
+            reset.classList.remove(`achievement-confirm-reset`);
+            reset.onclick = set_confirm_reset_button;
+        }
+        var set_confirm_reset_button = () => {
+            reset.innerText = achievement_confirm_reset;
+            reset.classList.add(`achievement-confirm-reset`);
+            reset.classList.remove(`achievement-reset`);
+            reset.onclick = reset_achievements;
+            setTimeout(() => {set_reset_button();}, 4000);
+        }
+        set_reset_button();
+        toprow.append(reset);
+        place.append(toprow);
+
         for(var a of achievements){
             var div = document.createElement(`div`);
             div.classList.add(`achievement-box`);
@@ -1170,6 +1201,9 @@ const DisplayHTML = {
             if(a.has){
                 img_box.classList.add(`achievement-unlocked-image`);
                 text_box.classList.add(`achievement-unlocked-text`);
+            }
+            else{
+                text_box.classList.add(`achievement-locked-text`)
             }
 
             var h3 = document.createElement(`h3`);
@@ -1525,8 +1559,13 @@ function edit_chest_controls(controls){
 
 function update_achievements(){
     var achievements = GS.data.achievements.all();
-    display.remove_children(UIIDS.achievements);
-    display.show_achievements(UIIDS.achievements, achievements);
+    display.remove_children(UIIDS.achievement_list);
+    display.show_achievements(UIIDS.achievement_list, achievements);
+}
+
+function reset_achievements(){
+    GS.data.reset_achievements();
+    update_achievements();
 }
 
 // Library for the various kinds of errors that the game could throw
@@ -1838,6 +1877,10 @@ function floor_has_chest(floor_of_area){
     }
     return false;
 }
+const achievements_title = `Achievements`;
+const achievement_reset = `Reset`;
+const achievement_confirm_reset = `Confirm?`;
+
 const achievement_names = {
     // Boss
     velociphile: `Only A Speedbump`,
@@ -2968,6 +3011,7 @@ const HTML_UIIDS = {
         shop_controls: `shopControls`,
         chest_controls: `chestControls`,
     achievements: `achievements`,
+        achievement_list: `achievement-list`
 }
 Object.freeze(HTML_UIIDS);
 
@@ -10720,6 +10764,10 @@ class SaveData{
             this.save();
         }
         return gained;
+    }
+    reset_achievements(){
+        this.achievements = new AchievementList();
+        this.save();
     }
     
 

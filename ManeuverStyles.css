@@ -30,12 +30,67 @@
 .achievement-unlocked-text {
     background-color: lightblue;
 }
+.achievement-locked-text {
+    background-color: lightgrey;
+}
 .achievement-text-box p {
     margin: 0px;
 }
 .achievement-text-box h3 {
     margin: 0px;
     margin-bottom: 6px;
+}
+
+.achievement-section {
+    border: solid;
+    border-radius: 20px;
+    width: fit-content;
+    padding: 20px;
+    padding-top: 0px;
+    background-color: dimgray;
+    margin: 6px;
+}
+
+.achievement-header {
+    border: solid;
+    border-radius: 20px;
+    background-color: lavender;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: fit-content;
+    height: fit-content;
+    display: inline-block;
+}
+.achievement-header h2 {
+    text-align: center;
+    padding: 15px;
+    margin: 0px;
+}
+
+.achievement-button {
+    margin-top: auto;
+    margin-bottom: auto;
+    font-weight: bold;
+    line-height: 20px;
+    font-size: 20px;
+    border-radius: 10px;
+    border-width: 3px;
+    border-style: solid;
+    padding: 5px;
+}
+.achievement-reset {
+    background-color: lightcoral;
+}
+.achievement-reset:hover{
+    background-color: maroon;
+    color: lightcoral;
+}
+.achievement-confirm-reset {
+    background-color: red;
+}
+.achievement-confirm-reset:hover{
+    background-color: black;
+    color: red;
 }
 /* File containing styles for the chest screen. */
 
@@ -281,6 +336,13 @@
 /* Class to show something as 'Greyed Out'.*/
 .greyed-out {
     opacity: 0.7;
+}
+
+/* Class to split items between left and right sides of parent */
+.opposite-sides {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
 }
 /* File containing styles used by the guidebook screen. */
 

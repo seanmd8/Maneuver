@@ -1,3 +1,7 @@
+const achievements_title = `Achievements`;
+const achievement_reset = `Reset`;
+const achievement_confirm_reset = `Confirm?`;
+
 const achievement_names = {
     // Boss
     velociphile: `Only A Speedbump`,
