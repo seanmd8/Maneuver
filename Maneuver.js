@@ -3302,7 +3302,7 @@ function forest_heart_tile(){
         cycle: health,
         segment_list: [undefined, undefined],
         spells,
-        card_drops: [snack, branch_strike]
+        card_drops: [snack, branch_strike, vine_snare]
     }
     if(GS.boons.has(boon_names.boss_slayer)){
         tile.health -= 2;
@@ -12024,6 +12024,19 @@ function branch_strike(){
     return{
         name: `branch strike`,
         pic: `${IMG_FOLDER.cards}branch_strike.png`,
+        options
+    }
+}
+/** @type {CardGenerator} Dropped by the forest heart*/
+function vine_snare(){
+    var options = new ButtonGrid();
+    options.add_button(SE, [pmove(2, 2), pmove(1, 1)]);
+    options.add_button(SW, [pmove(-2, 2), pmove(-1, 1)]);
+    options.add_button(NE, [pmove(2, -2), pmove(1, -1)]);
+    options.add_button(NW, [pmove(-2, -2), pmove(-1, -1)]);
+    return{
+        name: `vine snare`,
+        pic: `${IMG_FOLDER.cards}vine_snare.png`,
         options
     }
 }
