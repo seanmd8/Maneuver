@@ -3047,7 +3047,7 @@ function arcane_sentry_tile(){
         on_death: arcane_sentry_death,
         cycle: 0,
         spawn_timer: 4,
-        card_drops: [beam_ne, beam_se, beam_sw, beam_nw, saw_ns, saw_ew]
+        card_drops: [beam_ne, beam_se, beam_sw, beam_nw, saw_strike]
     }
 }
 
@@ -11985,28 +11985,19 @@ function beam_sw(){
 }
 
 /** @type {CardGenerator}*/
-function saw_ns(){
+function saw_strike(){
     var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), pmove(0, -1)]);
-    options.add_button(S, [pattack(0, 1), pattack(1, 0), pattack(0, -1), pattack(-1, 0), pmove(0, 1)]);
+    options.add_button(NE, [pmove(1, -1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
+    options.add_button(SE, [pmove(1, 1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
+    options.add_button(NW, [pmove(-1, -1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
+    options.add_button(SW, [pmove(-1, 1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
     return{
-        name: `saw ns`,
-        pic: `${IMG_FOLDER.cards}saw_ns.png`,
+        name: `saw strike`,
+        pic: `${IMG_FOLDER.cards}saw_strike.png`,
         options
     }
 }
 
-/** @type {CardGenerator}*/
-function saw_ew(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pattack(1, 0), pattack(0, 1), pattack(-1, 0), pattack(0, -1), pmove(1, 0)]);
-    options.add_button(W, [pattack(-1, 0), pattack(0, 1), pattack(1, 0), pattack(0, -1), pmove(-1, 0)]);
-    return{
-        name: `saw ew`,
-        pic: `${IMG_FOLDER.cards}saw_ew.png`,
-        options
-    }
-}
 // ----------------two_headed_serpent_cards.js----------------
 // File containing cards that can be dropped as rewards for defeating the forest heart.
 

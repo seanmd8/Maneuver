@@ -51,25 +51,15 @@ function beam_sw(){
 }
 
 /** @type {CardGenerator}*/
-function saw_ns(){
+function saw_strike(){
     var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), pmove(0, -1)]);
-    options.add_button(S, [pattack(0, 1), pattack(1, 0), pattack(0, -1), pattack(-1, 0), pmove(0, 1)]);
+    options.add_button(NE, [pmove(1, -1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
+    options.add_button(SE, [pmove(1, 1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
+    options.add_button(NW, [pmove(-1, -1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
+    options.add_button(SW, [pmove(-1, 1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
     return{
-        name: `saw ns`,
-        pic: `${IMG_FOLDER.cards}saw_ns.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function saw_ew(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pattack(1, 0), pattack(0, 1), pattack(-1, 0), pattack(0, -1), pmove(1, 0)]);
-    options.add_button(W, [pattack(-1, 0), pattack(0, 1), pattack(1, 0), pattack(0, -1), pmove(-1, 0)]);
-    return{
-        name: `saw ew`,
-        pic: `${IMG_FOLDER.cards}saw_ew.png`,
+        name: `saw strike`,
+        pic: `${IMG_FOLDER.cards}saw_strike.png`,
         options
     }
 }
