@@ -199,6 +199,53 @@ function reckless_diagonal(){
     }
 }
 /** @type {CardGenerator}*/
+function reckless_leap_forwards (){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(N, [pstun(0, 0), pmove(0, -2), ...spin]);
+    options.add_button(S, [pmove(0, 1)]);
+    return{
+        name: `reckless leap forwards`,
+        pic: `${IMG_FOLDER.cards}reckless_leap_forwards.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_leap_left(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(W, [pstun(0, 0), pmove(-1, 0), ...spin]);
+    options.add_button(E, [pmove(1, 0)]);
+    return{
+        name: `reckless leap left`,
+        pic: `${IMG_FOLDER.cards}reckless_leap_left.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_leap_right(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(E, [pstun(0, 0), pmove(1, 0), ...spin]);
+    options.add_button(W, [pmove(-1, 0)]);
+    return{
+        name: `reckless leap right`,
+        pic: `${IMG_FOLDER.cards}reckless_leap_right.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_spin(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(SPIN, [pstun(0, 0), pstun(0, 0), ...spin, ...spin]);
+    return{
+        name: `reckless spin`,
+        pic: `${IMG_FOLDER.cards}reckless_spin.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
 function stunning_punch_orthogonal(){
     var options = new ButtonGrid();
     options.add_button(N, [pstun(0, -1), pstun(0, -1)]);
@@ -223,6 +270,33 @@ function stunning_punch_diagonal(){
     return{
         name: `stunning punch diagonal`,
         pic: `${IMG_FOLDER.cards}stunning_punch_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, -1), pstun(0, -1), pstun(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pstun(1, 0), pstun(1, 0), pstun(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 1), pstun(0, 1), pstun(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pstun(-1, 0), pstun(-1, 0), pstun(-1, 0), pmove(-1, 0)]);
+    return{
+        name: `stunning orthogonal`,
+        pic: `${IMG_FOLDER.cards}stunning_orthogonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function stunning_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(1, -1), pstun(1, -1), pstun(1, -1), pmove(1, -1)]);
+    options.add_button(SE, [pstun(1, 1), pstun(1, 1), pstun(1, 1), pmove(1, 1)]);
+    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1), pstun(-1, 1), pmove(-1, 1)]);
+    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1), pstun(-1, -1), pmove(-1, -1)]);
+    return{
+        name: `stunning diagonal`,
+        pic: `${IMG_FOLDER.cards}stunning_diagonal.png`,
         options
     }
 }

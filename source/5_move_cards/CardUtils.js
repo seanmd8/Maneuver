@@ -10,7 +10,7 @@ const COMMON_CARDS = [
     short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
     sprint, trident, spin_attack, butterfly, fork,
-    retreat, force, side_attack, clear_behind, clear_in_front, 
+    stunning_retreat, force, side_attack, clear_behind, clear_in_front, 
     jab, overcome, hit_and_run, push_back, breakthrough_side,
     explosion, breakthrough, flanking_diagonal, flanking_sideways, flanking_straight,
     pike, combat_diagonal, combat_horizontal, stunning_punch_orthogonal, stunning_punch_diagonal,
@@ -26,7 +26,8 @@ const RARE_CARDS = [
     teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
     sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
     punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport,
-    reckless_horizontal, reckless_diagonal, 
+    reckless_horizontal, reckless_diagonal, reckless_leap_forwards, reckless_leap_left, reckless_leap_right,
+    reckless_spin, stunning_diagonal, stunning_orthogonal
 ]
 
 // Cards that can be given as a debuff.

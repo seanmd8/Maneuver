@@ -1968,7 +1968,8 @@ function get_achievements(){
             has: false,
             boons: [retaliate],
             cards: [
-                stunning_leap, stunning_side_leap, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice
+                stunning_leap, stunning_side_leap, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice,
+                stunning_diagonal, stunning_orthogonal, stunning_retreat
             ]
         },
         {
@@ -1979,7 +1980,7 @@ function get_achievements(){
             boons: [slime_trail],
             cards: [
                 reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_diagonal, reckless_horizontal, 
-                reckless_teleport
+                reckless_teleport, reckless_leap_forwards, reckless_leap_left, reckless_leap_right, reckless_spin
             ]
         },
         {
@@ -12347,7 +12348,7 @@ const COMMON_CARDS = [
     short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
     sprint, trident, spin_attack, butterfly, fork,
-    retreat, force, side_attack, clear_behind, clear_in_front, 
+    stunning_retreat, force, side_attack, clear_behind, clear_in_front, 
     jab, overcome, hit_and_run, push_back, breakthrough_side,
     explosion, breakthrough, flanking_diagonal, flanking_sideways, flanking_straight,
     pike, combat_diagonal, combat_horizontal, stunning_punch_orthogonal, stunning_punch_diagonal,
@@ -12363,7 +12364,8 @@ const RARE_CARDS = [
     teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
     sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
     punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport,
-    reckless_horizontal, reckless_diagonal, 
+    reckless_horizontal, reckless_diagonal, reckless_leap_forwards, reckless_leap_left, reckless_leap_right,
+    reckless_spin, stunning_diagonal, stunning_orthogonal
 ]
 
 // Cards that can be given as a debuff.
@@ -12948,15 +12950,15 @@ function butterfly(){
     }
 }
 /** @type {CardGenerator}*/
-function retreat(){
+function stunning_retreat(){
     var options = new ButtonGrid();
     options.add_button(N, [pstun(0, -1), pstun(1, -1), pstun(-1, -1), pstun(1, 0), pstun(-1, 0),]);
     options.add_button(SE, [pmove(1, 1)]);
     options.add_button(S, [pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
     options.add_button(SW, [pmove(-1, 1)]);
     return{
-        name: `retreat`,
-        pic: `${IMG_FOLDER.cards}retreat.png`,
+        name: `stunning retreat`,
+        pic: `${IMG_FOLDER.cards}stunning_retreat.png`,
         options
     }
 }
@@ -13719,6 +13721,53 @@ function reckless_diagonal(){
     }
 }
 /** @type {CardGenerator}*/
+function reckless_leap_forwards (){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(N, [pstun(0, 0), pmove(0, -2), ...spin]);
+    options.add_button(S, [pmove(0, 1)]);
+    return{
+        name: `reckless leap forwards`,
+        pic: `${IMG_FOLDER.cards}reckless_leap_forwards.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_leap_left(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(W, [pstun(0, 0), pmove(-1, 0), ...spin]);
+    options.add_button(E, [pmove(1, 0)]);
+    return{
+        name: `reckless leap left`,
+        pic: `${IMG_FOLDER.cards}reckless_leap_left.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_leap_right(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(E, [pstun(0, 0), pmove(1, 0), ...spin]);
+    options.add_button(W, [pmove(-1, 0)]);
+    return{
+        name: `reckless leap right`,
+        pic: `${IMG_FOLDER.cards}reckless_leap_right.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_spin(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(SPIN, [pstun(0, 0), pstun(0, 0), ...spin, ...spin]);
+    return{
+        name: `reckless spin`,
+        pic: `${IMG_FOLDER.cards}reckless_spin.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
 function stunning_punch_orthogonal(){
     var options = new ButtonGrid();
     options.add_button(N, [pstun(0, -1), pstun(0, -1)]);
@@ -13743,6 +13792,33 @@ function stunning_punch_diagonal(){
     return{
         name: `stunning punch diagonal`,
         pic: `${IMG_FOLDER.cards}stunning_punch_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, -1), pstun(0, -1), pstun(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pstun(1, 0), pstun(1, 0), pstun(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 1), pstun(0, 1), pstun(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pstun(-1, 0), pstun(-1, 0), pstun(-1, 0), pmove(-1, 0)]);
+    return{
+        name: `stunning orthogonal`,
+        pic: `${IMG_FOLDER.cards}stunning_orthogonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function stunning_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(1, -1), pstun(1, -1), pstun(1, -1), pmove(1, -1)]);
+    options.add_button(SE, [pstun(1, 1), pstun(1, 1), pstun(1, 1), pmove(1, 1)]);
+    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1), pstun(-1, 1), pmove(-1, 1)]);
+    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1), pstun(-1, -1), pmove(-1, -1)]);
+    return{
+        name: `stunning diagonal`,
+        pic: `${IMG_FOLDER.cards}stunning_diagonal.png`,
         options
     }
 }
