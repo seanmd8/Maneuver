@@ -43,6 +43,7 @@ function unstable_wisp_death(self, target, map){
         var spawnpoint = self.location.plus(dir)
         if(!map.attack(spawnpoint)){
             var fireball = shoot_fireball(dir);
+            fireball.stun = 1; // Gets around unstunnable.
             stun(fireball);
             map.add_tile(fireball, spawnpoint);
             fireballs.push(fireball);
