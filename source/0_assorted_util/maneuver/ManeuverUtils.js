@@ -90,7 +90,8 @@ function hp_description(tile){
  * @returns {string} The properly formatted description.
  */
 function grid_space_description(space){
-    var tile = tile_description(space.tile);
+    var tile = space.tile.look === undefined ? space.tile : space.tile.look;
+    tile = tile_description(tile);
     var foreground = space.foreground.filter((fg) => fg.description !== undefined);
     foreground = foreground.map((fg) => `${tile_description_divider}${fg.description}`);
     var background = space.background.filter((bg) => bg.description !== undefined);

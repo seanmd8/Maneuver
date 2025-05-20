@@ -1683,7 +1683,8 @@ function hp_description(tile){
  * @returns {string} The properly formatted description.
  */
 function grid_space_description(space){
-    var tile = tile_description(space.tile);
+    var tile = space.tile.look === undefined ? space.tile : space.tile.look;
+    tile = tile_description(tile);
     var foreground = space.foreground.filter((fg) => fg.description !== undefined);
     foreground = foreground.map((fg) => `${tile_description_divider}${fg.description}`);
     var background = space.background.filter((bg) => bg.description !== undefined);
@@ -4289,15 +4290,8 @@ function acid_bug_death(self, target, map){
         map.attack(self.location.plus(attack));
     }
 }
-/** @type {TileGenerator} Generates a camoflauged boulder elemental. */
-function animated_boulder_tile(){
-    var tile = animated_boulder_look();
-    shapeshift(tile, ifexists(tile.look_arr)[0]);
-    return tile;
-}
-
 /** @type {TileGenerator} Generates an uncamoflauged animated boulder. */
-function animated_boulder_look(){
+function animated_boulder_tile(){
     return {
         type: `enemy`,
         name: `Animated Boulder`,
@@ -4308,16 +4302,15 @@ function animated_boulder_look(){
         telegraph: spider_telegraph,
         on_enter: animated_boulder_wake_up,
         on_hit: animated_boulder_wake_up,
-        look_arr: [magmatic_boulder_tile, animated_boulder_look],
-        cycle: 0
+        cycle: 0,
+        look: magmatic_boulder_tile()
     }
 }
 
 
 /** @type {AIFunction} AI used by animated boulders.*/
 function animated_boulder_ai(self, target, map){
-    if( self.tile.cycle === undefined || 
-        self.tile.look_arr === undefined){
+    if( self.tile.cycle === undefined){
         throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle === 0){
@@ -4342,7 +4335,7 @@ function animated_boulder_ai(self, target, map){
     --self.tile.cycle;
     if(self.tile.cycle <= 0){
         // Falls asleep.
-        shapeshift(self.tile, self.tile.look_arr[0]);
+        self.tile.look = magmatic_boulder_tile();
         self.tile.tags.add(TAGS.hidden);
         // Stays asleep for a turn before it can wake up.
         self.tile.cycle = -1;
@@ -4354,14 +4347,13 @@ function animated_boulder_ai(self, target, map){
 }
 /** @type {AIFunction} animated boulder wakes up when touched.*/
 function animated_boulder_wake_up(self, target, map){
-    if( self.tile.cycle === undefined || 
-        self.tile.look_arr === undefined){
+    if( self.tile.cycle === undefined){
         throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle === 0){
         stun(self.tile);
         self.tile.cycle = 3;
-        shapeshift(self.tile, self.tile.look_arr[1]);
+        self.tile.look = undefined;
         self.tile.tags.remove(TAGS.hidden);
     }
 }
@@ -5663,7 +5655,6 @@ function shadow_knight_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function shadow_scout_tile(){
-    var look_arr = [empty_tile, shadow_scout_tile];
     var starting_cycle = random_num(2);
     return {
         type: `enemy`,
@@ -5675,21 +5666,19 @@ function shadow_scout_tile(){
         difficulty: 3,
         behavior: shadow_scout_ai,
         telegraph: spider_telegraph,
-        look_arr,
         cycle: starting_cycle
     }
 }
 
 /** @type {AIFunction} AI used by shadow scouts.*/
 function shadow_scout_ai(self, target, map){
-    if( self.tile.cycle === undefined || 
-        self.tile.look_arr === undefined){
+    if( self.tile.cycle === undefined){
         throw new Error(ERRORS.missing_property);
     }
     self.tile.cycle = 1 - self.tile.cycle;
     // Goes invisible on alternate turns.
-    shapeshift(self.tile, self.tile.look_arr[self.tile.cycle]);
-    self.tile.cycle === 0 ? self.tile.tags.add(TAGS.hidden) : self.tile.tags.remove(TAGS.hidden);
+    self.tile.look = self.tile.cycle === 1 ? empty_tile() : undefined;
+    self.tile.cycle === 1 ? self.tile.tags.add(TAGS.hidden) : self.tile.tags.remove(TAGS.hidden);
     spider_ai(self, target, map);
 }
 /** @type {TileGenerator}*/
@@ -7390,7 +7379,6 @@ function growth_event(points, root, grown){
  * // Properties used to determing aesthetics //
  * @property {string[]=} pic_arr Used when the tile sometimes changes images.
  * @property {string[]=} description_arr Used when the tile sometimes changes descriptions.
- * @property {TileGenerator[]=} look_arr Used when the tile sometimes is disguised as another tile.
  * @property {number=} rotate How much to rotate the image when displaying it. Must be in 90 degree increments.
  * @property {boolean=} flip If the image should be horizontally flipped.
  * 
@@ -7410,6 +7398,7 @@ function growth_event(points, root, grown){
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
  * @property {number=} id Given a unique one when added to a EntityList.
+ * @property {Tile || undefined} look Used when tiles disguise themselves as something else.
  */
 
 /**
@@ -7725,7 +7714,6 @@ function generic_tile(){
         // Properties used to determing aesthetics //
         pic_arr: [],
         description_arr: [],
-        look_arr: [],
         rotate: 0,
         flip: false,
 
@@ -9166,7 +9154,9 @@ class GameMap{
      * @returns {boolean} Returns true if the location is both in bounds and looks empty and false otherwise.
      */
     looks_empty(location){
-        return this.is_in_bounds(location) && this.get_tile(location).name === `Empty`;
+        var tile = this.get_tile(location);
+        var looks_empty = tile.look !== undefined && tile.look.type === `empty`;
+        return this.check_empty || looks_empty;
     }
     /**
      * Places an exit tile at the given location
@@ -9288,6 +9278,9 @@ class GameMap{
             return function(){
                 var description = grid_space_description(space);
                 var tile = space.tile;
+                if(tile.look !== undefined){
+                    tile = tile.look;
+                }
                 say(description);
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
@@ -9325,14 +9318,15 @@ class GameMap{
                 if(space.tile.stun !== undefined && space.tile.stun > 0){
                     stunned.push(`${IMG_FOLDER.actions}confuse.png`);
                 }
+                var tile = space.tile.look === undefined ? space.tile : space.tile.look;
                 let foreground_pics = space.foreground.map((fg) => fg.pic);
                 let background_pics = space.background.map((fg) => fg.pic);
                 table_row.push({
-                    name: space.tile.name,
+                    name: tile.name,
                     foreground: foreground_pics,
-                    pic: space.tile.pic,
-                    rotate: space.tile.rotate,
-                    flip: space.tile.flip,
+                    pic: tile.pic,
+                    rotate: tile.rotate,
+                    flip: tile.flip,
                     background: [...background_pics, space.action, ...stunned, this.#area.background],
                     on_click: make_on_click(space, new Point(x, y), this)
                 });

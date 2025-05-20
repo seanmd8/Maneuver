@@ -29,7 +29,6 @@
  * // Properties used to determing aesthetics //
  * @property {string[]=} pic_arr Used when the tile sometimes changes images.
  * @property {string[]=} description_arr Used when the tile sometimes changes descriptions.
- * @property {TileGenerator[]=} look_arr Used when the tile sometimes is disguised as another tile.
  * @property {number=} rotate How much to rotate the image when displaying it. Must be in 90 degree increments.
  * @property {boolean=} flip If the image should be horizontally flipped.
  * 
@@ -49,6 +48,7 @@
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
  * @property {number=} id Given a unique one when added to a EntityList.
+ * @property {Tile || undefined} look Used when tiles disguise themselves as something else.
  */
 
 /**
@@ -364,7 +364,6 @@ function generic_tile(){
         // Properties used to determing aesthetics //
         pic_arr: [],
         description_arr: [],
-        look_arr: [],
         rotate: 0,
         flip: false,
 

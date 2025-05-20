@@ -164,7 +164,9 @@ class GameMap{
      * @returns {boolean} Returns true if the location is both in bounds and looks empty and false otherwise.
      */
     looks_empty(location){
-        return this.is_in_bounds(location) && this.get_tile(location).name === `Empty`;
+        var tile = this.get_tile(location);
+        var looks_empty = tile.look !== undefined && tile.look.type === `empty`;
+        return this.check_empty || looks_empty;
     }
     /**
      * Places an exit tile at the given location
@@ -286,6 +288,9 @@ class GameMap{
             return function(){
                 var description = grid_space_description(space);
                 var tile = space.tile;
+                if(tile.look !== undefined){
+                    tile = tile.look;
+                }
                 say(description);
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
@@ -323,14 +328,15 @@ class GameMap{
                 if(space.tile.stun !== undefined && space.tile.stun > 0){
                     stunned.push(`${IMG_FOLDER.actions}confuse.png`);
                 }
+                var tile = space.tile.look === undefined ? space.tile : space.tile.look;
                 let foreground_pics = space.foreground.map((fg) => fg.pic);
                 let background_pics = space.background.map((fg) => fg.pic);
                 table_row.push({
-                    name: space.tile.name,
+                    name: tile.name,
                     foreground: foreground_pics,
-                    pic: space.tile.pic,
-                    rotate: space.tile.rotate,
-                    flip: space.tile.flip,
+                    pic: tile.pic,
+                    rotate: tile.rotate,
+                    flip: tile.flip,
                     background: [...background_pics, space.action, ...stunned, this.#area.background],
                     on_click: make_on_click(space, new Point(x, y), this)
                 });
