@@ -46,6 +46,8 @@ class GameMap{
     #area;
     /**@type {boolean} Keeps track of if it is currently the player's turn or not.*/
     #is_player_turn;
+    /**@type {Point[]} Keeps track of the current position of the exit(s)*/
+    #exit_pos;
     /**
      * @param {number} x_max The x size of floors in this dungeon.
      * @param {number} y_max The y size of floors in this dungeon.
@@ -60,6 +62,7 @@ class GameMap{
         this.#events = [];
         this.#area = starting_area;
         this.#is_player_turn = true;
+        this.#exit_pos = [];
         this.erase()
     }
     /**
@@ -81,6 +84,8 @@ class GameMap{
         }
         this.#entity_list = new EntityList();
         this.#grid = [];
+        this.#exit_pos = [];
+        ++this.#floor_num;
         // Fill the grid with blank spaces.
         for(var i = 0; i < this.#y_max; ++i){
             this.#grid.push([]);
@@ -89,12 +94,13 @@ class GameMap{
             }
         }
         // Add the player and the exit.
+        //if(this.#floor_num % area_size ===)
         var exit_location = new Point(random_num(this.#y_max), 0);
         this.set_exit(exit_location);
         var player_location = new Point(random_num(this.#y_max), this.#x_max - 1);
         this.set_player(player_location, player);
         this.#events = [];
-        return ++this.#floor_num;
+        return this.#floor_num;
     }
     /**
      * @returns {Point} A random space on the floor.
@@ -178,18 +184,7 @@ class GameMap{
         if(!this.check_empty(location)){
             throw new Error(ERRORS.space_full);
         }
-        try{
-            // If exit isn't undefined, throws error.
-            this.#entity_list.get_exit_pos();
-            throw new Error(ERRORS.already_exists)
-        }
-        catch(error) {
-            if(error.message !== ERRORS.value_not_found){
-                throw error;
-            }
-            // otherwise continues.
-        }
-        this.#entity_list.set_exit(location);
+        this.#exit_pos.push(location);
         this.#set_tile(location, exit_tile());
     }
     /**
@@ -585,21 +580,21 @@ class GameMap{
     }
     /**
      * Replaces the exit tile with a lock tile.
-     * Throws an error if there is no exit.
      * @returns {void}
      */
     lock(){
-        var pos = this.#entity_list.get_exit_pos();
-        this.#set_tile(pos, lock_tile());
+        for(var pos of this.#exit_pos){
+            this.#set_tile(pos, lock_tile());
+        }
     }
     /**
-     * Replaces the lock tile with an exit one and heals the player to max.
-     * Throws an error if there is no lock or exit.
+     * Replaces the lock tile with an exit one.
      * @returns {void}
      */
     unlock(){
-        var pos = this.#entity_list.get_exit_pos();
-        this.#set_tile(pos, exit_tile());
+        for(var pos of this.#exit_pos){
+            this.#set_tile(pos, exit_tile());
+        }
     }
     /**
      * Schedules an event to happen at end of turn.

@@ -12,8 +12,6 @@ class EntityList{
     count_non_empty;
     /** @type {Point | undefined} The position of the player, or undefined if they haven't been added yet.*/
     #player_pos;
-    /** @type {Point | undefined} The position of the exit, or undefined if it hasn't been added yet.*/
-    #exit_pos;
     /** @type {Tile_W_Pos[]} An array of each entity on the floor with a behavior as well as their location.*/
     #enemy_list;
     /** @type {number} Used to give a unique ID to each tile that is added.*/
@@ -47,23 +45,7 @@ class EntityList{
         }
         return this.#player_pos.copy();
     }
-    /**
-     * @param {Point} location Where the exit's location should be set to
-     */
-    set_exit(location){
-        this.#exit_pos = location;
-    }
-    /**
-     * Returns the exit's location. Throws an error if it's undefined.
-     * @returns {Point} The exit's location.
-     */
-    get_exit_pos(){
-        if(this.#exit_pos === undefined){
-            throw new Error(ERRORS.value_not_found);
-        }
-        return this.#exit_pos.copy();
-    }
-    /**
+     /**
      * Adds a new enemy and it's location to the array of enemies.
      * @param {Point} location The location of the enemy.
      * @param {Tile} enemy The tile.

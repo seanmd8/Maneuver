@@ -8781,8 +8781,6 @@ class EntityList{
     count_non_empty;
     /** @type {Point | undefined} The position of the player, or undefined if they haven't been added yet.*/
     #player_pos;
-    /** @type {Point | undefined} The position of the exit, or undefined if it hasn't been added yet.*/
-    #exit_pos;
     /** @type {Tile_W_Pos[]} An array of each entity on the floor with a behavior as well as their location.*/
     #enemy_list;
     /** @type {number} Used to give a unique ID to each tile that is added.*/
@@ -8816,23 +8814,7 @@ class EntityList{
         }
         return this.#player_pos.copy();
     }
-    /**
-     * @param {Point} location Where the exit's location should be set to
-     */
-    set_exit(location){
-        this.#exit_pos = location;
-    }
-    /**
-     * Returns the exit's location. Throws an error if it's undefined.
-     * @returns {Point} The exit's location.
-     */
-    get_exit_pos(){
-        if(this.#exit_pos === undefined){
-            throw new Error(ERRORS.value_not_found);
-        }
-        return this.#exit_pos.copy();
-    }
-    /**
+     /**
      * Adds a new enemy and it's location to the array of enemies.
      * @param {Point} location The location of the enemy.
      * @param {Tile} enemy The tile.
@@ -9038,6 +9020,8 @@ class GameMap{
     #area;
     /**@type {boolean} Keeps track of if it is currently the player's turn or not.*/
     #is_player_turn;
+    /**@type {Point[]} Keeps track of the current position of the exit(s)*/
+    #exit_pos;
     /**
      * @param {number} x_max The x size of floors in this dungeon.
      * @param {number} y_max The y size of floors in this dungeon.
@@ -9052,6 +9036,7 @@ class GameMap{
         this.#events = [];
         this.#area = starting_area;
         this.#is_player_turn = true;
+        this.#exit_pos = [];
         this.erase()
     }
     /**
@@ -9073,6 +9058,8 @@ class GameMap{
         }
         this.#entity_list = new EntityList();
         this.#grid = [];
+        this.#exit_pos = [];
+        ++this.#floor_num;
         // Fill the grid with blank spaces.
         for(var i = 0; i < this.#y_max; ++i){
             this.#grid.push([]);
@@ -9081,12 +9068,13 @@ class GameMap{
             }
         }
         // Add the player and the exit.
+        //if(this.#floor_num % area_size ===)
         var exit_location = new Point(random_num(this.#y_max), 0);
         this.set_exit(exit_location);
         var player_location = new Point(random_num(this.#y_max), this.#x_max - 1);
         this.set_player(player_location, player);
         this.#events = [];
-        return ++this.#floor_num;
+        return this.#floor_num;
     }
     /**
      * @returns {Point} A random space on the floor.
@@ -9170,18 +9158,7 @@ class GameMap{
         if(!this.check_empty(location)){
             throw new Error(ERRORS.space_full);
         }
-        try{
-            // If exit isn't undefined, throws error.
-            this.#entity_list.get_exit_pos();
-            throw new Error(ERRORS.already_exists)
-        }
-        catch(error) {
-            if(error.message !== ERRORS.value_not_found){
-                throw error;
-            }
-            // otherwise continues.
-        }
-        this.#entity_list.set_exit(location);
+        this.#exit_pos.push(location);
         this.#set_tile(location, exit_tile());
     }
     /**
@@ -9577,21 +9554,21 @@ class GameMap{
     }
     /**
      * Replaces the exit tile with a lock tile.
-     * Throws an error if there is no exit.
      * @returns {void}
      */
     lock(){
-        var pos = this.#entity_list.get_exit_pos();
-        this.#set_tile(pos, lock_tile());
+        for(var pos of this.#exit_pos){
+            this.#set_tile(pos, lock_tile());
+        }
     }
     /**
-     * Replaces the lock tile with an exit one and heals the player to max.
-     * Throws an error if there is no lock or exit.
+     * Replaces the lock tile with an exit one.
      * @returns {void}
      */
     unlock(){
-        var pos = this.#entity_list.get_exit_pos();
-        this.#set_tile(pos, exit_tile());
+        for(var pos of this.#exit_pos){
+            this.#set_tile(pos, exit_tile());
+        }
     }
     /**
      * Schedules an event to happen at end of turn.
@@ -13736,7 +13713,7 @@ function reckless_leap_forwards (){
 function reckless_leap_left(){
     var options = new ButtonGrid();
     var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(W, [pstun(0, 0), pmove(-1, 0), ...spin]);
+    options.add_button(W, [pstun(0, 0), pmove(-2, 0), ...spin]);
     options.add_button(E, [pmove(1, 0)]);
     return{
         name: `reckless leap left`,
@@ -13748,7 +13725,7 @@ function reckless_leap_left(){
 function reckless_leap_right(){
     var options = new ButtonGrid();
     var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(E, [pstun(0, 0), pmove(1, 0), ...spin]);
+    options.add_button(E, [pstun(0, 0), pmove(2, 0), ...spin]);
     options.add_button(W, [pmove(-1, 0)]);
     return{
         name: `reckless leap right`,

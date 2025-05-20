@@ -214,7 +214,7 @@ function reckless_leap_forwards (){
 function reckless_leap_left(){
     var options = new ButtonGrid();
     var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(W, [pstun(0, 0), pmove(-1, 0), ...spin]);
+    options.add_button(W, [pstun(0, 0), pmove(-2, 0), ...spin]);
     options.add_button(E, [pmove(1, 0)]);
     return{
         name: `reckless leap left`,
@@ -226,7 +226,7 @@ function reckless_leap_left(){
 function reckless_leap_right(){
     var options = new ButtonGrid();
     var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(E, [pstun(0, 0), pmove(1, 0), ...spin]);
+    options.add_button(E, [pstun(0, 0), pmove(2, 0), ...spin]);
     options.add_button(W, [pmove(-1, 0)]);
     return{
         name: `reckless leap right`,
