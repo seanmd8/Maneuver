@@ -94,9 +94,15 @@ class GameMap{
             }
         }
         // Add the player and the exit.
-        //if(this.#floor_num % area_size ===)
-        var exit_location = new Point(random_num(this.#y_max), 0);
-        this.set_exit(exit_location);
+        if(this.#floor_num % init_settings().area_size === 0){
+            var areas = randomize_arr(this.#area.next_area_list);
+            for(var i = 0; i < GS.boons.has(boon_names.choose_your_path) + 1 && i < areas.length; ++i){
+                this.set_exit(undefined, areas[i]());
+            }
+        }
+        else{
+            this.set_exit();
+        }
         var player_location = new Point(random_num(this.#y_max), this.#x_max - 1);
         this.set_player(player_location, player);
         this.#events = [];
@@ -170,22 +176,39 @@ class GameMap{
      * @returns {boolean} Returns true if the location is both in bounds and looks empty and false otherwise.
      */
     looks_empty(location){
+        if(!this.is_in_bounds(location)){
+            return false;
+        }
         var tile = this.get_tile(location);
         var looks_empty = tile.look !== undefined && tile.look.type === `empty`;
-        return this.check_empty || looks_empty;
+        return this.check_empty(location) || looks_empty;
     }
     /**
      * Places an exit tile at the given location
      * Throws an error if the location is out of bounds, the space is not empty or there is already an exit tile.
      * @param {Point} location The location to set the exit at.
      */
-    set_exit(location){
+    set_exit(location = undefined, next_area = undefined){
+        if(location === undefined){
+            var top_row = range(this.#y_max);
+            var points = top_row.map((y) => {
+                return new Point(y, 0)
+            }).filter((p) => {
+                return this.check_empty(p);
+            })
+            location = rand_from(points);
+        }
         this.check_bounds(location);
         if(!this.check_empty(location)){
             throw new Error(ERRORS.space_full);
         }
+        var exit = exit_tile()
+        if(next_area !== undefined){
+            exit.next_area = next_area;
+            this.get_grid(location).floor = next_area.background;
+        }
         this.#exit_pos.push(location);
-        this.#set_tile(location, exit_tile());
+        this.#set_tile(location, exit);
     }
     /**
      * Places the player at the given location.
@@ -332,7 +355,7 @@ class GameMap{
                     pic: tile.pic,
                     rotate: tile.rotate,
                     flip: tile.flip,
-                    background: [...background_pics, space.action, ...stunned, this.#area.background],
+                    background: [...background_pics, space.action, ...stunned, space.floor],
                     on_click: make_on_click(space, new Point(x, y), this)
                 });
             };
@@ -359,6 +382,9 @@ class GameMap{
             var floor_turns = this.stats.finish_floor();
             if(floor_turns <= 3){
                 GS.achieve(achievement_names.peerless_sprinter);
+            }
+            if(end.next_area !== undefined){
+                this.#area.next_area_list = [end.next_area];
             }
             throw new Error(ERRORS.floor_complete);
         }
@@ -584,7 +610,9 @@ class GameMap{
      */
     lock(){
         for(var pos of this.#exit_pos){
-            this.#set_tile(pos, lock_tile());
+            var lock = lock_tile();
+            lock.next_area = this.get_tile(pos).next_area;
+            this.#set_tile(pos, lock);
         }
     }
     /**
@@ -593,7 +621,9 @@ class GameMap{
      */
     unlock(){
         for(var pos of this.#exit_pos){
-            this.#set_tile(pos, exit_tile());
+            var exit = exit_tile();
+            exit.next_area = this.get_tile(pos).next_area;
+            this.#set_tile(pos, exit);
         }
     }
     /**
@@ -653,8 +683,13 @@ class GameMap{
         if(this.#floor_num % area_size === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
-            this.#area = rand_from(next_list)();
+            this.#area = rand_from(next_list);
             floor_description += `\n${this.#area.description}`;
+            for(var list of this.#grid){
+                for(var point of list){
+                    point.floor = this.#area.background;
+                }
+            }
         }
         if(this.#floor_num % area_size === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
@@ -889,6 +924,7 @@ function grid_space(area){
         foreground: [],
         tile: empty_tile(),
         background: [],
+        floor: area.background,
         action: `${IMG_FOLDER.tiles}empty.png`
     }
 }
