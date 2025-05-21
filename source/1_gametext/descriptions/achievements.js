@@ -27,6 +27,7 @@ const achievement_names = {
     collector: `Collector`,
     jack_of_all_trades: `Jack Of All Trades`,
     monster_hunter: `Monster Hunter`,
+    minimalist: `Minimalist`
 }
 const achievement_description = {
     // Boss
@@ -53,6 +54,7 @@ const achievement_description = {
     collector: `Open 6 or more treasure chests in 1 run.`,
     jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
     monster_hunter: `Kill 5 total unique bosses.`,
+    minimalist: `Reach floor 15 with only 5 cards in your deck.`
 }
 
 const boss_achievements = [
@@ -235,5 +237,12 @@ function get_achievements(){
             has: false,
             boons: [brag_and_boast],
         },
+        {
+            name: achievement_names.minimalist,
+            description: achievement_description.minimalist,
+            image: `${IMG_FOLDER.achievements}minimalist.png`,
+            has: false,
+            boons: [stubborn],
+        }
     ]
 }

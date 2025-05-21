@@ -56,7 +56,6 @@ class AchievementList{
         var filtered = this.#list.filter((a) => {
             return boss_achievements.find((n) => {return a.name === n &&  a.has}) !== undefined;
         });
-        console.log(filtered);
         return filtered.length;
     }
     

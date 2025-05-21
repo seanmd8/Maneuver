@@ -1907,6 +1907,7 @@ const achievement_names = {
     collector: `Collector`,
     jack_of_all_trades: `Jack Of All Trades`,
     monster_hunter: `Monster Hunter`,
+    minimalist: `Minimalist`
 }
 const achievement_description = {
     // Boss
@@ -1933,6 +1934,7 @@ const achievement_description = {
     collector: `Open 6 or more treasure chests in 1 run.`,
     jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
     monster_hunter: `Kill 5 total unique bosses.`,
+    minimalist: `Reach floor 15 with only 5 cards in your deck.`
 }
 
 const boss_achievements = [
@@ -2115,6 +2117,13 @@ function get_achievements(){
             has: false,
             boons: [brag_and_boast],
         },
+        {
+            name: achievement_names.minimalist,
+            description: achievement_description.minimalist,
+            image: `${IMG_FOLDER.achievements}minimalist.png`,
+            has: false,
+            boons: [stubborn],
+        }
     ]
 }
 // Area Descriptions.
@@ -8557,7 +8566,6 @@ class AchievementList{
         var filtered = this.#list.filter((a) => {
             return boss_achievements.find((n) => {return a.name === n &&  a.has}) !== undefined;
         });
-        console.log(filtered);
         return filtered.length;
     }
     
@@ -9665,6 +9673,9 @@ class GameMap{
         var area_size = init_settings().area_size
         if(this.#floor_num === 5 && this.stats.get_stats().damage_dealt === 0){
             GS.achieve(achievement_names.non_violent);
+        }
+        if(this.#floor_num === 15 && GS.deck.deck_size() === 5){
+            GS.achieve(achievement_names.minimalist);
         }
         if(player.health === 1 && GS.boons.has(boon_names.bitter_determination) > 0){
             // Bitter determination heals you if you are at exactly 1.
@@ -11077,7 +11088,6 @@ class StatTracker{
     }
     increment_kills(){
         ++this.#kills;
-        console.log(this.#kills)
     }
     get_stats(){
         return {

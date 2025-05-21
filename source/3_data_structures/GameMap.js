@@ -686,6 +686,9 @@ class GameMap{
         if(this.#floor_num === 5 && this.stats.get_stats().damage_dealt === 0){
             GS.achieve(achievement_names.non_violent);
         }
+        if(this.#floor_num === 15 && GS.deck.deck_size() === 5){
+            GS.achieve(achievement_names.minimalist);
+        }
         if(player.health === 1 && GS.boons.has(boon_names.bitter_determination) > 0){
             // Bitter determination heals you if you are at exactly 1.
             this.player_heal(new Point(0, 0), 1);

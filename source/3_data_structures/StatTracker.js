@@ -61,7 +61,6 @@ class StatTracker{
     }
     increment_kills(){
         ++this.#kills;
-        console.log(this.#kills)
     }
     get_stats(){
         return {
