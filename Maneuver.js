@@ -13879,9 +13879,9 @@ BOON_LIST = [
     frenzy, frugivore, future_sight, gruntwork, hoarder, 
     larger_chests, limitless, pacifism, pain_reflexes, perfect_the_basics, 
     picky_shopper, practice_makes_perfect, pressure_points, quick_healing, rebirth, 
-    repetition, retaliate, roar_of_challenge, safe_passage, serenity, 
-    skill_trading, slime_trail, sniper, spiked_shoes, spontaneous, 
-    stable_mind, stealthy, stubborn, thick_soles
+    repetition, retaliate, roar_of_challenge, safe_passage, skill_trading, 
+    slime_trail, sniper, spiked_shoes, spontaneous, stable_mind, 
+    stealthy, stubborn, thick_soles
 ];
 
 function change_max_health(amount){
@@ -14390,27 +14390,6 @@ function prereq_safe_passage(){
     return player.max_health === undefined || player.health < player.max_health;
 }
 
-function serenity(){
-    return {
-        name: boon_names.serenity,
-        pic: `${IMG_FOLDER.boons}serenity.png`,
-        description: serenity_description,
-        prereq: prereq_serenity,
-        on_pick: pick_serenity,
-        unlocks: [serenity]
-    }
-}
-
-function prereq_serenity(){
-    return GS.deck.deck_min() > 4;
-}
-
-function pick_serenity(){
-    while(GS.deck.deck_min() > 4){
-        GS.deck.alter_min(-1);
-    }
-}
-
 function skill_trading(){
     return {
         name: boon_names.skill_trading,
@@ -14559,6 +14538,27 @@ function learn_from_mistakes(){
 }
 
 // Delete any card twice
+
+function serenity(){
+    return {
+        name: boon_names.serenity,
+        pic: `${IMG_FOLDER.boons}serenity.png`,
+        description: serenity_description,
+        prereq: prereq_serenity,
+        on_pick: pick_serenity,
+        unlocks: [serenity]
+    }
+}
+
+function prereq_serenity(){
+    return GS.deck.deck_min() > 4;
+}
+
+function pick_serenity(){
+    while(GS.deck.deck_min() > 4){
+        GS.deck.alter_min(-1);
+    }
+}
 function shattered_glass(){
     return {
         name: boon_names.shattered_glass,
@@ -14570,11 +14570,11 @@ function shattered_glass(){
 }
 
 function prereq_shattered_glass(){
-    return max_health_at_least(1);
+    return max_health_at_least(2);
 }
 
 function on_pick_shattered_glass(){
-    change_max_health(-1);
+    change_max_health(-2);
 }
 
 // Enemies explode on death
