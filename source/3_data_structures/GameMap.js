@@ -208,7 +208,7 @@ class GameMap{
             this.get_grid(location).floor = next_area.background;
         }
         this.#exit_pos.push(location);
-        this.#set_tile(location, exit);
+        this.add_tile(exit, location);
     }
     /**
      * Places the player at the given location.

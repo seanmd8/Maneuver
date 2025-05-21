@@ -18,7 +18,7 @@ class EntityList{
     #id_count;
 
     constructor(){
-        this.count_non_empty = 2;
+        this.count_non_empty = 1;
         this.#id_count = 0;
         this.#enemy_list = [];
     }
