@@ -488,6 +488,9 @@ class GameMap{
                 else{
                     this.stats.increment_damage();
                 }
+                if(chance(GS.boons.has(boon_names.quick_healing), 4)){
+                    this.player_heal(new Point(0, 0), 1);
+                }
             }
             var current_health = target.health;
             if(target.on_hit !== undefined){

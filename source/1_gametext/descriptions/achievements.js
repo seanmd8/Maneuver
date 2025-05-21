@@ -132,7 +132,7 @@ function get_achievements(){
             description: achievement_description.arcane_sentry,
             image: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
             has: false,
-            boons: [/*choose_your_path*/],
+            boons: [choose_your_path],
             cards: []
         },
         
@@ -212,7 +212,7 @@ function get_achievements(){
             description: achievement_description.shrug_it_off,
             image: `${IMG_FOLDER.achievements}shrug_it_off.png`,
             has: false,
-            boons: [/*thick_skin*/],
+            boons: [/*quick_healing*/],
         },
         {
             name: achievement_names.collector,

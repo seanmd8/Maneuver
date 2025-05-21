@@ -32,6 +32,7 @@ const boon_names = {
     picky_shopper: `Picky Shopper`,
     practice_makes_perfect: `Practice Makes Perfect`,
     pressure_points: `Preassure Points`,
+    quick_healing: `Quick Healing`,
     rebirth: `Rebirth`,
     repetition: `Repetition`,
     retaliate: `Retaliate`,
@@ -120,6 +121,8 @@ const practice_makes_perfect_description =
     `Defeating a boss while at max health increases your max health by 1.`;
 const practice_makes_perfect_message =
     `Your maximum health has increased.`
+const quick_healing_description =
+    `After being dealt damage, you have a 1/4 chance to instantly heal it.`;
 const pressure_points_description = 
     `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`;
 const rebirth_description = 

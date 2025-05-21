@@ -5,10 +5,10 @@ BOON_LIST = [
     escape_artist, expend_vitality, flame_strike, fleeting_thoughts, fortitude, 
     frenzy, frugivore, future_sight, gruntwork, hoarder, 
     larger_chests, limitless, pacifism, pain_reflexes, perfect_the_basics, 
-    picky_shopper, practice_makes_perfect, pressure_points, rebirth, repetition, 
-    retaliate, roar_of_challenge, safe_passage, serenity, skill_trading, 
-    slime_trail, sniper, spiked_shoes, spontaneous, stable_mind, 
-    stealthy, thick_soles
+    picky_shopper, practice_makes_perfect, pressure_points, quick_healing, rebirth, 
+    repetition, retaliate, roar_of_challenge, safe_passage, serenity, 
+    skill_trading, slime_trail, sniper, spiked_shoes, spontaneous, 
+    stable_mind, stealthy, thick_soles
 ];
 
 function change_max_health(amount){

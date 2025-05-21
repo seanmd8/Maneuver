@@ -2012,7 +2012,7 @@ function get_achievements(){
             description: achievement_description.arcane_sentry,
             image: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
             has: false,
-            boons: [/*choose_your_path*/],
+            boons: [choose_your_path],
             cards: []
         },
         
@@ -2092,7 +2092,7 @@ function get_achievements(){
             description: achievement_description.shrug_it_off,
             image: `${IMG_FOLDER.achievements}shrug_it_off.png`,
             has: false,
-            boons: [/*thick_skin*/],
+            boons: [/*quick_healing*/],
         },
         {
             name: achievement_names.collector,
@@ -2162,6 +2162,7 @@ const boon_names = {
     picky_shopper: `Picky Shopper`,
     practice_makes_perfect: `Practice Makes Perfect`,
     pressure_points: `Preassure Points`,
+    quick_healing: `Quick Healing`,
     rebirth: `Rebirth`,
     repetition: `Repetition`,
     retaliate: `Retaliate`,
@@ -2250,6 +2251,8 @@ const practice_makes_perfect_description =
     `Defeating a boss while at max health increases your max health by 1.`;
 const practice_makes_perfect_message =
     `Your maximum health has increased.`
+const quick_healing_description =
+    `After being dealt damage, you have a 1/4 chance to instantly heal it.`;
 const pressure_points_description = 
     `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`;
 const rebirth_description = 
@@ -9462,6 +9465,9 @@ class GameMap{
                 else{
                     this.stats.increment_damage();
                 }
+                if(chance(GS.boons.has(boon_names.quick_healing), 4)){
+                    this.player_heal(new Point(0, 0), 1);
+                }
             }
             var current_health = target.health;
             if(target.on_hit !== undefined){
@@ -13869,10 +13875,10 @@ BOON_LIST = [
     escape_artist, expend_vitality, flame_strike, fleeting_thoughts, fortitude, 
     frenzy, frugivore, future_sight, gruntwork, hoarder, 
     larger_chests, limitless, pacifism, pain_reflexes, perfect_the_basics, 
-    picky_shopper, practice_makes_perfect, pressure_points, rebirth, repetition, 
-    retaliate, roar_of_challenge, safe_passage, serenity, skill_trading, 
-    slime_trail, sniper, spiked_shoes, spontaneous, stable_mind, 
-    stealthy, thick_soles
+    picky_shopper, practice_makes_perfect, pressure_points, quick_healing, rebirth, 
+    repetition, retaliate, roar_of_challenge, safe_passage, serenity, 
+    skill_trading, slime_trail, sniper, spiked_shoes, spontaneous, 
+    stable_mind, stealthy, thick_soles
 ];
 
 function change_max_health(amount){
@@ -14529,6 +14535,19 @@ function learn_from_mistakes(){
 }
 
 // Delete any card twice
+
+function quick_healing(){
+    return {
+        name: boon_names.quick_healing,
+        pic: `${IMG_FOLDER.boons}quick_healing.png`,
+        description: quick_healing_description,
+        prereq: prereq_quick_healing,
+        unlocks: [quick_healing]
+    }
+}
+function prereq_quick_healing(){
+    return GS.boons.has(boon_names.quick_healing) < 3;
+}
 function shattered_glass(){
     return {
         name: boon_names.shattered_glass,
