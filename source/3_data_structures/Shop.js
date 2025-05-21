@@ -2,6 +2,7 @@
 class Shop{
     #deck;
     #has_skill_trading;
+    #has_stubborn;
     #add_row;
     #add_index;
     #remove_row;
@@ -10,6 +11,7 @@ class Shop{
     constructor(deck){
         this.#deck = deck;
         this.#has_skill_trading = GS.boons.has(boon_names.skill_trading) > 0;
+        this.#has_stubborn = GS.boons.has(boon_names.stubborn) > 0;
         this.#generate_add_row();
         this.#generate_remove_row();
     }
@@ -100,9 +102,10 @@ class Shop{
     is_valid_selection(){
         var adding = this.#add_index !== undefined;
         var removing = this.#remove_index !== undefined;
-        if(this.#has_skill_trading){
-            return adding || removing;
-        }
-        return adding || removing && !(adding && removing);
+        var valid =
+            (adding || removing && !(adding && removing)) ||            // Normal
+            (this.#has_skill_trading ? adding || removing : false) ||   // Skill Trading
+            (this.#has_stubborn ? !adding && !removing : false)         // Stubborn
+        return valid;
     }
 }

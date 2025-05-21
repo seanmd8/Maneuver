@@ -158,6 +158,6 @@ const stable_mind_description =
 const stealthy_description = 
     `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`;
 const stubborn_description = 
-    `You can decide to skip shops.`;
+    `You can skip shops.`;
 const thick_soles_description = 
     `You are immune to damage on your turn.`;

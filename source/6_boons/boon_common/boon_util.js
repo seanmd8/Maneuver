@@ -8,7 +8,7 @@ BOON_LIST = [
     picky_shopper, practice_makes_perfect, pressure_points, quick_healing, rebirth, 
     repetition, retaliate, roar_of_challenge, safe_passage, serenity, 
     skill_trading, slime_trail, sniper, spiked_shoes, spontaneous, 
-    stable_mind, stealthy, thick_soles
+    stable_mind, stealthy, stubborn, thick_soles
 ];
 
 function change_max_health(amount){

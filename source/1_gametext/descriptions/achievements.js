@@ -212,7 +212,7 @@ function get_achievements(){
             description: achievement_description.shrug_it_off,
             image: `${IMG_FOLDER.achievements}shrug_it_off.png`,
             has: false,
-            boons: [/*quick_healing*/],
+            boons: [quick_healing],
         },
         {
             name: achievement_names.collector,

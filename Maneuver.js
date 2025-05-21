@@ -2092,7 +2092,7 @@ function get_achievements(){
             description: achievement_description.shrug_it_off,
             image: `${IMG_FOLDER.achievements}shrug_it_off.png`,
             has: false,
-            boons: [/*quick_healing*/],
+            boons: [quick_healing],
         },
         {
             name: achievement_names.collector,
@@ -2288,7 +2288,7 @@ const stable_mind_description =
 const stealthy_description = 
     `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`;
 const stubborn_description = 
-    `You can decide to skip shops.`;
+    `You can skip shops.`;
 const thick_soles_description = 
     `You are immune to damage on your turn.`;
 
@@ -10888,6 +10888,7 @@ const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UI
 class Shop{
     #deck;
     #has_skill_trading;
+    #has_stubborn;
     #add_row;
     #add_index;
     #remove_row;
@@ -10896,6 +10897,7 @@ class Shop{
     constructor(deck){
         this.#deck = deck;
         this.#has_skill_trading = GS.boons.has(boon_names.skill_trading) > 0;
+        this.#has_stubborn = GS.boons.has(boon_names.stubborn) > 0;
         this.#generate_add_row();
         this.#generate_remove_row();
     }
@@ -10986,10 +10988,11 @@ class Shop{
     is_valid_selection(){
         var adding = this.#add_index !== undefined;
         var removing = this.#remove_index !== undefined;
-        if(this.#has_skill_trading){
-            return adding || removing;
-        }
-        return adding || removing && !(adding && removing);
+        var valid =
+            (adding || removing && !(adding && removing)) ||            // Normal
+            (this.#has_skill_trading ? adding || removing : false) ||   // Skill Trading
+            (this.#has_stubborn ? !adding && !removing : false)         // Stubborn
+        return valid;
     }
 }
 
@@ -13878,7 +13881,7 @@ BOON_LIST = [
     picky_shopper, practice_makes_perfect, pressure_points, quick_healing, rebirth, 
     repetition, retaliate, roar_of_challenge, safe_passage, serenity, 
     skill_trading, slime_trail, sniper, spiked_shoes, spontaneous, 
-    stable_mind, stealthy, thick_soles
+    stable_mind, stealthy, stubborn, thick_soles
 ];
 
 function change_max_health(amount){
@@ -13983,6 +13986,17 @@ function proc_chilly_presence(tile){
         stun(tile);
     }
 }
+
+function choose_your_path(){
+    return {
+        name: boon_names.choose_your_path,
+        pic: `${IMG_FOLDER.boons}choose_your_path.png`,
+        description: choose_your_path_description
+    }
+}
+
+// Pick where to go after each boss fight
+// Boss exits have the background
 
 function creative(){
     return {
@@ -14277,6 +14291,19 @@ function pressure_points(){
 }
 
 
+function quick_healing(){
+    return {
+        name: boon_names.quick_healing,
+        pic: `${IMG_FOLDER.boons}quick_healing.png`,
+        description: quick_healing_description,
+        prereq: prereq_quick_healing,
+        unlocks: [quick_healing]
+    }
+}
+function prereq_quick_healing(){
+    return GS.boons.has(boon_names.quick_healing) < 3;
+}
+
 function rebirth(){
     return {
         name: boon_names.rebirth,
@@ -14388,7 +14415,7 @@ function skill_trading(){
     return {
         name: boon_names.skill_trading,
         pic: `${IMG_FOLDER.boons}skill_trading.png`,
-        description: skill_trading_description,
+        description: skill_trading_description
     }
 }
 
@@ -14472,6 +14499,14 @@ function stealthy(){
     }
 }
 
+function stubborn(){
+    return {
+        name: boon_names.stubborn,
+        pic: `${IMG_FOLDER.boons}stubborn.png`,
+        description: stubborn_description,
+    }
+}
+
 function thick_soles(){
     return {
         name: boon_names.thick_soles,
@@ -14492,17 +14527,6 @@ function adrenaline_rush(){
 }
 
 // Hitting more than 1 enemy gives an extra turn.
-
-function choose_your_path(){
-    return {
-        name: boon_names.choose_your_path,
-        pic: `${IMG_FOLDER.boons}choose_your_path.png`,
-        description: choose_your_path_description
-    }
-}
-
-// Pick where to go after each boss fight
-// Boss exits have the background
 
 function deck_stacking(){
     return {
@@ -14535,19 +14559,6 @@ function learn_from_mistakes(){
 }
 
 // Delete any card twice
-
-function quick_healing(){
-    return {
-        name: boon_names.quick_healing,
-        pic: `${IMG_FOLDER.boons}quick_healing.png`,
-        description: quick_healing_description,
-        prereq: prereq_quick_healing,
-        unlocks: [quick_healing]
-    }
-}
-function prereq_quick_healing(){
-    return GS.boons.has(boon_names.quick_healing) < 3;
-}
 function shattered_glass(){
     return {
         name: boon_names.shattered_glass,
@@ -14567,13 +14578,3 @@ function on_pick_shattered_glass(){
 }
 
 // Enemies explode on death
-
-function stubborn(){
-    return {
-        name: boon_names.stubborn,
-        pic: `${IMG_FOLDER.boons}stubborn.png`,
-        description: stubborn_description,
-    }
-}
-
-// skip the shop
