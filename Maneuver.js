@@ -2270,8 +2270,8 @@ const safe_passage_description =
 const serenity_description = 
     `Reduce your minimum deck size to 4.`;
 const shattered_glass_description = 
-    `Enemies explode on death damaging each other nearby enemy. Reduce your `
-    +`max health by 1.`;
+    `Enemies explode on death damaging everything nearby other than you. Reduce your `
+    +`max health by 2.`;
 const skill_trading_description = 
     `You may both add a card and remove a card at each shop.`;
 const slime_trail_description = 
@@ -9502,6 +9502,9 @@ class GameMap{
                         throw new Error(ERRORS.missing_id);
                     }
                     this.#entity_list.remove_enemy(target.id);
+                    if(source !== undefined && source.tile.type === `player`){
+                        this.stats.increment_kills();
+                    }
                 }
                 else{
                     --this.#entity_list.count_non_empty;
@@ -9546,6 +9549,7 @@ class GameMap{
     player_attack(direction){
         var player_pos = this.#entity_list.get_player_pos();
         var pos = player_pos.plus(direction);
+        var current_kills = this.stats.get_stats().kills;
         try{
             if(
                 chance(GS.boons.has(boon_names.flame_strike), 3) && 
@@ -9555,7 +9559,19 @@ class GameMap{
                 var fireball = shoot_fireball(direction);
                 this.add_tile(fireball, pos);
             }
-            return this.attack(pos, {tile: this.get_player(), location: player_pos});
+            var hit = this.attack(pos, {tile: this.get_player(), location: player_pos});
+            if(current_kills < this.stats.get_stats().kills && GS.boons.has(boon_names.shattered_glass)){
+                for(var offset of ALL_DIRECTIONS){
+                    var p_offset = pos.plus(offset);
+                    if(
+                        this.is_in_bounds(p_offset) && 
+                        this.get_tile(p_offset).type !== `player`
+                    ){
+                        this.player_attack(direction.plus(offset));
+                    }
+                }
+            }
+            return hit;
         }
         catch (error){
             if(error.message !== `game over`){
@@ -11004,6 +11020,7 @@ class StatTracker{
     #chests;
     #damage_dealt;
     #total_damage_per_floor;
+    #kills;
 
     constructor(){
         this.#turn_number = 0;
@@ -11013,6 +11030,7 @@ class StatTracker{
         this.#chests = 0;
         this.#damage_dealt = 0;
         this.#total_damage_per_floor = [0];
+        this.#kills = 0;
     }
     increment_turn(){
         ++this.#turn_number;
@@ -11054,6 +11072,10 @@ class StatTracker{
     increment_damage_dealt(){
         ++this.#damage_dealt;
     }
+    increment_kills(){
+        ++this.#kills;
+        console.log(this.#kills)
+    }
     get_stats(){
         return {
             turn_number: this.#turn_number,
@@ -11062,7 +11084,8 @@ class StatTracker{
             turn_damage: this.#turn_damage,
             chests: this.#chests,
             damage_dealt: this.#damage_dealt,
-            total_damage_per_floor: this.#total_damage_per_floor
+            total_damage_per_floor: this.#total_damage_per_floor,
+            kills: this.#kills
         }
     }
     
@@ -13879,9 +13902,9 @@ BOON_LIST = [
     frenzy, frugivore, future_sight, gruntwork, hoarder, 
     larger_chests, limitless, pacifism, pain_reflexes, perfect_the_basics, 
     picky_shopper, practice_makes_perfect, pressure_points, quick_healing, rebirth, 
-    repetition, retaliate, roar_of_challenge, safe_passage, skill_trading, 
-    slime_trail, sniper, spiked_shoes, spontaneous, stable_mind, 
-    stealthy, stubborn, thick_soles
+    repetition, retaliate, roar_of_challenge, safe_passage, shattered_glass, 
+    skill_trading, slime_trail, sniper, spiked_shoes, spontaneous, 
+    stable_mind, stealthy, stubborn, thick_soles
 ];
 
 function change_max_health(amount){
@@ -14389,6 +14412,25 @@ function prereq_safe_passage(){
     var player = GS.map.get_player();
     return player.max_health === undefined || player.health < player.max_health;
 }
+function shattered_glass(){
+    return {
+        name: boon_names.shattered_glass,
+        pic: `${IMG_FOLDER.boons}shattered_glass.png`,
+        description: shattered_glass_description,
+        prereq: prereq_shattered_glass,
+        on_pick: on_pick_shattered_glass
+    }
+}
+
+function prereq_shattered_glass(){
+    return max_health_at_least(2);
+}
+
+function on_pick_shattered_glass(){
+    change_max_health(-2);
+}
+
+// Enemies explode on death
 
 function skill_trading(){
     return {
@@ -14559,22 +14601,3 @@ function pick_serenity(){
         GS.deck.alter_min(-1);
     }
 }
-function shattered_glass(){
-    return {
-        name: boon_names.shattered_glass,
-        pic: `${IMG_FOLDER.boons}shattered_glass.png`,
-        description: shattered_glass_description,
-        prereq: prereq_shattered_glass,
-        on_pick: on_pick_shattered_glass
-    }
-}
-
-function prereq_shattered_glass(){
-    return max_health_at_least(2);
-}
-
-function on_pick_shattered_glass(){
-    change_max_health(-2);
-}
-
-// Enemies explode on death

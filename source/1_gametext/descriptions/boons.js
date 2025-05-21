@@ -140,8 +140,8 @@ const safe_passage_description =
 const serenity_description = 
     `Reduce your minimum deck size to 4.`;
 const shattered_glass_description = 
-    `Enemies explode on death damaging each other nearby enemy. Reduce your `
-    +`max health by 1.`;
+    `Enemies explode on death damaging everything nearby other than you. Reduce your `
+    +`max health by 2.`;
 const skill_trading_description = 
     `You may both add a card and remove a card at each shop.`;
 const slime_trail_description = 

@@ -525,6 +525,9 @@ class GameMap{
                         throw new Error(ERRORS.missing_id);
                     }
                     this.#entity_list.remove_enemy(target.id);
+                    if(source !== undefined && source.tile.type === `player`){
+                        this.stats.increment_kills();
+                    }
                 }
                 else{
                     --this.#entity_list.count_non_empty;
@@ -569,6 +572,7 @@ class GameMap{
     player_attack(direction){
         var player_pos = this.#entity_list.get_player_pos();
         var pos = player_pos.plus(direction);
+        var current_kills = this.stats.get_stats().kills;
         try{
             if(
                 chance(GS.boons.has(boon_names.flame_strike), 3) && 
@@ -578,7 +582,19 @@ class GameMap{
                 var fireball = shoot_fireball(direction);
                 this.add_tile(fireball, pos);
             }
-            return this.attack(pos, {tile: this.get_player(), location: player_pos});
+            var hit = this.attack(pos, {tile: this.get_player(), location: player_pos});
+            if(current_kills < this.stats.get_stats().kills && GS.boons.has(boon_names.shattered_glass)){
+                for(var offset of ALL_DIRECTIONS){
+                    var p_offset = pos.plus(offset);
+                    if(
+                        this.is_in_bounds(p_offset) && 
+                        this.get_tile(p_offset).type !== `player`
+                    ){
+                        this.player_attack(direction.plus(offset));
+                    }
+                }
+            }
+            return hit;
         }
         catch (error){
             if(error.message !== `game over`){
