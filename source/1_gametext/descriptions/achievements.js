@@ -108,7 +108,7 @@ function get_achievements(){
             description: achievement_description.lich,
             image: `${IMG_FOLDER.tiles}lich_rest.png`,
             has: false,
-            boons: [sniper],
+            boons: [rift_touched],
             cards: []
         },
         {

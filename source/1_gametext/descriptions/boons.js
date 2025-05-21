@@ -36,6 +36,7 @@ const boon_names = {
     rebirth: `Rebirth`,
     repetition: `Repetition`,
     retaliate: `Retaliate`,
+    rift_touched: `Rift Touched`,
     roar_of_challenge: `Roar of Challenge`,
     safe_passage: `Safe Passage`,
     serenity: `Serenity`,
@@ -133,6 +134,8 @@ const repetition_description =
     `Every 3rd turn, your cards happen twice.`;
 const retaliate_description = 
     `When you are dealt damage, attack a nearby non boss enemy.`;
+const rift_touched_description = 
+    `Two Darklings spawn on each floor.`
 const roar_of_challenge_description = 
     `Gain 2 max health. Difficulty increases by 5 floors.`;
 const safe_passage_description = 

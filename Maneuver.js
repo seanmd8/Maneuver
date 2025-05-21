@@ -1988,7 +1988,7 @@ function get_achievements(){
             description: achievement_description.lich,
             image: `${IMG_FOLDER.tiles}lich_rest.png`,
             has: false,
-            boons: [sniper],
+            boons: [rift_touched],
             cards: []
         },
         {
@@ -2166,6 +2166,7 @@ const boon_names = {
     rebirth: `Rebirth`,
     repetition: `Repetition`,
     retaliate: `Retaliate`,
+    rift_touched: `Rift Touched`,
     roar_of_challenge: `Roar of Challenge`,
     safe_passage: `Safe Passage`,
     serenity: `Serenity`,
@@ -2263,6 +2264,8 @@ const repetition_description =
     `Every 3rd turn, your cards happen twice.`;
 const retaliate_description = 
     `When you are dealt damage, attack a nearby non boss enemy.`;
+const rift_touched_description = 
+    `Two Darklings spawn on each floor.`
 const roar_of_challenge_description = 
     `Gain 2 max health. Difficulty increases by 5 floors.`;
 const safe_passage_description = 
@@ -11697,6 +11700,11 @@ function floor_generator(floor_num, area, map){
 }
 /** @type {FloorGenerator} The standard generator to add random enemies from the area whose combined difficulty scales based on the floor number.*/
 function generate_normal_floor(floor_num, area, map){
+    if(GS.boons.has(boon_names.rift_touched)){
+        for(var i = 0; i < 2; ++i){
+            map.spawn_safely(darkling_tile(), SAFE_SPAWN_ATTEMPTS, true);
+        }
+    }
     var enemy_list = area.enemy_list;
     for(var i = floor_num * 2; i > 0;){
         var choice = random_num(enemy_list.length);
@@ -11722,6 +11730,11 @@ function generate_normal_floor(floor_num, area, map){
 function boss_floor_common(floor_num,  area, map){
     if(GS.boons.has(boon_names.pacifism) === 0){
         map.lock();
+    }
+    if(GS.boons.has(boon_names.rift_touched)){
+        for(var i = 0; i < 2; ++i){
+            map.spawn_safely(darkling_tile(), SAFE_SPAWN_ATTEMPTS, true);
+        }
     }
 }
 
@@ -13902,9 +13915,9 @@ BOON_LIST = [
     frenzy, frugivore, future_sight, gruntwork, hoarder, 
     larger_chests, limitless, pacifism, pain_reflexes, perfect_the_basics, 
     picky_shopper, practice_makes_perfect, pressure_points, quick_healing, rebirth, 
-    repetition, retaliate, roar_of_challenge, safe_passage, shattered_glass, 
-    skill_trading, slime_trail, sniper, spiked_shoes, spontaneous, 
-    stable_mind, stealthy, stubborn, thick_soles
+    repetition, retaliate, rift_touched, roar_of_challenge, safe_passage, 
+    shattered_glass, skill_trading, slime_trail, sniper, spiked_shoes, 
+    spontaneous, stable_mind, stealthy, stubborn, thick_soles
 ];
 
 function change_max_health(amount){
@@ -14580,6 +14593,15 @@ function learn_from_mistakes(){
 }
 
 // Delete any card twice
+function rift_touched(){
+    return {
+        name: boon_names.rift_touched,
+        pic: `${IMG_FOLDER.boons}rift_touched.png`,
+        description: rift_touched_description,
+    }
+}
+
+
 
 function serenity(){
     return {
