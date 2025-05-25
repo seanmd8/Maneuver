@@ -7,6 +7,7 @@ class StatTracker{
     #chests;
     #damage_dealt;
     #total_damage_per_floor;
+    #kills;
 
     constructor(){
         this.#turn_number = 0;
@@ -16,6 +17,7 @@ class StatTracker{
         this.#chests = 0;
         this.#damage_dealt = 0;
         this.#total_damage_per_floor = [0];
+        this.#kills = 0;
     }
     increment_turn(){
         ++this.#turn_number;
@@ -57,6 +59,9 @@ class StatTracker{
     increment_damage_dealt(){
         ++this.#damage_dealt;
     }
+    increment_kills(){
+        ++this.#kills;
+    }
     get_stats(){
         return {
             turn_number: this.#turn_number,
@@ -65,7 +70,8 @@ class StatTracker{
             turn_damage: this.#turn_damage,
             chests: this.#chests,
             damage_dealt: this.#damage_dealt,
-            total_damage_per_floor: this.#total_damage_per_floor
+            total_damage_per_floor: this.#total_damage_per_floor,
+            kills: this.#kills
         }
     }
     

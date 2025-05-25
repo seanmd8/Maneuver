@@ -9,11 +9,11 @@ function shattered_glass(){
 }
 
 function prereq_shattered_glass(){
-    return max_health_at_least(1);
+    return max_health_at_least(2);
 }
 
 function on_pick_shattered_glass(){
-    change_max_health(-1);
+    change_max_health(-2);
 }
 
 // Enemies explode on death

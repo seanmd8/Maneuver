@@ -1683,7 +1683,8 @@ function hp_description(tile){
  * @returns {string} The properly formatted description.
  */
 function grid_space_description(space){
-    var tile = tile_description(space.tile);
+    var tile = space.tile.look === undefined ? space.tile : space.tile.look;
+    tile = tile_description(tile);
     var foreground = space.foreground.filter((fg) => fg.description !== undefined);
     foreground = foreground.map((fg) => `${tile_description_divider}${fg.description}`);
     var background = space.background.filter((bg) => bg.description !== undefined);
@@ -1906,6 +1907,7 @@ const achievement_names = {
     collector: `Collector`,
     jack_of_all_trades: `Jack Of All Trades`,
     monster_hunter: `Monster Hunter`,
+    minimalist: `Minimalist`
 }
 const achievement_description = {
     // Boss
@@ -1932,6 +1934,7 @@ const achievement_description = {
     collector: `Open 6 or more treasure chests in 1 run.`,
     jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
     monster_hunter: `Kill 5 total unique bosses.`,
+    minimalist: `Reach floor 15 with only 5 cards in your deck.`
 }
 
 const boss_achievements = [
@@ -1967,7 +1970,8 @@ function get_achievements(){
             has: false,
             boons: [retaliate],
             cards: [
-                stunning_leap, stunning_side_leap, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice
+                stunning_leap, stunning_side_leap, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice,
+                stunning_diagonal, stunning_orthogonal, stunning_retreat
             ]
         },
         {
@@ -1978,7 +1982,7 @@ function get_achievements(){
             boons: [slime_trail],
             cards: [
                 reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_diagonal, reckless_horizontal, 
-                reckless_teleport
+                reckless_teleport, reckless_leap_forwards, reckless_leap_left, reckless_leap_right, reckless_spin
             ]
         },
         {
@@ -1986,7 +1990,7 @@ function get_achievements(){
             description: achievement_description.lich,
             image: `${IMG_FOLDER.tiles}lich_rest.png`,
             has: false,
-            boons: [sniper],
+            boons: [rift_touched],
             cards: []
         },
         {
@@ -2010,7 +2014,7 @@ function get_achievements(){
             description: achievement_description.arcane_sentry,
             image: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
             has: false,
-            boons: [/*choose_your_path*/],
+            boons: [choose_your_path],
             cards: []
         },
         
@@ -2090,7 +2094,7 @@ function get_achievements(){
             description: achievement_description.shrug_it_off,
             image: `${IMG_FOLDER.achievements}shrug_it_off.png`,
             has: false,
-            boons: [/*thick_skin*/],
+            boons: [quick_healing],
         },
         {
             name: achievement_names.collector,
@@ -2113,6 +2117,13 @@ function get_achievements(){
             has: false,
             boons: [brag_and_boast],
         },
+        {
+            name: achievement_names.minimalist,
+            description: achievement_description.minimalist,
+            image: `${IMG_FOLDER.achievements}minimalist.png`,
+            has: false,
+            boons: [stubborn],
+        }
     ]
 }
 // Area Descriptions.
@@ -2160,9 +2171,11 @@ const boon_names = {
     picky_shopper: `Picky Shopper`,
     practice_makes_perfect: `Practice Makes Perfect`,
     pressure_points: `Preassure Points`,
+    quick_healing: `Quick Healing`,
     rebirth: `Rebirth`,
     repetition: `Repetition`,
     retaliate: `Retaliate`,
+    rift_touched: `Rift Touched`,
     roar_of_challenge: `Roar of Challenge`,
     safe_passage: `Safe Passage`,
     serenity: `Serenity`,
@@ -2248,6 +2261,8 @@ const practice_makes_perfect_description =
     `Defeating a boss while at max health increases your max health by 1.`;
 const practice_makes_perfect_message =
     `Your maximum health has increased.`
+const quick_healing_description =
+    `After being dealt damage, you have a 1/4 chance to instantly heal it.`;
 const pressure_points_description = 
     `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`;
 const rebirth_description = 
@@ -2258,6 +2273,8 @@ const repetition_description =
     `Every 3rd turn, your cards happen twice.`;
 const retaliate_description = 
     `When you are dealt damage, attack a nearby non boss enemy.`;
+const rift_touched_description = 
+    `Two Darklings spawn on each floor.`
 const roar_of_challenge_description = 
     `Gain 2 max health. Difficulty increases by 5 floors.`;
 const safe_passage_description = 
@@ -2265,8 +2282,8 @@ const safe_passage_description =
 const serenity_description = 
     `Reduce your minimum deck size to 4.`;
 const shattered_glass_description = 
-    `Enemies explode on death damaging each other nearby enemy. Reduce your `
-    +`max health by 1.`;
+    `Enemies explode on death damaging everything nearby other than you. Reduce your `
+    +`max health by 2.`;
 const skill_trading_description = 
     `You may both add a card and remove a card at each shop.`;
 const slime_trail_description = 
@@ -2283,7 +2300,7 @@ const stable_mind_description =
 const stealthy_description = 
     `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`;
 const stubborn_description = 
-    `You can decide to skip shops.`;
+    `You can skip shops.`;
 const thick_soles_description = 
     `You are immune to damage on your turn.`;
 
@@ -3047,7 +3064,7 @@ function arcane_sentry_tile(){
         on_death: arcane_sentry_death,
         cycle: 0,
         spawn_timer: 4,
-        card_drops: [beam_ne, beam_se, beam_sw, beam_nw, saw_ns, saw_ew]
+        card_drops: [beam_ne, beam_se, beam_sw, beam_nw, saw_strike]
     }
 }
 
@@ -3302,7 +3319,7 @@ function forest_heart_tile(){
         cycle: health,
         segment_list: [undefined, undefined],
         spells,
-        card_drops: [snack, branch_strike]
+        card_drops: [snack, branch_strike, vine_snare]
     }
     if(GS.boons.has(boon_names.boss_slayer)){
         tile.health -= 2;
@@ -4289,15 +4306,8 @@ function acid_bug_death(self, target, map){
         map.attack(self.location.plus(attack));
     }
 }
-/** @type {TileGenerator} Generates a camoflauged boulder elemental. */
-function animated_boulder_tile(){
-    var tile = animated_boulder_look();
-    shapeshift(tile, ifexists(tile.look_arr)[0]);
-    return tile;
-}
-
 /** @type {TileGenerator} Generates an uncamoflauged animated boulder. */
-function animated_boulder_look(){
+function animated_boulder_tile(){
     return {
         type: `enemy`,
         name: `Animated Boulder`,
@@ -4308,16 +4318,15 @@ function animated_boulder_look(){
         telegraph: spider_telegraph,
         on_enter: animated_boulder_wake_up,
         on_hit: animated_boulder_wake_up,
-        look_arr: [magmatic_boulder_tile, animated_boulder_look],
-        cycle: 0
+        cycle: 0,
+        look: magmatic_boulder_tile()
     }
 }
 
 
 /** @type {AIFunction} AI used by animated boulders.*/
 function animated_boulder_ai(self, target, map){
-    if( self.tile.cycle === undefined || 
-        self.tile.look_arr === undefined){
+    if( self.tile.cycle === undefined){
         throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle === 0){
@@ -4342,7 +4351,7 @@ function animated_boulder_ai(self, target, map){
     --self.tile.cycle;
     if(self.tile.cycle <= 0){
         // Falls asleep.
-        shapeshift(self.tile, self.tile.look_arr[0]);
+        self.tile.look = magmatic_boulder_tile();
         self.tile.tags.add(TAGS.hidden);
         // Stays asleep for a turn before it can wake up.
         self.tile.cycle = -1;
@@ -4354,14 +4363,13 @@ function animated_boulder_ai(self, target, map){
 }
 /** @type {AIFunction} animated boulder wakes up when touched.*/
 function animated_boulder_wake_up(self, target, map){
-    if( self.tile.cycle === undefined || 
-        self.tile.look_arr === undefined){
+    if( self.tile.cycle === undefined){
         throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle === 0){
         stun(self.tile);
         self.tile.cycle = 3;
-        shapeshift(self.tile, self.tile.look_arr[1]);
+        self.tile.look = undefined;
         self.tile.tags.remove(TAGS.hidden);
     }
 }
@@ -5663,7 +5671,6 @@ function shadow_knight_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function shadow_scout_tile(){
-    var look_arr = [empty_tile, shadow_scout_tile];
     var starting_cycle = random_num(2);
     return {
         type: `enemy`,
@@ -5675,21 +5682,19 @@ function shadow_scout_tile(){
         difficulty: 3,
         behavior: shadow_scout_ai,
         telegraph: spider_telegraph,
-        look_arr,
         cycle: starting_cycle
     }
 }
 
 /** @type {AIFunction} AI used by shadow scouts.*/
 function shadow_scout_ai(self, target, map){
-    if( self.tile.cycle === undefined || 
-        self.tile.look_arr === undefined){
+    if( self.tile.cycle === undefined){
         throw new Error(ERRORS.missing_property);
     }
     self.tile.cycle = 1 - self.tile.cycle;
     // Goes invisible on alternate turns.
-    shapeshift(self.tile, self.tile.look_arr[self.tile.cycle]);
-    self.tile.cycle === 0 ? self.tile.tags.add(TAGS.hidden) : self.tile.tags.remove(TAGS.hidden);
+    self.tile.look = self.tile.cycle === 1 ? empty_tile() : undefined;
+    self.tile.cycle === 1 ? self.tile.tags.add(TAGS.hidden) : self.tile.tags.remove(TAGS.hidden);
     spider_ai(self, target, map);
 }
 /** @type {TileGenerator}*/
@@ -6260,6 +6265,7 @@ function unstable_wisp_death(self, target, map){
         var spawnpoint = self.location.plus(dir)
         if(!map.attack(spawnpoint)){
             var fireball = shoot_fireball(dir);
+            fireball.stun = 1; // Gets around unstunnable.
             stun(fireball);
             map.add_tile(fireball, spawnpoint);
             fireballs.push(fireball);
@@ -7390,7 +7396,6 @@ function growth_event(points, root, grown){
  * // Properties used to determing aesthetics //
  * @property {string[]=} pic_arr Used when the tile sometimes changes images.
  * @property {string[]=} description_arr Used when the tile sometimes changes descriptions.
- * @property {TileGenerator[]=} look_arr Used when the tile sometimes is disguised as another tile.
  * @property {number=} rotate How much to rotate the image when displaying it. Must be in 90 degree increments.
  * @property {boolean=} flip If the image should be horizontally flipped.
  * 
@@ -7410,6 +7415,7 @@ function growth_event(points, root, grown){
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
  * @property {number=} id Given a unique one when added to a EntityList.
+ * @property {Tile || undefined} look Used when tiles disguise themselves as something else.
  */
 
 /**
@@ -7725,7 +7731,6 @@ function generic_tile(){
         // Properties used to determing aesthetics //
         pic_arr: [],
         description_arr: [],
-        look_arr: [],
         rotate: 0,
         flip: false,
 
@@ -8561,7 +8566,6 @@ class AchievementList{
         var filtered = this.#list.filter((a) => {
             return boss_achievements.find((n) => {return a.name === n &&  a.has}) !== undefined;
         });
-        console.log(filtered);
         return filtered.length;
     }
     
@@ -8791,15 +8795,13 @@ class EntityList{
     count_non_empty;
     /** @type {Point | undefined} The position of the player, or undefined if they haven't been added yet.*/
     #player_pos;
-    /** @type {Point | undefined} The position of the exit, or undefined if it hasn't been added yet.*/
-    #exit_pos;
     /** @type {Tile_W_Pos[]} An array of each entity on the floor with a behavior as well as their location.*/
     #enemy_list;
     /** @type {number} Used to give a unique ID to each tile that is added.*/
     #id_count;
 
     constructor(){
-        this.count_non_empty = 2;
+        this.count_non_empty = 1;
         this.#id_count = 0;
         this.#enemy_list = [];
     }
@@ -8826,23 +8828,7 @@ class EntityList{
         }
         return this.#player_pos.copy();
     }
-    /**
-     * @param {Point} location Where the exit's location should be set to
-     */
-    set_exit(location){
-        this.#exit_pos = location;
-    }
-    /**
-     * Returns the exit's location. Throws an error if it's undefined.
-     * @returns {Point} The exit's location.
-     */
-    get_exit_pos(){
-        if(this.#exit_pos === undefined){
-            throw new Error(ERRORS.value_not_found);
-        }
-        return this.#exit_pos.copy();
-    }
-    /**
+     /**
      * Adds a new enemy and it's location to the array of enemies.
      * @param {Point} location The location of the enemy.
      * @param {Tile} enemy The tile.
@@ -9048,6 +9034,8 @@ class GameMap{
     #area;
     /**@type {boolean} Keeps track of if it is currently the player's turn or not.*/
     #is_player_turn;
+    /**@type {Point[]} Keeps track of the current position of the exit(s)*/
+    #exit_pos;
     /**
      * @param {number} x_max The x size of floors in this dungeon.
      * @param {number} y_max The y size of floors in this dungeon.
@@ -9062,6 +9050,7 @@ class GameMap{
         this.#events = [];
         this.#area = starting_area;
         this.#is_player_turn = true;
+        this.#exit_pos = [];
         this.erase()
     }
     /**
@@ -9083,6 +9072,8 @@ class GameMap{
         }
         this.#entity_list = new EntityList();
         this.#grid = [];
+        this.#exit_pos = [];
+        ++this.#floor_num;
         // Fill the grid with blank spaces.
         for(var i = 0; i < this.#y_max; ++i){
             this.#grid.push([]);
@@ -9091,12 +9082,19 @@ class GameMap{
             }
         }
         // Add the player and the exit.
-        var exit_location = new Point(random_num(this.#y_max), 0);
-        this.set_exit(exit_location);
+        if(this.#floor_num % init_settings().area_size === 0){
+            var areas = randomize_arr(this.#area.next_area_list);
+            for(var i = 0; i < GS.boons.has(boon_names.choose_your_path) + 1 && i < areas.length; ++i){
+                this.set_exit(undefined, areas[i]());
+            }
+        }
+        else{
+            this.set_exit();
+        }
         var player_location = new Point(random_num(this.#y_max), this.#x_max - 1);
         this.set_player(player_location, player);
         this.#events = [];
-        return ++this.#floor_num;
+        return this.#floor_num;
     }
     /**
      * @returns {Point} A random space on the floor.
@@ -9166,31 +9164,39 @@ class GameMap{
      * @returns {boolean} Returns true if the location is both in bounds and looks empty and false otherwise.
      */
     looks_empty(location){
-        return this.is_in_bounds(location) && this.get_tile(location).name === `Empty`;
+        if(!this.is_in_bounds(location)){
+            return false;
+        }
+        var tile = this.get_tile(location);
+        var looks_empty = tile.look !== undefined && tile.look.type === `empty`;
+        return this.check_empty(location) || looks_empty;
     }
     /**
      * Places an exit tile at the given location
      * Throws an error if the location is out of bounds, the space is not empty or there is already an exit tile.
      * @param {Point} location The location to set the exit at.
      */
-    set_exit(location){
+    set_exit(location = undefined, next_area = undefined){
+        if(location === undefined){
+            var top_row = range(this.#y_max);
+            var points = top_row.map((y) => {
+                return new Point(y, 0)
+            }).filter((p) => {
+                return this.check_empty(p);
+            })
+            location = rand_from(points);
+        }
         this.check_bounds(location);
         if(!this.check_empty(location)){
             throw new Error(ERRORS.space_full);
         }
-        try{
-            // If exit isn't undefined, throws error.
-            this.#entity_list.get_exit_pos();
-            throw new Error(ERRORS.already_exists)
+        var exit = exit_tile()
+        if(next_area !== undefined){
+            exit.next_area = next_area;
+            this.get_grid(location).floor = next_area.background;
         }
-        catch(error) {
-            if(error.message !== ERRORS.value_not_found){
-                throw error;
-            }
-            // otherwise continues.
-        }
-        this.#entity_list.set_exit(location);
-        this.#set_tile(location, exit_tile());
+        this.#exit_pos.push(location);
+        this.add_tile(exit, location);
     }
     /**
      * Places the player at the given location.
@@ -9288,6 +9294,9 @@ class GameMap{
             return function(){
                 var description = grid_space_description(space);
                 var tile = space.tile;
+                if(tile.look !== undefined){
+                    tile = tile.look;
+                }
                 say(description);
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
@@ -9325,15 +9334,16 @@ class GameMap{
                 if(space.tile.stun !== undefined && space.tile.stun > 0){
                     stunned.push(`${IMG_FOLDER.actions}confuse.png`);
                 }
+                var tile = space.tile.look === undefined ? space.tile : space.tile.look;
                 let foreground_pics = space.foreground.map((fg) => fg.pic);
                 let background_pics = space.background.map((fg) => fg.pic);
                 table_row.push({
-                    name: space.tile.name,
+                    name: tile.name,
                     foreground: foreground_pics,
-                    pic: space.tile.pic,
-                    rotate: space.tile.rotate,
-                    flip: space.tile.flip,
-                    background: [...background_pics, space.action, ...stunned, this.#area.background],
+                    pic: tile.pic,
+                    rotate: tile.rotate,
+                    flip: tile.flip,
+                    background: [...background_pics, space.action, ...stunned, space.floor],
                     on_click: make_on_click(space, new Point(x, y), this)
                 });
             };
@@ -9360,6 +9370,9 @@ class GameMap{
             var floor_turns = this.stats.finish_floor();
             if(floor_turns <= 3){
                 GS.achieve(achievement_names.peerless_sprinter);
+            }
+            if(end.next_area !== undefined){
+                this.#area.next_area_list = [end.next_area];
             }
             throw new Error(ERRORS.floor_complete);
         }
@@ -9463,6 +9476,9 @@ class GameMap{
                 else{
                     this.stats.increment_damage();
                 }
+                if(chance(GS.boons.has(boon_names.quick_healing), 4)){
+                    this.player_heal(new Point(0, 0), 1);
+                }
             }
             var current_health = target.health;
             if(target.on_hit !== undefined){
@@ -9497,6 +9513,9 @@ class GameMap{
                         throw new Error(ERRORS.missing_id);
                     }
                     this.#entity_list.remove_enemy(target.id);
+                    if(source !== undefined && source.tile.type === `player`){
+                        this.stats.increment_kills();
+                    }
                 }
                 else{
                     --this.#entity_list.count_non_empty;
@@ -9541,6 +9560,7 @@ class GameMap{
     player_attack(direction){
         var player_pos = this.#entity_list.get_player_pos();
         var pos = player_pos.plus(direction);
+        var current_kills = this.stats.get_stats().kills;
         try{
             if(
                 chance(GS.boons.has(boon_names.flame_strike), 3) && 
@@ -9550,7 +9570,19 @@ class GameMap{
                 var fireball = shoot_fireball(direction);
                 this.add_tile(fireball, pos);
             }
-            return this.attack(pos, {tile: this.get_player(), location: player_pos});
+            var hit = this.attack(pos, {tile: this.get_player(), location: player_pos});
+            if(current_kills < this.stats.get_stats().kills && GS.boons.has(boon_names.shattered_glass)){
+                for(var offset of ALL_DIRECTIONS){
+                    var p_offset = pos.plus(offset);
+                    if(
+                        this.is_in_bounds(p_offset) && 
+                        this.get_tile(p_offset).type !== `player`
+                    ){
+                        this.player_attack(direction.plus(offset));
+                    }
+                }
+            }
+            return hit;
         }
         catch (error){
             if(error.message !== `game over`){
@@ -9581,21 +9613,25 @@ class GameMap{
     }
     /**
      * Replaces the exit tile with a lock tile.
-     * Throws an error if there is no exit.
      * @returns {void}
      */
     lock(){
-        var pos = this.#entity_list.get_exit_pos();
-        this.#set_tile(pos, lock_tile());
+        for(var pos of this.#exit_pos){
+            var lock = lock_tile();
+            lock.next_area = this.get_tile(pos).next_area;
+            this.#set_tile(pos, lock);
+        }
     }
     /**
-     * Replaces the lock tile with an exit one and heals the player to max.
-     * Throws an error if there is no lock or exit.
+     * Replaces the lock tile with an exit one.
      * @returns {void}
      */
     unlock(){
-        var pos = this.#entity_list.get_exit_pos();
-        this.#set_tile(pos, exit_tile());
+        for(var pos of this.#exit_pos){
+            var exit = exit_tile();
+            exit.next_area = this.get_tile(pos).next_area;
+            this.#set_tile(pos, exit);
+        }
     }
     /**
      * Schedules an event to happen at end of turn.
@@ -9638,6 +9674,9 @@ class GameMap{
         if(this.#floor_num === 5 && this.stats.get_stats().damage_dealt === 0){
             GS.achieve(achievement_names.non_violent);
         }
+        if(this.#floor_num === 15 && GS.deck.deck_size() === 5){
+            GS.achieve(achievement_names.minimalist);
+        }
         if(player.health === 1 && GS.boons.has(boon_names.bitter_determination) > 0){
             // Bitter determination heals you if you are at exactly 1.
             this.player_heal(new Point(0, 0), 1);
@@ -9654,8 +9693,13 @@ class GameMap{
         if(this.#floor_num % area_size === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
-            this.#area = rand_from(next_list)();
+            this.#area = rand_from(next_list);
             floor_description += `\n${this.#area.description}`;
+            for(var list of this.#grid){
+                for(var point of list){
+                    point.floor = this.#area.background;
+                }
+            }
         }
         if(this.#floor_num % area_size === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
@@ -9890,6 +9934,7 @@ function grid_space(area){
         foreground: [],
         tile: empty_tile(),
         background: [],
+        floor: area.background,
         action: `${IMG_FOLDER.tiles}empty.png`
     }
 }
@@ -10262,6 +10307,7 @@ class GameState{
         var gained = this.data.achieve(name);
         if(gained){
             say_record(`Achievement Unlocked: ${name}`, record_types.achievement);
+            SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
             return true;
         }
         say_record(`Achievement Repeated: ${name}`, record_types.repeated_achievement);
@@ -10872,6 +10918,7 @@ const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UI
 class Shop{
     #deck;
     #has_skill_trading;
+    #has_stubborn;
     #add_row;
     #add_index;
     #remove_row;
@@ -10880,6 +10927,7 @@ class Shop{
     constructor(deck){
         this.#deck = deck;
         this.#has_skill_trading = GS.boons.has(boon_names.skill_trading) > 0;
+        this.#has_stubborn = GS.boons.has(boon_names.stubborn) > 0;
         this.#generate_add_row();
         this.#generate_remove_row();
     }
@@ -10970,10 +11018,11 @@ class Shop{
     is_valid_selection(){
         var adding = this.#add_index !== undefined;
         var removing = this.#remove_index !== undefined;
-        if(this.#has_skill_trading){
-            return adding || removing;
-        }
-        return adding || removing && !(adding && removing);
+        var valid =
+            (adding || removing && !(adding && removing)) ||            // Normal
+            (this.#has_skill_trading ? adding || removing : false) ||   // Skill Trading
+            (this.#has_stubborn ? !adding && !removing : false)         // Stubborn
+        return valid;
     }
 }
 
@@ -10985,6 +11034,7 @@ class StatTracker{
     #chests;
     #damage_dealt;
     #total_damage_per_floor;
+    #kills;
 
     constructor(){
         this.#turn_number = 0;
@@ -10994,6 +11044,7 @@ class StatTracker{
         this.#chests = 0;
         this.#damage_dealt = 0;
         this.#total_damage_per_floor = [0];
+        this.#kills = 0;
     }
     increment_turn(){
         ++this.#turn_number;
@@ -11035,6 +11086,9 @@ class StatTracker{
     increment_damage_dealt(){
         ++this.#damage_dealt;
     }
+    increment_kills(){
+        ++this.#kills;
+    }
     get_stats(){
         return {
             turn_number: this.#turn_number,
@@ -11043,7 +11097,8 @@ class StatTracker{
             turn_damage: this.#turn_damage,
             chests: this.#chests,
             damage_dealt: this.#damage_dealt,
-            total_damage_per_floor: this.#total_damage_per_floor
+            total_damage_per_floor: this.#total_damage_per_floor,
+            kills: this.#kills
         }
     }
     
@@ -11655,6 +11710,11 @@ function floor_generator(floor_num, area, map){
 }
 /** @type {FloorGenerator} The standard generator to add random enemies from the area whose combined difficulty scales based on the floor number.*/
 function generate_normal_floor(floor_num, area, map){
+    if(GS.boons.has(boon_names.rift_touched)){
+        for(var i = 0; i < 2; ++i){
+            map.spawn_safely(darkling_tile(), SAFE_SPAWN_ATTEMPTS, true);
+        }
+    }
     var enemy_list = area.enemy_list;
     for(var i = floor_num * 2; i > 0;){
         var choice = random_num(enemy_list.length);
@@ -11680,6 +11740,11 @@ function generate_normal_floor(floor_num, area, map){
 function boss_floor_common(floor_num,  area, map){
     if(GS.boons.has(boon_names.pacifism) === 0){
         map.lock();
+    }
+    if(GS.boons.has(boon_names.rift_touched)){
+        for(var i = 0; i < 2; ++i){
+            map.spawn_safely(darkling_tile(), SAFE_SPAWN_ATTEMPTS, true);
+        }
     }
 }
 
@@ -11984,28 +12049,19 @@ function beam_sw(){
 }
 
 /** @type {CardGenerator}*/
-function saw_ns(){
+function saw_strike(){
     var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), pmove(0, -1)]);
-    options.add_button(S, [pattack(0, 1), pattack(1, 0), pattack(0, -1), pattack(-1, 0), pmove(0, 1)]);
+    options.add_button(NE, [pmove(1, -1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
+    options.add_button(SE, [pmove(1, 1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
+    options.add_button(NW, [pmove(-1, -1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
+    options.add_button(SW, [pmove(-1, 1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
     return{
-        name: `saw ns`,
-        pic: `${IMG_FOLDER.cards}saw_ns.png`,
+        name: `saw strike`,
+        pic: `${IMG_FOLDER.cards}saw_strike.png`,
         options
     }
 }
 
-/** @type {CardGenerator}*/
-function saw_ew(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pattack(1, 0), pattack(0, 1), pattack(-1, 0), pattack(0, -1), pmove(1, 0)]);
-    options.add_button(W, [pattack(-1, 0), pattack(0, 1), pattack(1, 0), pattack(0, -1), pmove(-1, 0)]);
-    return{
-        name: `saw ew`,
-        pic: `${IMG_FOLDER.cards}saw_ew.png`,
-        options
-    }
-}
 // ----------------two_headed_serpent_cards.js----------------
 // File containing cards that can be dropped as rewards for defeating the forest heart.
 
@@ -12032,6 +12088,19 @@ function branch_strike(){
     return{
         name: `branch strike`,
         pic: `${IMG_FOLDER.cards}branch_strike.png`,
+        options
+    }
+}
+/** @type {CardGenerator} Dropped by the forest heart*/
+function vine_snare(){
+    var options = new ButtonGrid();
+    options.add_button(SE, [pmove(2, 2), pmove(1, 1)]);
+    options.add_button(SW, [pmove(-2, 2), pmove(-1, 1)]);
+    options.add_button(NE, [pmove(2, -2), pmove(1, -1)]);
+    options.add_button(NW, [pmove(-2, -2), pmove(-1, -1)]);
+    return{
+        name: `vine snare`,
+        pic: `${IMG_FOLDER.cards}vine_snare.png`,
         options
     }
 }
@@ -12347,7 +12416,7 @@ const COMMON_CARDS = [
     short_charge, jump, straight_charge, side_charge, step_left, 
     step_right, trample, horsemanship, lunge_left, lunge_right, 
     sprint, trident, spin_attack, butterfly, fork,
-    retreat, force, side_attack, clear_behind, clear_in_front, 
+    stunning_retreat, force, side_attack, clear_behind, clear_in_front, 
     jab, overcome, hit_and_run, push_back, breakthrough_side,
     explosion, breakthrough, flanking_diagonal, flanking_sideways, flanking_straight,
     pike, combat_diagonal, combat_horizontal, stunning_punch_orthogonal, stunning_punch_diagonal,
@@ -12363,7 +12432,8 @@ const RARE_CARDS = [
     teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
     sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
     punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport,
-    reckless_horizontal, reckless_diagonal, 
+    reckless_horizontal, reckless_diagonal, reckless_leap_forwards, reckless_leap_left, reckless_leap_right,
+    reckless_spin, stunning_diagonal, stunning_orthogonal
 ]
 
 // Cards that can be given as a debuff.
@@ -12828,6 +12898,7 @@ function step_left(){
     options.add_button(SW, [pmove(-1, 1)]);
     options.add_button(W, [pmove(-1, 0), pmove(-1, 0)]);
     options.add_button(NW, [pmove(-1, -1)]);
+    options.add_button(E, [pmove(2, 0)]);
     return{
         name: `step left`,
         pic: `${IMG_FOLDER.cards}step_left.png`,
@@ -12840,6 +12911,7 @@ function step_right(){
     options.add_button(SE, [pmove(1, 1)]);
     options.add_button(E, [pmove(1, 0), pmove(1, 0)]);
     options.add_button(NE, [pmove(1, -1)]);
+    options.add_button(W, [pmove(-2, 0)]);
     return{
         name: `step right`,
         pic: `${IMG_FOLDER.cards}step_right.png`,
@@ -12946,14 +13018,15 @@ function butterfly(){
     }
 }
 /** @type {CardGenerator}*/
-function retreat(){
+function stunning_retreat(){
     var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, -1), pstun(1, -1), pstun(-1, -1), pstun(1, 0), pstun(-1, 0),]);
     options.add_button(SE, [pmove(1, 1)]);
     options.add_button(S, [pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
     options.add_button(SW, [pmove(-1, 1)]);
     return{
-        name: `retreat`,
-        pic: `${IMG_FOLDER.cards}retreat.png`,
+        name: `stunning retreat`,
+        pic: `${IMG_FOLDER.cards}stunning_retreat.png`,
         options
     }
 }
@@ -13326,8 +13399,8 @@ function slice_twice(){
 function advance(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1), pmove(0, -1)]);
-    options.add_button(NE, [pmove(1, -1)]);
-    options.add_button(NW, [pmove(-1, -1)]);
+    options.add_button(NE, [pmove(1, -1), pmove(1, -1)]);
+    options.add_button(NW, [pmove(-1, -1), pmove(-1, -1)]);
     return{
         name: `advance`,
         pic: `${IMG_FOLDER.cards}advance.png`,
@@ -13716,6 +13789,53 @@ function reckless_diagonal(){
     }
 }
 /** @type {CardGenerator}*/
+function reckless_leap_forwards (){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(N, [pstun(0, 0), pmove(0, -2), ...spin]);
+    options.add_button(S, [pmove(0, 1)]);
+    return{
+        name: `reckless leap forwards`,
+        pic: `${IMG_FOLDER.cards}reckless_leap_forwards.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_leap_left(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(W, [pstun(0, 0), pmove(-2, 0), ...spin]);
+    options.add_button(E, [pmove(1, 0)]);
+    return{
+        name: `reckless leap left`,
+        pic: `${IMG_FOLDER.cards}reckless_leap_left.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_leap_right(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(E, [pstun(0, 0), pmove(2, 0), ...spin]);
+    options.add_button(W, [pmove(-1, 0)]);
+    return{
+        name: `reckless leap right`,
+        pic: `${IMG_FOLDER.cards}reckless_leap_right.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_spin(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(SPIN, [pstun(0, 0), pstun(0, 0), ...spin, ...spin]);
+    return{
+        name: `reckless spin`,
+        pic: `${IMG_FOLDER.cards}reckless_spin.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
 function stunning_punch_orthogonal(){
     var options = new ButtonGrid();
     options.add_button(N, [pstun(0, -1), pstun(0, -1)]);
@@ -13740,6 +13860,33 @@ function stunning_punch_diagonal(){
     return{
         name: `stunning punch diagonal`,
         pic: `${IMG_FOLDER.cards}stunning_punch_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, -1), pstun(0, -1), pstun(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pstun(1, 0), pstun(1, 0), pstun(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 1), pstun(0, 1), pstun(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pstun(-1, 0), pstun(-1, 0), pstun(-1, 0), pmove(-1, 0)]);
+    return{
+        name: `stunning orthogonal`,
+        pic: `${IMG_FOLDER.cards}stunning_orthogonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function stunning_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(1, -1), pstun(1, -1), pstun(1, -1), pmove(1, -1)]);
+    options.add_button(SE, [pstun(1, 1), pstun(1, 1), pstun(1, 1), pmove(1, 1)]);
+    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1), pstun(-1, 1), pmove(-1, 1)]);
+    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1), pstun(-1, -1), pmove(-1, -1)]);
+    return{
+        name: `stunning diagonal`,
+        pic: `${IMG_FOLDER.cards}stunning_diagonal.png`,
         options
     }
 }
@@ -13773,14 +13920,14 @@ function deck_at_minimum_symbol(){
 
 BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
-    chilly_presence, creative, dazing_blows, empty_rooms, escape_artist, 
-    expend_vitality, flame_strike, fleeting_thoughts, fortitude, frenzy, 
-    frugivore, future_sight, gruntwork, hoarder, larger_chests, 
-    limitless, pacifism, pain_reflexes, perfect_the_basics, picky_shopper, 
-    practice_makes_perfect, pressure_points, rebirth, repetition, retaliate, 
-    roar_of_challenge, safe_passage, serenity, skill_trading, slime_trail, 
-    sniper, spiked_shoes, spontaneous, stable_mind, stealthy, 
-    thick_soles
+    chilly_presence, choose_your_path, creative, dazing_blows, empty_rooms, 
+    escape_artist, expend_vitality, flame_strike, fleeting_thoughts, fortitude, 
+    frenzy, frugivore, future_sight, gruntwork, hoarder, 
+    larger_chests, limitless, pacifism, pain_reflexes, perfect_the_basics, 
+    picky_shopper, practice_makes_perfect, pressure_points, quick_healing, rebirth, 
+    repetition, retaliate, rift_touched, roar_of_challenge, safe_passage, 
+    shattered_glass, skill_trading, slime_trail, sniper, spiked_shoes, 
+    spontaneous, stable_mind, stealthy, stubborn, thick_soles
 ];
 
 function change_max_health(amount){
@@ -13885,6 +14032,17 @@ function proc_chilly_presence(tile){
         stun(tile);
     }
 }
+
+function choose_your_path(){
+    return {
+        name: boon_names.choose_your_path,
+        pic: `${IMG_FOLDER.boons}choose_your_path.png`,
+        description: choose_your_path_description
+    }
+}
+
+// Pick where to go after each boss fight
+// Boss exits have the background
 
 function creative(){
     return {
@@ -14179,6 +14337,19 @@ function pressure_points(){
 }
 
 
+function quick_healing(){
+    return {
+        name: boon_names.quick_healing,
+        pic: `${IMG_FOLDER.boons}quick_healing.png`,
+        description: quick_healing_description,
+        prereq: prereq_quick_healing,
+        unlocks: [quick_healing]
+    }
+}
+function prereq_quick_healing(){
+    return GS.boons.has(boon_names.quick_healing) < 3;
+}
+
 function rebirth(){
     return {
         name: boon_names.rebirth,
@@ -14264,33 +14435,31 @@ function prereq_safe_passage(){
     var player = GS.map.get_player();
     return player.max_health === undefined || player.health < player.max_health;
 }
-
-function serenity(){
+function shattered_glass(){
     return {
-        name: boon_names.serenity,
-        pic: `${IMG_FOLDER.boons}serenity.png`,
-        description: serenity_description,
-        prereq: prereq_serenity,
-        on_pick: pick_serenity,
-        unlocks: [serenity]
+        name: boon_names.shattered_glass,
+        pic: `${IMG_FOLDER.boons}shattered_glass.png`,
+        description: shattered_glass_description,
+        prereq: prereq_shattered_glass,
+        on_pick: on_pick_shattered_glass
     }
 }
 
-function prereq_serenity(){
-    return GS.deck.deck_min() > 4;
+function prereq_shattered_glass(){
+    return max_health_at_least(2);
 }
 
-function pick_serenity(){
-    while(GS.deck.deck_min() > 4){
-        GS.deck.alter_min(-1);
-    }
+function on_pick_shattered_glass(){
+    change_max_health(-2);
 }
+
+// Enemies explode on death
 
 function skill_trading(){
     return {
         name: boon_names.skill_trading,
         pic: `${IMG_FOLDER.boons}skill_trading.png`,
-        description: skill_trading_description,
+        description: skill_trading_description
     }
 }
 
@@ -14374,6 +14543,14 @@ function stealthy(){
     }
 }
 
+function stubborn(){
+    return {
+        name: boon_names.stubborn,
+        pic: `${IMG_FOLDER.boons}stubborn.png`,
+        description: stubborn_description,
+    }
+}
+
 function thick_soles(){
     return {
         name: boon_names.thick_soles,
@@ -14394,17 +14571,6 @@ function adrenaline_rush(){
 }
 
 // Hitting more than 1 enemy gives an extra turn.
-
-function choose_your_path(){
-    return {
-        name: boon_names.choose_your_path,
-        pic: `${IMG_FOLDER.boons}choose_your_path.png`,
-        description: choose_your_path_description
-    }
-}
-
-// Pick where to go after each boss fight
-// Boss exits have the background
 
 function deck_stacking(){
     return {
@@ -14437,32 +14603,33 @@ function learn_from_mistakes(){
 }
 
 // Delete any card twice
-function shattered_glass(){
+function rift_touched(){
     return {
-        name: boon_names.shattered_glass,
-        pic: `${IMG_FOLDER.boons}shattered_glass.png`,
-        description: shattered_glass_description,
-        prereq: prereq_shattered_glass,
-        on_pick: on_pick_shattered_glass
+        name: boon_names.rift_touched,
+        pic: `${IMG_FOLDER.boons}rift_touched.png`,
+        description: rift_touched_description,
     }
 }
 
-function prereq_shattered_glass(){
-    return max_health_at_least(1);
-}
 
-function on_pick_shattered_glass(){
-    change_max_health(-1);
-}
 
-// Enemies explode on death
-
-function stubborn(){
+function serenity(){
     return {
-        name: boon_names.stubborn,
-        pic: `${IMG_FOLDER.boons}stubborn.png`,
-        description: stubborn_description,
+        name: boon_names.serenity,
+        pic: `${IMG_FOLDER.boons}serenity.png`,
+        description: serenity_description,
+        prereq: prereq_serenity,
+        on_pick: pick_serenity,
+        unlocks: [serenity]
     }
 }
 
-// skip the shop
+function prereq_serenity(){
+    return GS.deck.deck_min() > 4;
+}
+
+function pick_serenity(){
+    while(GS.deck.deck_min() > 4){
+        GS.deck.alter_min(-1);
+    }
+}

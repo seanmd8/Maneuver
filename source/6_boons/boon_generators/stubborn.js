@@ -6,5 +6,3 @@ function stubborn(){
         description: stubborn_description,
     }
 }
-
-// skip the shop

@@ -27,6 +27,7 @@ const achievement_names = {
     collector: `Collector`,
     jack_of_all_trades: `Jack Of All Trades`,
     monster_hunter: `Monster Hunter`,
+    minimalist: `Minimalist`
 }
 const achievement_description = {
     // Boss
@@ -53,6 +54,7 @@ const achievement_description = {
     collector: `Open 6 or more treasure chests in 1 run.`,
     jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
     monster_hunter: `Kill 5 total unique bosses.`,
+    minimalist: `Reach floor 15 with only 5 cards in your deck.`
 }
 
 const boss_achievements = [
@@ -88,7 +90,8 @@ function get_achievements(){
             has: false,
             boons: [retaliate],
             cards: [
-                stunning_leap, stunning_side_leap, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice
+                stunning_leap, stunning_side_leap, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice,
+                stunning_diagonal, stunning_orthogonal, stunning_retreat
             ]
         },
         {
@@ -99,7 +102,7 @@ function get_achievements(){
             boons: [slime_trail],
             cards: [
                 reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_diagonal, reckless_horizontal, 
-                reckless_teleport
+                reckless_teleport, reckless_leap_forwards, reckless_leap_left, reckless_leap_right, reckless_spin
             ]
         },
         {
@@ -107,7 +110,7 @@ function get_achievements(){
             description: achievement_description.lich,
             image: `${IMG_FOLDER.tiles}lich_rest.png`,
             has: false,
-            boons: [sniper],
+            boons: [rift_touched],
             cards: []
         },
         {
@@ -131,7 +134,7 @@ function get_achievements(){
             description: achievement_description.arcane_sentry,
             image: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
             has: false,
-            boons: [/*choose_your_path*/],
+            boons: [choose_your_path],
             cards: []
         },
         
@@ -211,7 +214,7 @@ function get_achievements(){
             description: achievement_description.shrug_it_off,
             image: `${IMG_FOLDER.achievements}shrug_it_off.png`,
             has: false,
-            boons: [/*thick_skin*/],
+            boons: [quick_healing],
         },
         {
             name: achievement_names.collector,
@@ -234,5 +237,12 @@ function get_achievements(){
             has: false,
             boons: [brag_and_boast],
         },
+        {
+            name: achievement_names.minimalist,
+            description: achievement_description.minimalist,
+            image: `${IMG_FOLDER.achievements}minimalist.png`,
+            has: false,
+            boons: [stubborn],
+        }
     ]
 }

@@ -21,6 +21,11 @@ function floor_generator(floor_num, area, map){
 }
 /** @type {FloorGenerator} The standard generator to add random enemies from the area whose combined difficulty scales based on the floor number.*/
 function generate_normal_floor(floor_num, area, map){
+    if(GS.boons.has(boon_names.rift_touched)){
+        for(var i = 0; i < 2; ++i){
+            map.spawn_safely(darkling_tile(), SAFE_SPAWN_ATTEMPTS, true);
+        }
+    }
     var enemy_list = area.enemy_list;
     for(var i = floor_num * 2; i > 0;){
         var choice = random_num(enemy_list.length);
@@ -46,6 +51,11 @@ function generate_normal_floor(floor_num, area, map){
 function boss_floor_common(floor_num,  area, map){
     if(GS.boons.has(boon_names.pacifism) === 0){
         map.lock();
+    }
+    if(GS.boons.has(boon_names.rift_touched)){
+        for(var i = 0; i < 2; ++i){
+            map.spawn_safely(darkling_tile(), SAFE_SPAWN_ATTEMPTS, true);
+        }
     }
 }
 

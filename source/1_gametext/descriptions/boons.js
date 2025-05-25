@@ -32,9 +32,11 @@ const boon_names = {
     picky_shopper: `Picky Shopper`,
     practice_makes_perfect: `Practice Makes Perfect`,
     pressure_points: `Preassure Points`,
+    quick_healing: `Quick Healing`,
     rebirth: `Rebirth`,
     repetition: `Repetition`,
     retaliate: `Retaliate`,
+    rift_touched: `Rift Touched`,
     roar_of_challenge: `Roar of Challenge`,
     safe_passage: `Safe Passage`,
     serenity: `Serenity`,
@@ -120,6 +122,8 @@ const practice_makes_perfect_description =
     `Defeating a boss while at max health increases your max health by 1.`;
 const practice_makes_perfect_message =
     `Your maximum health has increased.`
+const quick_healing_description =
+    `After being dealt damage, you have a 1/4 chance to instantly heal it.`;
 const pressure_points_description = 
     `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`;
 const rebirth_description = 
@@ -130,6 +134,8 @@ const repetition_description =
     `Every 3rd turn, your cards happen twice.`;
 const retaliate_description = 
     `When you are dealt damage, attack a nearby non boss enemy.`;
+const rift_touched_description = 
+    `Two Darklings spawn on each floor.`
 const roar_of_challenge_description = 
     `Gain 2 max health. Difficulty increases by 5 floors.`;
 const safe_passage_description = 
@@ -137,8 +143,8 @@ const safe_passage_description =
 const serenity_description = 
     `Reduce your minimum deck size to 4.`;
 const shattered_glass_description = 
-    `Enemies explode on death damaging each other nearby enemy. Reduce your `
-    +`max health by 1.`;
+    `Enemies explode on death damaging everything nearby other than you. Reduce your `
+    +`max health by 2.`;
 const skill_trading_description = 
     `You may both add a card and remove a card at each shop.`;
 const slime_trail_description = 
@@ -155,6 +161,6 @@ const stable_mind_description =
 const stealthy_description = 
     `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`;
 const stubborn_description = 
-    `You can decide to skip shops.`;
+    `You can skip shops.`;
 const thick_soles_description = 
     `You are immune to damage on your turn.`;

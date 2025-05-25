@@ -1,12 +1,5 @@
-/** @type {TileGenerator} Generates a camoflauged boulder elemental. */
-function animated_boulder_tile(){
-    var tile = animated_boulder_look();
-    shapeshift(tile, ifexists(tile.look_arr)[0]);
-    return tile;
-}
-
 /** @type {TileGenerator} Generates an uncamoflauged animated boulder. */
-function animated_boulder_look(){
+function animated_boulder_tile(){
     return {
         type: `enemy`,
         name: `Animated Boulder`,
@@ -17,16 +10,15 @@ function animated_boulder_look(){
         telegraph: spider_telegraph,
         on_enter: animated_boulder_wake_up,
         on_hit: animated_boulder_wake_up,
-        look_arr: [magmatic_boulder_tile, animated_boulder_look],
-        cycle: 0
+        cycle: 0,
+        look: magmatic_boulder_tile()
     }
 }
 
 
 /** @type {AIFunction} AI used by animated boulders.*/
 function animated_boulder_ai(self, target, map){
-    if( self.tile.cycle === undefined || 
-        self.tile.look_arr === undefined){
+    if( self.tile.cycle === undefined){
         throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle === 0){
@@ -51,7 +43,7 @@ function animated_boulder_ai(self, target, map){
     --self.tile.cycle;
     if(self.tile.cycle <= 0){
         // Falls asleep.
-        shapeshift(self.tile, self.tile.look_arr[0]);
+        self.tile.look = magmatic_boulder_tile();
         self.tile.tags.add(TAGS.hidden);
         // Stays asleep for a turn before it can wake up.
         self.tile.cycle = -1;
@@ -63,14 +55,13 @@ function animated_boulder_ai(self, target, map){
 }
 /** @type {AIFunction} animated boulder wakes up when touched.*/
 function animated_boulder_wake_up(self, target, map){
-    if( self.tile.cycle === undefined || 
-        self.tile.look_arr === undefined){
+    if( self.tile.cycle === undefined){
         throw new Error(ERRORS.missing_property)
     }
     if(self.tile.cycle === 0){
         stun(self.tile);
         self.tile.cycle = 3;
-        shapeshift(self.tile, self.tile.look_arr[1]);
+        self.tile.look = undefined;
         self.tile.tags.remove(TAGS.hidden);
     }
 }

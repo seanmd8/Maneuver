@@ -51,7 +51,7 @@ function forest_heart_tile(){
         cycle: health,
         segment_list: [undefined, undefined],
         spells,
-        card_drops: [snack, branch_strike]
+        card_drops: [snack, branch_strike, vine_snare]
     }
     if(GS.boons.has(boon_names.boss_slayer)){
         tile.health -= 2;
