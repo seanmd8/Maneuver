@@ -9,6 +9,17 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+5/24/25
+- Added 1 new Achievement
+- Added 5 new Boons
+- Removed Serenity Boon
+- Rebalanced Arcane Sentry boss cards
+- Added new boss card for Forest Heart
+- Rebalanced 4 normal cards
+- Added 6 new cards
+- Fixed bug where invisible enemies would still show their health
+- Fixed bug where Unstable Wisp death explosions would move the same turn they triggered
+
 5/17/25
 - Added 21 Achievements
 - You can now change the controls
