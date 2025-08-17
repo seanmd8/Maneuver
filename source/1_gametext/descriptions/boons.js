@@ -8,6 +8,7 @@ const boon_names = {
     brag_and_boast: `Brag & Boast`,
     chilly_presence: `Chilly Presence`,
     choose_your_path: `Choose Your Path`,
+    clean_mind: `Clean Mind`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
     deck_stacking: `Deck Stacking`,
@@ -24,7 +25,6 @@ const boon_names = {
     gruntwork: `Gruntwork`,
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
-    learn_from_mistakes: `Learn From Mistakes`,
     limitless: `Limitless`,
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
@@ -69,6 +69,10 @@ const chilly_presence_description =
     +`turn. Bosses are not affected.`;
 const choose_your_path_description =
     `You get to decide which area to go to after each boss fight.`;
+const clean_mind_description = 
+    `Remove any 2 cards from your deck.`;
+const clean_mind_instructions =
+    [`Choose a card to remove (`, `/2 remaining)`];
 const creative_description = 
     `Increase your hand size by 1. Increases minimum deck size by 5.`;
 const dazing_blows_description = 
@@ -78,13 +82,14 @@ const deck_stacking_description =
     +`maximum health by 1`;
 const duplicate_description =
     `Get a copy of any card in your deck.`
+const duplicate_instructions =
+    `Choose a card to copy:`;
 const empty_rooms_description = 
     `Difficulty decreases by 3 floors`;
 const escape_artist_description = 
     `Teleport away when attacked.`;
 const expend_vitality_description =  
-    `Heal 1 life at the start of each floor. Your max health is decreased `
-    +`by 1.`;
+    `Heal 1 life at the start of each floor. Your max health is decreased by 1.`;
 const flame_strike_description = 
     `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`;
 const fleeting_thoughts_description = 
@@ -104,8 +109,6 @@ const hoarder_description =
     `Encounter two chests in each area.`;
 const larger_chests_description = 
     `All treasure chests contain 2 additional choices and are invulnerable.`;
-const learn_from_mistakes_description = 
-    `Remove any 2 cards from your deck.`;
 const limitless_description = 
     `Remove your max health. Heal for 2. If you would be fully healed, heal `
     +`for 1 instead.`;

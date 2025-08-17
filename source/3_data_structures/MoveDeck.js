@@ -219,8 +219,7 @@ class MoveDeck{
         for(var i = 0; i < this.#decklist.length; ++i){
             if(this.#decklist[i].id === id){
                 var card = this.#decklist[i];
-                this.#decklist[i] = this.#decklist[this.#decklist.length - 1];
-                this.#decklist.pop()
+                this.#decklist.splice(i, 1);
                 if(card.evolutions !== undefined){
                     var next = randomize_arr(card.evolutions)[0]() ;
                     this.add(next);

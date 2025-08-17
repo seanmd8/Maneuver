@@ -1568,6 +1568,58 @@ function reset_achievements(){
     update_achievements();
 }
 
+function display_deck_to_duplicate(){
+    display.display_message(UIIDS.deck_select_message, duplicate_instructions);
+    var finish = (card, deck) => {
+        deck.add(copy_card(card));
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+    }
+    var selector = new DeckSelector(GS.deck, finish);
+    refresh_deck_select_screen(selector);
+}
+function display_deck_to_remove(remaining){
+    var message = `${clean_mind_instructions[0]}${remaining}${clean_mind_instructions[1]}`;
+    display.display_message(UIIDS.deck_select_message, message);
+    var finish = (card, deck) => {
+        deck.remove(card.id);
+        if(remaining > 1){
+            display_deck_to_remove(remaining - 1);
+        }
+        else{
+            GS.deck.deal();
+            GS.refresh_deck_display();
+            GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+        }
+    }
+    var selector = new DeckSelector(GS.deck, finish);
+    refresh_deck_select_screen(selector);
+}
+
+function refresh_deck_select_screen(selector){
+    var cards = selector.get_display_info();
+    cards.map((card) => {
+        var prev_on_click = card.on_click;
+        card.on_click = () => {
+            prev_on_click();
+            display.display_message(UIIDS.deck_select_card_info, explain_card(card.card));
+            refresh_deck_select_screen(selector);
+        }
+        return card;
+    });
+    display.remove_children(UIIDS.deck_select_table);
+    for(var i = 0; i < Math.ceil(cards.length / DECK_DISPLAY_WIDTH); ++i){
+        var slice_start = i * DECK_DISPLAY_WIDTH;
+        var slice = cards.slice(slice_start, slice_start + DECK_DISPLAY_WIDTH);
+        display.add_tb_row(UIIDS.deck_select_table, slice, CARD_SCALE);
+    }
+    display.set_button(
+        UIIDS.deck_select_confirm, 
+        confirm_text, 
+        () => {selector.confirm();}, 
+        selector.check_valid()
+    );
+}
+
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
     invalid_type: `invalid type`,
@@ -2038,7 +2090,7 @@ function get_achievements(){
             description: achievement_description.ancient_knowledge,
             image: `${IMG_FOLDER.achievements}ancient_knowledge.png`,
             has: false,
-            boons: [/*learn_from_mistakes*/],
+            boons: [clean_mind],
         },
         {
             name: achievement_names.peerless_sprinter,
@@ -2059,7 +2111,7 @@ function get_achievements(){
             description: achievement_description.triple,
             image: `${IMG_FOLDER.achievements}triple.png`,
             has: false,
-            boons: [/*duplicate*/],
+            boons: [duplicate],
         },
         {
             name: achievement_names.beyond_the_basics,
@@ -2147,6 +2199,7 @@ const boon_names = {
     brag_and_boast: `Brag & Boast`,
     chilly_presence: `Chilly Presence`,
     choose_your_path: `Choose Your Path`,
+    clean_mind: `Clean Mind`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
     deck_stacking: `Deck Stacking`,
@@ -2163,7 +2216,6 @@ const boon_names = {
     gruntwork: `Gruntwork`,
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
-    learn_from_mistakes: `Learn From Mistakes`,
     limitless: `Limitless`,
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
@@ -2208,6 +2260,10 @@ const chilly_presence_description =
     +`turn. Bosses are not affected.`;
 const choose_your_path_description =
     `You get to decide which area to go to after each boss fight.`;
+const clean_mind_description = 
+    `Remove any 2 cards from your deck.`;
+const clean_mind_instructions =
+    [`Choose a card to remove (`, `/2 remaining)`];
 const creative_description = 
     `Increase your hand size by 1. Increases minimum deck size by 5.`;
 const dazing_blows_description = 
@@ -2217,13 +2273,14 @@ const deck_stacking_description =
     +`maximum health by 1`;
 const duplicate_description =
     `Get a copy of any card in your deck.`
+const duplicate_instructions =
+    `Choose a card to copy:`;
 const empty_rooms_description = 
     `Difficulty decreases by 3 floors`;
 const escape_artist_description = 
     `Teleport away when attacked.`;
 const expend_vitality_description =  
-    `Heal 1 life at the start of each floor. Your max health is decreased `
-    +`by 1.`;
+    `Heal 1 life at the start of each floor. Your max health is decreased by 1.`;
 const flame_strike_description = 
     `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`;
 const fleeting_thoughts_description = 
@@ -2243,8 +2300,6 @@ const hoarder_description =
     `Encounter two chests in each area.`;
 const larger_chests_description = 
     `All treasure chests contain 2 additional choices and are invulnerable.`;
-const learn_from_mistakes_description = 
-    `Remove any 2 cards from your deck.`;
 const limitless_description = 
     `Remove your max health. Heal for 2. If you would be fully healed, heal `
     +`for 1 instead.`;
@@ -3021,6 +3076,11 @@ const HTML_UIIDS = {
                 contents: `contents`,
                 chest_confirm_row: `chestConfirmRow`,
                 content_description: `contentDescription`,
+        deck_select: `deckSelect`,
+            deck_select_message: `deckSelectMessage`,
+            deck_select_table: `deckSelectTable`,
+            deck_select_card_info: `deckSelectCardInfo`,
+            deck_select_confirm: `deckSelectConfirm`,
     guide: `guide`,
         guide_navbar: `guideNavbar`,
     controls: `controls`,
@@ -7053,8 +7113,10 @@ function chest_on_enter(self, target, map){
     self.tile.health = 1;
     map.attack(self.location);
     map.stats.increment_chests();
-    var leave_chest = function(){
-        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+    var leave_chest = function(go_back){
+        if(go_back){
+            GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+        }
         display.display_message(UIIDS.chest_instructions, ``);
         display.remove_children(UIIDS.chest_confirm_row);
         display.remove_children(UIIDS.contents);
@@ -7075,10 +7137,11 @@ function chest_on_enter(self, target, map){
     };
     var pick = function(on_choose){
         return function(){
+            var go_back = true;
             if(on_choose !== undefined){
-                on_choose();
+                go_back = on_choose();
             }
-            leave_chest();
+            leave_chest(go_back);
         }
     }
     var content_row = [];
@@ -7132,6 +7195,7 @@ function add_card_to_chest(chest, card){
         name: card.name,
         on_choose: function(){
             GS.deck.add(card);
+            return true;
         },
         description
     }
@@ -7156,8 +7220,9 @@ function add_boon_to_chest(chest, boon){
                 });
                 SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
             }
-            GS.boons.pick(boon.name);
+            var go_back = GS.boons.pick(boon.name);
             GS.refresh_boon_display();
+            return go_back
         },
         description: `${boon.name}: ${boon.description}`
     }
@@ -8616,6 +8681,10 @@ class BoonTracker{
                 }
                 this.#boons.push(boon);
                 ++this.total;
+                if(boon.after_pick !== undefined){
+                    boon.after_pick();
+                    return false;
+                }
                 return true;
             }
         }
@@ -8779,6 +8848,45 @@ class ButtonGrid{
         }
         --num;
         return this.#buttons[Math.floor(num / 3)][num % 3].behavior;
+    }
+}
+
+class DeckSelector{
+    #deck;
+    #cards;
+    #selected;
+    #action;
+    constructor(deck, action){
+        this.#deck = deck;
+        this.#cards = deck.get_deck_info();
+        this.#selected = undefined;
+        this.#action = action;
+    }
+    select(index){
+        if(index >= 0 && index < this.#deck.deck_size()){
+            this.#selected = index;
+            return true;
+        }
+        return false;
+    }
+    check_valid(){
+        return this.#selected !== undefined;
+    }
+    confirm(){
+        if(this.check_valid()){
+            this.#action(this.#cards[this.#selected], this.#deck);
+        }
+    }
+    get_display_info(){
+        return this.#cards.map((card, i) => {
+            return {
+                name: card.name,
+                pic: card.pic,
+                card,
+                on_click: () => {this.select(i)},
+                selected: this.#selected === i
+            }
+        });
     }
 }
 // ----------------EntityList.js----------------
@@ -10688,8 +10796,7 @@ class MoveDeck{
         for(var i = 0; i < this.#decklist.length; ++i){
             if(this.#decklist[i].id === id){
                 var card = this.#decklist[i];
-                this.#decklist[i] = this.#decklist[this.#decklist.length - 1];
-                this.#decklist.pop()
+                this.#decklist.splice(i, 1);
                 if(card.evolutions !== undefined){
                     var next = randomize_arr(card.evolutions)[0]() ;
                     this.add(next);
@@ -10912,7 +11019,7 @@ class ScreenTracker{
 }
 
 const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.controls, UIIDS.achievements]);
-const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest]);
+const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand]);
 
 class Shop{
@@ -12672,6 +12779,16 @@ function get_boss_cards(){
     }
     return boss_cards;
 }
+
+function copy_card(source){
+    return {
+        name: source.name,
+        pic: source.pic,
+        options: source.options,
+        evolutions: source.evolutions !== undefined ? [...source.evolutions] : undefined,
+        per_floor: source.per_floor,
+    }
+}
 // ----------------ConfusionCards.js----------------
 // File containing cards that can be given to the player as a debuff.
 
@@ -13920,14 +14037,15 @@ function deck_at_minimum_symbol(){
 
 BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
-    chilly_presence, choose_your_path, creative, dazing_blows, empty_rooms, 
-    escape_artist, expend_vitality, flame_strike, fleeting_thoughts, fortitude, 
-    frenzy, frugivore, future_sight, gruntwork, hoarder, 
-    larger_chests, limitless, pacifism, pain_reflexes, perfect_the_basics, 
-    picky_shopper, practice_makes_perfect, pressure_points, quick_healing, rebirth, 
-    repetition, retaliate, rift_touched, roar_of_challenge, safe_passage, 
-    shattered_glass, skill_trading, slime_trail, sniper, spiked_shoes, 
-    spontaneous, stable_mind, stealthy, stubborn, thick_soles
+    chilly_presence, choose_your_path, clean_mind, creative, dazing_blows, 
+    duplicate, empty_rooms, escape_artist, expend_vitality, flame_strike, 
+    fleeting_thoughts, fortitude, frenzy, frugivore, future_sight, 
+    gruntwork, hoarder, larger_chests, limitless, pacifism, 
+    pain_reflexes, perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, 
+    quick_healing, rebirth, repetition, retaliate, rift_touched, 
+    roar_of_challenge, safe_passage, shattered_glass, skill_trading, slime_trail, 
+    sniper, spiked_shoes, spontaneous, stable_mind, stealthy, 
+    stubborn, thick_soles
 ];
 
 function change_max_health(amount){
@@ -14044,6 +14162,28 @@ function choose_your_path(){
 // Pick where to go after each boss fight
 // Boss exits have the background
 
+function clean_mind(){
+    return {
+        name: boon_names.clean_mind,
+        pic: `${IMG_FOLDER.boons}clean_mind.png`,
+        description: clean_mind_description,
+        prereq_clean_mind,
+        after_pick: pick_clean_mind,
+        unlocks: [clean_mind]
+    }
+}
+
+function prereq_clean_mind(){
+    // Since you are removing 2 cards, you need to have at least 2 cards above the minimum.
+    return GS.deck.deck_size() >= GS.deck.deck_min() + 2;
+}
+
+function pick_clean_mind(){
+    display_deck_to_remove(2);
+    GAME_SCREEN_DIVISIONS.swap(UIIDS.deck_select);
+
+}
+
 function creative(){
     return {
         name: boon_names.creative,
@@ -14071,6 +14211,21 @@ function dazing_blows(){
         pic: `${IMG_FOLDER.boons}dazing_blows.png`,
         description: dazing_blows_description,
     }
+}
+
+function duplicate(){
+    return {
+        name: boon_names.duplicate,
+        pic: `${IMG_FOLDER.boons}duplicate.png`,
+        description: duplicate_description,
+        after_pick: pick_duplicate,
+        unlocks: [duplicate]
+    }
+}
+
+function pick_duplicate(){
+    display_deck_to_duplicate();
+    GAME_SCREEN_DIVISIONS.swap(UIIDS.deck_select);
 }
 
 function empty_rooms(){
@@ -14581,28 +14736,6 @@ function deck_stacking(){
 }
 
 // Choose the order of your deck when shuffling.
-
-function duplicate(){
-    return {
-        name: boon_names.duplicate,
-        pic: `${IMG_FOLDER.boons}duplicate.png`,
-        description: duplicate_description
-    }
-}
-
-// Get a copy of any card in your deck
-
-function learn_from_mistakes(){
-    return {
-        name: boon_names.learn_from_mistakes,
-        pic: `${IMG_FOLDER.boons}learn_from_mistakes.png`,
-        description: learn_from_mistakes_description,
-        on_pick: pick_learn_from_mistakes,
-        unlocks: [learn_from_mistakes]
-    }
-}
-
-// Delete any card twice
 function rift_touched(){
     return {
         name: boon_names.rift_touched,

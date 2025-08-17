@@ -158,7 +158,7 @@ function get_achievements(){
             description: achievement_description.ancient_knowledge,
             image: `${IMG_FOLDER.achievements}ancient_knowledge.png`,
             has: false,
-            boons: [/*learn_from_mistakes*/],
+            boons: [clean_mind],
         },
         {
             name: achievement_names.peerless_sprinter,
@@ -179,7 +179,7 @@ function get_achievements(){
             description: achievement_description.triple,
             image: `${IMG_FOLDER.achievements}triple.png`,
             has: false,
-            boons: [/*duplicate*/],
+            boons: [duplicate],
         },
         {
             name: achievement_names.beyond_the_basics,

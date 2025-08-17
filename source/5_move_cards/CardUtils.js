@@ -266,3 +266,13 @@ function get_boss_cards(){
     }
     return boss_cards;
 }
+
+function copy_card(source){
+    return {
+        name: source.name,
+        pic: source.pic,
+        options: source.options,
+        evolutions: source.evolutions !== undefined ? [...source.evolutions] : undefined,
+        per_floor: source.per_floor,
+    }
+}

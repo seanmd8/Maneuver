@@ -44,6 +44,10 @@ class BoonTracker{
                 }
                 this.#boons.push(boon);
                 ++this.total;
+                if(boon.after_pick !== undefined){
+                    boon.after_pick();
+                    return false;
+                }
                 return true;
             }
         }
