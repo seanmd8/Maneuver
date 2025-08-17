@@ -8642,6 +8642,12 @@ class AchievementList{
             return e.has;
         })
     }
+    unfinished(){
+        // Returns a list of the unfinished achievements.
+        return this.#list.filter((e) => {
+            return !e.has;
+        })
+    }
     all(){
         // Returns all achievements.
         return this.#list;
@@ -8678,7 +8684,6 @@ class AchievementList{
         });
         return filtered.length;
     }
-    
 }
 
 
@@ -8695,11 +8700,19 @@ class BoonTracker{
     }
     get_choices(amount){
         var choice_list = randomize_arr(this.#choices);
+        var locked = [];
+        GS.data.achievements.unfinished().map((a) => {
+            if(a.boons !== undefined){
+                locked.push(...a.boons);
+            }
+        });
         var picks = [];
         while(picks.length < amount && choice_list.length > 0){
             var boon = choice_list.pop();
             if(boon.prereq === undefined || boon.prereq()){
-                picks.push(boon);
+                if(locked.find((b) => {return b().name === boon.name}) === undefined){
+                    picks.push(boon);
+                }
             }
         }
         return picks;
