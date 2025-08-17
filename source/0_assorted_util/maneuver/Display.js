@@ -648,7 +648,11 @@ const DisplayHTML = {
         for(var a of achievements){
             var div = document.createElement(`div`);
             div.classList.add(`achievement-box`);
+            if(a.has){
+                div.classList.add('achievement-box-unlocked');
+            }
 
+            // Achievement image
             var img_box = document.createElement(`div`);
             img_box.classList.add(`achievement-img-box`);
             div.append(img_box);
@@ -657,8 +661,10 @@ const DisplayHTML = {
             var img = document.createElement(`img`);
             img.src = `${IMG_FOLDER.src}${img_name}`;
             img.alt = a.has? `unlocked` : `locked`;
+            img.title = img.alt;
             img_box.append(img);
 
+            // Achievement description
             var text_box = document.createElement(`div`);
             text_box.classList.add(`achievement-text-box`);
             div.append(text_box);
@@ -679,6 +685,43 @@ const DisplayHTML = {
             p.innerText = a.description;
             text_box.append(p);
 
+            // Unlocks
+            var unlocks = document.createElement(`div`);
+            unlocks.classList.add(`achievement-dropdown`);
+
+            // New Boons
+            if(a.boons!== undefined && a.boons.length > 0){
+                var unlock_boons_header = document.createElement(`h3`);
+                unlock_boons_header.innerText = `--- ${unlock_boon_description} ---`
+                unlocks.append(unlock_boons_header);
+                
+                for(var boon of a.boons){
+                    boon = boon();
+                    img = document.createElement(`img`);
+                    img.src = `${IMG_FOLDER.src}${boon.pic}`;
+                    img.alt = boon.name;
+                    img.title = boon.name;
+                    unlocks.append(img);
+                }
+            }
+
+            // New cards
+            if(a.cards !== undefined && a.cards.length > 0){
+                var unlock_cards_header = document.createElement(`h3`);
+                unlock_cards_header.innerText = `--- ${unlock_card_description} ---`;
+                unlocks.append(unlock_cards_header);
+
+                for(var card of a.cards){
+                    card = card();
+                    img = document.createElement(`img`);
+                    img.src = `${IMG_FOLDER.src}${card.pic}`;
+                    img.alt = card.name;
+                    img.title = card.name;
+                    unlocks.append(img);
+                }
+            }
+
+            div.append(unlocks);
             place.append(div);
         }
     },
