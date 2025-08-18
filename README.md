@@ -9,6 +9,11 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+8/17/25
+- Added 2 new Boons
+- Unlocking an achievements will now unlock a new Boon and sometimes new cards
+- Achievements that have been obtained will now show what they unlock upon mouseover
+
 5/24/25
 - Added 1 new Achievement
 - Added 5 new Boons

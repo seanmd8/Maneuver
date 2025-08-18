@@ -307,3 +307,55 @@ function reset_achievements(){
     GS.data.reset_achievements();
     update_achievements();
 }
+
+function display_deck_to_duplicate(){
+    display.display_message(UIIDS.deck_select_message, duplicate_instructions);
+    var finish = (card, deck) => {
+        deck.add(copy_card(card));
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+    }
+    var selector = new DeckSelector(GS.deck, finish);
+    refresh_deck_select_screen(selector);
+}
+function display_deck_to_remove(remaining){
+    var message = `${clean_mind_instructions[0]}${remaining}${clean_mind_instructions[1]}`;
+    display.display_message(UIIDS.deck_select_message, message);
+    var finish = (card, deck) => {
+        deck.remove(card.id);
+        if(remaining > 1){
+            display_deck_to_remove(remaining - 1);
+        }
+        else{
+            GS.deck.deal();
+            GS.refresh_deck_display();
+            GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+        }
+    }
+    var selector = new DeckSelector(GS.deck, finish);
+    refresh_deck_select_screen(selector);
+}
+
+function refresh_deck_select_screen(selector){
+    var cards = selector.get_display_info();
+    cards.map((card) => {
+        var prev_on_click = card.on_click;
+        card.on_click = () => {
+            prev_on_click();
+            display.display_message(UIIDS.deck_select_card_info, explain_card(card.card));
+            refresh_deck_select_screen(selector);
+        }
+        return card;
+    });
+    display.remove_children(UIIDS.deck_select_table);
+    for(var i = 0; i < Math.ceil(cards.length / DECK_DISPLAY_WIDTH); ++i){
+        var slice_start = i * DECK_DISPLAY_WIDTH;
+        var slice = cards.slice(slice_start, slice_start + DECK_DISPLAY_WIDTH);
+        display.add_tb_row(UIIDS.deck_select_table, slice, CARD_SCALE);
+    }
+    display.set_button(
+        UIIDS.deck_select_confirm, 
+        confirm_text, 
+        () => {selector.confirm();}, 
+        selector.check_valid()
+    );
+}

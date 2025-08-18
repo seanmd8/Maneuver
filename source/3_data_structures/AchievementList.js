@@ -22,6 +22,12 @@ class AchievementList{
             return e.has;
         })
     }
+    unfinished(){
+        // Returns a list of the unfinished achievements.
+        return this.#list.filter((e) => {
+            return !e.has;
+        })
+    }
     all(){
         // Returns all achievements.
         return this.#list;
@@ -37,7 +43,7 @@ class AchievementList{
         return match.has;
     }
     get(){
-        // Returns a list with all the achiements they have earned.
+        // Returns a list with the names of all the achiements they have earned.
         return this.completed().map((e) => {
             return e.name;
         });
@@ -58,5 +64,4 @@ class AchievementList{
         });
         return filtered.length;
     }
-    
 }

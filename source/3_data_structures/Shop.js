@@ -19,9 +19,9 @@ class Shop{
         var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
         var add_list_generators = rand_no_repeates(COMMON_CARDS, amount);
         var index_of_rare = random_num(4);
-        if(index_of_rare < add_list_generators.length){
-            // Growing the number of options guarantees a rare.
-            var rare = rand_no_repeates(RARE_CARDS, 1);
+        var rares = get_achievement_cards();
+        if(index_of_rare < add_list_generators.length && rares.length > 0){
+            var rare = rand_no_repeates(rares, 1);
             add_list_generators[index_of_rare] = rare[0];
         }
         this.#add_row = add_list_generators.map((g) => {return g()});

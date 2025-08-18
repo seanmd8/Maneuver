@@ -17,8 +17,10 @@ function chest_on_enter(self, target, map){
     self.tile.health = 1;
     map.attack(self.location);
     map.stats.increment_chests();
-    var leave_chest = function(){
-        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+    var leave_chest = function(go_back){
+        if(go_back){
+            GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+        }
         display.display_message(UIIDS.chest_instructions, ``);
         display.remove_children(UIIDS.chest_confirm_row);
         display.remove_children(UIIDS.contents);
@@ -39,10 +41,11 @@ function chest_on_enter(self, target, map){
     };
     var pick = function(on_choose){
         return function(){
+            var go_back = true;
             if(on_choose !== undefined){
-                on_choose();
+                go_back = on_choose();
             }
-            leave_chest();
+            leave_chest(go_back);
         }
     }
     var content_row = [];
@@ -96,6 +99,7 @@ function add_card_to_chest(chest, card){
         name: card.name,
         on_choose: function(){
             GS.deck.add(card);
+            return true;
         },
         description
     }
@@ -120,8 +124,9 @@ function add_boon_to_chest(chest, boon){
                 });
                 SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
             }
-            GS.boons.pick(boon.name);
+            var go_back = GS.boons.pick(boon.name);
             GS.refresh_boon_display();
+            return go_back
         },
         description: `${boon.name}: ${boon.description}`
     }
