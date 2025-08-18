@@ -506,6 +506,7 @@
     margin-bottom: 3px;
     margin-right: 5px;
     display: inline-block;
+    height: 52px;
 }
 
 /* Styles the display of the number of cards remaining in the player's deck. */
