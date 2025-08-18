@@ -43,7 +43,7 @@ class AchievementList{
         return match.has;
     }
     get(){
-        // Returns a list with all the achiements they have earned.
+        // Returns a list with the names of all the achiements they have earned.
         return this.completed().map((e) => {
             return e.name;
         });

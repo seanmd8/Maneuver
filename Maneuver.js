@@ -2054,8 +2054,8 @@ function get_achievements(){
             boons: [boss_slayer],
             cards: [
                 teleport, sidestep_e, sidestep_n, sidestep_ne, sidestep_nw, 
-                sidestep_s, sidestep_s, sidestep_se, sidestep_sw, sidestep_w,
-                punch_orthogonal, punch_diagonal
+                sidestep_s, sidestep_se, sidestep_sw, sidestep_w, punch_orthogonal, 
+                punch_diagonal
             ]
         },
         {
@@ -6652,7 +6652,13 @@ function bookshelf_on_hit(self, target, map){
         self.tile.pic = self.tile.pic_arr[Math.min(2, self.tile.health - 1)];
     }
     var boss_cards = get_boss_cards();
-    var card_list = [...BASIC_CARDS, ...CONFUSION_CARDS, ...COMMON_CARDS, ...RARE_CARDS, ...boss_cards];
+    var card_list = [
+        ...BASIC_CARDS, 
+        ...CONFUSION_CARDS, 
+        ...COMMON_CARDS, 
+        ...get_all_achievement_cards(), 
+        ...boss_cards
+    ];
     var card = randomize_arr(card_list)[0]();
     GS.give_temp_card(card);
     GS.refresh_deck_display();
@@ -6670,7 +6676,7 @@ function coffin_tile(){
         on_enter: decay_ai,
         on_death: coffin_tile_death,
         summons: [rat_tile, carrion_flies_tile, vampire_tile, appropriate_chest_tile],
-        card_drops: RARE_CARDS
+        card_drops: get_all_achievement_cards()
     }
 }
 
@@ -8663,7 +8669,7 @@ class AchievementList{
         return match.has;
     }
     get(){
-        // Returns a list with all the achiements they have earned.
+        // Returns a list with the names of all the achiements they have earned.
         return this.completed().map((e) => {
             return e.name;
         });
@@ -11100,9 +11106,9 @@ class Shop{
         var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
         var add_list_generators = rand_no_repeates(COMMON_CARDS, amount);
         var index_of_rare = random_num(4);
-        if(index_of_rare < add_list_generators.length){
-            // Growing the number of options guarantees a rare.
-            var rare = rand_no_repeates(RARE_CARDS, 1);
+        var rares = get_achievement_cards();
+        if(index_of_rare < add_list_generators.length && rares.length > 0){
+            var rare = rand_no_repeates(rares, 1);
             add_list_generators[index_of_rare] = rare[0];
         }
         this.#add_row = add_list_generators.map((g) => {return g()});
@@ -12578,28 +12584,38 @@ const BASIC_CARDS = [
 
 // Cards that can be given on level up.
 const COMMON_CARDS = [
-    short_charge, jump, straight_charge, side_charge, step_left, 
-    step_right, trample, horsemanship, lunge_left, lunge_right, 
-    sprint, trident, spin_attack, butterfly, fork,
-    stunning_retreat, force, side_attack, clear_behind, clear_in_front, 
-    jab, overcome, hit_and_run, push_back, breakthrough_side,
-    explosion, breakthrough, flanking_diagonal, flanking_sideways, flanking_straight,
-    pike, combat_diagonal, combat_horizontal, stunning_punch_orthogonal, stunning_punch_diagonal,
-    thwack, overcome_sideways, y_leap, diamond_slice, spearhead,
-    alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal,
-    diamond_attack, slice_twice, advance, dash_ne, dash_nw,
-    bounding_retreat, leap_left, leap_right, short_charge_diagonal, side_sprint,
-    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw,
-    stunning_leap, stunning_side_leap, stunning_slice,
+    advance, alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, 
+    bounding_retreat, breakthrough, breakthrough_side, butterfly, clear_behind, 
+    clear_in_front, combat_diagonal, combat_horizontal, dash_ne, dash_nw,
+    diamond_attack, diamond_slice, explosion, force, fork,
+    flanking_diagonal, flanking_sideways, flanking_straight, hit_and_run, horsemanship, 
+    jab, jab_diagonal, jump, leap_left, leap_right, 
+    lunge_left, lunge_right, overcome, overcome_sideways, pike, 
+    push_back, short_charge, short_charge_diagonal, side_attack, side_charge, 
+    side_sprint, slash_step_forwards, slash_step_left, slash_step_right, slice_twice, 
+    slip_through_ne, slip_through_nw, spearhead, spin_attack, sprint, 
+    step_left, step_right, straight_charge, thwack, trample, 
+    trident, y_leap, 
 ];
 
-const RARE_CARDS = [
-    teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
-    sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
-    punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport,
-    reckless_horizontal, reckless_diagonal, reckless_leap_forwards, reckless_leap_left, reckless_leap_right,
-    reckless_spin, stunning_diagonal, stunning_orthogonal
-]
+function get_achievement_cards(){
+    var list = [];
+    GS.data.achievements.completed().map((a) => {
+        if(a.cards !== undefined){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
+function get_all_achievement_cards(){
+    var list = [];
+    GS.data.achievements.all().map((a) => {
+        if(a.cards !== undefined){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
 
 // Cards that can be given as a debuff.
 const CONFUSION_CARDS = [

@@ -7,28 +7,38 @@ const BASIC_CARDS = [
 
 // Cards that can be given on level up.
 const COMMON_CARDS = [
-    short_charge, jump, straight_charge, side_charge, step_left, 
-    step_right, trample, horsemanship, lunge_left, lunge_right, 
-    sprint, trident, spin_attack, butterfly, fork,
-    stunning_retreat, force, side_attack, clear_behind, clear_in_front, 
-    jab, overcome, hit_and_run, push_back, breakthrough_side,
-    explosion, breakthrough, flanking_diagonal, flanking_sideways, flanking_straight,
-    pike, combat_diagonal, combat_horizontal, stunning_punch_orthogonal, stunning_punch_diagonal,
-    thwack, overcome_sideways, y_leap, diamond_slice, spearhead,
-    alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, jab_diagonal,
-    diamond_attack, slice_twice, advance, dash_ne, dash_nw,
-    bounding_retreat, leap_left, leap_right, short_charge_diagonal, side_sprint,
-    slash_step_forwards, slash_step_left, slash_step_right, slip_through_ne, slip_through_nw,
-    stunning_leap, stunning_side_leap, stunning_slice,
+    advance, alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, 
+    bounding_retreat, breakthrough, breakthrough_side, butterfly, clear_behind, 
+    clear_in_front, combat_diagonal, combat_horizontal, dash_ne, dash_nw,
+    diamond_attack, diamond_slice, explosion, force, fork,
+    flanking_diagonal, flanking_sideways, flanking_straight, hit_and_run, horsemanship, 
+    jab, jab_diagonal, jump, leap_left, leap_right, 
+    lunge_left, lunge_right, overcome, overcome_sideways, pike, 
+    push_back, short_charge, short_charge_diagonal, side_attack, side_charge, 
+    side_sprint, slash_step_forwards, slash_step_left, slash_step_right, slice_twice, 
+    slip_through_ne, slip_through_nw, spearhead, spin_attack, sprint, 
+    step_left, step_right, straight_charge, thwack, trample, 
+    trident, y_leap, 
 ];
 
-const RARE_CARDS = [
-    teleport, sidestep_w, sidestep_e, sidestep_n, sidestep_s, 
-    sidestep_nw, sidestep_ne, sidestep_se, sidestep_sw, punch_orthogonal, 
-    punch_diagonal, reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_teleport,
-    reckless_horizontal, reckless_diagonal, reckless_leap_forwards, reckless_leap_left, reckless_leap_right,
-    reckless_spin, stunning_diagonal, stunning_orthogonal
-]
+function get_achievement_cards(){
+    var list = [];
+    GS.data.achievements.completed().map((a) => {
+        if(a.cards !== undefined){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
+function get_all_achievement_cards(){
+    var list = [];
+    GS.data.achievements.all().map((a) => {
+        if(a.cards !== undefined){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
 
 // Cards that can be given as a debuff.
 const CONFUSION_CARDS = [

@@ -10,7 +10,7 @@ function coffin_tile(){
         on_enter: decay_ai,
         on_death: coffin_tile_death,
         summons: [rat_tile, carrion_flies_tile, vampire_tile, appropriate_chest_tile],
-        card_drops: RARE_CARDS
+        card_drops: get_all_achievement_cards()
     }
 }
 

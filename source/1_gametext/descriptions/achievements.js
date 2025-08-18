@@ -79,8 +79,8 @@ function get_achievements(){
             boons: [boss_slayer],
             cards: [
                 teleport, sidestep_e, sidestep_n, sidestep_ne, sidestep_nw, 
-                sidestep_s, sidestep_s, sidestep_se, sidestep_sw, sidestep_w,
-                punch_orthogonal, punch_diagonal
+                sidestep_s, sidestep_se, sidestep_sw, sidestep_w, punch_orthogonal, 
+                punch_diagonal
             ]
         },
         {

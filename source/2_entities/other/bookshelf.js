@@ -28,7 +28,13 @@ function bookshelf_on_hit(self, target, map){
         self.tile.pic = self.tile.pic_arr[Math.min(2, self.tile.health - 1)];
     }
     var boss_cards = get_boss_cards();
-    var card_list = [...BASIC_CARDS, ...CONFUSION_CARDS, ...COMMON_CARDS, ...RARE_CARDS, ...boss_cards];
+    var card_list = [
+        ...BASIC_CARDS, 
+        ...CONFUSION_CARDS, 
+        ...COMMON_CARDS, 
+        ...get_all_achievement_cards(), 
+        ...boss_cards
+    ];
     var card = randomize_arr(card_list)[0]();
     GS.give_temp_card(card);
     GS.refresh_deck_display();
