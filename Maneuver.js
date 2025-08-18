@@ -2016,7 +2016,7 @@ const achievement_description = {
 
     // Normal
     non_violent: `Reach the first boss without killing anything.`,
-    not_my_fault: `Let a boss die without dealing the final blow.`,
+    not_my_fault: `Let a boss die without killing anything on the floor.`,
     ancient_knowledge: `Restore an ancient card to full power.`,
     peerless_sprinter: `Speed through a floor in 3 turns or less.`,
     speed_runner: `Leave floor 10 in 100 turns or less.`,
@@ -3352,7 +3352,7 @@ function boss_death(self, target, map){
         GS.achieve(achievement_names.one_life);
     }
     var stats = map.stats.get_stats()
-    if(stats.damage_dealt === stats.total_damage_per_floor[stats.total_damage_per_floor.length - 1]){
+    if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
         GS.achieve(achievement_names.not_my_fault);
     }
     if( // Practice makes perfect
@@ -11206,6 +11206,7 @@ class StatTracker{
     #damage_dealt;
     #total_damage_per_floor;
     #kills;
+    #total_kills_per_floor;
 
     constructor(){
         this.#turn_number = 0;
@@ -11216,6 +11217,7 @@ class StatTracker{
         this.#damage_dealt = 0;
         this.#total_damage_per_floor = [0];
         this.#kills = 0;
+        this.#total_kills_per_floor = [0]
     }
     increment_turn(){
         ++this.#turn_number;
@@ -11223,6 +11225,7 @@ class StatTracker{
     finish_floor(){
         this.#turns_per_floor.push(this.#turn_number);
         this.#total_damage_per_floor.push(this.#damage_dealt);
+        this.#total_kills_per_floor.push(this.#kills);
         var floor_count = this.#turns_per_floor.length;
         if(floor_count === 11){
             if(this.#turn_number <= 100){
@@ -11269,7 +11272,8 @@ class StatTracker{
             chests: this.#chests,
             damage_dealt: this.#damage_dealt,
             total_damage_per_floor: this.#total_damage_per_floor,
-            kills: this.#kills
+            kills: this.#kills,
+            total_kills_per_floor: this.#total_kills_per_floor
         }
     }
     

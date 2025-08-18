@@ -22,7 +22,7 @@ function boss_death(self, target, map){
         GS.achieve(achievement_names.one_life);
     }
     var stats = map.stats.get_stats()
-    if(stats.damage_dealt === stats.total_damage_per_floor[stats.total_damage_per_floor.length - 1]){
+    if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
         GS.achieve(achievement_names.not_my_fault);
     }
     if( // Practice makes perfect
