@@ -3,48 +3,6 @@
 
 // basic_horizontal,  basic_diagonal, and basic_slice are unique to the starting deck.
 /** @type {CardGenerator}*/
-function basic_horizontal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1)]);
-    options.add_button(E, [pmove(1, 0)]);
-    options.add_button(S, [pmove(0, 1)]);
-    options.add_button(W, [pmove(-1, 0)]);
-    return{
-        name: `basic horizontal`,
-        pic: `${IMG_FOLDER.cards}basic_horizontal.png`,
-        options,
-        basic: true
-    }
-}
-/** @type {CardGenerator}*/
-function basic_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pmove(1, -1)]);
-    options.add_button(SE, [pmove(1, 1)]);
-    options.add_button(SW, [pmove(-1, 1)]);
-    options.add_button(NW, [pmove(-1, -1)]);
-    return{
-        name: `basic diagonal`,
-        pic: `${IMG_FOLDER.cards}basic_diagonal.png`,
-        options,
-        basic: true
-    }
-}
-/** @type {CardGenerator}*/
-function basic_slice(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1)]);
-    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(1, -1)]);
-    options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(-1, 1)]);
-    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-1, -1)]);
-    return{
-        name: `basic slice`,
-        pic: `${IMG_FOLDER.cards}basic_slice.png`,
-        options,
-        basic: true
-    }
-}
-/** @type {CardGenerator}*/
 function short_charge(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1), pattack(0, -1)]);
