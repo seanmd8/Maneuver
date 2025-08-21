@@ -12222,9 +12222,6 @@ function superweapon_2(){
     }
 }
 
-// ----------------arcane_sentry_cards.js----------------
-// File containing cards that can be dropped as rewards for defeating the arcane sentry.
-
 /** @type {CardGenerator} Dropped by the Arcane Sentry*/
 function beam_ne(){
     var options = new ButtonGrid();
@@ -12287,8 +12284,19 @@ function saw_strike(){
     }
 }
 
-// ----------------two_headed_serpent_cards.js----------------
-// File containing cards that can be dropped as rewards for defeating the forest heart.
+/** @type {CardGenerator} Dropped by the forest heart*/
+function branch_strike(){
+    var options = new ButtonGrid();
+    var targets = get_2_away().map(p => {
+        return pattack(p.x, p.y);
+    });
+    options.add_button(SPIN, targets);
+    return{
+        name: `branch strike`,
+        pic: `${IMG_FOLDER.cards}branch_strike.png`,
+        options
+    }
+}
 
 /** @type {CardGenerator} Dropped by the forest heart*/
 function snack(){
@@ -12304,19 +12312,6 @@ function snack(){
 }
 
 /** @type {CardGenerator} Dropped by the forest heart*/
-function branch_strike(){
-    var options = new ButtonGrid();
-    var targets = get_2_away().map(p => {
-        return pattack(p.x, p.y);
-    });
-    options.add_button(SPIN, targets);
-    return{
-        name: `branch strike`,
-        pic: `${IMG_FOLDER.cards}branch_strike.png`,
-        options
-    }
-}
-/** @type {CardGenerator} Dropped by the forest heart*/
 function vine_snare(){
     var options = new ButtonGrid();
     options.add_button(SE, [pmove(2, 2), pmove(1, 1)]);
@@ -12329,17 +12324,31 @@ function vine_snare(){
         options
     }
 }
-// ----------------lich_cards.js----------------
-// File containing cards that can be dropped as rewards for defeating the lich.
 
 /** @type {CardGenerator} Dropped by the lich*/
-function instant_teleport(){
+function beam_diagonal(){
     var options = new ButtonGrid();
-    options.add_button(C, [pteleport(0, 0)]);
-    options.make_instant();
+    options.add_button(NE, [pattack_until(1, -1)]);
+    options.add_button(SE, [pattack_until(1, 1)]);
+    options.add_button(SW, [pattack_until(-1, 1)]);
+    options.add_button(NW, [pattack_until(-1, -1)]);
     return{
-        name: `instant teleport`,
-        pic: `${IMG_FOLDER.cards}instant_teleport.png`,
+        name: `beam diagonal`,
+        pic: `${IMG_FOLDER.cards}beam_diagonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the lich*/
+function beam_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack_until(0, -1)]);
+    options.add_button(E, [pattack_until(1, 0)]);
+    options.add_button(S, [pattack_until(0, 1)]);
+    options.add_button(W, [pattack_until(-1, 0)]);
+    return{
+        name: `beam orthogonal`,
+        pic: `${IMG_FOLDER.cards}beam_orthogonal.png`,
         options
     }
 }
@@ -12364,35 +12373,16 @@ function debilitating_confusion(){
 }
 
 /** @type {CardGenerator} Dropped by the lich*/
-function beam_orthogonal(){
+function instant_teleport(){
     var options = new ButtonGrid();
-    options.add_button(N, [pattack_until(0, -1)]);
-    options.add_button(E, [pattack_until(1, 0)]);
-    options.add_button(S, [pattack_until(0, 1)]);
-    options.add_button(W, [pattack_until(-1, 0)]);
+    options.add_button(C, [pteleport(0, 0)]);
+    options.make_instant();
     return{
-        name: `beam orthogonal`,
-        pic: `${IMG_FOLDER.cards}beam_orthogonal.png`,
+        name: `instant teleport`,
+        pic: `${IMG_FOLDER.cards}instant_teleport.png`,
         options
     }
 }
-
-/** @type {CardGenerator} Dropped by the lich*/
-function beam_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pattack_until(1, -1)]);
-    options.add_button(SE, [pattack_until(1, 1)]);
-    options.add_button(SW, [pattack_until(-1, 1)]);
-    options.add_button(NW, [pattack_until(-1, -1)]);
-    return{
-        name: `beam diagonal`,
-        pic: `${IMG_FOLDER.cards}beam_diagonal.png`,
-        options
-    }
-}
-
-// ----------------spider_queen_cards.js----------------
-// File containing cards that can be dropped as rewards for defeating the spider queen.
 
 /** @type {CardGenerator} Dropped by the spider queen*/
 function bite(){
@@ -12409,6 +12399,24 @@ function bite(){
     return{
         name: `bite`,
         pic: `${IMG_FOLDER.cards}bite.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the spider queen*/
+function chomp(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(0, -1), pattack(0, -1)]);
+    options.add_button(E, [pattack(1, 0), pattack(1, 0)]);
+    options.add_button(S, [pattack(0, 1), pattack(0, 1)]);
+    options.add_button(W, [pattack(-1, 0), pattack(-1, 0)]);
+    options.add_button(NE, [pattack(1, -1), pattack(1, -1)]);
+    options.add_button(SE, [pattack(1, 1), pattack(1, 1)]);
+    options.add_button(SW, [pattack(-1, 1), pattack(-1, 1)]);
+    options.add_button(NW, [pattack(-1, -1), pattack(-1, -1)]);
+    return{
+        name: `chomp`,
+        pic: `${IMG_FOLDER.cards}chomp.png`,
         options
     }
 }
@@ -12431,38 +12439,6 @@ function skitter(){
     }
 }
 
-/** @type {CardGenerator} Dropped by the spider queen*/
-function chomp(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1), pattack(0, -1)]);
-    options.add_button(E, [pattack(1, 0), pattack(1, 0)]);
-    options.add_button(S, [pattack(0, 1), pattack(0, 1)]);
-    options.add_button(W, [pattack(-1, 0), pattack(-1, 0)]);
-    options.add_button(NE, [pattack(1, -1), pattack(1, -1)]);
-    options.add_button(SE, [pattack(1, 1), pattack(1, 1)]);
-    options.add_button(SW, [pattack(-1, 1), pattack(-1, 1)]);
-    options.add_button(NW, [pattack(-1, -1), pattack(-1, -1)]);
-    return{
-        name: `chomp`,
-        pic: `${IMG_FOLDER.cards}chomp.png`,
-        options
-    }
-}
-// ----------------two_headed_serpent_cards.js----------------
-// File containing cards that can be dropped as rewards for defeating the two headed serpent.
-
-/** @type {CardGenerator} Dropped by the two headed serpent*/
-function regenerate(){
-    var options = new ButtonGrid();
-    options.add_button(C, [pheal(0, 0)]);
-    return{
-        name: `regenerate`,
-        pic: `${IMG_FOLDER.cards}regenerate.png`,
-        options,
-        per_floor: regenerate
-    }
-}
-
 /** @type {CardGenerator} Dropped by the two headed serpent.*/
 function fangs(){
     var options = new ButtonGrid();
@@ -12474,6 +12450,18 @@ function fangs(){
         name: `fangs`,
         pic: `${IMG_FOLDER.cards}fangs.png`,
         options
+    }
+}
+
+/** @type {CardGenerator} Dropped by the two headed serpent*/
+function regenerate(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pheal(0, 0)]);
+    return{
+        name: `regenerate`,
+        pic: `${IMG_FOLDER.cards}regenerate.png`,
+        options,
+        per_floor: regenerate
     }
 }
 
@@ -12491,8 +12479,18 @@ function slither(){
         options
     }
 }
-// ----------------velociphile_cards.js----------------
-// File containing cards that can be dropped as rewards for defeating the velociphile.
+
+/** @type {CardGenerator} Dropped by the velociphile*/
+function roll_ew(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove_until(1, 0), pattack(1, 0)]);
+    options.add_button(W, [pmove_until(-1, 0), pattack(-1, 0)]);
+    return{
+        name: `roll E W`,
+        pic: `${IMG_FOLDER.cards}roll_ew.png`,
+        options
+    }
+}
 
 /** @type {CardGenerator} Dropped by the velociphile*/
 function roll_nesw(){
@@ -12518,20 +12516,6 @@ function roll_nwse(){
     }
 }
 
-/** @type {CardGenerator} Dropped by the velociphile*/
-function roll_ew(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pmove_until(1, 0), pattack(1, 0)]);
-    options.add_button(W, [pmove_until(-1, 0), pattack(-1, 0)]);
-    return{
-        name: `roll E W`,
-        pic: `${IMG_FOLDER.cards}roll_ew.png`,
-        options
-    }
-}
-// ----------------young_dragon_cards.js----------------
-// File containing cards that can be dropped as rewards for defeating the young dragon.
-
 /** @type {CardGenerator}*/
 function firebreathing_horizontal(){
     var options = new ButtonGrid();
@@ -12549,23 +12533,7 @@ function firebreathing_horizontal(){
         options
     }
 }
-/** @type {CardGenerator}*/
-function firebreathing_vertical(){
-    var options = new ButtonGrid();
 
-    var n_cone_points = create_orthogonal_cone(0, 3);
-    var n_cone = n_cone_points.map((p) => pattack(p.x, p.y));
-    var s_cone_points = create_orthogonal_cone(180, 3);
-    var s_cone = s_cone_points.map((p) => pattack(p.x, p.y));
-
-    options.add_button(N, n_cone);
-    options.add_button(S, s_cone);
-    return{
-        name: `firebreathing vertical`,
-        pic: `${IMG_FOLDER.cards}firebreathing_vertical.png`,
-        options
-    }
-}
 /** @type {CardGenerator}*/
 function firebreathing_ne(){
     var options = new ButtonGrid();
@@ -12583,6 +12551,7 @@ function firebreathing_ne(){
         options
     }
 }
+
 /** @type {CardGenerator}*/
 function firebreathing_nw(){
     var options = new ButtonGrid();
@@ -12600,6 +12569,25 @@ function firebreathing_nw(){
         options
     }
 }
+
+/** @type {CardGenerator}*/
+function firebreathing_vertical(){
+    var options = new ButtonGrid();
+
+    var n_cone_points = create_orthogonal_cone(0, 3);
+    var n_cone = n_cone_points.map((p) => pattack(p.x, p.y));
+    var s_cone_points = create_orthogonal_cone(180, 3);
+    var s_cone = s_cone_points.map((p) => pattack(p.x, p.y));
+
+    options.add_button(N, n_cone);
+    options.add_button(S, s_cone);
+    return{
+        name: `firebreathing vertical`,
+        pic: `${IMG_FOLDER.cards}firebreathing_vertical.png`,
+        options
+    }
+}
+
 /** @type {CardGenerator}*/
 function glide(){
     var options = new ButtonGrid();
@@ -12615,6 +12603,7 @@ function glide(){
         options
     }
 }
+
 /** @type {CardGenerator}*/
 function soar(){
     var options = new ButtonGrid();
@@ -12628,7 +12617,6 @@ function soar(){
         options
     }
 }
-
 // ----------------CardUtils.js----------------
 // File containing utility functions used by cards.
 
