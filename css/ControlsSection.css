@@ -1,11 +1,15 @@
 
+.control-style{
+    background-color: var(--controls-background-color);
+}
+
 /* Styles for showing controls for one type of action. */
 .control-box {
     display: flex;
     align-items: center;
     border-style: solid;
     height: 91px;
-    width: 500px;
+    width: 594px;
     margin: 2px;
     font-size: 20px;
     background-color: lightblue;
@@ -21,7 +25,7 @@
     background-color: cadetblue;
 }
 .control-box p {
-    margin-left: 10px;
+    margin-left: 20px;
 }
 .control-box div table tr input {
     min-width: 27px;
@@ -36,7 +40,7 @@
     display: flex;
     align-items: center;
     border-style: solid;
-    width: 500px;
+    width: 600px;
     height: 50px;
     margin: 2px;
     margin-bottom: 4px;

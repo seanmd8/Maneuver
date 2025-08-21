@@ -1,5 +1,9 @@
+.achievements-style {
+    background-color: var(--achievements-background-color);
+}
+
 .achievement-box {
-    width: 500px;
+    width: 600px;
     height: fit-content;
     display: flex;
     flex-wrap: wrap;
@@ -20,7 +24,7 @@
     background-color: #85c1a0;
 }
 .achievement-text-box {
-    width: 400px;
+    width: 500px;
     height: 100px;
     padding-left: 10px;
     border-color: black;
@@ -69,10 +73,10 @@
 }
 .achievement-dropdown{
     display: none;
-    width: 500px;
-    padding-left: 10px;
+    width: 600px;
+    padding-left: 15px;
     background-color: palegreen;
-    border-width: 0px 4px 4px 4px;
+    border-width: 0px 3px 3px 3px;
     border-radius: 0px 0px 10px 10px ;
     border-color: black;
     border-style: solid;
@@ -86,8 +90,8 @@
 }
 .achievement-dropdown img{
     background-color: white;
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     margin: 5px;
 }
 
@@ -115,6 +119,16 @@
 .achievement-confirm-reset:hover{
     background-color: black;
     color: red;
+}
+html {
+    height: 100%
+}
+body{
+    margin: 0px;
+    height: 100%
+}
+body>div{
+    padding: 8px;
 }
 /* File containing styles for the chest screen. */
 
@@ -199,13 +213,17 @@
     min-height: 23px;
 }
 
+.control-style{
+    background-color: var(--controls-background-color);
+}
+
 /* Styles for showing controls for one type of action. */
 .control-box {
     display: flex;
     align-items: center;
     border-style: solid;
     height: 91px;
-    width: 500px;
+    width: 594px;
     margin: 2px;
     font-size: 20px;
     background-color: lightblue;
@@ -221,7 +239,7 @@
     background-color: cadetblue;
 }
 .control-box p {
-    margin-left: 10px;
+    margin-left: 20px;
 }
 .control-box div table tr input {
     min-width: 27px;
@@ -236,7 +254,7 @@
     display: flex;
     align-items: center;
     border-style: solid;
-    width: 500px;
+    width: 600px;
     height: 50px;
     margin: 2px;
     margin-bottom: 4px;
@@ -314,7 +332,26 @@
     background-color: black;
     color: white;
 }
+
+.deck-select-confirm {
+    margin-left: 7px;
+}
+.game-style{
+    background-color: var(--game-background-color);
+    height: 100%;
+}
 /* File containing assorted styles used in multiple places. */
+
+:root{
+    --card-box-color: white;
+    --card-box-legend-color: lightblue;
+    --text-box-background-color: white;
+    
+    --game-background-color: antiquewhite;
+    --controls-background-color: antiquewhite;
+    --achievements-background-color: antiquewhite;
+    --guidebook-background-color: antiquewhite;
+}
 
 /* Class to remove the space between certain elements. */
 .no-margins {
@@ -370,8 +407,14 @@
 }
 /* File containing styles used by the guidebook screen. */
 
-.guide-style{
+.guide-style {
+    background-color: var(--guidebook-background-color);
+    height: 100%;
+}
+
+.guide-box-style{
     background-color: beige;
+    margin: 8px;
 }
 
 /* Styles the navbar */
@@ -417,6 +460,29 @@
 .guidebook-section p {
     font-size: 20px;
 }
+
+.guidebook-section img {
+    background-color: white;
+}
+
+.main-header{
+    background-color: sandybrown;
+    padding: 5px;
+    padding-left: 10px;
+    margin-left: 0px;
+    border-color: chocolate;
+    border-bottom-style: solid;
+}
+.main-header>*{
+    display: inline-block;
+    vertical-align: baseline;
+}
+.main-header h1{
+    width: 500px;
+}
+.main-header select{
+    margin: auto;
+}
 /* File containing styles used to layer images. */
 
 /* Pair of classes used to layer images on top of each other. */
@@ -438,11 +504,13 @@
     width: fit-content;
     border-color: slategray;
     border-style: solid;
+    background-color: var(--card-box-color);
     padding: 5px;
     margin: 5px 0px 5px 0px;
 }
 .shop-section-box legend {
     font-weight: bold;
+    background-color: var(--card-box-legend-color);
     border-color: slategray;
     border-style: solid;
     border-width: 2px;
@@ -474,16 +542,18 @@
     height: 120px;
     width: 375px;
     padding: 5px;
+    background-color: var(--text-box-background-color);
     border-color: slategrey;
     border-style: solid;
     border-width: medium;
     text-wrap: nowrap;
     display: inline-block;
 }
-/* File containing styles used by the shop screen. */
+/* File containing styles used by the stage screen. */
 
 /* Styles the game map. */
 .gamemap-box {
+    background-color: white;
     border-width: 4px;
     border-color:gray;
     border-style: groove;
@@ -517,7 +587,6 @@
     vertical-align: top;
 }
 .deck-box img {
-    z-index: -1;
     position: absolute;
     left: 0px;
     right: 0px;
@@ -525,22 +594,26 @@
     width: 100%;
 }
 .deck-box p {
+    z-index: 1;
     margin: 0px;
     text-align: center;
     font-weight: bold;
     font-size: 25px;
     line-height: 50px;
+    position: relative;
 }
 
 
 /* Styles the player's hand. */
 .hand-box {
     height: 120px;
+    background-color: var(--card-box-color);
     border-style: solid;
     display: inline-block;
     padding: 5px;
 }
 .hand-box legend {
+    background-color: var(--card-box-legend-color);
     font-weight: bold;
     border-style: solid;
     border-width: 2px;
@@ -652,9 +725,10 @@
 }
 
 .sidebar-section {
-    height: 290px;
+    height: 274px;
     width: 100%;
     border: solid;
+    background-color: white;
 }
 .sidebar-section hr{
     width: 100%;
@@ -721,7 +795,6 @@
 .initiative-box {
     overflow-y: scroll;
     overflow-x: clip;
-    padding-bottom: 2px;
 }
 
 .initiative-element {
@@ -768,12 +841,14 @@
 .message-box {
     overflow-y: scroll;
     height: 100px;
-    width: 450px;
+    width: 440px;
     padding: 5px;
+    background-color: var(--text-box-background-color);
     border-color:rgb(128, 57, 25);
     border-style: solid;
     border-width: 4px;
     font-size: 18px;
+    margin-left: 2px;
 }
 
 /* Classes for the text log */

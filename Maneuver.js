@@ -1697,8 +1697,8 @@ function initiate_game(){
     display.detect_keys();
     display.stop_space_scrolling();
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
-    display.display_message(UIIDS.title, `${game_title}    `);
-    create_main_dropdown(UIIDS.title);
+    display.display_message(UIIDS.title, game_title);
+    create_main_dropdown(UIIDS.header_bar);
     GS = new GameState();
     GS.setup();
     display_guide();
@@ -1848,7 +1848,7 @@ function create_main_dropdown(location){
  * Function to display the guide.
  */
 function display_guide(){
-    var section_location = UIIDS.guide;
+    var section_location = UIIDS.guide_box;
     var navbar_location = UIIDS.guide_navbar;
 
     // Create the image arrays for the sections with images.
@@ -3074,7 +3074,8 @@ function get_uiids(language){
 
 /** @type {uiid_library} The uiid library for HTML.*/
 const HTML_UIIDS = {
-    title: `title`,
+    header_bar: `headerBar`,
+        title: `title`,
     game_screen: `gameScreen`,
         stats: `stats`,
         stage: `stage`,
@@ -3127,7 +3128,8 @@ const HTML_UIIDS = {
             deck_select_card_info: `deckSelectCardInfo`,
             deck_select_confirm: `deckSelectConfirm`,
     guide: `guide`,
-        guide_navbar: `guideNavbar`,
+        guide_box: `guide-box`,
+            guide_navbar: `guideNavbar`,
     controls: `controls`,
         stage_controls: `stageControls`,
         shop_controls: `shopControls`,

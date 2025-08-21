@@ -63,7 +63,8 @@ function get_uiids(language){
 
 /** @type {uiid_library} The uiid library for HTML.*/
 const HTML_UIIDS = {
-    title: `title`,
+    header_bar: `headerBar`,
+        title: `title`,
     game_screen: `gameScreen`,
         stats: `stats`,
         stage: `stage`,
@@ -116,7 +117,8 @@ const HTML_UIIDS = {
             deck_select_card_info: `deckSelectCardInfo`,
             deck_select_confirm: `deckSelectConfirm`,
     guide: `guide`,
-        guide_navbar: `guideNavbar`,
+        guide_box: `guide-box`,
+            guide_navbar: `guideNavbar`,
     controls: `controls`,
         stage_controls: `stageControls`,
         shop_controls: `shopControls`,
