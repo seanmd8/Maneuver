@@ -34,21 +34,24 @@
     height: 50px;
     width: 50px;
     vertical-align: top;
+    padding-left: 3px;
+    margin-left: 8px;
+    margin-right: 8px;
 }
 .deck-box img {
     position: absolute;
     left: 0px;
     right: 0px;
-    height: 100%;
-    width: 100%;
+    height: 50px;
+    width: 50px;
 }
 .deck-box p {
     z-index: 1;
     margin: 0px;
     text-align: center;
     font-weight: bold;
-    font-size: 25px;
-    line-height: 50px;
+    font-size: 28px;
+    line-height: 45px;
     position: relative;
 }
 
