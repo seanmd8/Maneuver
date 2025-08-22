@@ -41,7 +41,7 @@ const achievement_description = {
 
     // Normal
     non_violent: `Reach the first boss without killing anything.`,
-    not_my_fault: `Let a boss die without dealing the final blow.`,
+    not_my_fault: `Let a boss die without killing anything on the floor yourself.`,
     ancient_knowledge: `Restore an ancient card to full power.`,
     peerless_sprinter: `Speed through a floor in 3 turns or less.`,
     speed_runner: `Leave floor 10 in 100 turns or less.`,

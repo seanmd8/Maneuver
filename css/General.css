@@ -1,5 +1,16 @@
 /* File containing assorted styles used in multiple places. */
 
+:root{
+    --card-box-color: white;
+    --card-box-legend-color: lightblue;
+    --text-box-background-color: white;
+    
+    --game-background-color: antiquewhite;
+    --controls-background-color: antiquewhite;
+    --achievements-background-color: antiquewhite;
+    --guidebook-background-color: antiquewhite;
+}
+
 /* Class to remove the space between certain elements. */
 .no-margins {
     margin-top: 0px;

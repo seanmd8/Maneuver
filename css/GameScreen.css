@@ -1,0 +1,4 @@
+.game-style{
+    background-color: var(--game-background-color);
+    height: 100%;
+}

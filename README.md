@@ -9,6 +9,11 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+8/22/25
+- Overhauled the looks of many parts of the game
+- Fixed bug with "Not My Fault" achievement description and completion condition not matching up
+- Frugivore boon now works on boss floors
+
 8/17/25
 - Added 2 new Boons
 - Unlocking an achievements will now unlock a new Boon and sometimes new cards

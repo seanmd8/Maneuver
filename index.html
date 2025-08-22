@@ -4,9 +4,11 @@
         <link rel="stylesheet" href="ManeuverStyles.css">
     </head>
 
-    <h1 id= "title" class="no-margins main-header"></h1>
+    <div id="headerBar" class="main-header">
+        <h1 id= "title" class="no-margins"></h1>
+    </div>
 
-    <div id= "gameScreen" class="hidden-section">
+    <div id= "gameScreen" class="game-style hidden-section">
         <h2 id= "stats" class="no-margins"></h2>
 
         <div id= "stage">
@@ -35,11 +37,11 @@
                 </div>
             </div>
             <div>
-                <table id="healthDisplay" class="health-box"></table>
                 <div id="remainingDeck" class="deck-box relative" title="Cards in deck">
                     <img id="deckImage" src="images/other/deck.png" alt="Cards in deck">
                     <p id="deckCount"></p>
                 </div>
+                <table id="healthDisplay" class="health-box"></table>
             </div>
             <fieldset id="handBox" class="hand-box no-repetition">
                 <legend id="handLabel"></legend>
@@ -90,28 +92,29 @@
             <fieldset class="shop-section-box">
                 <legend id="deckSelectMessage"></legend>
                 <table id="deckSelectTable" class="selectable"></table>
-                <hr>
+            </fieldset>
                 <p id= "deckSelectCardInfo" class="no-margins scrollable-text"></p>
-                <div class="shop-button-container">
+                <div class="shop-button-container deck-select-confirm">
                     <input type="button" id="deckSelectConfirm" class="shop-confirm"></input>
                 </div>
-            </fieldset>
         </div>
     </div>
     
     <div id="guide" class="guide-style hidden-section">
-        <div id="guideNavbar" class="navbar">
+        <div id="guide-box" class="guide-box-style">
+            <div id="guideNavbar" class="navbar">
 
+            </div>
         </div>
     </div>
     
-    <div id="controls">
+    <div id="controls" class="control-style hidden-section">
         <div id="stageControls" class="control-section"></div>
         <div id="shopControls" class="control-section"></div>
         <div id="chestControls" class="control-section"></div>
     </div>
     
-    <div id="achievements">
+    <div id="achievements" class="achievements-style hidden-section">
         <div id="achievement-list" class="achievement-section"></div>
     </div>
     

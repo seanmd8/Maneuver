@@ -1,7 +1,8 @@
-/* File containing styles used by the shop screen. */
+/* File containing styles used by the stage screen. */
 
 /* Styles the game map. */
 .gamemap-box {
+    background-color: white;
     border-width: 4px;
     border-color:gray;
     border-style: groove;
@@ -24,6 +25,7 @@
     margin-bottom: 3px;
     margin-right: 5px;
     display: inline-block;
+    height: 52px;
 }
 
 /* Styles the display of the number of cards remaining in the player's deck. */
@@ -32,32 +34,38 @@
     height: 50px;
     width: 50px;
     vertical-align: top;
+    padding-left: 3px;
+    margin-left: 8px;
+    margin-right: 8px;
 }
 .deck-box img {
-    z-index: -1;
     position: absolute;
     left: 0px;
     right: 0px;
-    height: 100%;
-    width: 100%;
+    height: 50px;
+    width: 50px;
 }
 .deck-box p {
+    z-index: 1;
     margin: 0px;
     text-align: center;
     font-weight: bold;
-    font-size: 25px;
-    line-height: 50px;
+    font-size: 28px;
+    line-height: 45px;
+    position: relative;
 }
 
 
 /* Styles the player's hand. */
 .hand-box {
     height: 120px;
+    background-color: var(--card-box-color);
     border-style: solid;
     display: inline-block;
     padding: 5px;
 }
 .hand-box legend {
+    background-color: var(--card-box-legend-color);
     font-weight: bold;
     border-style: solid;
     border-width: 2px;
@@ -169,9 +177,10 @@
 }
 
 .sidebar-section {
-    height: 290px;
+    height: 274px;
     width: 100%;
     border: solid;
+    background-color: white;
 }
 .sidebar-section hr{
     width: 100%;
@@ -238,7 +247,6 @@
 .initiative-box {
     overflow-y: scroll;
     overflow-x: clip;
-    padding-bottom: 2px;
 }
 
 .initiative-element {
@@ -285,12 +293,14 @@
 .message-box {
     overflow-y: scroll;
     height: 100px;
-    width: 450px;
+    width: 440px;
     padding: 5px;
+    background-color: var(--text-box-background-color);
     border-color:rgb(128, 57, 25);
     border-style: solid;
     border-width: 4px;
     font-size: 18px;
+    margin-left: 2px;
 }
 
 /* Classes for the text log */

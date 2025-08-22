@@ -621,7 +621,7 @@ class GameMap{
      */
     display_stats(location){
         var stats = this.stats.get_stats();
-        display.display_message(location, `Floor ${this.#floor_num} Turn: ${stats.turn_number}`);
+        display.display_message(location, `Floor ${this.#floor_num} Turn ${stats.turn_number}`);
     }
     /**
      * Replaces the exit tile with a lock tile.

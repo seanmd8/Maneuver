@@ -1,0 +1,26 @@
+
+.main-header{
+    background-color: sandybrown;
+    padding: 5px;
+    padding-left: 10px;
+    margin-left: 0px;
+    border-color: chocolate;
+    border-bottom-style: solid;
+}
+.main-header>*{
+    display: inline-block;
+    vertical-align: baseline;
+}
+.main-header h1{
+    width: 485px;
+}
+.main-header select{
+    margin: auto;
+    width: 132px;
+    height: 32px;
+    background-color: wheat;
+    border-color: saddlebrown;
+    border-width: 3px;
+    border-radius: 0px;
+    appearance: base-select;
+}

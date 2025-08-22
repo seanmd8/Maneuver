@@ -9,8 +9,8 @@ function initiate_game(){
     display.detect_keys();
     display.stop_space_scrolling();
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
-    display.display_message(UIIDS.title, `${game_title}    `);
-    create_main_dropdown(UIIDS.title);
+    display.display_message(UIIDS.title, game_title);
+    create_main_dropdown(UIIDS.header_bar);
     GS = new GameState();
     GS.setup();
     display_guide();
@@ -160,7 +160,7 @@ function create_main_dropdown(location){
  * Function to display the guide.
  */
 function display_guide(){
-    var section_location = UIIDS.guide;
+    var section_location = UIIDS.guide_box;
     var navbar_location = UIIDS.guide_navbar;
 
     // Create the image arrays for the sections with images.

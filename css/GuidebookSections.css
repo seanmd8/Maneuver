@@ -1,7 +1,13 @@
 /* File containing styles used by the guidebook screen. */
 
-.guide-style{
+.guide-style {
+    background-color: var(--guidebook-background-color);
+    height: 100%;
+}
+
+.guide-box-style{
     background-color: beige;
+    margin: 8px;
 }
 
 /* Styles the navbar */
@@ -46,4 +52,8 @@
 /* Styles the body of a guidebook section. */
 .guidebook-section p {
     font-size: 20px;
+}
+
+.guidebook-section img {
+    background-color: white;
 }
