@@ -12,8 +12,15 @@
     vertical-align: baseline;
 }
 .main-header h1{
-    width: 500px;
+    width: 485px;
 }
 .main-header select{
     margin: auto;
+    width: 132px;
+    height: 32px;
+    background-color: wheat;
+    border-color: saddlebrown;
+    border-width: 3px;
+    border-radius: 0px;
+    appearance: base-select;
 }
