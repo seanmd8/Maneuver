@@ -48,6 +48,7 @@ const boon_names = {
     stealthy: `Stealthy`,
     stubborn: `Stubborn`,
     thick_soles: `Thick Soles`,
+    vicious_cycle: `Vicious Cycle`,
 }
 Object.freeze(boon_names);
 
@@ -157,3 +158,5 @@ const stubborn_description =
     `You can skip shops.`;
 const thick_soles_description = 
     `You are immune to damage on your turn.`;
+const vicious_cycle_description =
+    `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`;

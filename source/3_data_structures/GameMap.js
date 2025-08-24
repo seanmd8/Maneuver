@@ -701,6 +701,10 @@ class GameMap{
             // Pacifism always fully heals you.
             this.player_heal(new Point(0, 0));
         }
+        if(GS.boons.has(boon_names.vicious_cycle) > 0){
+            // Vicious Cycle always fully heals you.
+            this.player_heal(new Point(0, 0));
+        }
         var floor_description = `${floor_message}${this.#floor_num}.`;
         if(this.#floor_num % area_size === 1){
             // Reached the next area.

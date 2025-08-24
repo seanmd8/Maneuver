@@ -2282,6 +2282,7 @@ const boon_names = {
     stealthy: `Stealthy`,
     stubborn: `Stubborn`,
     thick_soles: `Thick Soles`,
+    vicious_cycle: `Vicious Cycle`,
 }
 Object.freeze(boon_names);
 
@@ -2391,7 +2392,8 @@ const stubborn_description =
     `You can skip shops.`;
 const thick_soles_description = 
     `You are immune to damage on your turn.`;
-
+const vicious_cycle_description =
+    `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`;
 
 // Button Options.
 const null_move_button = `--`;
@@ -9853,6 +9855,10 @@ class GameMap{
             // Pacifism always fully heals you.
             this.player_heal(new Point(0, 0));
         }
+        if(GS.boons.has(boon_names.vicious_cycle) > 0){
+            // Vicious Cycle always fully heals you.
+            this.player_heal(new Point(0, 0));
+        }
         var floor_description = `${floor_message}${this.#floor_num}.`;
         if(this.#floor_num % area_size === 1){
             // Reached the next area.
@@ -10333,6 +10339,9 @@ class GameState{
         this.map.display_stats(UIIDS.stats);
         display_map(this.map);
         this.deck.deal();
+            if(GS.boons.has(boon_names.vicious_cycle) > 0){
+            apply_vicious_cycle(this.deck);
+        }
         this.refresh_deck_display();
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         await delay(ANIMATION_DELAY);
@@ -14195,7 +14204,7 @@ BOON_LIST = [
     quick_healing, rebirth, repetition, retaliate, rift_touched, 
     roar_of_challenge, safe_passage, shattered_glass, skill_trading, slime_trail, 
     sniper, spiked_shoes, spontaneous, stable_mind, stealthy, 
-    stubborn, thick_soles
+    stubborn, thick_soles, vicious_cycle
 ];
 
 function change_max_health(amount){
@@ -14875,3 +14884,20 @@ function thick_soles(){
 // Todo:
 //  description
 //  implement
+
+function vicious_cycle(){
+    return {
+        name: boon_names.vicious_cycle,
+        pic: `${IMG_FOLDER.boons}vicious_cycle.png`,
+        description: vicious_cycle_description,
+    }
+}
+
+function apply_vicious_cycle(deck){
+    for(var i = 0; i < 2; ++i){
+        if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
+            var card = lash_out();
+            GS.give_temp_card(card);
+        }
+    }
+}

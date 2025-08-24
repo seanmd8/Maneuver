@@ -229,6 +229,9 @@ class GameState{
         this.map.display_stats(UIIDS.stats);
         display_map(this.map);
         this.deck.deal();
+            if(GS.boons.has(boon_names.vicious_cycle) > 0){
+            apply_vicious_cycle(this.deck);
+        }
         this.refresh_deck_display();
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         await delay(ANIMATION_DELAY);
