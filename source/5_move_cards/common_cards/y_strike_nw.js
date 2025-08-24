@@ -1,14 +1,14 @@
 
 /** @type {CardGenerator}*/
-function alt_diagonal_right(){
+function y_strike_nw(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(1, -1)]);
     options.add_button(SE, [pattack(1, 0), pattack(1, 1), pattack(2, 2), pattack(0, 1)]);
     options.add_button(SW, [pmove(-1, 1)]);
     options.add_button(NW, [pattack(-1, 0), pattack(-1, -1), pattack(-2, -2), pattack(0, -1)]);
     return{
-        name: `alternating diagonal right`,
-        pic: `${IMG_FOLDER.cards}alt_diagonal_right.png`,
+        name: `Y strike NW`,
+        pic: `${IMG_FOLDER.cards}y_strike_nw.png`,
         options
     }
 }

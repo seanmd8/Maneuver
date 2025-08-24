@@ -90,7 +90,7 @@ function get_achievements(){
             has: false,
             boons: [retaliate],
             cards: [
-                stunning_leap, stunning_side_leap, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice,
+                stunning_leap_vertical, stunning_leap_horizontal, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice,
                 stunning_diagonal, stunning_orthogonal, stunning_retreat
             ]
         },

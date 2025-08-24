@@ -23,13 +23,13 @@ function initiate_game(){
 function make_starting_deck(){
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
 
-    deck.add(basic_horizontal());
-    deck.add(basic_horizontal());
+    deck.add(basic_orthogonal());
+    deck.add(basic_orthogonal());
     deck.add(basic_diagonal());
     deck.add(basic_diagonal());
     deck.add(basic_slice());
     deck.add(basic_slice());
-    deck.add(short_charge());
+    deck.add(short_charge_orthogonal());
     deck.add(jump());
 
     deck.deal();
@@ -44,7 +44,7 @@ function make_test_deck(test_cards){
     }
     var size = test_cards.length;
     for(var i = 0; i < Math.max(4 - size, 1); ++i){
-        deck.add(basic_horizontal());
+        deck.add(basic_orthogonal());
     }
     deck.add(basic_slice());
     deck.deal();

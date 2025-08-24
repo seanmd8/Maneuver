@@ -2,23 +2,23 @@
 // File containing utility functions used by cards.
 
 const BASIC_CARDS = [
-    basic_horizontal, basic_diagonal, basic_slice
+    basic_orthogonal, basic_diagonal, basic_slice
 ]
 
 // Cards that can be given on level up.
 const COMMON_CARDS = [
-    advance, alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, 
-    bounding_retreat, breakthrough, breakthrough_side, butterfly, clear_behind, 
-    clear_in_front, combat_diagonal, combat_horizontal, dash_ne, dash_nw,
-    diamond_attack, diamond_slice, explosion, force, fork,
-    flanking_diagonal, flanking_sideways, flanking_straight, hit_and_run, horsemanship, 
-    jab, jab_diagonal, jump, leap_left, leap_right, 
-    lunge_left, lunge_right, overcome, overcome_sideways, pike, 
-    push_back, short_charge, short_charge_diagonal, side_attack, side_charge, 
-    side_sprint, slash_step_forwards, slash_step_left, slash_step_right, slice_twice, 
-    slip_through_ne, slip_through_nw, spearhead, spin_attack, sprint, 
-    step_left, step_right, straight_charge, thwack, trample, 
-    trident, y_leap, 
+    advance, bounding_retreat, breakthrough_horizontal, breakthrough_vertical, butterfly, 
+    charge_horizontal, charge_vertical, clear_behind, clear_in_front, combat_diagonal, 
+    combat_orthogonal, dash_ne, dash_nw, diamond_attack, diamond_slice, 
+    explosion, force, fork, flanking_diagonal, flanking_horizontal, 
+    flanking_vertical, hit_and_run, horsemanship, jab_diagonal, jab_orthogonal, 
+    jump, leap_left, leap_right, lunge_left, lunge_right, 
+    overcome_horizontal, overcome_vertical, pike, push_back, short_charge_orthogonal, 
+    short_charge_diagonal, side_attack, slash_step_forwards, slash_step_left, slash_step_right, 
+    slice_twice, slip_through_ne, slip_through_nw, spearhead, spin_attack, 
+    sprint_horizontal, sprint_vertical, step_left, step_right, t_strike_horizontal, 
+    t_strike_vertical, thwack, trample, trident, y_leap, 
+    y_strike_ne, y_strike_nw,
 ];
 
 function get_achievement_cards(){
@@ -32,7 +32,7 @@ function get_achievement_cards(){
 }
 function get_all_achievement_cards(){
     var list = [];
-    GS.data.achievements.all().map((a) => {
+    get_achievements().map((a) => {
         if(a.cards !== undefined){
             list.push(...a.cards);
         }

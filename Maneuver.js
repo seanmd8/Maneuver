@@ -1711,13 +1711,13 @@ function initiate_game(){
 function make_starting_deck(){
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
 
-    deck.add(basic_horizontal());
-    deck.add(basic_horizontal());
+    deck.add(basic_orthogonal());
+    deck.add(basic_orthogonal());
     deck.add(basic_diagonal());
     deck.add(basic_diagonal());
     deck.add(basic_slice());
     deck.add(basic_slice());
-    deck.add(short_charge());
+    deck.add(short_charge_orthogonal());
     deck.add(jump());
 
     deck.deal();
@@ -1732,7 +1732,7 @@ function make_test_deck(test_cards){
     }
     var size = test_cards.length;
     for(var i = 0; i < Math.max(4 - size, 1); ++i){
-        deck.add(basic_horizontal());
+        deck.add(basic_orthogonal());
     }
     deck.add(basic_slice());
     deck.deal();
@@ -2065,7 +2065,7 @@ function get_achievements(){
             has: false,
             boons: [retaliate],
             cards: [
-                stunning_leap, stunning_side_leap, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice,
+                stunning_leap_vertical, stunning_leap_horizontal, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice,
                 stunning_diagonal, stunning_orthogonal, stunning_retreat
             ]
         },
@@ -4155,7 +4155,7 @@ function velociphile_tile(){
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,
         on_death: boss_death,
-        card_drops: [roll_nesw, roll_nwse, roll_ew]
+        card_drops: [roll_ne, roll_nw, roll_horizontal]
     }
 }
 
@@ -11951,15 +11951,15 @@ function basic_diagonal(){
 }
 
 /** @type {CardGenerator}*/
-function basic_horizontal(){
+function basic_orthogonal(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1)]);
     options.add_button(E, [pmove(1, 0)]);
     options.add_button(S, [pmove(0, 1)]);
     options.add_button(W, [pmove(-1, 0)]);
     return{
-        name: `basic horizontal`,
-        pic: `${IMG_FOLDER.cards}basic_horizontal.png`,
+        name: `basic orthogonal`,
+        pic: `${IMG_FOLDER.cards}basic_orthogonal.png`,
         options,
         basic: true
     }
@@ -12480,37 +12480,37 @@ function slither(){
 }
 
 /** @type {CardGenerator} Dropped by the velociphile*/
-function roll_ew(){
+function roll_horizontal(){
     var options = new ButtonGrid();
     options.add_button(E, [pmove_until(1, 0), pattack(1, 0)]);
     options.add_button(W, [pmove_until(-1, 0), pattack(-1, 0)]);
     return{
-        name: `roll E W`,
-        pic: `${IMG_FOLDER.cards}roll_ew.png`,
+        name: `roll horizontal`,
+        pic: `${IMG_FOLDER.cards}roll_horizontal.png`,
         options
     }
 }
 
 /** @type {CardGenerator} Dropped by the velociphile*/
-function roll_nesw(){
+function roll_ne(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove_until(1, -1), pattack(1, -1)]);
     options.add_button(SW, [pmove_until(-1, 1), pattack(-1, 1)]);
     return{
-        name: `roll NE SW`,
-        pic: `${IMG_FOLDER.cards}roll_nesw.png`,
+        name: `roll NE`,
+        pic: `${IMG_FOLDER.cards}roll_ne.png`,
         options
     }
 }
 
 /** @type {CardGenerator} Dropped by the velociphile*/
-function roll_nwse(){
+function roll_nw(){
     var options = new ButtonGrid();
     options.add_button(SE, [pmove_until(1, 1), pattack(1, 1)]);
     options.add_button(NW, [pmove_until(-1, -1), pattack(-1, -1)]);
     return{
-        name: `roll NW SE`,
-        pic: `${IMG_FOLDER.cards}roll_nwse.png`,
+        name: `roll NW`,
+        pic: `${IMG_FOLDER.cards}roll_nw.png`,
         options
     }
 }
@@ -12620,23 +12620,23 @@ function soar(){
 // File containing utility functions used by cards.
 
 const BASIC_CARDS = [
-    basic_horizontal, basic_diagonal, basic_slice
+    basic_orthogonal, basic_diagonal, basic_slice
 ]
 
 // Cards that can be given on level up.
 const COMMON_CARDS = [
-    advance, alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, 
-    bounding_retreat, breakthrough, breakthrough_side, butterfly, clear_behind, 
-    clear_in_front, combat_diagonal, combat_horizontal, dash_ne, dash_nw,
-    diamond_attack, diamond_slice, explosion, force, fork,
-    flanking_diagonal, flanking_sideways, flanking_straight, hit_and_run, horsemanship, 
-    jab, jab_diagonal, jump, leap_left, leap_right, 
-    lunge_left, lunge_right, overcome, overcome_sideways, pike, 
-    push_back, short_charge, short_charge_diagonal, side_attack, side_charge, 
-    side_sprint, slash_step_forwards, slash_step_left, slash_step_right, slice_twice, 
-    slip_through_ne, slip_through_nw, spearhead, spin_attack, sprint, 
-    step_left, step_right, straight_charge, thwack, trample, 
-    trident, y_leap, 
+    advance, bounding_retreat, breakthrough_horizontal, breakthrough_vertical, butterfly, 
+    charge_horizontal, charge_vertical, clear_behind, clear_in_front, combat_diagonal, 
+    combat_orthogonal, dash_ne, dash_nw, diamond_attack, diamond_slice, 
+    explosion, force, fork, flanking_diagonal, flanking_horizontal, 
+    flanking_vertical, hit_and_run, horsemanship, jab_diagonal, jab_orthogonal, 
+    jump, leap_left, leap_right, lunge_left, lunge_right, 
+    overcome_horizontal, overcome_vertical, pike, push_back, short_charge_orthogonal, 
+    short_charge_diagonal, side_attack, slash_step_forwards, slash_step_left, slash_step_right, 
+    slice_twice, slip_through_ne, slip_through_nw, spearhead, spin_attack, 
+    sprint_horizontal, sprint_vertical, step_left, step_right, t_strike_horizontal, 
+    t_strike_vertical, thwack, trample, trident, y_leap, 
+    y_strike_ne, y_strike_nw,
 ];
 
 function get_achievement_cards(){
@@ -12650,7 +12650,7 @@ function get_achievement_cards(){
 }
 function get_all_achievement_cards(){
     var list = [];
-    GS.data.achievements.all().map((a) => {
+    get_achievements().map((a) => {
         if(a.cards !== undefined){
             list.push(...a.cards);
         }
@@ -12919,62 +12919,6 @@ function advance(){
 }
 
 /** @type {CardGenerator}*/
-function alt_diagonal_left(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pattack(1, 0), pattack(1, -1), pattack(2, -2), pattack(0, -1)]);
-    options.add_button(SE, [pmove(1, 1)]);
-    options.add_button(SW, [pattack(-1, 0), pattack(-1, 1), pattack(-2, 2), pattack(0, 1)]);
-    options.add_button(NW, [pmove(-1, -1)]);
-    return{
-        name: `alternating diagonal left`,
-        pic: `${IMG_FOLDER.cards}alt_diagonal_left.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function alt_diagonal_right(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pmove(1, -1)]);
-    options.add_button(SE, [pattack(1, 0), pattack(1, 1), pattack(2, 2), pattack(0, 1)]);
-    options.add_button(SW, [pmove(-1, 1)]);
-    options.add_button(NW, [pattack(-1, 0), pattack(-1, -1), pattack(-2, -2), pattack(0, -1)]);
-    return{
-        name: `alternating diagonal right`,
-        pic: `${IMG_FOLDER.cards}alt_diagonal_right.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function alt_horizontal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(0, -2), pattack(-1, -1)]);
-    options.add_button(E, [pmove(1, 0)]);
-    options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(0, 2), pattack(-1, 1)]);
-    options.add_button(W, [pmove(-1, 0)]);
-    return{
-        name: `alternating horizontal`,
-        pic: `${IMG_FOLDER.cards}alt_horizontal.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function alt_vertical(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1)]);
-    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(2, 0), pattack(1, -1)]);
-    options.add_button(S, [pmove(0, 1)]);
-    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-2, 0), pattack(-1, -1)]);
-    return{
-        name: `alternating vertical`,
-        pic: `${IMG_FOLDER.cards}alt_vertical.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
 function bounding_retreat(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1)]);
@@ -12988,25 +12932,25 @@ function bounding_retreat(){
 }
 
 /** @type {CardGenerator}*/
-function breakthrough(){
+function breakthrough_horizontal(){
     var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);
-    options.add_button(S, [pmove(0, 1), pattack(1, 0), pattack(-1, 0), pattack(0, 1)]);
+    options.add_button(E, [pmove(1, 0), pattack(1, 0), pattack(0, 1), pattack(0, -1)]);
+    options.add_button(W, [pmove(-1, 0), pattack(-1, 0), pattack(0, 1), pattack(0, -1)]);
     return{
-        name: `breakthrough`,
-        pic: `${IMG_FOLDER.cards}breakthrough.png`,
+        name: `breakthrough horizontal`,
+        pic: `${IMG_FOLDER.cards}breakthrough_horizontal.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function breakthrough_side(){
+function breakthrough_vertical(){
     var options = new ButtonGrid();
-    options.add_button(E, [pmove(1, 0), pattack(1, 0), pattack(0, 1), pattack(0, -1)]);
-    options.add_button(W, [pmove(-1, 0), pattack(-1, 0), pattack(0, 1), pattack(0, -1)]);
+    options.add_button(N, [pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);
+    options.add_button(S, [pmove(0, 1), pattack(1, 0), pattack(-1, 0), pattack(0, 1)]);
     return{
-        name: `breakthrough side`,
-        pic: `${IMG_FOLDER.cards}breakthrough_side.png`,
+        name: `breakthrough vertical`,
+        pic: `${IMG_FOLDER.cards}breakthrough_vertical.png`,
         options
     }
 }
@@ -13021,6 +12965,30 @@ function butterfly(){
     return{
         name: `butterfly`,
         pic: `${IMG_FOLDER.cards}butterfly.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function charge_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0), pmove(1, 0), pattack(1, 0)]);
+    options.add_button(W, [pmove(-1, 0), pmove(-1, 0), pattack(-1, 0)]);
+    return{
+        name: `charge horizontal`,
+        pic: `${IMG_FOLDER.cards}charge_horizontal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function charge_vertical(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1), pmove(0, -1), pattack(0, -1)]);
+    options.add_button(S, [pmove(0, 1), pmove(0, 1), pattack(0, 1)]);
+    return{
+        name: `charge vertical`,
+        pic: `${IMG_FOLDER.cards}charge_vertical.png`,
         options
     }
 }
@@ -13064,15 +13032,15 @@ function combat_diagonal(){
 }
 
 /** @type {CardGenerator}*/
-function combat_horizontal(){
+function combat_orthogonal(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(0, -1), pmove(0, -1)]);
     options.add_button(E, [pattack(1, 0), pmove(1, 0)]);
     options.add_button(S, [pattack(0, 1), pmove(0, 1)]);
     options.add_button(W, [pattack(-1, 0), pmove(-1, 0)]);
     return{
-        name: `combat horizontal`,
-        pic: `${IMG_FOLDER.cards}combat_horizontal.png`,
+        name: `combat orthogonal`,
+        pic: `${IMG_FOLDER.cards}combat_orthogonal.png`,
         options
     }
 }
@@ -13166,25 +13134,25 @@ function flanking_diagonal(){
 }
 
 /** @type {CardGenerator}*/
-function flanking_sideways(){
+function flanking_horizontal(){
     var options = new ButtonGrid();
     options.add_button(E, [pmove(1, 0), pattack(0, 1), pattack(0, -1), pmove(1, 0), pattack(0, 1), pattack(0, -1)]);
     options.add_button(W, [pmove(-1, 0), pattack(0, 1), pattack(0, -1), pmove(-1, 0), pattack(0, 1), pattack(0, -1)]);
     return{
-        name: `flanking sideways`,
-        pic: `${IMG_FOLDER.cards}flanking_sideways.png`,
+        name: `flanking horizontal`,
+        pic: `${IMG_FOLDER.cards}flanking_horizontal.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function flanking_straight(){
+function flanking_vertical(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1), pattack(1, 0), pattack(-1, 0), pmove(0, -1), pattack(1, 0), pattack(-1, 0)]);
     options.add_button(S, [pmove(0, 1), pattack(1, 0), pattack(-1, 0), pmove(0, 1), pattack(1, 0), pattack(-1, 0)]);
     return{
-        name: `flanking straight`,
-        pic: `${IMG_FOLDER.cards}flanking_straight.png`,
+        name: `flanking vertical`,
+        pic: `${IMG_FOLDER.cards}flanking_vertical.png`,
         options
     }
 }
@@ -13241,20 +13209,6 @@ function horsemanship(){
 }
 
 /** @type {CardGenerator}*/
-function jab(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1), pattack(0, -2), pattack(0, -1), pattack(0, -2)]);
-    options.add_button(E, [pattack(1, 0), pattack(2, 0), pattack(1, 0), pattack(2, 0)]);
-    options.add_button(S, [pattack(0, 1), pattack(0, 2), pattack(0, 1), pattack(0, 2)]);
-    options.add_button(W, [pattack(-1, 0), pattack(-2, 0), pattack(-1, 0), pattack(-2, 0)]);
-    return{
-        name: `jab`,
-        pic: `${IMG_FOLDER.cards}jab.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
 function jab_diagonal(){
     var options = new ButtonGrid();
     options.add_button(NE, [pattack(1, -1), pattack(2, -2), pattack(1, -1), pattack(2, -2)]);
@@ -13264,6 +13218,20 @@ function jab_diagonal(){
     return{
         name: `jab_diagonal`,
         pic: `${IMG_FOLDER.cards}jab_diagonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function jab_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(0, -1), pattack(0, -2), pattack(0, -1), pattack(0, -2)]);
+    options.add_button(E, [pattack(1, 0), pattack(2, 0), pattack(1, 0), pattack(2, 0)]);
+    options.add_button(S, [pattack(0, 1), pattack(0, 2), pattack(0, 1), pattack(0, 2)]);
+    options.add_button(W, [pattack(-1, 0), pattack(-2, 0), pattack(-1, 0), pattack(-2, 0)]);
+    return{
+        name: `jab orthogonal`,
+        pic: `${IMG_FOLDER.cards}jab_orthogonal.png`,
         options
     }
 }
@@ -13338,25 +13306,25 @@ function lunge_right(){
 }
 
 /** @type {CardGenerator}*/
-function overcome(){
+function overcome_horizontal(){
     var options = new ButtonGrid();
-    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1), pmove(0, -2)]);
-    options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(-1, 1), pmove(0, 2)]);
+    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(1, -1), pmove(2, 0)]);
+    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-1, -1), pmove(-2, 0)]);
     return{
-        name: `overcome`,
-        pic: `${IMG_FOLDER.cards}overcome.png`,
+        name: `overcome horizontal`,
+        pic: `${IMG_FOLDER.cards}overcome_horizontal.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function overcome_sideways(){
+function overcome_vertical(){
     var options = new ButtonGrid();
-    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(1, -1), pmove(2, 0)]);
-    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-1, -1), pmove(-2, 0)]);
+    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1), pmove(0, -2)]);
+    options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(-1, 1), pmove(0, 2)]);
     return{
-        name: `overcome sideways`,
-        pic: `${IMG_FOLDER.cards}overcome_sideways.png`,
+        name: `overcome vertical`,
+        pic: `${IMG_FOLDER.cards}overcome_vertical.png`,
         options
     }
 }
@@ -13390,20 +13358,6 @@ function push_back(){
 }
 
 /** @type {CardGenerator}*/
-function short_charge(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1), pattack(0, -1)]);
-    options.add_button(E, [pmove(1, 0), pattack(1, 0)]);
-    options.add_button(S, [pmove(0, 1), pattack(0, 1)]);
-    options.add_button(W, [pmove(-1, 0), pattack(-1, 0)]);
-    return{
-        name: `short charge`,
-        pic: `${IMG_FOLDER.cards}short_charge.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
 function short_charge_diagonal(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(1, -1), pattack(1, -1)]);
@@ -13418,6 +13372,20 @@ function short_charge_diagonal(){
 }
 
 /** @type {CardGenerator}*/
+function short_charge_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1), pattack(0, -1)]);
+    options.add_button(E, [pmove(1, 0), pattack(1, 0)]);
+    options.add_button(S, [pmove(0, 1), pattack(0, 1)]);
+    options.add_button(W, [pmove(-1, 0), pattack(-1, 0)]);
+    return{
+        name: `short charge orthogonal`,
+        pic: `${IMG_FOLDER.cards}short_charge_orthogonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
 function side_attack(){
     var options = new ButtonGrid();
     options.add_button(E, [pattack(1, 0), pattack(2, 0), pattack(3, 0)]);
@@ -13425,30 +13393,6 @@ function side_attack(){
     return{
         name: `side attack`,
         pic: `${IMG_FOLDER.cards}side_attack.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function side_charge(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pmove(1, 0), pmove(1, 0), pattack(1, 0)]);
-    options.add_button(W, [pmove(-1, 0), pmove(-1, 0), pattack(-1, 0)]);
-    return{
-        name: `side charge`,
-        pic: `${IMG_FOLDER.cards}side_charge.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function side_sprint(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
-    options.add_button(W, [pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
-    return{
-        name: `side sprint`,
-        pic: `${IMG_FOLDER.cards}side_sprint.png`,
         options
     }
 }
@@ -13553,13 +13497,25 @@ function spin_attack(){
 }
 
 /** @type {CardGenerator}*/
-function sprint(){
+function sprint_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
+    options.add_button(W, [pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
+    return{
+        name: `sprint horizontal`,
+        pic: `${IMG_FOLDER.cards}sprint_horizontal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function sprint_vertical(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1), pmove(0, -1), pmove(0, -1)]);
     options.add_button(S, [pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
     return{
-        name: `sprint`,
-        pic: `${IMG_FOLDER.cards}sprint.png`,
+        name: `sprint vertical`,
+        pic: `${IMG_FOLDER.cards}sprint_vertical.png`,
         options
     }
 }
@@ -13593,26 +13549,27 @@ function step_right(){
 }
 
 /** @type {CardGenerator}*/
-function straight_charge(){
+function stunning_leap_horizontal(){
+    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
     var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1), pmove(0, -1), pattack(0, -1)]);
-    options.add_button(S, [pmove(0, 1), pmove(0, 1), pattack(0, 1)]);
+    options.add_button(E, [pmove(2, 0), ...spin]);
+    options.add_button(W, [pmove(-2, 0), ...spin]);
     return{
-        name: `straight charge`,
-        pic: `${IMG_FOLDER.cards}straight_charge.png`,
+        name: `stunning leap horizontal`,
+        pic: `${IMG_FOLDER.cards}stunning_leap_horizontal.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function stunning_leap(){
+function stunning_leap_vertical(){
     var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -2), ...spin]);
     options.add_button(S, [pmove(0, 2), ...spin]);
     return{
-        name: `stunning_leap`,
-        pic: `${IMG_FOLDER.cards}stunning_leap.png`,
+        name: `stunning leap vertical`,
+        pic: `${IMG_FOLDER.cards}stunning_leap_vertical.png`,
         options
     }
 }
@@ -13627,19 +13584,6 @@ function stunning_retreat(){
     return{
         name: `stunning retreat`,
         pic: `${IMG_FOLDER.cards}stunning_retreat.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function stunning_side_leap(){
-    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
-    var options = new ButtonGrid();
-    options.add_button(E, [pmove(2, 0), ...spin]);
-    options.add_button(W, [pmove(-2, 0), ...spin]);
-    return{
-        name: `stunning_side_leap`,
-        pic: `${IMG_FOLDER.cards}stunning_side_leap.png`,
         options
     }
 }
@@ -13698,6 +13642,34 @@ function trident(){
 }
 
 /** @type {CardGenerator}*/
+function t_strike_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1)]);
+    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(2, 0), pattack(1, -1)]);
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-2, 0), pattack(-1, -1)]);
+    return{
+        name: `T strike horizontal`,
+        pic: `${IMG_FOLDER.cards}t_strike_horizontal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function t_strike_vertical(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(0, -2), pattack(-1, -1)]);
+    options.add_button(E, [pmove(1, 0)]);
+    options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(0, 2), pattack(-1, 1)]);
+    options.add_button(W, [pmove(-1, 0)]);
+    return{
+        name: `T strike vertical`,
+        pic: `${IMG_FOLDER.cards}t_strike_vertical.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
 function y_leap(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(2, -2)]);
@@ -13706,6 +13678,34 @@ function y_leap(){
     return{
         name: `Y leap`,
         pic: `${IMG_FOLDER.cards}y_leap.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function y_strike_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack(1, 0), pattack(1, -1), pattack(2, -2), pattack(0, -1)]);
+    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(SW, [pattack(-1, 0), pattack(-1, 1), pattack(-2, 2), pattack(0, 1)]);
+    options.add_button(NW, [pmove(-1, -1)]);
+    return{
+        name: `Y strike NE`,
+        pic: `${IMG_FOLDER.cards}y_strike_ne.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function y_strike_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(1, -1)]);
+    options.add_button(SE, [pattack(1, 0), pattack(1, 1), pattack(2, 2), pattack(0, 1)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    options.add_button(NW, [pattack(-1, 0), pattack(-1, -1), pattack(-2, -2), pattack(0, -1)]);
+    return{
+        name: `Y strike NW`,
+        pic: `${IMG_FOLDER.cards}y_strike_nw.png`,
         options
     }
 }
@@ -14593,8 +14593,8 @@ function pick_perfect_the_basics(){
     for(var basic of basics){
         GS.deck.remove(basic.id);
         switch(basic.name){
-            case basic_horizontal().name:
-                GS.deck.add(short_charge());
+            case basic_orthogonal().name:
+                GS.deck.add(short_charge_orthogonal());
                 break;
             case basic_diagonal().name:
                 GS.deck.add(short_charge_diagonal());

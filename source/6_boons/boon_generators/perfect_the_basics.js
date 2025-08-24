@@ -19,8 +19,8 @@ function pick_perfect_the_basics(){
     for(var basic of basics){
         GS.deck.remove(basic.id);
         switch(basic.name){
-            case basic_horizontal().name:
-                GS.deck.add(short_charge());
+            case basic_orthogonal().name:
+                GS.deck.add(short_charge_orthogonal());
                 break;
             case basic_diagonal().name:
                 GS.deck.add(short_charge_diagonal());
