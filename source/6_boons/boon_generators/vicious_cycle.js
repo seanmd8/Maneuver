@@ -9,9 +9,6 @@ function vicious_cycle(){
 
 function apply_vicious_cycle(deck){
     for(var i = 0; i < 2; ++i){
-        if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
-            var card = lash_out();
-            GS.give_temp_card(card);
-        }
+        confuse_player([lash_out]);
     }
 }

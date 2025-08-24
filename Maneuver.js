@@ -1938,10 +1938,10 @@ function get_control_symbols(){
 /**
  * Function to add a random temporary debuff card to the player's deck.
  */
-function confuse_player(){
+function confuse_player(choices = CONFUSION_CARDS){
     // Chance redused by 50% for each stable_mind boon.
     if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
-        var card = rand_from(CONFUSION_CARDS)();
+        var card = rand_from(choices)();
         GS.give_temp_card(card);
         GS.refresh_deck_display();
     } 
@@ -14895,9 +14895,6 @@ function vicious_cycle(){
 
 function apply_vicious_cycle(deck){
     for(var i = 0; i < 2; ++i){
-        if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
-            var card = lash_out();
-            GS.give_temp_card(card);
-        }
+        confuse_player([lash_out]);
     }
 }
