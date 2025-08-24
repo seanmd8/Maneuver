@@ -1,7 +1,6 @@
 
 
 const boon_names = {
-    adrenaline_rush: `Adrenaline Rush`,
     ancient_card: `Ancient Card`,
     bitter_determination: `Bitter Determination`,
     boss_slayer: `Boss Slayer`,
@@ -11,7 +10,6 @@ const boon_names = {
     clean_mind: `Clean Mind`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
-    deck_stacking: `Deck Stacking`,
     duplicate: `Duplicate`,
     empty_rooms: `Empty Rooms`,
     escape_artist: `Escape Artist`,
@@ -39,7 +37,6 @@ const boon_names = {
     rift_touched: `Rift Touched`,
     roar_of_challenge: `Roar of Challenge`,
     safe_passage: `Safe Passage`,
-    serenity: `Serenity`,
     shattered_glass: `Shattered Glass`,
     skill_trading: `Skill Trading`,
     slayer: `Slayer`,
@@ -56,8 +53,6 @@ Object.freeze(boon_names);
 
 
 // Boon Descriptions
-const adrenaline_rush_description = 
-    `Dealing at least 2 damage in 1 turn gives you an extra turn.`;
 const bitter_determination_description = 
     `At the start of each floor, heal 1 if your health is exactly 1.`;
 const boss_slayer_description = 
@@ -77,9 +72,6 @@ const creative_description =
     `Increase your hand size by 1. Increases minimum deck size by 5.`;
 const dazing_blows_description = 
     `Your attacks stun enemies. Bosses are unaffected.`;
-const deck_stacking_description =
-    `You pick the order of your deck when it is refilled. Reduce your `
-    +`maximum health by 1`;
 const duplicate_description =
     `Get a copy of any card in your deck.`
 const duplicate_instructions =
@@ -143,8 +135,6 @@ const roar_of_challenge_description =
     `Gain 2 max health. Difficulty increases by 5 floors.`;
 const safe_passage_description = 
     `Fully heal and travel to the next floor.`;
-const serenity_description = 
-    `Reduce your minimum deck size to 4.`;
 const shattered_glass_description = 
     `Enemies explode on death damaging everything nearby other than you. Reduce your `
     +`max health by 2.`;
