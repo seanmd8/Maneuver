@@ -12632,11 +12632,10 @@ const COMMON_CARDS = [
     flanking_vertical, hit_and_run, horsemanship, jab_diagonal, jab_orthogonal, 
     jump, leap_left, leap_right, lunge_left, lunge_right, 
     overcome_horizontal, overcome_vertical, pike, push_back, short_charge_orthogonal, 
-    short_charge_diagonal, side_attack, slash_step_forwards, slash_step_left, slash_step_right, 
-    slice_twice, slip_through_ne, slip_through_nw, spearhead, spin_attack, 
-    sprint_horizontal, sprint_vertical, step_left, step_right, t_strike_horizontal, 
-    t_strike_vertical, thwack, trample, trident, y_leap, 
-    y_strike_ne, y_strike_nw,
+    short_charge_diagonal, slash_step_forwards, slash_step_left, slash_step_right, slice_twice, 
+    slip_through_ne, slip_through_nw, spearhead, spin_attack, sprint_horizontal, 
+    sprint_vertical, step_left, step_right, t_strike_horizontal, t_strike_vertical, 
+    thwack, trample, trident, y_leap, y_strike_ne, y_strike_nw,
 ];
 
 function get_achievement_cards(){
@@ -13381,18 +13380,6 @@ function short_charge_orthogonal(){
     return{
         name: `short charge orthogonal`,
         pic: `${IMG_FOLDER.cards}short_charge_orthogonal.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function side_attack(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pattack(1, 0), pattack(2, 0), pattack(3, 0)]);
-    options.add_button(W, [pattack(-1, 0), pattack(-2, 0), pattack(-3, 0)]);
-    return{
-        name: `side attack`,
-        pic: `${IMG_FOLDER.cards}side_attack.png`,
         options
     }
 }
