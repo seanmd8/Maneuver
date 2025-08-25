@@ -7,7 +7,7 @@ function step_left(){
     options.add_button(NW, [pmove(-1, -1)]);
     options.add_button(E, [pmove(2, 0)]);
     return{
-        name: `step left`,
+        name: card_names.step_left,
         pic: `${IMG_FOLDER.cards}step_left.png`,
         options
     }

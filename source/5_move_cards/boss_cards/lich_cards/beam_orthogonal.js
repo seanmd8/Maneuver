@@ -7,7 +7,7 @@ function beam_orthogonal(){
     options.add_button(S, [pattack_until(0, 1)]);
     options.add_button(W, [pattack_until(-1, 0)]);
     return{
-        name: `beam orthogonal`,
+        name: card_names.beam_orthogonal,
         pic: `${IMG_FOLDER.cards}beam_orthogonal.png`,
         options
     }

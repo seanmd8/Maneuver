@@ -27,7 +27,7 @@ function arcane_sentry_tile(){
         on_death: arcane_sentry_death,
         cycle: 0,
         spawn_timer: 4,
-        card_drops: [beam_ne, beam_se, beam_sw, beam_nw, saw_strike]
+        card_drops: BOSS_CARDS.arcane_sentry
     }
 }
 

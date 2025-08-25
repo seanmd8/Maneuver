@@ -7,7 +7,7 @@ function basic_diagonal(){
     options.add_button(SW, [pmove(-1, 1)]);
     options.add_button(NW, [pmove(-1, -1)]);
     return{
-        name: `basic diagonal`,
+        name: card_names.basic_diagonal,
         pic: `${IMG_FOLDER.cards}basic_diagonal.png`,
         options,
         basic: true

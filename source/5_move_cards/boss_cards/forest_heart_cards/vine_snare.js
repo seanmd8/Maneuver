@@ -7,7 +7,7 @@ function vine_snare(){
     options.add_button(NE, [pmove(2, -2), pmove(1, -1)]);
     options.add_button(NW, [pmove(-2, -2), pmove(-1, -1)]);
     return{
-        name: `vine snare`,
+        name: card_names.vine_snare,
         pic: `${IMG_FOLDER.cards}vine_snare.png`,
         options
     }

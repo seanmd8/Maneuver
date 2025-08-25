@@ -6,7 +6,7 @@ function reckless_leap_left(){
     options.add_button(W, [pstun(0, 0), pmove(-2, 0), ...spin]);
     options.add_button(E, [pmove(1, 0)]);
     return{
-        name: `reckless leap left`,
+        name: card_names.reckless_leap_left,
         pic: `${IMG_FOLDER.cards}reckless_leap_left.png`,
         options
     }

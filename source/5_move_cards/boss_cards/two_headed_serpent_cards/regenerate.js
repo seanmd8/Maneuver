@@ -4,7 +4,7 @@ function regenerate(){
     var options = new ButtonGrid();
     options.add_button(C, [pheal(0, 0)]);
     return{
-        name: `regenerate`,
+        name: card_names.regenerate,
         pic: `${IMG_FOLDER.cards}regenerate.png`,
         options,
         per_floor: regenerate

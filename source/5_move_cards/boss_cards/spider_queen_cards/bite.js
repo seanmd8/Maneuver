@@ -12,7 +12,7 @@ function bite(){
     options.add_button(NW, [pattack(-1, -1)]);
     options.make_instant();
     return{
-        name: `bite`,
+        name: card_names.bite,
         pic: `${IMG_FOLDER.cards}bite.png`,
         options
     }

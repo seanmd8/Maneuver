@@ -7,7 +7,7 @@ function beam_diagonal(){
     options.add_button(SW, [pattack_until(-1, 1)]);
     options.add_button(NW, [pattack_until(-1, -1)]);
     return{
-        name: `beam diagonal`,
+        name: card_names.beam_diagonal,
         pic: `${IMG_FOLDER.cards}beam_diagonal.png`,
         options
     }

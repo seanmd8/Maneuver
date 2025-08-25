@@ -14,7 +14,7 @@ function superweapon_1(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `superweapon 1`,
+        name: card_names.superweapon_1,
         pic: `${IMG_FOLDER.cards}superweapon_1.png`,
         options,
         evolutions: [superweapon_2]
@@ -35,7 +35,7 @@ function superweapon_2(){
     }
     options.add_button(SPIN, area);
     return{
-        name: `superweapon 2`,
+        name: card_names.superweapon_2,
         pic: `${IMG_FOLDER.cards}superweapon_2.png`,
         options
     }

@@ -7,7 +7,7 @@ function lunge_right(){
     options.add_button(NW, [pmove(-1, -1)]);
     options.add_button(NE, [pmove(1, -1), pmove(1, -1), pattack(1, -1)]);
     return{
-        name: `lunge right`,
+        name: card_names.lunge_right,
         pic: `${IMG_FOLDER.cards}lunge_right.png`,
         options
     }

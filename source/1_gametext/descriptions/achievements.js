@@ -91,7 +91,7 @@ function get_achievements(){
             boons: [retaliate],
             cards: [
                 stunning_leap_vertical, stunning_leap_horizontal, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice,
-                stunning_diagonal, stunning_orthogonal, stunning_retreat
+                stunning_tread_diagonal, stunning_tread_orthogonal, stunning_retreat
             ]
         },
         {
@@ -101,7 +101,7 @@ function get_achievements(){
             has: false,
             boons: [slime_trail],
             cards: [
-                reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_diagonal, reckless_horizontal, 
+                reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_sidestep_diagonal, reckless_sidestep_orthogonal, 
                 reckless_teleport, reckless_leap_forwards, reckless_leap_left, reckless_leap_right, reckless_spin
             ]
         },

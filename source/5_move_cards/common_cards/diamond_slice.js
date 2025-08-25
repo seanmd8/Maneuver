@@ -12,7 +12,7 @@ function diamond_slice(){
                 pattack(-1, -1)]
     options.add_button(SPIN, spin);
     return{
-        name: `diamond slice`,
+        name: card_names.diamond_slice,
         pic: `${IMG_FOLDER.cards}diamond_slice.png`,
         options
     }

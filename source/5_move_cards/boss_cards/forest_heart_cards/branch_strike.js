@@ -7,7 +7,7 @@ function branch_strike(){
     });
     options.add_button(SPIN, targets);
     return{
-        name: `branch strike`,
+        name: card_names.branch_strike,
         pic: `${IMG_FOLDER.cards}branch_strike.png`,
         options
     }

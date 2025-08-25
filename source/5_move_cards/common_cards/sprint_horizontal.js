@@ -5,7 +5,7 @@ function sprint_horizontal(){
     options.add_button(E, [pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
     options.add_button(W, [pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
     return{
-        name: `sprint horizontal`,
+        name: card_names.sprint_horizontal,
         pic: `${IMG_FOLDER.cards}sprint_horizontal.png`,
         options
     }

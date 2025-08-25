@@ -7,7 +7,7 @@ function fangs(){
     options.add_button(S, [pmove(0, 1), pattack(1, 0), pattack(-1, 0), pattack(0, 1)]);
     options.add_button(W, [pmove(-1, 0), pattack(-1, 0), pattack(0, 1), pattack(0, -1)]);
     return{
-        name: `fangs`,
+        name: card_names.fangs,
         pic: `${IMG_FOLDER.cards}fangs.png`,
         options
     }

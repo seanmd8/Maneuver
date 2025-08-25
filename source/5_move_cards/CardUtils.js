@@ -3,9 +3,27 @@
 
 const BASIC_CARDS = [
     basic_orthogonal, basic_diagonal, basic_slice
-]
+];
 
-// Cards that can be given on level up.
+const BOON_CARDS = [
+    lost_technique, lost_maneuver,
+    execution_1, execution_2, execution_3,
+    maneuver_1, maneuver_2, maneuver_3,
+    split_second_1, split_second_2,
+    superweapon_1, superweapon_2
+];
+
+const BOSS_CARDS = {
+    arcane_sentry: [beam_ne, beam_se, beam_sw, beam_nw, saw_strike],
+    forest_heart: [snack, branch_strike, vine_snare],
+    lich: [instant_teleport, debilitating_confusion, beam_orthogonal, beam_diagonal],
+    spider_queen: [skitter, bite, chomp],
+    two_headed_serpent: [regenerate, fangs, slither],
+    velociphile: [roll_ne, roll_nw, roll_horizontal],
+    young_dragon: [firebreathing_horizontal, firebreathing_vertical, firebreathing_ne, 
+        firebreathing_nw, glide, soar],
+}
+
 const COMMON_CARDS = [
     advance, bounding_retreat, breakthrough_horizontal, breakthrough_vertical, butterfly, 
     charge_horizontal, charge_vertical, clear_behind, clear_in_front, combat_diagonal, 
@@ -19,6 +37,13 @@ const COMMON_CARDS = [
     sprint_vertical, step_left, step_right, t_strike_horizontal, t_strike_vertical, 
     thwack, trample, trident, y_leap, y_strike_ne, y_strike_nw,
 ];
+
+const CONFUSION_CARDS = [
+    stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
+    stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out,
+    lightheaded
+]
+
 
 function get_achievement_cards(){
     var list = [];
@@ -39,13 +64,15 @@ function get_all_achievement_cards(){
     return list;
 }
 
-// Cards that can be given as a debuff.
-const CONFUSION_CARDS = [
-    stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
-    stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out,
-    lightheaded
-]
-
+function get_boss_cards(){
+    var all = [];
+    for (var field in BOSS_CARDS) {
+        if (Object.hasOwn(BOSS_CARDS, field)) {
+            all = [...all, ...BOSS_CARDS[field]];
+        }
+    }
+    return all;
+}
 
 /**
  * @typedef {Object} PlayerCommand A object used to give a command for a single action the player should do.
@@ -266,14 +293,6 @@ function get_all_points(){
         }
     }
     return points;
-}
-
-function get_boss_cards(){
-    var boss_cards = [];
-    for(var boss of BOSS_LIST){
-        boss_cards = [...boss_cards, ...boss().card_drops];
-    }
-    return boss_cards;
 }
 
 function copy_card(source){

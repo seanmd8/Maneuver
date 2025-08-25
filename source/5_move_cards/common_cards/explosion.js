@@ -11,7 +11,7 @@ function explosion(){
     var options = new ButtonGrid();
     options.add_button(SPIN, area, 5);
     return{
-        name: `explosion`,
+        name: card_names.explosion,
         pic: `${IMG_FOLDER.cards}explosion.png`,
         options
     }

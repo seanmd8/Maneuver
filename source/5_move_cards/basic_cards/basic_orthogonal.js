@@ -7,7 +7,7 @@ function basic_orthogonal(){
     options.add_button(S, [pmove(0, 1)]);
     options.add_button(W, [pmove(-1, 0)]);
     return{
-        name: `basic orthogonal`,
+        name: card_names.basic_orthogonal,
         pic: `${IMG_FOLDER.cards}basic_orthogonal.png`,
         options,
         basic: true

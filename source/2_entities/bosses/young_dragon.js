@@ -30,8 +30,7 @@ function young_dragon_tile(){
         cycle: 0,
         range: 3,
         direction: new Point(0, 1),
-        card_drops: [firebreathing_horizontal, firebreathing_vertical, firebreathing_ne, firebreathing_nw, glide,
-                     soar]
+        card_drops: BOSS_CARDS.young_dragon
     }
 }
 

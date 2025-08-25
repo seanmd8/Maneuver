@@ -16,7 +16,7 @@ function velociphile_tile(){
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,
         on_death: boss_death,
-        card_drops: [roll_ne, roll_nw, roll_horizontal]
+        card_drops: BOSS_CARDS.velociphile
     }
 }
 

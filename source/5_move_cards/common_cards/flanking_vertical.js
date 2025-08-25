@@ -5,7 +5,7 @@ function flanking_vertical(){
     options.add_button(N, [pmove(0, -1), pattack(1, 0), pattack(-1, 0), pmove(0, -1), pattack(1, 0), pattack(-1, 0)]);
     options.add_button(S, [pmove(0, 1), pattack(1, 0), pattack(-1, 0), pmove(0, 1), pattack(1, 0), pattack(-1, 0)]);
     return{
-        name: `flanking vertical`,
+        name: card_names.flanking_vertical,
         pic: `${IMG_FOLDER.cards}flanking_vertical.png`,
         options
     }

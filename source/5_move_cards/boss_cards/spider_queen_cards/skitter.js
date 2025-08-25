@@ -11,7 +11,7 @@ function skitter(){
     options.add_button(SW, [pmove(-1, 1)]);
     options.add_button(NW, [pmove(-1, -1)]);
     return{
-        name: `skitter`,
+        name: card_names.skitter,
         pic: `${IMG_FOLDER.cards}skitter.png`,
         options
     }

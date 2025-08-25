@@ -5,7 +5,7 @@ function sidestep_s(){
     options.add_button(S, [pmove(0, 1)]);
     options.make_instant();
     return{
-        name: `sidestep south`,
+        name: card_names.sidestep_s,
         pic: `${IMG_FOLDER.cards}sidestep_s.png`,
         options
     }

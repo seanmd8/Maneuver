@@ -8,7 +8,7 @@ function slither(){
     options.add_button(W, [pstun(0, 0), pmove(-1, 0), pmove(-1, 0)]);
     options.make_instant();
     return{
-        name: `slither`,
+        name: card_names.slither,
         pic: `${IMG_FOLDER.cards}slither.png`,
         options
     }

@@ -7,7 +7,7 @@ function leap_left(){
     options.add_button(SW, [pmove(-2, 2)]);
 
     return{
-        name: `leap left`,
+        name: card_names.leap_left,
         pic: `${IMG_FOLDER.cards}leap_left.png`,
         options
     }

@@ -6,7 +6,7 @@ function diamond_attack(){
     options.add_button(SE, [pmove(1, 1)]);
     options.add_button(SW, [pmove(-1, 1)]);
     return{
-        name: `diamond attack`,
+        name: card_names.diamond_attack,
         pic: `${IMG_FOLDER.cards}diamond_attack.png`,
         options
     }

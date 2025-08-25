@@ -7,7 +7,7 @@ function y_strike_ne(){
     options.add_button(SW, [pattack(-1, 0), pattack(-1, 1), pattack(-2, 2), pattack(0, 1)]);
     options.add_button(NW, [pmove(-1, -1)]);
     return{
-        name: `Y strike NE`,
+        name: card_names.y_strike_ne,
         pic: `${IMG_FOLDER.cards}y_strike_ne.png`,
         options
     }

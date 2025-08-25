@@ -68,7 +68,7 @@ class Shop{
                 selected: s.#add_index === i
             }
         })
-        row.unshift(add_card_symbol());
+        row.unshift(symbol_add_card());
         return row;
     }
     get_remove_row(){
@@ -87,7 +87,7 @@ class Shop{
                 selected: s.#remove_index === i
             }
         });
-        var symbol = this.#remove_row.length > 0 ? remove_card_symbol() : deck_at_minimum_symbol();
+        var symbol = this.#remove_row.length > 0 ? symbol_remove_card() : symbol_deck_at_minimum();
         row.unshift(symbol);
         return row;
     }

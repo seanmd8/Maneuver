@@ -9,7 +9,7 @@ function glide(){
     options.add_button(W, [pmove(-3, 0)]);
     options.add_button(SW, [pmove(-2, 1)]);
     return{
-        name: `glide`,
+        name: card_names.glide,
         pic: `${IMG_FOLDER.cards}glide.png`,
         options
     }

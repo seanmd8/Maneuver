@@ -7,7 +7,7 @@ function soar(){
     options.add_button(NW, [pmove(-3, -1)]);
     options.add_button(SW, [pmove(-3, 1)]);
     return{
-        name: `soar`,
+        name: card_names.soar,
         pic: `${IMG_FOLDER.cards}soar.png`,
         options
     }

@@ -1,8 +1,8 @@
 
 /** @type {CardGenerator} Shown in show to denote removing a card from your deck.*/
-function remove_card_symbol(){
+function symbol_remove_card(){
     return{
-        name: `Remove`,
+        name: card_names.symbol_remove_card,
         pic: `${IMG_FOLDER.other}minus.png`,
         options: new ButtonGrid()
     }

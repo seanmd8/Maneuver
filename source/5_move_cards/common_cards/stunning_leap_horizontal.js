@@ -6,7 +6,7 @@ function stunning_leap_horizontal(){
     options.add_button(E, [pmove(2, 0), ...spin]);
     options.add_button(W, [pmove(-2, 0), ...spin]);
     return{
-        name: `stunning leap horizontal`,
+        name: card_names.stunning_leap_horizontal,
         pic: `${IMG_FOLDER.cards}stunning_leap_horizontal.png`,
         options
     }

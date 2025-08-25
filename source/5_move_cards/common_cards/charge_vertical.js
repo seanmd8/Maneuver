@@ -5,7 +5,7 @@ function charge_vertical(){
     options.add_button(N, [pmove(0, -1), pmove(0, -1), pattack(0, -1)]);
     options.add_button(S, [pmove(0, 1), pmove(0, 1), pattack(0, 1)]);
     return{
-        name: `charge vertical`,
+        name: card_names.charge_vertical,
         pic: `${IMG_FOLDER.cards}charge_vertical.png`,
         options
     }

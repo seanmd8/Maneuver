@@ -1,6 +1,6 @@
 
 /** @type {CardGenerator}*/
-function reckless_diagonal(){
+function reckless_sidestep_diagonal(){
     var options = new ButtonGrid();
     options.add_button(NE, [pstun(0, 0), pmove(1, -1)]);
     options.add_button(SE, [pstun(0, 0), pmove(1, 1)]);
@@ -8,8 +8,8 @@ function reckless_diagonal(){
     options.add_button(NW, [pstun(0, 0), pmove(-1, -1)]);
     options.make_instant();
     return{
-        name: `reckless diagonal`,
-        pic: `${IMG_FOLDER.cards}reckless_diagonal.png`,
+        name: card_names.reckless_sidestep_diagonal,
+        pic: `${IMG_FOLDER.cards}reckless_sidestep_diagonal.png`,
         options
     }
 }

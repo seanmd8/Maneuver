@@ -16,7 +16,7 @@ function two_headed_serpent_tile(){
         pic_arr,
         cycle: 1,
         segment_list: [undefined, undefined],
-        card_drops: [regenerate, fangs, slither]
+        card_drops: BOSS_CARDS.two_headed_serpent
     }
 }
 /** @type {TileGenerator} */

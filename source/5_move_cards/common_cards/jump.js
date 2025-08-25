@@ -7,7 +7,7 @@ function jump(){
     options.add_button(S, [pmove(0, 2)]);
     options.add_button(W, [pmove(-2, 0)]);
     return{
-        name: `jump`,
+        name: card_names.jump,
         pic: `${IMG_FOLDER.cards}jump.png`,
         options
     }

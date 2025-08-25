@@ -12,7 +12,7 @@ function debilitating_confusion(){
                 pstun(-1, -1)];
     options.add_button(SPIN, [...spin, ...spin]);
     return{
-        name: `debilitating confusion`,
+        name: card_names.debilitating_confusion,
         pic: `${IMG_FOLDER.cards}debilitating_confusion.png`,
         options
     }

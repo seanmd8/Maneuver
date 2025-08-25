@@ -1,8 +1,8 @@
 
 /** @type {CardGenerator} Shown in shop to denote adding a card to your deck.*/
-function add_card_symbol(){
+function symbol_add_card(){
     return{
-        name: `Add`,
+        name: card_names.symbol_add_card,
         pic: `${IMG_FOLDER.other}plus.png`,
         options: new ButtonGrid()
     }
