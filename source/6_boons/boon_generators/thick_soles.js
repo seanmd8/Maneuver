@@ -6,6 +6,3 @@ function thick_soles(){
         description: thick_soles_description,
     }
 }
-// Todo:
-//  description
-//  implement

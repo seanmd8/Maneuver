@@ -14467,9 +14467,6 @@ function choose_your_path(){
     }
 }
 
-// Pick where to go after each boss fight
-// Boss exits have the background
-
 function clean_mind(){
     return {
         name: boon_names.clean_mind,
@@ -14925,8 +14922,6 @@ function on_pick_shattered_glass(){
     change_max_health(-2);
 }
 
-// Enemies explode on death
-
 function skill_trading(){
     return {
         name: boon_names.skill_trading,
@@ -15030,9 +15025,6 @@ function thick_soles(){
         description: thick_soles_description,
     }
 }
-// Todo:
-//  description
-//  implement
 
 function vicious_cycle(){
     return {
