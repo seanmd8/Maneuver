@@ -3,12 +3,12 @@ function two_headed_serpent_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}serpent_head_sleep.png`, `${IMG_FOLDER.tiles}serpent_head.png`];
     return{
         type: `enemy`,
-        name: `Two Headed Serpent`,
+        name: boss_names.two_headed_serpent,
         pic: pic_arr[1],
-        description: two_headed_serpent_awake_description,
+        description: boss_descriptions.two_headed_serpent_awake,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         health: 1,
-        death_message: two_headed_serpent_death_message,
+        death_message: boss_death_message.two_headed_serpent,
         death_achievement: achievement_names.two_headed_serpent,
         behavior: two_headed_serpent_ai,
         telegraph: two_headed_serpent_telegraph,
@@ -24,9 +24,9 @@ function two_headed_serpent_body_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}serpent_body_straight.png`, `${IMG_FOLDER.tiles}serpent_body_bend.png`];
     return{
         type: `terrain`,
-        name: `Two Headed Serpent body`,
+        name: boss_names.two_headed_serpent_body,
         pic: pic_arr[0],
-        description: two_headed_serpent_body_description,
+        description: boss_descriptions.two_headed_serpent_body,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         pic_arr,
         segment_list: [undefined, undefined],
@@ -194,10 +194,10 @@ function serpent_toggle(tile, cycle){
     tile.cycle = cycle;
     tile.pic = tile.pic_arr[tile.cycle];
     if(tile.cycle === 1){
-        tile.description = two_headed_serpent_awake_description;
+        tile.description = boss_descriptions.two_headed_serpent_awake;
     }
     else{
-        tile.description = two_headed_serpent_asleep_description;
+        tile.description = boss_descriptions.two_headed_serpent_asleep;
     }
 }
 /**

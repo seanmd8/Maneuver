@@ -4,5 +4,5 @@ function young_dragon_floor(floor_num,  area, map){
     for(var i = 0; i < 22; ++i){
         map.add_tile(lava_pool_tile());
     }
-    return young_dragon_floor_message;
+    return boss_floor_message.young_dragon;
 }

@@ -2,7 +2,7 @@
 function earthquake_spell_generator(){
     return {
         behavior: earthquake_spell,
-        description: earthquake_spell_description,
+        description: lich_spell_descriptions.earthquake,
         pic: `${IMG_FOLDER.tiles}lich_earthquake.png`
     }
 }

@@ -15,12 +15,12 @@ function arcane_sentry_tile(){
     }
     return{
         type: `enemy`,
-        name: `Arcane Sentry`,
+        name: boss_names.arcane_sentry,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
-        description: arcane_sentry_description,
+        description: boss_descriptions.arcane_sentry,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry]),
         health,
-        death_message: arcane_sentry_death_message,
+        death_message: boss_death_message.arcane_sentry,
         death_achievement: achievement_names.arcane_sentry,
         behavior: sentry_core_ai,
         on_hit: sentry_core_on_hit,
@@ -38,12 +38,12 @@ function arcane_node_tile(){
     }
     return{
         type: `enemy`,
-        name: `Arcane Sentry Node`,
+        name: boss_names.arcane_sentry_node,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret`,
-        description: arcane_sentry_node_description,
+        description: boss_descriptions.arcane_sentry_node,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry, TAGS.controlled, TAGS.unstunnable]),
         health,
-        death_message: arcane_sentry_node_death_message,
+        death_message: boss_death_message.arcane_sentry_node,
         on_hit: node_on_hit,
         on_death: node_on_death,
     }

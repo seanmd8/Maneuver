@@ -3,7 +3,7 @@ function rest_spell_generator(){
     return {
         behavior: rest_spell,
         telegraph: rest_spell_telegraph,
-        description: rest_spell_description,
+        description: lich_spell_descriptions.rest,
         pic: `${IMG_FOLDER.tiles}lich_rest.png`
     }
 }

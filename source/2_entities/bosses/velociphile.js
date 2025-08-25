@@ -6,12 +6,12 @@ function velociphile_tile(){
     }
     return{
         type: `enemy`,
-        name: `Velociphile`,
+        name: boss_names.velociphile,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
-        description: velociphile_description,
+        description: boss_descriptions.velociphile,
         tags: new TagList([TAGS.boss]),
         health,
-        death_message: velociphile_death_message,
+        death_message: boss_death_message.velociphile,
         death_achievement: achievement_names.velociphile,
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,

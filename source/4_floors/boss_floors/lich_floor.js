@@ -10,5 +10,5 @@ function lich_floor(floor_num,  area, map){
         map.add_tile(damaged_wall_tile(), location);
     }
     map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
-    return lich_floor_message;
+    return boss_floor_message.lich;
 }

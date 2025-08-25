@@ -14,18 +14,18 @@ function young_dragon_tile(){
     }
     return {
         type: `enemy`,
-        name: `Young Dragon`,
+        name: boss_names.young_dragon,
         pic: pic_arr[0],
-        description: `${young_dragon_description_arr[0]}${young_dragon_description_arr[1]}`,
+        description: `${boss_descriptions.young_dragon[0]}${boss_descriptions.young_dragon[1]}`,
         tags: new TagList([TAGS.boss]),
         health,
-        death_message: young_dragon_death_message,
+        death_message: boss_death_message.young_dragon,
         death_achievement: achievement_names.young_dragon,
         behavior: young_dragon_behavior,
         telegraph: young_dragon_telegraph,
         on_death: boss_death,
         pic_arr,
-        description_arr: young_dragon_description_arr,
+        description_arr: boss_descriptions.young_dragon,
         rotate: 180,
         cycle: 0,
         range: 3,
@@ -90,7 +90,7 @@ function young_dragon_behavior(self, target, map){
         self.tile.direction =  order_nearby(target.difference)[0];
         ++self.tile.cycle;
         self.tile.pic = self.tile.pic_arr[2 * self.tile.cycle + set_rotation(self.tile)];
-        self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[self.tile.cycle + 1]}${self.tile.range}.`;
+        self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[self.tile.cycle + 1]}`;
         return;
     }
     if(self.tile.cycle === 2){

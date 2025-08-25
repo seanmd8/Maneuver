@@ -3,7 +3,7 @@ function scorpion_spell_generator(){
     return {
         behavior: scorpion_spell,
         telegraph_other: scorpion_spell_telegraph,
-        description: forest_heart_summon_description,
+        description: heart_spell_descriptions.summon,
         pic: `${IMG_FOLDER.tiles}forest_heart_summon.png`
     }
 }

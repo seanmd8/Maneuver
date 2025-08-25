@@ -2594,135 +2594,124 @@ const KEYBOARD_SYMBOL_MAP = new Map();
 KEYBOARD_SYMBOL_MAP.set(` `, `space`);
 // Boss Descriptions
 const boss_death_description = 
-    `The exit opens.\nYou feel your wounds begin to heal.`;
+    `The exit opens.\n`
+    +`You feel your wounds begin to heal.`;
 
-// Velociphile
-const velociphile_floor_message = 
-    `You hear a deafening shriek.`;
-const velociphile_description = 
-    `Velociphile (Boss): A rolling ball of mouths and hate. Moves `
-    +`in straight lines. Must build up speed to ram you.`;
-const velociphile_death_message = 
-    `The wailing falls silent as the Velociphile is defeated.`;
+const boss_names = {
+    arcane_sentry: `Arcane Sentry`,
+    arcane_sentry_node: `Arcane Sentry Node`,
+    forest_heart: `Forest Heart`,
+    lich: `Lich`,
+    spider_queen: `Spider Queen`,
+    two_headed_serpent: `Two Headed Serpent`,
+    two_headed_serpent_body: `Two Headed Serpent Body`,
+    velociphile: `Velociphile`,
+    young_dragon: `Young Dragon`,
+}
 
-// Spider Queen
-const spider_queen_floor_message = 
-    `The floor is thick with webs.`;
-const spider_queen_description = 
-    `Spider Queen (Boss): Her back crawls with her young. Moves like a `
-    +`normal spider. Taking damage will stun her, but will also spawn a spider.`;
-const spider_queen_death_message = 
-    `As the Spider Queen falls to the floor, the last of her children emerge.`;
+const boss_descriptions = {
+    arcane_sentry: 
+        `Arcane Sentry (Boss): An automated defense station. Changes modes in response to damage.`,
+    arcane_sentry_node: 
+        `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry. Cannot be stunned.`,
+    forest_heart: 
+        `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage `
+        +`each turn and cannot be stunned.`,
+    lich: 
+        `Lich (Boss): An undead wielder of dark magic. Alternates between moving `
+        +`one space away from you and casting a spell.`,
+    lich_announcement: 
+        `The Lich is currently preparing to cast:`,
+    spider_queen: 
+        `Spider Queen (Boss): Her back crawls with her young. Moves like a `
+        +`normal spider. Taking damage will stun her, but will also spawn a spider.`,
+    two_headed_serpent_awake: 
+        `Two Headed Serpent (Boss): Moves then attacks 1 square orthogonally. `
+        +`When damaged, the neck will instantly grow a new head.`,
+    two_headed_serpent_asleep: 
+        `Two Headed Serpent (Boss): This head is sleeping. When damaged, `
+        +`the neck will grow a new head, which will spend it's turn waking up. `
+        +`The other head will then fall asleep.`,
+    two_headed_serpent_body: 
+        `Two Headed Serpent (Boss): The scales on the body are too tough to pierce.`,
+    velociphile: 
+        `Velociphile (Boss): A rolling ball of mouths and hate. Moves `
+        +`in straight lines. Must build up speed to ram you.`,
+    young_dragon: [
+        `Young Dragon (Boss): Be glad it's still young. Alternates between gliding and breathing fire.\n`
+        +`The Dragon is currently `, 
+        `preparing to fly a short distance.`, 
+        `preparing to aim it's fire breath.`, 
+        `preparing to breath fire in a 3 long cone.`
+    ],
+}
 
-// Two Headed Serpent
-const two_headed_serpent_floor_message = 
-    `The discarded skin of a massive creature litters the floor.`;
-const two_headed_serpent_awake_description = 
-    `Two Headed Serpent (Boss): Moves then attacks 1 square orthogonally. `
-    +`When damaged, the neck will instantly grow a new head.`;
-const two_headed_serpent_asleep_description = 
-    `Two Headed Serpent (Boss): This head is sleeping. When damaged, `
-    +`the neck will grow a new head, which will spend it's turn waking up. `
-    +`The other head will then fall asleep.`;
-const two_headed_serpent_body_description = 
-    `Two Headed Serpent (Boss): The scales on the body are too tough to pierce. `;
-const two_headed_serpent_death_message = 
-    `It's body too small to regenerate any further, all four of the serpent's `
-    +`eyes close for the final time`;
+const boss_floor_message = {
+    arcane_sentry: 
+        `An alarm begins to blare.\n`
+        +`INTRUDER DETECTED!`,
+    forest_heart: `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`,
+    lich: `Dust and dark magic swirl in the air.`,
+    spider_queen: `The floor is thick with webs.`,
+    two_headed_serpent: `The discarded skin of a massive creature litters the floor.`,
+    velociphile: `You hear a deafening shriek.`,
+    young_dragon: `The air burns in your lungs.`,
+}
 
-// Lich
-const lich_floor_message = 
-    `Dust and dark magic swirl in the air.`;
-const lich_description = 
-    `Lich (Boss): An undead wielder of dark magic. Alternates between moving `
-    +`one space away from you and casting a spell.\nThe Lich is currently preparing `
-    +`to cast:\n`;
-const lich_announcement = 
-    `The Lich is currently preparing to cast:\n`;
-const lich_death_message = 
-    `The Lich's body crumbles to dust.`;
+const boss_death_message = {
+    arcane_sentry: 
+        `MAIN SYSTEMS FAILING!\n`
+        +`The ringing alarm subsides.`,
+    arcane_sentry_node: `NODE OFFLINE!`,
+    forest_heart: `Branches rain from above as the ancient tree is felled.`,
+    lich: `The Lich's body crumbles to dust.`,
+    spider_queen: `As the Spider Queen falls to the floor, the last of her children emerge.`,
+    two_headed_serpent: 
+        `It's body too small to regenerate any further, all four of the serpent's `
+        +`eyes close for the final time`,
+    velociphile: `The wailing falls silent as the Velociphile is defeated.`,
+    young_dragon: `Scales so soft are easily pierced. The Young Dragon's fire goes out.`,
+}
 
-// Lich Spells
-const teleport_spell_description = 
-    `Teleport: The user moves to a random square on the map`;
-const summon_spell_description = 
-    `Summon: Summons a random enemy`;
-const earthquake_spell_description = 
-    `Earthquake: Causes chunks of the ceiling to rain down.`;
-const flame_wave_spell_description = 
-    `Flame Wave: Shoots 3 explosive fireballs towards the target.`;
-const confusion_spell_description = 
-    `Confusion: Pollutes your deck with 2 bad temporary cards.`;
-const lava_moat_spell_description = 
-    `Lava Moat: Creates pools of molten lava to shield the user.`;
-const piercing_beam_spell_description = 
-    `Piercing Beam: Fires a piercing beam in the direction closest to the target.`;
-const rest_spell_description = 
-    `Nothing.`;
+// Boss Specific Descriptions
 
-// Young Dragon
-const young_dragon_floor_message = 
-    `The air burns in your lungs.`;
-const young_dragon_description_arr = [
-    `Young Dragon (Boss): Be glad it's still young. Alternates between `
-    +`gliding short distances and breathing fire.\nThe Dragon is currently `, 
-    `preparing to fly a short distance.`, 
-    `preparing to aim it's fire breath.`, 
-    `preparing to breath fire in a cone of length `
-];
-const young_dragon_death_message = 
-    `Scales so soft are easily pierced. The Young Dragon's fire goes out.`;
+const lich_spell_descriptions = {
+    confusion: `Confusion: Pollutes your deck with 2 bad temporary cards.`,
+    earthquake: `Earthquake: Causes chunks of the ceiling to rain down.`,
+    flame_wave: `Flame Wave: Shoots 3 explosive fireballs towards the target.`,
+    lava_moat: `Lava Moat: Creates pools of molten lava to shield the user.`,
+    piercing_beam: `Piercing Beam: Fires a piercing beam in the direction closest to the target.`,
+    rest: `Nothing.`,
+    summon: `Summon: Summons a random enemy`,
+    teleport: `Teleport: The user moves to a random square on the map`,
+}
 
-// Forest Heart
-const forest_heart_floor_message = 
-    `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`;
-const forest_heart_description = 
-    `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage `
-    +`each turn and cannot be stunned. `;
-const forest_heart_death_message = 
-    `Branches rain from above as the ancient tree is felled.`
+const heart_spell_descriptions = {
+    rest: `Currently, the Forest Heart is resting.`,
+    growth: `Currently, the Forest Heart is preparing to grow plants.`,
+    summon: `Currently, the Forest Heart is preparing to summon forest creatures.`,
+}
 
-// Forest Heart Spells
-const forest_heart_rest_description = 
-    `Currently, the Forest Heart is resting.`;
-const forest_heart_growth_description = 
-    `Currently, the Forest Heart is preparing to grow plants.`;
-const forest_heart_summon_description = 
-    `Currently, the Forest Heart is preparing to summon forest creatures.`;
-
-// Arcane Sentry
-const arcane_sentry_floor_message =
-    `An alarm begins to blare.\n`
-    +`INTRUDER DETECTED!`
-const arcane_sentry_description =
-    `Arcane Sentry (Boss): An automated defense station. Changes modes in response to damage.`;
-const arcane_sentry_death_message =
-    `MAIN SYSTEMS FAILING!\n`
-    +`The wailing alarm falls silent.`;
-const arcane_sentry_node_description =
-    `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry. Cannot be stunned.`
-const arcane_sentry_node_death_message =
-    `NODE OFFLINE!`;
-
-// Arcane Sentry Modes
-const sentry_core_turret_description =
-    `Currently the nodes are set to act as turrets.\n`
-    +`While in this mode, the sentry will continuously create paper constructs.`
-const sentry_node_turret_description =
-    `Fires beams orthogonally that hit the first thing in their path.`
-const sentry_core_saw_description =
-    `Spinning saws will damage everything around it or touching it, then it will move 1 space `
-    +`orthogonally.\n`
-    +`After 3 turns, it will revert.`
-const sentry_node_saw_description =
-    `Spinning saws will damage everything around it or touching it.`
-const sentry_core_cannon_description =
-    `Currently preparing to shoot volleys of fireballs.\n`
-    +`After 2 volleys, it will revert.`
-const sentry_node_cannon_description =
-    `Shoots a fireball in the direction it is aimed.`
-const sentry_node_double_cannon_description =
-    `Shoots 2 fireballs in the direction it is aimed.`
+const sentry_mode_descriptions = {
+    core: {
+        turret: 
+            `Currently the nodes are set to act as turrets.\n`
+            +`While in this mode, the sentry will continuously create paper constructs.`,
+        saw: 
+            `Spinning saws will damage everything around it or touching it, then it will move 1 space `
+            +`orthogonally.\n`
+            +`After 3 turns, it will revert.`,
+        cannon: 
+            `Currently preparing to shoot volleys of fireballs.\n`
+            +`After 2 volleys, it will revert.`,
+    },
+    node: {
+        turret: `Fires beams orthogonally that hit the first thing in their path.`,
+        saw: `Spinning saws will damage everything around it or touching it.`,
+        cannon: `Shoots a fireball in the direction it is aimed.`,
+        double_cannon: `Shoots 2 fireballs in the direction it is aimed.`,
+    }
+}
 
 // Normal Enemy Descriptions.
 
@@ -3262,12 +3251,12 @@ function arcane_sentry_tile(){
     }
     return{
         type: `enemy`,
-        name: `Arcane Sentry`,
+        name: boss_names.arcane_sentry,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
-        description: arcane_sentry_description,
+        description: boss_descriptions.arcane_sentry,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry]),
         health,
-        death_message: arcane_sentry_death_message,
+        death_message: boss_death_message.arcane_sentry,
         death_achievement: achievement_names.arcane_sentry,
         behavior: sentry_core_ai,
         on_hit: sentry_core_on_hit,
@@ -3285,12 +3274,12 @@ function arcane_node_tile(){
     }
     return{
         type: `enemy`,
-        name: `Arcane Sentry Node`,
+        name: boss_names.arcane_sentry_node,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret`,
-        description: arcane_sentry_node_description,
+        description: boss_descriptions.arcane_sentry_node,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry, TAGS.controlled, TAGS.unstunnable]),
         health,
-        death_message: arcane_sentry_node_death_message,
+        death_message: boss_death_message.arcane_sentry_node,
         on_hit: node_on_hit,
         on_death: node_on_death,
     }
@@ -3433,49 +3422,6 @@ function sentry_get_core(location, map){
         }
     }    
 }
-/** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
-function boss_death(self, target, map){
-    if(
-        self.tile.death_message === undefined ||
-        self.tile.death_achievement === undefined
-    ){
-        throw new Error(ERRORS.missing_property);
-    }
-    if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
-        // Create a chest containing a random card from it's loot table.
-        var chest = appropriate_chest_tile();
-        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
-        for(var card of cards){
-            add_card_to_chest(chest, card());
-        }
-        map.add_tile(chest, self.location);
-    }
-    map.unlock();
-    var death_message = `${self.tile.death_message}\n${boss_death_description}`;
-    var player_tile = map.get_player();
-    if(player_tile.max_health === 1){
-        GS.achieve(achievement_names.one_life);
-    }
-    var stats = map.stats.get_stats()
-    if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
-        GS.achieve(achievement_names.not_my_fault);
-    }
-    if( // Practice makes perfect
-        GS.boons.has(boon_names.practice_makes_perfect) && 
-        player_tile.max_health !== undefined && 
-        player_tile.max_health === player_tile.health
-    ){
-        ++player_tile.max_health;
-        death_message = `${death_message}\n${practice_makes_perfect_message}`
-    }
-    map.player_heal(new Point(0, 0));
-    var new_boss_kill = GS.achieve(self.tile.death_achievement);
-    if(new_boss_kill && GS.data.achievements.count_bosses() === 5){
-        GS.achieve(achievement_names.monster_hunter);
-    }
-    
-    say_record(death_message);
-}
 // ToDo
 //      Handle Death
 //      Handle Spells
@@ -3514,12 +3460,12 @@ function forest_heart_tile(){
     var health = 12
     var tile = {
         type: `enemy`,
-        name: `Forest Heart`,
+        name: boss_names.forest_heart,
         pic: pic_arr[0],
-        description: forest_heart_description + forest_heart_rest_description,
+        description: boss_descriptions.forest_heart + heart_spell_descriptions.rest,
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
         health: 12,
-        death_message: forest_heart_death_message,
+        death_message: boss_death_message.forest_heart,
         death_achievement: achievement_names.forest_heart,
         behavior: forest_heart_ai,
         on_hit: forest_heart_on_hit,
@@ -3534,7 +3480,7 @@ function forest_heart_tile(){
     if(GS.boons.has(boon_names.boss_slayer)){
         tile.health -= 2;
         var next_spell = spells[tile.health - 2];
-        tile.description = forest_heart_description + next_spell.description;
+        tile.description = boss_descriptions.forest_heart + next_spell.description;
         tile.pic = next_spell.pic;
         tile.telegraph_other = next_spell.telegraph_other;
     }
@@ -3565,7 +3511,7 @@ function forest_heart_ai(self, target, map){
             tile.health = health;
             tile.pic = tile.pic_arr[0];
             if(tile.health > 1){
-                tile.description = forest_heart_description + next_spell.description;
+                tile.description = boss_descriptions.forest_heart + next_spell.description;
                 tile.pic = next_spell.pic;
                 tile.telegraph_other = next_spell.telegraph_other;
             }
@@ -3677,12 +3623,15 @@ function lich_tile(){
     var starting_cycle = 0;
     return{
         type: `enemy`,
-        name: `Lich`,
+        name: boss_names.lich,
         pic: spells[starting_cycle].pic,
-        description: `${lich_description}${spells[starting_cycle].description}`,
+        description: 
+            `${boss_descriptions.lich}\n`
+            +`${boss_descriptions.lich_announcement}\n`
+            +`${spells[starting_cycle].description}`,
         tags: new TagList([TAGS.boss]),
         health,
-        death_message: lich_death_message,
+        death_message: boss_death_message.lich,
         death_achievement: achievement_names.lich,
         behavior: lich_ai,
         telegraph: lich_telegraph,
@@ -3722,9 +3671,14 @@ function lich_ai(self, target, map){
         self.tile.spells[self.tile.cycle].behavior(self, target, map);
         self.tile.cycle = 0;
     }
-    self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
+    self.tile.description = 
+        `${boss_descriptions.lich}\n`
+        +`${boss_descriptions.lich_announcement}\n`
+        +`${self.tile.spells[self.tile.cycle].description}`;
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
-    var announcement = `${lich_announcement}${self.tile.spells[self.tile.cycle].description}`
+    var announcement = 
+        `${boss_descriptions.lich_announcement}\n`
+        +`${self.tile.spells[self.tile.cycle].description}`;
     map.add_event({name: `spell announcement`, behavior: () => {say_record(announcement)}});
 }
 
@@ -3761,7 +3715,10 @@ function lich_hit(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     self.tile.cycle = 1;
-    self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
+    self.tile.description = 
+        `${boss_descriptions.lich}\n`
+        +`${boss_descriptions.lich_announcement}\n`
+        +`${self.tile.spells[self.tile.cycle].description}`;
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
 }
 /** @type {TileGenerator} */
@@ -3772,12 +3729,12 @@ function spider_queen_tile(){
     }
     return{
         type: `enemy`,
-        name: `Spider Queen`,
+        name: boss_names.spider_queen,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
-        description: spider_queen_description,
+        description: boss_descriptions.spider_queen,
         tags: new TagList([TAGS.boss]),
         health,
-        death_message: spider_queen_death_message,
+        death_message: boss_death_message.spider_queen,
         death_achievement: achievement_names.spider_queen,
         behavior: spider_ai,
         telegraph: spider_telegraph,
@@ -3800,12 +3757,12 @@ function two_headed_serpent_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}serpent_head_sleep.png`, `${IMG_FOLDER.tiles}serpent_head.png`];
     return{
         type: `enemy`,
-        name: `Two Headed Serpent`,
+        name: boss_names.two_headed_serpent,
         pic: pic_arr[1],
-        description: two_headed_serpent_awake_description,
+        description: boss_descriptions.two_headed_serpent_awake,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         health: 1,
-        death_message: two_headed_serpent_death_message,
+        death_message: boss_death_message.two_headed_serpent,
         death_achievement: achievement_names.two_headed_serpent,
         behavior: two_headed_serpent_ai,
         telegraph: two_headed_serpent_telegraph,
@@ -3821,9 +3778,9 @@ function two_headed_serpent_body_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}serpent_body_straight.png`, `${IMG_FOLDER.tiles}serpent_body_bend.png`];
     return{
         type: `terrain`,
-        name: `Two Headed Serpent body`,
+        name: boss_names.two_headed_serpent_body,
         pic: pic_arr[0],
-        description: two_headed_serpent_body_description,
+        description: boss_descriptions.two_headed_serpent_body,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         pic_arr,
         segment_list: [undefined, undefined],
@@ -3991,10 +3948,10 @@ function serpent_toggle(tile, cycle){
     tile.cycle = cycle;
     tile.pic = tile.pic_arr[tile.cycle];
     if(tile.cycle === 1){
-        tile.description = two_headed_serpent_awake_description;
+        tile.description = boss_descriptions.two_headed_serpent_awake;
     }
     else{
-        tile.description = two_headed_serpent_asleep_description;
+        tile.description = boss_descriptions.two_headed_serpent_asleep;
     }
 }
 /**
@@ -4071,12 +4028,12 @@ function velociphile_tile(){
     }
     return{
         type: `enemy`,
-        name: `Velociphile`,
+        name: boss_names.velociphile,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
-        description: velociphile_description,
+        description: boss_descriptions.velociphile,
         tags: new TagList([TAGS.boss]),
         health,
-        death_message: velociphile_death_message,
+        death_message: boss_death_message.velociphile,
         death_achievement: achievement_names.velociphile,
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,
@@ -4129,18 +4086,18 @@ function young_dragon_tile(){
     }
     return {
         type: `enemy`,
-        name: `Young Dragon`,
+        name: boss_names.young_dragon,
         pic: pic_arr[0],
-        description: `${young_dragon_description_arr[0]}${young_dragon_description_arr[1]}`,
+        description: `${boss_descriptions.young_dragon[0]}${boss_descriptions.young_dragon[1]}`,
         tags: new TagList([TAGS.boss]),
         health,
-        death_message: young_dragon_death_message,
+        death_message: boss_death_message.young_dragon,
         death_achievement: achievement_names.young_dragon,
         behavior: young_dragon_behavior,
         telegraph: young_dragon_telegraph,
         on_death: boss_death,
         pic_arr,
-        description_arr: young_dragon_description_arr,
+        description_arr: boss_descriptions.young_dragon,
         rotate: 180,
         cycle: 0,
         range: 3,
@@ -4205,7 +4162,7 @@ function young_dragon_behavior(self, target, map){
         self.tile.direction =  order_nearby(target.difference)[0];
         ++self.tile.cycle;
         self.tile.pic = self.tile.pic_arr[2 * self.tile.cycle + set_rotation(self.tile)];
-        self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[self.tile.cycle + 1]}${self.tile.range}.`;
+        self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[self.tile.cycle + 1]}`;
         return;
     }
     if(self.tile.cycle === 2){
@@ -7303,6 +7260,49 @@ function move_attack_ai(self, target, map){
     }
     map.attack(self.location.plus(target.difference));
 }
+/** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
+function boss_death(self, target, map){
+    if(
+        self.tile.death_message === undefined ||
+        self.tile.death_achievement === undefined
+    ){
+        throw new Error(ERRORS.missing_property);
+    }
+    if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
+        // Create a chest containing a random card from it's loot table.
+        var chest = appropriate_chest_tile();
+        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
+        for(var card of cards){
+            add_card_to_chest(chest, card());
+        }
+        map.add_tile(chest, self.location);
+    }
+    map.unlock();
+    var death_message = `${self.tile.death_message}\n${boss_death_description}`;
+    var player_tile = map.get_player();
+    if(player_tile.max_health === 1){
+        GS.achieve(achievement_names.one_life);
+    }
+    var stats = map.stats.get_stats()
+    if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
+        GS.achieve(achievement_names.not_my_fault);
+    }
+    if( // Practice makes perfect
+        GS.boons.has(boon_names.practice_makes_perfect) && 
+        player_tile.max_health !== undefined && 
+        player_tile.max_health === player_tile.health
+    ){
+        ++player_tile.max_health;
+        death_message = `${death_message}\n${practice_makes_perfect_message}`
+    }
+    map.player_heal(new Point(0, 0));
+    var new_boss_kill = GS.achieve(self.tile.death_achievement);
+    if(new_boss_kill && GS.data.achievements.count_bosses() === 5){
+        GS.achieve(achievement_names.monster_hunter);
+    }
+    
+    say_record(death_message);
+}
 
 
 
@@ -7815,14 +7815,18 @@ function sentry_transform_cannon(self, target, map){
                 tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_h.png`;
                 tile.behavior = node_double_cannon_behavior;
                 tile.telegraph = node_double_cannon_telegraph;
-                tile.description = arcane_sentry_node_description + `\n` + sentry_node_double_cannon_description;
+                tile.description = 
+                    `${boss_descriptions.arcane_sentry_node}\n`
+                    +`${sentry_mode_descriptions.node.double_cannon}`;
             }
             else{
                 // Single cannon.
                 tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_h.png`;
                 tile.behavior = node_cannon_behavior;
                 tile.telegraph = node_cannon_telegraph;
-                tile.description = arcane_sentry_node_description + `\n` + sentry_node_cannon_description;
+                tile.description = 
+                    `${boss_descriptions.arcane_sentry_node}\n`
+                    +`${sentry_mode_descriptions.node.cannon}`;
             }
         }
         // Core is single cannon.
@@ -7830,7 +7834,9 @@ function sentry_transform_cannon(self, target, map){
         self.tile.direction = direction;
         set_rotation(self.tile);
         self.tile.telegraph = node_cannon_telegraph;
-        self.tile.description = arcane_sentry_description+ `\n` + sentry_core_cannon_description;
+        self.tile.description = 
+            `${boss_descriptions.arcane_sentry}\n`
+            +`${sentry_mode_descriptions.core.cannon}`;
     }
     else{
         for(var node of nodes){
@@ -7843,20 +7849,26 @@ function sentry_transform_cannon(self, target, map){
                 tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_d.png`;
                 tile.behavior = node_double_cannon_behavior;
                 tile.telegraph = node_double_cannon_telegraph;
-                tile.description = arcane_sentry_node_description + `\n` + sentry_node_double_cannon_description;
+                tile.description = 
+                    `${boss_descriptions.arcane_sentry_node}\n`
+                    +`${sentry_mode_descriptions.node.double_cannon}`;
             }
             else{
                 // Single cannon.
                 tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_d.png`;
                 tile.behavior = node_cannon_behavior;
                 tile.telegraph = node_cannon_telegraph;
-                tile.description = arcane_sentry_node_description + `\n` + sentry_node_cannon_description;
+                tile.description = 
+                    `${boss_descriptions.arcane_sentry_node}\n`
+                    +`${sentry_mode_descriptions.node.cannon}`;
             }
         }
         self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_d.png`;
         self.tile.telegraph = undefined;
         self.tile.direction = undefined;
-        self.tile.description = arcane_sentry_description+ `\n` + sentry_core_cannon_description;
+        self.tile.description = 
+            `${boss_descriptions.arcane_sentry}\n`
+            +`${sentry_mode_descriptions.core.cannon}`;
     }
 }
 
@@ -7951,13 +7963,17 @@ function sentry_transform_saw(self, target, map){
         tile.behavior = node_saw_behavior;
         tile.on_enter = hazard;
         tile.telegraph = node_saw_telegraph;
-        tile.description = arcane_sentry_node_description + `\n` + sentry_node_saw_description;
+        tile.description = 
+            `${boss_descriptions.arcane_sentry_node}\n`
+            +`${sentry_mode_descriptions.node.saw}`;
     }
     self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_saw.png`;
     self.tile.direction = sentry_saw_direction(target.difference);
     self.tile.on_enter = hazard;
     self.tile.telegraph = node_saw_telegraph;
-    self.tile.description = arcane_sentry_description+ `\n` + sentry_core_saw_description;
+    self.tile.description = 
+        `${boss_descriptions.arcane_sentry}\n`
+        +`${sentry_mode_descriptions.core.saw}`;
 }
 
 function sentry_saw_direction(difference){
@@ -7992,21 +8008,25 @@ function sentry_transform_turret(self, target, map){
         tile.behavior = node_turret_behavior;
         tile.on_enter = undefined;
         tile.telegraph = node_turret_telegraph;
-        tile.description = arcane_sentry_node_description + `\n` + sentry_node_turret_description;
+        tile.description = 
+            `${boss_descriptions.arcane_sentry_node}\n`
+            +`${sentry_mode_descriptions.node.turret}`;
     }
     self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core.png`;
     self.tile.on_enter = undefined;
     self.tile.telegraph = undefined;
     self.tile.direction = undefined;
     self.tile.rotate = undefined;
-    self.tile.description = arcane_sentry_description + `\n` + sentry_core_turret_description;
+    self.tile.description = 
+        `${boss_descriptions.arcane_sentry}\n`
+        +`${sentry_mode_descriptions.core.turret}`;
 }
 /** @type {SpellGenerator} */
 function forest_heart_rest_spell_generator(){
     return {
         behavior: rest_spell,
         telegraph_other: rest_spell_telegraph,
-        description: forest_heart_rest_description,
+        description: heart_spell_descriptions.rest,
         pic: `${IMG_FOLDER.tiles}forest_heart.png`
     }
 }
@@ -8015,7 +8035,7 @@ function greater_thorn_bush_spell_generator(){
     return {
         behavior: greater_thorn_bush_spell,
         telegraph_other: thorn_bush_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }
@@ -8042,7 +8062,7 @@ function living_tree_spell_generator(){
     return {
         behavior: living_tree_spell,
         telegraph_other: living_tree_spell_telegraph,
-        description: forest_heart_summon_description,
+        description: heart_spell_descriptions.summon,
         pic: `${IMG_FOLDER.tiles}forest_heart_summon.png`
     }
 }
@@ -8099,7 +8119,7 @@ function rotting_fruit_spell_generator(){
     return {
         behavior: rotting_fruit_spell,
         telegraph_other: rotting_fruit_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }
@@ -8132,7 +8152,7 @@ function scorpion_spell_generator(){
     return {
         behavior: scorpion_spell,
         telegraph_other: scorpion_spell_telegraph,
-        description: forest_heart_summon_description,
+        description: heart_spell_descriptions.summon,
         pic: `${IMG_FOLDER.tiles}forest_heart_summon.png`
     }
 }
@@ -8174,7 +8194,7 @@ function swaying_nettle_spell_generator(){
     return {
         behavior: swaying_nettle_spell,
         telegraph_other: swaying_nettle_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }
@@ -8206,7 +8226,7 @@ function thorn_bush_spell_generator(){
     return {
         behavior: thorn_bush_spell,
         telegraph_other: thorn_bush_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }
@@ -8237,7 +8257,7 @@ function vinesnare_bush_spell_generator(){
     return {
         behavior: vinesnare_bush_spell,
         telegraph_other: vinesnare_bush_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }
@@ -8293,7 +8313,7 @@ function confusion_spell_generator(){
     return {
         behavior: confusion_spell,
         telegraph_other: confusion_spell_telegraph,
-        description: confusion_spell_description,
+        description: lich_spell_descriptions.confusion,
         pic: `${IMG_FOLDER.tiles}lich_confusion.png`
     }
 }
@@ -8313,7 +8333,7 @@ function confusion_spell_telegraph(location, map, self){
 function earthquake_spell_generator(){
     return {
         behavior: earthquake_spell,
-        description: earthquake_spell_description,
+        description: lich_spell_descriptions.earthquake,
         pic: `${IMG_FOLDER.tiles}lich_earthquake.png`
     }
 }
@@ -8328,7 +8348,7 @@ function flame_wave_spell_generator(){
     return {
         behavior: flame_wave_spell,
         telegraph: flame_wave_spell_telegraph,
-        description: flame_wave_spell_description,
+        description: lich_spell_descriptions.flame_wave,
         pic: `${IMG_FOLDER.tiles}lich_flame_wave.png`
     }
 }
@@ -8372,7 +8392,7 @@ function flame_wave_spell_telegraph(location, map, self){
 function lava_moat_spell_generator(){
     return {
         behavior: lava_moat_spell,
-        description: lava_moat_spell_description,
+        description: lich_spell_descriptions.lava_moat,
         pic: `${IMG_FOLDER.tiles}lich_lava_moat.png`
     }
 }
@@ -8391,7 +8411,7 @@ function piercing_beam_spell_generator(){
     return {
         behavior: piercing_beam_spell,
         telegraph: piercing_beam_spell_telegraph,
-        description: piercing_beam_spell_description,
+        description: lich_spell_descriptions.piercing_beam,
         pic: `${IMG_FOLDER.tiles}lich_piercing_beam.png`
     }
 }
@@ -8424,7 +8444,7 @@ function rest_spell_generator(){
     return {
         behavior: rest_spell,
         telegraph: rest_spell_telegraph,
-        description: rest_spell_description,
+        description: lich_spell_descriptions.rest,
         pic: `${IMG_FOLDER.tiles}lich_rest.png`
     }
 }
@@ -8440,7 +8460,7 @@ function rest_spell_telegraph(location, map, self){
 function summon_spell_generator(){
     return {
         behavior: summon_spell,
-        description: summon_spell_description,
+        description: lich_spell_descriptions.summon,
         pic: `${IMG_FOLDER.tiles}lich_summon.png`
     }
 }
@@ -8459,7 +8479,7 @@ function summon_spell(self, target, map){
 function teleport_spell_generator(){
     return {
         behavior: teleport_spell,
-        description: teleport_spell_description,
+        description: lich_spell_descriptions.teleport,
         pic: `${IMG_FOLDER.tiles}lich_teleport.png`
     }
 }
@@ -11623,7 +11643,7 @@ function arcane_sentry_floor(floor_num,  area, map){
     }
     core.mode = SENTRY_MODES.turret
     sentry_transform_turret(self, target, map);
-    return arcane_sentry_floor_message;
+    return boss_floor_message.arcane_sentry;
 }
 /** @type {FloorGenerator} Generates the floor where the Forest Heart appears.*/
 function forest_heart_floor(floor_num,  area, map){
@@ -11656,7 +11676,7 @@ function forest_heart_floor(floor_num,  area, map){
     map.add_tile(living_tree_rooted_tile(), new Point(mid_width + 2, mid_height));
     map.add_tile(vinesnare_bush_tile(), new Point(mid_width - 2, mid_height));
     map.add_tile(vinesnare_bush_tile(), new Point(mid_width + 3, mid_height));
-    return forest_heart_floor_message;
+    return boss_floor_message.forest_heart;
 }
 /** @type {FloorGenerator} Generates the floor where the Lich appears.*/
 function lich_floor(floor_num,  area, map){
@@ -11670,7 +11690,7 @@ function lich_floor(floor_num,  area, map){
         map.add_tile(damaged_wall_tile(), location);
     }
     map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
-    return lich_floor_message;
+    return boss_floor_message.lich;
 }
 /** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){
@@ -11682,7 +11702,7 @@ function spider_queen_floor(floor_num, area, map){
     for(var i = 0; i < 2; ++i){
         map.add_tile(spider_web_tile());
     }
-    return spider_queen_floor_message;
+    return boss_floor_message.spider_queen;
 }
 /** @type {FloorGenerator} Generates the floor where the Two Headed Serpent appears.*/
 function two_headed_serpent_floor(floor_num, area, map){
@@ -11749,7 +11769,7 @@ function two_headed_serpent_floor(floor_num, area, map){
         map.add_tile(wall_tile(), position);
         map.add_tile(damaged_wall_tile(), position.plus(rand_from(ALL_DIRECTIONS)));
     }
-    return two_headed_serpent_floor_message;
+    return boss_floor_message.two_headed_serpent;
 }
 /** @type {FloorGenerator} Generates the floor where the Velociphile appears.*/
 function velociphile_floor(floor_num,  area, map){
@@ -11758,7 +11778,7 @@ function velociphile_floor(floor_num,  area, map){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
     }
-    return velociphile_floor_message;
+    return boss_floor_message.velociphile;
 }
 /** @type {FloorGenerator} Generates the floor where the Young Dragon appears.*/
 function young_dragon_floor(floor_num,  area, map){
@@ -11766,7 +11786,7 @@ function young_dragon_floor(floor_num,  area, map){
     for(var i = 0; i < 22; ++i){
         map.add_tile(lava_pool_tile());
     }
-    return young_dragon_floor_message;
+    return boss_floor_message.young_dragon;
 }
 // ----------------Floors.js----------------
 // File containing the functions for generating new floors.

@@ -2,7 +2,7 @@
 function summon_spell_generator(){
     return {
         behavior: summon_spell,
-        description: summon_spell_description,
+        description: lich_spell_descriptions.summon,
         pic: `${IMG_FOLDER.tiles}lich_summon.png`
     }
 }

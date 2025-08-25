@@ -28,12 +28,15 @@ function lich_tile(){
     var starting_cycle = 0;
     return{
         type: `enemy`,
-        name: `Lich`,
+        name: boss_names.lich,
         pic: spells[starting_cycle].pic,
-        description: `${lich_description}${spells[starting_cycle].description}`,
+        description: 
+            `${boss_descriptions.lich}\n`
+            +`${boss_descriptions.lich_announcement}\n`
+            +`${spells[starting_cycle].description}`,
         tags: new TagList([TAGS.boss]),
         health,
-        death_message: lich_death_message,
+        death_message: boss_death_message.lich,
         death_achievement: achievement_names.lich,
         behavior: lich_ai,
         telegraph: lich_telegraph,
@@ -73,9 +76,14 @@ function lich_ai(self, target, map){
         self.tile.spells[self.tile.cycle].behavior(self, target, map);
         self.tile.cycle = 0;
     }
-    self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
+    self.tile.description = 
+        `${boss_descriptions.lich}\n`
+        +`${boss_descriptions.lich_announcement}\n`
+        +`${self.tile.spells[self.tile.cycle].description}`;
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
-    var announcement = `${lich_announcement}${self.tile.spells[self.tile.cycle].description}`
+    var announcement = 
+        `${boss_descriptions.lich_announcement}\n`
+        +`${self.tile.spells[self.tile.cycle].description}`;
     map.add_event({name: `spell announcement`, behavior: () => {say_record(announcement)}});
 }
 
@@ -112,6 +120,9 @@ function lich_hit(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     self.tile.cycle = 1;
-    self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
+    self.tile.description = 
+        `${boss_descriptions.lich}\n`
+        +`${boss_descriptions.lich_announcement}\n`
+        +`${self.tile.spells[self.tile.cycle].description}`;
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
 }

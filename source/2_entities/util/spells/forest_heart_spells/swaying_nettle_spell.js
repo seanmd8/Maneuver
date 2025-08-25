@@ -3,7 +3,7 @@ function swaying_nettle_spell_generator(){
     return {
         behavior: swaying_nettle_spell,
         telegraph_other: swaying_nettle_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }

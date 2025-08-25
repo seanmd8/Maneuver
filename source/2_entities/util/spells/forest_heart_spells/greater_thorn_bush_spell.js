@@ -3,7 +3,7 @@ function greater_thorn_bush_spell_generator(){
     return {
         behavior: greater_thorn_bush_spell,
         telegraph_other: thorn_bush_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }

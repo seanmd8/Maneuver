@@ -8,5 +8,5 @@ function spider_queen_floor(floor_num, area, map){
     for(var i = 0; i < 2; ++i){
         map.add_tile(spider_web_tile());
     }
-    return spider_queen_floor_message;
+    return boss_floor_message.spider_queen;
 }

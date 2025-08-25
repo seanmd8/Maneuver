@@ -6,12 +6,12 @@ function spider_queen_tile(){
     }
     return{
         type: `enemy`,
-        name: `Spider Queen`,
+        name: boss_names.spider_queen,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
-        description: spider_queen_description,
+        description: boss_descriptions.spider_queen,
         tags: new TagList([TAGS.boss]),
         health,
-        death_message: spider_queen_death_message,
+        death_message: boss_death_message.spider_queen,
         death_achievement: achievement_names.spider_queen,
         behavior: spider_ai,
         telegraph: spider_telegraph,

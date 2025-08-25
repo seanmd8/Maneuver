@@ -63,5 +63,5 @@ function two_headed_serpent_floor(floor_num, area, map){
         map.add_tile(wall_tile(), position);
         map.add_tile(damaged_wall_tile(), position.plus(rand_from(ALL_DIRECTIONS)));
     }
-    return two_headed_serpent_floor_message;
+    return boss_floor_message.two_headed_serpent;
 }
