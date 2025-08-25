@@ -1469,26 +1469,6 @@ function update_initiative(map){
     display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
 }
 
-/**
- * Refreshes the display of a Shadow of Self's hand
- */
-function refresh_shadow_hand_display(hand){
-    hand = hand.map(choice => {
-        return {
-            pic: choice.pic,
-            name: choice.name,
-            background: choice.background,
-            card: choice.card
-        }
-    })
-    display.remove_children(UIIDS.shadow_hand_table);
-    display.add_tb_row(UIIDS.shadow_hand_table, hand, SMALL_CARD_SCALE);
-}
-
-function shadow_hand_select(position){
-    display.select(UIIDS.shadow_hand_table, 0, position)
-}
-
 function player_hand_greyed(is_greyed){
     var toggle = is_greyed ? display.add_class : display.remove_class;
     toggle(UIIDS.hand_display, `greyed-out`);
@@ -2744,16 +2724,6 @@ const sentry_node_cannon_description =
 const sentry_node_double_cannon_description =
     `Shoots 2 fireballs in the direction it is aimed.`
 
-/**
-// Shadow of Self
-const shadow_of_self_floor_message = 
-    `A familiar face watches you from the shadows.`;
-const shadow_of_self_description = 
-    `You?`;
-const shadow_of_self_death_message = 
-    `Shadows cannot hold a candle to the real thing.`
-*/
-
 // Normal Enemy Descriptions.
 
 const spider_description = 
@@ -3003,7 +2973,6 @@ const SIDEBAR_BUTTONS = {
     discard_pile: `Discard`, 
     initiative: `Initiative`, 
     deck_order: `Deck`,
-    shadow_hand: `Shadow Hand`,
     sidebar: `Sidebar`
 }
 Object.freeze(SIDEBAR_BUTTONS);
@@ -3228,8 +3197,6 @@ const HTML_UIIDS = {
                     text_scroll: `textScroll`,
                 deck_order: `deckOrder`,
                     deck_order_table: `deckOrderTable`,
-                shadow_hand: `shadowHand`,
-                    shadow_hand_table: `shadowHandTable`,
             health_display: `healthDisplay`,
             remaining_deck: `remainingDeck`,
                 deck_image: `deckImage`,
@@ -3796,191 +3763,6 @@ function lich_hit(self, target, map){
     self.tile.cycle = 1;
     self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
-}
-/** @type {TileGenerator} */
-function shadow_of_self_tile(){
-    var health = 3; // Playermax?
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
-    var deck = GS.deck.copy();
-    deck.deal();
-    var look_arr = [illusion_of_self_tile, shadow_of_self_tile];
-    return{
-        type: `enemy`,
-        name: `Shadow of Self`,
-        pic: `${IMG_FOLDER.tiles}shadow_of_self.png`,
-        description: shadow_of_self_description,
-        tags: new TagList([TAGS.boss]),
-        health,
-        max_health: health,
-        death_message: shadow_of_self_death_message,
-        behavior: shadow_of_self_ai,
-        on_hit: shadow_of_self_hit,
-        on_death: boss_death,
-        look_arr,
-        cycle: 0,
-        card_drops: [],
-        deck
-    }
-}
-
-/** @type {AIFunction} AI used by the Shadow of Self.*/
-async function shadow_of_self_ai(self, target, map){
-    // If was hit, do the teleporting thing
-    if(self.tile.cycle === 1){
-        map.player_teleport(new Point(0, 0));
-        var lost_health = self.tile.max_health - self.tile.health;
-        for(var i = 0; i < 2 * lost_health; ++i){
-            teleport_spell(self, target, map);
-            spawn_nearby(map, illusion_of_self_tile(), self.location);
-        }
-        self.tile.cycle = 0;
-        return;
-    }
-
-    // Get hand.
-    var hand = self.tile.deck.get_hand_info();
-    // Get moves from each card in hand.
-    var moves = get_shadow_move_options(hand);
-    moves = moves.map(move => {
-        return {
-            hand_position: move.hand_position,
-            behavior: move.behavior,
-            telegraph: telegraph_card(move.behavior, map, self.location)
-        }
-    })
-    // Pick which move to do, then select the card from the hand.
-    var choice = get_shadow_move(moves, self.location, self.location.plus(target.difference));
-    shadow_hand_select(choice.hand_position);
-    var instant = hand[choice.hand_position].card.options.is_instant();
-    await delay(3 * ANIMATION_DELAY);
-
-    // Perform the move and update the map.
-    do_shadow_move(map, choice.behavior, self.location);
-    display_map(map);
-
-    // Wait, then update the hand to discard the selected card.
-    await delay(3 * ANIMATION_DELAY);
-    self.tile.deck.discard(choice.hand_position);
-    refresh_shadow_hand_display(self.tile.deck.get_hand_info());
-
-    if(instant){
-        // Take another turn
-        await delay(3 * ANIMATION_DELAY);
-        await shadow_of_self_ai(self, target, map)
-    }
-}
-
-function get_shadow_move_options(hand){
-    var move_options = [];
-    for(var i = 0; i < hand.length; ++i){
-        var card = hand[i].card;
-        for(var j = 1; j < 10; ++j){
-            var behavior = card.options.get_behavior(j);
-            if(behavior !== undefined){
-                move_options.push({
-                    hand_position: i,
-                    behavior
-                })
-            }
-        }
-    }
-    return move_options;
-}
-
-function get_shadow_move(moves, self, target){
-    moves = randomize_arr(moves);
-    // Can it attack the player?
-    for(var move of moves){
-        for(var point of move.telegraph.attacks){
-            if(point_equals(point, target)){
-                return move;
-            }
-        }
-    }
-    // Can it heal itself?
-    for(var move of moves){
-        for(var point of move.telegraph.healing){
-            if(point_equals(point, self)){
-                return move;
-            }
-        }
-    }
-    // Can it confuse the player?
-    for(var move of moves){
-        for(var point of move.telegraph.stun){
-            if(point_equals(point, target)){
-                return move;
-            }
-        }
-    }
-    // Does anything move closer?
-    for(var move of moves){
-        for(var point of move.telegraph.moves){
-            var move_difference = point.minus(target).taxicab_distance();
-            var stay_difference = self.minus(target).taxicab_distance();
-            if(move_difference < stay_difference){
-                return move;
-            }
-        }
-    }
-    // Pick randomly.
-    return rand_from(moves);
-}
-
-function do_shadow_move(map, moves, location){
-    for(var move of moves){
-        switch(move.type){
-            case `attack`:
-                map.attack(location.plus(move.change));
-                break;
-            case `move`:
-                var moved = map.move(location, location.plus(move.change));
-                if(moved){
-                    location.plus_equals(move.change);
-                }
-                break;
-            case `teleport`:
-                var destination = map.random_empty();
-                if( // If the shadow is teleported, update it's location.
-                    map.move(location.plus(move.change), destination) && 
-                    point_equals(move.change, new Point(0, 0))
-                ){
-                    location.x = destination.x;
-                    location.y = destination.y;
-                }
-                break;
-            case `stun`:
-                map.stun_tile(location.plus(move.change));
-                break;
-            case `move_until`:
-                var moved = true;
-                while(moved){
-                    moved = map.move(location, location.plus(move.change));
-                    if(moved){
-                        location.plus_equals(move.change);
-                    }
-                }
-                break;
-            case `attack_until`:
-                var target = location.plus(move.change);
-                while(map.is_in_bounds(target)){
-                    map.attack(target);
-                    target.plus_equals(move.change);
-                }
-                break;
-            case `heal`:
-                map.heal(location.plus(move.change));
-                break;
-            default:
-                throw new Error(ERRORS.invalid_value);
-        }
-    }
-}
-
-function shadow_of_self_hit(self, target, map){
-    self.tile.cycle = 1;
 }
 /** @type {TileGenerator} */
 function spider_queen_tile(){
@@ -11228,7 +11010,7 @@ class ScreenTracker{
 
 const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.controls, UIIDS.achievements]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
-const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand]);
+const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order]);
 
 class Shop{
     #deck;
@@ -11889,26 +11671,6 @@ function lich_floor(floor_num,  area, map){
     }
     map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
     return lich_floor_message;
-}
-/** @type {FloorGenerator} Generates the floor where the Shadow of Self appears.*/
-function shadow_of_self_floor(floor_num,  area, map){
-    // Change to spawn on far wall mirroring player
-    var shadow = shadow_of_self_tile();
-    map.spawn_safely(shadow, SAFE_SPAWN_ATTEMPTS, true);
-
-    // Swaps tab to the one containing it's hand
-    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.shadow_hand, function(){
-        SIDEBAR_DIVISIONS.swap(UIIDS.shadow_hand);
-    });
-    SIDEBAR_DIVISIONS.swap(UIIDS.shadow_hand);
-    refresh_shadow_hand_display(shadow.deck.get_hand_info());
-
-
-    for(var i = 0; i < 6; ++i){
-        map.add_tile(wall_tile());
-    }
-
-    return shadow_of_self_floor_message;
 }
 /** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){

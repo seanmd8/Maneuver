@@ -129,13 +129,3 @@ const sentry_node_cannon_description =
     `Shoots a fireball in the direction it is aimed.`
 const sentry_node_double_cannon_description =
     `Shoots 2 fireballs in the direction it is aimed.`
-
-/**
-// Shadow of Self
-const shadow_of_self_floor_message = 
-    `A familiar face watches you from the shadows.`;
-const shadow_of_self_description = 
-    `You?`;
-const shadow_of_self_death_message = 
-    `Shadows cannot hold a candle to the real thing.`
-*/
