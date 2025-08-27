@@ -2,9 +2,9 @@
 function thorn_bramble_tile(){
     return{
         type: `terrain`,
-        name: `Thorn Bramble`,
+        name: other_tile_names.thorn_bramble,
         pic: `${IMG_FOLDER.tiles}thorn_bramble.png`,
-        description: thorn_bramble_description,
+        description: other_tile_descriptions.thorn_bramble,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
         health: 1,
         telegraph: hazard_telegraph,

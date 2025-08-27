@@ -2888,56 +2888,77 @@ const enemy_names = {
     vinesnare_bush: `Vinesnare Bush`, 
     walking_prism: `Walking Prism`,
 }
-const lava_pool_description = 
-    `Lava Pool: Attempting to move here will hurt.`;
-const corrosive_slime_description = 
-    `Corrosive Slime: Stepping into this will hurt. Clear it out `
-    +`by attacking.`;
-const wall_description = 
-    `Wall: It seems sturdy.`;
-const damaged_wall_description = 
-    `Damaged Wall: Something might live inside.`;
-const fireball_description = 
-    `Fireball: Moves forwards until it comes into contact with `
-    +`something, then damages it. Cannot be stunned.`;
+
 const falling_rubble_description = 
     `Watch out, something is about to fall here.`;
 const darkling_rift_description = 
     `If this space isn't blocked, a darkling will teleport here `
     +`next turn damaging everything nearby.`;
-const magmatic_boulder_description = 
-    `Magmatic Boulder: The light reflecting off of it gives you the `
-    +`feeling of being watched.`;
-const smoldering_ashes_description = [
-    `Smoldering Ashes: A pheonix will be reborn here in `, 
-    ` turns unless you scatter the ashes by attacking them or moving onto them.`
-];
-const raging_fire_description = 
-    `Raging Fire: The very ground here is burning. It will grow weaker `
-    +`every turn, but it's not safe to move through. Cannot be stunned.`;
-const coffin_description = 
-    `Coffin: There is no telling whether whatever is inside is still `
-    +`alive or not. Touch it at your own risk.`;
-const sewer_grate_description = 
-    `Sewer Grate: It's clogged. Corrosive slime is oozing out.`;
-const repulsor_description = 
-    `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or `
-    +`if touched. Takes 2 turns to recharge afterwards.`;
-const thorn_bramble_description = 
-    `Thorn Bramble: Trying to move here hurts. Allows the thorn bush to `
-    +`spread further.`;
 const thorn_root_description = 
     `Watch out, brambles are about to sprout damaging anything standing here.`
 const swaying_nettle_root_description = 
     `Watch out, swaying nettles are about to sprout damaging anything standing here.`;
-const enticing_fruit_tree_description = 
-    `Enticing Fruit Tree: Moving you here will heal you, but other creatures `
-    +`may be attracted by the fruit.`;
-const rotting_fruit_tree_description = 
-    `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell `
-    +`could still attract creatures if it is disturbed.`;
-const bookshelf_description = 
-    `Bookshelf: When damaged, adds a random temporary card to your deck.`;
+const other_tile_descriptions = {
+    bookshelf: 
+        `Bookshelf: When damaged, adds a random temporary card to your deck.`,
+    coffin: 
+        `Coffin: There is no telling whether whatever is inside is still `
+        +`alive or not. Touch it at your own risk.`,
+    corrosive_slime: 
+        `Corrosive Slime: Stepping into this will hurt. Clear it out `
+        +`by attacking.`,
+    fireball: 
+        `Fireball: Moves forwards until it comes into contact with `
+        +`something, then damages it. Cannot be stunned.`,
+    fruit_tree_enticing: 
+        `Enticing Fruit Tree: Moving you here will heal you, but other creatures `
+        +`may be attracted by the fruit.`,
+    fruit_tree_rotting: 
+        `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell `
+        +`could still attract creatures if it is disturbed.`,
+    lava_pool: 
+        `Lava Pool: Attempting to move here will hurt.`,
+    magmatic_boulder: 
+        `Magmatic Boulder: The light reflecting off of it gives you the `
+        +`feeling of being watched.`,
+    raging_fire: 
+        `Raging Fire: The very ground here is burning. It will grow weaker `
+        +`every turn, but it's not safe to move through. Cannot be stunned.`,
+    repulsor: 
+        `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or `
+        +`if touched. Takes 2 turns to recharge afterwards.`,
+    sewer_grate: 
+        `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
+    smoldering_ashes: [
+        `Smoldering Ashes: A pheonix will be reborn here in `, 
+        ` turns unless you scatter the ashes by attacking them or moving onto them.`
+    ],
+    thorn_bramble: 
+        `Thorn Bramble: Trying to move here hurts. Allows the thorn bush to `
+        +`spread further.`,
+    wall: 
+        `Wall: It seems sturdy.`,
+    wall_damaged: 
+        `Damaged Wall: Something might live inside.`,
+}
+
+const other_tile_names = {
+    bookshelf: `Bookshelf`,
+    coffin: `Coffin`,
+    corrosive_slime: `Corrosive Slime`,
+    fireball: `Fireball`,
+    fruit_tree_enticing: `Enticing Fruit Tree`,
+    fruit_tree_rotting: `Rotting Fruit Tree`,
+    lava_pool: `Lava Pool`,
+    magmatic_boulder: `Magmatic Boulder`,
+    raging_fire: `Raging Fire`,
+    repulsor: `Repulsor`,
+    sewer_grate: `Sewer Grate`,
+    smoldering_ashes: `Smoldering Ashes`,
+    thorn_bramble: `Thorn Brambles`,
+    wall: `Wall`,
+    wall_damaged: `Damaged Wall`,
+}
 
 
 const empty_description = 
@@ -6550,9 +6571,9 @@ function bookshelf_tile(){
     ];
     return {
         type: `terrain`,
-        name: `Bookshelf`,
+        name: other_tile_names.bookshelf,
         pic: pic_arr[health - 1],
-        description: bookshelf_description,
+        description: other_tile_descriptions.bookshelf,
         tags: new TagList([TAGS.unmovable]),
         health,
         on_hit: bookshelf_on_hit,
@@ -6586,9 +6607,9 @@ function bookshelf_on_hit(self, target, map){
 function coffin_tile(){
     return {
         type: `terrain`,
-        name: `Coffin`,
+        name: other_tile_names.coffin,
         pic: `${IMG_FOLDER.tiles}coffin.png`,
-        description: coffin_description,
+        description: other_tile_descriptions.coffin,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: decay_ai,
@@ -6620,9 +6641,9 @@ function coffin_tile_death(self, target, map){
 function corrosive_slime_tile(){
     return {
         type: `terrain`,
-        name: `Corrosive Slime`,
+        name: other_tile_names.corrosive_slime,
         pic: `${IMG_FOLDER.tiles}corrosive_slime.png`,
-        description: corrosive_slime_description,
+        description: other_tile_descriptions.corrosive_slime,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         telegraph: hazard_telegraph,
@@ -6640,9 +6661,9 @@ function fireball_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}fireball_n.png`, `${IMG_FOLDER.tiles}fireball_nw.png`];
     return {
         type: `enemy`,
-        name: `Fireball`,
+        name: other_tile_names.fireball,
         pic: `${IMG_FOLDER.tiles}fireball.png`,
-        description: fireball_description,
+        description: other_tile_descriptions.fireball,
         tags: new TagList([TAGS.fireball, TAGS.unstunnable]),
         behavior: fireball_ai,
         telegraph: fireball_telegraph,
@@ -6695,9 +6716,9 @@ function shoot_fireball(direction){
 function enticing_fruit_tree_tile(){
     return {
         type: `terrain`,
-        name: `Enticing Fruit Tree`,
+        name: other_tile_names.fruit_tree_enticing,
         pic: `${IMG_FOLDER.tiles}enticing_fruit_tree.png`,
-        description: enticing_fruit_tree_description,
+        description: other_tile_descriptions.fruit_tree_enticing,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: enticing_fruit_tree_on_enter,
@@ -6728,9 +6749,9 @@ const FRUIT_TREE_SUMMONS = [carrion_flies_tile, ram_tile, living_tree_tile, scyt
 function rotting_fruit_tree_tile(){
     return {
         type: `terrain`,
-        name: `Rotting Fruit Tree`,
+        name: other_tile_names.fruit_tree_rotting,
         pic: `${IMG_FOLDER.tiles}rotting_fruit_tree.png`,
-        description: rotting_fruit_tree_description,
+        description: other_tile_descriptions.fruit_tree_rotting,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: decay_ai,
@@ -6750,32 +6771,13 @@ function rotting_fruit_tree_on_death(self, target, map){
         spawn_nearby(map, new_spawn, self.location);
     }
 }
-/** @type {TileGenerator} Illusion created by Shadow of Self.*/
-function illusion_of_self_tile(){
-    var player = GS.map.get_player();
-    return {
-        type: `enemy`,
-        name: `Player`,
-        pic: `${IMG_FOLDER.tiles}helmet.png`,
-        description: player_description,
-        tags: new TagList(),
-        behavior: self_destruct,
-        health: player.health,
-        max_health: player.max_health    
-    }
-}
-
-function self_destruct(self, target, map){
-    self.tile.health = 1;
-    map.attack(self.location);
-}
 /** @type {TileGenerator} A hazardous pool of lava.*/
 function lava_pool_tile(){
     return {
         type: `terrain`,
-        name: `Lava Pool`,
+        name: other_tile_names.lava_pool,
         pic: `${IMG_FOLDER.tiles}lava_pool.png`,
-        description: lava_pool_description,
+        description: other_tile_descriptions.lava_pool,
         tags: new TagList([TAGS.unmovable]),
         telegraph: hazard_telegraph,
         on_enter: hazard
@@ -6786,9 +6788,9 @@ function lava_pool_tile(){
 function magmatic_boulder_tile(){
     return {
         type: `terrain`,
-        name: `Magmatic Boulder`,
+        name: other_tile_names.magmatic_boulder,
         pic: `${IMG_FOLDER.tiles}magmatic_boulder.png`,
-        description: magmatic_boulder_description,
+        description: other_tile_descriptions.magmatic_boulder,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -6798,9 +6800,9 @@ function raging_fire_tile(){
     var health = 2;
     return {
         type: `enemy`,
-        name: `Raging Fire`,
+        name: other_tile_names.raging_fire,
         pic: pic_arr[health - 1],
-        description: raging_fire_description,
+        description: other_tile_descriptions.raging_fire,
         tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
         health,
         behavior: decay_ai,
@@ -6831,9 +6833,9 @@ function repulsor_tile(){
     var starting_cycle = 0;
     return {
         type: `enemy`,
-        name: `Repulsor`,
+        name: other_tile_names.repulsor,
         pic: pic_arr[starting_cycle],
-        description: repulsor_description,
+        description: other_tile_descriptions.repulsor,
         tags: new TagList([TAGS.unmovable]),
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
@@ -6920,9 +6922,9 @@ function repulsor_telegraph_other(location, map, self){
 function sewer_grate_tile(){
     return{
         type: `enemy`,
-        name: `Sewer Grate`,
+        name: other_tile_names.sewer_grate,
         pic: `${IMG_FOLDER.tiles}sewer_grate.png`,
-        description: sewer_grate_description,
+        description: other_tile_descriptions.sewer_grate,
         tags: new TagList([TAGS.unmovable]),
         behavior: sewer_grate_ai,
     }
@@ -6935,16 +6937,17 @@ function sewer_grate_ai(self, target, map){
 /** @type {TileGenerator} Dropped by Pheonixes to respawn them. */
 function smoldering_ashes_tile(){
     var spawn_timer = 2;
+    var desc = other_tile_descriptions.smoldering_ashes;
     return {
         type: `enemy`,
-        name: `Smoldering Ashes`,
+        name: other_tile_names.smoldering_ashes,
         pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
-        description: `${smoldering_ashes_description[0]}${spawn_timer}${smoldering_ashes_description[1]}`,
+        description: `${desc[0]}${spawn_timer}${desc[1]}`,
         tags: new TagList(),
         health: 1,
         behavior: smoldering_ashes_ai,
         on_enter: decay_ai,
-        description_arr: smoldering_ashes_description,
+        description_arr: desc,
         cycle: 0,
         spawn_timer
     }
@@ -6974,9 +6977,9 @@ function smoldering_ashes_ai(self, target, map){
 function thorn_bramble_tile(){
     return{
         type: `terrain`,
-        name: `Thorn Bramble`,
+        name: other_tile_names.thorn_bramble,
         pic: `${IMG_FOLDER.tiles}thorn_bramble.png`,
-        description: thorn_bramble_description,
+        description: other_tile_descriptions.thorn_bramble,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
         health: 1,
         telegraph: hazard_telegraph,
@@ -6990,9 +6993,9 @@ function damaged_wall_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}very_damaged_wall.png`, `${IMG_FOLDER.tiles}damaged_wall.png`];
     return {
         type: `terrain`,
-        name: `Damaged Wall`,
+        name: other_tile_names.wall_damaged,
         pic: pic_arr[health - 1],
-        description: damaged_wall_description,
+        description: other_tile_descriptions.wall_damaged,
         tags: new TagList([TAGS.unmovable]),
         health,
         on_hit: damaged_wall_on_hit,
@@ -7028,9 +7031,9 @@ function damaged_wall_death(self, target, map){
 function wall_tile(){
     return {
         type: `terrain`,
-        name: `Wall`,
+        name: other_tile_names.wall,
         pic: `${IMG_FOLDER.tiles}wall.png`,
-        description: wall_description,
+        description: other_tile_descriptions.wall,
         tags: new TagList([TAGS.unmovable]),
     }
 }

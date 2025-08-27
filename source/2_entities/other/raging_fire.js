@@ -4,9 +4,9 @@ function raging_fire_tile(){
     var health = 2;
     return {
         type: `enemy`,
-        name: `Raging Fire`,
+        name: other_tile_names.raging_fire,
         pic: pic_arr[health - 1],
-        description: raging_fire_description,
+        description: other_tile_descriptions.raging_fire,
         tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
         health,
         behavior: decay_ai,

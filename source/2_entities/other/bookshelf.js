@@ -8,9 +8,9 @@ function bookshelf_tile(){
     ];
     return {
         type: `terrain`,
-        name: `Bookshelf`,
+        name: other_tile_names.bookshelf,
         pic: pic_arr[health - 1],
-        description: bookshelf_description,
+        description: other_tile_descriptions.bookshelf,
         tags: new TagList([TAGS.unmovable]),
         health,
         on_hit: bookshelf_on_hit,

@@ -2,9 +2,9 @@
 function sewer_grate_tile(){
     return{
         type: `enemy`,
-        name: `Sewer Grate`,
+        name: other_tile_names.sewer_grate,
         pic: `${IMG_FOLDER.tiles}sewer_grate.png`,
-        description: sewer_grate_description,
+        description: other_tile_descriptions.sewer_grate,
         tags: new TagList([TAGS.unmovable]),
         behavior: sewer_grate_ai,
     }

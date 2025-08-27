@@ -2,9 +2,9 @@
 function coffin_tile(){
     return {
         type: `terrain`,
-        name: `Coffin`,
+        name: other_tile_names.coffin,
         pic: `${IMG_FOLDER.tiles}coffin.png`,
-        description: coffin_description,
+        description: other_tile_descriptions.coffin,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: decay_ai,

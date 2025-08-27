@@ -2,9 +2,9 @@
 function enticing_fruit_tree_tile(){
     return {
         type: `terrain`,
-        name: `Enticing Fruit Tree`,
+        name: other_tile_names.fruit_tree_enticing,
         pic: `${IMG_FOLDER.tiles}enticing_fruit_tree.png`,
-        description: enticing_fruit_tree_description,
+        description: other_tile_descriptions.fruit_tree_enticing,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: enticing_fruit_tree_on_enter,
