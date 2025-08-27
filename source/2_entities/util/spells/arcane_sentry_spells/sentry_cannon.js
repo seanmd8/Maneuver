@@ -22,7 +22,7 @@ function sentry_transform_cannon(self, target, map){
             var node_difference = target.difference.minus(node.target.difference);
             if(node_difference.plus(direction).on_axis()){
                 // Node is behind the core so should be double cannon.
-                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_h.png`;
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_o.png`;
                 tile.behavior = node_double_cannon_behavior;
                 tile.telegraph = node_double_cannon_telegraph;
                 tile.description = 
@@ -31,7 +31,7 @@ function sentry_transform_cannon(self, target, map){
             }
             else{
                 // Single cannon.
-                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_h.png`;
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_o.png`;
                 tile.behavior = node_cannon_behavior;
                 tile.telegraph = node_cannon_telegraph;
                 tile.description = 
@@ -40,7 +40,7 @@ function sentry_transform_cannon(self, target, map){
             }
         }
         // Core is single cannon.
-        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_h.png`;
+        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_o.png`;
         self.tile.direction = direction;
         set_rotation(self.tile);
         self.tile.telegraph = node_cannon_telegraph;

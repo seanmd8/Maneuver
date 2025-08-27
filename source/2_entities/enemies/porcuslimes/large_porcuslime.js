@@ -28,7 +28,7 @@ function large_porcuslime_ai(self, target, map){
         map.attack(self.location);
         map.clear_telegraphs();
         spawn_nearby(map, small_d_porcuslime_tile(), self.location);
-        spawn_nearby(map, small_h_porcuslime_tile(), self.location);
+        spawn_nearby(map, small_o_porcuslime_tile(), self.location);
         return;
     }
     var direction = sign(target.difference);

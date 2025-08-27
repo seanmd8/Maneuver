@@ -127,4 +127,3 @@ const HTML_UIIDS = {
 Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
-

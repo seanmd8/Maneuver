@@ -1,5 +1,4 @@
 
-
 const boon_names = {
     ancient_card: `Ancient Card`,
     bitter_determination: `Bitter Determination`,

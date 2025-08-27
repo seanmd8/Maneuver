@@ -1,4 +1,3 @@
-// Area Descriptions.
 
 const area_descriptions = {
     ruins: 

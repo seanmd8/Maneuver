@@ -95,5 +95,5 @@ function ram_telegraph(location, map, self){
     if(self.cycle === 0){
         return [];
     }
-    return turret_h_telegraph(location, map, self);
+    return turret_o_telegraph(location, map, self);
 }

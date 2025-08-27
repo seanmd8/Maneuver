@@ -1,16 +1,16 @@
 /** @type {TileGenerator} */
-function moving_turret_h_tile(){
+function moving_turret_o_tile(){
     var direction = rand_from(HORIZONTAL_DIRECTIONS).copy();
     var tile = {
         type: entity_types.enemy,
         name: enemy_names.turret_m,
-        pic: `${IMG_FOLDER.tiles}moving_turret_h.png`,
+        pic: `${IMG_FOLDER.tiles}moving_turret_o.png`,
         description: enemy_descriptions.turret_m,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
-        behavior: moving_turret_h_ai,
-        telegraph: moving_turret_h_telegraph,
+        behavior: moving_turret_o_ai,
+        telegraph: moving_turret_o_telegraph,
         rotate: 0,
         direction
     }
@@ -19,7 +19,7 @@ function moving_turret_h_tile(){
 }
 
 /** @type {AIFunction} AI used by moving turrets that shoot orthogonally.*/
-function moving_turret_h_ai(self, target, map){
+function moving_turret_o_ai(self, target, map){
     if( self.tile.rotate === undefined || 
         self.tile.direction === undefined){
         throw new Error(ERRORS.missing_property)
@@ -40,7 +40,7 @@ function moving_turret_h_ai(self, target, map){
 }
 
 /** @type {TelegraphFunction} */
-function moving_turret_h_telegraph(location, map, self){
+function moving_turret_o_telegraph(location, map, self){
     var attacks = [];
     for(var direction of [self.direction.rotate(90), self.direction.rotate(-90)]){
         attacks.push(...get_points_in_direction(location, direction, map));

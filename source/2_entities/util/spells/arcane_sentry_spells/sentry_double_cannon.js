@@ -1,13 +1,13 @@
 
 function node_double_cannon_behavior(self, target, map){
     if(self.tile.direction.on_axis()){
-        node_h_double_cannon_ai(self, target, map);
+        node_o_double_cannon_ai(self, target, map);
     }
     else{
         node_d_double_cannon_ai(self, target, map);
     }
 }
-function node_h_double_cannon_ai(self, target, map){
+function node_o_double_cannon_ai(self, target, map){
     var dir = self.tile.direction;    
     var spawnpoints = [
         self.location.plus(dir.plus(dir.rotate(90))), 
@@ -52,6 +52,6 @@ function node_double_cannon_telegraph(location, map, self){
         ];
     }
     return locations.filter((p) => {
-        map.is_in_bounds(p) && !map.get_tile(p).tags.has(TAGS.arcane_sentry);
+        return map.is_in_bounds(p) && !map.get_tile(p).tags.has(TAGS.arcane_sentry);
     });
 }

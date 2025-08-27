@@ -2212,7 +2212,6 @@ const action_types = {
     attack_until: `Attack Until`,
     heal: `Heal`,
 }
-// Area Descriptions.
 
 const area_descriptions = {
     ruins: 
@@ -2235,7 +2234,6 @@ const area_descriptions = {
         `You have reached the end of the current content. Floors will continue to generate but `
         +`there will be no more boss fights. Good luck.`,
 }
-
 
 
 const boon_names = {
@@ -3348,7 +3346,6 @@ const HTML_UIIDS = {
 Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
-
 
 SENTRY_MODES = Object.freeze({
     saw: "Saw",
@@ -5292,7 +5289,7 @@ function large_porcuslime_ai(self, target, map){
         map.attack(self.location);
         map.clear_telegraphs();
         spawn_nearby(map, small_d_porcuslime_tile(), self.location);
-        spawn_nearby(map, small_h_porcuslime_tile(), self.location);
+        spawn_nearby(map, small_o_porcuslime_tile(), self.location);
         return;
     }
     var direction = sign(target.difference);
@@ -5309,7 +5306,7 @@ function large_porcuslime_telegraph(location, map, self){
 /** @type {TileGenerator} */
 function medium_porcuslime_tile(){
     var starting_cycle = random_num(2);
-    var pic_arr = [`${IMG_FOLDER.tiles}medium_h_porcuslime.png`, `${IMG_FOLDER.tiles}medium_d_porcuslime.png`];
+    var pic_arr = [`${IMG_FOLDER.tiles}medium_o_porcuslime.png`, `${IMG_FOLDER.tiles}medium_d_porcuslime.png`];
     return {
         type: entity_types.enemy,
         name: enemy_names.porcuslime_medium,
@@ -5336,7 +5333,7 @@ function medium_porcuslime_ai(self, target, map){
         map.attack(self.location);
         map.clear_telegraphs();
         spawn_nearby(map, small_d_porcuslime_tile(), self.location);
-        spawn_nearby(map, small_h_porcuslime_tile(), self.location);
+        spawn_nearby(map, small_o_porcuslime_tile(), self.location);
         return;
     }
     if(self.tile.cycle === 0){
@@ -5411,11 +5408,11 @@ function small_d_porcuslime_tile(){
     }
 }
 /** @type {TileGenerator} */
-function small_h_porcuslime_tile(){
+function small_o_porcuslime_tile(){
     return {
         type: entity_types.enemy,
         name: enemy_names.porcuslime_small,
-        pic: `${IMG_FOLDER.tiles}small_h_porcuslime.png`,
+        pic: `${IMG_FOLDER.tiles}small_o_porcuslime.png`,
         description: enemy_descriptions.porcuslime_small_h,
         tags: new TagList(),
         health: 1,
@@ -5521,7 +5518,7 @@ function ram_telegraph(location, map, self){
     if(self.cycle === 0){
         return [];
     }
-    return turret_h_telegraph(location, map, self);
+    return turret_o_telegraph(location, map, self);
 }
 /** @type {TileGenerator} */
 function rat_tile(){
@@ -6136,18 +6133,18 @@ function moving_turret_d_telegraph(location, map, self){
     return attacks;
 }
 /** @type {TileGenerator} */
-function moving_turret_h_tile(){
+function moving_turret_o_tile(){
     var direction = rand_from(HORIZONTAL_DIRECTIONS).copy();
     var tile = {
         type: entity_types.enemy,
         name: enemy_names.turret_m,
-        pic: `${IMG_FOLDER.tiles}moving_turret_h.png`,
+        pic: `${IMG_FOLDER.tiles}moving_turret_o.png`,
         description: enemy_descriptions.turret_m,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
-        behavior: moving_turret_h_ai,
-        telegraph: moving_turret_h_telegraph,
+        behavior: moving_turret_o_ai,
+        telegraph: moving_turret_o_telegraph,
         rotate: 0,
         direction
     }
@@ -6156,7 +6153,7 @@ function moving_turret_h_tile(){
 }
 
 /** @type {AIFunction} AI used by moving turrets that shoot orthogonally.*/
-function moving_turret_h_ai(self, target, map){
+function moving_turret_o_ai(self, target, map){
     if( self.tile.rotate === undefined || 
         self.tile.direction === undefined){
         throw new Error(ERRORS.missing_property)
@@ -6177,7 +6174,7 @@ function moving_turret_h_ai(self, target, map){
 }
 
 /** @type {TelegraphFunction} */
-function moving_turret_h_telegraph(location, map, self){
+function moving_turret_o_telegraph(location, map, self){
     var attacks = [];
     for(var direction of [self.direction.rotate(90), self.direction.rotate(-90)]){
         attacks.push(...get_points_in_direction(location, direction, map));
@@ -6225,22 +6222,22 @@ function turret_d_telegraph(location, map, self){
     return attacks;
 }
 /** @type {TileGenerator} */
-function turret_h_tile(){
+function turret_o_tile(){
     return {
         type: entity_types.enemy,
         name: enemy_names.turret,
-        pic: `${IMG_FOLDER.tiles}turret_h.png`,
+        pic: `${IMG_FOLDER.tiles}turret_o.png`,
         description: enemy_descriptions.turret_h,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
-        behavior: turret_h_ai,
-        telegraph: turret_h_telegraph
+        behavior: turret_o_ai,
+        telegraph: turret_o_telegraph
     }
 }
 
 /** @type {AIFunction} AI used by turrets that shoot orthogonally.*/
-function turret_h_ai(self, target, map){
+function turret_o_ai(self, target, map){
     // Turret version that shoots orthogonally.
     if(target.difference.on_axis()){
         turret_fire_ai(self, target, map);
@@ -6251,7 +6248,7 @@ function turret_h_ai(self, target, map){
 }
 
 /** @type {TelegraphFunction} */
-function turret_h_telegraph(location, map, self){
+function turret_o_telegraph(location, map, self){
     var attacks = [];
     for(var direction of HORIZONTAL_DIRECTIONS){
         attacks.push(...get_points_in_direction(location, direction, map));
@@ -6547,7 +6544,7 @@ function vinesnare_bush_telegraph_other(location, map, self){
 }
 /** @type {TileGenerator} */
 function walking_prism_tile(){
-    var pic_arr = [`${IMG_FOLDER.tiles}walking_prism_h.png`, `${IMG_FOLDER.tiles}walking_prism_d.png`];
+    var pic_arr = [`${IMG_FOLDER.tiles}walking_prism_o.png`, `${IMG_FOLDER.tiles}walking_prism_d.png`];
     var description_arr = enemy_descriptions.walking_prism;
     var starting_cycle = random_num(pic_arr.length);
     return {
@@ -6612,7 +6609,7 @@ function walking_prism_telegraph(location, map, self){
         throw new Error(ERRORS.missing_property);
     }
     if(self.cycle === 0){
-        return turret_h_telegraph(location, map, self);
+        return turret_o_telegraph(location, map, self);
     }
     return turret_d_telegraph(location, map, self);
 }
@@ -7561,13 +7558,13 @@ function growth_event(points, root, grown){
 
 // This is a array of all the enemies that can be spawned on a normal floor.
 const ENEMY_LIST = [
-    spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, shadow_knight_tile, 
+    spider_tile, turret_d_tile, turret_o_tile, turret_r_tile, shadow_knight_tile, 
     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, animated_boulder_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
-    moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
+    moving_turret_d_tile, moving_turret_o_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
     paper_construct_tile, specter_tile, gem_crawler_tile
 ];
 
@@ -7912,7 +7909,7 @@ function sentry_transform_cannon(self, target, map){
             var node_difference = target.difference.minus(node.target.difference);
             if(node_difference.plus(direction).on_axis()){
                 // Node is behind the core so should be double cannon.
-                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_h.png`;
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_o.png`;
                 tile.behavior = node_double_cannon_behavior;
                 tile.telegraph = node_double_cannon_telegraph;
                 tile.description = 
@@ -7921,7 +7918,7 @@ function sentry_transform_cannon(self, target, map){
             }
             else{
                 // Single cannon.
-                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_h.png`;
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_o.png`;
                 tile.behavior = node_cannon_behavior;
                 tile.telegraph = node_cannon_telegraph;
                 tile.description = 
@@ -7930,7 +7927,7 @@ function sentry_transform_cannon(self, target, map){
             }
         }
         // Core is single cannon.
-        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_h.png`;
+        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_o.png`;
         self.tile.direction = direction;
         set_rotation(self.tile);
         self.tile.telegraph = node_cannon_telegraph;
@@ -7987,13 +7984,13 @@ function sentry_cannon_direction(difference){
 
 function node_double_cannon_behavior(self, target, map){
     if(self.tile.direction.on_axis()){
-        node_h_double_cannon_ai(self, target, map);
+        node_o_double_cannon_ai(self, target, map);
     }
     else{
         node_d_double_cannon_ai(self, target, map);
     }
 }
-function node_h_double_cannon_ai(self, target, map){
+function node_o_double_cannon_ai(self, target, map){
     var dir = self.tile.direction;    
     var spawnpoints = [
         self.location.plus(dir.plus(dir.rotate(90))), 
@@ -8038,7 +8035,7 @@ function node_double_cannon_telegraph(location, map, self){
         ];
     }
     return locations.filter((p) => {
-        map.is_in_bounds(p) && !map.get_tile(p).tags.has(TAGS.arcane_sentry);
+        return map.is_in_bounds(p) && !map.get_tile(p).tags.has(TAGS.arcane_sentry);
     });
 }
 
@@ -11371,7 +11368,7 @@ function generate_basement_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}basement.png`,
         generate_floor: generate_basement_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, 
+        enemy_list: [spider_tile, turret_o_tile, turret_d_tile, turret_r_tile, scythe_tile, 
                     spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
         boss_floor_list: [spider_queen_floor],
         next_area_list: area3,
@@ -11474,7 +11471,7 @@ function generate_library_area(){
         background: `${IMG_FOLDER.backgrounds}library.png`,
         generate_floor: generate_library_floor,
         enemy_list: [
-            moving_turret_h_tile, moving_turret_d_tile, brightling_tile, captive_void_tile, paper_construct_tile,
+            moving_turret_o_tile, moving_turret_d_tile, brightling_tile, captive_void_tile, paper_construct_tile,
             unstable_wisp_tile, walking_prism_tile, specter_tile, clay_golem_tile, gem_crawler_tile
         ],
         boss_floor_list: [arcane_sentry_floor],
@@ -11596,7 +11593,7 @@ function generate_ruins_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}ruins.png`,
         generate_floor: generate_ruins_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, vinesnare_bush_tile, 
+        enemy_list: [spider_tile, turret_o_tile, turret_d_tile, scythe_tile, vinesnare_bush_tile, 
                     ram_tile, rat_tile, shadow_knight_tile],
         boss_floor_list: [velociphile_floor],
         next_area_list: area2,
@@ -11614,7 +11611,7 @@ function generate_sewers_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}sewers.png`,
         generate_floor: generate_sewers_floor,
-        enemy_list: [rat_tile, turret_h_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, 
+        enemy_list: [rat_tile, turret_o_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, 
                     corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile, carrion_flies_tile],
         boss_floor_list: [two_headed_serpent_floor],
         next_area_list: area3,

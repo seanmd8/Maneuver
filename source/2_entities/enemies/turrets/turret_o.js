@@ -1,20 +1,20 @@
 /** @type {TileGenerator} */
-function turret_h_tile(){
+function turret_o_tile(){
     return {
         type: entity_types.enemy,
         name: enemy_names.turret,
-        pic: `${IMG_FOLDER.tiles}turret_h.png`,
+        pic: `${IMG_FOLDER.tiles}turret_o.png`,
         description: enemy_descriptions.turret_h,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
-        behavior: turret_h_ai,
-        telegraph: turret_h_telegraph
+        behavior: turret_o_ai,
+        telegraph: turret_o_telegraph
     }
 }
 
 /** @type {AIFunction} AI used by turrets that shoot orthogonally.*/
-function turret_h_ai(self, target, map){
+function turret_o_ai(self, target, map){
     // Turret version that shoots orthogonally.
     if(target.difference.on_axis()){
         turret_fire_ai(self, target, map);
@@ -25,7 +25,7 @@ function turret_h_ai(self, target, map){
 }
 
 /** @type {TelegraphFunction} */
-function turret_h_telegraph(location, map, self){
+function turret_o_telegraph(location, map, self){
     var attacks = [];
     for(var direction of HORIZONTAL_DIRECTIONS){
         attacks.push(...get_points_in_direction(location, direction, map));
