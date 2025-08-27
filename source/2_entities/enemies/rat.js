@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function rat_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.rat,
         pic: `${IMG_FOLDER.tiles}rat.png`,
         description: enemy_descriptions.rat,

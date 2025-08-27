@@ -5,7 +5,7 @@ function spider_queen_tile(){
         health -= 2;
     }
     return{
-        type: `enemy`,
+        type: entity_types.enemy,
         name: boss_names.spider_queen,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
         description: boss_descriptions.spider_queen,

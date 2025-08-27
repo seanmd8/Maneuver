@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function carrion_flies_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.carrion_flies,
         pic: `${IMG_FOLDER.tiles}carrion_flies.png`,
         description: enemy_descriptions.carrion_flies,

@@ -1,7 +1,7 @@
 /** @type {TileGenerator} Generates an uncamoflauged animated boulder. */
 function animated_boulder_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.animated_boulder,
         pic: `${IMG_FOLDER.tiles}animated_boulder.png`,
         description: enemy_descriptions.animated_boulder,

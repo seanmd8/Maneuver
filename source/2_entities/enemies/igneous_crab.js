@@ -1,7 +1,7 @@
 /** @type {TileGenerator} A crab which flees when hit. */
 function igneous_crab_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.igneous_crab,
         pic: `${IMG_FOLDER.tiles}igneous_crab.png`,
         description: enemy_descriptions.igneous_crab,

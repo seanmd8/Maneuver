@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function corrosive_caterpillar_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.corrosive_caterpillar,
         pic: `${IMG_FOLDER.tiles}corrosive_caterpillar.png`,
         description: enemy_descriptions.corrosive_caterpillar,

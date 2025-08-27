@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function turret_r_tile(){
     var tile = {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.turret_r,
         pic: ``,
         description: enemy_descriptions.turret_r,

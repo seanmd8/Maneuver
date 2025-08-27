@@ -1,8 +1,8 @@
 /** @type {TileGenerator} The starting player.*/
 function player_tile(){
     return {
-        type: `player`,
-        name: special_tile_names.player,
+        type: entity_types.player,
+        name: special_tile_names.you,
         pic: `${IMG_FOLDER.tiles}helmet.png`,
         description: special_tile_descriptions.player,
         tags: new TagList(),

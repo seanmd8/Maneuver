@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function unstable_wisp_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.unstable_wisp,
         pic: `${IMG_FOLDER.tiles}unstable_wisp.png`, 
         description: enemy_descriptions.unstable_wisp,

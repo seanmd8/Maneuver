@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function strider_tile(){
     return{
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.strider,
         pic: `${IMG_FOLDER.tiles}strider.png`,
         description: enemy_descriptions.strider,

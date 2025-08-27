@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function turret_h_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.turret,
         pic: `${IMG_FOLDER.tiles}turret_h.png`,
         description: enemy_descriptions.turret_h,

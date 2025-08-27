@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function paper_construct_tile(){
     return{
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.paper_construct,
         pic: `${IMG_FOLDER.tiles}paper_construct.png`,
         description: enemy_descriptions.paper_construct,

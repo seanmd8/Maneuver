@@ -1,7 +1,7 @@
 /** @type {TileGenerator} Like the normal chest, but it is invulnerable.*/
 function armored_chest_tile(){
     return {
-        type: `chest`,
+        type: entity_types.chest,
         name: special_tile_names.chest_armored,
         pic: `${IMG_FOLDER.tiles}armored_chest.png`,
         description: special_tile_descriptions.chest_armored,

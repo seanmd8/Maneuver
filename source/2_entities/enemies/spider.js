@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function spider_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.spider,
         pic: `${IMG_FOLDER.tiles}spider.png`,
         description: enemy_descriptions.spider,

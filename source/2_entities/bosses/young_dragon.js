@@ -13,7 +13,7 @@ function young_dragon_tile(){
         health -= 2;
     }
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: boss_names.young_dragon,
         pic: pic_arr[0],
         description: `${boss_descriptions.young_dragon[0]}${boss_descriptions.young_dragon[1]}`,

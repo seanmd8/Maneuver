@@ -2,7 +2,7 @@
 function two_headed_serpent_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}serpent_head_sleep.png`, `${IMG_FOLDER.tiles}serpent_head.png`];
     return{
-        type: `enemy`,
+        type: entity_types.enemy,
         name: boss_names.two_headed_serpent,
         pic: pic_arr[1],
         description: boss_descriptions.two_headed_serpent_awake,
@@ -23,7 +23,7 @@ function two_headed_serpent_tile(){
 function two_headed_serpent_body_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}serpent_body_straight.png`, `${IMG_FOLDER.tiles}serpent_body_bend.png`];
     return{
-        type: `terrain`,
+        type: entity_types.terrain,
         name: boss_names.two_headed_serpent_body,
         pic: pic_arr[0],
         description: boss_descriptions.two_headed_serpent_body,

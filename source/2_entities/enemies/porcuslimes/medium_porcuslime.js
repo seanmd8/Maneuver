@@ -3,7 +3,7 @@ function medium_porcuslime_tile(){
     var starting_cycle = random_num(2);
     var pic_arr = [`${IMG_FOLDER.tiles}medium_h_porcuslime.png`, `${IMG_FOLDER.tiles}medium_d_porcuslime.png`];
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.porcuslime_medium,
         pic: pic_arr[starting_cycle],
         description: enemy_descriptions.porcuslime_medium,

@@ -4,7 +4,7 @@ function walking_prism_tile(){
     var description_arr = enemy_descriptions.walking_prism;
     var starting_cycle = random_num(pic_arr.length);
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.walking_prism,
         pic: pic_arr[starting_cycle],
         description: `${description_arr[0]}${description_arr[1 + starting_cycle]}`, 

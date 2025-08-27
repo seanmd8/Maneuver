@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function thorn_bramble_tile(){
     return{
-        type: `terrain`,
+        type: entity_types.terrain,
         name: other_tile_names.thorn_bramble,
         pic: `${IMG_FOLDER.tiles}thorn_bramble.png`,
         description: other_tile_descriptions.thorn_bramble,

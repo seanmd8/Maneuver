@@ -3,7 +3,7 @@ function orb_of_insanity_tile(){
     var range = 2;
     var pic_arr = [`${IMG_FOLDER.tiles}orb_of_insanity_off.png`, `${IMG_FOLDER.tiles}orb_of_insanity_on.png`];
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.orb_of_insanity,
         pic: pic_arr[0],
         description: enemy_descriptions.orb_of_insanity,

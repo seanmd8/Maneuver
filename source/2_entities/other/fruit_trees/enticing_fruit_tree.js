@@ -1,7 +1,7 @@
 /** @type {TileGenerator} A healing fruit that spawns enemies.*/
 function enticing_fruit_tree_tile(){
     return {
-        type: `terrain`,
+        type: entity_types.terrain,
         name: other_tile_names.fruit_tree_enticing,
         pic: `${IMG_FOLDER.tiles}enticing_fruit_tree.png`,
         description: other_tile_descriptions.fruit_tree_enticing,
@@ -17,7 +17,7 @@ function enticing_fruit_tree_on_enter(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(target.tile.type !== `player`){
+    if(target.tile.type !== entity_types.player){
         return;
     }
     map.heal(self.location.plus(target.difference), 1);

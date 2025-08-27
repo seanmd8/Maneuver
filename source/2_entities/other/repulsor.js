@@ -3,7 +3,7 @@ function repulsor_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}repulsor.png`, `${IMG_FOLDER.tiles}repulsor_reloading.png`];
     var starting_cycle = 0;
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: other_tile_names.repulsor,
         pic: pic_arr[starting_cycle],
         description: other_tile_descriptions.repulsor,
@@ -34,7 +34,7 @@ function repulsor_push_ai(self, target, map){
         if(map.is_in_bounds(target_space)){
             var target_tile = map.get_tile(target_space);
             if(!target_tile.tags.has(TAGS.unmovable)){
-                if(target_tile.type === `player`){
+                if(target_tile.type === entity_types.player){
                     player_was_moved = true;
                 }
                 activated = true;

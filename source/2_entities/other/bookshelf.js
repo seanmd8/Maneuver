@@ -7,7 +7,7 @@ function bookshelf_tile(){
         `${IMG_FOLDER.tiles}bookshelf_full.png`
     ];
     return {
-        type: `terrain`,
+        type: entity_types.terrain,
         name: other_tile_names.bookshelf,
         pic: pic_arr[health - 1],
         description: other_tile_descriptions.bookshelf,

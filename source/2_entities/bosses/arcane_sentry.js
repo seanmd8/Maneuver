@@ -14,7 +14,7 @@ function arcane_sentry_tile(){
         health -= 2;
     }
     return{
-        type: `enemy`,
+        type: entity_types.enemy,
         name: boss_names.arcane_sentry,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
         description: boss_descriptions.arcane_sentry,
@@ -37,7 +37,7 @@ function arcane_node_tile(){
         health -= 2;
     }
     return{
-        type: `enemy`,
+        type: entity_types.enemy,
         name: boss_names.arcane_sentry_node,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret`,
         description: boss_descriptions.arcane_sentry_node,

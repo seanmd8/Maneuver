@@ -27,7 +27,7 @@ function lich_tile(){
     }
     var starting_cycle = 0;
     return{
-        type: `enemy`,
+        type: entity_types.enemy,
         name: boss_names.lich,
         pic: spells[starting_cycle].pic,
         description: 

@@ -2,7 +2,7 @@
 function moving_turret_h_tile(){
     var direction = rand_from(HORIZONTAL_DIRECTIONS).copy();
     var tile = {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.turret_m,
         pic: `${IMG_FOLDER.tiles}moving_turret_h.png`,
         description: enemy_descriptions.turret_m,

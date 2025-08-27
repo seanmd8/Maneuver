@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function scorpion_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.scorpion,
         pic: `${IMG_FOLDER.tiles}scorpion.png`,
         description: enemy_descriptions.scorpion,

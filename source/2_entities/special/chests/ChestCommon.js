@@ -11,7 +11,7 @@ function chest_on_enter(self, target, map){
     if(self.tile.contents === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(target.tile.type !== `player`){
+    if(target.tile.type !== entity_types.player){
         return;
     }
     self.tile.health = 1;

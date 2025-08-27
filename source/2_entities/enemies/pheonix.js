@@ -1,7 +1,7 @@
 /** @type {TileGenerator}*/
 function pheonix_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.pheonix,
         pic: `${IMG_FOLDER.tiles}pheonix.png`,
         description: enemy_descriptions.pheonix,

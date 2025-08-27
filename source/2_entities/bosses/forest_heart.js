@@ -35,7 +35,7 @@ function forest_heart_tile(){
     ];
     var health = 12
     var tile = {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: boss_names.forest_heart,
         pic: pic_arr[0],
         description: boss_descriptions.forest_heart + heart_spell_descriptions.rest,

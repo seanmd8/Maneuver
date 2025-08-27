@@ -108,10 +108,10 @@ class EntityList{
      * @param {Tile} entity The Tile to be moved
      */
     move_any(location, entity){
-        if(entity.type === `player`){
+        if(entity.type === entity_types.player){
             this.set_player_pos(location);
         }
-        else if(entity.type === `enemy`){
+        else if(entity.type === entity_types.enemy){
             if(entity.id === undefined){
                 throw new Error(ERRORS.missing_id);
             }

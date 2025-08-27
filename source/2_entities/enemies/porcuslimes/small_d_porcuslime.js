@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function small_d_porcuslime_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.porcuslime_small,
         pic: `${IMG_FOLDER.tiles}small_d_porcuslime.png`,
         description: enemy_descriptions.porcuslime_small_d,

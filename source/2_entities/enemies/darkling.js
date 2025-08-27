@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function darkling_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.darkling,
         pic: `${IMG_FOLDER.tiles}darkling.png`,
         description: enemy_descriptions.darkling,

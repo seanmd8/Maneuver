@@ -16,7 +16,8 @@ const special_tile_names = {
     empty: `Empty`,
     exit: `Exit`,
     lock: `Locked Exit`,
-    player: `You`,
+    you: `You`,
+    player: `Player`,
 }
 
 const chest_text = {

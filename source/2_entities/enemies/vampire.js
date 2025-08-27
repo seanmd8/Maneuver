@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function vampire_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.vampire,
         pic: `${IMG_FOLDER.tiles}vampire.png`,
         description: enemy_descriptions.vampire,

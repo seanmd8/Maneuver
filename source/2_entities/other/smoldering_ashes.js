@@ -3,7 +3,7 @@ function smoldering_ashes_tile(){
     var spawn_timer = 2;
     var desc = other_tile_descriptions.smoldering_ashes;
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: other_tile_names.smoldering_ashes,
         pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
         description: `${desc[0]}${spawn_timer}${desc[1]}`,

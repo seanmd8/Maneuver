@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function scythe_tile(){
     return{
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.scythe,
         pic: `${IMG_FOLDER.tiles}scythe.png`,
         description: enemy_descriptions.scythe,

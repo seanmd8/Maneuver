@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function acid_bug_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.acid_bug,
         pic: `${IMG_FOLDER.tiles}acid_bug.png`,
         description: enemy_descriptions.acid_bug,

@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function living_tree_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.living_tree,
         pic: `${IMG_FOLDER.tiles}living_tree.png`,
         description: enemy_descriptions.living_tree,

@@ -1,7 +1,7 @@
 /** @type {TileGenerator} A healing fruit that spawns enemies.*/
 function rotting_fruit_tree_tile(){
     return {
-        type: `terrain`,
+        type: entity_types.terrain,
         name: other_tile_names.fruit_tree_rotting,
         pic: `${IMG_FOLDER.tiles}rotting_fruit_tree.png`,
         description: other_tile_descriptions.fruit_tree_rotting,

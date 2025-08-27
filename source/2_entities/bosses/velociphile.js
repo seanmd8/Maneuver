@@ -5,7 +5,7 @@ function velociphile_tile(){
         health -= 2;
     }
     return{
-        type: `enemy`,
+        type: entity_types.enemy,
         name: boss_names.velociphile,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
         description: boss_descriptions.velociphile,

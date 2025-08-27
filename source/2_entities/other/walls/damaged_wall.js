@@ -3,7 +3,7 @@ function damaged_wall_tile(){
     var health = random_num(2) + 1;
     var pic_arr = [`${IMG_FOLDER.tiles}very_damaged_wall.png`, `${IMG_FOLDER.tiles}damaged_wall.png`];
     return {
-        type: `terrain`,
+        type: entity_types.terrain,
         name: other_tile_names.wall_damaged,
         pic: pic_arr[health - 1],
         description: other_tile_descriptions.wall_damaged,

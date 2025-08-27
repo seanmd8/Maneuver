@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function clay_golem_tile(){
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.clay_golem,
         pic: `${IMG_FOLDER.tiles}clay_golem.png`,
         description: enemy_descriptions.clay_golem,

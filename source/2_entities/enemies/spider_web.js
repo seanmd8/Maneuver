@@ -2,7 +2,7 @@
 function spider_web_tile(){
     var spawn_timer = 2
     return{
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.spider_web,
         pic: `${IMG_FOLDER.tiles}spider_web.png`,
         description: 

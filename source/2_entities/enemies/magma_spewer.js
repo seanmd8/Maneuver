@@ -3,7 +3,7 @@ function magma_spewer_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}magma_spewer.png`, `${IMG_FOLDER.tiles}magma_spewer_firing.png`];
     var starting_cycle = random_num(pic_arr.length);
     return {
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.magma_spewer,
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
         description: enemy_descriptions.magma_spewer,

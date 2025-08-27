@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function thorn_bush_tile(){
     return{
-        type: `enemy`,
+        type: entity_types.enemy,
         name: enemy_names.thorn_bush,
         pic: `${IMG_FOLDER.tiles}thorn_bush.png`,
         description: enemy_descriptions.thorn_bush,
@@ -23,7 +23,7 @@ function thorn_bush_ai(self, target, map){
             var space = map.get_tile(next);
             if(
                 space.tags.has(TAGS.thorn_bush_roots) || 
-                (space.type === `empty` && chance(1, 4))
+                (space.type === entity_types.empty && chance(1, 4))
             ){
                 current = next;
             }
