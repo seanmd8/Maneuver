@@ -3057,6 +3057,10 @@ const card_explanation_start = `Move Options (actions will be performed in order
 const card_explanation_end = `Shift click on a button to show what it will do on the map.\n`;
 const unlock_boon_description = `New Boon`
 const unlock_card_description = `New Cards`
+const stats_description = [
+    `Floor`,
+    `Turn`
+];
 const SIDEBAR_BUTTONS = {
     text_log: `Messages`, 
     boon_list: `Boons`, 
@@ -9805,7 +9809,10 @@ class GameMap{
      */
     display_stats(location){
         var stats = this.stats.get_stats();
-        display.display_message(location, `Floor ${this.#floor_num} Turn ${stats.turn_number}`);
+        var stat_message = 
+            `${stats_description[0]} ${this.#floor_num} `
+            +`${stats_description[1]} ${stats.turn_number}`;
+        display.display_message(location, stat_message);
     }
     /**
      * Replaces the exit tile with a lock tile.

@@ -30,3 +30,7 @@ const card_explanation_start = `Move Options (actions will be performed in order
 const card_explanation_end = `Shift click on a button to show what it will do on the map.\n`;
 const unlock_boon_description = `New Boon`
 const unlock_card_description = `New Cards`
+const stats_description = [
+    `Floor`,
+    `Turn`
+];
