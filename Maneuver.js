@@ -2961,30 +2961,33 @@ const other_tile_names = {
 }
 
 
-const empty_description = 
-    `There is nothing here.`;
-const exit_description = 
-    `Stairs: Takes you to the next floor.`;
-const lock_description = 
-    `Locked Exit: Defeat the boss to continue.`;
-const player_description = 
-    `You: Click a card to move.`;
+const special_tile_descriptions = {
+    chest: `Chest: It might have something useful inside. Breaking it will damage `
+    +`the contents.`,
+    chest_armored: `Armored Chest: It might have something useful inside. It is larger than `
+    +`a normal chest and armored to protect it's contents.`,
+    empty: `There is nothing here.`,
+    exit: `Exit: Stairs to the next floor.`,
+    lock: `Locked Exit: Defeat the boss to continue.`,
+    player: `You: Click a card to move.`,
+}
 
-// Chest
-const chest_description = 
-    `Chest: It might have something useful inside. Breaking it will damage `
-    +`the contents.`;
-const armored_chest_description = 
-    `Armored Chest: It might have something useful inside. It is larger than `
-    +`a normal chest and armored to protect it's contents.`;
-const chest_inner_discription = 
-    `Choose up to one reward:`;
-const take_from_chest = 
-    `Take`;
-const abandon_chest = 
-    `Abandon`;
-const add_card_description = 
-    `Add this card to your deck.`
+const special_tile_names = {
+    chest: `Chest`,
+    chest_armored: `Armored Chest`,
+    empty: `Empty`,
+    exit: `Exit`,
+    lock: `Locked Exit`,
+    player: `You`,
+}
+
+const chest_text = {
+    header: `Choose up to one reward:`,
+    take: `Take`,
+    abandon: `Abandon`,
+    add_card: `Add this card to your deck.`,
+}
+
 // General Descriptions
 const game_title = `Maneuver`;
 const hand_label_text = `Hand of cards`;
@@ -7041,9 +7044,9 @@ function wall_tile(){
 function armored_chest_tile(){
     return {
         type: `chest`,
-        name: `Armored Chest`,
+        name: special_tile_names.chest_armored,
         pic: `${IMG_FOLDER.tiles}armored_chest.png`,
-        description: armored_chest_description,
+        description: special_tile_descriptions.chest_armored,
         tags: new TagList([TAGS.unmovable]),
         on_enter: chest_on_enter,
         contents: []
@@ -7055,9 +7058,9 @@ function armored_chest_tile(){
 function chest_tile(){
     return {
         type: `chest`,
-        name: `Chest`,
+        name: special_tile_names.chest,
         pic: `${IMG_FOLDER.tiles}chest.png`,
-        description: chest_description,
+        description: special_tile_descriptions.chest,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: chest_on_enter,
@@ -7104,7 +7107,7 @@ function chest_on_enter(self, target, map){
         }
     }
     var abandon_button = {
-        description: abandon_chest,
+        description: chest_text.abandon,
         on_click: leave_chest
     };
     var pick = function(on_choose){
@@ -7122,7 +7125,7 @@ function chest_on_enter(self, target, map){
         let make_on_click = function(position){
             return function(){
                 let confirm_button = {
-                    description: take_from_chest,
+                    description: chest_text.take,
                     on_click: pick(item.on_choose)
                 };
                 display.display_message(UIIDS.content_description, item.description);
@@ -7139,7 +7142,7 @@ function chest_on_enter(self, target, map){
         });
     }
 
-    display.display_message(UIIDS.chest_instructions, chest_inner_discription);
+    display.display_message(UIIDS.chest_instructions, chest_text.header);
     display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
     display.add_button_row(UIIDS.chest_confirm_row, [abandon_button]);
     GAME_SCREEN_DIVISIONS.swap(UIIDS.chest);
@@ -7161,7 +7164,7 @@ function add_card_to_chest(chest, card){
     if(chest.contents === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var description = add_card_description + `\n` + explain_card(card);
+    var description = chest_text.add_card + `\n` + explain_card(card);
     var content = {
         pic: card.pic,
         name: card.name,
@@ -7204,9 +7207,9 @@ function add_boon_to_chest(chest, boon){
 function empty_tile(){
     return {
         type: `empty`,
-        name: `Empty`,
+        name: special_tile_names.empty,
         pic: `${IMG_FOLDER.tiles}empty.png`,
-        description: empty_description,
+        description: special_tile_descriptions.empty,
         tags: new TagList([TAGS.unmovable])
     }
 }
@@ -7214,9 +7217,9 @@ function empty_tile(){
 function exit_tile(){
     return {
         type: `exit`,
-        name: `Exit`,
+        name: special_tile_names.exit,
         pic: `${IMG_FOLDER.tiles}stairs.png`,
-        description: exit_description,
+        description: special_tile_descriptions.exit,
         tags: new TagList([TAGS.unmovable])
     }
 }
@@ -7224,9 +7227,9 @@ function exit_tile(){
 function lock_tile(){
     return {
         type: `terrain`,
-        name: `Lock`,
+        name: special_tile_names.lock,
         pic: `${IMG_FOLDER.tiles}lock.png`,
-        description: lock_description,
+        description: special_tile_descriptions.lock,
         tags: new TagList([TAGS.unmovable])
     }
 }
@@ -7234,9 +7237,9 @@ function lock_tile(){
 function player_tile(){
     return {
         type: `player`,
-        name: `Player`,
+        name: special_tile_names.player,
         pic: `${IMG_FOLDER.tiles}helmet.png`,
-        description: player_description,
+        description: special_tile_descriptions.player,
         tags: new TagList(),
         health: PLAYER_STARTING_HEALTH,
         max_health: PLAYER_STARTING_HEALTH,
@@ -14200,7 +14203,7 @@ function ancient_card(){
     return {
         name: boon_names.ancient_card,
         pic: `${IMG_FOLDER.cards}lost_technique.png`,
-        description: add_card_description,
+        description: chest_text.add_card,
         on_pick: pick_ancient_card,
         unlocks: [ancient_card]
     }
@@ -14214,7 +14217,7 @@ function ancient_card_2(){
     return {
         name: boon_names.ancient_card,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
-        description: add_card_description,
+        description: chest_text.add_card,
         on_pick: pick_ancient_card_2,
         unlocks: [ancient_card_2]
     }

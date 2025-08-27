@@ -2,9 +2,9 @@
 function armored_chest_tile(){
     return {
         type: `chest`,
-        name: `Armored Chest`,
+        name: special_tile_names.chest_armored,
         pic: `${IMG_FOLDER.tiles}armored_chest.png`,
-        description: armored_chest_description,
+        description: special_tile_descriptions.chest_armored,
         tags: new TagList([TAGS.unmovable]),
         on_enter: chest_on_enter,
         contents: []

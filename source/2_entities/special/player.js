@@ -2,9 +2,9 @@
 function player_tile(){
     return {
         type: `player`,
-        name: `Player`,
+        name: special_tile_names.player,
         pic: `${IMG_FOLDER.tiles}helmet.png`,
-        description: player_description,
+        description: special_tile_descriptions.player,
         tags: new TagList(),
         health: PLAYER_STARTING_HEALTH,
         max_health: PLAYER_STARTING_HEALTH,

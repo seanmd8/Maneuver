@@ -2,9 +2,9 @@
 function chest_tile(){
     return {
         type: `chest`,
-        name: `Chest`,
+        name: special_tile_names.chest,
         pic: `${IMG_FOLDER.tiles}chest.png`,
-        description: chest_description,
+        description: special_tile_descriptions.chest,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: chest_on_enter,
