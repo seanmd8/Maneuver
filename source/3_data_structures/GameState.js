@@ -133,7 +133,7 @@ class GameState{
      */
     player_action(action){
         switch(action.type){
-            case `attack`:
+            case action_types.attack:
                 var attack_count = 1;
                 var stun_count = 0;
                 var target = this.map.get_player_location().plus(action.change);
@@ -166,7 +166,7 @@ class GameState{
                     this.player_action(pstun(action.change.x, action.change.y));
                 }
                 break;
-            case `move`:
+            case action_types.move:
                 var previous_location = this.map.get_player_location();
                 var moved = this.map.player_move(action.change);
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
@@ -176,7 +176,7 @@ class GameState{
                     this.map.add_tile(corrosive_slime_tile(), previous_location);
                 }
                 break;
-            case `teleport`:
+            case action_types.teleport:
                 try{
                     this.map.player_teleport(action.change);
                 }
@@ -186,10 +186,10 @@ class GameState{
                     }
                 }
                 break;
-            case `stun`:
+            case action_types.stun:
                 this.map.player_stun(action.change);
                 break;
-            case `move_until`:
+            case action_types.move_until:
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
                 var previous_location = this.map.get_player_location();
                 while(this.map.player_move(action.change)){
@@ -202,7 +202,7 @@ class GameState{
                     this.player_action(pattack(action.change.x, action.change.y));
                 }
                 break;
-            case `attack_until`:
+            case action_types.attack_until:
                 var i = 0;
                 do{
                     i += 1;
@@ -211,7 +211,7 @@ class GameState{
                     this.player_action(pattack(target.x, target.y));
                 }while(this.map.is_in_bounds(p_location.plus(target)));
                 break;
-            case `heal`:
+            case action_types.heal:
                 this.map.player_heal(action.change, 1);
                 break;
             default:

@@ -90,49 +90,49 @@ function get_boss_cards(){
 /** @type {PlayerCommandGenerator} Function to create a move command.*/
 function pmove(x, y){
     return {
-        type: `move`,
+        type: action_types.move,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to create a attack command.*/
 function pattack(x, y){
     return {
-        type: `attack`,
+        type: action_types.attack,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to create a teleport command.*/
 function pteleport(x, y){
     return {
-        type: `teleport`,
+        type: action_types.teleport,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to stun any enemies at the given location.*/
 function pstun(x, y){
     return {
-        type: `stun`,
+        type: action_types.stun,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to move in a direction until you hit something.*/
 function pmove_until(x, y){
     return {
-        type: `move_until`,
+        type: action_types.move_until,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to attack in a direction until you hit the edge of the board.*/
 function pattack_until(x, y){
     return {
-        type: `attack_until`,
+        type: action_types.attack_until,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to heal the thing at the specified spot by 1.*/
 function pheal(x, y){
     return {
-        type: `heal`,
+        type: action_types.heal,
         change: new Point(x, y)
     }
 }
@@ -164,22 +164,22 @@ function pheal(x, y){
 function explain_action(action){
     var target = explain_point(action.change);
     switch(action.type){
-        case `attack`:
+        case action_types.attack:
             return `${move_types.attack}: ${target}`;
-        case `move`:
+        case action_types.move:
             return `${move_types.move}: ${target}`;
-        case `teleport`:
+        case action_types.teleport:
             return move_types.teleport;
-        case `stun`:
+        case action_types.stun:
             if(action.change.is_origin()){
                 return move_types.confuse;
             }
             return `${move_types.stun}: ${target}`;
-        case `move_until`:
+        case action_types.move_until:
             return `${move_types.move_until}: ${target}`;
-        case `attack_until`:
+        case action_types.attack_until:
             return `${move_types.attack_until}: ${target}`;
-        case `heal`:
+        case action_types.heal:
             return `${move_types.heal}: ${target}`;
         default:
             throw new Error(ERRORS.invalid_value);
@@ -226,10 +226,10 @@ function telegraph_card(behavior, map, start_position){
     for(var action of behavior){
         var next_position = start_position.plus(action.change);
         switch(action.type){
-            case `attack`:
+            case action_types.attack:
                 telegraphs.attacks.push(next_position);
                 break;
-            case `move`:
+            case action_types.move:
                 if(map.looks_movable(next_position)){
                     telegraphs.moves.push(next_position);
                 }
@@ -237,17 +237,17 @@ function telegraph_card(behavior, map, start_position){
                     start_position = next_position;
                 }
                 break;
-            case `teleport`:
+            case action_types.teleport:
                 for(var p of get_all_points()){
                     if(map.looks_empty(p)){
                         telegraphs.teleport.push(p);
                     }
                 }
                 break;
-            case `stun`:
+            case action_types.stun:
                 telegraphs.stun.push(next_position);
                 break;
-            case `move_until`:
+            case action_types.move_until:
                 while(map.looks_empty(next_position)){
                     telegraphs.moves.push(next_position);
                     start_position = next_position;
@@ -257,7 +257,7 @@ function telegraph_card(behavior, map, start_position){
                     telegraphs.moves.push(next_position);
                 }
                 break;
-            case `attack_until`:
+            case action_types.attack_until:
                 var temp_next = next_position;
                 var temp_start = start_position;
                 while(map.is_in_bounds(temp_next)){
@@ -266,7 +266,7 @@ function telegraph_card(behavior, map, start_position){
                     temp_next = temp_start.plus(action.change);
                 }
                 break;
-            case `heal`:
+            case action_types.heal:
                 telegraphs.healing.push(next_position);
                 break;
             default:

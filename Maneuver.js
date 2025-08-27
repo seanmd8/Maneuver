@@ -2203,6 +2203,15 @@ function get_achievements(){
         }
     ]
 }
+const action_types = {
+    move: `Move`,
+    attack: `Attack`,
+    teleport: `Teleport`,
+    stun: `Stun`,
+    move_until: `Move Until`,
+    attack_until: `Attack Until`,
+    heal: `Heal`,
+}
 // Area Descriptions.
 
 const area_descriptions = {
@@ -10286,7 +10295,7 @@ class GameState{
      */
     player_action(action){
         switch(action.type){
-            case `attack`:
+            case action_types.attack:
                 var attack_count = 1;
                 var stun_count = 0;
                 var target = this.map.get_player_location().plus(action.change);
@@ -10319,7 +10328,7 @@ class GameState{
                     this.player_action(pstun(action.change.x, action.change.y));
                 }
                 break;
-            case `move`:
+            case action_types.move:
                 var previous_location = this.map.get_player_location();
                 var moved = this.map.player_move(action.change);
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
@@ -10329,7 +10338,7 @@ class GameState{
                     this.map.add_tile(corrosive_slime_tile(), previous_location);
                 }
                 break;
-            case `teleport`:
+            case action_types.teleport:
                 try{
                     this.map.player_teleport(action.change);
                 }
@@ -10339,10 +10348,10 @@ class GameState{
                     }
                 }
                 break;
-            case `stun`:
+            case action_types.stun:
                 this.map.player_stun(action.change);
                 break;
-            case `move_until`:
+            case action_types.move_until:
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
                 var previous_location = this.map.get_player_location();
                 while(this.map.player_move(action.change)){
@@ -10355,7 +10364,7 @@ class GameState{
                     this.player_action(pattack(action.change.x, action.change.y));
                 }
                 break;
-            case `attack_until`:
+            case action_types.attack_until:
                 var i = 0;
                 do{
                     i += 1;
@@ -10364,7 +10373,7 @@ class GameState{
                     this.player_action(pattack(target.x, target.y));
                 }while(this.map.is_in_bounds(p_location.plus(target)));
                 break;
-            case `heal`:
+            case action_types.heal:
                 this.map.player_heal(action.change, 1);
                 break;
             default:
@@ -12731,49 +12740,49 @@ function get_boss_cards(){
 /** @type {PlayerCommandGenerator} Function to create a move command.*/
 function pmove(x, y){
     return {
-        type: `move`,
+        type: action_types.move,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to create a attack command.*/
 function pattack(x, y){
     return {
-        type: `attack`,
+        type: action_types.attack,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to create a teleport command.*/
 function pteleport(x, y){
     return {
-        type: `teleport`,
+        type: action_types.teleport,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to stun any enemies at the given location.*/
 function pstun(x, y){
     return {
-        type: `stun`,
+        type: action_types.stun,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to move in a direction until you hit something.*/
 function pmove_until(x, y){
     return {
-        type: `move_until`,
+        type: action_types.move_until,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to attack in a direction until you hit the edge of the board.*/
 function pattack_until(x, y){
     return {
-        type: `attack_until`,
+        type: action_types.attack_until,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to heal the thing at the specified spot by 1.*/
 function pheal(x, y){
     return {
-        type: `heal`,
+        type: action_types.heal,
         change: new Point(x, y)
     }
 }
@@ -12805,22 +12814,22 @@ function pheal(x, y){
 function explain_action(action){
     var target = explain_point(action.change);
     switch(action.type){
-        case `attack`:
+        case action_types.attack:
             return `${move_types.attack}: ${target}`;
-        case `move`:
+        case action_types.move:
             return `${move_types.move}: ${target}`;
-        case `teleport`:
+        case action_types.teleport:
             return move_types.teleport;
-        case `stun`:
+        case action_types.stun:
             if(action.change.is_origin()){
                 return move_types.confuse;
             }
             return `${move_types.stun}: ${target}`;
-        case `move_until`:
+        case action_types.move_until:
             return `${move_types.move_until}: ${target}`;
-        case `attack_until`:
+        case action_types.attack_until:
             return `${move_types.attack_until}: ${target}`;
-        case `heal`:
+        case action_types.heal:
             return `${move_types.heal}: ${target}`;
         default:
             throw new Error(ERRORS.invalid_value);
@@ -12867,10 +12876,10 @@ function telegraph_card(behavior, map, start_position){
     for(var action of behavior){
         var next_position = start_position.plus(action.change);
         switch(action.type){
-            case `attack`:
+            case action_types.attack:
                 telegraphs.attacks.push(next_position);
                 break;
-            case `move`:
+            case action_types.move:
                 if(map.looks_movable(next_position)){
                     telegraphs.moves.push(next_position);
                 }
@@ -12878,17 +12887,17 @@ function telegraph_card(behavior, map, start_position){
                     start_position = next_position;
                 }
                 break;
-            case `teleport`:
+            case action_types.teleport:
                 for(var p of get_all_points()){
                     if(map.looks_empty(p)){
                         telegraphs.teleport.push(p);
                     }
                 }
                 break;
-            case `stun`:
+            case action_types.stun:
                 telegraphs.stun.push(next_position);
                 break;
-            case `move_until`:
+            case action_types.move_until:
                 while(map.looks_empty(next_position)){
                     telegraphs.moves.push(next_position);
                     start_position = next_position;
@@ -12898,7 +12907,7 @@ function telegraph_card(behavior, map, start_position){
                     telegraphs.moves.push(next_position);
                 }
                 break;
-            case `attack_until`:
+            case action_types.attack_until:
                 var temp_next = next_position;
                 var temp_start = start_position;
                 while(map.is_in_bounds(temp_next)){
@@ -12907,7 +12916,7 @@ function telegraph_card(behavior, map, start_position){
                     temp_next = temp_start.plus(action.change);
                 }
                 break;
-            case `heal`:
+            case action_types.heal:
                 telegraphs.healing.push(next_position);
                 break;
             default:
