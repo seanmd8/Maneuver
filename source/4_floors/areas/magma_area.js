@@ -7,7 +7,7 @@ function generate_magma_area(){
                     pheonix_tile, unstable_wisp_tile],
         boss_floor_list: [young_dragon_floor],
         next_area_list: area4,
-        description: magma_description
+        description: area_descriptions.magma
     }
 }
 /** @type {FloorGenerator}*/

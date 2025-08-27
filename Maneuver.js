@@ -2202,16 +2202,29 @@ function get_achievements(){
     ]
 }
 // Area Descriptions.
-const ruins_description = `You have entered the ruins.`;
-const sewers_description = `You have entered the sewers.`;
-const basement_description = `You have entered the basement.`;
-const magma_description = `You have entered the magmatic caves.`;
-const crypt_description = `You have entered the crypt.`;
-const forest_description = `You have entered the subteranean forest.`;
-const library_description = `You have entered the arcane library.`;
-const sanctum_description = `You have entered the sanctum.`;
-const default_area_description = `You have reached the end of the current content. Floors will continue to generate but there will `
-                                +`be no more boss fights. Good luck.`;
+
+const area_descriptions = {
+    ruins: 
+        `You have entered the ruins.`,
+    sewers: 
+        `You have entered the sewers.`,
+    basement: 
+        `You have entered the basement.`,
+    magma: 
+        `You have entered the magmatic caves.`,
+    crypt: 
+        `You have entered the crypt.`,
+    forest: 
+        `You have entered the subteranean forest.`,
+    library: 
+        `You have entered the arcane library.`,
+    sanctum: 
+        `You have entered the sanctum.`,
+    default: 
+        `You have reached the end of the current content. Floors will continue to generate but `
+        +`there will be no more boss fights. Good luck.`,
+}
+
 
 
 const boon_names = {
@@ -11326,7 +11339,7 @@ function generate_basement_area(){
                     spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
         boss_floor_list: [spider_queen_floor],
         next_area_list: area3,
-        description: basement_description
+        description: area_descriptions.basement
     }
 }
 
@@ -11365,7 +11378,7 @@ function generate_crypt_area(){
                     darkling_tile, orb_of_insanity_tile],
         boss_floor_list: [lich_floor],
         next_area_list: area4,
-        description: crypt_description
+        description: area_descriptions.crypt
     }
 }
 
@@ -11390,7 +11403,7 @@ function generate_forest_area(){
                     scythe_tile, scorpion_tile, thorn_bush_tile],
         boss_floor_list: [forest_heart_floor],
         next_area_list: area5,
-        description: forest_description
+        description: area_descriptions.forest
     }
 }
 
@@ -11430,7 +11443,7 @@ function generate_library_area(){
         ],
         boss_floor_list: [arcane_sentry_floor],
         next_area_list: area5,
-        description: library_description
+        description: area_descriptions.library
     }
 }
 
@@ -11458,7 +11471,7 @@ function generate_magma_area(){
                     pheonix_tile, unstable_wisp_tile],
         boss_floor_list: [young_dragon_floor],
         next_area_list: area4,
-        description: magma_description
+        description: area_descriptions.magma
     }
 }
 /** @type {FloorGenerator}*/
@@ -11551,7 +11564,7 @@ function generate_ruins_area(){
                     ram_tile, rat_tile, shadow_knight_tile],
         boss_floor_list: [velociphile_floor],
         next_area_list: area2,
-        description: ruins_description
+        description: area_descriptions.ruins
     }
 }
 
@@ -11569,7 +11582,7 @@ function generate_sewers_area(){
                     corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile, carrion_flies_tile],
         boss_floor_list: [two_headed_serpent_floor],
         next_area_list: area3,
-        description: sewers_description
+        description: area_descriptions.sewers
     }
 }
 
@@ -11666,7 +11679,7 @@ function generate_default_area(){
         enemy_list: ENEMY_LIST,
         boss_floor_list: [],
         next_area_list: [generate_default_area],
-        description: default_area_description
+        description: area_descriptions.default
     }
 }
 /** @type {FloorGenerator} Generates the floor where the Arcane Sentry appears.*/

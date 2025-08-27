@@ -7,7 +7,7 @@ function generate_basement_area(){
                     spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
         boss_floor_list: [spider_queen_floor],
         next_area_list: area3,
-        description: basement_description
+        description: area_descriptions.basement
     }
 }
 
