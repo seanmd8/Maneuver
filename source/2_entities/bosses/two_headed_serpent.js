@@ -235,7 +235,7 @@ function two_headed_serpent_hurt(self, target, map){
     // If no segments remain, it dies.
     neck_location = regrow.location.plus(ifexists(regrow.tile.segment_list[index]));
     neck = map.get_tile(neck_location);
-    if(neck.name === `Two Headed Serpent`){
+    if(neck.name === boss_names.two_headed_serpent){
         neck.on_death = undefined;
         regrow.tile.on_death = undefined;
         map.attack(neck_location);

@@ -933,7 +933,11 @@ class GameMap{
             return false;
         }
         var tile = this.get_tile(location);
-        return (tile.name === `Empty` || tile.on_enter !== undefined || tile.name === `Exit`);
+        return (
+            tile.name === special_tile_names.empty || 
+            tile.on_enter !== undefined || 
+            tile.name === special_tile_names.exit
+        );
     }
     get_initiative(){
         return this.#entity_list.get_initiative();

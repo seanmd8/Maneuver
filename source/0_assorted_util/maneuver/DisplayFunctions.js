@@ -198,7 +198,7 @@ function refresh_shop_display(shop){
         if(r.on_click !== undefined){
             r.on_click = refresh(r.on_click, r.card);
         }
-        else if(r.name === `Remove`){
+        else if(r.name === card_names.symbol_remove_card){
             r.on_click = () => {display.display_message(UIIDS.shop_message, shop_remove_description)};
         }
         else{

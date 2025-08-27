@@ -1501,7 +1501,7 @@ function refresh_shop_display(shop){
         if(r.on_click !== undefined){
             r.on_click = refresh(r.on_click, r.card);
         }
-        else if(r.name === `Remove`){
+        else if(r.name === card_names.symbol_remove_card){
             r.on_click = () => {display.display_message(UIIDS.shop_message, shop_remove_description)};
         }
         else{
@@ -4076,7 +4076,7 @@ function two_headed_serpent_hurt(self, target, map){
     // If no segments remain, it dies.
     neck_location = regrow.location.plus(ifexists(regrow.tile.segment_list[index]));
     neck = map.get_tile(neck_location);
-    if(neck.name === `Two Headed Serpent`){
+    if(neck.name === boss_names.two_headed_serpent){
         neck.on_death = undefined;
         regrow.tile.on_death = undefined;
         map.attack(neck_location);
@@ -10103,7 +10103,11 @@ class GameMap{
             return false;
         }
         var tile = this.get_tile(location);
-        return (tile.name === `Empty` || tile.on_enter !== undefined || tile.name === `Exit`);
+        return (
+            tile.name === special_tile_names.empty || 
+            tile.on_enter !== undefined || 
+            tile.name === special_tile_names.exit
+        );
     }
     get_initiative(){
         return this.#entity_list.get_initiative();
