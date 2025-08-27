@@ -17,7 +17,7 @@ function greater_thorn_bush_spell(self, target, map){
     );
     var root_layer = {
         pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
-        description: thorn_root_description,
+        description: event_descriptions.thorn_root,
         telegraph: hazard_telegraph
     }
     var delayed_func = function(map_to_use){

@@ -34,7 +34,7 @@ function darkling_ai(self, target, map){
         if(self.tile.health === undefined || self.tile.health > 0){
             var rift = {
                 pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
-                description: darkling_rift_description,
+                description: event_descriptions.darkling_rift,
                 telegraph: spider_telegraph
             }
             map_to_use.mark_event(self.tile.direction, rift, false);

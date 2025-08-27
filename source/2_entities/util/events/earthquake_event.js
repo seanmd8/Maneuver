@@ -16,7 +16,7 @@ function earthquake_event(amount, locations = undefined){
     var earthquake = function(amount){
         var falling_rubble_layer = {
             pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-            description: falling_rubble_description,
+            description: event_descriptions.falling_rubble,
             telegraph: hazard_telegraph
         }
         return function(map_to_use){

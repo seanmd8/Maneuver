@@ -2889,15 +2889,25 @@ const enemy_names = {
     walking_prism: `Walking Prism`,
 }
 
+const event_descriptions = {
+    falling_rubble: 
+        `Watch out, something is about to fall here.`,
+    darkling_rift: 
+        `If this space isn't blocked, a darkling will teleport here `
+        +`next turn damaging everything nearby.`,
+    thorn_root: 
+        `Watch out, brambles are about to sprout damaging anything standing here.`,
+    nettle_root: 
+        `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
+}
 const falling_rubble_description = 
-    `Watch out, something is about to fall here.`;
+    ``;
 const darkling_rift_description = 
-    `If this space isn't blocked, a darkling will teleport here `
-    +`next turn damaging everything nearby.`;
+    ``;
 const thorn_root_description = 
-    `Watch out, brambles are about to sprout damaging anything standing here.`
+    ``
 const swaying_nettle_root_description = 
-    `Watch out, swaying nettles are about to sprout damaging anything standing here.`;
+    ``;
 const other_tile_descriptions = {
     bookshelf: 
         `Bookshelf: When damaged, adds a random temporary card to your deck.`,
@@ -4692,7 +4702,7 @@ function darkling_ai(self, target, map){
         if(self.tile.health === undefined || self.tile.health > 0){
             var rift = {
                 pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
-                description: darkling_rift_description,
+                description: event_descriptions.darkling_rift,
                 telegraph: spider_telegraph
             }
             map_to_use.mark_event(self.tile.direction, rift, false);
@@ -7391,7 +7401,7 @@ function earthquake_event(amount, locations = undefined){
     var earthquake = function(amount){
         var falling_rubble_layer = {
             pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-            description: falling_rubble_description,
+            description: event_descriptions.falling_rubble,
             telegraph: hazard_telegraph
         }
         return function(map_to_use){
@@ -8097,7 +8107,7 @@ function greater_thorn_bush_spell(self, target, map){
     );
     var root_layer = {
         pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
-        description: thorn_root_description,
+        description: event_descriptions.thorn_root,
         telegraph: hazard_telegraph
     }
     var delayed_func = function(map_to_use){
@@ -8255,7 +8265,7 @@ function swaying_nettle_spell(self, target, map){
     );
     var root_layer = {
         pic: `${IMG_FOLDER.tiles}swaying_nettle_roots.png`,
-        description: nettle_root_description,
+        description: event_descriptions.nettle_root,
         telegraph: hazard_telegraph
     }
     map.add_event({name: `Nettle Shield`, behavior: growth_event(points, root_layer, swaying_nettle_tile)});
@@ -8287,7 +8297,7 @@ function thorn_bush_spell(self, target, map){
     );
     var root_layer = {
         pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
-        description: thorn_root_description,
+        description: event_descriptions.thorn_root,
         telegraph: hazard_telegraph
     }
     map.add_event({name: `Bramble Shield`, behavior: growth_event(points, root_layer, thorn_bramble_tile)});

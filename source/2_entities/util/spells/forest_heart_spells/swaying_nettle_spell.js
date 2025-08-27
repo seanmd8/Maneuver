@@ -16,7 +16,7 @@ function swaying_nettle_spell(self, target, map){
     );
     var root_layer = {
         pic: `${IMG_FOLDER.tiles}swaying_nettle_roots.png`,
-        description: nettle_root_description,
+        description: event_descriptions.nettle_root,
         telegraph: hazard_telegraph
     }
     map.add_event({name: `Nettle Shield`, behavior: growth_event(points, root_layer, swaying_nettle_tile)});
