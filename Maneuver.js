@@ -1956,6 +1956,8 @@ function floor_has_chest(floor_of_area){
 const achievements_title = `Achievements`;
 const achievement_reset = `Reset`;
 const achievement_confirm_reset = `Confirm?`;
+const achievement_unlocked_message = `Achievement Unlocked:`;
+const achievement_repeated_message = `Achievement Repeated:`;
 
 const achievement_names = {
     // Boss
@@ -10520,11 +10522,11 @@ class GameState{
     achieve(name){
         var gained = this.data.achieve(name);
         if(gained){
-            say_record(`Achievement Unlocked: ${name}`, record_types.achievement);
+            say_record(`${achievement_unlocked_message} ${name}`, record_types.achievement);
             SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
             return true;
         }
-        say_record(`Achievement Repeated: ${name}`, record_types.repeated_achievement);
+        say_record(`${achievement_repeated_message} ${name}`, record_types.repeated_achievement);
         return false;
     }
 }

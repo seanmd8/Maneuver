@@ -1,6 +1,8 @@
 const achievements_title = `Achievements`;
 const achievement_reset = `Reset`;
 const achievement_confirm_reset = `Confirm?`;
+const achievement_unlocked_message = `Achievement Unlocked:`;
+const achievement_repeated_message = `Achievement Repeated:`;
 
 const achievement_names = {
     // Boss

@@ -369,11 +369,11 @@ class GameState{
     achieve(name){
         var gained = this.data.achieve(name);
         if(gained){
-            say_record(`Achievement Unlocked: ${name}`, record_types.achievement);
+            say_record(`${achievement_unlocked_message} ${name}`, record_types.achievement);
             SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
             return true;
         }
-        say_record(`Achievement Repeated: ${name}`, record_types.repeated_achievement);
+        say_record(`${achievement_repeated_message} ${name}`, record_types.repeated_achievement);
         return false;
     }
 }
