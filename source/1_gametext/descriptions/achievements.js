@@ -5,6 +5,8 @@ const achievement_text = {
     confirm_reset: `Confirm?`,
     unlocked: `Achievement Unlocked:`,
     repeated: `Achievement Repeated:`,
+    unlocks_boon: `New Boon`,
+    unlocks_cards: `New Cards`,
 }
 
 const achievement_names = {

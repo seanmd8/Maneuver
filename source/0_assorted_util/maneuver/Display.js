@@ -517,8 +517,8 @@ const DisplayHTML = {
                 edit_function(controls);
             }
         }
-        var edit_button = DisplayHTML.create_button(edit_controls_message, undefined, edit_mode(GS.data.controls.get()));
-        var default_button = DisplayHTML.create_button(default_controls_message, undefined, edit_mode(new KeyBind().get()));
+        var edit_button = DisplayHTML.create_button(control_screen_text.edit, undefined, edit_mode(GS.data.controls.get()));
+        var default_button = DisplayHTML.create_button(control_screen_text.default, undefined, edit_mode(new KeyBind().get()));
         div.append(header);
         div.append(edit_button);
         div.append(default_button);
@@ -530,14 +530,14 @@ const DisplayHTML = {
         div.classList.add(`control-header`);
         var header = document.createElement(`h2`);
         header.innerText = description;
-        var save_button = DisplayHTML.create_button(save_controls_message, undefined, () => {
+        var save_button = DisplayHTML.create_button(control_screen_text.save, undefined, () => {
             if(KeyBind.is_valid(controls)){
                 GS.data.set_controls(controls);
                 DisplayHTML.remove_children(location);
                 view_function();
             }
         });
-        var undo_edit_button = DisplayHTML.create_button(undo_edit_controls_message, undefined, () => {
+        var undo_edit_button = DisplayHTML.create_button(control_screen_text.undo, undefined, () => {
             DisplayHTML.remove_children(location);
             view_function();
         });
@@ -692,7 +692,7 @@ const DisplayHTML = {
             // New Boons
             if(a.boons!== undefined && a.boons.length > 0){
                 var unlock_boons_header = document.createElement(`h3`);
-                unlock_boons_header.innerText = `--- ${unlock_boon_description} ---`
+                unlock_boons_header.innerText = `--- ${achievement_text.unlocks_boon} ---`
                 unlocks.append(unlock_boons_header);
                 
                 for(var boon of a.boons){
@@ -708,7 +708,7 @@ const DisplayHTML = {
             // New cards
             if(a.cards !== undefined && a.cards.length > 0){
                 var unlock_cards_header = document.createElement(`h3`);
-                unlock_cards_header.innerText = `--- ${unlock_card_description} ---`;
+                unlock_cards_header.innerText = `--- ${achievement_text.unlocks_cards} ---`;
                 unlocks.append(unlock_cards_header);
 
                 for(var card of a.cards){

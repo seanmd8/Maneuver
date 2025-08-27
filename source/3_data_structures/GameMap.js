@@ -622,8 +622,8 @@ class GameMap{
     display_stats(location){
         var stats = this.stats.get_stats();
         var stat_message = 
-            `${stats_description[0]} ${this.#floor_num} `
-            +`${stats_description[1]} ${stats.turn_number}`;
+            `${gameplay_labels.floor} ${this.#floor_num} `
+            +`${gameplay_labels.turn} ${stats.turn_number}`;
         display.display_message(location, stat_message);
     }
     /**
@@ -708,7 +708,7 @@ class GameMap{
             // Vicious Cycle always fully heals you.
             this.player_heal(new Point(0, 0));
         }
-        var floor_description = `${floor_message}${this.#floor_num}.`;
+        var floor_description = `${gameplay_text.floor}${this.#floor_num}.`;
         if(this.#floor_num % area_size === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;

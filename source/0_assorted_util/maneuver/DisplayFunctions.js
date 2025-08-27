@@ -44,7 +44,7 @@ function refresh_hand_display(deck){
 
     // Makes sure the card info button shows that no card is selected.
     var explain_blank_moves = function(){
-        say(blank_moves_message);
+        say(gameplay_text.select_card);
     }
     display.add_on_click(UIIDS.move_info, explain_blank_moves);
 }
@@ -188,7 +188,7 @@ function refresh_shop_display(shop){
             a.on_click = refresh(a.on_click, a.card);
         }
         else{
-            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_add_description)};
+            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.add)};
         }
     }
     display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
@@ -199,10 +199,10 @@ function refresh_shop_display(shop){
             r.on_click = refresh(r.on_click, r.card);
         }
         else if(r.name === card_names.symbol_remove_card){
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_remove_description)};
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.remove)};
         }
         else{
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_min_description)};
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.min)};
         }
     }
     display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
@@ -213,10 +213,10 @@ function refresh_shop_display(shop){
             GS.new_floor();
         }
         else{
-            display.display_message(UIIDS.shop_message, shop_confirm_description);
+            display.display_message(UIIDS.shop_message, shop_text.invalid);
         }
     }
-    display.set_button(UIIDS.shop_confirm, confirm_text, confirm, shop.is_valid_selection());
+    display.set_button(UIIDS.shop_confirm, shop_text.confirm, confirm, shop.is_valid_selection());
 }
 
 function setup_controls_page(){
@@ -334,7 +334,7 @@ function refresh_deck_select_screen(selector){
     }
     display.set_button(
         UIIDS.deck_select_confirm, 
-        confirm_text, 
+        shop_text.confirm, 
         () => {selector.confirm();}, 
         selector.check_valid()
     );

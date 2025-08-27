@@ -1052,8 +1052,8 @@ const DisplayHTML = {
                 edit_function(controls);
             }
         }
-        var edit_button = DisplayHTML.create_button(edit_controls_message, undefined, edit_mode(GS.data.controls.get()));
-        var default_button = DisplayHTML.create_button(default_controls_message, undefined, edit_mode(new KeyBind().get()));
+        var edit_button = DisplayHTML.create_button(control_screen_text.edit, undefined, edit_mode(GS.data.controls.get()));
+        var default_button = DisplayHTML.create_button(control_screen_text.default, undefined, edit_mode(new KeyBind().get()));
         div.append(header);
         div.append(edit_button);
         div.append(default_button);
@@ -1065,14 +1065,14 @@ const DisplayHTML = {
         div.classList.add(`control-header`);
         var header = document.createElement(`h2`);
         header.innerText = description;
-        var save_button = DisplayHTML.create_button(save_controls_message, undefined, () => {
+        var save_button = DisplayHTML.create_button(control_screen_text.save, undefined, () => {
             if(KeyBind.is_valid(controls)){
                 GS.data.set_controls(controls);
                 DisplayHTML.remove_children(location);
                 view_function();
             }
         });
-        var undo_edit_button = DisplayHTML.create_button(undo_edit_controls_message, undefined, () => {
+        var undo_edit_button = DisplayHTML.create_button(control_screen_text.undo, undefined, () => {
             DisplayHTML.remove_children(location);
             view_function();
         });
@@ -1227,7 +1227,7 @@ const DisplayHTML = {
             // New Boons
             if(a.boons!== undefined && a.boons.length > 0){
                 var unlock_boons_header = document.createElement(`h3`);
-                unlock_boons_header.innerText = `--- ${unlock_boon_description} ---`
+                unlock_boons_header.innerText = `--- ${achievement_text.unlocks_boon} ---`
                 unlocks.append(unlock_boons_header);
                 
                 for(var boon of a.boons){
@@ -1243,7 +1243,7 @@ const DisplayHTML = {
             // New cards
             if(a.cards !== undefined && a.cards.length > 0){
                 var unlock_cards_header = document.createElement(`h3`);
-                unlock_cards_header.innerText = `--- ${unlock_card_description} ---`;
+                unlock_cards_header.innerText = `--- ${achievement_text.unlocks_cards} ---`;
                 unlocks.append(unlock_cards_header);
 
                 for(var card of a.cards){
@@ -1347,7 +1347,7 @@ function refresh_hand_display(deck){
 
     // Makes sure the card info button shows that no card is selected.
     var explain_blank_moves = function(){
-        say(blank_moves_message);
+        say(gameplay_text.select_card);
     }
     display.add_on_click(UIIDS.move_info, explain_blank_moves);
 }
@@ -1491,7 +1491,7 @@ function refresh_shop_display(shop){
             a.on_click = refresh(a.on_click, a.card);
         }
         else{
-            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_add_description)};
+            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.add)};
         }
     }
     display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
@@ -1502,10 +1502,10 @@ function refresh_shop_display(shop){
             r.on_click = refresh(r.on_click, r.card);
         }
         else if(r.name === card_names.symbol_remove_card){
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_remove_description)};
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.remove)};
         }
         else{
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_min_description)};
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.min)};
         }
     }
     display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
@@ -1516,10 +1516,10 @@ function refresh_shop_display(shop){
             GS.new_floor();
         }
         else{
-            display.display_message(UIIDS.shop_message, shop_confirm_description);
+            display.display_message(UIIDS.shop_message, shop_text.invalid);
         }
     }
-    display.set_button(UIIDS.shop_confirm, confirm_text, confirm, shop.is_valid_selection());
+    display.set_button(UIIDS.shop_confirm, shop_text.confirm, confirm, shop.is_valid_selection());
 }
 
 function setup_controls_page(){
@@ -1637,7 +1637,7 @@ function refresh_deck_select_screen(selector){
     }
     display.set_button(
         UIIDS.deck_select_confirm, 
-        confirm_text, 
+        shop_text.confirm, 
         () => {selector.confirm();}, 
         selector.check_valid()
     );
@@ -1677,7 +1677,7 @@ function initiate_game(){
     display.detect_keys();
     display.stop_space_scrolling();
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
-    display.display_message(UIIDS.title, game_title);
+    display.display_message(UIIDS.title, gameplay_labels.title);
     create_main_dropdown(UIIDS.header_bar);
     GS = new GameState();
     GS.setup();
@@ -1747,7 +1747,7 @@ function hp_description(tile){
         hp = `(${tile.health} hp) `;
     }
     if(tile.stun !== undefined && tile.stun > 0){
-        stunned = `*${stunned_msg}${tile.stun}* `;
+        stunned = `*${gameplay_text.stunned}${tile.stun}* `;
     }
     return `${hp}${stunned}`;
 }
@@ -1761,9 +1761,9 @@ function grid_space_description(space){
     var tile = space.tile.look === undefined ? space.tile : space.tile.look;
     tile = tile_description(tile);
     var foreground = space.foreground.filter((fg) => fg.description !== undefined);
-    foreground = foreground.map((fg) => `${tile_description_divider}${fg.description}`);
+    foreground = foreground.map((fg) => `${gameplay_text.divider}${fg.description}`);
     var background = space.background.filter((bg) => bg.description !== undefined);
-    background = background.map((bg) => `${tile_description_divider}${bg.description}`);
+    background = background.map((bg) => `${gameplay_text.divider}${bg.description}`);
     var descriptions = [tile, ...foreground, ...background];
     return descriptions.reduce((res, str) => `${res}${str}`);
 }
@@ -1800,22 +1800,22 @@ function display_health(player, scale){
 function create_main_dropdown(location){
     var options = [
         {
-            label: gameplay_screen_name,
+            label: screen_names.gameplay,
             on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
         }, 
         {
-            label: guide_screen_name,
+            label: screen_names.guide,
             on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
         },
         {
-            label: controls_screen_name,
+            label: screen_names.controls,
             on_change: () => {
                 setup_controls_page();
                 DISPLAY_DIVISIONS.swap(UIIDS.controls);
             }
         },
         {
-            label: achievements_screen_name,
+            label: screen_names.achievements,
             on_change: () => {
                 update_achievements();
                 DISPLAY_DIVISIONS.swap(UIIDS.achievements);
@@ -1960,6 +1960,8 @@ const achievement_text = {
     confirm_reset: `Confirm?`,
     unlocked: `Achievement Unlocked:`,
     repeated: `Achievement Repeated:`,
+    unlocks_boon: `New Boon`,
+    unlocks_cards: `New Cards`,
 }
 
 const achievement_names = {
@@ -3038,42 +3040,53 @@ const entity_types = {
     player: `Player`,
     terrain: `Terrain`,
 }
-// General Descriptions
-const game_title = `Maneuver`;
-const hand_label_text = `Hand of cards`;
-const move_label_text = `Moves`;
-const mod_deck = `Choose one card to add or remove:`;
-const shop_add_description = `Add a card to your deck.`
-const shop_remove_description = `Remove a card from your deck.`
-const shop_min_description = `Your deck is at the minimum size.`
-const shop_confirm_description = `Please choose a card to add or remove.`
-const confirm_text = `Confirm >`;
-const current_deck = `Current Deck (minimum `;
-const welcome_message = `Use cards to move (blue) and attack (red).\n` 
-                        + `Click on things to learn more about them.\n`
-                        + `Refer to the guidebook if you need more information.`;
-const blank_moves_message = `Before choosing what move to make, you must first select a card to use.`;
-const floor_message = `Welcome to floor `;
-const game_over_message = `Game Over. You were killed by a `;
-const retry_message = `Retry?`;
-const stunned_msg = `Stunned x`;
-const gameplay_screen_name = `Gameplay`;
-const guide_screen_name = `Guidebook`;
-const controls_screen_name = `Controls`;
-const achievements_screen_name = `Achievements`;
-const edit_controls_message = `Edit`;
-const default_controls_message = `Default`;
-const save_controls_message = `Save`;
-const undo_edit_controls_message = `Undo`;
-const tile_description_divider = `\n--------------------\n`;
-const card_explanation_start = `Move Options (actions will be performed in order):\n`;
-const card_explanation_end = `Shift click on a button to show what it will do on the map.\n`;
-const unlock_boon_description = `New Boon`
-const unlock_card_description = `New Cards`
-const stats_description = [
-    `Floor`,
-    `Turn`
-];
+
+const screen_names = {
+    gameplay: `Gameplay`,
+    guide: `Guidebook`,
+    controls: `Controls`,
+    achievements: `Achievements`,
+}
+const control_screen_text = {
+    default: `Default`,
+    edit: `Edit`,
+    save: `Save`,
+    undo: `Undo`,
+}
+const shop_text = {
+    header: `Choose one card to add or remove:`,
+    add: `Add a card to your deck.`,
+    remove: `Remove a card from your deck.`,
+    min: `Your deck is at the minimum size.`,
+    invalid: `Please choose a card to add or remove.`,
+    confirm: `Confirm >`,
+    current: `Current Deck (minimum `,
+}
+const gameplay_labels = {
+    title: `Maneuver`,
+    hand: `Hand of Cards`,
+    move: `Moves`,
+    retry: `Retry?`,
+    floor: `Floor`,
+    turn: `Turn`,
+}
+const gameplay_text = {
+    welcome: 
+        `Use cards to move (blue) and attack (red).\n` 
+        +`Click on things to learn more about them.\n`
+        +`Refer to the guidebook if you need more information.`,
+    floor: 
+        `Welcome to floor `,
+    game_over: 
+        `Game Over. You were killed by a `,
+    stunned:    
+        `Stunned x`,
+    divider: 
+        `\n--------------------\n`,
+    select_card: 
+        `Before choosing what move to make, you must first select a card to use.`,
+}
+
 const SIDEBAR_BUTTONS = {
     text_log: `Messages`, 
     boon_list: `Boons`, 
@@ -9822,8 +9835,8 @@ class GameMap{
     display_stats(location){
         var stats = this.stats.get_stats();
         var stat_message = 
-            `${stats_description[0]} ${this.#floor_num} `
-            +`${stats_description[1]} ${stats.turn_number}`;
+            `${gameplay_labels.floor} ${this.#floor_num} `
+            +`${gameplay_labels.turn} ${stats.turn_number}`;
         display.display_message(location, stat_message);
     }
     /**
@@ -9908,7 +9921,7 @@ class GameMap{
             // Vicious Cycle always fully heals you.
             this.player_heal(new Point(0, 0));
         }
-        var floor_description = `${floor_message}${this.#floor_num}.`;
+        var floor_description = `${gameplay_text.floor}${this.#floor_num}.`;
         if(this.#floor_num % area_size === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
@@ -10190,10 +10203,10 @@ class GameState{
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = init.make_deck();
 
-        var starting_text = `${start.description}\n${welcome_message}`;
+        var starting_text = `${start.description}\n${gameplay_text.welcome}`;
         say_record(starting_text);
-        display.display_message(UIIDS.hand_label, `${hand_label_text}`);
-        display.display_message(UIIDS.move_label, `${move_label_text}`);
+        display.display_message(UIIDS.hand_label, `${gameplay_labels.hand}`);
+        display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
         create_sidebar();
 
         // Prep map
@@ -10209,7 +10222,7 @@ class GameState{
         this.map.display_stats(UIIDS.stats);
 
         this.refresh_deck_display();
-        display.display_message(UIIDS.shop_instructions, mod_deck);
+        display.display_message(UIIDS.shop_instructions, shop_text.header);
         DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         this.#player_turn_lock = true;
@@ -10427,7 +10440,7 @@ class GameState{
         display_map(this.map);
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
-        say_record(`${game_over_message}${cause.toLowerCase()}.`);
+        say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
         display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
@@ -10437,7 +10450,7 @@ class GameState{
             };
         }
         var restart_message = [{
-            description: retry_message,
+            description: gameplay_labels.retry,
             on_click: restart(this)
         }]
         display.add_button_row(UIIDS.retry_button, restart_message);

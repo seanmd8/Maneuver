@@ -27,10 +27,10 @@ class GameState{
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = init.make_deck();
 
-        var starting_text = `${start.description}\n${welcome_message}`;
+        var starting_text = `${start.description}\n${gameplay_text.welcome}`;
         say_record(starting_text);
-        display.display_message(UIIDS.hand_label, `${hand_label_text}`);
-        display.display_message(UIIDS.move_label, `${move_label_text}`);
+        display.display_message(UIIDS.hand_label, `${gameplay_labels.hand}`);
+        display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
         create_sidebar();
 
         // Prep map
@@ -46,7 +46,7 @@ class GameState{
         this.map.display_stats(UIIDS.stats);
 
         this.refresh_deck_display();
-        display.display_message(UIIDS.shop_instructions, mod_deck);
+        display.display_message(UIIDS.shop_instructions, shop_text.header);
         DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         this.#player_turn_lock = true;
@@ -264,7 +264,7 @@ class GameState{
         display_map(this.map);
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
-        say_record(`${game_over_message}${cause.toLowerCase()}.`);
+        say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
         display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
@@ -274,7 +274,7 @@ class GameState{
             };
         }
         var restart_message = [{
-            description: retry_message,
+            description: gameplay_labels.retry,
             on_click: restart(this)
         }]
         display.add_button_row(UIIDS.retry_button, restart_message);
