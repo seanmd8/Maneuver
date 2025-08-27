@@ -2715,141 +2715,179 @@ const sentry_mode_descriptions = {
 
 // Normal Enemy Descriptions.
 
-const spider_description = 
-    `Spider: Will attack the player if it is next to them. `
-    +`Otherwise it will move 1 space closer.`;
-const turret_h_description = 
-    `Turret: Does not move. Fires beams orthogonally that hit `
-    +`the first thing in their path.`;
-const turret_d_description = 
-    `Turret: Does not move. Fires beams diagonally that hit the `
-    +`first thing in their path.`;
-const turret_r_description = 
-    `Turret: Does not move. Fires beams in two directions hitting `
-    +`the first thing in their path. Rotates every turn.`;
-const scythe_description = 
-    `Scythe: Will move 3 spaces diagonally towards the player `
-    +`damaging them if it passes next to them. Can only see diagonally.`;
-const shadow_knight_description = 
-    `Shadow Knight: Moves in an L shape. If it tramples the player, `
-    +`it will move again.`;
-const spider_web_description = [
-    `Spider Web: Does not move or attack. Spawns a spider every `, 
-    ` turns. Slows over time.`
-];
-const ram_description = 
-    `Ram: Moves orthogonally. When it sees the player, it will `
-    +`prepare to charge towards them and ram them.`;
-const large_porcuslime_description = 
-    `Large Porcuslime: Moves towards the player 1 space and attacks `
-    +`in that direction. Weakens when hit.`;
-const medium_porcuslime_description = 
-    `Medium Porcuslime: Moves towards the player 1 space and attacks `
-    +`in that direction. Alternates between orthoganal and diagonal `
-    +`movement. Splits when hit.`;
-const small_h_porcuslime_description = 
-    `Small Porcuslime: Moves towards the player 1 space orthogonally `
-    +`and attacks in that direction.`;
-const small_d_porcuslime_description = 
-    `Small Porcuslime: Moves towards the player 1 space diagonally and `
-    +`attacks in that direction.`;
-const acid_bug_description = 
-    `Acid bug: Moves towards the player 1 space. Has no normal attack, `
-    +`but will spray acid upon death hurting everything next to it.`;
-const brightling_description = 
-    `Brightling: Is not aggressive. Will occasionally teleport the player `
-    +`close to it before teleoprting away the next turn.`;
-const corrosive_caterpillar_description = 
-    `Corrosive Caterpillar: Is not aggressive. Leaves a trail of corrosive `
-    +`slime behind it when it moves or dies.`;
-const noxious_toad_description = 
-    `Noxious Toad: Every other turn it will hop over a space orthogonally. `
-    +`If it lands near the player, it will damage everything next to it.`;
-const vampire_description = 
-    `Vampire: Moves orthogonally then will attempt to attack diagonally. `
-    +`When it hits the player, it will heal itself. Teleports away and is `
-    +`stunned when hit.`;
-const clay_golem_description = 
-    `Clay Golem: Will attack the player if it is next to them. Otherwise `
-    +`it will move 1 space closer. Taking damage will stun it and it cannot `
-    +`move two turns in a row.`;
-const vinesnare_bush_description = [
-    `Vinesnare Bush: Does not move. Can drag the player towards it using it's vines from up to `,
-    ` spaces away. It can then lash out at the player if they are still nearby next turn.`
-];
-const rat_description = 
-    `Rat: Will attack the player if it is next to them. Otherwise it will move `
-    +`2 spaces closer. After attacking, it will flee.`;
-const shadow_scout_description = 
-`Shadow Scout: Will attack the player if it is next to them. Otherwise it will `
-+`move 1 space closer. Can go invisible every other turn.`;
-const darkling_description = 
-`Darkling: Teleports around randomly hurting everything next to the location it `
-+`arrives at. Blocking it's rift will destroy it.`;
-const orb_of_insanity_description = [
-    `Orb of Insanity: Does not move or attack. If the player is within `, 
-    ` spaces of it, it will confuse them, polluting their deck with a bad temporary card.`
-];
-const carrion_flies_description = 
-    `Carrion Flies: Will attack the player if they are nearby. Otherwise wanders `
-    +`aimlessly. Over time they will multiply.`;
-const magma_spewer_description = 
-    `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
-    +`get close.`
-const animated_boulder_description = 
-    `Animated Boulder: Wakes up when something touches it. Each turn it will `
-    +`damage everything close to it, then move 1 space closer to the player. `
-    +`After 3 turns, it will go back to sleep.`;
-const pheonix_description = 
-    `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `
-    +`Everything it flies over will be damaged and set on fire. When it dies, `
-    +`it drops a pile of ashes from which it will eventually be reborn.`;
-const igneous_crab_description = 
-    `Igneous Crab: Will attack the player if it is next to them. Otherwise it will `
-    +`move 1 space closer. When damaged, it will spend the next 2 turns fleeing.`;
-const strider_description = 
-    `Strider: Attacks then moves 2 spaces away in one direction.`;
-const swaying_nettle_description = 
-    `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal `
-    +`to it. Won't hurt each other`;
-const nettle_root_description = 
-    `Watch out, swaying nettles are about to sprout damaging anything standing here.`
-const thorn_bush_description = 
-    `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`;
-const living_tree_description = 
-    `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
-    +`Moves one square in any direction every other turn if it didn't attack.`;
-const living_tree_rooted_description = 
-    `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
-    +`This one has put down roots making it unable to move.`
-const scorpion_description = 
-    `Scorpion: Will attack the player if it is next to them. Otherwise, moves 2 spaces `
-    +`closer every other turn.`;
-const moving_turret_description = 
-    `Moving Turret: Fires beams in two directions that hit the first thing in their path. `
-    +`Moves in the same direction until it hits something.`;
-const walking_prism_description = [
-    `Walking Prism: Has no normal attack, but will fire beams in 4 directions when damaged `
-    +`which hit the first thing in their path. Changes firing direction aftewards.\n`, 
-    `Currently aiming orthogonally.`,
-    `Currently aiming diagonally.`
-    ];
-const unstable_wisp_description = 
-    `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes `
-    +`into a ring of fireballs on death.`;
-const captive_void_description = 
-    `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it `
-    +`turns it off for 2 turns.`;
-const paper_construct_description = 
-    `Paper Construct: Can shoot the player from up to 2 spaces away orthogonally. Otherwise, `
-    +`moves up to two spaces diagonally.`;
-const specter_description =
-    `Specter: Can travel up to 3 spaces orthogonally. While doing so, it can pass through tiles `
-    +`without costing movement. Passing through a tile damages and stuns/confuses it.`;
-const gem_crawler_description =
-    `Gem Crawler: Every other turn it will move 1 space closer to the player, then attack them if `
-    +`it is next to them.`;
+const enemy_descriptions = {
+    acid_bug: 
+        `Acid bug: Moves towards the player 1 space. Has no normal attack, `
+        +`but will spray acid upon death hurting everything next to it.`,
+    animated_boulder: 
+        `Animated Boulder: Wakes up when something touches it. Each turn it will `
+        +`damage everything close to it, then move 1 space closer to the player. `
+        +`After 3 turns, it will go back to sleep.`,
+    brightling: 
+        `Brightling: Is not aggressive. Will occasionally teleport the player `
+        +`close to it before teleoprting away the next turn.`,
+    captive_void: 
+        `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it `
+        +`turns it off for 2 turns.`,
+    carrion_flies: 
+        `Carrion Flies: Will attack the player if they are nearby. Otherwise wanders `
+        +`aimlessly. Over time they will multiply.`,
+    clay_golem: 
+        `Clay Golem: Will attack the player if it is next to them. Otherwise `
+        +`it will move 1 space closer. Taking damage will stun it and it cannot `
+        +`move two turns in a row.`,
+    corrosive_caterpillar: 
+        `Corrosive Caterpillar: Is not aggressive. Leaves a trail of corrosive `
+        +`slime behind it when it moves or dies.`,
+    darkling: 
+        `Darkling: Teleports around randomly hurting everything next to the location it `
+        +`arrives at. Blocking it's rift will destroy it.`,
+    gem_crawler: 
+        `Gem Crawler: Every other turn it will move 1 space closer to the player, then attack them if `
+        +`it is next to them.`,
+    igneous_crab: 
+        `Igneous Crab: Will attack the player if it is next to them. Otherwise it will `
+        +`move 1 space closer. When damaged, it will spend the next 2 turns fleeing.`,
+    living_tree: 
+        `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
+        +`Moves one square in any direction every other turn if it didn't attack.`,
+    living_tree_rooted: 
+        `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
+        +`This one has put down roots making it unable to move.`,
+    magma_spewer: 
+        `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
+        +`get close.`,
+    noxious_toad: 
+        `Noxious Toad: Every other turn it will hop over a space orthogonally. `
+        +`If it lands near the player, it will damage everything next to it.`,
+    orb_of_insanity: 
+        `Orb of Insanity: Does not move or attack. If the player is within `
+        +`2 spaces of it, it will confuse them, polluting their deck with a bad temporary card.`,
+    paper_construct: 
+        `Paper Construct: Can shoot the player from up to 2 spaces away orthogonally. Otherwise, `
+        +`moves up to two spaces diagonally.`,
+    pheonix: 
+        `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `
+        +`Everything it flies over will be damaged and set on fire. When it dies, `
+        +`it drops a pile of ashes from which it will eventually be reborn.`,
+    porcuslime_large: 
+        `Large Porcuslime: Moves towards the player 1 space and attacks `
+        +`in that direction. Weakens when hit.`,
+    porcuslime_medium: 
+        `Medium Porcuslime: Moves towards the player 1 space and attacks `
+        +`in that direction. Alternates between orthoganal and diagonal `
+        +`movement. Splits when hit.`,
+    porcuslime_small_d: 
+        `Small Porcuslime: Moves towards the player 1 space diagonally and `
+        +`attacks in that direction.`,
+    porcuslime_small_h: 
+        `Small Porcuslime: Moves towards the player 1 space orthogonally `
+        +`and attacks in that direction.`,
+    ram: 
+        `Ram: Moves orthogonally. When it sees the player, it will `
+        +`prepare to charge towards them and ram them.`,
+    rat: 
+        `Rat: Will attack the player if it is next to them. Otherwise it will move `
+        +`2 spaces closer. After attacking, it will flee.`,
+    scorpion: 
+        `Scorpion: Will attack the player if it is next to them. Otherwise, moves 2 spaces `
+        +`closer every other turn.`,
+    scythe: 
+        `Scythe: Will move 3 spaces diagonally towards the player `
+        +`damaging them if it passes next to them. Can only see diagonally.`,
+    shadow_knight: 
+        `Shadow Knight: Moves in an L shape. If it tramples the player, `
+        +`it will move again.`,
+    shadow_scout: 
+        `Shadow Scout: Will attack the player if it is next to them. Otherwise it will `
+        +`move 1 space closer. Can go invisible every other turn.`,
+    specter: 
+        `Specter: Can travel up to 3 spaces orthogonally. While doing so, it can pass through tiles `
+        +`without costing movement. Passing through a tile damages and stuns/confuses it.`,
+    spider_web: [
+        `Spider Web: Does not move or attack. Spawns a spider every `, 
+        ` turns. Slows over time.`
+    ],
+    spider: 
+        `Spider: Will attack the player if it is next to them. `
+        +`Otherwise it will move 1 space closer.`,
+    strider: 
+        `Strider: Attacks then moves 2 spaces away in one direction.`,
+    swaying_nettle: 
+        `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal `
+        +`to it. Won't hurt each other`,
+    thorn_bush: 
+        `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`,
+    turret_d: 
+        `Turret: Does not move. Fires beams diagonally that hit the `
+        +`first thing in their path.`,
+    turret_h: 
+        `Turret: Does not move. Fires beams orthogonally that hit `
+        +`the first thing in their path.`,
+    turret_m:
+        `Moving Turret: Fires beams in two directions that hit the first thing in their path. `
+        +`Moves in the same direction until it hits something.`,
+    turret_r: 
+        `Turret: Does not move. Fires beams in two directions hitting `
+        +`the first thing in their path. Rotates every turn.`,
+    unstable_wisp: 
+        `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes `
+        +`into a ring of fireballs on death.`,
+    vampire: 
+        `Vampire: Moves orthogonally then will attempt to attack diagonally. `
+        +`When it hits the player, it will heal itself. Teleports away and is `
+        +`stunned when hit.`,
+    vinesnare_bush: 
+        `Vinesnare Bush: Does not move. Can drag the player towards it using it's vines from up to 3 `
+        +`spaces away. It can then lash out at the player if they are still nearby next turn.`,
+    walking_prism: [
+        `Walking Prism: Has no normal attack, but will fire beams in 4 directions when damaged `
+        +`which hit the first thing in their path. Changes firing direction aftewards.\n`, 
+        `Currently aiming orthogonally.`,
+        `Currently aiming diagonally.`
+    ],
+}
 
+const enemy_names = {
+    acid_bug: `Acid Bug`, 
+    animated_boulder: `Animated Boulder`, 
+    brightling: `Brightling`, 
+    captive_void: `Captive Void`, 
+    carrion_flies: `Carrion Flies`, 
+    clay_golem: `Clay Golem`, 
+    corrosive_caterpillar: `Corrosive Caterpillar`, 
+    darkling: `Darkling`, 
+    gem_crawler: `Gem Crawler`, 
+    igneous_crab: `Igneous Crab`, 
+    living_tree: `Living Tree`, 
+    magma_spewer: `Magma Spewer`, 
+    noxious_toad: `Noxious Toad`, 
+    orb_of_insanity: `Orb of Insanity`, 
+    paper_construct: `Paper Construct`, 
+    pheonix: `Pheonix`, 
+    porcuslime_large: `Large Porcuslime`, 
+    porcuslime_medium: `Medium Porcuslime`, 
+    porcuslime_small: `Small Porcuslime`, 
+    ram: `Ram`, 
+    rat: `Rat`, 
+    scorpion: `Scorpion`, 
+    scythe: `Scythe`, 
+    shadow_knight: `Shadow Knight`, 
+    shadow_scout: `Shadow Scout`, 
+    specter: `Specter`, 
+    spider_web: `Spider Web`, 
+    spider: `Spider`, 
+    strider: `Strider`, 
+    swaying_nettle: `Swaying Nettle`, 
+    thorn_bush: `Thorn Bush`, 
+    turret: `Turret`, 
+    turret_m: `Moving Turret`, 
+    turret_r: `Rotary Turret`, 
+    unstable_wisp: `Unstable Wisp`, 
+    vampire: `Vampire`, 
+    vinesnare_bush: `Vinesnare Bush`, 
+    walking_prism: `Walking Prism`,
+}
 const lava_pool_description = 
     `Lava Pool: Attempting to move here will hurt.`;
 const corrosive_slime_description = 
@@ -2890,6 +2928,8 @@ const thorn_bramble_description =
     +`spread further.`;
 const thorn_root_description = 
     `Watch out, brambles are about to sprout damaging anything standing here.`
+const swaying_nettle_root_description = 
+    `Watch out, swaying nettles are about to sprout damaging anything standing here.`;
 const enticing_fruit_tree_description = 
     `Enticing Fruit Tree: Moving you here will heal you, but other creatures `
     +`may be attracted by the fruit.`;
@@ -4267,9 +4307,9 @@ function create_diagonal_cone(rotation, range){
 function acid_bug_tile(){
     return {
         type: `enemy`,
-        name: `Acid Bug`,
+        name: enemy_names.acid_bug,
         pic: `${IMG_FOLDER.tiles}acid_bug.png`,
-        description: acid_bug_description,
+        description: enemy_descriptions.acid_bug,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -4291,9 +4331,9 @@ function acid_bug_death(self, target, map){
 function animated_boulder_tile(){
     return {
         type: `enemy`,
-        name: `Animated Boulder`,
+        name: enemy_names.animated_boulder,
         pic: `${IMG_FOLDER.tiles}animated_boulder.png`,
-        description: animated_boulder_description,
+        description: enemy_descriptions.animated_boulder,
         tags: new TagList([TAGS.unmovable, TAGS.hidden]),
         behavior: animated_boulder_ai,
         telegraph: spider_telegraph,
@@ -4361,9 +4401,9 @@ function brightling_tile(){
     var starting_cycle = 0;
     return{
         type: `enemy`,
-        name: `Brightling`,
+        name: enemy_names.brightling,
         pic: `${IMG_FOLDER.tiles}brightling.png`,
-        description: brightling_description,
+        description: enemy_descriptions.brightling,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -4411,9 +4451,9 @@ function captive_void_tile(){
     var starting_cycle = 0;
     return {
         type: `enemy`,
-        name: `Captive Void`,
+        name: enemy_names.captive_void,
         pic: pic_arr[starting_cycle],
-        description: captive_void_description,
+        description: enemy_descriptions.captive_void,
         tags: new TagList([TAGS.unmovable]),
         difficulty: 2,
         behavior: captive_void_ai,
@@ -4482,9 +4522,9 @@ function captive_void_telegraph_other(location, map, self){
 function carrion_flies_tile(){
     return {
         type: `enemy`,
-        name: `Carrion Flies`,
+        name: enemy_names.carrion_flies,
         pic: `${IMG_FOLDER.tiles}carrion_flies.png`,
-        description: carrion_flies_description,
+        description: enemy_descriptions.carrion_flies,
         tags: new TagList(),
         health: 1,
         difficulty: 6,
@@ -4524,9 +4564,9 @@ function carrion_flies_ai(self, target, map){
 function clay_golem_tile(){
     return {
         type: `enemy`,
-        name: `Clay Golem`,
+        name: enemy_names.clay_golem,
         pic: `${IMG_FOLDER.tiles}clay_golem.png`,
-        description: clay_golem_description,
+        description: enemy_descriptions.clay_golem,
         tags: new TagList(),
         health: 3,
         difficulty: 4,
@@ -4565,9 +4605,9 @@ function clay_golem_hit(self, target, map){
 function corrosive_caterpillar_tile(){
     return {
         type: `enemy`,
-        name: `Corrosive Caterpillar`,
+        name: enemy_names.corrosive_caterpillar,
         pic: `${IMG_FOLDER.tiles}corrosive_caterpillar.png`,
-        description: corrosive_caterpillar_description,
+        description: enemy_descriptions.corrosive_caterpillar,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -4596,9 +4636,9 @@ function corrosive_caterpillar_death(self, target, map){
 function darkling_tile(){
     return {
         type: `enemy`,
-        name: `Darkling`,
+        name: enemy_names.darkling,
         pic: `${IMG_FOLDER.tiles}darkling.png`,
-        description: darkling_description,
+        description: enemy_descriptions.darkling,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -4651,9 +4691,9 @@ function gem_crawler_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}gem_crawler_recharging.png`, `${IMG_FOLDER.tiles}gem_crawler.png`]
     return {
         type: `enemy`,
-        name: `Gem Crawler`,
+        name: enemy_names.gem_crawler,
         pic: pic_arr[cycle],
-        description: gem_crawler_description,
+        description: enemy_descriptions.gem_crawler,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -4698,9 +4738,9 @@ function gem_crawler_telegraph(location, map, self){
 function igneous_crab_tile(){
     return {
         type: `enemy`,
-        name: `Igneous Crab`,
+        name: enemy_names.igneous_crab,
         pic: `${IMG_FOLDER.tiles}igneous_crab.png`,
-        description: igneous_crab_description,
+        description: enemy_descriptions.igneous_crab,
         tags: new TagList(),
         health: 2,
         difficulty: 3,
@@ -4757,9 +4797,9 @@ function igneous_crab_telegraph(location, map, self){
 function living_tree_tile(){
     return {
         type: `enemy`,
-        name: `Living Tree`,
+        name: enemy_names.living_tree,
         pic: `${IMG_FOLDER.tiles}living_tree.png`,
-        description: living_tree_description,
+        description: enemy_descriptions.living_tree,
         tags: new TagList(),
         health: 2,
         difficulty: 7,
@@ -4812,9 +4852,9 @@ function living_tree_telegraph(location, map, self){
 function living_tree_rooted_tile(){
     return {
         type: `enemy`,
-        name: `Living Tree`,
+        name: enemy_names.living_tree,
         pic: `${IMG_FOLDER.tiles}living_tree_rooted.png`,
-        description: living_tree_rooted_description,
+        description: enemy_descriptions.living_tree_rooted,
         tags: new TagList(),
         health: 2,
         behavior: living_tree_rooted_ai,
@@ -4843,9 +4883,9 @@ function magma_spewer_tile(){
     var starting_cycle = random_num(pic_arr.length);
     return {
         type: `enemy`,
-        name: `Magma Spewer`,
+        name: enemy_names.magma_spewer,
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
-        description: magma_spewer_description,
+        description: enemy_descriptions.magma_spewer,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -4895,9 +4935,9 @@ function noxious_toad_tile(){
     var starting_cycle = random_num(pic_arr.length);
     return {
         type: `enemy`,
-        name: `Noxious Toad`,
+        name: enemy_names.noxious_toad,
         pic: pic_arr[starting_cycle],
-        description: noxious_toad_description, 
+        description: enemy_descriptions.noxious_toad, 
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -4966,9 +5006,9 @@ function orb_of_insanity_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}orb_of_insanity_off.png`, `${IMG_FOLDER.tiles}orb_of_insanity_on.png`];
     return {
         type: `enemy`,
-        name: `Orb of Insanity`,
+        name: enemy_names.orb_of_insanity,
         pic: pic_arr[0],
-        description: `${orb_of_insanity_description[0]}${range}${orb_of_insanity_description[1]}`,
+        description: enemy_descriptions.orb_of_insanity,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 3,
@@ -5014,9 +5054,9 @@ function orb_of_insanity_telegraph_other(location, map, self){
 function paper_construct_tile(){
     return{
         type: `enemy`,
-        name: `Paper Construct`,
+        name: enemy_names.paper_construct,
         pic: `${IMG_FOLDER.tiles}paper_construct.png`,
-        description: paper_construct_description,
+        description: enemy_descriptions.paper_construct,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -5073,9 +5113,9 @@ function paper_construct_ai(self, target, map){
 function pheonix_tile(){
     return {
         type: `enemy`,
-        name: `Pheonix`,
+        name: enemy_names.pheonix,
         pic: `${IMG_FOLDER.tiles}pheonix.png`,
-        description: pheonix_description,
+        description: enemy_descriptions.pheonix,
         tags: new TagList(),
         health: 1,
         difficulty: 5,
@@ -5150,9 +5190,9 @@ function pheonix_telegraph(location, map, self){
 function large_porcuslime_tile(){
     return {
         type: `enemy`,
-        name: `Large Porcuslime`,
+        name: enemy_names.porcuslime_large,
         pic: `${IMG_FOLDER.tiles}large_porcuslime.png`,
-        description: large_porcuslime_description,
+        description: enemy_descriptions.porcuslime_large,
         tags: new TagList(),
         health: 3,
         difficulty: 8,
@@ -5196,9 +5236,9 @@ function medium_porcuslime_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}medium_h_porcuslime.png`, `${IMG_FOLDER.tiles}medium_d_porcuslime.png`];
     return {
         type: `enemy`,
-        name: `Medium Porcuslime`,
+        name: enemy_names.porcuslime_medium,
         pic: pic_arr[starting_cycle],
-        description: medium_porcuslime_description,
+        description: enemy_descriptions.porcuslime_medium,
         tags: new TagList(),
         health: 2,
         difficulty: 5,
@@ -5284,9 +5324,9 @@ function porcuslime_horizontal_telegraph(location, map, self){
 function small_d_porcuslime_tile(){
     return {
         type: `enemy`,
-        name: `Small Porcuslime`,
+        name: enemy_names.porcuslime_small,
         pic: `${IMG_FOLDER.tiles}small_d_porcuslime.png`,
-        description: small_d_porcuslime_description,
+        description: enemy_descriptions.porcuslime_small_d,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -5298,9 +5338,9 @@ function small_d_porcuslime_tile(){
 function small_h_porcuslime_tile(){
     return {
         type: `enemy`,
-        name: `Small Porcuslime`,
+        name: enemy_names.porcuslime_small,
         pic: `${IMG_FOLDER.tiles}small_h_porcuslime.png`,
-        description: small_h_porcuslime_description,
+        description: enemy_descriptions.porcuslime_small_h,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -5314,9 +5354,9 @@ function ram_tile(){
     var starting_cycle = 0;
     return{
         type: `enemy`,
-        name: `Ram`,
+        name: enemy_names.ram,
         pic: pic_arr[starting_cycle],
-        description: ram_description,
+        description: enemy_descriptions.ram,
         tags: new TagList(),
         health: 2,
         difficulty: 5,
@@ -5411,9 +5451,9 @@ function ram_telegraph(location, map, self){
 function rat_tile(){
     return {
         type: `enemy`,
-        name: `Rat`,
+        name: enemy_names.rat,
         pic: `${IMG_FOLDER.tiles}rat.png`,
-        description: rat_description,
+        description: enemy_descriptions.rat,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -5474,9 +5514,9 @@ function rat_telegraph(location, map, self){
 function scorpion_tile(){
     return {
         type: `enemy`,
-        name: `Scorpion`,
+        name: enemy_names.scorpion,
         pic: `${IMG_FOLDER.tiles}scorpion.png`,
-        description: scorpion_description,
+        description: enemy_descriptions.scorpion,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -5530,9 +5570,9 @@ function scorpion_ai(self, target, map){
 function scythe_tile(){
     return{
         type: `enemy`,
-        name: `Scythe`,
+        name: enemy_names.scythe,
         pic: `${IMG_FOLDER.tiles}scythe.png`,
-        description: scythe_description,
+        description: enemy_descriptions.scythe,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -5588,9 +5628,9 @@ const L_SHAPES = [new Point(1, 2), new Point(-1, 2), new Point(1, -2), new Point
 function shadow_knight_tile(){
     return{
         type: `enemy`,
-        name: `Shadow Knight`,
+        name: enemy_names.shadow_knight,
         pic: `${IMG_FOLDER.tiles}shadow_knight.png`,
-        description: shadow_knight_description,
+        description: enemy_descriptions.shadow_knight,
         tags: new TagList(),
         health: 2,
         difficulty: 4,
@@ -5655,9 +5695,9 @@ function shadow_scout_tile(){
     var starting_cycle = random_num(2);
     return {
         type: `enemy`,
-        name: `Shadow Scout`,
+        name: enemy_names.shadow_scout,
         pic: `${IMG_FOLDER.tiles}shadow_scout.png`,
-        description: shadow_scout_description,
+        description: enemy_descriptions.shadow_scout,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -5682,9 +5722,9 @@ function shadow_scout_ai(self, target, map){
 function specter_tile(){
     return {
         type: `enemy`,
-        name: `Specter`,
+        name: enemy_names.specter,
         pic: `${IMG_FOLDER.tiles}specter.png`,
-        description: specter_description,
+        description: enemy_descriptions.specter,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -5781,9 +5821,9 @@ function specter_telegraph(location, map, self){
 function spider_tile(){
     return {
         type: `enemy`,
-        name: `Spider`,
+        name: enemy_names.spider,
         pic: `${IMG_FOLDER.tiles}spider.png`,
-        description: spider_description,
+        description: enemy_descriptions.spider,
         tags: new TagList(),
         health: 1,
         difficulty: 1,
@@ -5813,9 +5853,11 @@ function spider_web_tile(){
     var spawn_timer = 2
     return{
         type: `enemy`,
-        name: `Spider Web`,
+        name: enemy_names.spider_web,
         pic: `${IMG_FOLDER.tiles}spider_web.png`,
-        description: `${spider_web_description[0]}${spawn_timer + 1}${spider_web_description[1]}`,
+        description: 
+            `${enemy_descriptions.spider_web[0]}${spawn_timer + 1}`
+            +`${enemy_descriptions.spider_web[1]}`,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 4,
@@ -5847,9 +5889,9 @@ function spider_web_ai(self, target, map){
 function strider_tile(){
     return{
         type: `enemy`,
-        name: `Strider`,
+        name: enemy_names.strider,
         pic: `${IMG_FOLDER.tiles}strider.png`,
-        description: strider_description,
+        description: enemy_descriptions.strider,
         tags: new TagList(),
         health: 2,
         difficulty: 4,
@@ -5892,9 +5934,9 @@ function swaying_nettle_tile(){
     var starting_cycle = random_num(2);
     return{
         type: `enemy`,
-        name: `Swaying Nettle`,
+        name: enemy_names.swaying_nettle,
         pic: pic_arr[starting_cycle],
-        description: swaying_nettle_description,
+        description: enemy_descriptions.swaying_nettle,
         tags: new TagList([TAGS.unmovable, TAGS.nettle_immune]),
         health: 1,
         difficulty: 1,
@@ -5937,9 +5979,9 @@ function swaying_nettle_telegraph(location, map, self){
 function thorn_bush_tile(){
     return{
         type: `enemy`,
-        name: `Thorn Bush`,
+        name: enemy_names.thorn_bush,
         pic: `${IMG_FOLDER.tiles}thorn_bush.png`,
-        description: thorn_bush_description,
+        description: enemy_descriptions.thorn_bush,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
         health: 2,
         difficulty: 5,
@@ -5973,9 +6015,9 @@ function moving_turret_d_tile(){
     var direction = rand_from(DIAGONAL_DIRECTIONS).copy();
     var tile = {
         type: `enemy`,
-        name: `Moving Turret`,
+        name: enemy_names.turret_m,
         pic: `${IMG_FOLDER.tiles}moving_turret_d.png`,
-        description: moving_turret_description,
+        description: enemy_descriptions.turret_m,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -6022,9 +6064,9 @@ function moving_turret_h_tile(){
     var direction = rand_from(HORIZONTAL_DIRECTIONS).copy();
     var tile = {
         type: `enemy`,
-        name: `Moving Turret`,
+        name: enemy_names.turret_m,
         pic: `${IMG_FOLDER.tiles}moving_turret_h.png`,
-        description: moving_turret_description,
+        description: enemy_descriptions.turret_m,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -6076,9 +6118,9 @@ function turret_fire_ai(self, target, map){
 function turret_d_tile(){
     return {
         type: `enemy`,
-        name: `Turret`,
+        name: enemy_names.turret,
         pic: `${IMG_FOLDER.tiles}turret_d.png`,
-        description: turret_d_description,
+        description: enemy_descriptions.turret_d,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -6110,9 +6152,9 @@ function turret_d_telegraph(location, map, self){
 function turret_h_tile(){
     return {
         type: `enemy`,
-        name: `Turret`,
+        name: enemy_names.turret,
         pic: `${IMG_FOLDER.tiles}turret_h.png`,
-        description: turret_h_description,
+        description: enemy_descriptions.turret_h,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -6144,9 +6186,9 @@ function turret_h_telegraph(location, map, self){
 function turret_r_tile(){
     var tile = {
         type: `enemy`,
-        name: `Rotary Turret`,
+        name: enemy_names.turret_r,
         pic: ``,
-        description: turret_r_description,
+        description: enemy_descriptions.turret_r,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -6205,9 +6247,9 @@ function turret_r_telegraph(location, map, self){
 function unstable_wisp_tile(){
     return {
         type: `enemy`,
-        name: `Unstable Wisp`,
+        name: enemy_names.unstable_wisp,
         pic: `${IMG_FOLDER.tiles}unstable_wisp.png`, 
-        description: unstable_wisp_description,
+        description: enemy_descriptions.unstable_wisp,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -6263,9 +6305,9 @@ function unstable_wisp_death(self, target, map){
 function vampire_tile(){
     return {
         type: `enemy`,
-        name: `Vampire`,
+        name: enemy_names.vampire,
         pic: `${IMG_FOLDER.tiles}vampire.png`,
-        description: vampire_description,
+        description: enemy_descriptions.vampire,
         tags: new TagList(),
         health: 2,
         max_health: 2,
@@ -6342,9 +6384,9 @@ function vinesnare_bush_tile(){
     var starting_cycle = 1;
     return {
         type: `enemy`,
-        name: `Vinesnare Bush`,
+        name: enemy_names.vinesnare_bush,
         pic: pic_arr[starting_cycle],
-        description: `${vinesnare_bush_description[0]}${range}${vinesnare_bush_description[1]}`,
+        description: enemy_descriptions.vinesnare_bush,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 2,
@@ -6430,11 +6472,11 @@ function vinesnare_bush_telegraph_other(location, map, self){
 /** @type {TileGenerator} */
 function walking_prism_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}walking_prism_h.png`, `${IMG_FOLDER.tiles}walking_prism_d.png`];
-    var description_arr = walking_prism_description;
+    var description_arr = enemy_descriptions.walking_prism;
     var starting_cycle = random_num(pic_arr.length);
     return {
         type: `enemy`,
-        name: `Walking Prism`,
+        name: enemy_names.walking_prism,
         pic: pic_arr[starting_cycle],
         description: `${description_arr[0]}${description_arr[1 + starting_cycle]}`, 
         tags: new TagList(),

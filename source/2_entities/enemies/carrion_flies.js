@@ -2,9 +2,9 @@
 function carrion_flies_tile(){
     return {
         type: `enemy`,
-        name: `Carrion Flies`,
+        name: enemy_names.carrion_flies,
         pic: `${IMG_FOLDER.tiles}carrion_flies.png`,
-        description: carrion_flies_description,
+        description: enemy_descriptions.carrion_flies,
         tags: new TagList(),
         health: 1,
         difficulty: 6,

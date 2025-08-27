@@ -4,9 +4,9 @@ function medium_porcuslime_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}medium_h_porcuslime.png`, `${IMG_FOLDER.tiles}medium_d_porcuslime.png`];
     return {
         type: `enemy`,
-        name: `Medium Porcuslime`,
+        name: enemy_names.porcuslime_medium,
         pic: pic_arr[starting_cycle],
-        description: medium_porcuslime_description,
+        description: enemy_descriptions.porcuslime_medium,
         tags: new TagList(),
         health: 2,
         difficulty: 5,

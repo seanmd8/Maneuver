@@ -2,9 +2,9 @@
 function vampire_tile(){
     return {
         type: `enemy`,
-        name: `Vampire`,
+        name: enemy_names.vampire,
         pic: `${IMG_FOLDER.tiles}vampire.png`,
-        description: vampire_description,
+        description: enemy_descriptions.vampire,
         tags: new TagList(),
         health: 2,
         max_health: 2,

@@ -2,9 +2,9 @@
 function thorn_bush_tile(){
     return{
         type: `enemy`,
-        name: `Thorn Bush`,
+        name: enemy_names.thorn_bush,
         pic: `${IMG_FOLDER.tiles}thorn_bush.png`,
-        description: thorn_bush_description,
+        description: enemy_descriptions.thorn_bush,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
         health: 2,
         difficulty: 5,

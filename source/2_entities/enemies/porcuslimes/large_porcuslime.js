@@ -2,9 +2,9 @@
 function large_porcuslime_tile(){
     return {
         type: `enemy`,
-        name: `Large Porcuslime`,
+        name: enemy_names.porcuslime_large,
         pic: `${IMG_FOLDER.tiles}large_porcuslime.png`,
-        description: large_porcuslime_description,
+        description: enemy_descriptions.porcuslime_large,
         tags: new TagList(),
         health: 3,
         difficulty: 8,

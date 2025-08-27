@@ -5,9 +5,9 @@ function gem_crawler_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}gem_crawler_recharging.png`, `${IMG_FOLDER.tiles}gem_crawler.png`]
     return {
         type: `enemy`,
-        name: `Gem Crawler`,
+        name: enemy_names.gem_crawler,
         pic: pic_arr[cycle],
-        description: gem_crawler_description,
+        description: enemy_descriptions.gem_crawler,
         tags: new TagList(),
         health: 1,
         difficulty: 4,

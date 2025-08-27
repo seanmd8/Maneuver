@@ -38,6 +38,8 @@ const thorn_bramble_description =
     +`spread further.`;
 const thorn_root_description = 
     `Watch out, brambles are about to sprout damaging anything standing here.`
+const swaying_nettle_root_description = 
+    `Watch out, swaying nettles are about to sprout damaging anything standing here.`;
 const enticing_fruit_tree_description = 
     `Enticing Fruit Tree: Moving you here will heal you, but other creatures `
     +`may be attracted by the fruit.`;

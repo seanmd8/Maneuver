@@ -2,9 +2,9 @@
 function unstable_wisp_tile(){
     return {
         type: `enemy`,
-        name: `Unstable Wisp`,
+        name: enemy_names.unstable_wisp,
         pic: `${IMG_FOLDER.tiles}unstable_wisp.png`, 
-        description: unstable_wisp_description,
+        description: enemy_descriptions.unstable_wisp,
         tags: new TagList(),
         health: 1,
         difficulty: 2,

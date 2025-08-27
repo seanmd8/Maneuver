@@ -2,9 +2,9 @@
 function animated_boulder_tile(){
     return {
         type: `enemy`,
-        name: `Animated Boulder`,
+        name: enemy_names.animated_boulder,
         pic: `${IMG_FOLDER.tiles}animated_boulder.png`,
-        description: animated_boulder_description,
+        description: enemy_descriptions.animated_boulder,
         tags: new TagList([TAGS.unmovable, TAGS.hidden]),
         behavior: animated_boulder_ai,
         telegraph: spider_telegraph,

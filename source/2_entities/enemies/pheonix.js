@@ -2,9 +2,9 @@
 function pheonix_tile(){
     return {
         type: `enemy`,
-        name: `Pheonix`,
+        name: enemy_names.pheonix,
         pic: `${IMG_FOLDER.tiles}pheonix.png`,
-        description: pheonix_description,
+        description: enemy_descriptions.pheonix,
         tags: new TagList(),
         health: 1,
         difficulty: 5,

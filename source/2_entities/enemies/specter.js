@@ -2,9 +2,9 @@
 function specter_tile(){
     return {
         type: `enemy`,
-        name: `Specter`,
+        name: enemy_names.specter,
         pic: `${IMG_FOLDER.tiles}specter.png`,
-        description: specter_description,
+        description: enemy_descriptions.specter,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

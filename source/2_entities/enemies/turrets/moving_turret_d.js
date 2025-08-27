@@ -3,9 +3,9 @@ function moving_turret_d_tile(){
     var direction = rand_from(DIAGONAL_DIRECTIONS).copy();
     var tile = {
         type: `enemy`,
-        name: `Moving Turret`,
+        name: enemy_names.turret_m,
         pic: `${IMG_FOLDER.tiles}moving_turret_d.png`,
-        description: moving_turret_description,
+        description: enemy_descriptions.turret_m,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

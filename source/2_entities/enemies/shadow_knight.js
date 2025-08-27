@@ -5,9 +5,9 @@ const L_SHAPES = [new Point(1, 2), new Point(-1, 2), new Point(1, -2), new Point
 function shadow_knight_tile(){
     return{
         type: `enemy`,
-        name: `Shadow Knight`,
+        name: enemy_names.shadow_knight,
         pic: `${IMG_FOLDER.tiles}shadow_knight.png`,
-        description: shadow_knight_description,
+        description: enemy_descriptions.shadow_knight,
         tags: new TagList(),
         health: 2,
         difficulty: 4,

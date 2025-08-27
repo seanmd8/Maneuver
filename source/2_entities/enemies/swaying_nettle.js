@@ -4,9 +4,9 @@ function swaying_nettle_tile(){
     var starting_cycle = random_num(2);
     return{
         type: `enemy`,
-        name: `Swaying Nettle`,
+        name: enemy_names.swaying_nettle,
         pic: pic_arr[starting_cycle],
-        description: swaying_nettle_description,
+        description: enemy_descriptions.swaying_nettle,
         tags: new TagList([TAGS.unmovable, TAGS.nettle_immune]),
         health: 1,
         difficulty: 1,

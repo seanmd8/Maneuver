@@ -1,11 +1,11 @@
 /** @type {TileGenerator} */
 function walking_prism_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}walking_prism_h.png`, `${IMG_FOLDER.tiles}walking_prism_d.png`];
-    var description_arr = walking_prism_description;
+    var description_arr = enemy_descriptions.walking_prism;
     var starting_cycle = random_num(pic_arr.length);
     return {
         type: `enemy`,
-        name: `Walking Prism`,
+        name: enemy_names.walking_prism,
         pic: pic_arr[starting_cycle],
         description: `${description_arr[0]}${description_arr[1 + starting_cycle]}`, 
         tags: new TagList(),

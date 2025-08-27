@@ -2,9 +2,9 @@
 function igneous_crab_tile(){
     return {
         type: `enemy`,
-        name: `Igneous Crab`,
+        name: enemy_names.igneous_crab,
         pic: `${IMG_FOLDER.tiles}igneous_crab.png`,
-        description: igneous_crab_description,
+        description: enemy_descriptions.igneous_crab,
         tags: new TagList(),
         health: 2,
         difficulty: 3,

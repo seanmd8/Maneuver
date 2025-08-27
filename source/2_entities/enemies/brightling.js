@@ -3,9 +3,9 @@ function brightling_tile(){
     var starting_cycle = 0;
     return{
         type: `enemy`,
-        name: `Brightling`,
+        name: enemy_names.brightling,
         pic: `${IMG_FOLDER.tiles}brightling.png`,
-        description: brightling_description,
+        description: enemy_descriptions.brightling,
         tags: new TagList(),
         health: 1,
         difficulty: 4,

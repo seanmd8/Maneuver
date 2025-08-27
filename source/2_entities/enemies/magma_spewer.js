@@ -4,9 +4,9 @@ function magma_spewer_tile(){
     var starting_cycle = random_num(pic_arr.length);
     return {
         type: `enemy`,
-        name: `Magma Spewer`,
+        name: enemy_names.magma_spewer,
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
-        description: magma_spewer_description,
+        description: enemy_descriptions.magma_spewer,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

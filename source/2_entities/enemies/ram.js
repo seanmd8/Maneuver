@@ -4,9 +4,9 @@ function ram_tile(){
     var starting_cycle = 0;
     return{
         type: `enemy`,
-        name: `Ram`,
+        name: enemy_names.ram,
         pic: pic_arr[starting_cycle],
-        description: ram_description,
+        description: enemy_descriptions.ram,
         tags: new TagList(),
         health: 2,
         difficulty: 5,

@@ -2,9 +2,9 @@
 function living_tree_rooted_tile(){
     return {
         type: `enemy`,
-        name: `Living Tree`,
+        name: enemy_names.living_tree,
         pic: `${IMG_FOLDER.tiles}living_tree_rooted.png`,
-        description: living_tree_rooted_description,
+        description: enemy_descriptions.living_tree_rooted,
         tags: new TagList(),
         health: 2,
         behavior: living_tree_rooted_ai,

@@ -2,9 +2,9 @@
 function paper_construct_tile(){
     return{
         type: `enemy`,
-        name: `Paper Construct`,
+        name: enemy_names.paper_construct,
         pic: `${IMG_FOLDER.tiles}paper_construct.png`,
-        description: paper_construct_description,
+        description: enemy_descriptions.paper_construct,
         tags: new TagList(),
         health: 1,
         difficulty: 2,

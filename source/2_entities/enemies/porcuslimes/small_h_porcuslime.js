@@ -2,9 +2,9 @@
 function small_h_porcuslime_tile(){
     return {
         type: `enemy`,
-        name: `Small Porcuslime`,
+        name: enemy_names.porcuslime_small,
         pic: `${IMG_FOLDER.tiles}small_h_porcuslime.png`,
-        description: small_h_porcuslime_description,
+        description: enemy_descriptions.porcuslime_small_h,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

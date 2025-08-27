@@ -4,9 +4,9 @@ function captive_void_tile(){
     var starting_cycle = 0;
     return {
         type: `enemy`,
-        name: `Captive Void`,
+        name: enemy_names.captive_void,
         pic: pic_arr[starting_cycle],
-        description: captive_void_description,
+        description: enemy_descriptions.captive_void,
         tags: new TagList([TAGS.unmovable]),
         difficulty: 2,
         behavior: captive_void_ai,

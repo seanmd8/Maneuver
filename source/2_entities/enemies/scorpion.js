@@ -2,9 +2,9 @@
 function scorpion_tile(){
     return {
         type: `enemy`,
-        name: `Scorpion`,
+        name: enemy_names.scorpion,
         pic: `${IMG_FOLDER.tiles}scorpion.png`,
-        description: scorpion_description,
+        description: enemy_descriptions.scorpion,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
