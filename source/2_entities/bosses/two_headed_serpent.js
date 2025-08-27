@@ -92,7 +92,7 @@ function two_headed_serpent_ai(self, target, map){
         var wake_up = function(map_to_use){
             serpent_wake(tail, map_to_use);
         }
-        map.add_event({name: `Wake Up`, behavior: wake_up});
+        map.add_event({name: event_names.wake_up, behavior: wake_up});
     }
 }
 /**

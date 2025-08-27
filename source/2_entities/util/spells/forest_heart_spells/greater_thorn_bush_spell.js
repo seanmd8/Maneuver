@@ -21,7 +21,7 @@ function greater_thorn_bush_spell(self, target, map){
         telegraph: hazard_telegraph
     }
     var delayed_func = function(map_to_use){
-        map_to_use.add_event({name: `Bramble Shield`, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+        map_to_use.add_event({name: event_names.bramble_shield, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
     };
-    map.add_event({name: `Delayed Bramble Shield`, behavior: delay_event(1, delayed_func)});
+    map.add_event({name: event_names.bramble_shield, behavior: delay_event(1, delayed_func)});
 }

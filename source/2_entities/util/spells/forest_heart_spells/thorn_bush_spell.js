@@ -19,7 +19,7 @@ function thorn_bush_spell(self, target, map){
         description: event_descriptions.thorn_root,
         telegraph: hazard_telegraph
     }
-    map.add_event({name: `Bramble Shield`, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+    map.add_event({name: event_names.bramble_shield, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
 }
 
 /** @type {TelegraphFunction} */

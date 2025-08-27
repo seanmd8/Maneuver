@@ -10,5 +10,5 @@ function earthquake_spell_generator(){
 /** @type {AIFunction} Spell which causes an earthquake causing debris to rain from the ceiling.*/
 function earthquake_spell(self, target, map){
     var amount = random_num(9) + random_num(9) + random_num(9) + random_num(9);
-    map.add_event({name: `Earthquake`, behavior: earthquake_event(amount)});
+    map.add_event({name: event_names.earthquake, behavior: earthquake_event(amount)});
 }

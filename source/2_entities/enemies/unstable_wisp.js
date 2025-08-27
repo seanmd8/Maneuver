@@ -54,5 +54,5 @@ function unstable_wisp_death(self, target, map){
             fireball.stun = undefined;
         }
     }
-    map.add_event({name: `Unstun`, behavior: unstun});
+    map.add_event({name: event_names.unstun, behavior: unstun});
 }

@@ -19,7 +19,7 @@ function swaying_nettle_spell(self, target, map){
         description: event_descriptions.nettle_root,
         telegraph: hazard_telegraph
     }
-    map.add_event({name: `Nettle Shield`, behavior: growth_event(points, root_layer, swaying_nettle_tile)});
+    map.add_event({name: event_names.nettle_shield, behavior: growth_event(points, root_layer, swaying_nettle_tile)});
 }
 
 /** @type {TelegraphFunction} */

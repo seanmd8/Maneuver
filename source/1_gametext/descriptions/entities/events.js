@@ -10,11 +10,16 @@ const event_descriptions = {
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
 }
-const falling_rubble_description = 
-    ``;
-const darkling_rift_description = 
-    ``;
-const thorn_root_description = 
-    ``
-const swaying_nettle_root_description = 
-    ``;
+
+const event_names = {
+    bramble_shield: `Bramble Shield`,
+    darkling_rift: `Darkling Rift`,
+    delay: `Delay`,
+    earthquake: `Earthquake`,
+    falling_magma: `Falling Magma`,
+    falling_rubble: `Falling Rubble`,
+    nettle_shield: `Nettle Shield`,
+    spell_announcement: `Spell Announcement`,
+    unstun: `Unstun`,
+    wake_up: `Wake Up`,
+}

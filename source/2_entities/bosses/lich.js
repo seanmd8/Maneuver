@@ -84,7 +84,7 @@ function lich_ai(self, target, map){
     var announcement = 
         `${boss_descriptions.lich_announcement}\n`
         +`${self.tile.spells[self.tile.cycle].description}`;
-    map.add_event({name: `spell announcement`, behavior: () => {say_record(announcement)}});
+    map.add_event({name: event_names.spell_announcement, behavior: () => {say_record(announcement)}});
 }
 
 /** @type {TelegraphFunction} */

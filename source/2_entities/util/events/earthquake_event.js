@@ -39,7 +39,7 @@ function earthquake_event(amount, locations = undefined){
                     }
                 }
             }
-            map_to_use.add_event({name: `Falling Rubble`, behavior: falling_rubble(rubble)});
+            map_to_use.add_event({name: event_names.falling_rubble, behavior: falling_rubble(rubble)});
         }
     }
     return earthquake(amount);

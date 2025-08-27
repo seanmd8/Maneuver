@@ -2913,14 +2913,19 @@ const event_descriptions = {
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
 }
-const falling_rubble_description = 
-    ``;
-const darkling_rift_description = 
-    ``;
-const thorn_root_description = 
-    ``
-const swaying_nettle_root_description = 
-    ``;
+
+const event_names = {
+    bramble_shield: `Bramble Shield`,
+    darkling_rift: `Darkling Rift`,
+    delay: `Delay`,
+    earthquake: `Earthquake`,
+    falling_magma: `Falling Magma`,
+    falling_rubble: `Falling Rubble`,
+    nettle_shield: `Nettle Shield`,
+    spell_announcement: `Spell Announcement`,
+    unstun: `Unstun`,
+    wake_up: `Wake Up`,
+}
 const other_tile_descriptions = {
     bookshelf: 
         `Bookshelf: When damaged, adds a random temporary card to your deck.`,
@@ -3600,7 +3605,7 @@ function forest_heart_ai(self, target, map){
         var health = self.tile.cycle;
         var next_spell = self.tile.spells[health - 2];
         if(health > 1){
-            map.add_event({name: `spell announcement`, behavior: () => {say_record(next_spell.description)}});
+            map.add_event({name: event_names.spell_announcement, behavior: () => {say_record(next_spell.description)}});
         }
         for(var section of sections){
             var tile = section.tile;
@@ -3775,7 +3780,7 @@ function lich_ai(self, target, map){
     var announcement = 
         `${boss_descriptions.lich_announcement}\n`
         +`${self.tile.spells[self.tile.cycle].description}`;
-    map.add_event({name: `spell announcement`, behavior: () => {say_record(announcement)}});
+    map.add_event({name: event_names.spell_announcement, behavior: () => {say_record(announcement)}});
 }
 
 /** @type {TelegraphFunction} */
@@ -3942,7 +3947,7 @@ function two_headed_serpent_ai(self, target, map){
         var wake_up = function(map_to_use){
             serpent_wake(tail, map_to_use);
         }
-        map.add_event({name: `Wake Up`, behavior: wake_up});
+        map.add_event({name: event_names.wake_up, behavior: wake_up});
     }
 }
 /**
@@ -4730,7 +4735,7 @@ function darkling_ai(self, target, map){
             map_to_use.mark_event(self.tile.direction, rift, false);
         }
     }
-    map.add_event({name: `Darkling Rift`, behavior: darkling_rift});
+    map.add_event({name: event_names.darkling_rift, behavior: darkling_rift});
 }
 
 /** @type {TelegraphFunction} */
@@ -4980,7 +4985,7 @@ function magma_spewer_ai(self, target, map){
                 locations.push(center.plus(new Point(i, j)));
             }
         }
-        map.add_event({name: `Falling Magma`, behavior: earthquake_event(random_num(4) + 4, locations)})
+        map.add_event({name: event_names.falling_magma, behavior: earthquake_event(random_num(4) + 4, locations)})
     }
     self.tile.cycle = 1 - self.tile.cycle;
     self.tile.pic = self.tile.pic_arr[self.tile.cycle];
@@ -6355,7 +6360,7 @@ function unstable_wisp_death(self, target, map){
             fireball.stun = undefined;
         }
     }
-    map.add_event({name: `Unstun`, behavior: unstun});
+    map.add_event({name: event_names.unstun, behavior: unstun});
 }
 /** @type {TileGenerator} */
 function vampire_tile(){
@@ -7396,7 +7401,7 @@ function delay_event(turn_count, delayed_function){
     var delay_function = function(){
         return function(map_to_use){
             if(turn_count > 1){
-                map_to_use.add_event({name: `Delay`, behavior: delay_event(turn_count - 1, delayed_function)});
+                map_to_use.add_event({name: event_names.delay, behavior: delay_event(turn_count - 1, delayed_function)});
             }
             else{
                 delayed_function(map_to_use);
@@ -7446,7 +7451,7 @@ function earthquake_event(amount, locations = undefined){
                     }
                 }
             }
-            map_to_use.add_event({name: `Falling Rubble`, behavior: falling_rubble(rubble)});
+            map_to_use.add_event({name: event_names.falling_rubble, behavior: falling_rubble(rubble)});
         }
     }
     return earthquake(amount);
@@ -8133,9 +8138,9 @@ function greater_thorn_bush_spell(self, target, map){
         telegraph: hazard_telegraph
     }
     var delayed_func = function(map_to_use){
-        map_to_use.add_event({name: `Bramble Shield`, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+        map_to_use.add_event({name: event_names.bramble_shield, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
     };
-    map.add_event({name: `Delayed Bramble Shield`, behavior: delay_event(1, delayed_func)});
+    map.add_event({name: event_names.bramble_shield, behavior: delay_event(1, delayed_func)});
 }
 /** @type {SpellGenerator} */
 function living_tree_spell_generator(){
@@ -8290,7 +8295,7 @@ function swaying_nettle_spell(self, target, map){
         description: event_descriptions.nettle_root,
         telegraph: hazard_telegraph
     }
-    map.add_event({name: `Nettle Shield`, behavior: growth_event(points, root_layer, swaying_nettle_tile)});
+    map.add_event({name: event_names.nettle_shield, behavior: growth_event(points, root_layer, swaying_nettle_tile)});
 }
 
 /** @type {TelegraphFunction} */
@@ -8322,7 +8327,7 @@ function thorn_bush_spell(self, target, map){
         description: event_descriptions.thorn_root,
         telegraph: hazard_telegraph
     }
-    map.add_event({name: `Bramble Shield`, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+    map.add_event({name: event_names.bramble_shield, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
 }
 
 /** @type {TelegraphFunction} */
@@ -8421,7 +8426,7 @@ function earthquake_spell_generator(){
 /** @type {AIFunction} Spell which causes an earthquake causing debris to rain from the ceiling.*/
 function earthquake_spell(self, target, map){
     var amount = random_num(9) + random_num(9) + random_num(9) + random_num(9);
-    map.add_event({name: `Earthquake`, behavior: earthquake_event(amount)});
+    map.add_event({name: event_names.earthquake, behavior: earthquake_event(amount)});
 }
 /** @type {SpellGenerator} */
 function flame_wave_spell_generator(){
