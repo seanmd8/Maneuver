@@ -3,7 +3,7 @@ function quick_healing(){
     return {
         name: boon_names.quick_healing,
         pic: `${IMG_FOLDER.boons}quick_healing.png`,
-        description: quick_healing_description,
+        description: boon_descriptions.quick_healing,
         prereq: prereq_quick_healing,
         unlocks: [quick_healing]
     }

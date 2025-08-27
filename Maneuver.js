@@ -2275,7 +2275,6 @@ const boon_names = {
     safe_passage: `Safe Passage`,
     shattered_glass: `Shattered Glass`,
     skill_trading: `Skill Trading`,
-    slayer: `Slayer`,
     slime_trail: `Slime Trail`,
     sniper: `Sniper`,
     spiked_shoes: `Spiked Shoes`,
@@ -2288,114 +2287,116 @@ const boon_names = {
 }
 Object.freeze(boon_names);
 
+const boon_descriptions = {
+    bitter_determination: 
+        `At the start of each floor, heal 1 if your health is exactly 1.`,
+    boss_slayer: 
+        `Bosses start with 2 less hp.`,
+    brag_and_boast: 
+        `Add 2 random boss cards and 2 random debuff cards to your deck.`,
+    chilly_presence: 
+        `Enemies have a 1/6 chance to become stunned at the end of their `
+        +`turn. Bosses are not affected.`,
+    choose_your_path: 
+        `You get to decide which area to go to after each boss fight.`,
+    clean_mind: 
+        `Remove any 2 cards from your deck.`,
+    creative: 
+        `Increase your hand size by 1. Increases minimum deck size by 5.`,
+    dazing_blows: 
+        `Your attacks stun enemies. Bosses are unaffected.`,
+    duplicate: 
+        `Get a copy of any card in your deck.`,
+    empty_rooms: 
+        `Difficulty decreases by 3 floors`,
+    escape_artist: 
+        `Teleport away when attacked.`,
+    expend_vitality: 
+        `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
+    flame_strike: 
+        `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`,
+    fleeting_thoughts: 
+        `Temporary cards added to your deck will happen instantly.`,
+    fortitude: 
+        `Gain an extra max health.`,
+    frenzy: 
+        `Deal double damage while you only have 1 health.`,
+    frugivore: 
+        `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
+        +`for 1, but might attract enemies.`,
+    future_sight: 
+        `You may look at the order of your deck.`,
+    gruntwork: 
+        `Gain 3 extra max health. Decrease your hand size by 1.`,
+    hoarder: 
+        `Encounter two chests in each area.`,
+    larger_chests: 
+        `All treasure chests contain 2 additional choices and are invulnerable.`,
+    limitless: 
+        `Remove your max health. Heal for 2. If you would be fully healed, heal `
+        +`for 1 instead.`,
+    pacifism: 
+        `If you would attack an enemy, stun them twice instead. Fully heal at `
+        +`the start of each floor. All boss floor exits unlock.`,
+    pain_reflexes: 
+        `Take a turn whenever you are attacked.`,
+    perfect_the_basics: 
+        `Replace all your basic cards with better ones.`,
+    picky_shopper: 
+        `Recieve an extra card choice for adding and removing cards in the shop.`,
+    practice_makes_perfect: 
+        `Defeating a boss while at max health increases your max health by 1.`,
+    pressure_points: 
+        `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`,
+    quick_healing: 
+        `After being dealt damage, you have a 1/4 chance to instantly heal it.`,
+    rebirth: 
+        `When you die, you are revived at full health and this boon is removed.`,
+    repetition: 
+        `Every 3rd turn, your cards happen twice.`,
+    retaliate: 
+        `When you are dealt damage, attack a nearby non boss enemy.`,
+    rift_touched: 
+        `Two Darklings spawn on each floor.`,
+    roar_of_challenge: 
+        `Gain 2 max health. Difficulty increases by 5 floors.`,
+    safe_passage: 
+        `Fully heal and travel to the next floor.`,
+    shattered_glass: 
+        `Enemies explode on death damaging everything nearby other than you. Reduce your `
+        +`max health by 2.`,
+    skill_trading: 
+        `You may both add a card and remove a card at each shop.`,
+    slime_trail: 
+        `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`,
+    sniper: 
+        `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
+    spiked_shoes: 
+        `Attempting to move onto enemies damages them. Reduces your max health by 1.`,
+    spontaneous: 
+        `After using a non instant card, discard your whole hand. Minimum deck size `
+        +`increased by 5.`,
+    stable_mind: 
+        `You gain a 50% chance to resist confusion.`,
+    stealthy: 
+        `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`,
+    stubborn: 
+        `You can skip shops.`,
+    thick_soles: 
+        `You are immune to damage on your turn.`,
+    vicious_cycle: 
+        `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`,
+}
 
-// Boon Descriptions
-const bitter_determination_description = 
-    `At the start of each floor, heal 1 if your health is exactly 1.`;
-const boss_slayer_description = 
-    `Bosses start with 2 less hp.`;
-const brag_and_boast_description = 
-    `Add 2 random boss cards and 2 random debuff cards to your deck.`;
-const chilly_presence_description = 
-    `Enemies have a 1/6 chance to become stunned at the end of their `
-    +`turn. Bosses are not affected.`;
-const choose_your_path_description =
-    `You get to decide which area to go to after each boss fight.`;
-const clean_mind_description = 
-    `Remove any 2 cards from your deck.`;
 const clean_mind_instructions =
     [`Choose a card to remove (`, `/2 remaining)`];
-const creative_description = 
-    `Increase your hand size by 1. Increases minimum deck size by 5.`;
-const dazing_blows_description = 
-    `Your attacks stun enemies. Bosses are unaffected.`;
-const duplicate_description =
-    `Get a copy of any card in your deck.`
 const duplicate_instructions =
     `Choose a card to copy:`;
-const empty_rooms_description = 
-    `Difficulty decreases by 3 floors`;
-const escape_artist_description = 
-    `Teleport away when attacked.`;
-const expend_vitality_description =  
-    `Heal 1 life at the start of each floor. Your max health is decreased by 1.`;
-const flame_strike_description = 
-    `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`;
-const fleeting_thoughts_description = 
-    `Temporary cards added to your deck will happen instantly.`;
-const fortitude_description = 
-    `Gain an extra max health.`;
-const frenzy_description = 
-    `Deal double damage while you only have 1 health.`
-const frugivore_description = 
-    `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
-    +`for 1, but might attract enemies.`;
-const future_sight_description = 
-    `You may look at the order of your deck.`;
-const gruntwork_description =
-    `Gain 3 extra max health. Decrease your hand size by 1.`;
-const hoarder_description = 
-    `Encounter two chests in each area.`;
-const larger_chests_description = 
-    `All treasure chests contain 2 additional choices and are invulnerable.`;
-const limitless_description = 
-    `Remove your max health. Heal for 2. If you would be fully healed, heal `
-    +`for 1 instead.`;
-const pacifism_description = 
-    `If you would attack an enemy, stun them twice instead. Fully heal at `
-    +`the start of each floor. All boss floor exits unlock.`;
-const pain_reflexes_description = 
-    `Take a turn whenever you are attacked.`;
-const perfect_the_basics_description =
-    `Replace all your basic cards with better ones.`;
-const picky_shopper_description = 
-    `Recieve an extra card choice for adding and removing cards in the shop.`;
-const practice_makes_perfect_description = 
-    `Defeating a boss while at max health increases your max health by 1.`;
 const practice_makes_perfect_message =
     `Your maximum health has increased.`
-const quick_healing_description =
-    `After being dealt damage, you have a 1/4 chance to instantly heal it.`;
-const pressure_points_description = 
-    `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`;
-const rebirth_description = 
-    `When you die, you are revived at full health and this boon is removed.`;
 const rebirth_revival_message = 
     `You died, but were brought back to life.`;
-const repetition_description = 
-    `Every 3rd turn, your cards happen twice.`;
-const retaliate_description = 
-    `When you are dealt damage, attack a nearby non boss enemy.`;
-const rift_touched_description = 
-    `Two Darklings spawn on each floor.`
-const roar_of_challenge_description = 
-    `Gain 2 max health. Difficulty increases by 5 floors.`;
-const safe_passage_description = 
-    `Fully heal and travel to the next floor.`;
-const shattered_glass_description = 
-    `Enemies explode on death damaging everything nearby other than you. Reduce your `
-    +`max health by 2.`;
-const skill_trading_description = 
-    `You may both add a card and remove a card at each shop.`;
-const slime_trail_description = 
-    `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`;
-const sniper_description =
-    `Attacks deal extra damage to enemies at a distance based on how far away they are.`;
-const spiked_shoes_description = 
-    `Attempting to move onto enemies damages them. Reduces your max health by 1.`;
-const spontaneous_description = 
-    `After using a non instant card, discard your whole hand. Minimum deck size `
-    +`increased by 5.`;
-const stable_mind_description = 
-    `You gain a 50% chance to resist confusion.`;
-const stealthy_description = 
-    `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`;
-const stubborn_description = 
-    `You can skip shops.`;
-const thick_soles_description = 
-    `You are immune to damage on your turn.`;
-const vicious_cycle_description =
-    `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`;
+
 
 const card_names = {
     advance: `Advance`,
@@ -14288,7 +14289,7 @@ function bitter_determination(){
     return {
         name: boon_names.bitter_determination,
         pic: `${IMG_FOLDER.boons}bitter_determination.png`,
-        description: bitter_determination_description,
+        description: boon_descriptions.bitter_determination,
     }
 }
 
@@ -14296,7 +14297,7 @@ function boss_slayer(){
     return {
         name: boon_names.boss_slayer,
         pic: `${IMG_FOLDER.boons}boss_slayer.png`,
-        description: boss_slayer_description,
+        description: boon_descriptions.boss_slayer,
     }
 }
 
@@ -14305,7 +14306,7 @@ function brag_and_boast(){
     return {
         name: boon_names.brag_and_boast,
         pic: `${IMG_FOLDER.boons}brag_and_boast.png`,
-        description: brag_and_boast_description,
+        description: boon_descriptions.brag_and_boast,
         on_pick: pick_brag_and_boast,
         unlocks: [brag_and_boast]
     }
@@ -14326,7 +14327,7 @@ function chilly_presence(){
     return {
         name: boon_names.chilly_presence,
         pic: `${IMG_FOLDER.boons}chilly_presence.png`,
-        description: chilly_presence_description,
+        description: boon_descriptions.chilly_presence,
         prereq: prereq_chilly_presence,
         unlocks: [chilly_presence]
     }
@@ -14349,7 +14350,7 @@ function choose_your_path(){
     return {
         name: boon_names.choose_your_path,
         pic: `${IMG_FOLDER.boons}choose_your_path.png`,
-        description: choose_your_path_description
+        description: boon_descriptions.choose_your_path
     }
 }
 
@@ -14357,7 +14358,7 @@ function clean_mind(){
     return {
         name: boon_names.clean_mind,
         pic: `${IMG_FOLDER.boons}clean_mind.png`,
-        description: clean_mind_description,
+        description: boon_descriptions.clean_mind,
         prereq_clean_mind,
         after_pick: pick_clean_mind,
         unlocks: [clean_mind]
@@ -14379,7 +14380,7 @@ function creative(){
     return {
         name: boon_names.creative,
         pic: `${IMG_FOLDER.boons}creative.png`,
-        description: creative_description,
+        description: boon_descriptions.creative,
         prereq: prereq_creative,
         on_pick: pick_creative
     }
@@ -14400,7 +14401,7 @@ function dazing_blows(){
     return {
         name: boon_names.dazing_blows,
         pic: `${IMG_FOLDER.boons}dazing_blows.png`,
-        description: dazing_blows_description,
+        description: boon_descriptions.dazing_blows,
     }
 }
 
@@ -14408,7 +14409,7 @@ function duplicate(){
     return {
         name: boon_names.duplicate,
         pic: `${IMG_FOLDER.boons}duplicate.png`,
-        description: duplicate_description,
+        description: boon_descriptions.duplicate,
         after_pick: pick_duplicate,
         unlocks: [duplicate]
     }
@@ -14423,7 +14424,7 @@ function empty_rooms(){
     return {
         name: boon_names.empty_rooms,
         pic: `${IMG_FOLDER.boons}empty_rooms.png`,
-        description: empty_rooms_description,
+        description: boon_descriptions.empty_rooms,
         unlocks: [empty_rooms]
     }
 }
@@ -14432,7 +14433,7 @@ function escape_artist(){
     return {
         name: boon_names.escape_artist,
         pic: `${IMG_FOLDER.boons}escape_artist.png`,
-        description: escape_artist_description,
+        description: boon_descriptions.escape_artist,
     }
 }
 
@@ -14447,7 +14448,7 @@ function expend_vitality(){
     return {
         name: boon_names.expend_vitality,
         pic: `${IMG_FOLDER.boons}expend_vitality.png`,
-        description: expend_vitality_description,
+        description: boon_descriptions.expend_vitality,
         prereq: prereq_expend_vitality,
         on_pick: pick_expend_vitality
     }
@@ -14464,7 +14465,7 @@ function flame_strike(){
     return {
         name: boon_names.flame_strike,
         pic: `${IMG_FOLDER.boons}flame_strike.png`,
-        description: flame_strike_description,
+        description: boon_descriptions.flame_strike,
         prereq: prereq_flame_strike,
         unlocks: [flame_strike]
     }
@@ -14478,7 +14479,7 @@ function fleeting_thoughts(){
     return {
         name: boon_names.fleeting_thoughts,
         pic: `${IMG_FOLDER.boons}fleeting_thoughts.png`,
-        description: fleeting_thoughts_description,
+        description: boon_descriptions.fleeting_thoughts,
     }
 }
 
@@ -14486,7 +14487,7 @@ function fortitude(){
     return {
         name: boon_names.fortitude,
         pic: `${IMG_FOLDER.boons}fortitude.png`,
-        description: fortitude_description,
+        description: boon_descriptions.fortitude,
         prereq: prereq_fortitude,
         on_pick: pick_fortitude,
         unlocks: [fortitude]
@@ -14505,7 +14506,7 @@ function frenzy(){
     return {
         name: boon_names.frenzy,
         pic: `${IMG_FOLDER.boons}frenzy.png`,
-        description: frenzy_description,
+        description: boon_descriptions.frenzy,
     }
 }
 
@@ -14514,7 +14515,7 @@ function frugivore(){
     return {
         name: boon_names.frugivore,
         pic: `${IMG_FOLDER.boons}frugivore.png`,
-        description: frugivore_description,
+        description: boon_descriptions.frugivore,
         prereq: prereq_frugivore,
         unlocks: [frugivore]
     }
@@ -14527,7 +14528,7 @@ function future_sight(){
     return {
         name: boon_names.future_sight,
         pic: `${IMG_FOLDER.boons}future_sight.png`,
-        description: future_sight_description,
+        description: boon_descriptions.future_sight,
         on_pick: pick_future_sight
     }
 }
@@ -14543,7 +14544,7 @@ function gruntwork(){
     return {
         name: boon_names.gruntwork,
         pic: `${IMG_FOLDER.boons}gruntwork.png`,
-        description: gruntwork_description,
+        description: boon_descriptions.gruntwork,
         prereq: prereq_gruntwork,
         on_pick: pick_gruntwork
     }
@@ -14564,7 +14565,7 @@ function hoarder(){
     return {
         name: boon_names.hoarder,
         pic: `${IMG_FOLDER.boons}hoarder.png`,
-        description: hoarder_description
+        description: boon_descriptions.hoarder
     }
 }
 
@@ -14572,14 +14573,14 @@ function larger_chests(){
     return {
         name: boon_names.larger_chests,
         pic: `${IMG_FOLDER.boons}larger_chests.png`,
-        description: larger_chests_description
+        description: boon_descriptions.larger_chests
     }
 }
 function limitless(){
     return {
         name: boon_names.limitless,
         pic: `${IMG_FOLDER.boons}limitless.png`,
-        description: limitless_description,
+        description: boon_descriptions.limitless,
         on_pick: on_pick_limitless
     }
 }
@@ -14592,7 +14593,7 @@ function pacifism(){
     return {
         name: boon_names.pacifism,
         pic: `${IMG_FOLDER.boons}pacifism.png`,
-        description: pacifism_description,
+        description: boon_descriptions.pacifism,
     }
 }
 
@@ -14601,7 +14602,7 @@ function pain_reflexes(){
     return {
         name: boon_names.pain_reflexes,
         pic: `${IMG_FOLDER.boons}pain_reflexes.png`,
-        description: pain_reflexes_description,
+        description: boon_descriptions.pain_reflexes,
     }
 }
 
@@ -14609,7 +14610,7 @@ function perfect_the_basics(){
     return {
         name: boon_names.perfect_the_basics,
         pic: `${IMG_FOLDER.boons}perfect_the_basics.png`,
-        description: perfect_the_basics_description,
+        description: boon_descriptions.perfect_the_basics,
         prereq: prereq_perfect_the_basics,
         on_pick: pick_perfect_the_basics
     }
@@ -14656,7 +14657,7 @@ function picky_shopper(){
     return {
         name: boon_names.picky_shopper,
         pic: `${IMG_FOLDER.boons}picky_shopper.png`,
-        description: picky_shopper_description,
+        description: boon_descriptions.picky_shopper,
         unlocks: [picky_shopper]
     }
 }
@@ -14665,7 +14666,7 @@ function practice_makes_perfect(){
     return {
         name: boon_names.practice_makes_perfect,
         pic: `${IMG_FOLDER.boons}practice_makes_perfect.png`,
-        description: practice_makes_perfect_description,
+        description: boon_descriptions.practice_makes_perfect,
         prereq: prereq_practice_makes_perfect
     }
 }
@@ -14678,7 +14679,7 @@ function pressure_points(){
     return {
         name: boon_names.pressure_points,
         pic: `${IMG_FOLDER.boons}pressure_points.png`,
-        description: pressure_points_description,
+        description: boon_descriptions.pressure_points,
     }
 }
 
@@ -14687,7 +14688,7 @@ function quick_healing(){
     return {
         name: boon_names.quick_healing,
         pic: `${IMG_FOLDER.boons}quick_healing.png`,
-        description: quick_healing_description,
+        description: boon_descriptions.quick_healing,
         prereq: prereq_quick_healing,
         unlocks: [quick_healing]
     }
@@ -14700,7 +14701,7 @@ function rebirth(){
     return {
         name: boon_names.rebirth,
         pic: `${IMG_FOLDER.boons}rebirth.png`,
-        description: rebirth_description,
+        description: boon_descriptions.rebirth,
         unlocks: [rebirth]    
     }
 }
@@ -14709,7 +14710,7 @@ function repetition(){
     return {
         name: boon_names.repetition,
         pic: `${IMG_FOLDER.boons}repetition.png`,
-        description: repetition_description,
+        description: boon_descriptions.repetition,
         prereq: prereq_repetition,
         unlocks: [repetition]
     }
@@ -14723,7 +14724,7 @@ function retaliate(){
     return {
         name: boon_names.retaliate,
         pic: `${IMG_FOLDER.boons}retaliate.png`,
-        description: retaliate_description
+        description: boon_descriptions.retaliate
     }
 }
 
@@ -14751,7 +14752,7 @@ function rift_touched(){
     return {
         name: boon_names.rift_touched,
         pic: `${IMG_FOLDER.boons}rift_touched.png`,
-        description: rift_touched_description,
+        description: boon_descriptions.rift_touched,
     }
 }
 
@@ -14761,7 +14762,7 @@ function roar_of_challenge(){
     return {
         name: boon_names.roar_of_challenge,
         pic: `${IMG_FOLDER.boons}roar_of_challenge.png`,
-        description: roar_of_challenge_description,
+        description: boon_descriptions.roar_of_challenge,
         prereq: prereq_roar_of_challenge,
         on_pick: pick_roar_of_challenge,
         unlocks: [roar_of_challenge]
@@ -14780,7 +14781,7 @@ function safe_passage(){
     return {
         name: boon_names.safe_passage,
         pic: `${IMG_FOLDER.boons}safe_passage.png`,
-        description: safe_passage_description,
+        description: boon_descriptions.safe_passage,
         prereq: prereq_safe_passage,
         unlocks: [safe_passage]
     }
@@ -14794,7 +14795,7 @@ function shattered_glass(){
     return {
         name: boon_names.shattered_glass,
         pic: `${IMG_FOLDER.boons}shattered_glass.png`,
-        description: shattered_glass_description,
+        description: boon_descriptions.shattered_glass,
         prereq: prereq_shattered_glass,
         on_pick: on_pick_shattered_glass
     }
@@ -14812,7 +14813,7 @@ function skill_trading(){
     return {
         name: boon_names.skill_trading,
         pic: `${IMG_FOLDER.boons}skill_trading.png`,
-        description: skill_trading_description
+        description: boon_descriptions.skill_trading
     }
 }
 
@@ -14820,7 +14821,7 @@ function slime_trail(){
     return {
         name: boon_names.slime_trail,
         pic: `${IMG_FOLDER.boons}slime_trail.png`,
-        description: slime_trail_description,
+        description: boon_descriptions.slime_trail,
         prereq: prereq_slime_trail,
         unlocks: [slime_trail]
     }
@@ -14833,7 +14834,7 @@ function sniper(){
     return {
         name: boon_names.sniper,
         pic: `${IMG_FOLDER.boons}sniper.png`,
-        description: sniper_description,
+        description: boon_descriptions.sniper,
     }
 }
 
@@ -14841,7 +14842,7 @@ function spiked_shoes(){
     return {
         name: boon_names.spiked_shoes,
         pic: `${IMG_FOLDER.boons}spiked_shoes.png`,
-        description: spiked_shoes_description,
+        description: boon_descriptions.spiked_shoes,
         prereq: prereq_spiked_shoes,
         on_pick: pick_spiked_shoes
     }
@@ -14860,7 +14861,7 @@ function spontaneous(){
     return {
         name: boon_names.spontaneous,
         pic: `${IMG_FOLDER.boons}spontaneous.png`,
-        description: spontaneous_description,
+        description: boon_descriptions.spontaneous,
         prereq: prereq_spontaneous,
         on_pick: pick_spontaneous
     }
@@ -14878,7 +14879,7 @@ function stable_mind(){
     return {
         name: boon_names.stable_mind,
         pic: `${IMG_FOLDER.boons}stable_mind.png`,
-        description: stable_mind_description,
+        description: boon_descriptions.stable_mind,
         prereq: prereq_stable_mind,
         unlocks: [stable_mind]
     }
@@ -14892,7 +14893,7 @@ function stealthy(){
     return {
         name: boon_names.stealthy,
         pic: `${IMG_FOLDER.boons}stealthy.png`,
-        description: stealthy_description,
+        description: boon_descriptions.stealthy,
     }
 }
 
@@ -14900,7 +14901,7 @@ function stubborn(){
     return {
         name: boon_names.stubborn,
         pic: `${IMG_FOLDER.boons}stubborn.png`,
-        description: stubborn_description,
+        description: boon_descriptions.stubborn,
     }
 }
 
@@ -14908,7 +14909,7 @@ function thick_soles(){
     return {
         name: boon_names.thick_soles,
         pic: `${IMG_FOLDER.boons}thick_soles.png`,
-        description: thick_soles_description,
+        description: boon_descriptions.thick_soles,
     }
 }
 
@@ -14916,7 +14917,7 @@ function vicious_cycle(){
     return {
         name: boon_names.vicious_cycle,
         pic: `${IMG_FOLDER.boons}vicious_cycle.png`,
-        description: vicious_cycle_description,
+        description: boon_descriptions.vicious_cycle,
     }
 }
 

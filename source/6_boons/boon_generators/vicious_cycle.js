@@ -3,7 +3,7 @@ function vicious_cycle(){
     return {
         name: boon_names.vicious_cycle,
         pic: `${IMG_FOLDER.boons}vicious_cycle.png`,
-        description: vicious_cycle_description,
+        description: boon_descriptions.vicious_cycle,
     }
 }
 

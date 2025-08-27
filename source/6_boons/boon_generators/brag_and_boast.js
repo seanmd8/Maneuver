@@ -3,7 +3,7 @@ function brag_and_boast(){
     return {
         name: boon_names.brag_and_boast,
         pic: `${IMG_FOLDER.boons}brag_and_boast.png`,
-        description: brag_and_boast_description,
+        description: boon_descriptions.brag_and_boast,
         on_pick: pick_brag_and_boast,
         unlocks: [brag_and_boast]
     }

@@ -3,7 +3,7 @@ function escape_artist(){
     return {
         name: boon_names.escape_artist,
         pic: `${IMG_FOLDER.boons}escape_artist.png`,
-        description: escape_artist_description,
+        description: boon_descriptions.escape_artist,
     }
 }
 

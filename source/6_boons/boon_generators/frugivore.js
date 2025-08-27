@@ -3,7 +3,7 @@ function frugivore(){
     return {
         name: boon_names.frugivore,
         pic: `${IMG_FOLDER.boons}frugivore.png`,
-        description: frugivore_description,
+        description: boon_descriptions.frugivore,
         prereq: prereq_frugivore,
         unlocks: [frugivore]
     }

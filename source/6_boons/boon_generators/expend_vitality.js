@@ -3,7 +3,7 @@ function expend_vitality(){
     return {
         name: boon_names.expend_vitality,
         pic: `${IMG_FOLDER.boons}expend_vitality.png`,
-        description: expend_vitality_description,
+        description: boon_descriptions.expend_vitality,
         prereq: prereq_expend_vitality,
         on_pick: pick_expend_vitality
     }

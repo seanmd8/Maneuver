@@ -38,7 +38,6 @@ const boon_names = {
     safe_passage: `Safe Passage`,
     shattered_glass: `Shattered Glass`,
     skill_trading: `Skill Trading`,
-    slayer: `Slayer`,
     slime_trail: `Slime Trail`,
     sniper: `Sniper`,
     spiked_shoes: `Spiked Shoes`,
@@ -51,111 +50,112 @@ const boon_names = {
 }
 Object.freeze(boon_names);
 
+const boon_descriptions = {
+    bitter_determination: 
+        `At the start of each floor, heal 1 if your health is exactly 1.`,
+    boss_slayer: 
+        `Bosses start with 2 less hp.`,
+    brag_and_boast: 
+        `Add 2 random boss cards and 2 random debuff cards to your deck.`,
+    chilly_presence: 
+        `Enemies have a 1/6 chance to become stunned at the end of their `
+        +`turn. Bosses are not affected.`,
+    choose_your_path: 
+        `You get to decide which area to go to after each boss fight.`,
+    clean_mind: 
+        `Remove any 2 cards from your deck.`,
+    creative: 
+        `Increase your hand size by 1. Increases minimum deck size by 5.`,
+    dazing_blows: 
+        `Your attacks stun enemies. Bosses are unaffected.`,
+    duplicate: 
+        `Get a copy of any card in your deck.`,
+    empty_rooms: 
+        `Difficulty decreases by 3 floors`,
+    escape_artist: 
+        `Teleport away when attacked.`,
+    expend_vitality: 
+        `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
+    flame_strike: 
+        `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`,
+    fleeting_thoughts: 
+        `Temporary cards added to your deck will happen instantly.`,
+    fortitude: 
+        `Gain an extra max health.`,
+    frenzy: 
+        `Deal double damage while you only have 1 health.`,
+    frugivore: 
+        `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
+        +`for 1, but might attract enemies.`,
+    future_sight: 
+        `You may look at the order of your deck.`,
+    gruntwork: 
+        `Gain 3 extra max health. Decrease your hand size by 1.`,
+    hoarder: 
+        `Encounter two chests in each area.`,
+    larger_chests: 
+        `All treasure chests contain 2 additional choices and are invulnerable.`,
+    limitless: 
+        `Remove your max health. Heal for 2. If you would be fully healed, heal `
+        +`for 1 instead.`,
+    pacifism: 
+        `If you would attack an enemy, stun them twice instead. Fully heal at `
+        +`the start of each floor. All boss floor exits unlock.`,
+    pain_reflexes: 
+        `Take a turn whenever you are attacked.`,
+    perfect_the_basics: 
+        `Replace all your basic cards with better ones.`,
+    picky_shopper: 
+        `Recieve an extra card choice for adding and removing cards in the shop.`,
+    practice_makes_perfect: 
+        `Defeating a boss while at max health increases your max health by 1.`,
+    pressure_points: 
+        `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`,
+    quick_healing: 
+        `After being dealt damage, you have a 1/4 chance to instantly heal it.`,
+    rebirth: 
+        `When you die, you are revived at full health and this boon is removed.`,
+    repetition: 
+        `Every 3rd turn, your cards happen twice.`,
+    retaliate: 
+        `When you are dealt damage, attack a nearby non boss enemy.`,
+    rift_touched: 
+        `Two Darklings spawn on each floor.`,
+    roar_of_challenge: 
+        `Gain 2 max health. Difficulty increases by 5 floors.`,
+    safe_passage: 
+        `Fully heal and travel to the next floor.`,
+    shattered_glass: 
+        `Enemies explode on death damaging everything nearby other than you. Reduce your `
+        +`max health by 2.`,
+    skill_trading: 
+        `You may both add a card and remove a card at each shop.`,
+    slime_trail: 
+        `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`,
+    sniper: 
+        `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
+    spiked_shoes: 
+        `Attempting to move onto enemies damages them. Reduces your max health by 1.`,
+    spontaneous: 
+        `After using a non instant card, discard your whole hand. Minimum deck size `
+        +`increased by 5.`,
+    stable_mind: 
+        `You gain a 50% chance to resist confusion.`,
+    stealthy: 
+        `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`,
+    stubborn: 
+        `You can skip shops.`,
+    thick_soles: 
+        `You are immune to damage on your turn.`,
+    vicious_cycle: 
+        `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`,
+}
 
-// Boon Descriptions
-const bitter_determination_description = 
-    `At the start of each floor, heal 1 if your health is exactly 1.`;
-const boss_slayer_description = 
-    `Bosses start with 2 less hp.`;
-const brag_and_boast_description = 
-    `Add 2 random boss cards and 2 random debuff cards to your deck.`;
-const chilly_presence_description = 
-    `Enemies have a 1/6 chance to become stunned at the end of their `
-    +`turn. Bosses are not affected.`;
-const choose_your_path_description =
-    `You get to decide which area to go to after each boss fight.`;
-const clean_mind_description = 
-    `Remove any 2 cards from your deck.`;
 const clean_mind_instructions =
     [`Choose a card to remove (`, `/2 remaining)`];
-const creative_description = 
-    `Increase your hand size by 1. Increases minimum deck size by 5.`;
-const dazing_blows_description = 
-    `Your attacks stun enemies. Bosses are unaffected.`;
-const duplicate_description =
-    `Get a copy of any card in your deck.`
 const duplicate_instructions =
     `Choose a card to copy:`;
-const empty_rooms_description = 
-    `Difficulty decreases by 3 floors`;
-const escape_artist_description = 
-    `Teleport away when attacked.`;
-const expend_vitality_description =  
-    `Heal 1 life at the start of each floor. Your max health is decreased by 1.`;
-const flame_strike_description = 
-    `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`;
-const fleeting_thoughts_description = 
-    `Temporary cards added to your deck will happen instantly.`;
-const fortitude_description = 
-    `Gain an extra max health.`;
-const frenzy_description = 
-    `Deal double damage while you only have 1 health.`
-const frugivore_description = 
-    `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
-    +`for 1, but might attract enemies.`;
-const future_sight_description = 
-    `You may look at the order of your deck.`;
-const gruntwork_description =
-    `Gain 3 extra max health. Decrease your hand size by 1.`;
-const hoarder_description = 
-    `Encounter two chests in each area.`;
-const larger_chests_description = 
-    `All treasure chests contain 2 additional choices and are invulnerable.`;
-const limitless_description = 
-    `Remove your max health. Heal for 2. If you would be fully healed, heal `
-    +`for 1 instead.`;
-const pacifism_description = 
-    `If you would attack an enemy, stun them twice instead. Fully heal at `
-    +`the start of each floor. All boss floor exits unlock.`;
-const pain_reflexes_description = 
-    `Take a turn whenever you are attacked.`;
-const perfect_the_basics_description =
-    `Replace all your basic cards with better ones.`;
-const picky_shopper_description = 
-    `Recieve an extra card choice for adding and removing cards in the shop.`;
-const practice_makes_perfect_description = 
-    `Defeating a boss while at max health increases your max health by 1.`;
 const practice_makes_perfect_message =
     `Your maximum health has increased.`
-const quick_healing_description =
-    `After being dealt damage, you have a 1/4 chance to instantly heal it.`;
-const pressure_points_description = 
-    `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`;
-const rebirth_description = 
-    `When you die, you are revived at full health and this boon is removed.`;
 const rebirth_revival_message = 
     `You died, but were brought back to life.`;
-const repetition_description = 
-    `Every 3rd turn, your cards happen twice.`;
-const retaliate_description = 
-    `When you are dealt damage, attack a nearby non boss enemy.`;
-const rift_touched_description = 
-    `Two Darklings spawn on each floor.`
-const roar_of_challenge_description = 
-    `Gain 2 max health. Difficulty increases by 5 floors.`;
-const safe_passage_description = 
-    `Fully heal and travel to the next floor.`;
-const shattered_glass_description = 
-    `Enemies explode on death damaging everything nearby other than you. Reduce your `
-    +`max health by 2.`;
-const skill_trading_description = 
-    `You may both add a card and remove a card at each shop.`;
-const slime_trail_description = 
-    `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`;
-const sniper_description =
-    `Attacks deal extra damage to enemies at a distance based on how far away they are.`;
-const spiked_shoes_description = 
-    `Attempting to move onto enemies damages them. Reduces your max health by 1.`;
-const spontaneous_description = 
-    `After using a non instant card, discard your whole hand. Minimum deck size `
-    +`increased by 5.`;
-const stable_mind_description = 
-    `You gain a 50% chance to resist confusion.`;
-const stealthy_description = 
-    `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`;
-const stubborn_description = 
-    `You can skip shops.`;
-const thick_soles_description = 
-    `You are immune to damage on your turn.`;
-const vicious_cycle_description =
-    `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`;

@@ -3,7 +3,7 @@ function duplicate(){
     return {
         name: boon_names.duplicate,
         pic: `${IMG_FOLDER.boons}duplicate.png`,
-        description: duplicate_description,
+        description: boon_descriptions.duplicate,
         after_pick: pick_duplicate,
         unlocks: [duplicate]
     }

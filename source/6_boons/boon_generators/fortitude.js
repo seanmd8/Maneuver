@@ -3,7 +3,7 @@ function fortitude(){
     return {
         name: boon_names.fortitude,
         pic: `${IMG_FOLDER.boons}fortitude.png`,
-        description: fortitude_description,
+        description: boon_descriptions.fortitude,
         prereq: prereq_fortitude,
         on_pick: pick_fortitude,
         unlocks: [fortitude]
