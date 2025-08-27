@@ -1157,20 +1157,20 @@ const DisplayHTML = {
         header.classList.add(`achievement-header`);
         var title = document.createElement(`h2`);
         var complete = achievements.filter((a) => {return a.has}).length;
-        title.innerText = `${achievements_title}  (${complete} / ${achievements.length})`;
+        title.innerText = `${achievement_text.title}  (${complete} / ${achievements.length})`;
         header.append(title);
         toprow.append(header);
         
         var reset = document.createElement(`button`);
         reset.classList.add(`achievement-button`);
         var set_reset_button = () => {
-            reset.innerText = achievement_reset;
+            reset.innerText = achievement_text.reset;
             reset.classList.add(`achievement-reset`);
             reset.classList.remove(`achievement-confirm-reset`);
             reset.onclick = set_confirm_reset_button;
         }
         var set_confirm_reset_button = () => {
-            reset.innerText = achievement_confirm_reset;
+            reset.innerText = achievement_text.confirm_reset;
             reset.classList.add(`achievement-confirm-reset`);
             reset.classList.remove(`achievement-reset`);
             reset.onclick = reset_achievements;
@@ -1953,11 +1953,14 @@ function floor_has_chest(floor_of_area){
     }
     return false;
 }
-const achievements_title = `Achievements`;
-const achievement_reset = `Reset`;
-const achievement_confirm_reset = `Confirm?`;
-const achievement_unlocked_message = `Achievement Unlocked:`;
-const achievement_repeated_message = `Achievement Repeated:`;
+
+const achievement_text = {
+    title: `Achievements`,
+    reset: `Reset`,
+    confirm_reset: `Confirm?`,
+    unlocked: `Achievement Unlocked:`,
+    repeated: `Achievement Repeated:`,
+}
 
 const achievement_names = {
     // Boss
@@ -10529,11 +10532,11 @@ class GameState{
     achieve(name){
         var gained = this.data.achieve(name);
         if(gained){
-            say_record(`${achievement_unlocked_message} ${name}`, record_types.achievement);
+            say_record(`${achievement_text.unlocked} ${name}`, record_types.achievement);
             SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
             return true;
         }
-        say_record(`${achievement_repeated_message} ${name}`, record_types.repeated_achievement);
+        say_record(`${achievement_text.repeated} ${name}`, record_types.repeated_achievement);
         return false;
     }
 }

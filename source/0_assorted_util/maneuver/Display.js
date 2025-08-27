@@ -622,20 +622,20 @@ const DisplayHTML = {
         header.classList.add(`achievement-header`);
         var title = document.createElement(`h2`);
         var complete = achievements.filter((a) => {return a.has}).length;
-        title.innerText = `${achievements_title}  (${complete} / ${achievements.length})`;
+        title.innerText = `${achievement_text.title}  (${complete} / ${achievements.length})`;
         header.append(title);
         toprow.append(header);
         
         var reset = document.createElement(`button`);
         reset.classList.add(`achievement-button`);
         var set_reset_button = () => {
-            reset.innerText = achievement_reset;
+            reset.innerText = achievement_text.reset;
             reset.classList.add(`achievement-reset`);
             reset.classList.remove(`achievement-confirm-reset`);
             reset.onclick = set_confirm_reset_button;
         }
         var set_confirm_reset_button = () => {
-            reset.innerText = achievement_confirm_reset;
+            reset.innerText = achievement_text.confirm_reset;
             reset.classList.add(`achievement-confirm-reset`);
             reset.classList.remove(`achievement-reset`);
             reset.onclick = reset_achievements;
