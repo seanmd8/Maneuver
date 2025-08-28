@@ -32,6 +32,11 @@ class GameState{
         display.display_message(UIIDS.hand_label, `${gameplay_labels.hand}`);
         display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
         create_sidebar();
+        
+        // Starting achievements
+        for(var a of init.achievements){
+            this.achieve(a);
+        }
 
         // Prep map
         for(var enemy of init.enemies){
