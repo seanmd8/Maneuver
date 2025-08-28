@@ -2446,8 +2446,7 @@ const KEYBOARD_SYMBOL_MAP = new Map();
 KEYBOARD_SYMBOL_MAP.set(` `, `space`);
 // Boss Descriptions
 const boss_death_description = 
-    `The exit opens.\n`
-    +`You feel your wounds begin to heal.`;
+    ``;
 
 const boss_names = {
     arcane_sentry: `Arcane Sentry`,
@@ -2511,6 +2510,9 @@ const boss_floor_message = {
 }
 
 const boss_death_message = {
+    general: 
+        `The exit opens.\n`
+        +`You feel your wounds begin to heal.`,
     arcane_sentry: 
         `MAIN SYSTEMS FAILING!\n`
         +`The ringing alarm subsides.`,
@@ -7216,7 +7218,7 @@ function boss_death(self, target, map){
         map.add_tile(chest, self.location);
     }
     map.unlock();
-    var death_message = `${self.tile.death_message}\n${boss_death_description}`;
+    var death_message = `${self.tile.death_message}\n${boss_death_message.general}`;
     var player_tile = map.get_player();
     if(player_tile.max_health === 1){
         GS.achieve(achievement_names.one_life);

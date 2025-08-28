@@ -16,7 +16,7 @@ function boss_death(self, target, map){
         map.add_tile(chest, self.location);
     }
     map.unlock();
-    var death_message = `${self.tile.death_message}\n${boss_death_description}`;
+    var death_message = `${self.tile.death_message}\n${boss_death_message.general}`;
     var player_tile = map.get_player();
     if(player_tile.max_health === 1){
         GS.achieve(achievement_names.one_life);

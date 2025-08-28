@@ -1,7 +1,6 @@
 // Boss Descriptions
 const boss_death_description = 
-    `The exit opens.\n`
-    +`You feel your wounds begin to heal.`;
+    ``;
 
 const boss_names = {
     arcane_sentry: `Arcane Sentry`,
@@ -65,6 +64,9 @@ const boss_floor_message = {
 }
 
 const boss_death_message = {
+    general: 
+        `The exit opens.\n`
+        +`You feel your wounds begin to heal.`,
     arcane_sentry: 
         `MAIN SYSTEMS FAILING!\n`
         +`The ringing alarm subsides.`,
