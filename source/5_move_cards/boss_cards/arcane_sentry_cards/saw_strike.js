@@ -7,7 +7,7 @@ function saw_strike(){
     options.add_button(NW, [pmove(-1, -1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
     options.add_button(SW, [pmove(-1, 1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
     return{
-        name: `saw strike`,
+        name: card_names.saw_strike,
         pic: `${IMG_FOLDER.cards}saw_strike.png`,
         options
     }

@@ -3,7 +3,7 @@ function clean_mind(){
     return {
         name: boon_names.clean_mind,
         pic: `${IMG_FOLDER.boons}clean_mind.png`,
-        description: clean_mind_description,
+        description: boon_descriptions.clean_mind,
         prereq_clean_mind,
         after_pick: pick_clean_mind,
         unlocks: [clean_mind]

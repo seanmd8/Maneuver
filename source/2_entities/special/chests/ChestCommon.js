@@ -11,7 +11,7 @@ function chest_on_enter(self, target, map){
     if(self.tile.contents === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(target.tile.type !== `player`){
+    if(target.tile.type !== entity_types.player){
         return;
     }
     self.tile.health = 1;
@@ -36,7 +36,7 @@ function chest_on_enter(self, target, map){
         }
     }
     var abandon_button = {
-        description: abandon_chest,
+        description: chest_text.abandon,
         on_click: leave_chest
     };
     var pick = function(on_choose){
@@ -54,7 +54,7 @@ function chest_on_enter(self, target, map){
         let make_on_click = function(position){
             return function(){
                 let confirm_button = {
-                    description: take_from_chest,
+                    description: chest_text.take,
                     on_click: pick(item.on_choose)
                 };
                 display.display_message(UIIDS.content_description, item.description);
@@ -71,7 +71,7 @@ function chest_on_enter(self, target, map){
         });
     }
 
-    display.display_message(UIIDS.chest_instructions, chest_inner_discription);
+    display.display_message(UIIDS.chest_instructions, chest_text.header);
     display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
     display.add_button_row(UIIDS.chest_confirm_row, [abandon_button]);
     GAME_SCREEN_DIVISIONS.swap(UIIDS.chest);
@@ -93,7 +93,7 @@ function add_card_to_chest(chest, card){
     if(chest.contents === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var description = add_card_description + `\n` + explain_card(card);
+    var description = chest_text.add_card + `\n` + explain_card(card);
     var content = {
         pic: card.pic,
         name: card.name,

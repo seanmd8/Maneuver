@@ -3,7 +3,7 @@ function greater_thorn_bush_spell_generator(){
     return {
         behavior: greater_thorn_bush_spell,
         telegraph_other: thorn_bush_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }
@@ -17,11 +17,11 @@ function greater_thorn_bush_spell(self, target, map){
     );
     var root_layer = {
         pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
-        description: thorn_root_description,
+        description: event_descriptions.thorn_root,
         telegraph: hazard_telegraph
     }
     var delayed_func = function(map_to_use){
-        map_to_use.add_event({name: `Bramble Shield`, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+        map_to_use.add_event({name: event_names.bramble_shield, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
     };
-    map.add_event({name: `Delayed Bramble Shield`, behavior: delay_event(1, delayed_func)});
+    map.add_event({name: event_names.bramble_shield, behavior: delay_event(1, delayed_func)});
 }

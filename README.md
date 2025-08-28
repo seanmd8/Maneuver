@@ -9,6 +9,9 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+8/28/25
+- Removed a card that was underperforming.
+
 8/22/25
 - Overhauled the looks of many parts of the game
 - Fixed bug with "Not My Fault" achievement description and completion condition not matching up

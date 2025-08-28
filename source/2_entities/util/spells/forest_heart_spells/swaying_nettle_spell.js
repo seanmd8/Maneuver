@@ -3,7 +3,7 @@ function swaying_nettle_spell_generator(){
     return {
         behavior: swaying_nettle_spell,
         telegraph_other: swaying_nettle_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }
@@ -16,10 +16,10 @@ function swaying_nettle_spell(self, target, map){
     );
     var root_layer = {
         pic: `${IMG_FOLDER.tiles}swaying_nettle_roots.png`,
-        description: nettle_root_description,
+        description: event_descriptions.nettle_root,
         telegraph: hazard_telegraph
     }
-    map.add_event({name: `Nettle Shield`, behavior: growth_event(points, root_layer, swaying_nettle_tile)});
+    map.add_event({name: event_names.nettle_shield, behavior: growth_event(points, root_layer, swaying_nettle_tile)});
 }
 
 /** @type {TelegraphFunction} */

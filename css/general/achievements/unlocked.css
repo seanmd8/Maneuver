@@ -1,0 +1,9 @@
+.achievement-unlocked-image {
+    border-color: black;
+    border-style: solid;
+    box-sizing: border-box;
+    background-color: #85c1a0;
+}
+.achievement-unlocked-text {
+    background-color: lightblue;
+}

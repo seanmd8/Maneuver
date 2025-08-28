@@ -1,0 +1,12 @@
+
+.health-box {
+    border-width: 3px;
+    border-color:saddlebrown;
+    border-style: solid;
+    border-radius: 30%;
+    background-color:darksalmon;
+    margin-bottom: 3px;
+    margin-right: 5px;
+    display: inline-block;
+    height: 52px;
+}

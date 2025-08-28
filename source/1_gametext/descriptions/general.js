@@ -1,32 +1,55 @@
-// General Descriptions
-const game_title = `Maneuver`;
-const hand_label_text = `Hand of cards`;
-const move_label_text = `Moves`;
-const mod_deck = `Choose one card to add or remove:`;
-const shop_add_description = `Add a card to your deck.`
-const shop_remove_description = `Remove a card from your deck.`
-const shop_min_description = `Your deck is at the minimum size.`
-const shop_confirm_description = `Please choose a card to add or remove.`
-const confirm_text = `Confirm >`;
-const current_deck = `Current Deck (minimum `;
-const welcome_message = `Use cards to move (blue) and attack (red).\n` 
-                        + `Click on things to learn more about them.\n`
-                        + `Refer to the guidebook if you need more information.`;
-const blank_moves_message = `Before choosing what move to make, you must first select a card to use.`;
-const floor_message = `Welcome to floor `;
-const game_over_message = `Game Over. You were killed by a `;
-const retry_message = `Retry?`;
-const stunned_msg = `Stunned x`;
-const gameplay_screen_name = `Gameplay`;
-const guide_screen_name = `Guidebook`;
-const controls_screen_name = `Controls`;
-const achievements_screen_name = `Achievements`;
-const edit_controls_message = `Edit`;
-const default_controls_message = `Default`;
-const save_controls_message = `Save`;
-const undo_edit_controls_message = `Undo`;
-const tile_description_divider = `\n--------------------\n`;
-const card_explanation_start = `Move Options (actions will be performed in order):\n`;
-const card_explanation_end = `Shift click on a button to show what it will do on the map.\n`;
-const unlock_boon_description = `New Boon`
-const unlock_card_description = `New Cards`
+
+const screen_names = {
+    gameplay: `Gameplay`,
+    guide: `Guidebook`,
+    controls: `Controls`,
+    achievements: `Achievements`,
+}
+Object.freeze(screen_names);
+
+const control_screen_text = {
+    default: `Default`,
+    edit: `Edit`,
+    save: `Save`,
+    undo: `Undo`,
+}
+Object.freeze(control_screen_text);
+
+const shop_text = {
+    header: `Choose one card to add or remove:`,
+    add: `Add a card to your deck.`,
+    remove: `Remove a card from your deck.`,
+    min: `Your deck is at the minimum size.`,
+    invalid: `Please choose a card to add or remove.`,
+    confirm: `Confirm >`,
+    current: `Current Deck (minimum `,
+}
+Object.freeze(shop_text);
+
+const gameplay_labels = {
+    title: `Maneuver`,
+    hand: `Hand of Cards`,
+    move: `Moves`,
+    retry: `Retry?`,
+    floor: `Floor`,
+    turn: `Turn`,
+}
+Object.freeze(gameplay_labels);
+
+const gameplay_text = {
+    welcome: 
+        `Use cards to move (blue) and attack (red).\n` 
+        +`Click on things to learn more about them.\n`
+        +`Refer to the guidebook if you need more information.`,
+    floor: 
+        `Welcome to floor `,
+    game_over: 
+        `Game Over. You were killed by a `,
+    stunned:    
+        `Stunned x`,
+    divider: 
+        `\n--------------------\n`,
+    select_card: 
+        `Before choosing what move to make, you must first select a card to use.`,
+}
+Object.freeze(gameplay_text);

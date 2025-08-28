@@ -8,7 +8,7 @@ function stunning_punch_diagonal(){
     options.add_button(NW, [pstun(-1, -1), pstun(-1, -1)]);
     options.make_instant();
     return{
-        name: `stunning punch diagonal`,
+        name: card_names.stunning_punch_diagonal,
         pic: `${IMG_FOLDER.cards}stunning_punch_diagonal.png`,
         options
     }

@@ -3,7 +3,7 @@ function piercing_beam_spell_generator(){
     return {
         behavior: piercing_beam_spell,
         telegraph: piercing_beam_spell_telegraph,
-        description: piercing_beam_spell_description,
+        description: lich_spell_descriptions.piercing_beam,
         pic: `${IMG_FOLDER.tiles}lich_piercing_beam.png`
     }
 }

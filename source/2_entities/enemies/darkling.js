@@ -1,10 +1,10 @@
 /** @type {TileGenerator} */
 function darkling_tile(){
     return {
-        type: `enemy`,
-        name: `Darkling`,
+        type: entity_types.enemy,
+        name: enemy_names.darkling,
         pic: `${IMG_FOLDER.tiles}darkling.png`,
-        description: darkling_description,
+        description: enemy_descriptions.darkling,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -34,13 +34,13 @@ function darkling_ai(self, target, map){
         if(self.tile.health === undefined || self.tile.health > 0){
             var rift = {
                 pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
-                description: darkling_rift_description,
+                description: event_descriptions.darkling_rift,
                 telegraph: spider_telegraph
             }
             map_to_use.mark_event(self.tile.direction, rift, false);
         }
     }
-    map.add_event({name: `Darkling Rift`, behavior: darkling_rift});
+    map.add_event({name: event_names.darkling_rift, behavior: darkling_rift});
 }
 
 /** @type {TelegraphFunction} */

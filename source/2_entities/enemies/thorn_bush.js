@@ -1,10 +1,10 @@
 /** @type {TileGenerator} */
 function thorn_bush_tile(){
     return{
-        type: `enemy`,
-        name: `Thorn Bush`,
+        type: entity_types.enemy,
+        name: enemy_names.thorn_bush,
         pic: `${IMG_FOLDER.tiles}thorn_bush.png`,
-        description: thorn_bush_description,
+        description: enemy_descriptions.thorn_bush,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
         health: 2,
         difficulty: 5,
@@ -23,7 +23,7 @@ function thorn_bush_ai(self, target, map){
             var space = map.get_tile(next);
             if(
                 space.tags.has(TAGS.thorn_bush_roots) || 
-                (space.type === `empty` && chance(1, 4))
+                (space.type === entity_types.empty && chance(1, 4))
             ){
                 current = next;
             }

@@ -7,7 +7,7 @@ function fork(){
     options.add_button(S, [pattack(1, 1), pattack(-1, 1), pattack(1, 2), pattack(-1, 2)]);
     options.add_button(W, [pattack(-1, 1), pattack(-1, -1), pattack(-2, 1), pattack(-2, -1)]);
     return{
-        name: `fork`,
+        name: card_names.fork,
         pic: `${IMG_FOLDER.cards}fork.png`,
         options
     }

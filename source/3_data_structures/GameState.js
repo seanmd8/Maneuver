@@ -27,11 +27,16 @@ class GameState{
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = init.make_deck();
 
-        var starting_text = `${start.description}\n${welcome_message}`;
+        var starting_text = `${start.description}\n${gameplay_text.welcome}`;
         say_record(starting_text);
-        display.display_message(UIIDS.hand_label, `${hand_label_text}`);
-        display.display_message(UIIDS.move_label, `${move_label_text}`);
+        display.display_message(UIIDS.hand_label, `${gameplay_labels.hand}`);
+        display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
         create_sidebar();
+        
+        // Starting achievements
+        for(var a of init.achievements){
+            this.achieve(a);
+        }
 
         // Prep map
         for(var enemy of init.enemies){
@@ -46,7 +51,7 @@ class GameState{
         this.map.display_stats(UIIDS.stats);
 
         this.refresh_deck_display();
-        display.display_message(UIIDS.shop_instructions, mod_deck);
+        display.display_message(UIIDS.shop_instructions, shop_text.header);
         DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         this.#player_turn_lock = true;
@@ -133,7 +138,7 @@ class GameState{
      */
     player_action(action){
         switch(action.type){
-            case `attack`:
+            case action_types.attack:
                 var attack_count = 1;
                 var stun_count = 0;
                 var target = this.map.get_player_location().plus(action.change);
@@ -166,7 +171,7 @@ class GameState{
                     this.player_action(pstun(action.change.x, action.change.y));
                 }
                 break;
-            case `move`:
+            case action_types.move:
                 var previous_location = this.map.get_player_location();
                 var moved = this.map.player_move(action.change);
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
@@ -176,7 +181,7 @@ class GameState{
                     this.map.add_tile(corrosive_slime_tile(), previous_location);
                 }
                 break;
-            case `teleport`:
+            case action_types.teleport:
                 try{
                     this.map.player_teleport(action.change);
                 }
@@ -186,10 +191,10 @@ class GameState{
                     }
                 }
                 break;
-            case `stun`:
+            case action_types.stun:
                 this.map.player_stun(action.change);
                 break;
-            case `move_until`:
+            case action_types.move_until:
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
                 var previous_location = this.map.get_player_location();
                 while(this.map.player_move(action.change)){
@@ -202,7 +207,7 @@ class GameState{
                     this.player_action(pattack(action.change.x, action.change.y));
                 }
                 break;
-            case `attack_until`:
+            case action_types.attack_until:
                 var i = 0;
                 do{
                     i += 1;
@@ -211,7 +216,7 @@ class GameState{
                     this.player_action(pattack(target.x, target.y));
                 }while(this.map.is_in_bounds(p_location.plus(target)));
                 break;
-            case `heal`:
+            case action_types.heal:
                 this.map.player_heal(action.change, 1);
                 break;
             default:
@@ -229,6 +234,9 @@ class GameState{
         this.map.display_stats(UIIDS.stats);
         display_map(this.map);
         this.deck.deal();
+            if(GS.boons.has(boon_names.vicious_cycle) > 0){
+            apply_vicious_cycle(this.deck);
+        }
         this.refresh_deck_display();
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         await delay(ANIMATION_DELAY);
@@ -261,7 +269,7 @@ class GameState{
         display_map(this.map);
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
-        say_record(`${game_over_message}${cause.toLowerCase()}.`);
+        say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
         display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
@@ -271,7 +279,7 @@ class GameState{
             };
         }
         var restart_message = [{
-            description: retry_message,
+            description: gameplay_labels.retry,
             on_click: restart(this)
         }]
         display.add_button_row(UIIDS.retry_button, restart_message);
@@ -366,11 +374,11 @@ class GameState{
     achieve(name){
         var gained = this.data.achieve(name);
         if(gained){
-            say_record(`Achievement Unlocked: ${name}`, record_types.achievement);
+            say_record(`${achievement_text.unlocked} ${name}`, record_types.achievement);
             SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
             return true;
         }
-        say_record(`Achievement Repeated: ${name}`, record_types.repeated_achievement);
+        say_record(`${achievement_text.repeated} ${name}`, record_types.repeated_achievement);
         return false;
     }
 }

@@ -4,12 +4,12 @@ function generate_library_area(){
         background: `${IMG_FOLDER.backgrounds}library.png`,
         generate_floor: generate_library_floor,
         enemy_list: [
-            moving_turret_h_tile, moving_turret_d_tile, brightling_tile, captive_void_tile, paper_construct_tile,
+            moving_turret_o_tile, moving_turret_d_tile, brightling_tile, captive_void_tile, paper_construct_tile,
             unstable_wisp_tile, walking_prism_tile, specter_tile, clay_golem_tile, gem_crawler_tile
         ],
         boss_floor_list: [arcane_sentry_floor],
         next_area_list: area5,
-        description: library_description
+        description: area_descriptions.library
     }
 }
 

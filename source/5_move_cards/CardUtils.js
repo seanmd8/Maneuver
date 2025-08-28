@@ -2,24 +2,48 @@
 // File containing utility functions used by cards.
 
 const BASIC_CARDS = [
-    basic_horizontal, basic_diagonal, basic_slice
+    basic_orthogonal, basic_diagonal, basic_slice
+];
+
+const BOON_CARDS = [
+    lost_technique, lost_maneuver,
+    execution_1, execution_2, execution_3,
+    maneuver_1, maneuver_2, maneuver_3,
+    split_second_1, split_second_2,
+    superweapon_1, superweapon_2
+];
+
+const BOSS_CARDS = {
+    arcane_sentry: [beam_ne, beam_se, beam_sw, beam_nw, saw_strike],
+    forest_heart: [snack, branch_strike, vine_snare],
+    lich: [instant_teleport, debilitating_confusion, beam_orthogonal, beam_diagonal],
+    spider_queen: [skitter, bite, chomp],
+    two_headed_serpent: [regenerate, fangs, slither],
+    velociphile: [roll_ne, roll_nw, roll_horizontal],
+    young_dragon: [firebreathing_horizontal, firebreathing_vertical, firebreathing_ne, 
+        firebreathing_nw, glide, soar],
+}
+
+const COMMON_CARDS = [
+    advance, bounding_retreat, breakthrough_horizontal, breakthrough_vertical, butterfly, 
+    charge_horizontal, charge_vertical, clear_behind, clear_in_front, combat_diagonal, 
+    combat_orthogonal, dash_ne, dash_nw, diamond_attack, diamond_slice, 
+    explosion, force, fork, flanking_diagonal, flanking_horizontal, 
+    flanking_vertical, hit_and_run, horsemanship, jab_diagonal, jab_orthogonal, 
+    jump, leap_left, leap_right, lunge_left, lunge_right, 
+    overcome_horizontal, overcome_vertical, pike, push_back, short_charge_orthogonal, 
+    short_charge_diagonal, slash_step_forwards, slash_step_left, slash_step_right, slice_twice, 
+    slip_through_ne, slip_through_nw, spearhead, spin_attack, sprint_horizontal, 
+    sprint_vertical, step_left, step_right, t_strike_horizontal, t_strike_vertical, 
+    thwack, trample, trident, y_leap, y_strike_ne, y_strike_nw,
+];
+
+const CONFUSION_CARDS = [
+    stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
+    stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out,
+    lightheaded
 ]
 
-// Cards that can be given on level up.
-const COMMON_CARDS = [
-    advance, alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, 
-    bounding_retreat, breakthrough, breakthrough_side, butterfly, clear_behind, 
-    clear_in_front, combat_diagonal, combat_horizontal, dash_ne, dash_nw,
-    diamond_attack, diamond_slice, explosion, force, fork,
-    flanking_diagonal, flanking_sideways, flanking_straight, hit_and_run, horsemanship, 
-    jab, jab_diagonal, jump, leap_left, leap_right, 
-    lunge_left, lunge_right, overcome, overcome_sideways, pike, 
-    push_back, short_charge, short_charge_diagonal, side_attack, side_charge, 
-    side_sprint, slash_step_forwards, slash_step_left, slash_step_right, slice_twice, 
-    slip_through_ne, slip_through_nw, spearhead, spin_attack, sprint, 
-    step_left, step_right, straight_charge, thwack, trample, 
-    trident, y_leap, 
-];
 
 function get_achievement_cards(){
     var list = [];
@@ -32,7 +56,7 @@ function get_achievement_cards(){
 }
 function get_all_achievement_cards(){
     var list = [];
-    GS.data.achievements.all().map((a) => {
+    get_achievements().map((a) => {
         if(a.cards !== undefined){
             list.push(...a.cards);
         }
@@ -40,13 +64,15 @@ function get_all_achievement_cards(){
     return list;
 }
 
-// Cards that can be given as a debuff.
-const CONFUSION_CARDS = [
-    stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
-    stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out,
-    lightheaded
-]
-
+function get_boss_cards(){
+    var all = [];
+    for (var field in BOSS_CARDS) {
+        if (Object.hasOwn(BOSS_CARDS, field)) {
+            all = [...all, ...BOSS_CARDS[field]];
+        }
+    }
+    return all;
+}
 
 /**
  * @typedef {Object} PlayerCommand A object used to give a command for a single action the player should do.
@@ -64,49 +90,49 @@ const CONFUSION_CARDS = [
 /** @type {PlayerCommandGenerator} Function to create a move command.*/
 function pmove(x, y){
     return {
-        type: `move`,
+        type: action_types.move,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to create a attack command.*/
 function pattack(x, y){
     return {
-        type: `attack`,
+        type: action_types.attack,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to create a teleport command.*/
 function pteleport(x, y){
     return {
-        type: `teleport`,
+        type: action_types.teleport,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to stun any enemies at the given location.*/
 function pstun(x, y){
     return {
-        type: `stun`,
+        type: action_types.stun,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to move in a direction until you hit something.*/
 function pmove_until(x, y){
     return {
-        type: `move_until`,
+        type: action_types.move_until,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to attack in a direction until you hit the edge of the board.*/
 function pattack_until(x, y){
     return {
-        type: `attack_until`,
+        type: action_types.attack_until,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to heal the thing at the specified spot by 1.*/
 function pheal(x, y){
     return {
-        type: `heal`,
+        type: action_types.heal,
         change: new Point(x, y)
     }
 }
@@ -138,22 +164,22 @@ function pheal(x, y){
 function explain_action(action){
     var target = explain_point(action.change);
     switch(action.type){
-        case `attack`:
+        case action_types.attack:
             return `${move_types.attack}: ${target}`;
-        case `move`:
+        case action_types.move:
             return `${move_types.move}: ${target}`;
-        case `teleport`:
+        case action_types.teleport:
             return move_types.teleport;
-        case `stun`:
+        case action_types.stun:
             if(action.change.is_origin()){
                 return move_types.confuse;
             }
             return `${move_types.stun}: ${target}`;
-        case `move_until`:
+        case action_types.move_until:
             return `${move_types.move_until}: ${target}`;
-        case `attack_until`:
+        case action_types.attack_until:
             return `${move_types.attack_until}: ${target}`;
-        case `heal`:
+        case action_types.heal:
             return `${move_types.heal}: ${target}`;
         default:
             throw new Error(ERRORS.invalid_value);
@@ -200,10 +226,10 @@ function telegraph_card(behavior, map, start_position){
     for(var action of behavior){
         var next_position = start_position.plus(action.change);
         switch(action.type){
-            case `attack`:
+            case action_types.attack:
                 telegraphs.attacks.push(next_position);
                 break;
-            case `move`:
+            case action_types.move:
                 if(map.looks_movable(next_position)){
                     telegraphs.moves.push(next_position);
                 }
@@ -211,17 +237,17 @@ function telegraph_card(behavior, map, start_position){
                     start_position = next_position;
                 }
                 break;
-            case `teleport`:
+            case action_types.teleport:
                 for(var p of get_all_points()){
                     if(map.looks_empty(p)){
                         telegraphs.teleport.push(p);
                     }
                 }
                 break;
-            case `stun`:
+            case action_types.stun:
                 telegraphs.stun.push(next_position);
                 break;
-            case `move_until`:
+            case action_types.move_until:
                 while(map.looks_empty(next_position)){
                     telegraphs.moves.push(next_position);
                     start_position = next_position;
@@ -231,7 +257,7 @@ function telegraph_card(behavior, map, start_position){
                     telegraphs.moves.push(next_position);
                 }
                 break;
-            case `attack_until`:
+            case action_types.attack_until:
                 var temp_next = next_position;
                 var temp_start = start_position;
                 while(map.is_in_bounds(temp_next)){
@@ -240,7 +266,7 @@ function telegraph_card(behavior, map, start_position){
                     temp_next = temp_start.plus(action.change);
                 }
                 break;
-            case `heal`:
+            case action_types.heal:
                 telegraphs.healing.push(next_position);
                 break;
             default:
@@ -267,14 +293,6 @@ function get_all_points(){
         }
     }
     return points;
-}
-
-function get_boss_cards(){
-    var boss_cards = [];
-    for(var boss of BOSS_LIST){
-        boss_cards = [...boss_cards, ...boss().card_drops];
-    }
-    return boss_cards;
 }
 
 function copy_card(source){

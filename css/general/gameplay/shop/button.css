@@ -1,0 +1,16 @@
+
+.shop-confirm {
+    height: 35px;
+    width: 80px;
+    margin-right: 5px;
+    border-width: medium;
+    border-color: darkblue;
+    background-color: cadetblue;
+    font-weight: bolder;
+}
+.shop-button-container{
+    height: 120px;
+    width: fit-content;
+    display: inline-block;
+    vertical-align: top;
+}

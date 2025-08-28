@@ -1,10 +1,10 @@
 /** @type {TileGenerator} */
 function scythe_tile(){
     return{
-        type: `enemy`,
-        name: `Scythe`,
+        type: entity_types.enemy,
+        name: enemy_names.scythe,
         pic: `${IMG_FOLDER.tiles}scythe.png`,
-        description: scythe_description,
+        description: enemy_descriptions.scythe,
         tags: new TagList(),
         health: 1,
         difficulty: 4,

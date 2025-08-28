@@ -7,7 +7,7 @@ function horsemanship(){
     options.add_button(SW, [pmove(-2, 1)]);
     options.add_button(NW, [pmove(-2, -1)]);
     return{
-        name: `horsemanship`,
+        name: card_names.horsemanship,
         pic: `${IMG_FOLDER.cards}horsemanship.png`,
         options
     }

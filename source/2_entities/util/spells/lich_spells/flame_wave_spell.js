@@ -3,7 +3,7 @@ function flame_wave_spell_generator(){
     return {
         behavior: flame_wave_spell,
         telegraph: flame_wave_spell_telegraph,
-        description: flame_wave_spell_description,
+        description: lich_spell_descriptions.flame_wave,
         pic: `${IMG_FOLDER.tiles}lich_flame_wave.png`
     }
 }

@@ -4,10 +4,10 @@ function vinesnare_bush_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}vinesnare_bush_lashing.png`, `${IMG_FOLDER.tiles}vinesnare_bush_rooted.png`];
     var starting_cycle = 1;
     return {
-        type: `enemy`,
-        name: `Vinesnare Bush`,
+        type: entity_types.enemy,
+        name: enemy_names.vinesnare_bush,
         pic: pic_arr[starting_cycle],
-        description: `${vinesnare_bush_description[0]}${range}${vinesnare_bush_description[1]}`,
+        description: enemy_descriptions.vinesnare_bush,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 2,

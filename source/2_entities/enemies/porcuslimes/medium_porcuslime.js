@@ -1,12 +1,12 @@
 /** @type {TileGenerator} */
 function medium_porcuslime_tile(){
     var starting_cycle = random_num(2);
-    var pic_arr = [`${IMG_FOLDER.tiles}medium_h_porcuslime.png`, `${IMG_FOLDER.tiles}medium_d_porcuslime.png`];
+    var pic_arr = [`${IMG_FOLDER.tiles}medium_o_porcuslime.png`, `${IMG_FOLDER.tiles}medium_d_porcuslime.png`];
     return {
-        type: `enemy`,
-        name: `Medium Porcuslime`,
+        type: entity_types.enemy,
+        name: enemy_names.porcuslime_medium,
         pic: pic_arr[starting_cycle],
-        description: medium_porcuslime_description,
+        description: enemy_descriptions.porcuslime_medium,
         tags: new TagList(),
         health: 2,
         difficulty: 5,
@@ -28,7 +28,7 @@ function medium_porcuslime_ai(self, target, map){
         map.attack(self.location);
         map.clear_telegraphs();
         spawn_nearby(map, small_d_porcuslime_tile(), self.location);
-        spawn_nearby(map, small_h_porcuslime_tile(), self.location);
+        spawn_nearby(map, small_o_porcuslime_tile(), self.location);
         return;
     }
     if(self.tile.cycle === 0){

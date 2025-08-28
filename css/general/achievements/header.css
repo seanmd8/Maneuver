@@ -1,0 +1,16 @@
+
+.achievement-header {
+    border: solid;
+    border-radius: 20px;
+    background-color: lavender;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: fit-content;
+    height: fit-content;
+    display: inline-block;
+}
+.achievement-header h2 {
+    text-align: center;
+    padding: 15px;
+    margin: 0px;
+}

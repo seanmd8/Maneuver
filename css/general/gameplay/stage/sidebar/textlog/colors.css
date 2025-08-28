@@ -1,0 +1,10 @@
+
+.normal-log-text {
+    background-color: rgb(223, 222, 222);
+}
+.achievement-log-text {
+    background-color: mediumpurple;
+}
+.repeated-achievement-log-text {
+    background-color: violet;
+}

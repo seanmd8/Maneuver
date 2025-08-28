@@ -3,7 +3,7 @@ function rotting_fruit_spell_generator(){
     return {
         behavior: rotting_fruit_spell,
         telegraph_other: rotting_fruit_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }

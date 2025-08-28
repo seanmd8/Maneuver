@@ -1,0 +1,17 @@
+
+.achievement-text-box {
+    width: 500px;
+    height: 100px;
+    padding-left: 10px;
+    border-color: black;
+    border-style: solid;
+    border-left: none;
+    box-sizing: border-box;
+}
+.achievement-text-box p {
+    margin: 0px;
+}
+.achievement-text-box h3 {
+    margin: 0px;
+    margin-bottom: 6px;
+}

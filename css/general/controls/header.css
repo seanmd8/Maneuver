@@ -1,0 +1,17 @@
+.control-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+.control-header h2 {
+    width: fit-content;
+    display: inline-flex;
+    margin-left: 20px;
+    margin-right: auto;
+    background-color: lightgrey;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 7px;
+    border-style: solid;
+}

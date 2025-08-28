@@ -1,10 +1,10 @@
 /** @type {TileGenerator} A damaged wall that might spawn something on death.*/
 function coffin_tile(){
     return {
-        type: `terrain`,
-        name: `Coffin`,
+        type: entity_types.terrain,
+        name: other_tile_names.coffin,
         pic: `${IMG_FOLDER.tiles}coffin.png`,
-        description: coffin_description,
+        description: other_tile_descriptions.coffin,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: decay_ai,
@@ -21,7 +21,7 @@ function coffin_tile_death(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     var new_enemy = rand_from(self.tile.summons)();
-    if(new_enemy.type === `chest`){
+    if(new_enemy.type === entity_types.chest){
         var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(let card of cards){
             add_card_to_chest(new_enemy, card());

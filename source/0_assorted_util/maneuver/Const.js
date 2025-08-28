@@ -9,6 +9,7 @@ function init_settings(){
         cards: undefined,
         area: undefined,
         area_size: undefined,
+        achievements: undefined,
         save: undefined,
         load: undefined,
     }
@@ -17,6 +18,7 @@ function init_settings(){
     init.make_deck = init.cards ? () => {return make_test_deck(init.cards)} : () => {return make_starting_deck()};
     init.area = init.area? [init.area] : area1;
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
+    init.achievements = init.achievements ? init.achievements : [];
     init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
     init.load = init.load ? init.load: SaveData.load_local_function(`player1`);
     return init;

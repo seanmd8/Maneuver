@@ -1,0 +1,11 @@
+
+:root{
+    --card-box-color: white;
+    --card-box-legend-color: lightblue;
+    --text-box-background-color: white;
+    
+    --game-background-color: antiquewhite;
+    --controls-background-color: antiquewhite;
+    --achievements-background-color: antiquewhite;
+    --guidebook-background-color: antiquewhite;
+}

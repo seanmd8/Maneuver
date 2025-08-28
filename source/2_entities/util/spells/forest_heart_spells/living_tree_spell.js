@@ -3,7 +3,7 @@ function living_tree_spell_generator(){
     return {
         behavior: living_tree_spell,
         telegraph_other: living_tree_spell_telegraph,
-        description: forest_heart_summon_description,
+        description: heart_spell_descriptions.summon,
         pic: `${IMG_FOLDER.tiles}forest_heart_summon.png`
     }
 }

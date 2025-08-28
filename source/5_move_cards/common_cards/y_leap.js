@@ -6,7 +6,7 @@ function y_leap(){
     options.add_button(NW, [pmove(-2, -2)]);
     options.add_button(S, [pmove(0, 2)]);
     return{
-        name: `Y leap`,
+        name: card_names.y_leap,
         pic: `${IMG_FOLDER.cards}y_leap.png`,
         options
     }

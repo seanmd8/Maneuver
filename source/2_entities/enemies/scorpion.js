@@ -1,10 +1,10 @@
 /** @type {TileGenerator} */
 function scorpion_tile(){
     return {
-        type: `enemy`,
-        name: `Scorpion`,
+        type: entity_types.enemy,
+        name: enemy_names.scorpion,
         pic: `${IMG_FOLDER.tiles}scorpion.png`,
-        description: scorpion_description,
+        description: enemy_descriptions.scorpion,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

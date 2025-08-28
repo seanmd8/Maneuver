@@ -11,7 +11,7 @@ function firebreathing_nw(){
     options.add_button(NW, nw_cone);
     options.add_button(SE, se_cone);
     return{
-        name: `firebreathing nw`,
+        name: card_names.firebreathing_nw,
         pic: `${IMG_FOLDER.cards}firebreathing_nw.png`,
         options
     }

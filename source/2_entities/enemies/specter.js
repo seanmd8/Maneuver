@@ -1,10 +1,10 @@
 /** @type {TileGenerator}*/
 function specter_tile(){
     return {
-        type: `enemy`,
-        name: `Specter`,
+        type: entity_types.enemy,
+        name: enemy_names.specter,
         pic: `${IMG_FOLDER.tiles}specter.png`,
-        description: specter_description,
+        description: enemy_descriptions.specter,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

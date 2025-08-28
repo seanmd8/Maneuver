@@ -1,16 +1,17 @@
 /** @type {TileGenerator} Dropped by Pheonixes to respawn them. */
 function smoldering_ashes_tile(){
     var spawn_timer = 2;
+    var desc = other_tile_descriptions.smoldering_ashes;
     return {
-        type: `enemy`,
-        name: `Smoldering Ashes`,
+        type: entity_types.enemy,
+        name: other_tile_names.smoldering_ashes,
         pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
-        description: `${smoldering_ashes_description[0]}${spawn_timer}${smoldering_ashes_description[1]}`,
+        description: `${desc[0]}${spawn_timer}${desc[1]}`,
         tags: new TagList(),
         health: 1,
         behavior: smoldering_ashes_ai,
         on_enter: decay_ai,
-        description_arr: smoldering_ashes_description,
+        description_arr: desc,
         cycle: 0,
         spawn_timer
     }

@@ -81,8 +81,6 @@ const HTML_UIIDS = {
                     text_scroll: `textScroll`,
                 deck_order: `deckOrder`,
                     deck_order_table: `deckOrderTable`,
-                shadow_hand: `shadowHand`,
-                    shadow_hand_table: `shadowHandTable`,
             health_display: `healthDisplay`,
             remaining_deck: `remainingDeck`,
                 deck_image: `deckImage`,
@@ -129,4 +127,3 @@ const HTML_UIIDS = {
 Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
-

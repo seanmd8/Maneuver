@@ -1,0 +1,12 @@
+.control-edit-box div input {
+    min-width: 27px;
+    height: 27px;
+    font-size: 17px;
+}
+.control-edit-box div input:focus-visible{
+    outline: none;
+}
+.edit-control {
+    background-color: black;
+    color: white;
+}

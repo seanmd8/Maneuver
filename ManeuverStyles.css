@@ -1,6 +1,3 @@
-.achievements-style {
-    background-color: var(--achievements-background-color);
-}
 
 .achievement-box {
     width: 600px;
@@ -9,91 +6,8 @@
     flex-wrap: wrap;
     margin: 2px;
 }
-.achievement-img-box{
-    width: 100px;
-    height: 100px;
-}
-.achievement-img-box img{
-    width: 100%;
-    height: 100%;
-}
-.achievement-unlocked-image {
-    border-color: black;
-    border-style: solid;
-    box-sizing: border-box;
-    background-color: #85c1a0;
-}
-.achievement-text-box {
-    width: 500px;
-    height: 100px;
-    padding-left: 10px;
-    border-color: black;
-    border-style: solid;
-    border-left: none;
-    box-sizing: border-box;
-}
-.achievement-unlocked-text {
-    background-color: lightblue;
-}
-.achievement-locked-text {
-    background-color: lightgrey;
-}
-.achievement-text-box p {
-    margin: 0px;
-}
-.achievement-text-box h3 {
-    margin: 0px;
-    margin-bottom: 6px;
-}
 
-.achievement-section {
-    border: solid;
-    border-radius: 20px;
-    width: fit-content;
-    padding: 20px;
-    padding-top: 0px;
-    background-color: dimgray;
-    margin: 6px;
-}
 
-.achievement-header {
-    border: solid;
-    border-radius: 20px;
-    background-color: lavender;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    width: fit-content;
-    height: fit-content;
-    display: inline-block;
-}
-.achievement-header h2 {
-    text-align: center;
-    padding: 15px;
-    margin: 0px;
-}
-.achievement-dropdown{
-    display: none;
-    width: 600px;
-    padding-left: 15px;
-    background-color: palegreen;
-    border-width: 0px 3px 3px 3px;
-    border-radius: 0px 0px 10px 10px ;
-    border-color: black;
-    border-style: solid;
-}
-.achievement-box-unlocked:hover .achievement-dropdown{
-    display: block;
-}
-.achievement-dropdown h3{
-    margin: 4px;
-    text-align: center;
-}
-.achievement-dropdown img{
-    background-color: white;
-    width: 100px;
-    height: 100px;
-    margin: 5px;
-}
 
 .achievement-button {
     margin-top: auto;
@@ -120,6 +34,108 @@
     background-color: black;
     color: red;
 }
+
+.achievement-dropdown{
+    display: none;
+    width: 600px;
+    padding-left: 15px;
+    background-color: palegreen;
+    border-width: 0px 3px 3px 3px;
+    border-radius: 0px 0px 10px 10px ;
+    border-color: black;
+    border-style: solid;
+}
+.achievement-box-unlocked:hover .achievement-dropdown{
+    display: block;
+}
+
+
+.achievement-dropdown h3{
+    margin: 4px;
+    text-align: center;
+}
+
+
+.achievement-dropdown img{
+    background-color: white;
+    width: 100px;
+    height: 100px;
+    margin: 5px;
+}
+
+
+.achievement-header {
+    border: solid;
+    border-radius: 20px;
+    background-color: lavender;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: fit-content;
+    height: fit-content;
+    display: inline-block;
+}
+.achievement-header h2 {
+    text-align: center;
+    padding: 15px;
+    margin: 0px;
+}
+
+.achievement-img-box{
+    width: 100px;
+    height: 100px;
+}
+.achievement-img-box img{
+    width: 100%;
+    height: 100%;
+}
+
+.achievement-locked-text {
+    background-color: lightgrey;
+}
+
+
+.achievements-style {
+    background-color: var(--achievements-background-color);
+}
+
+.achievement-section {
+    border: solid;
+    border-radius: 20px;
+    width: fit-content;
+    padding: 20px;
+    padding-top: 0px;
+    background-color: dimgray;
+    margin: 6px;
+}
+
+
+.achievement-text-box {
+    width: 500px;
+    height: 100px;
+    padding-left: 10px;
+    border-color: black;
+    border-style: solid;
+    border-left: none;
+    box-sizing: border-box;
+}
+.achievement-text-box p {
+    margin: 0px;
+}
+.achievement-text-box h3 {
+    margin: 0px;
+    margin-bottom: 6px;
+}
+
+.achievement-unlocked-image {
+    border-color: black;
+    border-style: solid;
+    box-sizing: border-box;
+    background-color: #85c1a0;
+}
+.achievement-unlocked-text {
+    background-color: lightblue;
+}
+
 html {
     height: 100%
 }
@@ -130,94 +146,6 @@ body{
 body>div{
     padding: 8px;
 }
-/* File containing styles for the chest screen. */
-
-/* Styles the section designed to look like the lid of a chest. */
-.chest-lid-box {
-    border-style: solid;
-    border-width: 5px;
-    border-radius: 850px 850px 0% 0% / 700px;
-    border-color: saddlebrown;
-    background-color: chocolate;
-    width: 600px;
-}
-
-/* Styles the section designed to look like the non-lid part of a chest. */
-.chest-body-box {
-    border-style: solid;
-    border-width: 5px;
-    border-color: saddlebrown;
-    background-color: chocolate;
-    width: 600px;
-    height: fit-content
-}
-.chest-body-box hr {
-    width: 95%;
-    color: gray;
-}
-
-/* Styles the section telling the user to take up to one item from the chest. */
-.chest-instruction-text {
-    width: fit-content;
-    text-align: center;
-    margin: 15px auto 15px auto;
-    padding: 3px;
-    border-width: 3px;
-    border-style: solid;
-    border-color: black;
-    background-color:burlywood;
-}
-
-/* Styles the contents of the chest that they can choose from. */
-.chest-contents {
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
-}
-.chest-contents tr td {
-    width: fit-content
-}
-.chest-contents tr td img {
-    background-color: white;
-}
-
-/* Styles the buttons that let them take something or leave everything. */
-.chest-buttons {
-    width: 100%;
-    text-align: center;
-}
-.chest-buttons tr input {
-    border-width: 5px;
-    border-style: solid;
-    border-radius: 15px / 50%;
-    padding: 5px 8px;
-    margin: 0px 10px;
-    background-color: burlywood;
-}
-.chest-buttons tr input:hover {
-    background-color: brown;
-    color: burlywood;
-}
-
-/* Styles the description of the currently selected item. */
-.chest-discription-text {
-    margin: 20px 40px;
-    padding: 10px;
-    border-width: 3px;
-    border-radius: 10px;
-    border-style: solid;
-    border-color: black;
-    background-color:burlywood;
-    height: fit-content;
-    min-height: 23px;
-}
-
-.control-style{
-    background-color: var(--controls-background-color);
-}
-
-/* Styles for showing controls for one type of action. */
 .control-box {
     display: flex;
     align-items: center;
@@ -249,7 +177,7 @@ body>div{
     font-size: 17px;
 }
 
-/* Styles for editing controls for one type of action. */
+
 .control-edit-box {
     display: flex;
     align-items: center;
@@ -270,6 +198,10 @@ body>div{
     border-right: solid;
     background-color: cadetblue;
 }
+.control-edit-box p {
+    margin-left: 10px;
+}
+
 .control-edit-box div input {
     min-width: 27px;
     height: 27px;
@@ -278,11 +210,10 @@ body>div{
 .control-edit-box div input:focus-visible{
     outline: none;
 }
-.control-edit-box p {
-    margin-left: 10px;
+.edit-control {
+    background-color: black;
+    color: white;
 }
-
-/* Styles for the header of a control section. */
 .control-header {
     width: 100%;
     display: flex;
@@ -300,6 +231,7 @@ body>div{
     border-radius: 7px;
     border-style: solid;
 }
+
 .control-header input {
     display: inline-flex;
     margin-right: 20px;
@@ -316,7 +248,10 @@ body>div{
     color: aliceblue
 }
 
-/* Styles for a whole control section. */
+.control-style{
+    background-color: var(--controls-background-color);
+}
+
 .control-section {
     border: solid;
     border-radius: 20px;
@@ -327,11 +262,90 @@ body>div{
     margin: 6px;
 }
 
-/* Styles control button being edited. */
-.edit-control {
-    background-color: black;
-    color: white;
+
+.chest-body-box {
+    border-style: solid;
+    border-width: 5px;
+    border-color: saddlebrown;
+    background-color: chocolate;
+    width: 600px;
+    height: fit-content
 }
+.chest-body-box hr {
+    width: 95%;
+    color: gray;
+}
+
+
+.chest-buttons {
+    width: 100%;
+    text-align: center;
+}
+.chest-buttons tr input {
+    border-width: 5px;
+    border-style: solid;
+    border-radius: 15px / 50%;
+    padding: 5px 8px;
+    margin: 0px 10px;
+    background-color: burlywood;
+}
+.chest-buttons tr input:hover {
+    background-color: brown;
+    color: burlywood;
+}
+
+
+
+.chest-contents {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+}
+.chest-contents tr td {
+    width: fit-content
+}
+.chest-contents tr td img {
+    background-color: white;
+}
+
+
+
+.chest-discription-text {
+    margin: 20px 40px;
+    padding: 10px;
+    border-width: 3px;
+    border-radius: 10px;
+    border-style: solid;
+    border-color: black;
+    background-color:burlywood;
+    height: fit-content;
+    min-height: 23px;
+}
+
+.chest-instruction-text {
+    width: fit-content;
+    text-align: center;
+    margin: 15px auto 15px auto;
+    padding: 3px;
+    border-width: 3px;
+    border-style: solid;
+    border-color: black;
+    background-color:burlywood;
+}
+
+
+
+.chest-lid-box {
+    border-style: solid;
+    border-width: 5px;
+    border-radius: 850px 850px 0% 0% / 700px;
+    border-color: saddlebrown;
+    background-color: chocolate;
+    width: 600px;
+}
+
+
 
 .deck-select-confirm {
     margin-left: 7px;
@@ -340,172 +354,28 @@ body>div{
     background-color: var(--game-background-color);
     height: 100%;
 }
-/* File containing assorted styles used in multiple places. */
 
-:root{
-    --card-box-color: white;
-    --card-box-legend-color: lightblue;
-    --text-box-background-color: white;
-    
-    --game-background-color: antiquewhite;
-    --controls-background-color: antiquewhite;
-    --achievements-background-color: antiquewhite;
-    --guidebook-background-color: antiquewhite;
-}
-
-/* Class to remove the space between certain elements. */
-.no-margins {
-    margin-top: 0px;
-    margin-bottom: 0px;
-}
-
-/* Class to outline a card or chest item that the user currently has selected. */
-.selected-element {
-    box-shadow: 0 0 0 2px black;
-}
-
-.selectable {
-    border-spacing: 3px;
-}
-.selectable tr td {
-    border-spacing: 3px;
-    padding: 0px;
-}
-
-/* Classes to show the effects of various boons. */
-.telegraph-repetition {
-    border-color: blue;
-}
-.telegraph-repetition legend {
-    border-color: blue;
-}
-.no-repetition {
-    border-color: slategrey;
-}
-.no-repetition legend {
-    border-color: slategrey;
-}
-
-/* Shows or hides guidebook parts.*/
-.visible-section {
-    display: block;
-}
-.hidden-section {
-    display: none;
-}
-
-/* Class to show something as 'Greyed Out'.*/
-.greyed-out {
-    opacity: 0.7;
-}
-
-/* Class to split items between left and right sides of parent */
-.opposite-sides {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-}
-/* File containing styles used by the guidebook screen. */
-
-.guide-style {
-    background-color: var(--guidebook-background-color);
-    height: 100%;
-}
-
-.guide-box-style{
-    background-color: beige;
-    margin: 8px;
-}
-
-/* Styles the navbar */
-
-.navbar {
-    background-color: blue;
-    padding: 8px;
-    margin: 0px;
-}
-
-.navbar input{
-    background-color: lightblue;
-    margin-left: 5px;
+.shop-confirm {
+    height: 35px;
+    width: 80px;
     margin-right: 5px;
+    border-width: medium;
+    border-color: darkblue;
+    background-color: cadetblue;
+    font-weight: bolder;
 }
-
-.navbar input:hover{
-    background-color: darkgreen;
-    color: white;
-    cursor: pointer;
-}
-
-/* Styles a whole section of the guidebook. */
-.guidebook-section {
-    padding-left: 20px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    border-style: solid;
-    border-top: none;
-    border-color: burlywood;
-}
-
-/* Styles the header of a guidebook section. */
-.guidebook-section h2 {
-    margin-bottom: 5px;
-    margin-top: 0px;
-    font-family: Copperplate, Copperplate Gothic Light, fantasy;
-    font-size: 30px;
-    text-decoration: underline;
-}
-
-/* Styles the body of a guidebook section. */
-.guidebook-section p {
-    font-size: 20px;
-}
-
-.guidebook-section img {
-    background-color: white;
-}
-
-.main-header{
-    background-color: sandybrown;
-    padding: 5px;
-    padding-left: 10px;
-    margin-left: 0px;
-    border-color: chocolate;
-    border-bottom-style: solid;
-}
-.main-header>*{
+.shop-button-container{
+    height: 120px;
+    width: fit-content;
     display: inline-block;
-    vertical-align: baseline;
+    vertical-align: top;
 }
-.main-header h1{
-    width: 485px;
-}
-.main-header select{
-    margin: auto;
-    width: 132px;
-    height: 32px;
-    background-color: wheat;
-    border-color: saddlebrown;
-    border-width: 3px;
-    border-radius: 0px;
-    appearance: base-select;
-}
-/* File containing styles used to layer images. */
 
-/* Pair of classes used to layer images on top of each other. */
-.relative {
-    left: 0px; 
-    top: 0px;
-    position: relative;
-}
-.absolute {
-    left: 0px; 
-    top: 0px; 
-    position: absolute;
-}
-/* File containing styles used by the shop screen. */
 
-/* Styles a section of the shop.*/
+.shop-width{
+    width: fit-content;
+}
+
 .shop-section-box {
     height: fit-content;
     width: fit-content;
@@ -523,24 +393,6 @@ body>div{
     border-width: 2px;
 }
 
-.shop-width{
-    width: fit-content;
-}
-.shop-confirm {
-    height: 35px;
-    width: 80px;
-    margin-right: 5px;
-    border-width: medium;
-    border-color: darkblue;
-    background-color: cadetblue;
-    font-weight: bolder;
-}
-.shop-button-container{
-    height: 120px;
-    width: fit-content;
-    display: inline-block;
-    vertical-align: top;
-}
 
 .scrollable-text {
     overflow-y: scroll;
@@ -556,37 +408,7 @@ body>div{
     text-wrap: nowrap;
     display: inline-block;
 }
-/* File containing styles used by the stage screen. */
 
-/* Styles the game map. */
-.gamemap-box {
-    background-color: white;
-    border-width: 4px;
-    border-color:gray;
-    border-style: groove;
-    margin-bottom: 5px;
-    display: inline-block;
-}
-.gamemap-box td {
-    padding: 0px;
-    cursor: pointer;
-}
-
-
-/* Styles the display of the player's health. */
-.health-box {
-    border-width: 3px;
-    border-color:saddlebrown;
-    border-style: solid;
-    border-radius: 30%;
-    background-color:darksalmon;
-    margin-bottom: 3px;
-    margin-right: 5px;
-    display: inline-block;
-    height: 52px;
-}
-
-/* Styles the display of the number of cards remaining in the player's deck. */
 .deck-box {
     display: inline-block;
     height: 50px;
@@ -614,7 +436,6 @@ body>div{
 }
 
 
-/* Styles the player's hand. */
 .hand-box {
     height: 120px;
     background-color: var(--card-box-color);
@@ -635,7 +456,71 @@ body>div{
     cursor: pointer;
 }
 
-/* Styles the box for the move buttons that appear when you click a card. */
+
+.health-box {
+    border-width: 3px;
+    border-color:saddlebrown;
+    border-style: solid;
+    border-radius: 30%;
+    background-color:darksalmon;
+    margin-bottom: 3px;
+    margin-right: 5px;
+    display: inline-block;
+    height: 52px;
+}
+
+
+.card-info {
+    border: solid;
+    border-radius: 100%;
+    border-width: 2px;
+    border-color: slategray;
+    background-color: white;
+    padding: 1px 6px;
+    font-weight: bold;
+    width: fit-content;
+    float: right;
+    margin-top: -20%;
+    cursor: pointer;
+}
+.card-info:hover {
+    background-color: lightgray;
+}
+
+
+.gamemap-box {
+    background-color: white;
+    border-width: 4px;
+    border-color:gray;
+    border-style: groove;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+.gamemap-box td {
+    padding: 0px;
+    cursor: pointer;
+}
+
+
+.selected-tile {
+    box-shadow: 0 0 0 1px darkslategray;
+}
+
+
+.message-box {
+    overflow-y: scroll;
+    height: 100px;
+    width: 440px;
+    padding: 5px;
+    background-color: var(--text-box-background-color);
+    border-color:rgb(128, 57, 25);
+    border-style: solid;
+    border-width: 4px;
+    font-size: 18px;
+    margin-left: 2px;
+}
+
+
 .move-button-box {
     width: 140px;
 }
@@ -656,24 +541,8 @@ body>div{
     padding-right: 0;
     cursor: pointer;
 }
-.card-info {
-    border: solid;
-    border-radius: 100%;
-    border-width: 2px;
-    border-color: slategray;
-    background-color: white;
-    padding: 1px 6px;
-    font-weight: bold;
-    width: fit-content;
-    float: right;
-    margin-top: -20%;
-    cursor: pointer;
-}
-.card-info:hover {
-    background-color: lightgray;
-}
 
-/* Styles the button that lets you restart after dying. */
+
 .center-retry-box {
     width: 140px;
     height: 140px;
@@ -702,6 +571,35 @@ body>div{
 
 
 
+.boon-box {
+    flex-flow: column;
+}
+.boon-box table{
+    display: inline-flex;
+}
+.boon-box hr{
+    display: inline-flex;
+}
+
+
+.card-container{
+    padding-top: 5px;
+    width: 100%;
+}
+.card-container tr{
+    width: 100%;
+}
+.card-container tr td{
+    display: inline-block;
+    margin: 0px 0px 5px 5px;
+    padding: 0px;
+}
+
+
+.select-second tr td:nth-child(2) img{
+    box-shadow: 0 0 0 3px cyan;
+}
+
 .sidebar {
     display: inline-block;
     vertical-align: top;
@@ -709,6 +607,7 @@ body>div{
     height: 350px;
     margin-left: 10px;
 }
+
 
 .sidebar-header {
     width: 100%;
@@ -727,85 +626,18 @@ body>div{
     border: solid;
     border-color: saddlebrown;
 }
-
 .sidebar-header input:hover {
     background-color: saddlebrown;
     color: tan;
     cursor: pointer;
 }
 
-.sidebar-section {
-    height: 274px;
-    width: 100%;
-    border: solid;
-    background-color: white;
-}
-.sidebar-section hr{
-    width: 100%;
-}
-
-.boon-box {
-    flex-flow: column;
-}
-.boon-box table{
-    display: inline-flex;
-}
-.boon-box hr{
-    display: inline-flex;
-}
-
-.scroll-box {
-    vertical-align: top;
-    display: inline-flex;
-    overflow-y: scroll;
-    scrollbar-color: gray lightgray;
-    overflow-x: clip;
-    height: 100%;
-    width: 100%;
-}
-
-.card-container{
-    padding-top: 5px;
-    width: 100%;
-}
-.card-container tr{
-    width: 100%;
-}
-.card-container tr td{
-    display: inline-block;
-    margin: 0px 0px 5px 5px;
-    padding: 0px;
-}
-
-.select-second tr td:nth-child(2) img{
-    box-shadow: 0 0 0 3px cyan;
-}
-
-.scroll-down {
-    vertical-align: top;
-    display: inline-flex;
-    flex-direction: column-reverse;
-    overflow-y: scroll;
-    scrollbar-color: gray lightgray;
-    overflow-x: clip;
-    height: 100%;
-    width: 100%;
-}
-.scroll-down p {
-    margin: 0px;
-    padding: 4px;
-    padding-bottom: 12px;
-    padding-top: 12px;
-}
-.scroll-down hr {
-    border-color: black;
-    margin: 0px;
-}
 
 .initiative-box {
     overflow-y: scroll;
     overflow-x: clip;
 }
+
 
 .initiative-element {
     height: 70px;
@@ -839,29 +671,24 @@ body>div{
 .initiative-element p::first-line{
     font-weight: bolder;
 }
+
+
 .stun-background{
     background-color: yellow;
 }
 
-/* Selected map square */
-.selected-tile {
-    box-shadow: 0 0 0 1px darkslategray;
+
+.sidebar-section {
+    height: 274px;
+    width: 100%;
+    border: solid;
+    background-color: white;
+}
+.sidebar-section hr{
+    width: 100%;
 }
 
-.message-box {
-    overflow-y: scroll;
-    height: 100px;
-    width: 440px;
-    padding: 5px;
-    background-color: var(--text-box-background-color);
-    border-color:rgb(128, 57, 25);
-    border-style: solid;
-    border-width: 4px;
-    font-size: 18px;
-    margin-left: 2px;
-}
 
-/* Classes for the text log */
 .normal-log-text {
     background-color: rgb(223, 222, 222);
 }
@@ -871,3 +698,195 @@ body>div{
 .repeated-achievement-log-text {
     background-color: violet;
 }
+
+.scroll-down {
+    vertical-align: top;
+    display: inline-flex;
+    flex-direction: column-reverse;
+    overflow-y: scroll;
+    scrollbar-color: gray lightgray;
+    overflow-x: clip;
+    height: 100%;
+    width: 100%;
+}
+.scroll-down p {
+    margin: 0px;
+    padding: 4px;
+    padding-bottom: 12px;
+    padding-top: 12px;
+}
+.scroll-down hr {
+    border-color: black;
+    margin: 0px;
+}
+
+
+
+.guidebook-section h2 {
+    margin-bottom: 5px;
+    margin-top: 0px;
+    font-family: Copperplate, Copperplate Gothic Light, fantasy;
+    font-size: 30px;
+    text-decoration: underline;
+}
+
+
+.guidebook-section img {
+    background-color: white;
+}
+
+.guidebook-section p {
+    font-size: 20px;
+}
+
+
+.navbar {
+    background-color: blue;
+    padding: 8px;
+    margin: 0px;
+}
+
+.navbar input{
+    background-color: lightblue;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.navbar input:hover{
+    background-color: darkgreen;
+    color: white;
+    cursor: pointer;
+}
+
+
+
+.guide-style {
+    background-color: var(--guidebook-background-color);
+    height: 100%;
+}
+
+.guide-box-style{
+    background-color: beige;
+    margin: 8px;
+}
+
+
+
+.guidebook-section {
+    padding-left: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-style: solid;
+    border-top: none;
+    border-color: burlywood;
+}
+
+
+.main-header{
+    background-color: sandybrown;
+    padding: 5px;
+    padding-left: 10px;
+    margin-left: 0px;
+    border-color: chocolate;
+    border-bottom-style: solid;
+}
+.main-header>*{
+    display: inline-block;
+    vertical-align: baseline;
+}
+.main-header h1{
+    width: 485px;
+}
+.main-header select{
+    margin: auto;
+    width: 132px;
+    height: 32px;
+    background-color: wheat;
+    border-color: saddlebrown;
+    border-width: 3px;
+    border-radius: 0px;
+    appearance: base-select;
+}
+
+:root{
+    --card-box-color: white;
+    --card-box-legend-color: lightblue;
+    --text-box-background-color: white;
+    
+    --game-background-color: antiquewhite;
+    --controls-background-color: antiquewhite;
+    --achievements-background-color: antiquewhite;
+    --guidebook-background-color: antiquewhite;
+}
+
+.greyed-out {
+    opacity: 0.7;
+}
+
+/* File containing styles used to layer images. */
+
+/* Pair of classes used to layer images on top of each other. */
+.relative {
+    left: 0px; 
+    top: 0px;
+    position: relative;
+}
+.absolute {
+    left: 0px; 
+    top: 0px; 
+    position: absolute;
+}
+.no-margins {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.opposite-sides {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+.telegraph-repetition {
+    border-color: blue;
+}
+.telegraph-repetition legend {
+    border-color: blue;
+}
+.no-repetition {
+    border-color: slategrey;
+}
+.no-repetition legend {
+    border-color: slategrey;
+}
+
+
+.scroll-box {
+    vertical-align: top;
+    display: inline-flex;
+    overflow-y: scroll;
+    scrollbar-color: gray lightgray;
+    overflow-x: clip;
+    height: 100%;
+    width: 100%;
+}
+
+
+.selected-element {
+    box-shadow: 0 0 0 2px black;
+}
+
+.selectable {
+    border-spacing: 3px;
+}
+.selectable tr td {
+    border-spacing: 3px;
+    padding: 0px;
+}
+
+.visible-section {
+    display: block;
+}
+.hidden-section {
+    display: none;
+}
+

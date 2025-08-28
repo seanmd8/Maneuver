@@ -1,0 +1,21 @@
+
+.move-button-box {
+    width: 140px;
+}
+.move-button-box table {
+    width: 95%;
+    height: 100px;
+    margin: auto;
+    border-collapse: collapse;
+}
+.move-button-box table tr {
+    height : 33%;
+}
+.move-button-box table tr input {
+    height: 100%;
+    width: 33%;
+    text-align: center;
+    padding-left: 0;
+    padding-right: 0;
+    cursor: pointer;
+}

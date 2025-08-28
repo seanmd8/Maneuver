@@ -59,13 +59,13 @@
 
 // This is a array of all the enemies that can be spawned on a normal floor.
 const ENEMY_LIST = [
-    spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, shadow_knight_tile, 
+    spider_tile, turret_d_tile, turret_o_tile, turret_r_tile, shadow_knight_tile, 
     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, animated_boulder_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
-    moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
+    moving_turret_d_tile, moving_turret_o_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
     paper_construct_tile, specter_tile, gem_crawler_tile
 ];
 

@@ -14,7 +14,7 @@ function split_second_1(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `split second 1`,
+        name: card_names.split_second_1,
         pic: `${IMG_FOLDER.cards}split_second_1.png`,
         options,
         evolutions: [split_second_2]
@@ -37,7 +37,7 @@ function split_second_2(){
     options.add_button(SPIN, spin);
     options.make_instant();
     return{
-        name: `split second 2`,
+        name: card_names.split_second_2,
         pic: `${IMG_FOLDER.cards}split_second_2.png`,
         options
     }

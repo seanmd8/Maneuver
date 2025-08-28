@@ -44,7 +44,7 @@ function refresh_hand_display(deck){
 
     // Makes sure the card info button shows that no card is selected.
     var explain_blank_moves = function(){
-        say(blank_moves_message);
+        say(gameplay_text.select_card);
     }
     display.add_on_click(UIIDS.move_info, explain_blank_moves);
 }
@@ -78,7 +78,7 @@ function telegraph_repetition_boon(repeat){
 function display_entire_deck(deck){
     // Display section header.
     var min_deck_size = deck.deck_min();
-    display.display_message(UIIDS.current_deck, `${current_deck}${min_deck_size}):`);
+    display.display_message(UIIDS.current_deck, `${shop_text.current}${min_deck_size}):`);
     // Display deck with limited cards per line.
     var decklist = deck.get_deck_info();
     var card_explanation = (card) => {
@@ -166,26 +166,6 @@ function update_initiative(map){
     display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
 }
 
-/**
- * Refreshes the display of a Shadow of Self's hand
- */
-function refresh_shadow_hand_display(hand){
-    hand = hand.map(choice => {
-        return {
-            pic: choice.pic,
-            name: choice.name,
-            background: choice.background,
-            card: choice.card
-        }
-    })
-    display.remove_children(UIIDS.shadow_hand_table);
-    display.add_tb_row(UIIDS.shadow_hand_table, hand, SMALL_CARD_SCALE);
-}
-
-function shadow_hand_select(position){
-    display.select(UIIDS.shadow_hand_table, 0, position)
-}
-
 function player_hand_greyed(is_greyed){
     var toggle = is_greyed ? display.add_class : display.remove_class;
     toggle(UIIDS.hand_display, `greyed-out`);
@@ -208,7 +188,7 @@ function refresh_shop_display(shop){
             a.on_click = refresh(a.on_click, a.card);
         }
         else{
-            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_add_description)};
+            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.add)};
         }
     }
     display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
@@ -218,11 +198,11 @@ function refresh_shop_display(shop){
         if(r.on_click !== undefined){
             r.on_click = refresh(r.on_click, r.card);
         }
-        else if(r.name === `Remove`){
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_remove_description)};
+        else if(r.name === card_names.symbol_remove_card){
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.remove)};
         }
         else{
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_min_description)};
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.min)};
         }
     }
     display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
@@ -233,10 +213,10 @@ function refresh_shop_display(shop){
             GS.new_floor();
         }
         else{
-            display.display_message(UIIDS.shop_message, shop_confirm_description);
+            display.display_message(UIIDS.shop_message, shop_text.invalid);
         }
     }
-    display.set_button(UIIDS.shop_confirm, confirm_text, confirm, shop.is_valid_selection());
+    display.set_button(UIIDS.shop_confirm, shop_text.confirm, confirm, shop.is_valid_selection());
 }
 
 function setup_controls_page(){
@@ -309,7 +289,7 @@ function reset_achievements(){
 }
 
 function display_deck_to_duplicate(){
-    display.display_message(UIIDS.deck_select_message, duplicate_instructions);
+    display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
     var finish = (card, deck) => {
         deck.add(copy_card(card));
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
@@ -318,7 +298,7 @@ function display_deck_to_duplicate(){
     refresh_deck_select_screen(selector);
 }
 function display_deck_to_remove(remaining){
-    var message = `${clean_mind_instructions[0]}${remaining}${clean_mind_instructions[1]}`;
+    var message = `${boon_messages.clean_mind[0]}${remaining}${boon_messages.clean_mind[1]}`;
     display.display_message(UIIDS.deck_select_message, message);
     var finish = (card, deck) => {
         deck.remove(card.id);
@@ -354,7 +334,7 @@ function refresh_deck_select_screen(selector){
     }
     display.set_button(
         UIIDS.deck_select_confirm, 
-        confirm_text, 
+        shop_text.confirm, 
         () => {selector.confirm();}, 
         selector.check_valid()
     );

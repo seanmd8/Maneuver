@@ -6,7 +6,7 @@ function push_back(){
     options.add_button(S, [pattack(0, -1), pmove(0, 1)]);
     options.add_button(SW, [pattack(1, -1), pmove(-1, 1)]);
     return{
-        name: `push back`,
+        name: card_names.push_back,
         pic: `${IMG_FOLDER.cards}push_back.png`,
         options
     }

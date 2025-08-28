@@ -2,7 +2,7 @@
 function earthquake_spell_generator(){
     return {
         behavior: earthquake_spell,
-        description: earthquake_spell_description,
+        description: lich_spell_descriptions.earthquake,
         pic: `${IMG_FOLDER.tiles}lich_earthquake.png`
     }
 }
@@ -10,5 +10,5 @@ function earthquake_spell_generator(){
 /** @type {AIFunction} Spell which causes an earthquake causing debris to rain from the ceiling.*/
 function earthquake_spell(self, target, map){
     var amount = random_num(9) + random_num(9) + random_num(9) + random_num(9);
-    map.add_event({name: `Earthquake`, behavior: earthquake_event(amount)});
+    map.add_event({name: event_names.earthquake, behavior: earthquake_event(amount)});
 }

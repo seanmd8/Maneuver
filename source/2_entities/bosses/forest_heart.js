@@ -35,13 +35,13 @@ function forest_heart_tile(){
     ];
     var health = 12
     var tile = {
-        type: `enemy`,
-        name: `Forest Heart`,
+        type: entity_types.enemy,
+        name: boss_names.forest_heart,
         pic: pic_arr[0],
-        description: forest_heart_description + forest_heart_rest_description,
+        description: boss_descriptions.forest_heart + heart_spell_descriptions.rest,
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
         health: 12,
-        death_message: forest_heart_death_message,
+        death_message: boss_death_message.forest_heart,
         death_achievement: achievement_names.forest_heart,
         behavior: forest_heart_ai,
         on_hit: forest_heart_on_hit,
@@ -51,12 +51,12 @@ function forest_heart_tile(){
         cycle: health,
         segment_list: [undefined, undefined],
         spells,
-        card_drops: [snack, branch_strike, vine_snare]
+        card_drops: BOSS_CARDS.forest_heart
     }
     if(GS.boons.has(boon_names.boss_slayer)){
         tile.health -= 2;
         var next_spell = spells[tile.health - 2];
-        tile.description = forest_heart_description + next_spell.description;
+        tile.description = boss_descriptions.forest_heart + next_spell.description;
         tile.pic = next_spell.pic;
         tile.telegraph_other = next_spell.telegraph_other;
     }
@@ -80,14 +80,14 @@ function forest_heart_ai(self, target, map){
         var health = self.tile.cycle;
         var next_spell = self.tile.spells[health - 2];
         if(health > 1){
-            map.add_event({name: `spell announcement`, behavior: () => {say_record(next_spell.description)}});
+            map.add_event({name: event_names.spell_announcement, behavior: () => {say_record(next_spell.description)}});
         }
         for(var section of sections){
             var tile = section.tile;
             tile.health = health;
             tile.pic = tile.pic_arr[0];
             if(tile.health > 1){
-                tile.description = forest_heart_description + next_spell.description;
+                tile.description = boss_descriptions.forest_heart + next_spell.description;
                 tile.pic = next_spell.pic;
                 tile.telegraph_other = next_spell.telegraph_other;
             }

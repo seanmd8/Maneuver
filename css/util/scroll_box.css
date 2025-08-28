@@ -1,0 +1,10 @@
+
+.scroll-box {
+    vertical-align: top;
+    display: inline-flex;
+    overflow-y: scroll;
+    scrollbar-color: gray lightgray;
+    overflow-x: clip;
+    height: 100%;
+    width: 100%;
+}

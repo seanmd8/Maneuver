@@ -8,7 +8,7 @@ function pike(){
     options.add_button(S, [pattack(0, 2), pattack(1, 3), pattack(0, 3), pattack(-1, 3)]);
 
     return{
-        name: `pike`,
+        name: card_names.pike,
         pic: `${IMG_FOLDER.cards}pike.png`,
         options
     }

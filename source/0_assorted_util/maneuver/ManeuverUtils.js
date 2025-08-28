@@ -9,7 +9,7 @@ function initiate_game(){
     display.detect_keys();
     display.stop_space_scrolling();
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
-    display.display_message(UIIDS.title, game_title);
+    display.display_message(UIIDS.title, gameplay_labels.title);
     create_main_dropdown(UIIDS.header_bar);
     GS = new GameState();
     GS.setup();
@@ -23,13 +23,13 @@ function initiate_game(){
 function make_starting_deck(){
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
 
-    deck.add(basic_horizontal());
-    deck.add(basic_horizontal());
+    deck.add(basic_orthogonal());
+    deck.add(basic_orthogonal());
     deck.add(basic_diagonal());
     deck.add(basic_diagonal());
     deck.add(basic_slice());
     deck.add(basic_slice());
-    deck.add(short_charge());
+    deck.add(short_charge_orthogonal());
     deck.add(jump());
 
     deck.deal();
@@ -44,7 +44,7 @@ function make_test_deck(test_cards){
     }
     var size = test_cards.length;
     for(var i = 0; i < Math.max(4 - size, 1); ++i){
-        deck.add(basic_horizontal());
+        deck.add(basic_orthogonal());
     }
     deck.add(basic_slice());
     deck.deal();
@@ -79,7 +79,7 @@ function hp_description(tile){
         hp = `(${tile.health} hp) `;
     }
     if(tile.stun !== undefined && tile.stun > 0){
-        stunned = `*${stunned_msg}${tile.stun}* `;
+        stunned = `*${gameplay_text.stunned}${tile.stun}* `;
     }
     return `${hp}${stunned}`;
 }
@@ -93,9 +93,9 @@ function grid_space_description(space){
     var tile = space.tile.look === undefined ? space.tile : space.tile.look;
     tile = tile_description(tile);
     var foreground = space.foreground.filter((fg) => fg.description !== undefined);
-    foreground = foreground.map((fg) => `${tile_description_divider}${fg.description}`);
+    foreground = foreground.map((fg) => `${gameplay_text.divider}${fg.description}`);
     var background = space.background.filter((bg) => bg.description !== undefined);
-    background = background.map((bg) => `${tile_description_divider}${bg.description}`);
+    background = background.map((bg) => `${gameplay_text.divider}${bg.description}`);
     var descriptions = [tile, ...foreground, ...background];
     return descriptions.reduce((res, str) => `${res}${str}`);
 }
@@ -132,22 +132,22 @@ function display_health(player, scale){
 function create_main_dropdown(location){
     var options = [
         {
-            label: gameplay_screen_name,
+            label: screen_names.gameplay,
             on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
         }, 
         {
-            label: guide_screen_name,
+            label: screen_names.guide,
             on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
         },
         {
-            label: controls_screen_name,
+            label: screen_names.controls,
             on_change: () => {
                 setup_controls_page();
                 DISPLAY_DIVISIONS.swap(UIIDS.controls);
             }
         },
         {
-            label: achievements_screen_name,
+            label: screen_names.achievements,
             on_change: () => {
                 update_achievements();
                 DISPLAY_DIVISIONS.swap(UIIDS.achievements);
@@ -250,10 +250,10 @@ function get_control_symbols(){
 /**
  * Function to add a random temporary debuff card to the player's deck.
  */
-function confuse_player(){
+function confuse_player(choices = CONFUSION_CARDS){
     // Chance redused by 50% for each stable_mind boon.
     if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
-        var card = rand_from(CONFUSION_CARDS)();
+        var card = rand_from(choices)();
         GS.give_temp_card(card);
         GS.refresh_deck_display();
     } 

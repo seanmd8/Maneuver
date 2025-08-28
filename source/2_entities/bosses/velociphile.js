@@ -5,18 +5,18 @@ function velociphile_tile(){
         health -= 2;
     }
     return{
-        type: `enemy`,
-        name: `Velociphile`,
+        type: entity_types.enemy,
+        name: boss_names.velociphile,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
-        description: velociphile_description,
+        description: boss_descriptions.velociphile,
         tags: new TagList([TAGS.boss]),
         health,
-        death_message: velociphile_death_message,
+        death_message: boss_death_message.velociphile,
         death_achievement: achievement_names.velociphile,
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,
         on_death: boss_death,
-        card_drops: [roll_nesw, roll_nwse, roll_ew]
+        card_drops: BOSS_CARDS.velociphile
     }
 }
 

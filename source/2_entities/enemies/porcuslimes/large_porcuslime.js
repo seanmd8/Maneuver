@@ -1,10 +1,10 @@
 /** @type {TileGenerator} */
 function large_porcuslime_tile(){
     return {
-        type: `enemy`,
-        name: `Large Porcuslime`,
+        type: entity_types.enemy,
+        name: enemy_names.porcuslime_large,
         pic: `${IMG_FOLDER.tiles}large_porcuslime.png`,
-        description: large_porcuslime_description,
+        description: enemy_descriptions.porcuslime_large,
         tags: new TagList(),
         health: 3,
         difficulty: 8,
@@ -28,7 +28,7 @@ function large_porcuslime_ai(self, target, map){
         map.attack(self.location);
         map.clear_telegraphs();
         spawn_nearby(map, small_d_porcuslime_tile(), self.location);
-        spawn_nearby(map, small_h_porcuslime_tile(), self.location);
+        spawn_nearby(map, small_o_porcuslime_tile(), self.location);
         return;
     }
     var direction = sign(target.difference);

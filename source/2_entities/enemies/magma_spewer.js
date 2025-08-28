@@ -3,10 +3,10 @@ function magma_spewer_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}magma_spewer.png`, `${IMG_FOLDER.tiles}magma_spewer_firing.png`];
     var starting_cycle = random_num(pic_arr.length);
     return {
-        type: `enemy`,
-        name: `Magma Spewer`,
+        type: entity_types.enemy,
+        name: enemy_names.magma_spewer,
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
-        description: magma_spewer_description,
+        description: enemy_descriptions.magma_spewer,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -45,7 +45,7 @@ function magma_spewer_ai(self, target, map){
                 locations.push(center.plus(new Point(i, j)));
             }
         }
-        map.add_event({name: `Falling Magma`, behavior: earthquake_event(random_num(4) + 4, locations)})
+        map.add_event({name: event_names.falling_magma, behavior: earthquake_event(random_num(4) + 4, locations)})
     }
     self.tile.cycle = 1 - self.tile.cycle;
     self.tile.pic = self.tile.pic_arr[self.tile.cycle];

@@ -3,7 +3,7 @@ function spontaneous(){
     return {
         name: boon_names.spontaneous,
         pic: `${IMG_FOLDER.boons}spontaneous.png`,
-        description: spontaneous_description,
+        description: boon_descriptions.spontaneous,
         prereq: prereq_spontaneous,
         on_pick: pick_spontaneous
     }

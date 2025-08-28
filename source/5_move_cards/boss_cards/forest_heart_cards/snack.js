@@ -5,7 +5,7 @@ function snack(){
     options.add_button(C, [pheal(0, 0), pstun(0, 0)]);
     options.make_instant();
     return{
-        name: `snack`,
+        name: card_names.snack,
         pic: `${IMG_FOLDER.cards}snack.png`,
         options,
         per_floor: snack

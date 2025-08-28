@@ -7,7 +7,7 @@ function stunning_retreat(){
     options.add_button(S, [pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
     options.add_button(SW, [pmove(-1, 1)]);
     return{
-        name: `stunning retreat`,
+        name: card_names.stunning_retreat,
         pic: `${IMG_FOLDER.cards}stunning_retreat.png`,
         options
     }

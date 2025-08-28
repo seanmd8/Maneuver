@@ -6,7 +6,7 @@ function bounding_retreat(){
     options.add_button(SE, [pmove(2, 2), pmove(1, 1)]);
     options.add_button(SW, [pmove(-2, 2), pmove(-1, 1)]);
     return{
-        name: `bounding retreat`,
+        name: card_names.bounding_retreat,
         pic: `${IMG_FOLDER.cards}bounding_retreat.png`,
         options
     }

@@ -11,7 +11,7 @@ function firebreathing_horizontal(){
     options.add_button(E, e_cone);
     options.add_button(W, w_cone);
     return{
-        name: `firebreathing horizontal`,
+        name: card_names.firebreathing_horizontal,
         pic: `${IMG_FOLDER.cards}firebreathing_horizontal.png`,
         options
     }

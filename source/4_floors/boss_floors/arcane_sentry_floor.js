@@ -30,5 +30,5 @@ function arcane_sentry_floor(floor_num,  area, map){
     }
     core.mode = SENTRY_MODES.turret
     sentry_transform_turret(self, target, map);
-    return arcane_sentry_floor_message;
+    return boss_floor_message.arcane_sentry;
 }

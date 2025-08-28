@@ -5,7 +5,7 @@ function instant_teleport(){
     options.add_button(C, [pteleport(0, 0)]);
     options.make_instant();
     return{
-        name: `instant teleport`,
+        name: card_names.instant_teleport,
         pic: `${IMG_FOLDER.cards}instant_teleport.png`,
         options
     }

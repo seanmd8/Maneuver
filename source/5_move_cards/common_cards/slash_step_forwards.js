@@ -5,7 +5,7 @@ function slash_step_forwards(){
     options.add_button(N, [pmove(0, -1), pattack(0, -1), pattack(1, -1), pattack(-1, -1), pattack(1, 0), pattack(-1, 0)]);
     options.add_button(S, [pmove(0, 1)]);
     return{
-        name: `slash step forwards`,
+        name: card_names.slash_step_forwards,
         pic: `${IMG_FOLDER.cards}slash_step_forwards.png`,
         options
     }

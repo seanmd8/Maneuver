@@ -436,6 +436,7 @@ function init_settings(){
         cards: undefined,
         area: undefined,
         area_size: undefined,
+        achievements: undefined,
         save: undefined,
         load: undefined,
     }
@@ -444,6 +445,7 @@ function init_settings(){
     init.make_deck = init.cards ? () => {return make_test_deck(init.cards)} : () => {return make_starting_deck()};
     init.area = init.area? [init.area] : area1;
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
+    init.achievements = init.achievements ? init.achievements : [];
     init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
     init.load = init.load ? init.load: SaveData.load_local_function(`player1`);
     return init;
@@ -1052,8 +1054,8 @@ const DisplayHTML = {
                 edit_function(controls);
             }
         }
-        var edit_button = DisplayHTML.create_button(edit_controls_message, undefined, edit_mode(GS.data.controls.get()));
-        var default_button = DisplayHTML.create_button(default_controls_message, undefined, edit_mode(new KeyBind().get()));
+        var edit_button = DisplayHTML.create_button(control_screen_text.edit, undefined, edit_mode(GS.data.controls.get()));
+        var default_button = DisplayHTML.create_button(control_screen_text.default, undefined, edit_mode(new KeyBind().get()));
         div.append(header);
         div.append(edit_button);
         div.append(default_button);
@@ -1065,14 +1067,14 @@ const DisplayHTML = {
         div.classList.add(`control-header`);
         var header = document.createElement(`h2`);
         header.innerText = description;
-        var save_button = DisplayHTML.create_button(save_controls_message, undefined, () => {
+        var save_button = DisplayHTML.create_button(control_screen_text.save, undefined, () => {
             if(KeyBind.is_valid(controls)){
                 GS.data.set_controls(controls);
                 DisplayHTML.remove_children(location);
                 view_function();
             }
         });
-        var undo_edit_button = DisplayHTML.create_button(undo_edit_controls_message, undefined, () => {
+        var undo_edit_button = DisplayHTML.create_button(control_screen_text.undo, undefined, () => {
             DisplayHTML.remove_children(location);
             view_function();
         });
@@ -1157,20 +1159,20 @@ const DisplayHTML = {
         header.classList.add(`achievement-header`);
         var title = document.createElement(`h2`);
         var complete = achievements.filter((a) => {return a.has}).length;
-        title.innerText = `${achievements_title}  (${complete} / ${achievements.length})`;
+        title.innerText = `${achievement_text.title}  (${complete} / ${achievements.length})`;
         header.append(title);
         toprow.append(header);
         
         var reset = document.createElement(`button`);
         reset.classList.add(`achievement-button`);
         var set_reset_button = () => {
-            reset.innerText = achievement_reset;
+            reset.innerText = achievement_text.reset;
             reset.classList.add(`achievement-reset`);
             reset.classList.remove(`achievement-confirm-reset`);
             reset.onclick = set_confirm_reset_button;
         }
         var set_confirm_reset_button = () => {
-            reset.innerText = achievement_confirm_reset;
+            reset.innerText = achievement_text.confirm_reset;
             reset.classList.add(`achievement-confirm-reset`);
             reset.classList.remove(`achievement-reset`);
             reset.onclick = reset_achievements;
@@ -1227,7 +1229,7 @@ const DisplayHTML = {
             // New Boons
             if(a.boons!== undefined && a.boons.length > 0){
                 var unlock_boons_header = document.createElement(`h3`);
-                unlock_boons_header.innerText = `--- ${unlock_boon_description} ---`
+                unlock_boons_header.innerText = `--- ${achievement_text.unlocks_boon} ---`
                 unlocks.append(unlock_boons_header);
                 
                 for(var boon of a.boons){
@@ -1243,7 +1245,7 @@ const DisplayHTML = {
             // New cards
             if(a.cards !== undefined && a.cards.length > 0){
                 var unlock_cards_header = document.createElement(`h3`);
-                unlock_cards_header.innerText = `--- ${unlock_card_description} ---`;
+                unlock_cards_header.innerText = `--- ${achievement_text.unlocks_cards} ---`;
                 unlocks.append(unlock_cards_header);
 
                 for(var card of a.cards){
@@ -1347,7 +1349,7 @@ function refresh_hand_display(deck){
 
     // Makes sure the card info button shows that no card is selected.
     var explain_blank_moves = function(){
-        say(blank_moves_message);
+        say(gameplay_text.select_card);
     }
     display.add_on_click(UIIDS.move_info, explain_blank_moves);
 }
@@ -1381,7 +1383,7 @@ function telegraph_repetition_boon(repeat){
 function display_entire_deck(deck){
     // Display section header.
     var min_deck_size = deck.deck_min();
-    display.display_message(UIIDS.current_deck, `${current_deck}${min_deck_size}):`);
+    display.display_message(UIIDS.current_deck, `${shop_text.current}${min_deck_size}):`);
     // Display deck with limited cards per line.
     var decklist = deck.get_deck_info();
     var card_explanation = (card) => {
@@ -1469,26 +1471,6 @@ function update_initiative(map){
     display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
 }
 
-/**
- * Refreshes the display of a Shadow of Self's hand
- */
-function refresh_shadow_hand_display(hand){
-    hand = hand.map(choice => {
-        return {
-            pic: choice.pic,
-            name: choice.name,
-            background: choice.background,
-            card: choice.card
-        }
-    })
-    display.remove_children(UIIDS.shadow_hand_table);
-    display.add_tb_row(UIIDS.shadow_hand_table, hand, SMALL_CARD_SCALE);
-}
-
-function shadow_hand_select(position){
-    display.select(UIIDS.shadow_hand_table, 0, position)
-}
-
 function player_hand_greyed(is_greyed){
     var toggle = is_greyed ? display.add_class : display.remove_class;
     toggle(UIIDS.hand_display, `greyed-out`);
@@ -1511,7 +1493,7 @@ function refresh_shop_display(shop){
             a.on_click = refresh(a.on_click, a.card);
         }
         else{
-            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_add_description)};
+            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.add)};
         }
     }
     display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
@@ -1521,11 +1503,11 @@ function refresh_shop_display(shop){
         if(r.on_click !== undefined){
             r.on_click = refresh(r.on_click, r.card);
         }
-        else if(r.name === `Remove`){
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_remove_description)};
+        else if(r.name === card_names.symbol_remove_card){
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.remove)};
         }
         else{
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_min_description)};
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.min)};
         }
     }
     display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
@@ -1536,10 +1518,10 @@ function refresh_shop_display(shop){
             GS.new_floor();
         }
         else{
-            display.display_message(UIIDS.shop_message, shop_confirm_description);
+            display.display_message(UIIDS.shop_message, shop_text.invalid);
         }
     }
-    display.set_button(UIIDS.shop_confirm, confirm_text, confirm, shop.is_valid_selection());
+    display.set_button(UIIDS.shop_confirm, shop_text.confirm, confirm, shop.is_valid_selection());
 }
 
 function setup_controls_page(){
@@ -1612,7 +1594,7 @@ function reset_achievements(){
 }
 
 function display_deck_to_duplicate(){
-    display.display_message(UIIDS.deck_select_message, duplicate_instructions);
+    display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
     var finish = (card, deck) => {
         deck.add(copy_card(card));
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
@@ -1621,7 +1603,7 @@ function display_deck_to_duplicate(){
     refresh_deck_select_screen(selector);
 }
 function display_deck_to_remove(remaining){
-    var message = `${clean_mind_instructions[0]}${remaining}${clean_mind_instructions[1]}`;
+    var message = `${boon_messages.clean_mind[0]}${remaining}${boon_messages.clean_mind[1]}`;
     display.display_message(UIIDS.deck_select_message, message);
     var finish = (card, deck) => {
         deck.remove(card.id);
@@ -1657,7 +1639,7 @@ function refresh_deck_select_screen(selector){
     }
     display.set_button(
         UIIDS.deck_select_confirm, 
-        confirm_text, 
+        shop_text.confirm, 
         () => {selector.confirm();}, 
         selector.check_valid()
     );
@@ -1697,7 +1679,7 @@ function initiate_game(){
     display.detect_keys();
     display.stop_space_scrolling();
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
-    display.display_message(UIIDS.title, game_title);
+    display.display_message(UIIDS.title, gameplay_labels.title);
     create_main_dropdown(UIIDS.header_bar);
     GS = new GameState();
     GS.setup();
@@ -1711,13 +1693,13 @@ function initiate_game(){
 function make_starting_deck(){
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
 
-    deck.add(basic_horizontal());
-    deck.add(basic_horizontal());
+    deck.add(basic_orthogonal());
+    deck.add(basic_orthogonal());
     deck.add(basic_diagonal());
     deck.add(basic_diagonal());
     deck.add(basic_slice());
     deck.add(basic_slice());
-    deck.add(short_charge());
+    deck.add(short_charge_orthogonal());
     deck.add(jump());
 
     deck.deal();
@@ -1732,7 +1714,7 @@ function make_test_deck(test_cards){
     }
     var size = test_cards.length;
     for(var i = 0; i < Math.max(4 - size, 1); ++i){
-        deck.add(basic_horizontal());
+        deck.add(basic_orthogonal());
     }
     deck.add(basic_slice());
     deck.deal();
@@ -1767,7 +1749,7 @@ function hp_description(tile){
         hp = `(${tile.health} hp) `;
     }
     if(tile.stun !== undefined && tile.stun > 0){
-        stunned = `*${stunned_msg}${tile.stun}* `;
+        stunned = `*${gameplay_text.stunned}${tile.stun}* `;
     }
     return `${hp}${stunned}`;
 }
@@ -1781,9 +1763,9 @@ function grid_space_description(space){
     var tile = space.tile.look === undefined ? space.tile : space.tile.look;
     tile = tile_description(tile);
     var foreground = space.foreground.filter((fg) => fg.description !== undefined);
-    foreground = foreground.map((fg) => `${tile_description_divider}${fg.description}`);
+    foreground = foreground.map((fg) => `${gameplay_text.divider}${fg.description}`);
     var background = space.background.filter((bg) => bg.description !== undefined);
-    background = background.map((bg) => `${tile_description_divider}${bg.description}`);
+    background = background.map((bg) => `${gameplay_text.divider}${bg.description}`);
     var descriptions = [tile, ...foreground, ...background];
     return descriptions.reduce((res, str) => `${res}${str}`);
 }
@@ -1820,22 +1802,22 @@ function display_health(player, scale){
 function create_main_dropdown(location){
     var options = [
         {
-            label: gameplay_screen_name,
+            label: screen_names.gameplay,
             on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
         }, 
         {
-            label: guide_screen_name,
+            label: screen_names.guide,
             on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
         },
         {
-            label: controls_screen_name,
+            label: screen_names.controls,
             on_change: () => {
                 setup_controls_page();
                 DISPLAY_DIVISIONS.swap(UIIDS.controls);
             }
         },
         {
-            label: achievements_screen_name,
+            label: screen_names.achievements,
             on_change: () => {
                 update_achievements();
                 DISPLAY_DIVISIONS.swap(UIIDS.achievements);
@@ -1938,10 +1920,10 @@ function get_control_symbols(){
 /**
  * Function to add a random temporary debuff card to the player's deck.
  */
-function confuse_player(){
+function confuse_player(choices = CONFUSION_CARDS){
     // Chance redused by 50% for each stable_mind boon.
     if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
-        var card = rand_from(CONFUSION_CARDS)();
+        var card = rand_from(choices)();
         GS.give_temp_card(card);
         GS.refresh_deck_display();
     } 
@@ -1973,9 +1955,17 @@ function floor_has_chest(floor_of_area){
     }
     return false;
 }
-const achievements_title = `Achievements`;
-const achievement_reset = `Reset`;
-const achievement_confirm_reset = `Confirm?`;
+
+const achievement_text = {
+    title: `Achievements`,
+    reset: `Reset`,
+    confirm_reset: `Confirm?`,
+    unlocked: `Achievement Unlocked:`,
+    repeated: `Achievement Repeated:`,
+    unlocks_boon: `New Boon`,
+    unlocks_cards: `New Cards`,
+}
+Object.freeze(achievement_text);
 
 const achievement_names = {
     // Boss
@@ -2004,6 +1994,8 @@ const achievement_names = {
     monster_hunter: `Monster Hunter`,
     minimalist: `Minimalist`
 }
+Object.freeze(achievement_names);
+
 const achievement_description = {
     // Boss
     velociphile: `Defeat the Velociphile.`,
@@ -2031,6 +2023,7 @@ const achievement_description = {
     monster_hunter: `Kill 5 total unique bosses.`,
     minimalist: `Reach floor 15 with only 5 cards in your deck.`
 }
+Object.freeze(achievement_description);
 
 const boss_achievements = [
     achievement_names.velociphile,
@@ -2040,202 +2033,44 @@ const boss_achievements = [
     achievement_names.young_dragon,
     achievement_names.forest_heart,
     achievement_names.arcane_sentry,
-
 ]
 
-function get_achievements(){
-    return [
-        // Boss achievements
-        {
-            name: achievement_names.velociphile,
-            description: achievement_description.velociphile,
-            image: `${IMG_FOLDER.tiles}velociphile.png`,
-            has: false,
-            boons: [boss_slayer],
-            cards: [
-                teleport, sidestep_e, sidestep_n, sidestep_ne, sidestep_nw, 
-                sidestep_s, sidestep_se, sidestep_sw, sidestep_w, punch_orthogonal, 
-                punch_diagonal
-            ]
-        },
-        {
-            name: achievement_names.spider_queen,
-            description: achievement_description.spider_queen,
-            image: `${IMG_FOLDER.tiles}spider_queen.png`,
-            has: false,
-            boons: [retaliate],
-            cards: [
-                stunning_leap, stunning_side_leap, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice,
-                stunning_diagonal, stunning_orthogonal, stunning_retreat
-            ]
-        },
-        {
-            name: achievement_names.two_headed_serpent,
-            description: achievement_description.two_headed_serpent,
-            image: `${IMG_FOLDER.tiles}serpent_head.png`,
-            has: false,
-            boons: [slime_trail],
-            cards: [
-                reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_diagonal, reckless_horizontal, 
-                reckless_teleport, reckless_leap_forwards, reckless_leap_left, reckless_leap_right, reckless_spin
-            ]
-        },
-        {
-            name: achievement_names.lich,
-            description: achievement_description.lich,
-            image: `${IMG_FOLDER.tiles}lich_rest.png`,
-            has: false,
-            boons: [rift_touched],
-            cards: []
-        },
-        {
-            name: achievement_names.young_dragon,
-            description: achievement_description.young_dragon,
-            image: `${IMG_FOLDER.tiles}young_dragon_flight.png`,
-            has: false,
-            boons: [flame_strike],
-            cards: []
-        },
-        {
-            name: achievement_names.forest_heart,
-            description: achievement_description.forest_heart,
-            image: `${IMG_FOLDER.tiles}forest_heart.png`,
-            has: false,
-            boons: [frugivore],
-            cards: []
-        },
-        {
-            name: achievement_names.arcane_sentry,
-            description: achievement_description.arcane_sentry,
-            image: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
-            has: false,
-            boons: [choose_your_path],
-            cards: []
-        },
-        
-        // Other 
-        {
-            name: achievement_names.non_violent,
-            description: achievement_description.non_violent,
-            image: `${IMG_FOLDER.achievements}non_violent.png`,
-            has: false,
-            boons: [pacifism],
-        },
-        {
-            name: achievement_names.not_my_fault,
-            description: achievement_description.not_my_fault,
-            image: `${IMG_FOLDER.achievements}not_my_fault.png`,
-            has: false,
-            boons: [pressure_points],
-        },
-        {
-            name: achievement_names.ancient_knowledge,
-            description: achievement_description.ancient_knowledge,
-            image: `${IMG_FOLDER.achievements}ancient_knowledge.png`,
-            has: false,
-            boons: [clean_mind],
-        },
-        {
-            name: achievement_names.peerless_sprinter,
-            description: achievement_description.peerless_sprinter,
-            image: `${IMG_FOLDER.achievements}peerless_sprinter.png`,
-            has: false,
-            boons: [stealthy],
-        },
-        {
-            name: achievement_names.speed_runner,
-            description: achievement_description.speed_runner,
-            image: `${IMG_FOLDER.achievements}speed_runner.png`,
-            has: false,
-            boons: [repetition],
-        },
-        {
-            name: achievement_names.triple,
-            description: achievement_description.triple,
-            image: `${IMG_FOLDER.achievements}triple.png`,
-            has: false,
-            boons: [duplicate],
-        },
-        {
-            name: achievement_names.beyond_the_basics,
-            description: achievement_description.beyond_the_basics,
-            image: `${IMG_FOLDER.achievements}beyond_the_basics.png`,
-            has: false,
-            boons: [perfect_the_basics],
-        },
-        {
-            name: achievement_names.one_life,
-            description: achievement_description.one_life,
-            image: `${IMG_FOLDER.achievements}one_life.png`,
-            has: false,
-            boons: [frenzy],
-        },
-        {
-            name: achievement_names.without_a_scratch,
-            description: achievement_description.without_a_scratch,
-            image: `${IMG_FOLDER.achievements}without_a_scratch.png`,
-            has: false,
-            boons: [practice_makes_perfect],
-        },
-        {
-            name: achievement_names.clumsy,
-            description: achievement_description.clumsy,
-            image: `${IMG_FOLDER.achievements}clumsy.png`,
-            has: false,
-            boons: [thick_soles],
-        },
-        {
-            name: achievement_names.shrug_it_off,
-            description: achievement_description.shrug_it_off,
-            image: `${IMG_FOLDER.achievements}shrug_it_off.png`,
-            has: false,
-            boons: [quick_healing],
-        },
-        {
-            name: achievement_names.collector,
-            description: achievement_description.collector,
-            image: `${IMG_FOLDER.achievements}collector.png`,
-            has: false,
-            boons: [hoarder],
-        },
-        {
-            name: achievement_names.jack_of_all_trades,
-            description: achievement_description.jack_of_all_trades,
-            image: `${IMG_FOLDER.achievements}jack_of_all_trades.png`,
-            has: false,
-            boons: [spontaneous],
-        },
-        {
-            name: achievement_names.monster_hunter,
-            description: achievement_description.monster_hunter,
-            image: `${IMG_FOLDER.achievements}monster_hunter.png`,
-            has: false,
-            boons: [brag_and_boast],
-        },
-        {
-            name: achievement_names.minimalist,
-            description: achievement_description.minimalist,
-            image: `${IMG_FOLDER.achievements}minimalist.png`,
-            has: false,
-            boons: [stubborn],
-        }
-    ]
+const action_types = {
+    move: `Move`,
+    attack: `Attack`,
+    teleport: `Teleport`,
+    stun: `Stun`,
+    move_until: `Move Until`,
+    attack_until: `Attack Until`,
+    heal: `Heal`,
 }
-// Area Descriptions.
-const ruins_description = `You have entered the ruins.`;
-const sewers_description = `You have entered the sewers.`;
-const basement_description = `You have entered the basement.`;
-const magma_description = `You have entered the magmatic caves.`;
-const crypt_description = `You have entered the crypt.`;
-const forest_description = `You have entered the subteranean forest.`;
-const library_description = `You have entered the arcane library.`;
-const sanctum_description = `You have entered the sanctum.`;
-const default_area_description = `You have reached the end of the current content. Floors will continue to generate but there will `
-                                +`be no more boss fights. Good luck.`;
+Object.freeze(action_types);
+
+const area_descriptions = {
+    ruins: 
+        `You have entered the ruins.`,
+    sewers: 
+        `You have entered the sewers.`,
+    basement: 
+        `You have entered the basement.`,
+    magma: 
+        `You have entered the magmatic caves.`,
+    crypt: 
+        `You have entered the crypt.`,
+    forest: 
+        `You have entered the subteranean forest.`,
+    library: 
+        `You have entered the arcane library.`,
+    sanctum: 
+        `You have entered the sanctum.`,
+    default: 
+        `You have reached the end of the current content. Floors will continue to generate but `
+        +`there will be no more boss fights. Good luck.`,
+}
+Object.freeze(area_descriptions);
 
 
 const boon_names = {
-    adrenaline_rush: `Adrenaline Rush`,
     ancient_card: `Ancient Card`,
     bitter_determination: `Bitter Determination`,
     boss_slayer: `Boss Slayer`,
@@ -2245,7 +2080,6 @@ const boon_names = {
     clean_mind: `Clean Mind`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
-    deck_stacking: `Deck Stacking`,
     duplicate: `Duplicate`,
     empty_rooms: `Empty Rooms`,
     escape_artist: `Escape Artist`,
@@ -2273,10 +2107,8 @@ const boon_names = {
     rift_touched: `Rift Touched`,
     roar_of_challenge: `Roar of Challenge`,
     safe_passage: `Safe Passage`,
-    serenity: `Serenity`,
     shattered_glass: `Shattered Glass`,
     skill_trading: `Skill Trading`,
-    slayer: `Slayer`,
     slime_trail: `Slime Trail`,
     sniper: `Sniper`,
     spiked_shoes: `Spiked Shoes`,
@@ -2285,123 +2117,265 @@ const boon_names = {
     stealthy: `Stealthy`,
     stubborn: `Stubborn`,
     thick_soles: `Thick Soles`,
+    vicious_cycle: `Vicious Cycle`,
 }
 Object.freeze(boon_names);
 
+const boon_descriptions = {
+    bitter_determination: 
+        `At the start of each floor, heal 1 if your health is exactly 1.`,
+    boss_slayer: 
+        `Bosses start with 2 less hp.`,
+    brag_and_boast: 
+        `Add 2 random boss cards and 2 random debuff cards to your deck.`,
+    chilly_presence: 
+        `Enemies have a 1/6 chance to become stunned at the end of their `
+        +`turn. Bosses are not affected.`,
+    choose_your_path: 
+        `You get to decide which area to go to after each boss fight.`,
+    clean_mind: 
+        `Remove any 2 cards from your deck.`,
+    creative: 
+        `Increase your hand size by 1. Increases minimum deck size by 5.`,
+    dazing_blows: 
+        `Your attacks stun enemies. Bosses are unaffected.`,
+    duplicate: 
+        `Get a copy of any card in your deck.`,
+    empty_rooms: 
+        `Difficulty decreases by 3 floors`,
+    escape_artist: 
+        `Teleport away when attacked.`,
+    expend_vitality: 
+        `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
+    flame_strike: 
+        `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`,
+    fleeting_thoughts: 
+        `Temporary cards added to your deck will happen instantly.`,
+    fortitude: 
+        `Gain an extra max health.`,
+    frenzy: 
+        `Deal double damage while you only have 1 health.`,
+    frugivore: 
+        `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
+        +`for 1, but might attract enemies.`,
+    future_sight: 
+        `You may look at the order of your deck.`,
+    gruntwork: 
+        `Gain 3 extra max health. Decrease your hand size by 1.`,
+    hoarder: 
+        `Encounter two chests in each area.`,
+    larger_chests: 
+        `All treasure chests contain 2 additional choices and are invulnerable.`,
+    limitless: 
+        `Remove your max health. Heal for 2. If you would be fully healed, heal `
+        +`for 1 instead.`,
+    pacifism: 
+        `If you would attack an enemy, stun them twice instead. Fully heal at `
+        +`the start of each floor. All boss floor exits unlock.`,
+    pain_reflexes: 
+        `Take a turn whenever you are attacked.`,
+    perfect_the_basics: 
+        `Replace all your basic cards with better ones.`,
+    picky_shopper: 
+        `Recieve an extra card choice for adding and removing cards in the shop.`,
+    practice_makes_perfect: 
+        `Defeating a boss while at max health increases your max health by 1.`,
+    pressure_points: 
+        `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`,
+    quick_healing: 
+        `After being dealt damage, you have a 1/4 chance to instantly heal it.`,
+    rebirth: 
+        `When you die, you are revived at full health and this boon is removed.`,
+    repetition: 
+        `Every 3rd turn, your cards happen twice.`,
+    retaliate: 
+        `When you are dealt damage, attack a nearby non boss enemy.`,
+    rift_touched: 
+        `Two Darklings spawn on each floor.`,
+    roar_of_challenge: 
+        `Gain 2 max health. Difficulty increases by 5 floors.`,
+    safe_passage: 
+        `Fully heal and travel to the next floor.`,
+    shattered_glass: 
+        `Enemies explode on death damaging everything nearby other than you. Reduce your `
+        +`max health by 2.`,
+    skill_trading: 
+        `You may both add a card and remove a card at each shop.`,
+    slime_trail: 
+        `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`,
+    sniper: 
+        `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
+    spiked_shoes: 
+        `Attempting to move onto enemies damages them. Reduces your max health by 1.`,
+    spontaneous: 
+        `After using a non instant card, discard your whole hand. Minimum deck size `
+        +`increased by 5.`,
+    stable_mind: 
+        `You gain a 50% chance to resist confusion.`,
+    stealthy: 
+        `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`,
+    stubborn: 
+        `You can skip shops.`,
+    thick_soles: 
+        `You are immune to damage on your turn.`,
+    vicious_cycle: 
+        `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`,
+}
+Object.freeze(boon_descriptions);
 
-// Boon Descriptions
-const adrenaline_rush_description = 
-    `Dealing at least 2 damage in 1 turn gives you an extra turn.`;
-const bitter_determination_description = 
-    `At the start of each floor, heal 1 if your health is exactly 1.`;
-const boss_slayer_description = 
-    `Bosses start with 2 less hp.`;
-const brag_and_boast_description = 
-    `Add 2 random boss cards and 2 random debuff cards to your deck.`;
-const chilly_presence_description = 
-    `Enemies have a 1/6 chance to become stunned at the end of their `
-    +`turn. Bosses are not affected.`;
-const choose_your_path_description =
-    `You get to decide which area to go to after each boss fight.`;
-const clean_mind_description = 
-    `Remove any 2 cards from your deck.`;
-const clean_mind_instructions =
-    [`Choose a card to remove (`, `/2 remaining)`];
-const creative_description = 
-    `Increase your hand size by 1. Increases minimum deck size by 5.`;
-const dazing_blows_description = 
-    `Your attacks stun enemies. Bosses are unaffected.`;
-const deck_stacking_description =
-    `You pick the order of your deck when it is refilled. Reduce your `
-    +`maximum health by 1`;
-const duplicate_description =
-    `Get a copy of any card in your deck.`
-const duplicate_instructions =
-    `Choose a card to copy:`;
-const empty_rooms_description = 
-    `Difficulty decreases by 3 floors`;
-const escape_artist_description = 
-    `Teleport away when attacked.`;
-const expend_vitality_description =  
-    `Heal 1 life at the start of each floor. Your max health is decreased by 1.`;
-const flame_strike_description = 
-    `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`;
-const fleeting_thoughts_description = 
-    `Temporary cards added to your deck will happen instantly.`;
-const fortitude_description = 
-    `Gain an extra max health.`;
-const frenzy_description = 
-    `Deal double damage while you only have 1 health.`
-const frugivore_description = 
-    `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
-    +`for 1, but might attract enemies.`;
-const future_sight_description = 
-    `You may look at the order of your deck.`;
-const gruntwork_description =
-    `Gain 3 extra max health. Decrease your hand size by 1.`;
-const hoarder_description = 
-    `Encounter two chests in each area.`;
-const larger_chests_description = 
-    `All treasure chests contain 2 additional choices and are invulnerable.`;
-const limitless_description = 
-    `Remove your max health. Heal for 2. If you would be fully healed, heal `
-    +`for 1 instead.`;
-const pacifism_description = 
-    `If you would attack an enemy, stun them twice instead. Fully heal at `
-    +`the start of each floor. All boss floor exits unlock.`;
-const pain_reflexes_description = 
-    `Take a turn whenever you are attacked.`;
-const perfect_the_basics_description =
-    `Replace all your basic cards with better ones.`;
-const picky_shopper_description = 
-    `Recieve an extra card choice for adding and removing cards in the shop.`;
-const practice_makes_perfect_description = 
-    `Defeating a boss while at max health increases your max health by 1.`;
-const practice_makes_perfect_message =
-    `Your maximum health has increased.`
-const quick_healing_description =
-    `After being dealt damage, you have a 1/4 chance to instantly heal it.`;
-const pressure_points_description = 
-    `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`;
-const rebirth_description = 
-    `When you die, you are revived at full health and this boon is removed.`;
-const rebirth_revival_message = 
-    `You died, but were brought back to life.`;
-const repetition_description = 
-    `Every 3rd turn, your cards happen twice.`;
-const retaliate_description = 
-    `When you are dealt damage, attack a nearby non boss enemy.`;
-const rift_touched_description = 
-    `Two Darklings spawn on each floor.`
-const roar_of_challenge_description = 
-    `Gain 2 max health. Difficulty increases by 5 floors.`;
-const safe_passage_description = 
-    `Fully heal and travel to the next floor.`;
-const serenity_description = 
-    `Reduce your minimum deck size to 4.`;
-const shattered_glass_description = 
-    `Enemies explode on death damaging everything nearby other than you. Reduce your `
-    +`max health by 2.`;
-const skill_trading_description = 
-    `You may both add a card and remove a card at each shop.`;
-const slime_trail_description = 
-    `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`;
-const sniper_description =
-    `Attacks deal extra damage to enemies at a distance based on how far away they are.`;
-const spiked_shoes_description = 
-    `Attempting to move onto enemies damages them. Reduces your max health by 1.`;
-const spontaneous_description = 
-    `After using a non instant card, discard your whole hand. Minimum deck size `
-    +`increased by 5.`;
-const stable_mind_description = 
-    `You gain a 50% chance to resist confusion.`;
-const stealthy_description = 
-    `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`;
-const stubborn_description = 
-    `You can skip shops.`;
-const thick_soles_description = 
-    `You are immune to damage on your turn.`;
+const boon_messages = {
+    clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
+    duplicate: `Choose a card to copy:`,
+    practice_makes_perfect: `Your maximum health has increased.`,
+    rebirth: `You died, but were brought back to life.`,
+}
+Object.freeze(boon_messages);
 
+
+const card_names = {
+    advance: `Advance`,
+    basic_diagonal: `Basic Diagonal`,
+    basic_orthogonal: `Basic Orthogonal`,
+    basic_slice: `Basic Slice`,
+    beam_diagonal: `Beam Diagonal`,
+    beam_ne: `Beam NE`,
+    beam_nw: `Beam NW`,
+    beam_orthogonal: `Beam Orthogonal`,
+    beam_se: `Beam SE`,
+    beam_sw: `Beam SW`,
+    bite: `Bite`,
+    bounding_retreat: `Bounding Retreat`,
+    branch_strike: `Branch Strike`,
+    breakthrough_horizontal: `Breakthrough Horizontal`,
+    breakthrough_vertical: `Breakthrough Vertical`,
+    butterfly: `Butterfly`,
+    charge_horizontal: `Charge Horizontal`,
+    charge_vertical: `Charge Vertical`,
+    chomp: `Chomp`,
+    clear_behind: `Clear Behind`,
+    clear_in_front: `Clear in Front`,
+    combat_diagonal: `Combat Diagonal`,
+    combat_orthogonal: `Combat Orthogonal`,
+    dash_ne: `Dash NE`,
+    dash_nw: `Dash NW`,
+    debilitating_confusion: `Debilitating Confusion`,
+    diamond_attack: `Diamond Attack`,
+    diamond_slice: `Diamond Slice`,
+    execution_1: `Execution 1`,
+    execution_2: `Execution 2`,
+    execution_3: `Execution 3`,
+    explosion: `Explosion`,
+    fangs: `Fangs`,
+    firebreathing_horizontal: `Firebreathing Horizontal`,
+    firebreathing_ne: `Firebreathing NE`,
+    firebreathing_nw: `Firebreathing NW`,
+    firebreathing_vertical: `Firebreathing Vertical`,
+    flanking_diagonal: `Flanking Diagonal`,
+    flanking_horizontal: `Flanking Horizontal`,
+    flanking_vertical: `flanking Vertical`,
+    force: `Force`,
+    fork: `Fork`,
+    freeze_up: `Freeze Up`,
+    glide: `Glide`,
+    hit_and_run: `Hit and Run`,
+    horsemanship: ``,
+    instant_teleport: `Instant Teleport`,
+    jab_diagonal: `Jab Diagonal`,
+    jab_orthogonal: `Jab Orthogonal`,
+    jump: `Jump`,
+    lash_out: `Lash Out`,
+    leap_left: `Leap Left`,
+    leap_right: `Leap Right`,
+    lightheaded: `Lightheaded`,
+    lost_maneuver: `Lost Maneuver`,
+    lost_technique: `Lost Technique`,
+    lunge_left: `Lunge Left`,
+    lunge_right: `Lunge_right`,
+    maneuver_1: `Maneuver 1`,
+    maneuver_2: `Maneuver 2`,
+    maneuver_3: `Maneuver 3`,
+    overcome_horizontal: `Overcome Horizontal`,
+    overcome_vertical: `Overcome Vertical`,
+    pike: `Pike`,
+    punch_diagonal: `Punch Diagonal`,
+    punch_orthogonal: `Punch Orthogonal`,
+    push_back: `Push Back`,
+    reckless_attack_left: `Reckless Attack Left`,
+    reckless_attack_right: `Reckless Attack Right`,
+    reckless_leap_forwards: `Reckless Leap Forwards`,
+    reckless_leap_left: `Reckless Leap Left`,
+    reckless_leap_right: `Reckless Leap Right`,
+    reckless_sidestep_diagonal: `Reckless Sidestep Diagonal`,
+    reckless_sidestep_orthogonal: `Reckless Sidestep Orthogonal`,
+    reckless_spin: `Reckless Spin`,
+    reckless_sprint: `Reckless Sprint`,
+    reckless_teleport: `Reckless Teleport`,
+    regenerate: `Regenerate`,
+    roll_horizontal: `Roll Horizontal`,
+    roll_ne: `Roll NE`,
+    roll_nw: `Roll NW`,
+    saw_strike: `Saw Strike`,
+    short_charge_diagonal: `Short Charge Diagonal`,
+    short_charge_orthogonal: `Short Charge Orthogonal`,
+    sidestep_e: `Sidestep E`,
+    sidestep_n: `Sidestep N`,
+    sidestep_ne: `Sidestep NE`,
+    sidestep_nw: `Sidestep NW`,
+    sidestep_s: `Sidestep S`,
+    sidestep_se: `Sidestep SE`,
+    sidestep_sw: `Sidestep SW`,
+    sidestep_w: `Sidestep W`,
+    skitter: `Skitter`,
+    slash_step_forwards: `Slash Step Forwards`,
+    slash_step_left: `Slash Step Left`,
+    slash_step_right: `Slash step Right`,
+    slice_twice: `Slice Twice`,
+    slip_through_ne: `Slip Through NE`,
+    slip_through_nw: `Slice Through NW`,
+    slither: `Slither`,
+    snack: `Snack`,
+    soar: `Soar`,
+    spearhead: `Spearhead`,
+    spin_attack: `Spin Attack`,
+    split_second_1: `Split Second 1`,
+    split_second_2: `Split Second 2`,
+    sprint_horizontal: `Sprint Horizontal`,
+    sprint_vertical: `Sprint Vertical`,
+    step_left: `Step Left`,
+    step_right: `Step Right`,
+    stumble_e: `Stumble E`,
+    stumble_n: `Stumble N`,
+    stumble_ne: `Stumble NE`,
+    stumble_nw: `Stumble NW`,
+    stumble_s: `Stumble S`,
+    stumble_se: `Stumble SE`,
+    stumble_sw: `Stumble SW`,
+    stumble_w: `Stumble W`,
+    stunning_leap_horizontal: `Stunning Leap Horizontal`,
+    stunning_leap_vertical: `Stunning Leap Vertical`,
+    stunning_punch_diagonal: `Stunning Punch Diagonal`,
+    stunning_punch_orthogonal: `Stunning Punch Orthogonal`,
+    stunning_retreat: `Stunning Retreat`,
+    stunning_slice: `Stunning Slice`,
+    stunning_tread_diagonal: `Stunning Tread Diagonal`,
+    stunning_tread_orthogonal: `Stunning Tread Orthogonal`,
+    superweapon_1: `Superweapon 1`,
+    superweapon_2: `Superweapon 2`,
+    symbol_add_card: `Add`,
+    symbol_deck_at_minimum: `Minimum`,
+    symbol_remove_card: `Remove`,
+    t_strike_horizontal: `T Strike Horizontal`,
+    t_strike_vertical: `T Strike Vertical`,
+    teleport: `Teleport`,
+    thwack: `Thwack`,
+    trample: `Trample`,
+    trident: `Trident`,
+    vine_snare: `Vine Snare`,
+    y_leap: `Y Leap`,
+    y_strike_ne: `Y Strike NE`,
+    y_strike_nw: `Y Strike NW`,
+}
+Object.freeze(card_names);
 
 // Button Options.
 const null_move_button = `--`;
@@ -2424,6 +2398,7 @@ const four_directions = {
     right:  `\u2B9E`,
     down:   `\u2B9F`
 }
+Object.freeze(four_directions);
 
 // Move types.
 const move_types = {
@@ -2476,398 +2451,504 @@ Object.freeze(CONTROLS_TEXT);
 
 const KEYBOARD_SYMBOL_MAP = new Map();
 KEYBOARD_SYMBOL_MAP.set(` `, `space`);
-// Boss Descriptions
-const boss_death_description = 
-    `The exit opens.\nYou feel your wounds begin to heal.`;
 
-// Velociphile
-const velociphile_floor_message = 
-    `You hear a deafening shriek.`;
-const velociphile_description = 
-    `Velociphile (Boss): A rolling ball of mouths and hate. Moves `
-    +`in straight lines. Must build up speed to ram you.`;
-const velociphile_death_message = 
-    `The wailing falls silent as the Velociphile is defeated.`;
+const boss_names = {
+    arcane_sentry: `Arcane Sentry`,
+    arcane_sentry_node: `Arcane Sentry Node`,
+    forest_heart: `Forest Heart`,
+    lich: `Lich`,
+    spider_queen: `Spider Queen`,
+    two_headed_serpent: `Two Headed Serpent`,
+    two_headed_serpent_body: `Two Headed Serpent Body`,
+    velociphile: `Velociphile`,
+    young_dragon: `Young Dragon`,
+}
+Object.freeze(boss_names);
 
-// Spider Queen
-const spider_queen_floor_message = 
-    `The floor is thick with webs.`;
-const spider_queen_description = 
-    `Spider Queen (Boss): Her back crawls with her young. Moves like a `
-    +`normal spider. Taking damage will stun her, but will also spawn a spider.`;
-const spider_queen_death_message = 
-    `As the Spider Queen falls to the floor, the last of her children emerge.`;
+const boss_descriptions = {
+    arcane_sentry: 
+        `Arcane Sentry (Boss): An automated defense station. Changes modes in response to damage.`,
+    arcane_sentry_node: 
+        `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry. Cannot be stunned.`,
+    forest_heart: 
+        `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage `
+        +`each turn and cannot be stunned.`,
+    lich: 
+        `Lich (Boss): An undead wielder of dark magic. Alternates between moving `
+        +`one space away from you and casting a spell.`,
+    lich_announcement: 
+        `The Lich is currently preparing to cast:`,
+    spider_queen: 
+        `Spider Queen (Boss): Her back crawls with her young. Moves like a `
+        +`normal spider. Taking damage will stun her, but will also spawn a spider.`,
+    two_headed_serpent_awake: 
+        `Two Headed Serpent (Boss): Moves then attacks 1 square orthogonally. `
+        +`When damaged, the neck will instantly grow a new head.`,
+    two_headed_serpent_asleep: 
+        `Two Headed Serpent (Boss): This head is sleeping. When damaged, `
+        +`the neck will grow a new head, which will spend it's turn waking up. `
+        +`The other head will then fall asleep.`,
+    two_headed_serpent_body: 
+        `Two Headed Serpent (Boss): The scales on the body are too tough to pierce.`,
+    velociphile: 
+        `Velociphile (Boss): A rolling ball of mouths and hate. Moves `
+        +`in straight lines. Must build up speed to ram you.`,
+    young_dragon: [
+        `Young Dragon (Boss): Be glad it's still young. Alternates between gliding and breathing fire.\n`
+        +`The Dragon is currently `, 
+        `preparing to fly a short distance.`, 
+        `preparing to aim it's fire breath.`, 
+        `preparing to breath fire in a 3 long cone.`
+    ],
+}
+Object.freeze(boss_descriptions);
 
-// Two Headed Serpent
-const two_headed_serpent_floor_message = 
-    `The discarded skin of a massive creature litters the floor.`;
-const two_headed_serpent_awake_description = 
-    `Two Headed Serpent (Boss): Moves then attacks 1 square orthogonally. `
-    +`When damaged, the neck will instantly grow a new head.`;
-const two_headed_serpent_asleep_description = 
-    `Two Headed Serpent (Boss): This head is sleeping. When damaged, `
-    +`the neck will grow a new head, which will spend it's turn waking up. `
-    +`The other head will then fall asleep.`;
-const two_headed_serpent_body_description = 
-    `Two Headed Serpent (Boss): The scales on the body are too tough to pierce. `;
-const two_headed_serpent_death_message = 
-    `It's body too small to regenerate any further, all four of the serpent's `
-    +`eyes close for the final time`;
+const boss_floor_message = {
+    arcane_sentry: 
+        `An alarm begins to blare.\n`
+        +`INTRUDER DETECTED!`,
+    forest_heart: `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`,
+    lich: `Dust and dark magic swirl in the air.`,
+    spider_queen: `The floor is thick with webs.`,
+    two_headed_serpent: `The discarded skin of a massive creature litters the floor.`,
+    velociphile: `You hear a deafening shriek.`,
+    young_dragon: `The air burns in your lungs.`,
+}
+Object.freeze(boss_floor_message);
 
-// Lich
-const lich_floor_message = 
-    `Dust and dark magic swirl in the air.`;
-const lich_description = 
-    `Lich (Boss): An undead wielder of dark magic. Alternates between moving `
-    +`one space away from you and casting a spell.\nThe Lich is currently preparing `
-    +`to cast:\n`;
-const lich_announcement = 
-    `The Lich is currently preparing to cast:\n`;
-const lich_death_message = 
-    `The Lich's body crumbles to dust.`;
+const boss_death_message = {
+    general: 
+        `The exit opens.\n`
+        +`You feel your wounds begin to heal.`,
+    arcane_sentry: 
+        `MAIN SYSTEMS FAILING!\n`
+        +`The ringing alarm subsides.`,
+    arcane_sentry_node: `NODE OFFLINE!`,
+    forest_heart: `Branches rain from above as the ancient tree is felled.`,
+    lich: `The Lich's body crumbles to dust.`,
+    spider_queen: `As the Spider Queen falls to the floor, the last of her children emerge.`,
+    two_headed_serpent: 
+        `It's body too small to regenerate any further, all four of the serpent's `
+        +`eyes close for the final time`,
+    velociphile: `The wailing falls silent as the Velociphile is defeated.`,
+    young_dragon: `Scales so soft are easily pierced. The Young Dragon's fire goes out.`,
+}
+Object.freeze(boss_death_message);
 
-// Lich Spells
-const teleport_spell_description = 
-    `Teleport: The user moves to a random square on the map`;
-const summon_spell_description = 
-    `Summon: Summons a random enemy`;
-const earthquake_spell_description = 
-    `Earthquake: Causes chunks of the ceiling to rain down.`;
-const flame_wave_spell_description = 
-    `Flame Wave: Shoots 3 explosive fireballs towards the target.`;
-const confusion_spell_description = 
-    `Confusion: Pollutes your deck with 2 bad temporary cards.`;
-const lava_moat_spell_description = 
-    `Lava Moat: Creates pools of molten lava to shield the user.`;
-const piercing_beam_spell_description = 
-    `Piercing Beam: Fires a piercing beam in the direction closest to the target.`;
-const rest_spell_description = 
-    `Nothing.`;
+// Boss Specific Descriptions
 
-// Young Dragon
-const young_dragon_floor_message = 
-    `The air burns in your lungs.`;
-const young_dragon_description_arr = [
-    `Young Dragon (Boss): Be glad it's still young. Alternates between `
-    +`gliding short distances and breathing fire.\nThe Dragon is currently `, 
-    `preparing to fly a short distance.`, 
-    `preparing to aim it's fire breath.`, 
-    `preparing to breath fire in a cone of length `
-];
-const young_dragon_death_message = 
-    `Scales so soft are easily pierced. The Young Dragon's fire goes out.`;
+const lich_spell_descriptions = {
+    confusion: `Confusion: Pollutes your deck with 2 bad temporary cards.`,
+    earthquake: `Earthquake: Causes chunks of the ceiling to rain down.`,
+    flame_wave: `Flame Wave: Shoots 3 explosive fireballs towards the target.`,
+    lava_moat: `Lava Moat: Creates pools of molten lava to shield the user.`,
+    piercing_beam: `Piercing Beam: Fires a piercing beam in the direction closest to the target.`,
+    rest: `Nothing.`,
+    summon: `Summon: Summons a random enemy`,
+    teleport: `Teleport: The user moves to a random square on the map`,
+}
+Object.freeze(lich_spell_descriptions);
 
-// Forest Heart
-const forest_heart_floor_message = 
-    `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`;
-const forest_heart_description = 
-    `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage `
-    +`each turn and cannot be stunned. `;
-const forest_heart_death_message = 
-    `Branches rain from above as the ancient tree is felled.`
+const heart_spell_descriptions = {
+    rest: `Currently, the Forest Heart is resting.`,
+    growth: `Currently, the Forest Heart is preparing to grow plants.`,
+    summon: `Currently, the Forest Heart is preparing to summon forest creatures.`,
+}
+Object.freeze(heart_spell_descriptions);
 
-// Forest Heart Spells
-const forest_heart_rest_description = 
-    `Currently, the Forest Heart is resting.`;
-const forest_heart_growth_description = 
-    `Currently, the Forest Heart is preparing to grow plants.`;
-const forest_heart_summon_description = 
-    `Currently, the Forest Heart is preparing to summon forest creatures.`;
-
-// Arcane Sentry
-const arcane_sentry_floor_message =
-    `An alarm begins to blare.\n`
-    +`INTRUDER DETECTED!`
-const arcane_sentry_description =
-    `Arcane Sentry (Boss): An automated defense station. Changes modes in response to damage.`;
-const arcane_sentry_death_message =
-    `MAIN SYSTEMS FAILING!\n`
-    +`The wailing alarm falls silent.`;
-const arcane_sentry_node_description =
-    `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry. Cannot be stunned.`
-const arcane_sentry_node_death_message =
-    `NODE OFFLINE!`;
-
-// Arcane Sentry Modes
-const sentry_core_turret_description =
-    `Currently the nodes are set to act as turrets.\n`
-    +`While in this mode, the sentry will continuously create paper constructs.`
-const sentry_node_turret_description =
-    `Fires beams orthogonally that hit the first thing in their path.`
-const sentry_core_saw_description =
-    `Spinning saws will damage everything around it or touching it, then it will move 1 space `
-    +`orthogonally.\n`
-    +`After 3 turns, it will revert.`
-const sentry_node_saw_description =
-    `Spinning saws will damage everything around it or touching it.`
-const sentry_core_cannon_description =
-    `Currently preparing to shoot volleys of fireballs.\n`
-    +`After 2 volleys, it will revert.`
-const sentry_node_cannon_description =
-    `Shoots a fireball in the direction it is aimed.`
-const sentry_node_double_cannon_description =
-    `Shoots 2 fireballs in the direction it is aimed.`
-
-/**
-// Shadow of Self
-const shadow_of_self_floor_message = 
-    `A familiar face watches you from the shadows.`;
-const shadow_of_self_description = 
-    `You?`;
-const shadow_of_self_death_message = 
-    `Shadows cannot hold a candle to the real thing.`
-*/
+const sentry_mode_descriptions = {
+    core: {
+        turret: 
+            `Currently the nodes are set to act as turrets.\n`
+            +`While in this mode, the sentry will continuously create paper constructs.`,
+        saw: 
+            `Spinning saws will damage everything around it or touching it, then it will move 1 space `
+            +`orthogonally.\n`
+            +`After 3 turns, it will revert.`,
+        cannon: 
+            `Currently preparing to shoot volleys of fireballs.\n`
+            +`After 2 volleys, it will revert.`,
+    },
+    node: {
+        turret: `Fires beams orthogonally that hit the first thing in their path.`,
+        saw: `Spinning saws will damage everything around it or touching it.`,
+        cannon: `Shoots a fireball in the direction it is aimed.`,
+        double_cannon: `Shoots 2 fireballs in the direction it is aimed.`,
+    }
+}
+Object.freeze(sentry_mode_descriptions);
 
 // Normal Enemy Descriptions.
 
-const spider_description = 
-    `Spider: Will attack the player if it is next to them. `
-    +`Otherwise it will move 1 space closer.`;
-const turret_h_description = 
-    `Turret: Does not move. Fires beams orthogonally that hit `
-    +`the first thing in their path.`;
-const turret_d_description = 
-    `Turret: Does not move. Fires beams diagonally that hit the `
-    +`first thing in their path.`;
-const turret_r_description = 
-    `Turret: Does not move. Fires beams in two directions hitting `
-    +`the first thing in their path. Rotates every turn.`;
-const scythe_description = 
-    `Scythe: Will move 3 spaces diagonally towards the player `
-    +`damaging them if it passes next to them. Can only see diagonally.`;
-const shadow_knight_description = 
-    `Shadow Knight: Moves in an L shape. If it tramples the player, `
-    +`it will move again.`;
-const spider_web_description = [
-    `Spider Web: Does not move or attack. Spawns a spider every `, 
-    ` turns. Slows over time.`
-];
-const ram_description = 
-    `Ram: Moves orthogonally. When it sees the player, it will `
-    +`prepare to charge towards them and ram them.`;
-const large_porcuslime_description = 
-    `Large Porcuslime: Moves towards the player 1 space and attacks `
-    +`in that direction. Weakens when hit.`;
-const medium_porcuslime_description = 
-    `Medium Porcuslime: Moves towards the player 1 space and attacks `
-    +`in that direction. Alternates between orthoganal and diagonal `
-    +`movement. Splits when hit.`;
-const small_h_porcuslime_description = 
-    `Small Porcuslime: Moves towards the player 1 space orthogonally `
-    +`and attacks in that direction.`;
-const small_d_porcuslime_description = 
-    `Small Porcuslime: Moves towards the player 1 space diagonally and `
-    +`attacks in that direction.`;
-const acid_bug_description = 
-    `Acid bug: Moves towards the player 1 space. Has no normal attack, `
-    +`but will spray acid upon death hurting everything next to it.`;
-const brightling_description = 
-    `Brightling: Is not aggressive. Will occasionally teleport the player `
-    +`close to it before teleoprting away the next turn.`;
-const corrosive_caterpillar_description = 
-    `Corrosive Caterpillar: Is not aggressive. Leaves a trail of corrosive `
-    +`slime behind it when it moves or dies.`;
-const noxious_toad_description = 
-    `Noxious Toad: Every other turn it will hop over a space orthogonally. `
-    +`If it lands near the player, it will damage everything next to it.`;
-const vampire_description = 
-    `Vampire: Moves orthogonally then will attempt to attack diagonally. `
-    +`When it hits the player, it will heal itself. Teleports away and is `
-    +`stunned when hit.`;
-const clay_golem_description = 
-    `Clay Golem: Will attack the player if it is next to them. Otherwise `
-    +`it will move 1 space closer. Taking damage will stun it and it cannot `
-    +`move two turns in a row.`;
-const vinesnare_bush_description = [
-    `Vinesnare Bush: Does not move. Can drag the player towards it using it's vines from up to `,
-    ` spaces away. It can then lash out at the player if they are still nearby next turn.`
-];
-const rat_description = 
-    `Rat: Will attack the player if it is next to them. Otherwise it will move `
-    +`2 spaces closer. After attacking, it will flee.`;
-const shadow_scout_description = 
-`Shadow Scout: Will attack the player if it is next to them. Otherwise it will `
-+`move 1 space closer. Can go invisible every other turn.`;
-const darkling_description = 
-`Darkling: Teleports around randomly hurting everything next to the location it `
-+`arrives at. Blocking it's rift will destroy it.`;
-const orb_of_insanity_description = [
-    `Orb of Insanity: Does not move or attack. If the player is within `, 
-    ` spaces of it, it will confuse them, polluting their deck with a bad temporary card.`
-];
-const carrion_flies_description = 
-    `Carrion Flies: Will attack the player if they are nearby. Otherwise wanders `
-    +`aimlessly. Over time they will multiply.`;
-const magma_spewer_description = 
-    `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
-    +`get close.`
-const animated_boulder_description = 
-    `Animated Boulder: Wakes up when something touches it. Each turn it will `
-    +`damage everything close to it, then move 1 space closer to the player. `
-    +`After 3 turns, it will go back to sleep.`;
-const pheonix_description = 
-    `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `
-    +`Everything it flies over will be damaged and set on fire. When it dies, `
-    +`it drops a pile of ashes from which it will eventually be reborn.`;
-const igneous_crab_description = 
-    `Igneous Crab: Will attack the player if it is next to them. Otherwise it will `
-    +`move 1 space closer. When damaged, it will spend the next 2 turns fleeing.`;
-const strider_description = 
-    `Strider: Attacks then moves 2 spaces away in one direction.`;
-const swaying_nettle_description = 
-    `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal `
-    +`to it. Won't hurt each other`;
-const nettle_root_description = 
-    `Watch out, swaying nettles are about to sprout damaging anything standing here.`
-const thorn_bush_description = 
-    `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`;
-const living_tree_description = 
-    `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
-    +`Moves one square in any direction every other turn if it didn't attack.`;
-const living_tree_rooted_description = 
-    `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
-    +`This one has put down roots making it unable to move.`
-const scorpion_description = 
-    `Scorpion: Will attack the player if it is next to them. Otherwise, moves 2 spaces `
-    +`closer every other turn.`;
-const moving_turret_description = 
-    `Moving Turret: Fires beams in two directions that hit the first thing in their path. `
-    +`Moves in the same direction until it hits something.`;
-const walking_prism_description = [
-    `Walking Prism: Has no normal attack, but will fire beams in 4 directions when damaged `
-    +`which hit the first thing in their path. Changes firing direction aftewards.\n`, 
-    `Currently aiming orthogonally.`,
-    `Currently aiming diagonally.`
-    ];
-const unstable_wisp_description = 
-    `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes `
-    +`into a ring of fireballs on death.`;
-const captive_void_description = 
-    `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it `
-    +`turns it off for 2 turns.`;
-const paper_construct_description = 
-    `Paper Construct: Can shoot the player from up to 2 spaces away orthogonally. Otherwise, `
-    +`moves up to two spaces diagonally.`;
-const specter_description =
-    `Specter: Can travel up to 3 spaces orthogonally. While doing so, it can pass through tiles `
-    +`without costing movement. Passing through a tile damages and stuns/confuses it.`;
-const gem_crawler_description =
-    `Gem Crawler: Every other turn it will move 1 space closer to the player, then attack them if `
-    +`it is next to them.`;
+const enemy_descriptions = {
+    acid_bug: 
+        `Acid bug: Moves towards the player 1 space. Has no normal attack, `
+        +`but will spray acid upon death hurting everything next to it.`,
+    animated_boulder: 
+        `Animated Boulder: Wakes up when something touches it. Each turn it will `
+        +`damage everything close to it, then move 1 space closer to the player. `
+        +`After 3 turns, it will go back to sleep.`,
+    brightling: 
+        `Brightling: Is not aggressive. Will occasionally teleport the player `
+        +`close to it before teleoprting away the next turn.`,
+    captive_void: 
+        `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it `
+        +`turns it off for 2 turns.`,
+    carrion_flies: 
+        `Carrion Flies: Will attack the player if they are nearby. Otherwise wanders `
+        +`aimlessly. Over time they will multiply.`,
+    clay_golem: 
+        `Clay Golem: Will attack the player if it is next to them. Otherwise `
+        +`it will move 1 space closer. Taking damage will stun it and it cannot `
+        +`move two turns in a row.`,
+    corrosive_caterpillar: 
+        `Corrosive Caterpillar: Is not aggressive. Leaves a trail of corrosive `
+        +`slime behind it when it moves or dies.`,
+    darkling: 
+        `Darkling: Teleports around randomly hurting everything next to the location it `
+        +`arrives at. Blocking it's rift will destroy it.`,
+    gem_crawler: 
+        `Gem Crawler: Every other turn it will move 1 space closer to the player, then attack them if `
+        +`it is next to them.`,
+    igneous_crab: 
+        `Igneous Crab: Will attack the player if it is next to them. Otherwise it will `
+        +`move 1 space closer. When damaged, it will spend the next 2 turns fleeing.`,
+    living_tree: 
+        `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
+        +`Moves one square in any direction every other turn if it didn't attack.`,
+    living_tree_rooted: 
+        `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
+        +`This one has put down roots making it unable to move.`,
+    magma_spewer: 
+        `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
+        +`get close.`,
+    noxious_toad: 
+        `Noxious Toad: Every other turn it will hop over a space orthogonally. `
+        +`If it lands near the player, it will damage everything next to it.`,
+    orb_of_insanity: 
+        `Orb of Insanity: Does not move or attack. If the player is within `
+        +`2 spaces of it, it will confuse them, polluting their deck with a bad temporary card.`,
+    paper_construct: 
+        `Paper Construct: Can shoot the player from up to 2 spaces away orthogonally. Otherwise, `
+        +`moves up to two spaces diagonally.`,
+    pheonix: 
+        `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `
+        +`Everything it flies over will be damaged and set on fire. When it dies, `
+        +`it drops a pile of ashes from which it will eventually be reborn.`,
+    porcuslime_large: 
+        `Large Porcuslime: Moves towards the player 1 space and attacks `
+        +`in that direction. Weakens when hit.`,
+    porcuslime_medium: 
+        `Medium Porcuslime: Moves towards the player 1 space and attacks `
+        +`in that direction. Alternates between orthoganal and diagonal `
+        +`movement. Splits when hit.`,
+    porcuslime_small_d: 
+        `Small Porcuslime: Moves towards the player 1 space diagonally and `
+        +`attacks in that direction.`,
+    porcuslime_small_h: 
+        `Small Porcuslime: Moves towards the player 1 space orthogonally `
+        +`and attacks in that direction.`,
+    ram: 
+        `Ram: Moves orthogonally. When it sees the player, it will `
+        +`prepare to charge towards them and ram them.`,
+    rat: 
+        `Rat: Will attack the player if it is next to them. Otherwise it will move `
+        +`2 spaces closer. After attacking, it will flee.`,
+    scorpion: 
+        `Scorpion: Will attack the player if it is next to them. Otherwise, moves 2 spaces `
+        +`closer every other turn.`,
+    scythe: 
+        `Scythe: Will move 3 spaces diagonally towards the player `
+        +`damaging them if it passes next to them. Can only see diagonally.`,
+    shadow_knight: 
+        `Shadow Knight: Moves in an L shape. If it tramples the player, `
+        +`it will move again.`,
+    shadow_scout: 
+        `Shadow Scout: Will attack the player if it is next to them. Otherwise it will `
+        +`move 1 space closer. Can go invisible every other turn.`,
+    specter: 
+        `Specter: Can travel up to 3 spaces orthogonally. While doing so, it can pass through tiles `
+        +`without costing movement. Passing through a tile damages and stuns/confuses it.`,
+    spider_web: [
+        `Spider Web: Does not move or attack. Spawns a spider every `, 
+        ` turns. Slows over time.`
+    ],
+    spider: 
+        `Spider: Will attack the player if it is next to them. `
+        +`Otherwise it will move 1 space closer.`,
+    strider: 
+        `Strider: Attacks then moves 2 spaces away in one direction.`,
+    swaying_nettle: 
+        `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal `
+        +`to it. Won't hurt each other`,
+    thorn_bush: 
+        `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`,
+    turret_d: 
+        `Turret: Does not move. Fires beams diagonally that hit the `
+        +`first thing in their path.`,
+    turret_h: 
+        `Turret: Does not move. Fires beams orthogonally that hit `
+        +`the first thing in their path.`,
+    turret_m:
+        `Moving Turret: Fires beams in two directions that hit the first thing in their path. `
+        +`Moves in the same direction until it hits something.`,
+    turret_r: 
+        `Turret: Does not move. Fires beams in two directions hitting `
+        +`the first thing in their path. Rotates every turn.`,
+    unstable_wisp: 
+        `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes `
+        +`into a ring of fireballs on death.`,
+    vampire: 
+        `Vampire: Moves orthogonally then will attempt to attack diagonally. `
+        +`When it hits the player, it will heal itself. Teleports away and is `
+        +`stunned when hit.`,
+    vinesnare_bush: 
+        `Vinesnare Bush: Does not move. Can drag the player towards it using it's vines from up to 3 `
+        +`spaces away. It can then lash out at the player if they are still nearby next turn.`,
+    walking_prism: [
+        `Walking Prism: Has no normal attack, but will fire beams in 4 directions when damaged `
+        +`which hit the first thing in their path. Changes firing direction aftewards.\n`, 
+        `Currently aiming orthogonally.`,
+        `Currently aiming diagonally.`
+    ],
+}
+Object.freeze(enemy_descriptions);
 
-const lava_pool_description = 
-    `Lava Pool: Attempting to move here will hurt.`;
-const corrosive_slime_description = 
-    `Corrosive Slime: Stepping into this will hurt. Clear it out `
-    +`by attacking.`;
-const wall_description = 
-    `Wall: It seems sturdy.`;
-const damaged_wall_description = 
-    `Damaged Wall: Something might live inside.`;
-const fireball_description = 
-    `Fireball: Moves forwards until it comes into contact with `
-    +`something, then damages it. Cannot be stunned.`;
-const falling_rubble_description = 
-    `Watch out, something is about to fall here.`;
-const darkling_rift_description = 
-    `If this space isn't blocked, a darkling will teleport here `
-    +`next turn damaging everything nearby.`;
-const magmatic_boulder_description = 
-    `Magmatic Boulder: The light reflecting off of it gives you the `
-    +`feeling of being watched.`;
-const smoldering_ashes_description = [
-    `Smoldering Ashes: A pheonix will be reborn here in `, 
-    ` turns unless you scatter the ashes by attacking them or moving onto them.`
-];
-const raging_fire_description = 
-    `Raging Fire: The very ground here is burning. It will grow weaker `
-    +`every turn, but it's not safe to move through. Cannot be stunned.`;
-const coffin_description = 
-    `Coffin: There is no telling whether whatever is inside is still `
-    +`alive or not. Touch it at your own risk.`;
-const sewer_grate_description = 
-    `Sewer Grate: It's clogged. Corrosive slime is oozing out.`;
-const repulsor_description = 
-    `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or `
-    +`if touched. Takes 2 turns to recharge afterwards.`;
-const thorn_bramble_description = 
-    `Thorn Bramble: Trying to move here hurts. Allows the thorn bush to `
-    +`spread further.`;
-const thorn_root_description = 
-    `Watch out, brambles are about to sprout damaging anything standing here.`
-const enticing_fruit_tree_description = 
-    `Enticing Fruit Tree: Moving you here will heal you, but other creatures `
-    +`may be attracted by the fruit.`;
-const rotting_fruit_tree_description = 
-    `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell `
-    +`could still attract creatures if it is disturbed.`;
-const bookshelf_description = 
-    `Bookshelf: When damaged, adds a random temporary card to your deck.`;
+const enemy_names = {
+    acid_bug: `Acid Bug`, 
+    animated_boulder: `Animated Boulder`, 
+    brightling: `Brightling`, 
+    captive_void: `Captive Void`, 
+    carrion_flies: `Carrion Flies`, 
+    clay_golem: `Clay Golem`, 
+    corrosive_caterpillar: `Corrosive Caterpillar`, 
+    darkling: `Darkling`, 
+    gem_crawler: `Gem Crawler`, 
+    igneous_crab: `Igneous Crab`, 
+    living_tree: `Living Tree`, 
+    magma_spewer: `Magma Spewer`, 
+    noxious_toad: `Noxious Toad`, 
+    orb_of_insanity: `Orb of Insanity`, 
+    paper_construct: `Paper Construct`, 
+    pheonix: `Pheonix`, 
+    porcuslime_large: `Large Porcuslime`, 
+    porcuslime_medium: `Medium Porcuslime`, 
+    porcuslime_small: `Small Porcuslime`, 
+    ram: `Ram`, 
+    rat: `Rat`, 
+    scorpion: `Scorpion`, 
+    scythe: `Scythe`, 
+    shadow_knight: `Shadow Knight`, 
+    shadow_scout: `Shadow Scout`, 
+    specter: `Specter`, 
+    spider_web: `Spider Web`, 
+    spider: `Spider`, 
+    strider: `Strider`, 
+    swaying_nettle: `Swaying Nettle`, 
+    thorn_bush: `Thorn Bush`, 
+    turret: `Turret`, 
+    turret_m: `Moving Turret`, 
+    turret_r: `Rotary Turret`, 
+    unstable_wisp: `Unstable Wisp`, 
+    vampire: `Vampire`, 
+    vinesnare_bush: `Vinesnare Bush`, 
+    walking_prism: `Walking Prism`,
+}
+Object.freeze(enemy_names);
+
+const event_descriptions = {
+    falling_rubble: 
+        `Watch out, something is about to fall here.`,
+    darkling_rift: 
+        `If this space isn't blocked, a darkling will teleport here `
+        +`next turn damaging everything nearby.`,
+    thorn_root: 
+        `Watch out, brambles are about to sprout damaging anything standing here.`,
+    nettle_root: 
+        `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
+}
+Object.freeze(event_descriptions);
+
+const event_names = {
+    bramble_shield: `Bramble Shield`,
+    darkling_rift: `Darkling Rift`,
+    delay: `Delay`,
+    earthquake: `Earthquake`,
+    falling_magma: `Falling Magma`,
+    falling_rubble: `Falling Rubble`,
+    nettle_shield: `Nettle Shield`,
+    spell_announcement: `Spell Announcement`,
+    unstun: `Unstun`,
+    wake_up: `Wake Up`,
+}
+Object.freeze(event_names);
+const other_tile_descriptions = {
+    bookshelf: 
+        `Bookshelf: When damaged, adds a random temporary card to your deck.`,
+    coffin: 
+        `Coffin: There is no telling whether whatever is inside is still `
+        +`alive or not. Touch it at your own risk.`,
+    corrosive_slime: 
+        `Corrosive Slime: Stepping into this will hurt. Clear it out `
+        +`by attacking.`,
+    fireball: 
+        `Fireball: Moves forwards until it comes into contact with `
+        +`something, then damages it. Cannot be stunned.`,
+    fruit_tree_enticing: 
+        `Enticing Fruit Tree: Moving you here will heal you, but other creatures `
+        +`may be attracted by the fruit.`,
+    fruit_tree_rotting: 
+        `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell `
+        +`could still attract creatures if it is disturbed.`,
+    lava_pool: 
+        `Lava Pool: Attempting to move here will hurt.`,
+    magmatic_boulder: 
+        `Magmatic Boulder: The light reflecting off of it gives you the `
+        +`feeling of being watched.`,
+    raging_fire: 
+        `Raging Fire: The very ground here is burning. It will grow weaker `
+        +`every turn, but it's not safe to move through. Cannot be stunned.`,
+    repulsor: 
+        `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or `
+        +`if touched. Takes 2 turns to recharge afterwards.`,
+    sewer_grate: 
+        `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
+    smoldering_ashes: [
+        `Smoldering Ashes: A pheonix will be reborn here in `, 
+        ` turns unless you scatter the ashes by attacking them or moving onto them.`
+    ],
+    thorn_bramble: 
+        `Thorn Bramble: Trying to move here hurts. Allows the thorn bush to `
+        +`spread further.`,
+    wall: 
+        `Wall: It seems sturdy.`,
+    wall_damaged: 
+        `Damaged Wall: Something might live inside.`,
+}
+Object.freeze(other_tile_descriptions);
+
+const other_tile_names = {
+    bookshelf: `Bookshelf`,
+    coffin: `Coffin`,
+    corrosive_slime: `Corrosive Slime`,
+    fireball: `Fireball`,
+    fruit_tree_enticing: `Enticing Fruit Tree`,
+    fruit_tree_rotting: `Rotting Fruit Tree`,
+    lava_pool: `Lava Pool`,
+    magmatic_boulder: `Magmatic Boulder`,
+    raging_fire: `Raging Fire`,
+    repulsor: `Repulsor`,
+    sewer_grate: `Sewer Grate`,
+    smoldering_ashes: `Smoldering Ashes`,
+    thorn_bramble: `Thorn Brambles`,
+    wall: `Wall`,
+    wall_damaged: `Damaged Wall`,
+}
+Object.freeze(other_tile_names);
 
 
-const empty_description = 
-    `There is nothing here.`;
-const exit_description = 
-    `Stairs: Takes you to the next floor.`;
-const lock_description = 
-    `Locked Exit: Defeat the boss to continue.`;
-const player_description = 
-    `You: Click a card to move.`;
+const special_tile_descriptions = {
+    chest: `Chest: It might have something useful inside. Breaking it will damage `
+    +`the contents.`,
+    chest_armored: `Armored Chest: It might have something useful inside. It is larger than `
+    +`a normal chest and armored to protect it's contents.`,
+    empty: `There is nothing here.`,
+    exit: `Exit: Stairs to the next floor.`,
+    lock: `Locked Exit: Defeat the boss to continue.`,
+    player: `You: Click a card to move.`,
+}
+Object.freeze(special_tile_descriptions);
 
-// Chest
-const chest_description = 
-    `Chest: It might have something useful inside. Breaking it will damage `
-    +`the contents.`;
-const armored_chest_description = 
-    `Armored Chest: It might have something useful inside. It is larger than `
-    +`a normal chest and armored to protect it's contents.`;
-const chest_inner_discription = 
-    `Choose up to one reward:`;
-const take_from_chest = 
-    `Take`;
-const abandon_chest = 
-    `Abandon`;
-const add_card_description = 
-    `Add this card to your deck.`
-// General Descriptions
-const game_title = `Maneuver`;
-const hand_label_text = `Hand of cards`;
-const move_label_text = `Moves`;
-const mod_deck = `Choose one card to add or remove:`;
-const shop_add_description = `Add a card to your deck.`
-const shop_remove_description = `Remove a card from your deck.`
-const shop_min_description = `Your deck is at the minimum size.`
-const shop_confirm_description = `Please choose a card to add or remove.`
-const confirm_text = `Confirm >`;
-const current_deck = `Current Deck (minimum `;
-const welcome_message = `Use cards to move (blue) and attack (red).\n` 
-                        + `Click on things to learn more about them.\n`
-                        + `Refer to the guidebook if you need more information.`;
-const blank_moves_message = `Before choosing what move to make, you must first select a card to use.`;
-const floor_message = `Welcome to floor `;
-const game_over_message = `Game Over. You were killed by a `;
-const retry_message = `Retry?`;
-const stunned_msg = `Stunned x`;
-const gameplay_screen_name = `Gameplay`;
-const guide_screen_name = `Guidebook`;
-const controls_screen_name = `Controls`;
-const achievements_screen_name = `Achievements`;
-const edit_controls_message = `Edit`;
-const default_controls_message = `Default`;
-const save_controls_message = `Save`;
-const undo_edit_controls_message = `Undo`;
-const tile_description_divider = `\n--------------------\n`;
-const card_explanation_start = `Move Options (actions will be performed in order):\n`;
-const card_explanation_end = `Shift click on a button to show what it will do on the map.\n`;
-const unlock_boon_description = `New Boon`
-const unlock_card_description = `New Cards`
+const special_tile_names = {
+    chest: `Chest`,
+    chest_armored: `Armored Chest`,
+    empty: `Empty`,
+    exit: `Exit`,
+    lock: `Locked Exit`,
+    you: `You`,
+    player: `Player`,
+}
+Object.freeze(special_tile_names);
+
+const chest_text = {
+    header: `Choose up to one reward:`,
+    take: `Take`,
+    abandon: `Abandon`,
+    add_card: `Add this card to your deck.`,
+}
+Object.freeze(chest_text);
+
+const entity_types = {
+    chest: `Chest`,
+    empty: `Empty`,
+    enemy: `Enemy`,
+    exit: `Exit`,
+    player: `Player`,
+    terrain: `Terrain`,
+}
+Object.freeze(entity_types);
+
+const screen_names = {
+    gameplay: `Gameplay`,
+    guide: `Guidebook`,
+    controls: `Controls`,
+    achievements: `Achievements`,
+}
+Object.freeze(screen_names);
+
+const control_screen_text = {
+    default: `Default`,
+    edit: `Edit`,
+    save: `Save`,
+    undo: `Undo`,
+}
+Object.freeze(control_screen_text);
+
+const shop_text = {
+    header: `Choose one card to add or remove:`,
+    add: `Add a card to your deck.`,
+    remove: `Remove a card from your deck.`,
+    min: `Your deck is at the minimum size.`,
+    invalid: `Please choose a card to add or remove.`,
+    confirm: `Confirm >`,
+    current: `Current Deck (minimum `,
+}
+Object.freeze(shop_text);
+
+const gameplay_labels = {
+    title: `Maneuver`,
+    hand: `Hand of Cards`,
+    move: `Moves`,
+    retry: `Retry?`,
+    floor: `Floor`,
+    turn: `Turn`,
+}
+Object.freeze(gameplay_labels);
+
+const gameplay_text = {
+    welcome: 
+        `Use cards to move (blue) and attack (red).\n` 
+        +`Click on things to learn more about them.\n`
+        +`Refer to the guidebook if you need more information.`,
+    floor: 
+        `Welcome to floor `,
+    game_over: 
+        `Game Over. You were killed by a `,
+    stunned:    
+        `Stunned x`,
+    divider: 
+        `\n--------------------\n`,
+    select_card: 
+        `Before choosing what move to make, you must first select a card to use.`,
+}
+Object.freeze(gameplay_text);
+
 const SIDEBAR_BUTTONS = {
     text_log: `Messages`, 
     boon_list: `Boons`, 
     discard_pile: `Discard`, 
     initiative: `Initiative`, 
     deck_order: `Deck`,
-    shadow_hand: `Shadow Hand`,
     sidebar: `Sidebar`
 }
 Object.freeze(SIDEBAR_BUTTONS);
@@ -3002,7 +3083,7 @@ const CARD_SYMBOLS = [
     {src: `${IMG_FOLDER.symbols}attack_until.png`,      name: `attack until`,       x: 4, y: 1},
     {src: `${IMG_FOLDER.symbols}teleport.png`,          name: `teleport`,           x: 3, y: 1},
     {src: `${IMG_FOLDER.symbols}attack_move.png`,       name: `attack then move`,   x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}triple_attack.png`,     name: `tripple attack`,     x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}triple_attack.png`,     name: `triple attack`,     x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}instant.png`,           name: `instant`,            x: 2, y: 2},
     {src: `${IMG_FOLDER.symbols}temporary.png`,         name: `temporary`,          x: 2, y: 2},
     {src: `${IMG_FOLDER.symbols}per_floor.png`,         name: `once per floor`,     x: 2, y: 2},
@@ -3092,8 +3173,6 @@ const HTML_UIIDS = {
                     text_scroll: `textScroll`,
                 deck_order: `deckOrder`,
                     deck_order_table: `deckOrderTable`,
-                shadow_hand: `shadowHand`,
-                    shadow_hand_table: `shadowHandTable`,
             health_display: `healthDisplay`,
             remaining_deck: `remainingDeck`,
                 deck_image: `deckImage`,
@@ -3141,7 +3220,6 @@ Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
 
-
 SENTRY_MODES = Object.freeze({
     saw: "Saw",
     cannon: "Cannon",
@@ -3158,20 +3236,20 @@ function arcane_sentry_tile(){
         health -= 2;
     }
     return{
-        type: `enemy`,
-        name: `Arcane Sentry`,
+        type: entity_types.enemy,
+        name: boss_names.arcane_sentry,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
-        description: arcane_sentry_description,
+        description: boss_descriptions.arcane_sentry,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry]),
         health,
-        death_message: arcane_sentry_death_message,
+        death_message: boss_death_message.arcane_sentry,
         death_achievement: achievement_names.arcane_sentry,
         behavior: sentry_core_ai,
         on_hit: sentry_core_on_hit,
         on_death: arcane_sentry_death,
         cycle: 0,
         spawn_timer: 4,
-        card_drops: [beam_ne, beam_se, beam_sw, beam_nw, saw_strike]
+        card_drops: BOSS_CARDS.arcane_sentry
     }
 }
 
@@ -3181,13 +3259,13 @@ function arcane_node_tile(){
         health -= 2;
     }
     return{
-        type: `enemy`,
-        name: `Arcane Sentry Node`,
+        type: entity_types.enemy,
+        name: boss_names.arcane_sentry_node,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret`,
-        description: arcane_sentry_node_description,
+        description: boss_descriptions.arcane_sentry_node,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry, TAGS.controlled, TAGS.unstunnable]),
         health,
-        death_message: arcane_sentry_node_death_message,
+        death_message: boss_death_message.arcane_sentry_node,
         on_hit: node_on_hit,
         on_death: node_on_death,
     }
@@ -3330,49 +3408,6 @@ function sentry_get_core(location, map){
         }
     }    
 }
-/** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
-function boss_death(self, target, map){
-    if(
-        self.tile.death_message === undefined ||
-        self.tile.death_achievement === undefined
-    ){
-        throw new Error(ERRORS.missing_property);
-    }
-    if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
-        // Create a chest containing a random card from it's loot table.
-        var chest = appropriate_chest_tile();
-        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
-        for(var card of cards){
-            add_card_to_chest(chest, card());
-        }
-        map.add_tile(chest, self.location);
-    }
-    map.unlock();
-    var death_message = `${self.tile.death_message}\n${boss_death_description}`;
-    var player_tile = map.get_player();
-    if(player_tile.max_health === 1){
-        GS.achieve(achievement_names.one_life);
-    }
-    var stats = map.stats.get_stats()
-    if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
-        GS.achieve(achievement_names.not_my_fault);
-    }
-    if( // Practice makes perfect
-        GS.boons.has(boon_names.practice_makes_perfect) && 
-        player_tile.max_health !== undefined && 
-        player_tile.max_health === player_tile.health
-    ){
-        ++player_tile.max_health;
-        death_message = `${death_message}\n${practice_makes_perfect_message}`
-    }
-    map.player_heal(new Point(0, 0));
-    var new_boss_kill = GS.achieve(self.tile.death_achievement);
-    if(new_boss_kill && GS.data.achievements.count_bosses() === 5){
-        GS.achieve(achievement_names.monster_hunter);
-    }
-    
-    say_record(death_message);
-}
 // ToDo
 //      Handle Death
 //      Handle Spells
@@ -3410,13 +3445,13 @@ function forest_heart_tile(){
     ];
     var health = 12
     var tile = {
-        type: `enemy`,
-        name: `Forest Heart`,
+        type: entity_types.enemy,
+        name: boss_names.forest_heart,
         pic: pic_arr[0],
-        description: forest_heart_description + forest_heart_rest_description,
+        description: boss_descriptions.forest_heart + heart_spell_descriptions.rest,
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
         health: 12,
-        death_message: forest_heart_death_message,
+        death_message: boss_death_message.forest_heart,
         death_achievement: achievement_names.forest_heart,
         behavior: forest_heart_ai,
         on_hit: forest_heart_on_hit,
@@ -3426,12 +3461,12 @@ function forest_heart_tile(){
         cycle: health,
         segment_list: [undefined, undefined],
         spells,
-        card_drops: [snack, branch_strike, vine_snare]
+        card_drops: BOSS_CARDS.forest_heart
     }
     if(GS.boons.has(boon_names.boss_slayer)){
         tile.health -= 2;
         var next_spell = spells[tile.health - 2];
-        tile.description = forest_heart_description + next_spell.description;
+        tile.description = boss_descriptions.forest_heart + next_spell.description;
         tile.pic = next_spell.pic;
         tile.telegraph_other = next_spell.telegraph_other;
     }
@@ -3455,14 +3490,14 @@ function forest_heart_ai(self, target, map){
         var health = self.tile.cycle;
         var next_spell = self.tile.spells[health - 2];
         if(health > 1){
-            map.add_event({name: `spell announcement`, behavior: () => {say_record(next_spell.description)}});
+            map.add_event({name: event_names.spell_announcement, behavior: () => {say_record(next_spell.description)}});
         }
         for(var section of sections){
             var tile = section.tile;
             tile.health = health;
             tile.pic = tile.pic_arr[0];
             if(tile.health > 1){
-                tile.description = forest_heart_description + next_spell.description;
+                tile.description = boss_descriptions.forest_heart + next_spell.description;
                 tile.pic = next_spell.pic;
                 tile.telegraph_other = next_spell.telegraph_other;
             }
@@ -3573,13 +3608,16 @@ function lich_tile(){
     }
     var starting_cycle = 0;
     return{
-        type: `enemy`,
-        name: `Lich`,
+        type: entity_types.enemy,
+        name: boss_names.lich,
         pic: spells[starting_cycle].pic,
-        description: `${lich_description}${spells[starting_cycle].description}`,
+        description: 
+            `${boss_descriptions.lich}\n`
+            +`${boss_descriptions.lich_announcement}\n`
+            +`${spells[starting_cycle].description}`,
         tags: new TagList([TAGS.boss]),
         health,
-        death_message: lich_death_message,
+        death_message: boss_death_message.lich,
         death_achievement: achievement_names.lich,
         behavior: lich_ai,
         telegraph: lich_telegraph,
@@ -3589,7 +3627,7 @@ function lich_tile(){
         cycle: starting_cycle,
         spells,
         summons,
-        card_drops: [instant_teleport, debilitating_confusion, beam_orthogonal, beam_diagonal]
+        card_drops: BOSS_CARDS.lich
     }
 }
 
@@ -3619,10 +3657,15 @@ function lich_ai(self, target, map){
         self.tile.spells[self.tile.cycle].behavior(self, target, map);
         self.tile.cycle = 0;
     }
-    self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
+    self.tile.description = 
+        `${boss_descriptions.lich}\n`
+        +`${boss_descriptions.lich_announcement}\n`
+        +`${self.tile.spells[self.tile.cycle].description}`;
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
-    var announcement = `${lich_announcement}${self.tile.spells[self.tile.cycle].description}`
-    map.add_event({name: `spell announcement`, behavior: () => {say_record(announcement)}});
+    var announcement = 
+        `${boss_descriptions.lich_announcement}\n`
+        +`${self.tile.spells[self.tile.cycle].description}`;
+    map.add_event({name: event_names.spell_announcement, behavior: () => {say_record(announcement)}});
 }
 
 /** @type {TelegraphFunction} */
@@ -3658,193 +3701,11 @@ function lich_hit(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     self.tile.cycle = 1;
-    self.tile.description = `${lich_description}${self.tile.spells[self.tile.cycle].description}`;
+    self.tile.description = 
+        `${boss_descriptions.lich}\n`
+        +`${boss_descriptions.lich_announcement}\n`
+        +`${self.tile.spells[self.tile.cycle].description}`;
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
-}
-/** @type {TileGenerator} */
-function shadow_of_self_tile(){
-    var health = 3; // Playermax?
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
-    var deck = GS.deck.copy();
-    deck.deal();
-    var look_arr = [illusion_of_self_tile, shadow_of_self_tile];
-    return{
-        type: `enemy`,
-        name: `Shadow of Self`,
-        pic: `${IMG_FOLDER.tiles}shadow_of_self.png`,
-        description: shadow_of_self_description,
-        tags: new TagList([TAGS.boss]),
-        health,
-        max_health: health,
-        death_message: shadow_of_self_death_message,
-        behavior: shadow_of_self_ai,
-        on_hit: shadow_of_self_hit,
-        on_death: boss_death,
-        look_arr,
-        cycle: 0,
-        card_drops: [],
-        deck
-    }
-}
-
-/** @type {AIFunction} AI used by the Shadow of Self.*/
-async function shadow_of_self_ai(self, target, map){
-    // If was hit, do the teleporting thing
-    if(self.tile.cycle === 1){
-        map.player_teleport(new Point(0, 0));
-        var lost_health = self.tile.max_health - self.tile.health;
-        for(var i = 0; i < 2 * lost_health; ++i){
-            teleport_spell(self, target, map);
-            spawn_nearby(map, illusion_of_self_tile(), self.location);
-        }
-        self.tile.cycle = 0;
-        return;
-    }
-
-    // Get hand.
-    var hand = self.tile.deck.get_hand_info();
-    // Get moves from each card in hand.
-    var moves = get_shadow_move_options(hand);
-    moves = moves.map(move => {
-        return {
-            hand_position: move.hand_position,
-            behavior: move.behavior,
-            telegraph: telegraph_card(move.behavior, map, self.location)
-        }
-    })
-    // Pick which move to do, then select the card from the hand.
-    var choice = get_shadow_move(moves, self.location, self.location.plus(target.difference));
-    shadow_hand_select(choice.hand_position);
-    var instant = hand[choice.hand_position].card.options.is_instant();
-    await delay(3 * ANIMATION_DELAY);
-
-    // Perform the move and update the map.
-    do_shadow_move(map, choice.behavior, self.location);
-    display_map(map);
-
-    // Wait, then update the hand to discard the selected card.
-    await delay(3 * ANIMATION_DELAY);
-    self.tile.deck.discard(choice.hand_position);
-    refresh_shadow_hand_display(self.tile.deck.get_hand_info());
-
-    if(instant){
-        // Take another turn
-        await delay(3 * ANIMATION_DELAY);
-        await shadow_of_self_ai(self, target, map)
-    }
-}
-
-function get_shadow_move_options(hand){
-    var move_options = [];
-    for(var i = 0; i < hand.length; ++i){
-        var card = hand[i].card;
-        for(var j = 1; j < 10; ++j){
-            var behavior = card.options.get_behavior(j);
-            if(behavior !== undefined){
-                move_options.push({
-                    hand_position: i,
-                    behavior
-                })
-            }
-        }
-    }
-    return move_options;
-}
-
-function get_shadow_move(moves, self, target){
-    moves = randomize_arr(moves);
-    // Can it attack the player?
-    for(var move of moves){
-        for(var point of move.telegraph.attacks){
-            if(point_equals(point, target)){
-                return move;
-            }
-        }
-    }
-    // Can it heal itself?
-    for(var move of moves){
-        for(var point of move.telegraph.healing){
-            if(point_equals(point, self)){
-                return move;
-            }
-        }
-    }
-    // Can it confuse the player?
-    for(var move of moves){
-        for(var point of move.telegraph.stun){
-            if(point_equals(point, target)){
-                return move;
-            }
-        }
-    }
-    // Does anything move closer?
-    for(var move of moves){
-        for(var point of move.telegraph.moves){
-            var move_difference = point.minus(target).taxicab_distance();
-            var stay_difference = self.minus(target).taxicab_distance();
-            if(move_difference < stay_difference){
-                return move;
-            }
-        }
-    }
-    // Pick randomly.
-    return rand_from(moves);
-}
-
-function do_shadow_move(map, moves, location){
-    for(var move of moves){
-        switch(move.type){
-            case `attack`:
-                map.attack(location.plus(move.change));
-                break;
-            case `move`:
-                var moved = map.move(location, location.plus(move.change));
-                if(moved){
-                    location.plus_equals(move.change);
-                }
-                break;
-            case `teleport`:
-                var destination = map.random_empty();
-                if( // If the shadow is teleported, update it's location.
-                    map.move(location.plus(move.change), destination) && 
-                    point_equals(move.change, new Point(0, 0))
-                ){
-                    location.x = destination.x;
-                    location.y = destination.y;
-                }
-                break;
-            case `stun`:
-                map.stun_tile(location.plus(move.change));
-                break;
-            case `move_until`:
-                var moved = true;
-                while(moved){
-                    moved = map.move(location, location.plus(move.change));
-                    if(moved){
-                        location.plus_equals(move.change);
-                    }
-                }
-                break;
-            case `attack_until`:
-                var target = location.plus(move.change);
-                while(map.is_in_bounds(target)){
-                    map.attack(target);
-                    target.plus_equals(move.change);
-                }
-                break;
-            case `heal`:
-                map.heal(location.plus(move.change));
-                break;
-            default:
-                throw new Error(ERRORS.invalid_value);
-        }
-    }
-}
-
-function shadow_of_self_hit(self, target, map){
-    self.tile.cycle = 1;
 }
 /** @type {TileGenerator} */
 function spider_queen_tile(){
@@ -3853,19 +3714,19 @@ function spider_queen_tile(){
         health -= 2;
     }
     return{
-        type: `enemy`,
-        name: `Spider Queen`,
+        type: entity_types.enemy,
+        name: boss_names.spider_queen,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
-        description: spider_queen_description,
+        description: boss_descriptions.spider_queen,
         tags: new TagList([TAGS.boss]),
         health,
-        death_message: spider_queen_death_message,
+        death_message: boss_death_message.spider_queen,
         death_achievement: achievement_names.spider_queen,
         behavior: spider_ai,
         telegraph: spider_telegraph,
         on_hit: spider_queen_hit,
         on_death: boss_death,
-        card_drops: [skitter, bite, chomp]
+        card_drops: BOSS_CARDS.spider_queen
     }
 }
 
@@ -3881,13 +3742,13 @@ function spider_queen_hit(self, target, map){
 function two_headed_serpent_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}serpent_head_sleep.png`, `${IMG_FOLDER.tiles}serpent_head.png`];
     return{
-        type: `enemy`,
-        name: `Two Headed Serpent`,
+        type: entity_types.enemy,
+        name: boss_names.two_headed_serpent,
         pic: pic_arr[1],
-        description: two_headed_serpent_awake_description,
+        description: boss_descriptions.two_headed_serpent_awake,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         health: 1,
-        death_message: two_headed_serpent_death_message,
+        death_message: boss_death_message.two_headed_serpent,
         death_achievement: achievement_names.two_headed_serpent,
         behavior: two_headed_serpent_ai,
         telegraph: two_headed_serpent_telegraph,
@@ -3895,17 +3756,17 @@ function two_headed_serpent_tile(){
         pic_arr,
         cycle: 1,
         segment_list: [undefined, undefined],
-        card_drops: [regenerate, fangs, slither]
+        card_drops: BOSS_CARDS.two_headed_serpent
     }
 }
 /** @type {TileGenerator} */
 function two_headed_serpent_body_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}serpent_body_straight.png`, `${IMG_FOLDER.tiles}serpent_body_bend.png`];
     return{
-        type: `terrain`,
-        name: `Two Headed Serpent body`,
+        type: entity_types.terrain,
+        name: boss_names.two_headed_serpent_body,
         pic: pic_arr[0],
-        description: two_headed_serpent_body_description,
+        description: boss_descriptions.two_headed_serpent_body,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         pic_arr,
         segment_list: [undefined, undefined],
@@ -3971,7 +3832,7 @@ function two_headed_serpent_ai(self, target, map){
         var wake_up = function(map_to_use){
             serpent_wake(tail, map_to_use);
         }
-        map.add_event({name: `Wake Up`, behavior: wake_up});
+        map.add_event({name: event_names.wake_up, behavior: wake_up});
     }
 }
 /**
@@ -4073,10 +3934,10 @@ function serpent_toggle(tile, cycle){
     tile.cycle = cycle;
     tile.pic = tile.pic_arr[tile.cycle];
     if(tile.cycle === 1){
-        tile.description = two_headed_serpent_awake_description;
+        tile.description = boss_descriptions.two_headed_serpent_awake;
     }
     else{
-        tile.description = two_headed_serpent_asleep_description;
+        tile.description = boss_descriptions.two_headed_serpent_asleep;
     }
 }
 /**
@@ -4114,7 +3975,7 @@ function two_headed_serpent_hurt(self, target, map){
     // If no segments remain, it dies.
     neck_location = regrow.location.plus(ifexists(regrow.tile.segment_list[index]));
     neck = map.get_tile(neck_location);
-    if(neck.name === `Two Headed Serpent`){
+    if(neck.name === boss_names.two_headed_serpent){
         neck.on_death = undefined;
         regrow.tile.on_death = undefined;
         map.attack(neck_location);
@@ -4152,18 +4013,18 @@ function velociphile_tile(){
         health -= 2;
     }
     return{
-        type: `enemy`,
-        name: `Velociphile`,
+        type: entity_types.enemy,
+        name: boss_names.velociphile,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
-        description: velociphile_description,
+        description: boss_descriptions.velociphile,
         tags: new TagList([TAGS.boss]),
         health,
-        death_message: velociphile_death_message,
+        death_message: boss_death_message.velociphile,
         death_achievement: achievement_names.velociphile,
         behavior: velociphile_ai,
         telegraph: velociphile_telegraph,
         on_death: boss_death,
-        card_drops: [roll_nesw, roll_nwse, roll_ew]
+        card_drops: BOSS_CARDS.velociphile
     }
 }
 
@@ -4210,25 +4071,24 @@ function young_dragon_tile(){
         health -= 2;
     }
     return {
-        type: `enemy`,
-        name: `Young Dragon`,
+        type: entity_types.enemy,
+        name: boss_names.young_dragon,
         pic: pic_arr[0],
-        description: `${young_dragon_description_arr[0]}${young_dragon_description_arr[1]}`,
+        description: `${boss_descriptions.young_dragon[0]}${boss_descriptions.young_dragon[1]}`,
         tags: new TagList([TAGS.boss]),
         health,
-        death_message: young_dragon_death_message,
+        death_message: boss_death_message.young_dragon,
         death_achievement: achievement_names.young_dragon,
         behavior: young_dragon_behavior,
         telegraph: young_dragon_telegraph,
         on_death: boss_death,
         pic_arr,
-        description_arr: young_dragon_description_arr,
+        description_arr: boss_descriptions.young_dragon,
         rotate: 180,
         cycle: 0,
         range: 3,
         direction: new Point(0, 1),
-        card_drops: [firebreathing_horizontal, firebreathing_vertical, firebreathing_ne, firebreathing_nw, glide,
-                     soar]
+        card_drops: BOSS_CARDS.young_dragon
     }
 }
 
@@ -4288,7 +4148,7 @@ function young_dragon_behavior(self, target, map){
         self.tile.direction =  order_nearby(target.difference)[0];
         ++self.tile.cycle;
         self.tile.pic = self.tile.pic_arr[2 * self.tile.cycle + set_rotation(self.tile)];
-        self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[self.tile.cycle + 1]}${self.tile.range}.`;
+        self.tile.description = `${self.tile.description_arr[0]}${self.tile.description_arr[self.tile.cycle + 1]}`;
         return;
     }
     if(self.tile.cycle === 2){
@@ -4392,10 +4252,10 @@ function create_diagonal_cone(rotation, range){
 /** @type {TileGenerator} */
 function acid_bug_tile(){
     return {
-        type: `enemy`,
-        name: `Acid Bug`,
+        type: entity_types.enemy,
+        name: enemy_names.acid_bug,
         pic: `${IMG_FOLDER.tiles}acid_bug.png`,
-        description: acid_bug_description,
+        description: enemy_descriptions.acid_bug,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -4416,10 +4276,10 @@ function acid_bug_death(self, target, map){
 /** @type {TileGenerator} Generates an uncamoflauged animated boulder. */
 function animated_boulder_tile(){
     return {
-        type: `enemy`,
-        name: `Animated Boulder`,
+        type: entity_types.enemy,
+        name: enemy_names.animated_boulder,
         pic: `${IMG_FOLDER.tiles}animated_boulder.png`,
-        description: animated_boulder_description,
+        description: enemy_descriptions.animated_boulder,
         tags: new TagList([TAGS.unmovable, TAGS.hidden]),
         behavior: animated_boulder_ai,
         telegraph: spider_telegraph,
@@ -4486,10 +4346,10 @@ function animated_boulder_wake_up(self, target, map){
 function brightling_tile(){
     var starting_cycle = 0;
     return{
-        type: `enemy`,
-        name: `Brightling`,
+        type: entity_types.enemy,
+        name: enemy_names.brightling,
         pic: `${IMG_FOLDER.tiles}brightling.png`,
-        description: brightling_description,
+        description: enemy_descriptions.brightling,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -4536,10 +4396,10 @@ function captive_void_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}captive_void_on.png`, `${IMG_FOLDER.tiles}captive_void_off.png`];
     var starting_cycle = 0;
     return {
-        type: `enemy`,
-        name: `Captive Void`,
+        type: entity_types.enemy,
+        name: enemy_names.captive_void,
         pic: pic_arr[starting_cycle],
-        description: captive_void_description,
+        description: enemy_descriptions.captive_void,
         tags: new TagList([TAGS.unmovable]),
         difficulty: 2,
         behavior: captive_void_ai,
@@ -4564,7 +4424,7 @@ function captive_void_ai(self, target, map){
             var end = self.location.plus(sign(space));
             if(map.is_in_bounds(start) && !map.check_empty(start) && !map.get_tile(start).tags.has(TAGS.unmovable)){
                 var moved = map.move(start, end)
-                if(moved && map.get_tile(end).type === `player`){
+                if(moved && map.get_tile(end).type === entity_types.player){
                     moved_player = true;
                 }
             }
@@ -4607,10 +4467,10 @@ function captive_void_telegraph_other(location, map, self){
 /** @type {TileGenerator} */
 function carrion_flies_tile(){
     return {
-        type: `enemy`,
-        name: `Carrion Flies`,
+        type: entity_types.enemy,
+        name: enemy_names.carrion_flies,
         pic: `${IMG_FOLDER.tiles}carrion_flies.png`,
-        description: carrion_flies_description,
+        description: enemy_descriptions.carrion_flies,
         tags: new TagList(),
         health: 1,
         difficulty: 6,
@@ -4649,10 +4509,10 @@ function carrion_flies_ai(self, target, map){
 /** @type {TileGenerator} */
 function clay_golem_tile(){
     return {
-        type: `enemy`,
-        name: `Clay Golem`,
+        type: entity_types.enemy,
+        name: enemy_names.clay_golem,
         pic: `${IMG_FOLDER.tiles}clay_golem.png`,
-        description: clay_golem_description,
+        description: enemy_descriptions.clay_golem,
         tags: new TagList(),
         health: 3,
         difficulty: 4,
@@ -4690,10 +4550,10 @@ function clay_golem_hit(self, target, map){
 /** @type {TileGenerator} */
 function corrosive_caterpillar_tile(){
     return {
-        type: `enemy`,
-        name: `Corrosive Caterpillar`,
+        type: entity_types.enemy,
+        name: enemy_names.corrosive_caterpillar,
         pic: `${IMG_FOLDER.tiles}corrosive_caterpillar.png`,
-        description: corrosive_caterpillar_description,
+        description: enemy_descriptions.corrosive_caterpillar,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -4721,10 +4581,10 @@ function corrosive_caterpillar_death(self, target, map){
 /** @type {TileGenerator} */
 function darkling_tile(){
     return {
-        type: `enemy`,
-        name: `Darkling`,
+        type: entity_types.enemy,
+        name: enemy_names.darkling,
         pic: `${IMG_FOLDER.tiles}darkling.png`,
-        description: darkling_description,
+        description: enemy_descriptions.darkling,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -4754,13 +4614,13 @@ function darkling_ai(self, target, map){
         if(self.tile.health === undefined || self.tile.health > 0){
             var rift = {
                 pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
-                description: darkling_rift_description,
+                description: event_descriptions.darkling_rift,
                 telegraph: spider_telegraph
             }
             map_to_use.mark_event(self.tile.direction, rift, false);
         }
     }
-    map.add_event({name: `Darkling Rift`, behavior: darkling_rift});
+    map.add_event({name: event_names.darkling_rift, behavior: darkling_rift});
 }
 
 /** @type {TelegraphFunction} */
@@ -4776,10 +4636,10 @@ function gem_crawler_tile(){
     var cycle = random_num(2);
     var pic_arr = [`${IMG_FOLDER.tiles}gem_crawler_recharging.png`, `${IMG_FOLDER.tiles}gem_crawler.png`]
     return {
-        type: `enemy`,
-        name: `Gem Crawler`,
+        type: entity_types.enemy,
+        name: enemy_names.gem_crawler,
         pic: pic_arr[cycle],
-        description: gem_crawler_description,
+        description: enemy_descriptions.gem_crawler,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -4823,10 +4683,10 @@ function gem_crawler_telegraph(location, map, self){
 /** @type {TileGenerator} A crab which flees when hit. */
 function igneous_crab_tile(){
     return {
-        type: `enemy`,
-        name: `Igneous Crab`,
+        type: entity_types.enemy,
+        name: enemy_names.igneous_crab,
         pic: `${IMG_FOLDER.tiles}igneous_crab.png`,
-        description: igneous_crab_description,
+        description: enemy_descriptions.igneous_crab,
         tags: new TagList(),
         health: 2,
         difficulty: 3,
@@ -4882,10 +4742,10 @@ function igneous_crab_telegraph(location, map, self){
 /** @type {TileGenerator} */
 function living_tree_tile(){
     return {
-        type: `enemy`,
-        name: `Living Tree`,
+        type: entity_types.enemy,
+        name: enemy_names.living_tree,
         pic: `${IMG_FOLDER.tiles}living_tree.png`,
-        description: living_tree_description,
+        description: enemy_descriptions.living_tree,
         tags: new TagList(),
         health: 2,
         difficulty: 7,
@@ -4937,10 +4797,10 @@ function living_tree_telegraph(location, map, self){
 /** @type {TileGenerator} */
 function living_tree_rooted_tile(){
     return {
-        type: `enemy`,
-        name: `Living Tree`,
+        type: entity_types.enemy,
+        name: enemy_names.living_tree,
         pic: `${IMG_FOLDER.tiles}living_tree_rooted.png`,
-        description: living_tree_rooted_description,
+        description: enemy_descriptions.living_tree_rooted,
         tags: new TagList(),
         health: 2,
         behavior: living_tree_rooted_ai,
@@ -4968,10 +4828,10 @@ function magma_spewer_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}magma_spewer.png`, `${IMG_FOLDER.tiles}magma_spewer_firing.png`];
     var starting_cycle = random_num(pic_arr.length);
     return {
-        type: `enemy`,
-        name: `Magma Spewer`,
+        type: entity_types.enemy,
+        name: enemy_names.magma_spewer,
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
-        description: magma_spewer_description,
+        description: enemy_descriptions.magma_spewer,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -5010,7 +4870,7 @@ function magma_spewer_ai(self, target, map){
                 locations.push(center.plus(new Point(i, j)));
             }
         }
-        map.add_event({name: `Falling Magma`, behavior: earthquake_event(random_num(4) + 4, locations)})
+        map.add_event({name: event_names.falling_magma, behavior: earthquake_event(random_num(4) + 4, locations)})
     }
     self.tile.cycle = 1 - self.tile.cycle;
     self.tile.pic = self.tile.pic_arr[self.tile.cycle];
@@ -5020,10 +4880,10 @@ function noxious_toad_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}noxious_toad_leaping.png`, `${IMG_FOLDER.tiles}noxious_toad.png`];
     var starting_cycle = random_num(pic_arr.length);
     return {
-        type: `enemy`,
-        name: `Noxious Toad`,
+        type: entity_types.enemy,
+        name: enemy_names.noxious_toad,
         pic: pic_arr[starting_cycle],
-        description: noxious_toad_description, 
+        description: enemy_descriptions.noxious_toad, 
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -5091,10 +4951,10 @@ function orb_of_insanity_tile(){
     var range = 2;
     var pic_arr = [`${IMG_FOLDER.tiles}orb_of_insanity_off.png`, `${IMG_FOLDER.tiles}orb_of_insanity_on.png`];
     return {
-        type: `enemy`,
-        name: `Orb of Insanity`,
+        type: entity_types.enemy,
+        name: enemy_names.orb_of_insanity,
         pic: pic_arr[0],
-        description: `${orb_of_insanity_description[0]}${range}${orb_of_insanity_description[1]}`,
+        description: enemy_descriptions.orb_of_insanity,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 3,
@@ -5139,10 +4999,10 @@ function orb_of_insanity_telegraph_other(location, map, self){
 /** @type {TileGenerator} */
 function paper_construct_tile(){
     return{
-        type: `enemy`,
-        name: `Paper Construct`,
+        type: entity_types.enemy,
+        name: enemy_names.paper_construct,
         pic: `${IMG_FOLDER.tiles}paper_construct.png`,
-        description: paper_construct_description,
+        description: enemy_descriptions.paper_construct,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -5198,10 +5058,10 @@ function paper_construct_ai(self, target, map){
 /** @type {TileGenerator}*/
 function pheonix_tile(){
     return {
-        type: `enemy`,
-        name: `Pheonix`,
+        type: entity_types.enemy,
+        name: enemy_names.pheonix,
         pic: `${IMG_FOLDER.tiles}pheonix.png`,
-        description: pheonix_description,
+        description: enemy_descriptions.pheonix,
         tags: new TagList(),
         health: 1,
         difficulty: 5,
@@ -5275,10 +5135,10 @@ function pheonix_telegraph(location, map, self){
 /** @type {TileGenerator} */
 function large_porcuslime_tile(){
     return {
-        type: `enemy`,
-        name: `Large Porcuslime`,
+        type: entity_types.enemy,
+        name: enemy_names.porcuslime_large,
         pic: `${IMG_FOLDER.tiles}large_porcuslime.png`,
-        description: large_porcuslime_description,
+        description: enemy_descriptions.porcuslime_large,
         tags: new TagList(),
         health: 3,
         difficulty: 8,
@@ -5302,7 +5162,7 @@ function large_porcuslime_ai(self, target, map){
         map.attack(self.location);
         map.clear_telegraphs();
         spawn_nearby(map, small_d_porcuslime_tile(), self.location);
-        spawn_nearby(map, small_h_porcuslime_tile(), self.location);
+        spawn_nearby(map, small_o_porcuslime_tile(), self.location);
         return;
     }
     var direction = sign(target.difference);
@@ -5319,12 +5179,12 @@ function large_porcuslime_telegraph(location, map, self){
 /** @type {TileGenerator} */
 function medium_porcuslime_tile(){
     var starting_cycle = random_num(2);
-    var pic_arr = [`${IMG_FOLDER.tiles}medium_h_porcuslime.png`, `${IMG_FOLDER.tiles}medium_d_porcuslime.png`];
+    var pic_arr = [`${IMG_FOLDER.tiles}medium_o_porcuslime.png`, `${IMG_FOLDER.tiles}medium_d_porcuslime.png`];
     return {
-        type: `enemy`,
-        name: `Medium Porcuslime`,
+        type: entity_types.enemy,
+        name: enemy_names.porcuslime_medium,
         pic: pic_arr[starting_cycle],
-        description: medium_porcuslime_description,
+        description: enemy_descriptions.porcuslime_medium,
         tags: new TagList(),
         health: 2,
         difficulty: 5,
@@ -5346,7 +5206,7 @@ function medium_porcuslime_ai(self, target, map){
         map.attack(self.location);
         map.clear_telegraphs();
         spawn_nearby(map, small_d_porcuslime_tile(), self.location);
-        spawn_nearby(map, small_h_porcuslime_tile(), self.location);
+        spawn_nearby(map, small_o_porcuslime_tile(), self.location);
         return;
     }
     if(self.tile.cycle === 0){
@@ -5409,10 +5269,10 @@ function porcuslime_horizontal_telegraph(location, map, self){
 /** @type {TileGenerator} */
 function small_d_porcuslime_tile(){
     return {
-        type: `enemy`,
-        name: `Small Porcuslime`,
+        type: entity_types.enemy,
+        name: enemy_names.porcuslime_small,
         pic: `${IMG_FOLDER.tiles}small_d_porcuslime.png`,
-        description: small_d_porcuslime_description,
+        description: enemy_descriptions.porcuslime_small_d,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -5421,12 +5281,12 @@ function small_d_porcuslime_tile(){
     }
 }
 /** @type {TileGenerator} */
-function small_h_porcuslime_tile(){
+function small_o_porcuslime_tile(){
     return {
-        type: `enemy`,
-        name: `Small Porcuslime`,
-        pic: `${IMG_FOLDER.tiles}small_h_porcuslime.png`,
-        description: small_h_porcuslime_description,
+        type: entity_types.enemy,
+        name: enemy_names.porcuslime_small,
+        pic: `${IMG_FOLDER.tiles}small_o_porcuslime.png`,
+        description: enemy_descriptions.porcuslime_small_h,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -5439,10 +5299,10 @@ function ram_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}ram.png`, `${IMG_FOLDER.tiles}ram_charge.png`];
     var starting_cycle = 0;
     return{
-        type: `enemy`,
-        name: `Ram`,
+        type: entity_types.enemy,
+        name: enemy_names.ram,
         pic: pic_arr[starting_cycle],
-        description: ram_description,
+        description: enemy_descriptions.ram,
         tags: new TagList(),
         health: 2,
         difficulty: 5,
@@ -5531,15 +5391,15 @@ function ram_telegraph(location, map, self){
     if(self.cycle === 0){
         return [];
     }
-    return turret_h_telegraph(location, map, self);
+    return turret_o_telegraph(location, map, self);
 }
 /** @type {TileGenerator} */
 function rat_tile(){
     return {
-        type: `enemy`,
-        name: `Rat`,
+        type: entity_types.enemy,
+        name: enemy_names.rat,
         pic: `${IMG_FOLDER.tiles}rat.png`,
-        description: rat_description,
+        description: enemy_descriptions.rat,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -5599,10 +5459,10 @@ function rat_telegraph(location, map, self){
 /** @type {TileGenerator} */
 function scorpion_tile(){
     return {
-        type: `enemy`,
-        name: `Scorpion`,
+        type: entity_types.enemy,
+        name: enemy_names.scorpion,
         pic: `${IMG_FOLDER.tiles}scorpion.png`,
-        description: scorpion_description,
+        description: enemy_descriptions.scorpion,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -5655,10 +5515,10 @@ function scorpion_ai(self, target, map){
 /** @type {TileGenerator} */
 function scythe_tile(){
     return{
-        type: `enemy`,
-        name: `Scythe`,
+        type: entity_types.enemy,
+        name: enemy_names.scythe,
         pic: `${IMG_FOLDER.tiles}scythe.png`,
-        description: scythe_description,
+        description: enemy_descriptions.scythe,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -5713,10 +5573,10 @@ const L_SHAPES = [new Point(1, 2), new Point(-1, 2), new Point(1, -2), new Point
 /** @type {TileGenerator} */
 function shadow_knight_tile(){
     return{
-        type: `enemy`,
-        name: `Shadow Knight`,
+        type: entity_types.enemy,
+        name: enemy_names.shadow_knight,
         pic: `${IMG_FOLDER.tiles}shadow_knight.png`,
-        description: shadow_knight_description,
+        description: enemy_descriptions.shadow_knight,
         tags: new TagList(),
         health: 2,
         difficulty: 4,
@@ -5780,10 +5640,10 @@ function shadow_knight_telegraph(location, map, self){
 function shadow_scout_tile(){
     var starting_cycle = random_num(2);
     return {
-        type: `enemy`,
-        name: `Shadow Scout`,
+        type: entity_types.enemy,
+        name: enemy_names.shadow_scout,
         pic: `${IMG_FOLDER.tiles}shadow_scout.png`,
-        description: shadow_scout_description,
+        description: enemy_descriptions.shadow_scout,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -5807,10 +5667,10 @@ function shadow_scout_ai(self, target, map){
 /** @type {TileGenerator}*/
 function specter_tile(){
     return {
-        type: `enemy`,
-        name: `Specter`,
+        type: entity_types.enemy,
+        name: enemy_names.specter,
         pic: `${IMG_FOLDER.tiles}specter.png`,
-        description: specter_description,
+        description: enemy_descriptions.specter,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -5906,10 +5766,10 @@ function specter_telegraph(location, map, self){
 /** @type {TileGenerator} */
 function spider_tile(){
     return {
-        type: `enemy`,
-        name: `Spider`,
+        type: entity_types.enemy,
+        name: enemy_names.spider,
         pic: `${IMG_FOLDER.tiles}spider.png`,
-        description: spider_description,
+        description: enemy_descriptions.spider,
         tags: new TagList(),
         health: 1,
         difficulty: 1,
@@ -5938,10 +5798,12 @@ function spider_telegraph(location, map, self){
 function spider_web_tile(){
     var spawn_timer = 2
     return{
-        type: `enemy`,
-        name: `Spider Web`,
+        type: entity_types.enemy,
+        name: enemy_names.spider_web,
         pic: `${IMG_FOLDER.tiles}spider_web.png`,
-        description: `${spider_web_description[0]}${spawn_timer + 1}${spider_web_description[1]}`,
+        description: 
+            `${enemy_descriptions.spider_web[0]}${spawn_timer + 1}`
+            +`${enemy_descriptions.spider_web[1]}`,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 4,
@@ -5972,10 +5834,10 @@ function spider_web_ai(self, target, map){
 /** @type {TileGenerator} */
 function strider_tile(){
     return{
-        type: `enemy`,
-        name: `Strider`,
+        type: entity_types.enemy,
+        name: enemy_names.strider,
         pic: `${IMG_FOLDER.tiles}strider.png`,
-        description: strider_description,
+        description: enemy_descriptions.strider,
         tags: new TagList(),
         health: 2,
         difficulty: 4,
@@ -6017,10 +5879,10 @@ function swaying_nettle_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}swaying_nettle_x.png`, `${IMG_FOLDER.tiles}swaying_nettle_+.png`];
     var starting_cycle = random_num(2);
     return{
-        type: `enemy`,
-        name: `Swaying Nettle`,
+        type: entity_types.enemy,
+        name: enemy_names.swaying_nettle,
         pic: pic_arr[starting_cycle],
-        description: swaying_nettle_description,
+        description: enemy_descriptions.swaying_nettle,
         tags: new TagList([TAGS.unmovable, TAGS.nettle_immune]),
         health: 1,
         difficulty: 1,
@@ -6062,10 +5924,10 @@ function swaying_nettle_telegraph(location, map, self){
 /** @type {TileGenerator} */
 function thorn_bush_tile(){
     return{
-        type: `enemy`,
-        name: `Thorn Bush`,
+        type: entity_types.enemy,
+        name: enemy_names.thorn_bush,
         pic: `${IMG_FOLDER.tiles}thorn_bush.png`,
-        description: thorn_bush_description,
+        description: enemy_descriptions.thorn_bush,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
         health: 2,
         difficulty: 5,
@@ -6084,7 +5946,7 @@ function thorn_bush_ai(self, target, map){
             var space = map.get_tile(next);
             if(
                 space.tags.has(TAGS.thorn_bush_roots) || 
-                (space.type === `empty` && chance(1, 4))
+                (space.type === entity_types.empty && chance(1, 4))
             ){
                 current = next;
             }
@@ -6098,10 +5960,10 @@ function thorn_bush_ai(self, target, map){
 function moving_turret_d_tile(){
     var direction = rand_from(DIAGONAL_DIRECTIONS).copy();
     var tile = {
-        type: `enemy`,
-        name: `Moving Turret`,
+        type: entity_types.enemy,
+        name: enemy_names.turret_m,
         pic: `${IMG_FOLDER.tiles}moving_turret_d.png`,
-        description: moving_turret_description,
+        description: enemy_descriptions.turret_m,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -6144,18 +6006,18 @@ function moving_turret_d_telegraph(location, map, self){
     return attacks;
 }
 /** @type {TileGenerator} */
-function moving_turret_h_tile(){
+function moving_turret_o_tile(){
     var direction = rand_from(HORIZONTAL_DIRECTIONS).copy();
     var tile = {
-        type: `enemy`,
-        name: `Moving Turret`,
-        pic: `${IMG_FOLDER.tiles}moving_turret_h.png`,
-        description: moving_turret_description,
+        type: entity_types.enemy,
+        name: enemy_names.turret_m,
+        pic: `${IMG_FOLDER.tiles}moving_turret_o.png`,
+        description: enemy_descriptions.turret_m,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
-        behavior: moving_turret_h_ai,
-        telegraph: moving_turret_h_telegraph,
+        behavior: moving_turret_o_ai,
+        telegraph: moving_turret_o_telegraph,
         rotate: 0,
         direction
     }
@@ -6164,7 +6026,7 @@ function moving_turret_h_tile(){
 }
 
 /** @type {AIFunction} AI used by moving turrets that shoot orthogonally.*/
-function moving_turret_h_ai(self, target, map){
+function moving_turret_o_ai(self, target, map){
     if( self.tile.rotate === undefined || 
         self.tile.direction === undefined){
         throw new Error(ERRORS.missing_property)
@@ -6185,7 +6047,7 @@ function moving_turret_h_ai(self, target, map){
 }
 
 /** @type {TelegraphFunction} */
-function moving_turret_h_telegraph(location, map, self){
+function moving_turret_o_telegraph(location, map, self){
     var attacks = [];
     for(var direction of [self.direction.rotate(90), self.direction.rotate(-90)]){
         attacks.push(...get_points_in_direction(location, direction, map));
@@ -6201,10 +6063,10 @@ function turret_fire_ai(self, target, map){
 /** @type {TileGenerator} */
 function turret_d_tile(){
     return {
-        type: `enemy`,
-        name: `Turret`,
+        type: entity_types.enemy,
+        name: enemy_names.turret,
         pic: `${IMG_FOLDER.tiles}turret_d.png`,
-        description: turret_d_description,
+        description: enemy_descriptions.turret_d,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -6233,22 +6095,22 @@ function turret_d_telegraph(location, map, self){
     return attacks;
 }
 /** @type {TileGenerator} */
-function turret_h_tile(){
+function turret_o_tile(){
     return {
-        type: `enemy`,
-        name: `Turret`,
-        pic: `${IMG_FOLDER.tiles}turret_h.png`,
-        description: turret_h_description,
+        type: entity_types.enemy,
+        name: enemy_names.turret,
+        pic: `${IMG_FOLDER.tiles}turret_o.png`,
+        description: enemy_descriptions.turret_h,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
-        behavior: turret_h_ai,
-        telegraph: turret_h_telegraph
+        behavior: turret_o_ai,
+        telegraph: turret_o_telegraph
     }
 }
 
 /** @type {AIFunction} AI used by turrets that shoot orthogonally.*/
-function turret_h_ai(self, target, map){
+function turret_o_ai(self, target, map){
     // Turret version that shoots orthogonally.
     if(target.difference.on_axis()){
         turret_fire_ai(self, target, map);
@@ -6259,7 +6121,7 @@ function turret_h_ai(self, target, map){
 }
 
 /** @type {TelegraphFunction} */
-function turret_h_telegraph(location, map, self){
+function turret_o_telegraph(location, map, self){
     var attacks = [];
     for(var direction of HORIZONTAL_DIRECTIONS){
         attacks.push(...get_points_in_direction(location, direction, map));
@@ -6269,10 +6131,10 @@ function turret_h_telegraph(location, map, self){
 /** @type {TileGenerator} */
 function turret_r_tile(){
     var tile = {
-        type: `enemy`,
-        name: `Rotary Turret`,
+        type: entity_types.enemy,
+        name: enemy_names.turret_r,
         pic: ``,
-        description: turret_r_description,
+        description: enemy_descriptions.turret_r,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -6330,10 +6192,10 @@ function turret_r_telegraph(location, map, self){
 /** @type {TileGenerator} */
 function unstable_wisp_tile(){
     return {
-        type: `enemy`,
-        name: `Unstable Wisp`,
+        type: entity_types.enemy,
+        name: enemy_names.unstable_wisp,
         pic: `${IMG_FOLDER.tiles}unstable_wisp.png`, 
-        description: unstable_wisp_description,
+        description: enemy_descriptions.unstable_wisp,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -6383,15 +6245,15 @@ function unstable_wisp_death(self, target, map){
             fireball.stun = undefined;
         }
     }
-    map.add_event({name: `Unstun`, behavior: unstun});
+    map.add_event({name: event_names.unstun, behavior: unstun});
 }
 /** @type {TileGenerator} */
 function vampire_tile(){
     return {
-        type: `enemy`,
-        name: `Vampire`,
+        type: entity_types.enemy,
+        name: enemy_names.vampire,
         pic: `${IMG_FOLDER.tiles}vampire.png`,
-        description: vampire_description,
+        description: enemy_descriptions.vampire,
         tags: new TagList(),
         health: 2,
         max_health: 2,
@@ -6467,10 +6329,10 @@ function vinesnare_bush_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}vinesnare_bush_lashing.png`, `${IMG_FOLDER.tiles}vinesnare_bush_rooted.png`];
     var starting_cycle = 1;
     return {
-        type: `enemy`,
-        name: `Vinesnare Bush`,
+        type: entity_types.enemy,
+        name: enemy_names.vinesnare_bush,
         pic: pic_arr[starting_cycle],
-        description: `${vinesnare_bush_description[0]}${range}${vinesnare_bush_description[1]}`,
+        description: enemy_descriptions.vinesnare_bush,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 2,
@@ -6555,12 +6417,12 @@ function vinesnare_bush_telegraph_other(location, map, self){
 }
 /** @type {TileGenerator} */
 function walking_prism_tile(){
-    var pic_arr = [`${IMG_FOLDER.tiles}walking_prism_h.png`, `${IMG_FOLDER.tiles}walking_prism_d.png`];
-    var description_arr = walking_prism_description;
+    var pic_arr = [`${IMG_FOLDER.tiles}walking_prism_o.png`, `${IMG_FOLDER.tiles}walking_prism_d.png`];
+    var description_arr = enemy_descriptions.walking_prism;
     var starting_cycle = random_num(pic_arr.length);
     return {
-        type: `enemy`,
-        name: `Walking Prism`,
+        type: entity_types.enemy,
+        name: enemy_names.walking_prism,
         pic: pic_arr[starting_cycle],
         description: `${description_arr[0]}${description_arr[1 + starting_cycle]}`, 
         tags: new TagList(),
@@ -6620,7 +6482,7 @@ function walking_prism_telegraph(location, map, self){
         throw new Error(ERRORS.missing_property);
     }
     if(self.cycle === 0){
-        return turret_h_telegraph(location, map, self);
+        return turret_o_telegraph(location, map, self);
     }
     return turret_d_telegraph(location, map, self);
 }
@@ -6633,10 +6495,10 @@ function bookshelf_tile(){
         `${IMG_FOLDER.tiles}bookshelf_full.png`
     ];
     return {
-        type: `terrain`,
-        name: `Bookshelf`,
+        type: entity_types.terrain,
+        name: other_tile_names.bookshelf,
         pic: pic_arr[health - 1],
-        description: bookshelf_description,
+        description: other_tile_descriptions.bookshelf,
         tags: new TagList([TAGS.unmovable]),
         health,
         on_hit: bookshelf_on_hit,
@@ -6669,10 +6531,10 @@ function bookshelf_on_hit(self, target, map){
 /** @type {TileGenerator} A damaged wall that might spawn something on death.*/
 function coffin_tile(){
     return {
-        type: `terrain`,
-        name: `Coffin`,
+        type: entity_types.terrain,
+        name: other_tile_names.coffin,
         pic: `${IMG_FOLDER.tiles}coffin.png`,
-        description: coffin_description,
+        description: other_tile_descriptions.coffin,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: decay_ai,
@@ -6689,7 +6551,7 @@ function coffin_tile_death(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     var new_enemy = rand_from(self.tile.summons)();
-    if(new_enemy.type === `chest`){
+    if(new_enemy.type === entity_types.chest){
         var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(let card of cards){
             add_card_to_chest(new_enemy, card());
@@ -6703,10 +6565,10 @@ function coffin_tile_death(self, target, map){
 /** @type {TileGenerator} A hazardous pool of slime that can be cleared by attacking.*/
 function corrosive_slime_tile(){
     return {
-        type: `terrain`,
-        name: `Corrosive Slime`,
+        type: entity_types.terrain,
+        name: other_tile_names.corrosive_slime,
         pic: `${IMG_FOLDER.tiles}corrosive_slime.png`,
-        description: corrosive_slime_description,
+        description: other_tile_descriptions.corrosive_slime,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         telegraph: hazard_telegraph,
@@ -6723,10 +6585,10 @@ function corrosive_slime_on_enter(self, target, map){
 function fireball_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}fireball_n.png`, `${IMG_FOLDER.tiles}fireball_nw.png`];
     return {
-        type: `enemy`,
-        name: `Fireball`,
+        type: entity_types.enemy,
+        name: other_tile_names.fireball,
         pic: `${IMG_FOLDER.tiles}fireball.png`,
-        description: fireball_description,
+        description: other_tile_descriptions.fireball,
         tags: new TagList([TAGS.fireball, TAGS.unstunnable]),
         behavior: fireball_ai,
         telegraph: fireball_telegraph,
@@ -6778,10 +6640,10 @@ function shoot_fireball(direction){
 /** @type {TileGenerator} A healing fruit that spawns enemies.*/
 function enticing_fruit_tree_tile(){
     return {
-        type: `terrain`,
-        name: `Enticing Fruit Tree`,
+        type: entity_types.terrain,
+        name: other_tile_names.fruit_tree_enticing,
         pic: `${IMG_FOLDER.tiles}enticing_fruit_tree.png`,
-        description: enticing_fruit_tree_description,
+        description: other_tile_descriptions.fruit_tree_enticing,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: enticing_fruit_tree_on_enter,
@@ -6794,7 +6656,7 @@ function enticing_fruit_tree_on_enter(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(target.tile.type !== `player`){
+    if(target.tile.type !== entity_types.player){
         return;
     }
     map.heal(self.location.plus(target.difference), 1);
@@ -6811,10 +6673,10 @@ const FRUIT_TREE_SUMMONS = [carrion_flies_tile, ram_tile, living_tree_tile, scyt
 /** @type {TileGenerator} A healing fruit that spawns enemies.*/
 function rotting_fruit_tree_tile(){
     return {
-        type: `terrain`,
-        name: `Rotting Fruit Tree`,
+        type: entity_types.terrain,
+        name: other_tile_names.fruit_tree_rotting,
         pic: `${IMG_FOLDER.tiles}rotting_fruit_tree.png`,
-        description: rotting_fruit_tree_description,
+        description: other_tile_descriptions.fruit_tree_rotting,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: decay_ai,
@@ -6834,32 +6696,13 @@ function rotting_fruit_tree_on_death(self, target, map){
         spawn_nearby(map, new_spawn, self.location);
     }
 }
-/** @type {TileGenerator} Illusion created by Shadow of Self.*/
-function illusion_of_self_tile(){
-    var player = GS.map.get_player();
-    return {
-        type: `enemy`,
-        name: `Player`,
-        pic: `${IMG_FOLDER.tiles}helmet.png`,
-        description: player_description,
-        tags: new TagList(),
-        behavior: self_destruct,
-        health: player.health,
-        max_health: player.max_health    
-    }
-}
-
-function self_destruct(self, target, map){
-    self.tile.health = 1;
-    map.attack(self.location);
-}
 /** @type {TileGenerator} A hazardous pool of lava.*/
 function lava_pool_tile(){
     return {
-        type: `terrain`,
-        name: `Lava Pool`,
+        type: entity_types.terrain,
+        name: other_tile_names.lava_pool,
         pic: `${IMG_FOLDER.tiles}lava_pool.png`,
-        description: lava_pool_description,
+        description: other_tile_descriptions.lava_pool,
         tags: new TagList([TAGS.unmovable]),
         telegraph: hazard_telegraph,
         on_enter: hazard
@@ -6869,10 +6712,10 @@ function lava_pool_tile(){
 /** @type {TileGenerator} A sturdy wall.*/
 function magmatic_boulder_tile(){
     return {
-        type: `terrain`,
-        name: `Magmatic Boulder`,
+        type: entity_types.terrain,
+        name: other_tile_names.magmatic_boulder,
         pic: `${IMG_FOLDER.tiles}magmatic_boulder.png`,
-        description: magmatic_boulder_description,
+        description: other_tile_descriptions.magmatic_boulder,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -6881,10 +6724,10 @@ function raging_fire_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}raging_fire_weak.png`, `${IMG_FOLDER.tiles}raging_fire.png`];
     var health = 2;
     return {
-        type: `enemy`,
-        name: `Raging Fire`,
+        type: entity_types.enemy,
+        name: other_tile_names.raging_fire,
         pic: pic_arr[health - 1],
-        description: raging_fire_description,
+        description: other_tile_descriptions.raging_fire,
         tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
         health,
         behavior: decay_ai,
@@ -6914,10 +6757,10 @@ function repulsor_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}repulsor.png`, `${IMG_FOLDER.tiles}repulsor_reloading.png`];
     var starting_cycle = 0;
     return {
-        type: `enemy`,
-        name: `Repulsor`,
+        type: entity_types.enemy,
+        name: other_tile_names.repulsor,
         pic: pic_arr[starting_cycle],
-        description: repulsor_description,
+        description: other_tile_descriptions.repulsor,
         tags: new TagList([TAGS.unmovable]),
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
@@ -6945,7 +6788,7 @@ function repulsor_push_ai(self, target, map){
         if(map.is_in_bounds(target_space)){
             var target_tile = map.get_tile(target_space);
             if(!target_tile.tags.has(TAGS.unmovable)){
-                if(target_tile.type === `player`){
+                if(target_tile.type === entity_types.player){
                     player_was_moved = true;
                 }
                 activated = true;
@@ -7003,10 +6846,10 @@ function repulsor_telegraph_other(location, map, self){
 /** @type {TileGenerator} Spawns corrosive slime nearby.*/
 function sewer_grate_tile(){
     return{
-        type: `enemy`,
-        name: `Sewer Grate`,
+        type: entity_types.enemy,
+        name: other_tile_names.sewer_grate,
         pic: `${IMG_FOLDER.tiles}sewer_grate.png`,
-        description: sewer_grate_description,
+        description: other_tile_descriptions.sewer_grate,
         tags: new TagList([TAGS.unmovable]),
         behavior: sewer_grate_ai,
     }
@@ -7019,16 +6862,17 @@ function sewer_grate_ai(self, target, map){
 /** @type {TileGenerator} Dropped by Pheonixes to respawn them. */
 function smoldering_ashes_tile(){
     var spawn_timer = 2;
+    var desc = other_tile_descriptions.smoldering_ashes;
     return {
-        type: `enemy`,
-        name: `Smoldering Ashes`,
+        type: entity_types.enemy,
+        name: other_tile_names.smoldering_ashes,
         pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
-        description: `${smoldering_ashes_description[0]}${spawn_timer}${smoldering_ashes_description[1]}`,
+        description: `${desc[0]}${spawn_timer}${desc[1]}`,
         tags: new TagList(),
         health: 1,
         behavior: smoldering_ashes_ai,
         on_enter: decay_ai,
-        description_arr: smoldering_ashes_description,
+        description_arr: desc,
         cycle: 0,
         spawn_timer
     }
@@ -7057,10 +6901,10 @@ function smoldering_ashes_ai(self, target, map){
 /** @type {TileGenerator} */
 function thorn_bramble_tile(){
     return{
-        type: `terrain`,
-        name: `Thorn Bramble`,
+        type: entity_types.terrain,
+        name: other_tile_names.thorn_bramble,
         pic: `${IMG_FOLDER.tiles}thorn_bramble.png`,
-        description: thorn_bramble_description,
+        description: other_tile_descriptions.thorn_bramble,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
         health: 1,
         telegraph: hazard_telegraph,
@@ -7073,10 +6917,10 @@ function damaged_wall_tile(){
     var health = random_num(2) + 1;
     var pic_arr = [`${IMG_FOLDER.tiles}very_damaged_wall.png`, `${IMG_FOLDER.tiles}damaged_wall.png`];
     return {
-        type: `terrain`,
-        name: `Damaged Wall`,
+        type: entity_types.terrain,
+        name: other_tile_names.wall_damaged,
         pic: pic_arr[health - 1],
-        description: damaged_wall_description,
+        description: other_tile_descriptions.wall_damaged,
         tags: new TagList([TAGS.unmovable]),
         health,
         on_hit: damaged_wall_on_hit,
@@ -7111,20 +6955,20 @@ function damaged_wall_death(self, target, map){
 /** @type {TileGenerator} A sturdy wall.*/
 function wall_tile(){
     return {
-        type: `terrain`,
-        name: `Wall`,
+        type: entity_types.terrain,
+        name: other_tile_names.wall,
         pic: `${IMG_FOLDER.tiles}wall.png`,
-        description: wall_description,
+        description: other_tile_descriptions.wall,
         tags: new TagList([TAGS.unmovable]),
     }
 }
 /** @type {TileGenerator} Like the normal chest, but it is invulnerable.*/
 function armored_chest_tile(){
     return {
-        type: `chest`,
-        name: `Armored Chest`,
+        type: entity_types.chest,
+        name: special_tile_names.chest_armored,
         pic: `${IMG_FOLDER.tiles}armored_chest.png`,
-        description: armored_chest_description,
+        description: special_tile_descriptions.chest_armored,
         tags: new TagList([TAGS.unmovable]),
         on_enter: chest_on_enter,
         contents: []
@@ -7135,10 +6979,10 @@ function armored_chest_tile(){
 /** @type {TileGenerator} A chest letting the user choose a reward. Currently empty.*/
 function chest_tile(){
     return {
-        type: `chest`,
-        name: `Chest`,
+        type: entity_types.chest,
+        name: special_tile_names.chest,
         pic: `${IMG_FOLDER.tiles}chest.png`,
-        description: chest_description,
+        description: special_tile_descriptions.chest,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: chest_on_enter,
@@ -7160,7 +7004,7 @@ function chest_on_enter(self, target, map){
     if(self.tile.contents === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(target.tile.type !== `player`){
+    if(target.tile.type !== entity_types.player){
         return;
     }
     self.tile.health = 1;
@@ -7185,7 +7029,7 @@ function chest_on_enter(self, target, map){
         }
     }
     var abandon_button = {
-        description: abandon_chest,
+        description: chest_text.abandon,
         on_click: leave_chest
     };
     var pick = function(on_choose){
@@ -7203,7 +7047,7 @@ function chest_on_enter(self, target, map){
         let make_on_click = function(position){
             return function(){
                 let confirm_button = {
-                    description: take_from_chest,
+                    description: chest_text.take,
                     on_click: pick(item.on_choose)
                 };
                 display.display_message(UIIDS.content_description, item.description);
@@ -7220,7 +7064,7 @@ function chest_on_enter(self, target, map){
         });
     }
 
-    display.display_message(UIIDS.chest_instructions, chest_inner_discription);
+    display.display_message(UIIDS.chest_instructions, chest_text.header);
     display.add_tb_row(UIIDS.contents, content_row, CHEST_CONTENTS_SIZE);
     display.add_button_row(UIIDS.chest_confirm_row, [abandon_button]);
     GAME_SCREEN_DIVISIONS.swap(UIIDS.chest);
@@ -7242,7 +7086,7 @@ function add_card_to_chest(chest, card){
     if(chest.contents === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var description = add_card_description + `\n` + explain_card(card);
+    var description = chest_text.add_card + `\n` + explain_card(card);
     var content = {
         pic: card.pic,
         name: card.name,
@@ -7284,40 +7128,40 @@ function add_boon_to_chest(chest, boon){
 /** @type {TileGenerator} Empty space.*/
 function empty_tile(){
     return {
-        type: `empty`,
-        name: `Empty`,
+        type: entity_types.empty,
+        name: special_tile_names.empty,
         pic: `${IMG_FOLDER.tiles}empty.png`,
-        description: empty_description,
+        description: special_tile_descriptions.empty,
         tags: new TagList([TAGS.unmovable])
     }
 }
 /** @type {TileGenerator} The player must move here to complete the floor.*/
 function exit_tile(){
     return {
-        type: `exit`,
-        name: `Exit`,
+        type: entity_types.exit,
+        name: special_tile_names.exit,
         pic: `${IMG_FOLDER.tiles}stairs.png`,
-        description: exit_description,
+        description: special_tile_descriptions.exit,
         tags: new TagList([TAGS.unmovable])
     }
 }
 /** @type {TileGenerator} Must be unlocked to reveal the exit.*/
 function lock_tile(){
     return {
-        type: `terrain`,
-        name: `Lock`,
+        type: entity_types.terrain,
+        name: special_tile_names.lock,
         pic: `${IMG_FOLDER.tiles}lock.png`,
-        description: lock_description,
+        description: special_tile_descriptions.lock,
         tags: new TagList([TAGS.unmovable])
     }
 }
 /** @type {TileGenerator} The starting player.*/
 function player_tile(){
     return {
-        type: `player`,
-        name: `Player`,
+        type: entity_types.player,
+        name: special_tile_names.you,
         pic: `${IMG_FOLDER.tiles}helmet.png`,
-        description: player_description,
+        description: special_tile_descriptions.player,
         tags: new TagList(),
         health: PLAYER_STARTING_HEALTH,
         max_health: PLAYER_STARTING_HEALTH,
@@ -7386,6 +7230,49 @@ function move_attack_ai(self, target, map){
     }
     map.attack(self.location.plus(target.difference));
 }
+/** @type {AIFunction} Function used on boss death to display the correct death message, unlock the floor, and by doing so heal the player.*/
+function boss_death(self, target, map){
+    if(
+        self.tile.death_message === undefined ||
+        self.tile.death_achievement === undefined
+    ){
+        throw new Error(ERRORS.missing_property);
+    }
+    if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
+        // Create a chest containing a random card from it's loot table.
+        var chest = appropriate_chest_tile();
+        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
+        for(var card of cards){
+            add_card_to_chest(chest, card());
+        }
+        map.add_tile(chest, self.location);
+    }
+    map.unlock();
+    var death_message = `${self.tile.death_message}\n${boss_death_message.general}`;
+    var player_tile = map.get_player();
+    if(player_tile.max_health === 1){
+        GS.achieve(achievement_names.one_life);
+    }
+    var stats = map.stats.get_stats()
+    if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
+        GS.achieve(achievement_names.not_my_fault);
+    }
+    if( // Practice makes perfect
+        GS.boons.has(boon_names.practice_makes_perfect) && 
+        player_tile.max_health !== undefined && 
+        player_tile.max_health === player_tile.health
+    ){
+        ++player_tile.max_health;
+        death_message = `${death_message}\n${boon_messages.practice_makes_perfect}`
+    }
+    map.player_heal(new Point(0, 0));
+    var new_boss_kill = GS.achieve(self.tile.death_achievement);
+    if(new_boss_kill && GS.data.achievements.count_bosses() === 5){
+        GS.achieve(achievement_names.monster_hunter);
+    }
+    
+    say_record(death_message);
+}
 
 
 
@@ -7399,7 +7286,7 @@ function delay_event(turn_count, delayed_function){
     var delay_function = function(){
         return function(map_to_use){
             if(turn_count > 1){
-                map_to_use.add_event({name: `Delay`, behavior: delay_event(turn_count - 1, delayed_function)});
+                map_to_use.add_event({name: event_names.delay, behavior: delay_event(turn_count - 1, delayed_function)});
             }
             else{
                 delayed_function(map_to_use);
@@ -7426,7 +7313,7 @@ function earthquake_event(amount, locations = undefined){
     var earthquake = function(amount){
         var falling_rubble_layer = {
             pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-            description: falling_rubble_description,
+            description: event_descriptions.falling_rubble,
             telegraph: hazard_telegraph
         }
         return function(map_to_use){
@@ -7449,7 +7336,7 @@ function earthquake_event(amount, locations = undefined){
                     }
                 }
             }
-            map_to_use.add_event({name: `Falling Rubble`, behavior: falling_rubble(rubble)});
+            map_to_use.add_event({name: event_names.falling_rubble, behavior: falling_rubble(rubble)});
         }
     }
     return earthquake(amount);
@@ -7544,13 +7431,13 @@ function growth_event(points, root, grown){
 
 // This is a array of all the enemies that can be spawned on a normal floor.
 const ENEMY_LIST = [
-    spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, shadow_knight_tile, 
+    spider_tile, turret_d_tile, turret_o_tile, turret_r_tile, shadow_knight_tile, 
     scythe_tile, spider_web_tile, ram_tile, large_porcuslime_tile, medium_porcuslime_tile, 
     acid_bug_tile, brightling_tile, corrosive_caterpillar_tile, noxious_toad_tile, vampire_tile,
     clay_golem_tile, vinesnare_bush_tile, rat_tile, shadow_scout_tile, darkling_tile,
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, animated_boulder_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
-    moving_turret_h_tile, moving_turret_d_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
+    moving_turret_d_tile, moving_turret_o_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
     paper_construct_tile, specter_tile, gem_crawler_tile
 ];
 
@@ -7895,25 +7782,31 @@ function sentry_transform_cannon(self, target, map){
             var node_difference = target.difference.minus(node.target.difference);
             if(node_difference.plus(direction).on_axis()){
                 // Node is behind the core so should be double cannon.
-                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_h.png`;
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_o.png`;
                 tile.behavior = node_double_cannon_behavior;
                 tile.telegraph = node_double_cannon_telegraph;
-                tile.description = arcane_sentry_node_description + `\n` + sentry_node_double_cannon_description;
+                tile.description = 
+                    `${boss_descriptions.arcane_sentry_node}\n`
+                    +`${sentry_mode_descriptions.node.double_cannon}`;
             }
             else{
                 // Single cannon.
-                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_h.png`;
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_o.png`;
                 tile.behavior = node_cannon_behavior;
                 tile.telegraph = node_cannon_telegraph;
-                tile.description = arcane_sentry_node_description + `\n` + sentry_node_cannon_description;
+                tile.description = 
+                    `${boss_descriptions.arcane_sentry_node}\n`
+                    +`${sentry_mode_descriptions.node.cannon}`;
             }
         }
         // Core is single cannon.
-        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_h.png`;
+        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_o.png`;
         self.tile.direction = direction;
         set_rotation(self.tile);
         self.tile.telegraph = node_cannon_telegraph;
-        self.tile.description = arcane_sentry_description+ `\n` + sentry_core_cannon_description;
+        self.tile.description = 
+            `${boss_descriptions.arcane_sentry}\n`
+            +`${sentry_mode_descriptions.core.cannon}`;
     }
     else{
         for(var node of nodes){
@@ -7926,20 +7819,26 @@ function sentry_transform_cannon(self, target, map){
                 tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_d.png`;
                 tile.behavior = node_double_cannon_behavior;
                 tile.telegraph = node_double_cannon_telegraph;
-                tile.description = arcane_sentry_node_description + `\n` + sentry_node_double_cannon_description;
+                tile.description = 
+                    `${boss_descriptions.arcane_sentry_node}\n`
+                    +`${sentry_mode_descriptions.node.double_cannon}`;
             }
             else{
                 // Single cannon.
                 tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_d.png`;
                 tile.behavior = node_cannon_behavior;
                 tile.telegraph = node_cannon_telegraph;
-                tile.description = arcane_sentry_node_description + `\n` + sentry_node_cannon_description;
+                tile.description = 
+                    `${boss_descriptions.arcane_sentry_node}\n`
+                    +`${sentry_mode_descriptions.node.cannon}`;
             }
         }
         self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_d.png`;
         self.tile.telegraph = undefined;
         self.tile.direction = undefined;
-        self.tile.description = arcane_sentry_description+ `\n` + sentry_core_cannon_description;
+        self.tile.description = 
+            `${boss_descriptions.arcane_sentry}\n`
+            +`${sentry_mode_descriptions.core.cannon}`;
     }
 }
 
@@ -7958,13 +7857,13 @@ function sentry_cannon_direction(difference){
 
 function node_double_cannon_behavior(self, target, map){
     if(self.tile.direction.on_axis()){
-        node_h_double_cannon_ai(self, target, map);
+        node_o_double_cannon_ai(self, target, map);
     }
     else{
         node_d_double_cannon_ai(self, target, map);
     }
 }
-function node_h_double_cannon_ai(self, target, map){
+function node_o_double_cannon_ai(self, target, map){
     var dir = self.tile.direction;    
     var spawnpoints = [
         self.location.plus(dir.plus(dir.rotate(90))), 
@@ -8009,7 +7908,7 @@ function node_double_cannon_telegraph(location, map, self){
         ];
     }
     return locations.filter((p) => {
-        map.is_in_bounds(p) && !map.get_tile(p).tags.has(TAGS.arcane_sentry);
+        return map.is_in_bounds(p) && !map.get_tile(p).tags.has(TAGS.arcane_sentry);
     });
 }
 
@@ -8034,13 +7933,17 @@ function sentry_transform_saw(self, target, map){
         tile.behavior = node_saw_behavior;
         tile.on_enter = hazard;
         tile.telegraph = node_saw_telegraph;
-        tile.description = arcane_sentry_node_description + `\n` + sentry_node_saw_description;
+        tile.description = 
+            `${boss_descriptions.arcane_sentry_node}\n`
+            +`${sentry_mode_descriptions.node.saw}`;
     }
     self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_saw.png`;
     self.tile.direction = sentry_saw_direction(target.difference);
     self.tile.on_enter = hazard;
     self.tile.telegraph = node_saw_telegraph;
-    self.tile.description = arcane_sentry_description+ `\n` + sentry_core_saw_description;
+    self.tile.description = 
+        `${boss_descriptions.arcane_sentry}\n`
+        +`${sentry_mode_descriptions.core.saw}`;
 }
 
 function sentry_saw_direction(difference){
@@ -8075,21 +7978,25 @@ function sentry_transform_turret(self, target, map){
         tile.behavior = node_turret_behavior;
         tile.on_enter = undefined;
         tile.telegraph = node_turret_telegraph;
-        tile.description = arcane_sentry_node_description + `\n` + sentry_node_turret_description;
+        tile.description = 
+            `${boss_descriptions.arcane_sentry_node}\n`
+            +`${sentry_mode_descriptions.node.turret}`;
     }
     self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core.png`;
     self.tile.on_enter = undefined;
     self.tile.telegraph = undefined;
     self.tile.direction = undefined;
     self.tile.rotate = undefined;
-    self.tile.description = arcane_sentry_description + `\n` + sentry_core_turret_description;
+    self.tile.description = 
+        `${boss_descriptions.arcane_sentry}\n`
+        +`${sentry_mode_descriptions.core.turret}`;
 }
 /** @type {SpellGenerator} */
 function forest_heart_rest_spell_generator(){
     return {
         behavior: rest_spell,
         telegraph_other: rest_spell_telegraph,
-        description: forest_heart_rest_description,
+        description: heart_spell_descriptions.rest,
         pic: `${IMG_FOLDER.tiles}forest_heart.png`
     }
 }
@@ -8098,7 +8005,7 @@ function greater_thorn_bush_spell_generator(){
     return {
         behavior: greater_thorn_bush_spell,
         telegraph_other: thorn_bush_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }
@@ -8112,20 +8019,20 @@ function greater_thorn_bush_spell(self, target, map){
     );
     var root_layer = {
         pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
-        description: thorn_root_description,
+        description: event_descriptions.thorn_root,
         telegraph: hazard_telegraph
     }
     var delayed_func = function(map_to_use){
-        map_to_use.add_event({name: `Bramble Shield`, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+        map_to_use.add_event({name: event_names.bramble_shield, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
     };
-    map.add_event({name: `Delayed Bramble Shield`, behavior: delay_event(1, delayed_func)});
+    map.add_event({name: event_names.bramble_shield, behavior: delay_event(1, delayed_func)});
 }
 /** @type {SpellGenerator} */
 function living_tree_spell_generator(){
     return {
         behavior: living_tree_spell,
         telegraph_other: living_tree_spell_telegraph,
-        description: forest_heart_summon_description,
+        description: heart_spell_descriptions.summon,
         pic: `${IMG_FOLDER.tiles}forest_heart_summon.png`
     }
 }
@@ -8182,7 +8089,7 @@ function rotting_fruit_spell_generator(){
     return {
         behavior: rotting_fruit_spell,
         telegraph_other: rotting_fruit_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }
@@ -8215,7 +8122,7 @@ function scorpion_spell_generator(){
     return {
         behavior: scorpion_spell,
         telegraph_other: scorpion_spell_telegraph,
-        description: forest_heart_summon_description,
+        description: heart_spell_descriptions.summon,
         pic: `${IMG_FOLDER.tiles}forest_heart_summon.png`
     }
 }
@@ -8257,7 +8164,7 @@ function swaying_nettle_spell_generator(){
     return {
         behavior: swaying_nettle_spell,
         telegraph_other: swaying_nettle_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }
@@ -8270,10 +8177,10 @@ function swaying_nettle_spell(self, target, map){
     );
     var root_layer = {
         pic: `${IMG_FOLDER.tiles}swaying_nettle_roots.png`,
-        description: nettle_root_description,
+        description: event_descriptions.nettle_root,
         telegraph: hazard_telegraph
     }
-    map.add_event({name: `Nettle Shield`, behavior: growth_event(points, root_layer, swaying_nettle_tile)});
+    map.add_event({name: event_names.nettle_shield, behavior: growth_event(points, root_layer, swaying_nettle_tile)});
 }
 
 /** @type {TelegraphFunction} */
@@ -8289,7 +8196,7 @@ function thorn_bush_spell_generator(){
     return {
         behavior: thorn_bush_spell,
         telegraph_other: thorn_bush_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }
@@ -8302,10 +8209,10 @@ function thorn_bush_spell(self, target, map){
     );
     var root_layer = {
         pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
-        description: thorn_root_description,
+        description: event_descriptions.thorn_root,
         telegraph: hazard_telegraph
     }
-    map.add_event({name: `Bramble Shield`, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+    map.add_event({name: event_names.bramble_shield, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
 }
 
 /** @type {TelegraphFunction} */
@@ -8320,7 +8227,7 @@ function vinesnare_bush_spell_generator(){
     return {
         behavior: vinesnare_bush_spell,
         telegraph_other: vinesnare_bush_spell_telegraph,
-        description: forest_heart_growth_description,
+        description: heart_spell_descriptions.growth,
         pic: `${IMG_FOLDER.tiles}forest_heart_grow.png`
     }
 }
@@ -8376,7 +8283,7 @@ function confusion_spell_generator(){
     return {
         behavior: confusion_spell,
         telegraph_other: confusion_spell_telegraph,
-        description: confusion_spell_description,
+        description: lich_spell_descriptions.confusion,
         pic: `${IMG_FOLDER.tiles}lich_confusion.png`
     }
 }
@@ -8396,7 +8303,7 @@ function confusion_spell_telegraph(location, map, self){
 function earthquake_spell_generator(){
     return {
         behavior: earthquake_spell,
-        description: earthquake_spell_description,
+        description: lich_spell_descriptions.earthquake,
         pic: `${IMG_FOLDER.tiles}lich_earthquake.png`
     }
 }
@@ -8404,14 +8311,14 @@ function earthquake_spell_generator(){
 /** @type {AIFunction} Spell which causes an earthquake causing debris to rain from the ceiling.*/
 function earthquake_spell(self, target, map){
     var amount = random_num(9) + random_num(9) + random_num(9) + random_num(9);
-    map.add_event({name: `Earthquake`, behavior: earthquake_event(amount)});
+    map.add_event({name: event_names.earthquake, behavior: earthquake_event(amount)});
 }
 /** @type {SpellGenerator} */
 function flame_wave_spell_generator(){
     return {
         behavior: flame_wave_spell,
         telegraph: flame_wave_spell_telegraph,
-        description: flame_wave_spell_description,
+        description: lich_spell_descriptions.flame_wave,
         pic: `${IMG_FOLDER.tiles}lich_flame_wave.png`
     }
 }
@@ -8455,7 +8362,7 @@ function flame_wave_spell_telegraph(location, map, self){
 function lava_moat_spell_generator(){
     return {
         behavior: lava_moat_spell,
-        description: lava_moat_spell_description,
+        description: lich_spell_descriptions.lava_moat,
         pic: `${IMG_FOLDER.tiles}lich_lava_moat.png`
     }
 }
@@ -8474,7 +8381,7 @@ function piercing_beam_spell_generator(){
     return {
         behavior: piercing_beam_spell,
         telegraph: piercing_beam_spell_telegraph,
-        description: piercing_beam_spell_description,
+        description: lich_spell_descriptions.piercing_beam,
         pic: `${IMG_FOLDER.tiles}lich_piercing_beam.png`
     }
 }
@@ -8507,7 +8414,7 @@ function rest_spell_generator(){
     return {
         behavior: rest_spell,
         telegraph: rest_spell_telegraph,
-        description: rest_spell_description,
+        description: lich_spell_descriptions.rest,
         pic: `${IMG_FOLDER.tiles}lich_rest.png`
     }
 }
@@ -8523,7 +8430,7 @@ function rest_spell_telegraph(location, map, self){
 function summon_spell_generator(){
     return {
         behavior: summon_spell,
-        description: summon_spell_description,
+        description: lich_spell_descriptions.summon,
         pic: `${IMG_FOLDER.tiles}lich_summon.png`
     }
 }
@@ -8542,7 +8449,7 @@ function summon_spell(self, target, map){
 function teleport_spell_generator(){
     return {
         behavior: teleport_spell,
-        description: teleport_spell_description,
+        description: lich_spell_descriptions.teleport,
         pic: `${IMG_FOLDER.tiles}lich_teleport.png`
     }
 }
@@ -9065,10 +8972,10 @@ class EntityList{
      * @param {Tile} entity The Tile to be moved
      */
     move_any(location, entity){
-        if(entity.type === `player`){
+        if(entity.type === entity_types.player){
             this.set_player_pos(location);
         }
-        else if(entity.type === `enemy`){
+        else if(entity.type === entity_types.enemy){
             if(entity.id === undefined){
                 throw new Error(ERRORS.missing_id);
             }
@@ -9288,7 +9195,7 @@ class GameMap{
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
                 var pos = new Point(x, y)
-                if(this.get_tile(pos).type === `empty`){
+                if(this.get_tile(pos).type === entity_types.empty){
                     if(rand === 0){
                         return pos;
                     }
@@ -9330,7 +9237,7 @@ class GameMap{
      * @returns {boolean} Returns true if the location is both in bounds and empty and false otherwise.
      */
     check_empty(location){
-        return this.is_in_bounds(location) && this.get_tile(location).type === `empty`;
+        return this.is_in_bounds(location) && this.get_tile(location).type === entity_types.empty;
     }
     /**
      * Checks if a location is in bounds and looks empty (could be something invisible).
@@ -9342,7 +9249,7 @@ class GameMap{
             return false;
         }
         var tile = this.get_tile(location);
-        var looks_empty = tile.look !== undefined && tile.look.type === `empty`;
+        var looks_empty = tile.look !== undefined && tile.look.type === entity_types.empty;
         return this.check_empty(location) || looks_empty;
     }
     /**
@@ -9379,7 +9286,7 @@ class GameMap{
      * @param {Tile} player The player tile to be placed,
      */
     set_player(player_location, player){
-        if(player.type !== `player`){
+        if(player.type !== entity_types.player){
             throw new Error(ERRORS.invalid_value)
         }
         this.check_bounds(player_location);
@@ -9422,10 +9329,10 @@ class GameMap{
             return;
         }
         this.#set_tile(location, tile);
-        if(tile.type === `enemy`){
+        if(tile.type === entity_types.enemy){
             this.#entity_list.add_enemy(location, tile);
         }
-        else if(!(tile.type === `empty`)){
+        else if(!(tile.type === entity_types.empty)){
             ++this.#entity_list.count_non_empty;
         }
         return location.copy();
@@ -9539,7 +9446,7 @@ class GameMap{
         }
         var start = this.get_tile(start_point);
         var end = this.get_tile(end_point);
-        if(start.type === `player` && end.type === `exit`){
+        if(start.type === entity_types.player && end.type === entity_types.exit){
             this.stats.increment_turn();
             var floor_turns = this.stats.finish_floor();
             if(floor_turns <= 3){
@@ -9579,7 +9486,7 @@ class GameMap{
             }
         }
         end = this.get_tile(end_point);
-        if(end.type === `empty` && this.get_tile(start_point) === start){
+        if(end.type === entity_types.empty && this.get_tile(start_point) === start){
             // Move.
             this.#entity_list.move_any(end_point, start);
             this.#set_tile(end_point, start);
@@ -9640,10 +9547,10 @@ class GameMap{
         }
         if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
-            if(source !== undefined && source.tile.type === `player`){
+            if(source !== undefined && source.tile.type === entity_types.player){
                 this.stats.increment_damage_dealt();
             }
-            if(target.type === `player`){
+            if(target.type === entity_types.player){
                 if(this.#is_player_turn){
                     this.stats.increment_turn_damage();
                 }
@@ -9670,24 +9577,24 @@ class GameMap{
             }
             if(current_health <= 0){
                 // Player death.
-                if(target.type === `player`){
+                if(target.type === entity_types.player){
                     if(GS.boons.has(boon_names.rebirth)){
                         this.player_heal(new Point(0, 0));
                         GS.boons.lose(boon_names.rebirth);
                         GS.refresh_boon_display();
-                        say_record(rebirth_revival_message);
+                        say_record(boon_messages.rebirth);
                         return true;
                     }
                     throw new Error(ERRORS.game_over);
                 }
                 // Non player death.
                 this.#set_tile(location, empty_tile());
-                if(target.type === `enemy`){
+                if(target.type === entity_types.enemy){
                     if(target.id === undefined){
                         throw new Error(ERRORS.missing_id);
                     }
                     this.#entity_list.remove_enemy(target.id);
-                    if(source !== undefined && source.tile.type === `player`){
+                    if(source !== undefined && source.tile.type === entity_types.player){
                         this.stats.increment_kills();
                     }
                 }
@@ -9750,7 +9657,7 @@ class GameMap{
                     var p_offset = pos.plus(offset);
                     if(
                         this.is_in_bounds(p_offset) && 
-                        this.get_tile(p_offset).type !== `player`
+                        this.get_tile(p_offset).type !== entity_types.player
                     ){
                         this.player_attack(direction.plus(offset));
                     }
@@ -9762,7 +9669,7 @@ class GameMap{
             if(error.message !== `game over`){
                 throw error;
             }
-            throw new Error(ERRORS.game_over, {cause: new Error(`player`)});
+            throw new Error(ERRORS.game_over, {cause: new Error(special_tile_names.player)});
         }
     }
     /**
@@ -9783,7 +9690,10 @@ class GameMap{
      */
     display_stats(location){
         var stats = this.stats.get_stats();
-        display.display_message(location, `Floor ${this.#floor_num} Turn ${stats.turn_number}`);
+        var stat_message = 
+            `${gameplay_labels.floor} ${this.#floor_num} `
+            +`${gameplay_labels.turn} ${stats.turn_number}`;
+        display.display_message(location, stat_message);
     }
     /**
      * Replaces the exit tile with a lock tile.
@@ -9863,7 +9773,11 @@ class GameMap{
             // Pacifism always fully heals you.
             this.player_heal(new Point(0, 0));
         }
-        var floor_description = `${floor_message}${this.#floor_num}.`;
+        if(GS.boons.has(boon_names.vicious_cycle) > 0){
+            // Vicious Cycle always fully heals you.
+            this.player_heal(new Point(0, 0));
+        }
+        var floor_description = `${gameplay_text.floor}${this.#floor_num}.`;
         if(this.#floor_num % area_size === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
@@ -9992,11 +9906,11 @@ class GameMap{
         var space = this.get_grid(location);
         space.action = `${IMG_FOLDER.actions}confuse.png`;
         var tile = space.tile;
-        if(tile.type === `enemy`){
+        if(tile.type === entity_types.enemy){
             stun(tile);
             return true;
         }
-        if(tile.type === `player`){
+        if(tile.type === entity_types.player){
             confuse_player();
             return true;
         }
@@ -10091,7 +10005,11 @@ class GameMap{
             return false;
         }
         var tile = this.get_tile(location);
-        return (tile.name === `Empty` || tile.on_enter !== undefined || tile.name === `Exit`);
+        return (
+            tile.name === special_tile_names.empty || 
+            tile.on_enter !== undefined || 
+            tile.name === special_tile_names.exit
+        );
     }
     get_initiative(){
         return this.#entity_list.get_initiative();
@@ -10141,11 +10059,16 @@ class GameState{
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = init.make_deck();
 
-        var starting_text = `${start.description}\n${welcome_message}`;
+        var starting_text = `${start.description}\n${gameplay_text.welcome}`;
         say_record(starting_text);
-        display.display_message(UIIDS.hand_label, `${hand_label_text}`);
-        display.display_message(UIIDS.move_label, `${move_label_text}`);
+        display.display_message(UIIDS.hand_label, `${gameplay_labels.hand}`);
+        display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
         create_sidebar();
+        
+        // Starting achievements
+        for(var a of init.achievements){
+            this.achieve(a);
+        }
 
         // Prep map
         for(var enemy of init.enemies){
@@ -10160,7 +10083,7 @@ class GameState{
         this.map.display_stats(UIIDS.stats);
 
         this.refresh_deck_display();
-        display.display_message(UIIDS.shop_instructions, mod_deck);
+        display.display_message(UIIDS.shop_instructions, shop_text.header);
         DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         this.#player_turn_lock = true;
@@ -10247,7 +10170,7 @@ class GameState{
      */
     player_action(action){
         switch(action.type){
-            case `attack`:
+            case action_types.attack:
                 var attack_count = 1;
                 var stun_count = 0;
                 var target = this.map.get_player_location().plus(action.change);
@@ -10280,7 +10203,7 @@ class GameState{
                     this.player_action(pstun(action.change.x, action.change.y));
                 }
                 break;
-            case `move`:
+            case action_types.move:
                 var previous_location = this.map.get_player_location();
                 var moved = this.map.player_move(action.change);
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
@@ -10290,7 +10213,7 @@ class GameState{
                     this.map.add_tile(corrosive_slime_tile(), previous_location);
                 }
                 break;
-            case `teleport`:
+            case action_types.teleport:
                 try{
                     this.map.player_teleport(action.change);
                 }
@@ -10300,10 +10223,10 @@ class GameState{
                     }
                 }
                 break;
-            case `stun`:
+            case action_types.stun:
                 this.map.player_stun(action.change);
                 break;
-            case `move_until`:
+            case action_types.move_until:
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
                 var previous_location = this.map.get_player_location();
                 while(this.map.player_move(action.change)){
@@ -10316,7 +10239,7 @@ class GameState{
                     this.player_action(pattack(action.change.x, action.change.y));
                 }
                 break;
-            case `attack_until`:
+            case action_types.attack_until:
                 var i = 0;
                 do{
                     i += 1;
@@ -10325,7 +10248,7 @@ class GameState{
                     this.player_action(pattack(target.x, target.y));
                 }while(this.map.is_in_bounds(p_location.plus(target)));
                 break;
-            case `heal`:
+            case action_types.heal:
                 this.map.player_heal(action.change, 1);
                 break;
             default:
@@ -10343,6 +10266,9 @@ class GameState{
         this.map.display_stats(UIIDS.stats);
         display_map(this.map);
         this.deck.deal();
+            if(GS.boons.has(boon_names.vicious_cycle) > 0){
+            apply_vicious_cycle(this.deck);
+        }
         this.refresh_deck_display();
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         await delay(ANIMATION_DELAY);
@@ -10375,7 +10301,7 @@ class GameState{
         display_map(this.map);
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
-        say_record(`${game_over_message}${cause.toLowerCase()}.`);
+        say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
         display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
@@ -10385,7 +10311,7 @@ class GameState{
             };
         }
         var restart_message = [{
-            description: retry_message,
+            description: gameplay_labels.retry,
             on_click: restart(this)
         }]
         display.add_button_row(UIIDS.retry_button, restart_message);
@@ -10480,11 +10406,11 @@ class GameState{
     achieve(name){
         var gained = this.data.achieve(name);
         if(gained){
-            say_record(`Achievement Unlocked: ${name}`, record_types.achievement);
+            say_record(`${achievement_text.unlocked} ${name}`, record_types.achievement);
             SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
             return true;
         }
-        say_record(`Achievement Repeated: ${name}`, record_types.repeated_achievement);
+        say_record(`${achievement_text.repeated} ${name}`, record_types.repeated_achievement);
         return false;
     }
 }
@@ -11086,7 +11012,7 @@ class ScreenTracker{
 
 const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.controls, UIIDS.achievements]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
-const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order, UIIDS.shadow_hand]);
+const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order]);
 
 class Shop{
     #deck;
@@ -11157,7 +11083,7 @@ class Shop{
                 selected: s.#add_index === i
             }
         })
-        row.unshift(add_card_symbol());
+        row.unshift(symbol_add_card());
         return row;
     }
     get_remove_row(){
@@ -11176,7 +11102,7 @@ class Shop{
                 selected: s.#remove_index === i
             }
         });
-        var symbol = this.#remove_row.length > 0 ? remove_card_symbol() : deck_at_minimum_symbol();
+        var symbol = this.#remove_row.length > 0 ? symbol_remove_card() : symbol_deck_at_minimum();
         row.unshift(symbol);
         return row;
     }
@@ -11320,11 +11246,11 @@ function generate_basement_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}basement.png`,
         generate_floor: generate_basement_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, turret_r_tile, scythe_tile, 
+        enemy_list: [spider_tile, turret_o_tile, turret_d_tile, turret_r_tile, scythe_tile, 
                     spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
         boss_floor_list: [spider_queen_floor],
         next_area_list: area3,
-        description: basement_description
+        description: area_descriptions.basement
     }
 }
 
@@ -11363,7 +11289,7 @@ function generate_crypt_area(){
                     darkling_tile, orb_of_insanity_tile],
         boss_floor_list: [lich_floor],
         next_area_list: area4,
-        description: crypt_description
+        description: area_descriptions.crypt
     }
 }
 
@@ -11388,7 +11314,7 @@ function generate_forest_area(){
                     scythe_tile, scorpion_tile, thorn_bush_tile],
         boss_floor_list: [forest_heart_floor],
         next_area_list: area5,
-        description: forest_description
+        description: area_descriptions.forest
     }
 }
 
@@ -11423,12 +11349,12 @@ function generate_library_area(){
         background: `${IMG_FOLDER.backgrounds}library.png`,
         generate_floor: generate_library_floor,
         enemy_list: [
-            moving_turret_h_tile, moving_turret_d_tile, brightling_tile, captive_void_tile, paper_construct_tile,
+            moving_turret_o_tile, moving_turret_d_tile, brightling_tile, captive_void_tile, paper_construct_tile,
             unstable_wisp_tile, walking_prism_tile, specter_tile, clay_golem_tile, gem_crawler_tile
         ],
         boss_floor_list: [arcane_sentry_floor],
         next_area_list: area5,
-        description: library_description
+        description: area_descriptions.library
     }
 }
 
@@ -11456,7 +11382,7 @@ function generate_magma_area(){
                     pheonix_tile, unstable_wisp_tile],
         boss_floor_list: [young_dragon_floor],
         next_area_list: area4,
-        description: magma_description
+        description: area_descriptions.magma
     }
 }
 /** @type {FloorGenerator}*/
@@ -11545,11 +11471,11 @@ function generate_ruins_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}ruins.png`,
         generate_floor: generate_ruins_floor,
-        enemy_list: [spider_tile, turret_h_tile, turret_d_tile, scythe_tile, vinesnare_bush_tile, 
+        enemy_list: [spider_tile, turret_o_tile, turret_d_tile, scythe_tile, vinesnare_bush_tile, 
                     ram_tile, rat_tile, shadow_knight_tile],
         boss_floor_list: [velociphile_floor],
         next_area_list: area2,
-        description: ruins_description
+        description: area_descriptions.ruins
     }
 }
 
@@ -11563,11 +11489,11 @@ function generate_sewers_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}sewers.png`,
         generate_floor: generate_sewers_floor,
-        enemy_list: [rat_tile, turret_h_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, 
+        enemy_list: [rat_tile, turret_o_tile, turret_d_tile, large_porcuslime_tile, medium_porcuslime_tile, 
                     corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile, carrion_flies_tile],
         boss_floor_list: [two_headed_serpent_floor],
         next_area_list: area3,
-        description: sewers_description
+        description: area_descriptions.sewers
     }
 }
 
@@ -11664,7 +11590,7 @@ function generate_default_area(){
         enemy_list: ENEMY_LIST,
         boss_floor_list: [],
         next_area_list: [generate_default_area],
-        description: default_area_description
+        description: area_descriptions.default
     }
 }
 /** @type {FloorGenerator} Generates the floor where the Arcane Sentry appears.*/
@@ -11699,7 +11625,7 @@ function arcane_sentry_floor(floor_num,  area, map){
     }
     core.mode = SENTRY_MODES.turret
     sentry_transform_turret(self, target, map);
-    return arcane_sentry_floor_message;
+    return boss_floor_message.arcane_sentry;
 }
 /** @type {FloorGenerator} Generates the floor where the Forest Heart appears.*/
 function forest_heart_floor(floor_num,  area, map){
@@ -11732,7 +11658,7 @@ function forest_heart_floor(floor_num,  area, map){
     map.add_tile(living_tree_rooted_tile(), new Point(mid_width + 2, mid_height));
     map.add_tile(vinesnare_bush_tile(), new Point(mid_width - 2, mid_height));
     map.add_tile(vinesnare_bush_tile(), new Point(mid_width + 3, mid_height));
-    return forest_heart_floor_message;
+    return boss_floor_message.forest_heart;
 }
 /** @type {FloorGenerator} Generates the floor where the Lich appears.*/
 function lich_floor(floor_num,  area, map){
@@ -11746,27 +11672,7 @@ function lich_floor(floor_num,  area, map){
         map.add_tile(damaged_wall_tile(), location);
     }
     map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
-    return lich_floor_message;
-}
-/** @type {FloorGenerator} Generates the floor where the Shadow of Self appears.*/
-function shadow_of_self_floor(floor_num,  area, map){
-    // Change to spawn on far wall mirroring player
-    var shadow = shadow_of_self_tile();
-    map.spawn_safely(shadow, SAFE_SPAWN_ATTEMPTS, true);
-
-    // Swaps tab to the one containing it's hand
-    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.shadow_hand, function(){
-        SIDEBAR_DIVISIONS.swap(UIIDS.shadow_hand);
-    });
-    SIDEBAR_DIVISIONS.swap(UIIDS.shadow_hand);
-    refresh_shadow_hand_display(shadow.deck.get_hand_info());
-
-
-    for(var i = 0; i < 6; ++i){
-        map.add_tile(wall_tile());
-    }
-
-    return shadow_of_self_floor_message;
+    return boss_floor_message.lich;
 }
 /** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){
@@ -11778,7 +11684,7 @@ function spider_queen_floor(floor_num, area, map){
     for(var i = 0; i < 2; ++i){
         map.add_tile(spider_web_tile());
     }
-    return spider_queen_floor_message;
+    return boss_floor_message.spider_queen;
 }
 /** @type {FloorGenerator} Generates the floor where the Two Headed Serpent appears.*/
 function two_headed_serpent_floor(floor_num, area, map){
@@ -11845,7 +11751,7 @@ function two_headed_serpent_floor(floor_num, area, map){
         map.add_tile(wall_tile(), position);
         map.add_tile(damaged_wall_tile(), position.plus(rand_from(ALL_DIRECTIONS)));
     }
-    return two_headed_serpent_floor_message;
+    return boss_floor_message.two_headed_serpent;
 }
 /** @type {FloorGenerator} Generates the floor where the Velociphile appears.*/
 function velociphile_floor(floor_num,  area, map){
@@ -11854,7 +11760,7 @@ function velociphile_floor(floor_num,  area, map){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
     }
-    return velociphile_floor_message;
+    return boss_floor_message.velociphile;
 }
 /** @type {FloorGenerator} Generates the floor where the Young Dragon appears.*/
 function young_dragon_floor(floor_num,  area, map){
@@ -11862,7 +11768,7 @@ function young_dragon_floor(floor_num,  area, map){
     for(var i = 0; i < 22; ++i){
         map.add_tile(lava_pool_tile());
     }
-    return young_dragon_floor_message;
+    return boss_floor_message.young_dragon;
 }
 // ----------------Floors.js----------------
 // File containing the functions for generating new floors.
@@ -11944,7 +11850,7 @@ function basic_diagonal(){
     options.add_button(SW, [pmove(-1, 1)]);
     options.add_button(NW, [pmove(-1, -1)]);
     return{
-        name: `basic diagonal`,
+        name: card_names.basic_diagonal,
         pic: `${IMG_FOLDER.cards}basic_diagonal.png`,
         options,
         basic: true
@@ -11952,15 +11858,15 @@ function basic_diagonal(){
 }
 
 /** @type {CardGenerator}*/
-function basic_horizontal(){
+function basic_orthogonal(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1)]);
     options.add_button(E, [pmove(1, 0)]);
     options.add_button(S, [pmove(0, 1)]);
     options.add_button(W, [pmove(-1, 0)]);
     return{
-        name: `basic horizontal`,
-        pic: `${IMG_FOLDER.cards}basic_horizontal.png`,
+        name: card_names.basic_orthogonal,
+        pic: `${IMG_FOLDER.cards}basic_orthogonal.png`,
         options,
         basic: true
     }
@@ -11974,7 +11880,7 @@ function basic_slice(){
     options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(-1, 1)]);
     options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-1, -1)]);
     return{
-        name: `basic slice`,
+        name: card_names.basic_slice,
         pic: `${IMG_FOLDER.cards}basic_slice.png`,
         options,
         basic: true
@@ -11996,7 +11902,7 @@ function execution_1(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `execution 1`,
+        name: card_names.execution_1,
         pic: `${IMG_FOLDER.cards}execution_1.png`,
         options,
         evolutions: [execution_2]
@@ -12019,7 +11925,7 @@ function execution_2(){
     spin = [...spin, ...spin];
     options.add_button(SPIN, spin);
     return{
-        name: `execution 2`,
+        name: card_names.execution_2,
         pic: `${IMG_FOLDER.cards}execution_2.png`,
         options,
         evolutions: [execution_3]
@@ -12042,7 +11948,7 @@ function execution_3(){
     spin = [...spin, ...spin, ...spin];
     options.add_button(SPIN, spin);
     return{
-        name: `execution 3`,
+        name: card_names.execution_3,
         pic: `${IMG_FOLDER.cards}execution_3.png`,
         options
     }
@@ -12052,7 +11958,7 @@ function lost_technique(){
     var options = new ButtonGrid();
     options.add_button(C, [], 5);
     return{
-        name: `lost technique`,
+        name: card_names.lost_technique,
         pic: `${IMG_FOLDER.cards}lost_technique.png`,
         options,
         evolutions: [split_second_1, execution_1, superweapon_1]
@@ -12064,7 +11970,7 @@ function lost_maneuver(){
     var options = new ButtonGrid();
     options.add_button(C, [], 5);
     return{
-        name: `lost maneuver`,
+        name: card_names.lost_maneuver,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         options,
         evolutions: [maneuver_1]
@@ -12081,7 +11987,7 @@ function maneuver_1(){
     options.add_button(SW, [pmove(-2, 2)]);
     options.add_button(NW, [pmove(-2, -2)]);
     return{
-        name: `maneuver 1`,
+        name: card_names.maneuver_1,
         pic: `${IMG_FOLDER.cards}maneuver_1.png`,
         options,
         evolutions: [maneuver_2]
@@ -12100,7 +12006,7 @@ function maneuver_2(){
     options.add_button(S, [pmove(0, 2)]);
     options.add_button(W, [pmove(-2, 0)]);
     return{
-        name: `maneuver 2`,
+        name: card_names.maneuver_2,
         pic: `${IMG_FOLDER.cards}maneuver_2.png`,
         options,
         evolutions: [maneuver_3]
@@ -12130,7 +12036,7 @@ function maneuver_3(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `maneuver 3`,
+        name: card_names.maneuver_3,
         pic: `${IMG_FOLDER.cards}maneuver_3.png`,
         options
     }
@@ -12151,7 +12057,7 @@ function split_second_1(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `split second 1`,
+        name: card_names.split_second_1,
         pic: `${IMG_FOLDER.cards}split_second_1.png`,
         options,
         evolutions: [split_second_2]
@@ -12174,7 +12080,7 @@ function split_second_2(){
     options.add_button(SPIN, spin);
     options.make_instant();
     return{
-        name: `split second 2`,
+        name: card_names.split_second_2,
         pic: `${IMG_FOLDER.cards}split_second_2.png`,
         options
     }
@@ -12195,7 +12101,7 @@ function superweapon_1(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `superweapon 1`,
+        name: card_names.superweapon_1,
         pic: `${IMG_FOLDER.cards}superweapon_1.png`,
         options,
         evolutions: [superweapon_2]
@@ -12216,7 +12122,7 @@ function superweapon_2(){
     }
     options.add_button(SPIN, area);
     return{
-        name: `superweapon 2`,
+        name: card_names.superweapon_2,
         pic: `${IMG_FOLDER.cards}superweapon_2.png`,
         options
     }
@@ -12228,7 +12134,7 @@ function beam_ne(){
     options.add_button(NE, [pattack_until(0, -1), pattack_until(1, 0)]);
     options.add_button(SW, [pmove(-1, 1)]);
     return{
-        name: `beam ne`,
+        name: card_names.beam_ne,
         pic: `${IMG_FOLDER.cards}beam_ne.png`,
         options
     }
@@ -12240,7 +12146,7 @@ function beam_nw(){
     options.add_button(NW, [pattack_until(0, -1), pattack_until(-1, 0)]);
     options.add_button(SE, [pmove(1, 1)]);
     return{
-        name: `beam nw`,
+        name: card_names.beam_nw,
         pic: `${IMG_FOLDER.cards}beam_nw.png`,
         options
     }
@@ -12252,7 +12158,7 @@ function beam_se(){
     options.add_button(SE, [pattack_until(0, 1), pattack_until(1, 0)]);
     options.add_button(NW, [pmove(-1, -1)]);
     return{
-        name: `beam se`,
+        name: card_names.beam_se,
         pic: `${IMG_FOLDER.cards}beam_se.png`,
         options
     }
@@ -12264,7 +12170,7 @@ function beam_sw(){
     options.add_button(SW, [pattack_until(0, 1), pattack_until(-1, 0)]);
     options.add_button(NE, [pmove(1, -1)]);
     return{
-        name: `beam sw`,
+        name: card_names.beam_sw,
         pic: `${IMG_FOLDER.cards}beam_sw.png`,
         options
     }
@@ -12278,7 +12184,7 @@ function saw_strike(){
     options.add_button(NW, [pmove(-1, -1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
     options.add_button(SW, [pmove(-1, 1), pattack(0, -1), pattack(-1, 0), pattack(0, 1), pattack(1, 0), ]);
     return{
-        name: `saw strike`,
+        name: card_names.saw_strike,
         pic: `${IMG_FOLDER.cards}saw_strike.png`,
         options
     }
@@ -12292,7 +12198,7 @@ function branch_strike(){
     });
     options.add_button(SPIN, targets);
     return{
-        name: `branch strike`,
+        name: card_names.branch_strike,
         pic: `${IMG_FOLDER.cards}branch_strike.png`,
         options
     }
@@ -12304,7 +12210,7 @@ function snack(){
     options.add_button(C, [pheal(0, 0), pstun(0, 0)]);
     options.make_instant();
     return{
-        name: `snack`,
+        name: card_names.snack,
         pic: `${IMG_FOLDER.cards}snack.png`,
         options,
         per_floor: snack
@@ -12319,7 +12225,7 @@ function vine_snare(){
     options.add_button(NE, [pmove(2, -2), pmove(1, -1)]);
     options.add_button(NW, [pmove(-2, -2), pmove(-1, -1)]);
     return{
-        name: `vine snare`,
+        name: card_names.vine_snare,
         pic: `${IMG_FOLDER.cards}vine_snare.png`,
         options
     }
@@ -12333,7 +12239,7 @@ function beam_diagonal(){
     options.add_button(SW, [pattack_until(-1, 1)]);
     options.add_button(NW, [pattack_until(-1, -1)]);
     return{
-        name: `beam diagonal`,
+        name: card_names.beam_diagonal,
         pic: `${IMG_FOLDER.cards}beam_diagonal.png`,
         options
     }
@@ -12347,7 +12253,7 @@ function beam_orthogonal(){
     options.add_button(S, [pattack_until(0, 1)]);
     options.add_button(W, [pattack_until(-1, 0)]);
     return{
-        name: `beam orthogonal`,
+        name: card_names.beam_orthogonal,
         pic: `${IMG_FOLDER.cards}beam_orthogonal.png`,
         options
     }
@@ -12366,7 +12272,7 @@ function debilitating_confusion(){
                 pstun(-1, -1)];
     options.add_button(SPIN, [...spin, ...spin]);
     return{
-        name: `debilitating confusion`,
+        name: card_names.debilitating_confusion,
         pic: `${IMG_FOLDER.cards}debilitating_confusion.png`,
         options
     }
@@ -12378,7 +12284,7 @@ function instant_teleport(){
     options.add_button(C, [pteleport(0, 0)]);
     options.make_instant();
     return{
-        name: `instant teleport`,
+        name: card_names.instant_teleport,
         pic: `${IMG_FOLDER.cards}instant_teleport.png`,
         options
     }
@@ -12397,7 +12303,7 @@ function bite(){
     options.add_button(NW, [pattack(-1, -1)]);
     options.make_instant();
     return{
-        name: `bite`,
+        name: card_names.bite,
         pic: `${IMG_FOLDER.cards}bite.png`,
         options
     }
@@ -12415,7 +12321,7 @@ function chomp(){
     options.add_button(SW, [pattack(-1, 1), pattack(-1, 1)]);
     options.add_button(NW, [pattack(-1, -1), pattack(-1, -1)]);
     return{
-        name: `chomp`,
+        name: card_names.chomp,
         pic: `${IMG_FOLDER.cards}chomp.png`,
         options
     }
@@ -12433,7 +12339,7 @@ function skitter(){
     options.add_button(SW, [pmove(-1, 1)]);
     options.add_button(NW, [pmove(-1, -1)]);
     return{
-        name: `skitter`,
+        name: card_names.skitter,
         pic: `${IMG_FOLDER.cards}skitter.png`,
         options
     }
@@ -12447,7 +12353,7 @@ function fangs(){
     options.add_button(S, [pmove(0, 1), pattack(1, 0), pattack(-1, 0), pattack(0, 1)]);
     options.add_button(W, [pmove(-1, 0), pattack(-1, 0), pattack(0, 1), pattack(0, -1)]);
     return{
-        name: `fangs`,
+        name: card_names.fangs,
         pic: `${IMG_FOLDER.cards}fangs.png`,
         options
     }
@@ -12458,7 +12364,7 @@ function regenerate(){
     var options = new ButtonGrid();
     options.add_button(C, [pheal(0, 0)]);
     return{
-        name: `regenerate`,
+        name: card_names.regenerate,
         pic: `${IMG_FOLDER.cards}regenerate.png`,
         options,
         per_floor: regenerate
@@ -12474,44 +12380,44 @@ function slither(){
     options.add_button(W, [pstun(0, 0), pmove(-1, 0), pmove(-1, 0)]);
     options.make_instant();
     return{
-        name: `slither`,
+        name: card_names.slither,
         pic: `${IMG_FOLDER.cards}slither.png`,
         options
     }
 }
 
 /** @type {CardGenerator} Dropped by the velociphile*/
-function roll_ew(){
+function roll_horizontal(){
     var options = new ButtonGrid();
     options.add_button(E, [pmove_until(1, 0), pattack(1, 0)]);
     options.add_button(W, [pmove_until(-1, 0), pattack(-1, 0)]);
     return{
-        name: `roll E W`,
-        pic: `${IMG_FOLDER.cards}roll_ew.png`,
+        name: card_names.roll_horizontal,
+        pic: `${IMG_FOLDER.cards}roll_horizontal.png`,
         options
     }
 }
 
 /** @type {CardGenerator} Dropped by the velociphile*/
-function roll_nesw(){
+function roll_ne(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove_until(1, -1), pattack(1, -1)]);
     options.add_button(SW, [pmove_until(-1, 1), pattack(-1, 1)]);
     return{
-        name: `roll NE SW`,
-        pic: `${IMG_FOLDER.cards}roll_nesw.png`,
+        name: card_names.roll_ne,
+        pic: `${IMG_FOLDER.cards}roll_ne.png`,
         options
     }
 }
 
 /** @type {CardGenerator} Dropped by the velociphile*/
-function roll_nwse(){
+function roll_nw(){
     var options = new ButtonGrid();
     options.add_button(SE, [pmove_until(1, 1), pattack(1, 1)]);
     options.add_button(NW, [pmove_until(-1, -1), pattack(-1, -1)]);
     return{
-        name: `roll NW SE`,
-        pic: `${IMG_FOLDER.cards}roll_nwse.png`,
+        name: card_names.roll_nw,
+        pic: `${IMG_FOLDER.cards}roll_nw.png`,
         options
     }
 }
@@ -12528,7 +12434,7 @@ function firebreathing_horizontal(){
     options.add_button(E, e_cone);
     options.add_button(W, w_cone);
     return{
-        name: `firebreathing horizontal`,
+        name: card_names.firebreathing_horizontal,
         pic: `${IMG_FOLDER.cards}firebreathing_horizontal.png`,
         options
     }
@@ -12546,7 +12452,7 @@ function firebreathing_ne(){
     options.add_button(NE, ne_cone);
     options.add_button(SW, sw_cone);
     return{
-        name: `firebreathing ne`,
+        name: card_names.firebreathing_ne,
         pic: `${IMG_FOLDER.cards}firebreathing_ne.png`,
         options
     }
@@ -12564,7 +12470,7 @@ function firebreathing_nw(){
     options.add_button(NW, nw_cone);
     options.add_button(SE, se_cone);
     return{
-        name: `firebreathing nw`,
+        name: card_names.firebreathing_nw,
         pic: `${IMG_FOLDER.cards}firebreathing_nw.png`,
         options
     }
@@ -12582,7 +12488,7 @@ function firebreathing_vertical(){
     options.add_button(N, n_cone);
     options.add_button(S, s_cone);
     return{
-        name: `firebreathing vertical`,
+        name: card_names.firebreathing_vertical,
         pic: `${IMG_FOLDER.cards}firebreathing_vertical.png`,
         options
     }
@@ -12598,7 +12504,7 @@ function glide(){
     options.add_button(W, [pmove(-3, 0)]);
     options.add_button(SW, [pmove(-2, 1)]);
     return{
-        name: `glide`,
+        name: card_names.glide,
         pic: `${IMG_FOLDER.cards}glide.png`,
         options
     }
@@ -12612,7 +12518,7 @@ function soar(){
     options.add_button(NW, [pmove(-3, -1)]);
     options.add_button(SW, [pmove(-3, 1)]);
     return{
-        name: `soar`,
+        name: card_names.soar,
         pic: `${IMG_FOLDER.cards}soar.png`,
         options
     }
@@ -12621,24 +12527,48 @@ function soar(){
 // File containing utility functions used by cards.
 
 const BASIC_CARDS = [
-    basic_horizontal, basic_diagonal, basic_slice
+    basic_orthogonal, basic_diagonal, basic_slice
+];
+
+const BOON_CARDS = [
+    lost_technique, lost_maneuver,
+    execution_1, execution_2, execution_3,
+    maneuver_1, maneuver_2, maneuver_3,
+    split_second_1, split_second_2,
+    superweapon_1, superweapon_2
+];
+
+const BOSS_CARDS = {
+    arcane_sentry: [beam_ne, beam_se, beam_sw, beam_nw, saw_strike],
+    forest_heart: [snack, branch_strike, vine_snare],
+    lich: [instant_teleport, debilitating_confusion, beam_orthogonal, beam_diagonal],
+    spider_queen: [skitter, bite, chomp],
+    two_headed_serpent: [regenerate, fangs, slither],
+    velociphile: [roll_ne, roll_nw, roll_horizontal],
+    young_dragon: [firebreathing_horizontal, firebreathing_vertical, firebreathing_ne, 
+        firebreathing_nw, glide, soar],
+}
+
+const COMMON_CARDS = [
+    advance, bounding_retreat, breakthrough_horizontal, breakthrough_vertical, butterfly, 
+    charge_horizontal, charge_vertical, clear_behind, clear_in_front, combat_diagonal, 
+    combat_orthogonal, dash_ne, dash_nw, diamond_attack, diamond_slice, 
+    explosion, force, fork, flanking_diagonal, flanking_horizontal, 
+    flanking_vertical, hit_and_run, horsemanship, jab_diagonal, jab_orthogonal, 
+    jump, leap_left, leap_right, lunge_left, lunge_right, 
+    overcome_horizontal, overcome_vertical, pike, push_back, short_charge_orthogonal, 
+    short_charge_diagonal, slash_step_forwards, slash_step_left, slash_step_right, slice_twice, 
+    slip_through_ne, slip_through_nw, spearhead, spin_attack, sprint_horizontal, 
+    sprint_vertical, step_left, step_right, t_strike_horizontal, t_strike_vertical, 
+    thwack, trample, trident, y_leap, y_strike_ne, y_strike_nw,
+];
+
+const CONFUSION_CARDS = [
+    stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
+    stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out,
+    lightheaded
 ]
 
-// Cards that can be given on level up.
-const COMMON_CARDS = [
-    advance, alt_diagonal_left, alt_diagonal_right, alt_horizontal, alt_vertical, 
-    bounding_retreat, breakthrough, breakthrough_side, butterfly, clear_behind, 
-    clear_in_front, combat_diagonal, combat_horizontal, dash_ne, dash_nw,
-    diamond_attack, diamond_slice, explosion, force, fork,
-    flanking_diagonal, flanking_sideways, flanking_straight, hit_and_run, horsemanship, 
-    jab, jab_diagonal, jump, leap_left, leap_right, 
-    lunge_left, lunge_right, overcome, overcome_sideways, pike, 
-    push_back, short_charge, short_charge_diagonal, side_attack, side_charge, 
-    side_sprint, slash_step_forwards, slash_step_left, slash_step_right, slice_twice, 
-    slip_through_ne, slip_through_nw, spearhead, spin_attack, sprint, 
-    step_left, step_right, straight_charge, thwack, trample, 
-    trident, y_leap, 
-];
 
 function get_achievement_cards(){
     var list = [];
@@ -12651,7 +12581,7 @@ function get_achievement_cards(){
 }
 function get_all_achievement_cards(){
     var list = [];
-    GS.data.achievements.all().map((a) => {
+    get_achievements().map((a) => {
         if(a.cards !== undefined){
             list.push(...a.cards);
         }
@@ -12659,13 +12589,15 @@ function get_all_achievement_cards(){
     return list;
 }
 
-// Cards that can be given as a debuff.
-const CONFUSION_CARDS = [
-    stumble_n, stumble_e, stumble_s, stumble_w, stumble_nw, 
-    stumble_ne, stumble_se, stumble_sw, freeze_up, lash_out,
-    lightheaded
-]
-
+function get_boss_cards(){
+    var all = [];
+    for (var field in BOSS_CARDS) {
+        if (Object.hasOwn(BOSS_CARDS, field)) {
+            all = [...all, ...BOSS_CARDS[field]];
+        }
+    }
+    return all;
+}
 
 /**
  * @typedef {Object} PlayerCommand A object used to give a command for a single action the player should do.
@@ -12683,49 +12615,49 @@ const CONFUSION_CARDS = [
 /** @type {PlayerCommandGenerator} Function to create a move command.*/
 function pmove(x, y){
     return {
-        type: `move`,
+        type: action_types.move,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to create a attack command.*/
 function pattack(x, y){
     return {
-        type: `attack`,
+        type: action_types.attack,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to create a teleport command.*/
 function pteleport(x, y){
     return {
-        type: `teleport`,
+        type: action_types.teleport,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to stun any enemies at the given location.*/
 function pstun(x, y){
     return {
-        type: `stun`,
+        type: action_types.stun,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to move in a direction until you hit something.*/
 function pmove_until(x, y){
     return {
-        type: `move_until`,
+        type: action_types.move_until,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to attack in a direction until you hit the edge of the board.*/
 function pattack_until(x, y){
     return {
-        type: `attack_until`,
+        type: action_types.attack_until,
         change: new Point(x, y)
     }
 }
 /** @type {PlayerCommandGenerator} Function to heal the thing at the specified spot by 1.*/
 function pheal(x, y){
     return {
-        type: `heal`,
+        type: action_types.heal,
         change: new Point(x, y)
     }
 }
@@ -12757,22 +12689,22 @@ function pheal(x, y){
 function explain_action(action){
     var target = explain_point(action.change);
     switch(action.type){
-        case `attack`:
+        case action_types.attack:
             return `${move_types.attack}: ${target}`;
-        case `move`:
+        case action_types.move:
             return `${move_types.move}: ${target}`;
-        case `teleport`:
+        case action_types.teleport:
             return move_types.teleport;
-        case `stun`:
+        case action_types.stun:
             if(action.change.is_origin()){
                 return move_types.confuse;
             }
             return `${move_types.stun}: ${target}`;
-        case `move_until`:
+        case action_types.move_until:
             return `${move_types.move_until}: ${target}`;
-        case `attack_until`:
+        case action_types.attack_until:
             return `${move_types.attack_until}: ${target}`;
-        case `heal`:
+        case action_types.heal:
             return `${move_types.heal}: ${target}`;
         default:
             throw new Error(ERRORS.invalid_value);
@@ -12819,10 +12751,10 @@ function telegraph_card(behavior, map, start_position){
     for(var action of behavior){
         var next_position = start_position.plus(action.change);
         switch(action.type){
-            case `attack`:
+            case action_types.attack:
                 telegraphs.attacks.push(next_position);
                 break;
-            case `move`:
+            case action_types.move:
                 if(map.looks_movable(next_position)){
                     telegraphs.moves.push(next_position);
                 }
@@ -12830,17 +12762,17 @@ function telegraph_card(behavior, map, start_position){
                     start_position = next_position;
                 }
                 break;
-            case `teleport`:
+            case action_types.teleport:
                 for(var p of get_all_points()){
                     if(map.looks_empty(p)){
                         telegraphs.teleport.push(p);
                     }
                 }
                 break;
-            case `stun`:
+            case action_types.stun:
                 telegraphs.stun.push(next_position);
                 break;
-            case `move_until`:
+            case action_types.move_until:
                 while(map.looks_empty(next_position)){
                     telegraphs.moves.push(next_position);
                     start_position = next_position;
@@ -12850,7 +12782,7 @@ function telegraph_card(behavior, map, start_position){
                     telegraphs.moves.push(next_position);
                 }
                 break;
-            case `attack_until`:
+            case action_types.attack_until:
                 var temp_next = next_position;
                 var temp_start = start_position;
                 while(map.is_in_bounds(temp_next)){
@@ -12859,7 +12791,7 @@ function telegraph_card(behavior, map, start_position){
                     temp_next = temp_start.plus(action.change);
                 }
                 break;
-            case `heal`:
+            case action_types.heal:
                 telegraphs.healing.push(next_position);
                 break;
             default:
@@ -12888,14 +12820,6 @@ function get_all_points(){
     return points;
 }
 
-function get_boss_cards(){
-    var boss_cards = [];
-    for(var boss of BOSS_LIST){
-        boss_cards = [...boss_cards, ...boss().card_drops];
-    }
-    return boss_cards;
-}
-
 function copy_card(source){
     return {
         name: source.name,
@@ -12913,64 +12837,8 @@ function advance(){
     options.add_button(NE, [pmove(1, -1), pmove(1, -1)]);
     options.add_button(NW, [pmove(-1, -1), pmove(-1, -1)]);
     return{
-        name: `advance`,
+        name: card_names.advance,
         pic: `${IMG_FOLDER.cards}advance.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function alt_diagonal_left(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pattack(1, 0), pattack(1, -1), pattack(2, -2), pattack(0, -1)]);
-    options.add_button(SE, [pmove(1, 1)]);
-    options.add_button(SW, [pattack(-1, 0), pattack(-1, 1), pattack(-2, 2), pattack(0, 1)]);
-    options.add_button(NW, [pmove(-1, -1)]);
-    return{
-        name: `alternating diagonal left`,
-        pic: `${IMG_FOLDER.cards}alt_diagonal_left.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function alt_diagonal_right(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pmove(1, -1)]);
-    options.add_button(SE, [pattack(1, 0), pattack(1, 1), pattack(2, 2), pattack(0, 1)]);
-    options.add_button(SW, [pmove(-1, 1)]);
-    options.add_button(NW, [pattack(-1, 0), pattack(-1, -1), pattack(-2, -2), pattack(0, -1)]);
-    return{
-        name: `alternating diagonal right`,
-        pic: `${IMG_FOLDER.cards}alt_diagonal_right.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function alt_horizontal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(0, -2), pattack(-1, -1)]);
-    options.add_button(E, [pmove(1, 0)]);
-    options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(0, 2), pattack(-1, 1)]);
-    options.add_button(W, [pmove(-1, 0)]);
-    return{
-        name: `alternating horizontal`,
-        pic: `${IMG_FOLDER.cards}alt_horizontal.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function alt_vertical(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1)]);
-    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(2, 0), pattack(1, -1)]);
-    options.add_button(S, [pmove(0, 1)]);
-    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-2, 0), pattack(-1, -1)]);
-    return{
-        name: `alternating vertical`,
-        pic: `${IMG_FOLDER.cards}alt_vertical.png`,
         options
     }
 }
@@ -12982,32 +12850,32 @@ function bounding_retreat(){
     options.add_button(SE, [pmove(2, 2), pmove(1, 1)]);
     options.add_button(SW, [pmove(-2, 2), pmove(-1, 1)]);
     return{
-        name: `bounding retreat`,
+        name: card_names.bounding_retreat,
         pic: `${IMG_FOLDER.cards}bounding_retreat.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function breakthrough(){
+function breakthrough_horizontal(){
     var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);
-    options.add_button(S, [pmove(0, 1), pattack(1, 0), pattack(-1, 0), pattack(0, 1)]);
+    options.add_button(E, [pmove(1, 0), pattack(1, 0), pattack(0, 1), pattack(0, -1)]);
+    options.add_button(W, [pmove(-1, 0), pattack(-1, 0), pattack(0, 1), pattack(0, -1)]);
     return{
-        name: `breakthrough`,
-        pic: `${IMG_FOLDER.cards}breakthrough.png`,
+        name: card_names.breakthrough_horizontal,
+        pic: `${IMG_FOLDER.cards}breakthrough_horizontal.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function breakthrough_side(){
+function breakthrough_vertical(){
     var options = new ButtonGrid();
-    options.add_button(E, [pmove(1, 0), pattack(1, 0), pattack(0, 1), pattack(0, -1)]);
-    options.add_button(W, [pmove(-1, 0), pattack(-1, 0), pattack(0, 1), pattack(0, -1)]);
+    options.add_button(N, [pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);
+    options.add_button(S, [pmove(0, 1), pattack(1, 0), pattack(-1, 0), pattack(0, 1)]);
     return{
-        name: `breakthrough side`,
-        pic: `${IMG_FOLDER.cards}breakthrough_side.png`,
+        name: card_names.breakthrough_vertical,
+        pic: `${IMG_FOLDER.cards}breakthrough_vertical.png`,
         options
     }
 }
@@ -13020,8 +12888,32 @@ function butterfly(){
     options.add_button(SW, [pmove(-1, 1)]);
     options.add_button(NW, [pmove(-2, -2)]);
     return{
-        name: `butterfly`,
+        name: card_names.butterfly,
         pic: `${IMG_FOLDER.cards}butterfly.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function charge_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0), pmove(1, 0), pattack(1, 0)]);
+    options.add_button(W, [pmove(-1, 0), pmove(-1, 0), pattack(-1, 0)]);
+    return{
+        name: card_names.charge_horizontal,
+        pic: `${IMG_FOLDER.cards}charge_horizontal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function charge_vertical(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1), pmove(0, -1), pattack(0, -1)]);
+    options.add_button(S, [pmove(0, 1), pmove(0, 1), pattack(0, 1)]);
+    return{
+        name: card_names.charge_vertical,
+        pic: `${IMG_FOLDER.cards}charge_vertical.png`,
         options
     }
 }
@@ -13032,7 +12924,7 @@ function clear_behind(){
     options.add_button(S, [pattack(2, 1), pattack(1, 1), pattack(0, 1), pattack(-1, 1), pattack(-2, 1), 
                            pattack(2, 2), pattack(1, 2), pattack(0, 2), pattack(-1, 2), pattack(-2, 2)]);
     return{
-        name: `clear behind`,
+        name: card_names.clear_behind,
         pic: `${IMG_FOLDER.cards}clear_behind.png`,
         options
     }
@@ -13044,7 +12936,7 @@ function clear_in_front(){
     options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1), 
                            pattack(1, -2), pattack(0, -2), pattack(-1, -2)]);
     return{
-        name: `clear in front`,
+        name: card_names.clear_in_front,
         pic: `${IMG_FOLDER.cards}clear_in_front.png`,
         options
     }
@@ -13058,22 +12950,22 @@ function combat_diagonal(){
     options.add_button(SW, [pattack(-1, 1), pmove(-1, 1)]);
     options.add_button(NW, [pattack(-1, -1), pmove(-1, -1)]);
     return{
-        name: `combat diagonal`,
+        name: card_names.combat_diagonal,
         pic: `${IMG_FOLDER.cards}combat_diagonal.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function combat_horizontal(){
+function combat_orthogonal(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(0, -1), pmove(0, -1)]);
     options.add_button(E, [pattack(1, 0), pmove(1, 0)]);
     options.add_button(S, [pattack(0, 1), pmove(0, 1)]);
     options.add_button(W, [pattack(-1, 0), pmove(-1, 0)]);
     return{
-        name: `combat horizontal`,
-        pic: `${IMG_FOLDER.cards}combat_horizontal.png`,
+        name: card_names.combat_orthogonal,
+        pic: `${IMG_FOLDER.cards}combat_orthogonal.png`,
         options
     }
 }
@@ -13085,7 +12977,7 @@ function dash_ne(){
     options.add_button(S, [pmove(0, 1), pmove(0, 1)]);
     options.add_button(W, [pmove(-1, 0), pmove(-1, -0)]);
     return{
-        name: `dash ne`,
+        name: card_names.dash_ne,
         pic: `${IMG_FOLDER.cards}dash_ne.png`,
         options
     }
@@ -13098,7 +12990,7 @@ function dash_nw(){
     options.add_button(S, [pmove(0, 1), pmove(0, 1)]);
     options.add_button(E, [pmove(1, 0), pmove(1, -0)]);
     return{
-        name: `dash nw`,
+        name: card_names.da,
         pic: `${IMG_FOLDER.cards}dash_nw.png`,
         options
     }
@@ -13111,7 +13003,7 @@ function diamond_attack(){
     options.add_button(SE, [pmove(1, 1)]);
     options.add_button(SW, [pmove(-1, 1)]);
     return{
-        name: `diamond attack`,
+        name: card_names.diamond_attack,
         pic: `${IMG_FOLDER.cards}diamond_attack.png`,
         options
     }
@@ -13130,7 +13022,7 @@ function diamond_slice(){
                 pattack(-1, -1)]
     options.add_button(SPIN, spin);
     return{
-        name: `diamond slice`,
+        name: card_names.diamond_slice,
         pic: `${IMG_FOLDER.cards}diamond_slice.png`,
         options
     }
@@ -13148,7 +13040,7 @@ function explosion(){
     var options = new ButtonGrid();
     options.add_button(SPIN, area, 5);
     return{
-        name: `explosion`,
+        name: card_names.explosion,
         pic: `${IMG_FOLDER.cards}explosion.png`,
         options
     }
@@ -13160,32 +13052,32 @@ function flanking_diagonal(){
     options.add_button(NE, [pmove(1, -1), pattack(0, 1), pattack(-1, 0), pmove(1, -1), pattack(0, 1), pattack(-1, 0)]);
     options.add_button(NW, [pmove(-1, -1), pattack(0, 1), pattack(1, 0), pmove(-1, -1), pattack(0, 1), pattack(1, 0)]);
     return{
-        name: `flanking diagonal`,
+        name: card_names.flanking_diagonal,
         pic: `${IMG_FOLDER.cards}flanking_diagonal.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function flanking_sideways(){
+function flanking_horizontal(){
     var options = new ButtonGrid();
     options.add_button(E, [pmove(1, 0), pattack(0, 1), pattack(0, -1), pmove(1, 0), pattack(0, 1), pattack(0, -1)]);
     options.add_button(W, [pmove(-1, 0), pattack(0, 1), pattack(0, -1), pmove(-1, 0), pattack(0, 1), pattack(0, -1)]);
     return{
-        name: `flanking sideways`,
-        pic: `${IMG_FOLDER.cards}flanking_sideways.png`,
+        name: card_names.flanking_horizontal,
+        pic: `${IMG_FOLDER.cards}flanking_horizontal.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function flanking_straight(){
+function flanking_vertical(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1), pattack(1, 0), pattack(-1, 0), pmove(0, -1), pattack(1, 0), pattack(-1, 0)]);
     options.add_button(S, [pmove(0, 1), pattack(1, 0), pattack(-1, 0), pmove(0, 1), pattack(1, 0), pattack(-1, 0)]);
     return{
-        name: `flanking straight`,
-        pic: `${IMG_FOLDER.cards}flanking_straight.png`,
+        name: card_names.flanking_vertical,
+        pic: `${IMG_FOLDER.cards}flanking_vertical.png`,
         options
     }
 }
@@ -13196,7 +13088,7 @@ function force(){
     options.add_button(N, [pattack(0, -1), pmove(0, -1), pattack(0, -1), pmove(0, -1)]);
     options.add_button(S, [pattack(0, 1), pmove(0, 1), pattack(0, 1), pmove(0, 1)]);
     return{
-        name: `force`,
+        name: card_names.force,
         pic: `${IMG_FOLDER.cards}force.png`,
         options
     }
@@ -13210,7 +13102,7 @@ function fork(){
     options.add_button(S, [pattack(1, 1), pattack(-1, 1), pattack(1, 2), pattack(-1, 2)]);
     options.add_button(W, [pattack(-1, 1), pattack(-1, -1), pattack(-2, 1), pattack(-2, -1)]);
     return{
-        name: `fork`,
+        name: card_names.fork,
         pic: `${IMG_FOLDER.cards}fork.png`,
         options
     }
@@ -13221,7 +13113,7 @@ function hit_and_run(){
     var options = new ButtonGrid();
     options.add_button(S, [pattack(1, -1), pattack(0, -1), pattack(-1, -1), pattack(1, 0), pattack(-1, 0), pmove(0, 1)]);
     return{
-        name: `hit and run`,
+        name: card_names.hit_and_run,
         pic: `${IMG_FOLDER.cards}hit_and_run.png`,
         options
     }
@@ -13235,22 +13127,8 @@ function horsemanship(){
     options.add_button(SW, [pmove(-2, 1)]);
     options.add_button(NW, [pmove(-2, -1)]);
     return{
-        name: `horsemanship`,
+        name: card_names.horsemanship,
         pic: `${IMG_FOLDER.cards}horsemanship.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function jab(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1), pattack(0, -2), pattack(0, -1), pattack(0, -2)]);
-    options.add_button(E, [pattack(1, 0), pattack(2, 0), pattack(1, 0), pattack(2, 0)]);
-    options.add_button(S, [pattack(0, 1), pattack(0, 2), pattack(0, 1), pattack(0, 2)]);
-    options.add_button(W, [pattack(-1, 0), pattack(-2, 0), pattack(-1, 0), pattack(-2, 0)]);
-    return{
-        name: `jab`,
-        pic: `${IMG_FOLDER.cards}jab.png`,
         options
     }
 }
@@ -13263,8 +13141,22 @@ function jab_diagonal(){
     options.add_button(SW, [pattack(-1, 1), pattack(-2, 2), pattack(-1, 1), pattack(-2, 2)]);
     options.add_button(NW, [pattack(-1, -1), pattack(-2, -2), pattack(-1, -1), pattack(-2, -2)]);
     return{
-        name: `jab_diagonal`,
+        name: card_names.jab_diagonal,
         pic: `${IMG_FOLDER.cards}jab_diagonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function jab_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(0, -1), pattack(0, -2), pattack(0, -1), pattack(0, -2)]);
+    options.add_button(E, [pattack(1, 0), pattack(2, 0), pattack(1, 0), pattack(2, 0)]);
+    options.add_button(S, [pattack(0, 1), pattack(0, 2), pattack(0, 1), pattack(0, 2)]);
+    options.add_button(W, [pattack(-1, 0), pattack(-2, 0), pattack(-1, 0), pattack(-2, 0)]);
+    return{
+        name: card_names.jab_orthogonal,
+        pic: `${IMG_FOLDER.cards}jab_orthogonal.png`,
         options
     }
 }
@@ -13277,7 +13169,7 @@ function jump(){
     options.add_button(S, [pmove(0, 2)]);
     options.add_button(W, [pmove(-2, 0)]);
     return{
-        name: `jump`,
+        name: card_names.jump,
         pic: `${IMG_FOLDER.cards}jump.png`,
         options
     }
@@ -13291,7 +13183,7 @@ function leap_left(){
     options.add_button(SW, [pmove(-2, 2)]);
 
     return{
-        name: `leap left`,
+        name: card_names.leap_left,
         pic: `${IMG_FOLDER.cards}leap_left.png`,
         options
     }
@@ -13304,7 +13196,7 @@ function leap_right(){
     options.add_button(E, [pmove(2, 0)]);
     options.add_button(SE, [pmove(2, 2)]);
     return{
-        name: `leap right`,
+        name: card_names.leap_right,
         pic: `${IMG_FOLDER.cards}leap_right.png`,
         options
     }
@@ -13318,7 +13210,7 @@ function lunge_left(){
     options.add_button(NE, [pmove(1, -1)]);
     options.add_button(NW, [pmove(-1, -1), pmove(-1, -1), pattack(-1, -1)]);
     return{
-        name: `lunge left`,
+        name: card_names.lunge_left,
         pic: `${IMG_FOLDER.cards}lunge_left.png`,
         options
     }
@@ -13332,32 +13224,32 @@ function lunge_right(){
     options.add_button(NW, [pmove(-1, -1)]);
     options.add_button(NE, [pmove(1, -1), pmove(1, -1), pattack(1, -1)]);
     return{
-        name: `lunge right`,
+        name: card_names.lunge_right,
         pic: `${IMG_FOLDER.cards}lunge_right.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function overcome(){
+function overcome_horizontal(){
     var options = new ButtonGrid();
-    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1), pmove(0, -2)]);
-    options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(-1, 1), pmove(0, 2)]);
+    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(1, -1), pmove(2, 0)]);
+    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-1, -1), pmove(-2, 0)]);
     return{
-        name: `overcome`,
-        pic: `${IMG_FOLDER.cards}overcome.png`,
+        name: card_names.overcome_horizontal,
+        pic: `${IMG_FOLDER.cards}overcome_horizontal.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function overcome_sideways(){
+function overcome_vertical(){
     var options = new ButtonGrid();
-    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(1, -1), pmove(2, 0)]);
-    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-1, -1), pmove(-2, 0)]);
+    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1), pmove(0, -2)]);
+    options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(-1, 1), pmove(0, 2)]);
     return{
-        name: `overcome sideways`,
-        pic: `${IMG_FOLDER.cards}overcome_sideways.png`,
+        name: card_names.overcome_vertical,
+        pic: `${IMG_FOLDER.cards}overcome_vertical.png`,
         options
     }
 }
@@ -13371,7 +13263,7 @@ function pike(){
     options.add_button(S, [pattack(0, 2), pattack(1, 3), pattack(0, 3), pattack(-1, 3)]);
 
     return{
-        name: `pike`,
+        name: card_names.pike,
         pic: `${IMG_FOLDER.cards}pike.png`,
         options
     }
@@ -13384,22 +13276,8 @@ function push_back(){
     options.add_button(S, [pattack(0, -1), pmove(0, 1)]);
     options.add_button(SW, [pattack(1, -1), pmove(-1, 1)]);
     return{
-        name: `push back`,
+        name: card_names.push_back,
         pic: `${IMG_FOLDER.cards}push_back.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function short_charge(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1), pattack(0, -1)]);
-    options.add_button(E, [pmove(1, 0), pattack(1, 0)]);
-    options.add_button(S, [pmove(0, 1), pattack(0, 1)]);
-    options.add_button(W, [pmove(-1, 0), pattack(-1, 0)]);
-    return{
-        name: `short charge`,
-        pic: `${IMG_FOLDER.cards}short_charge.png`,
         options
     }
 }
@@ -13412,44 +13290,22 @@ function short_charge_diagonal(){
     options.add_button(SW, [pmove(-1, 1), pattack(-1, 1)]);
     options.add_button(NW, [pmove(-1, -1), pattack(-1, -1)]);
     return{
-        name: `short charge diagonal`,
+        name: card_names.short_charge_diagonal,
         pic: `${IMG_FOLDER.cards}short_charge_diagonal.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function side_attack(){
+function short_charge_orthogonal(){
     var options = new ButtonGrid();
-    options.add_button(E, [pattack(1, 0), pattack(2, 0), pattack(3, 0)]);
-    options.add_button(W, [pattack(-1, 0), pattack(-2, 0), pattack(-3, 0)]);
+    options.add_button(N, [pmove(0, -1), pattack(0, -1)]);
+    options.add_button(E, [pmove(1, 0), pattack(1, 0)]);
+    options.add_button(S, [pmove(0, 1), pattack(0, 1)]);
+    options.add_button(W, [pmove(-1, 0), pattack(-1, 0)]);
     return{
-        name: `side attack`,
-        pic: `${IMG_FOLDER.cards}side_attack.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function side_charge(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pmove(1, 0), pmove(1, 0), pattack(1, 0)]);
-    options.add_button(W, [pmove(-1, 0), pmove(-1, 0), pattack(-1, 0)]);
-    return{
-        name: `side charge`,
-        pic: `${IMG_FOLDER.cards}side_charge.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function side_sprint(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
-    options.add_button(W, [pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
-    return{
-        name: `side sprint`,
-        pic: `${IMG_FOLDER.cards}side_sprint.png`,
+        name: card_names.short_charge_orthogonal,
+        pic: `${IMG_FOLDER.cards}short_charge_orthogonal.png`,
         options
     }
 }
@@ -13460,7 +13316,7 @@ function slash_step_forwards(){
     options.add_button(N, [pmove(0, -1), pattack(0, -1), pattack(1, -1), pattack(-1, -1), pattack(1, 0), pattack(-1, 0)]);
     options.add_button(S, [pmove(0, 1)]);
     return{
-        name: `slash step forwards`,
+        name: card_names.slash_step_forwards,
         pic: `${IMG_FOLDER.cards}slash_step_forwards.png`,
         options
     }
@@ -13472,7 +13328,7 @@ function slash_step_left(){
     options.add_button(W, [pmove(-1, 0), pattack(-1, 0), pattack(-1, 1), pattack(-1, -1), pattack(0, 1), 
                            pattack(0, -1), pattack(1, 1), pattack(1, -1),]);
     return{
-        name: `slash step left`,
+        name: card_names.slash_step_left,
         pic: `${IMG_FOLDER.cards}slash_step_left.png`,
         options
     }
@@ -13484,7 +13340,7 @@ function slash_step_right(){
     options.add_button(E, [pmove(1, 0), pattack(1, 0), pattack(1, 1), pattack(1, -1), pattack(0, 1), 
                            pattack(0, -1), pattack(-1, 1), pattack(-1, -1)]);
     return{
-        name: `slash step right`,
+        name: card_names.slash_step_right,
         pic: `${IMG_FOLDER.cards}slash_step_right.png`,
         options
     }
@@ -13495,7 +13351,7 @@ function slice_twice(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(1, -1), pattack(1, -1), pattack(0, -1), pattack(0, -1), pattack(-1, -1), pattack(-1, -1)]);
     return{
-        name: `slice twice`,
+        name: card_names.slice_twice,
         pic: `${IMG_FOLDER.cards}slice_twice.png`,
         options
     }
@@ -13509,7 +13365,7 @@ function slip_through_ne(){
     options.add_button(SW, [pmove(-2, 2)]);
     options.add_button(NW, [pattack(0, -1), pattack(-1, 0), pmove(-1, -1)]);
     return{
-        name: `slip through ne`,
+        name: card_names.slip_through_ne,
         pic: `${IMG_FOLDER.cards}slip_through_ne.png`,
         options
     }
@@ -13523,7 +13379,7 @@ function slip_through_nw(){
     options.add_button(SW, [pattack(0, 1), pattack(-1, 0), pmove(-1, 1)]);
     options.add_button(NW, [pmove(-2, -2)]);
     return{
-        name: `slip through nw`,
+        name: card_names.slip_through_nw,
         pic: `${IMG_FOLDER.cards}slip_through_nw.png`,
         options
     }
@@ -13535,7 +13391,7 @@ function spearhead(){
     options.add_button(NE, [pmove(1, -1), pattack(1, -1), pattack(1, 0), pattack(0, -1)]);
     options.add_button(NW, [pmove(-1, -1), pattack(-1, -1), pattack(-1, 0), pattack(0, -1)]);
     return{
-        name: `spearhead`,
+        name: card_names.spearhead,
         pic: `${IMG_FOLDER.cards}spearhead.png`,
         options
     }
@@ -13547,20 +13403,32 @@ function spin_attack(){
     var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
     options.add_button(SPIN, spin);
     return{
-        name: `spin attack`,
+        name: card_names.spin_attack,
         pic: `${IMG_FOLDER.cards}spin_attack.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function sprint(){
+function sprint_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
+    options.add_button(W, [pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
+    return{
+        name: card_names.sprint_horizontal,
+        pic: `${IMG_FOLDER.cards}sprint_horizontal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function sprint_vertical(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1), pmove(0, -1), pmove(0, -1)]);
     options.add_button(S, [pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
     return{
-        name: `sprint`,
-        pic: `${IMG_FOLDER.cards}sprint.png`,
+        name: card_names.sprint_vertical,
+        pic: `${IMG_FOLDER.cards}sprint_vertical.png`,
         options
     }
 }
@@ -13573,7 +13441,7 @@ function step_left(){
     options.add_button(NW, [pmove(-1, -1)]);
     options.add_button(E, [pmove(2, 0)]);
     return{
-        name: `step left`,
+        name: card_names.step_left,
         pic: `${IMG_FOLDER.cards}step_left.png`,
         options
     }
@@ -13587,33 +13455,34 @@ function step_right(){
     options.add_button(NE, [pmove(1, -1)]);
     options.add_button(W, [pmove(-2, 0)]);
     return{
-        name: `step right`,
+        name: card_names.step_right,
         pic: `${IMG_FOLDER.cards}step_right.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function straight_charge(){
+function stunning_leap_horizontal(){
+    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
     var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1), pmove(0, -1), pattack(0, -1)]);
-    options.add_button(S, [pmove(0, 1), pmove(0, 1), pattack(0, 1)]);
+    options.add_button(E, [pmove(2, 0), ...spin]);
+    options.add_button(W, [pmove(-2, 0), ...spin]);
     return{
-        name: `straight charge`,
-        pic: `${IMG_FOLDER.cards}straight_charge.png`,
+        name: card_names.stunning_leap_horizontal,
+        pic: `${IMG_FOLDER.cards}stunning_leap_horizontal.png`,
         options
     }
 }
 
 /** @type {CardGenerator}*/
-function stunning_leap(){
+function stunning_leap_vertical(){
     var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -2), ...spin]);
     options.add_button(S, [pmove(0, 2), ...spin]);
     return{
-        name: `stunning_leap`,
-        pic: `${IMG_FOLDER.cards}stunning_leap.png`,
+        name: card_names.stunning_leap_vertical,
+        pic: `${IMG_FOLDER.cards}stunning_leap_vertical.png`,
         options
     }
 }
@@ -13626,21 +13495,8 @@ function stunning_retreat(){
     options.add_button(S, [pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
     options.add_button(SW, [pmove(-1, 1)]);
     return{
-        name: `stunning retreat`,
+        name: card_names.stunning_retreat,
         pic: `${IMG_FOLDER.cards}stunning_retreat.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function stunning_side_leap(){
-    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
-    var options = new ButtonGrid();
-    options.add_button(E, [pmove(2, 0), ...spin]);
-    options.add_button(W, [pmove(-2, 0), ...spin]);
-    return{
-        name: `stunning_side_leap`,
-        pic: `${IMG_FOLDER.cards}stunning_side_leap.png`,
         options
     }
 }
@@ -13653,7 +13509,7 @@ function stunning_slice(){
     options.add_button(S, [pstun(1, 1), pattack(1, 1), pstun(0, 1), pattack(0, 1), pstun(-1, 1), pattack(-1, 1)]);
     options.add_button(W, [pstun(-1, 1), pattack(-1, 1), pstun(-1, 0), pattack(-1, 0), pstun(-1, -1), pattack(-1, -1)]);
     return{
-        name: `stunning_slice`,
+        name: card_names.stunning_slice,
         pic: `${IMG_FOLDER.cards}stunning_slice.png`,
         options
     }
@@ -13665,7 +13521,7 @@ function thwack(){
     options.add_button(N, [pattack(0, -1), pattack(0, -1), pattack(0, -1)]);
     options.add_button(S, [pattack(0, 1), pattack(0, 1), pattack(0, 1)]);
     return{
-        name: `thwack`,
+        name: card_names.thwack,
         pic: `${IMG_FOLDER.cards}thwack.png`,
         options
     }
@@ -13678,7 +13534,7 @@ function trample(){
     options.add_button(NW, [pattack(-1, -2), pmove(-1, -2)]);
     options.add_button(S, [pattack(0, 2), pmove(0, 2)]);
     return{
-        name: `trample`,
+        name: card_names.trample,
         pic: `${IMG_FOLDER.cards}trample.png`,
         options
     }
@@ -13692,8 +13548,36 @@ function trident(){
     options.add_button(W, [pattack(-2, 1), pattack(-2, 0), pattack(-2, -1)]);
     options.add_button(S, [pattack(1, 2), pattack(0, 2), pattack(-1, 2)]);
     return{
-        name: `trident`,
+        name: card_names.trident,
         pic: `${IMG_FOLDER.cards}trident.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function t_strike_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1)]);
+    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(2, 0), pattack(1, -1)]);
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-2, 0), pattack(-1, -1)]);
+    return{
+        name: card_names.t_strike_horizontal,
+        pic: `${IMG_FOLDER.cards}t_strike_horizontal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function t_strike_vertical(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(0, -2), pattack(-1, -1)]);
+    options.add_button(E, [pmove(1, 0)]);
+    options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(0, 2), pattack(-1, 1)]);
+    options.add_button(W, [pmove(-1, 0)]);
+    return{
+        name: card_names.t_strike_vertical,
+        pic: `${IMG_FOLDER.cards}t_strike_vertical.png`,
         options
     }
 }
@@ -13705,8 +13589,36 @@ function y_leap(){
     options.add_button(NW, [pmove(-2, -2)]);
     options.add_button(S, [pmove(0, 2)]);
     return{
-        name: `Y leap`,
+        name: card_names.y_leap,
         pic: `${IMG_FOLDER.cards}y_leap.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function y_strike_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack(1, 0), pattack(1, -1), pattack(2, -2), pattack(0, -1)]);
+    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(SW, [pattack(-1, 0), pattack(-1, 1), pattack(-2, 2), pattack(0, 1)]);
+    options.add_button(NW, [pmove(-1, -1)]);
+    return{
+        name: card_names.y_strike_ne,
+        pic: `${IMG_FOLDER.cards}y_strike_ne.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function y_strike_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(1, -1)]);
+    options.add_button(SE, [pattack(1, 0), pattack(1, 1), pattack(2, 2), pattack(0, 1)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    options.add_button(NW, [pattack(-1, 0), pattack(-1, -1), pattack(-2, -2), pattack(0, -1)]);
+    return{
+        name: card_names.y_strike_nw,
+        pic: `${IMG_FOLDER.cards}y_strike_nw.png`,
         options
     }
 }
@@ -13716,7 +13628,7 @@ function freeze_up(){
     var options = new ButtonGrid();
     options.add_button(C, [], 5);
     return{
-        name: `freeze up`,
+        name: card_names.freeze_up,
         pic: `${IMG_FOLDER.cards}freeze_up.png`,
         options
     }
@@ -13736,7 +13648,7 @@ function lash_out(){
                 pattack(-1, -1)]
     options.add_button(SPIN, spin, 5);
     return{
-        name: `lash out`,
+        name: card_names.lash_out,
         pic: `${IMG_FOLDER.cards}lash_out.png`,
         options
     }
@@ -13748,7 +13660,7 @@ function lightheaded(){
     options.add_button(C, [pstun(0, 0), pstun(0, 0)], 5);
     options.make_instant();
     return{
-        name: `lightheaded`,
+        name: card_names.lightheaded,
         pic: `${IMG_FOLDER.cards}lightheaded.png`,
         options
     }
@@ -13759,7 +13671,7 @@ function stumble_e(){
     var options = new ButtonGrid();
     options.add_button(E, [pmove(1, 0)]);
     return{
-        name: `stumble east`,
+        name: card_names.stumble_e,
         pic: `${IMG_FOLDER.cards}stumble_e.png`,
         options
     }
@@ -13770,7 +13682,7 @@ function stumble_n(){
     var options = new ButtonGrid();
     options.add_button(N, [pmove(0, -1)]);
     return{
-        name: `stumble north`,
+        name: card_names.stumble_n,
         pic: `${IMG_FOLDER.cards}stumble_n.png`,
         options
     }
@@ -13781,7 +13693,7 @@ function stumble_ne(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(1, -1)]);
     return{
-        name: `stumble ne`,
+        name: card_names.stumble_ne,
         pic: `${IMG_FOLDER.cards}stumble_ne.png`,
         options
     }
@@ -13792,7 +13704,7 @@ function stumble_nw(){
     var options = new ButtonGrid();
     options.add_button(NW, [pmove(-1, -1)]);
     return{
-        name: `stumble nw`,
+        name: card_names.stumble_nw,
         pic: `${IMG_FOLDER.cards}stumble_nw.png`,
         options
     }
@@ -13803,7 +13715,7 @@ function stumble_s(){
     var options = new ButtonGrid();
     options.add_button(S, [pmove(0, 1)]);
     return{
-        name: `stumble south`,
+        name: card_names.stumble_s,
         pic: `${IMG_FOLDER.cards}stumble_s.png`,
         options
     }
@@ -13814,7 +13726,7 @@ function stumble_se(){
     var options = new ButtonGrid();
     options.add_button(SE, [pmove(1, 1)]);
     return{
-        name: `stumble se`,
+        name: card_names.stumble_se,
         pic: `${IMG_FOLDER.cards}stumble_se.png`,
         options
     }
@@ -13825,7 +13737,7 @@ function stumble_sw(){
     var options = new ButtonGrid();
     options.add_button(SW, [pmove(-1, 1)]);
     return{
-        name: `stumble sw`,
+        name: card_names.stumble_sw,
         pic: `${IMG_FOLDER.cards}stumble_sw.png`,
         options
     }
@@ -13836,7 +13748,7 @@ function stumble_w(){
     var options = new ButtonGrid();
     options.add_button(W, [pmove(-1, 0)]);
     return{
-        name: `stumble west`,
+        name: card_names.stumble_w,
         pic: `${IMG_FOLDER.cards}stumble_w.png`,
         options
     }
@@ -13851,7 +13763,7 @@ function punch_diagonal(){
     options.add_button(NW, [pattack(-1, -1)]);
     options.make_instant();
     return{
-        name: `punch diagonal`,
+        name: card_names.punch_diagonal,
         pic: `${IMG_FOLDER.cards}punch_diagonal.png`,
         options
     }
@@ -13866,7 +13778,7 @@ function punch_orthogonal(){
     options.add_button(W, [pattack(-1, 0)]);
     options.make_instant();
     return{
-        name: `punch orthogonal`,
+        name: card_names.punch_orthogonal,
         pic: `${IMG_FOLDER.cards}punch_orthogonal.png`,
         options
     }
@@ -13878,7 +13790,7 @@ function reckless_attack_left(){
     options.add_button(W, [pstun(0, 0), pattack(0, 1), pattack(0, 1), pattack(0, -1), pattack(0, -1),
         pattack(-1, 0), pattack(-1, 0), pattack(-1, 1), pattack(-1, 1), pattack(-1, -1), pattack(-1, -1)]);
     return{
-        name: `reckless attack left`,
+        name: card_names.reckless_attack_left,
         pic: `${IMG_FOLDER.cards}reckless_attack_left.png`,
         options
     }
@@ -13890,38 +13802,8 @@ function reckless_attack_right(){
     options.add_button(E, [pstun(0, 0), pattack(0, 1), pattack(0, 1), pattack(0, -1), pattack(0, -1),
         pattack(1, 0), pattack(1, 0), pattack(1, 1), pattack(1, 1), pattack(1, -1), pattack(1, -1)]);
     return{
-        name: `reckless attack right`,
+        name: card_names.reckless_attack_right,
         pic: `${IMG_FOLDER.cards}reckless_attack_right.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function reckless_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pstun(0, 0), pmove(1, -1)]);
-    options.add_button(SE, [pstun(0, 0), pmove(1, 1)]);
-    options.add_button(SW, [pstun(0, 0), pmove(-1, 1)]);
-    options.add_button(NW, [pstun(0, 0), pmove(-1, -1)]);
-    options.make_instant();
-    return{
-        name: `reckless diagonal`,
-        pic: `${IMG_FOLDER.cards}reckless_diagonal.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function reckless_horizontal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, 0), pmove(0, -1)]);
-    options.add_button(E, [pstun(0, 0), pmove(1, 0)]);
-    options.add_button(S, [pstun(0, 0), pmove(0, 1)]);
-    options.add_button(W, [pstun(0, 0), pmove(-1, 0)]);
-    options.make_instant();
-    return{
-        name: `reckless horizontal`,
-        pic: `${IMG_FOLDER.cards}reckless_horizontal.png`,
         options
     }
 }
@@ -13933,7 +13815,7 @@ function reckless_leap_forwards (){
     options.add_button(N, [pstun(0, 0), pmove(0, -2), ...spin]);
     options.add_button(S, [pmove(0, 1)]);
     return{
-        name: `reckless leap forwards`,
+        name: card_names.reckless_leap_forwards,
         pic: `${IMG_FOLDER.cards}reckless_leap_forwards.png`,
         options
     }
@@ -13946,7 +13828,7 @@ function reckless_leap_left(){
     options.add_button(W, [pstun(0, 0), pmove(-2, 0), ...spin]);
     options.add_button(E, [pmove(1, 0)]);
     return{
-        name: `reckless leap left`,
+        name: card_names.reckless_leap_left,
         pic: `${IMG_FOLDER.cards}reckless_leap_left.png`,
         options
     }
@@ -13959,8 +13841,38 @@ function reckless_leap_right(){
     options.add_button(E, [pstun(0, 0), pmove(2, 0), ...spin]);
     options.add_button(W, [pmove(-1, 0)]);
     return{
-        name: `reckless leap right`,
+        name: card_names.reckless_leap_right,
         pic: `${IMG_FOLDER.cards}reckless_leap_right.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function reckless_sidestep_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(0, 0), pmove(1, -1)]);
+    options.add_button(SE, [pstun(0, 0), pmove(1, 1)]);
+    options.add_button(SW, [pstun(0, 0), pmove(-1, 1)]);
+    options.add_button(NW, [pstun(0, 0), pmove(-1, -1)]);
+    options.make_instant();
+    return{
+        name: card_names.reckless_sidestep_diagonal,
+        pic: `${IMG_FOLDER.cards}reckless_sidestep_diagonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function reckless_sidestep_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pmove(0, -1)]);
+    options.add_button(E, [pstun(0, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 0), pmove(0, 1)]);
+    options.add_button(W, [pstun(0, 0), pmove(-1, 0)]);
+    options.make_instant();
+    return{
+        name: card_names.reckless_sidestep_orthogonal,
+        pic: `${IMG_FOLDER.cards}reckless_sidestep_orthogonal.png`,
         options
     }
 }
@@ -13971,7 +13883,7 @@ function reckless_spin(){
     var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
     options.add_button(SPIN, [pstun(0, 0), pstun(0, 0), ...spin, ...spin]);
     return{
-        name: `reckless spin`,
+        name: card_names.reckless_spin,
         pic: `${IMG_FOLDER.cards}reckless_spin.png`,
         options
     }
@@ -13985,7 +13897,7 @@ function reckless_sprint(){
     options.add_button(S, [pstun(0, 0), pstun(0, 0), pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
     options.add_button(W, [pstun(0, 0), pstun(0, 0), pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
     return{
-        name: `reckless sprint`,
+        name: card_names.reckless_sprint,
         pic: `${IMG_FOLDER.cards}reckless_sprint.png`,
         options
     }
@@ -13997,7 +13909,7 @@ function reckless_teleport(){
     options.add_button(C, [pstun(0, 0), pstun(0, 0), pteleport(0, 0)]);
     options.make_instant();
     return{
-        name: `reckless teleport`,
+        name: card_names.reckless_teleport,
         pic: `${IMG_FOLDER.cards}reckless_teleport.png`,
         options
     }
@@ -14009,7 +13921,7 @@ function sidestep_e(){
     options.add_button(E, [pmove(1, 0)]);
     options.make_instant();
     return{
-        name: `sidestep east`,
+        name: card_names.sidestep_e,
         pic: `${IMG_FOLDER.cards}sidestep_e.png`,
         options
     }
@@ -14021,7 +13933,7 @@ function sidestep_n(){
     options.add_button(N, [pmove(0, -1)]);
     options.make_instant();
     return{
-        name: `sidestep north`,
+        name: card_names.sidestep_n,
         pic: `${IMG_FOLDER.cards}sidestep_n.png`,
         options
     }
@@ -14033,7 +13945,7 @@ function sidestep_ne(){
     options.add_button(NE, [pmove(1, -1)]);
     options.make_instant();
     return{
-        name: `sidestep ne`,
+        name: card_names.sidestep_ne,
         pic: `${IMG_FOLDER.cards}sidestep_ne.png`,
         options
     }
@@ -14045,7 +13957,7 @@ function sidestep_nw(){
     options.add_button(NW, [pmove(-1, -1)]);
     options.make_instant();
     return{
-        name: `sidestep nw`,
+        name: card_names.sidestep_nw,
         pic: `${IMG_FOLDER.cards}sidestep_nw.png`,
         options
     }
@@ -14057,7 +13969,7 @@ function sidestep_s(){
     options.add_button(S, [pmove(0, 1)]);
     options.make_instant();
     return{
-        name: `sidestep south`,
+        name: card_names.sidestep_s,
         pic: `${IMG_FOLDER.cards}sidestep_s.png`,
         options
     }
@@ -14069,7 +13981,7 @@ function sidestep_se(){
     options.add_button(SE, [pmove(1, 1)]);
     options.make_instant();
     return{
-        name: `sidestep se`,
+        name: card_names.sidestep_se,
         pic: `${IMG_FOLDER.cards}sidestep_se.png`,
         options
     }
@@ -14081,7 +13993,7 @@ function sidestep_sw(){
     options.add_button(SW, [pmove(-1, 1)]);
     options.make_instant();
     return{
-        name: `sidestep sw`,
+        name: card_names.sidestep_sw,
         pic: `${IMG_FOLDER.cards}sidestep_sw.png`,
         options
     }
@@ -14093,36 +14005,8 @@ function sidestep_w(){
     options.add_button(W, [pmove(-1, 0)]);
     options.make_instant();
     return{
-        name: `sidestep west`,
+        name: card_names.sidestep_w,
         pic: `${IMG_FOLDER.cards}sidestep_w.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function stunning_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pstun(1, -1), pstun(1, -1), pstun(1, -1), pmove(1, -1)]);
-    options.add_button(SE, [pstun(1, 1), pstun(1, 1), pstun(1, 1), pmove(1, 1)]);
-    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1), pstun(-1, 1), pmove(-1, 1)]);
-    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1), pstun(-1, -1), pmove(-1, -1)]);
-    return{
-        name: `stunning diagonal`,
-        pic: `${IMG_FOLDER.cards}stunning_diagonal.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator}*/
-function stunning_orthogonal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, -1), pstun(0, -1), pstun(0, -1), pmove(0, -1)]);
-    options.add_button(E, [pstun(1, 0), pstun(1, 0), pstun(1, 0), pmove(1, 0)]);
-    options.add_button(S, [pstun(0, 1), pstun(0, 1), pstun(0, 1), pmove(0, 1)]);
-    options.add_button(W, [pstun(-1, 0), pstun(-1, 0), pstun(-1, 0), pmove(-1, 0)]);
-    return{
-        name: `stunning orthogonal`,
-        pic: `${IMG_FOLDER.cards}stunning_orthogonal.png`,
         options
     }
 }
@@ -14136,7 +14020,7 @@ function stunning_punch_diagonal(){
     options.add_button(NW, [pstun(-1, -1), pstun(-1, -1)]);
     options.make_instant();
     return{
-        name: `stunning punch diagonal`,
+        name: card_names.stunning_punch_diagonal,
         pic: `${IMG_FOLDER.cards}stunning_punch_diagonal.png`,
         options
     }
@@ -14151,8 +14035,36 @@ function stunning_punch_orthogonal(){
     options.add_button(W, [pstun(-1, 0), pstun(-1, 0)]);
     options.make_instant();
     return{
-        name: `stunning punch orthogonal`,
+        name: card_names.stunning_punch_orthogonal,
         pic: `${IMG_FOLDER.cards}stunning_punch_orthogonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function stunning_tread_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(1, -1), pstun(1, -1), pstun(1, -1), pmove(1, -1)]);
+    options.add_button(SE, [pstun(1, 1), pstun(1, 1), pstun(1, 1), pmove(1, 1)]);
+    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1), pstun(-1, 1), pmove(-1, 1)]);
+    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1), pstun(-1, -1), pmove(-1, -1)]);
+    return{
+        name: card_names.stunning_tread_diagonal,
+        pic: `${IMG_FOLDER.cards}stunning_tread_diagonal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator}*/
+function stunning_tread_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, -1), pstun(0, -1), pstun(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pstun(1, 0), pstun(1, 0), pstun(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 1), pstun(0, 1), pstun(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pstun(-1, 0), pstun(-1, 0), pstun(-1, 0), pmove(-1, 0)]);
+    return{
+        name: card_names.stunning_tread_orthogonal,
+        pic: `${IMG_FOLDER.cards}stunning_tread_orthogonal.png`,
         options
     }
 }
@@ -14162,34 +14074,34 @@ function teleport(){
     var options = new ButtonGrid();
     options.add_button(C, [pteleport(0, 0)]);
     return{
-        name: `teleport`,
+        name: card_names.teleport,
         pic: `${IMG_FOLDER.cards}teleport.png`,
         options
     }
 }
 
 /** @type {CardGenerator} Shown in shop to denote adding a card to your deck.*/
-function add_card_symbol(){
+function symbol_add_card(){
     return{
-        name: `Add`,
+        name: card_names.symbol_add_card,
         pic: `${IMG_FOLDER.other}plus.png`,
         options: new ButtonGrid()
     }
 }
 
 /** @type {CardGenerator} Shown in shop ind=stead of the remove symbol when your deck is at the minimum size.*/
-function deck_at_minimum_symbol(){
+function symbol_deck_at_minimum(){
     return{
-        name: `Minimum`,
+        name: card_names.symbol_deck_at_minimum,
         pic: `${IMG_FOLDER.other}x.png`,
         options: new ButtonGrid()
     }
 }
 
 /** @type {CardGenerator} Shown in show to denote removing a card from your deck.*/
-function remove_card_symbol(){
+function symbol_remove_card(){
     return{
-        name: `Remove`,
+        name: card_names.symbol_remove_card,
         pic: `${IMG_FOLDER.other}minus.png`,
         options: new ButtonGrid()
     }
@@ -14205,7 +14117,7 @@ BOON_LIST = [
     quick_healing, rebirth, repetition, retaliate, rift_touched, 
     roar_of_challenge, safe_passage, shattered_glass, skill_trading, slime_trail, 
     sniper, spiked_shoes, spontaneous, stable_mind, stealthy, 
-    stubborn, thick_soles
+    stubborn, thick_soles, vicious_cycle
 ];
 
 function change_max_health(amount){
@@ -14225,7 +14137,7 @@ function ancient_card(){
     return {
         name: boon_names.ancient_card,
         pic: `${IMG_FOLDER.cards}lost_technique.png`,
-        description: add_card_description,
+        description: chest_text.add_card,
         on_pick: pick_ancient_card,
         unlocks: [ancient_card]
     }
@@ -14239,7 +14151,7 @@ function ancient_card_2(){
     return {
         name: boon_names.ancient_card,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
-        description: add_card_description,
+        description: chest_text.add_card,
         on_pick: pick_ancient_card_2,
         unlocks: [ancient_card_2]
     }
@@ -14254,7 +14166,7 @@ function bitter_determination(){
     return {
         name: boon_names.bitter_determination,
         pic: `${IMG_FOLDER.boons}bitter_determination.png`,
-        description: bitter_determination_description,
+        description: boon_descriptions.bitter_determination,
     }
 }
 
@@ -14262,7 +14174,7 @@ function boss_slayer(){
     return {
         name: boon_names.boss_slayer,
         pic: `${IMG_FOLDER.boons}boss_slayer.png`,
-        description: boss_slayer_description,
+        description: boon_descriptions.boss_slayer,
     }
 }
 
@@ -14271,7 +14183,7 @@ function brag_and_boast(){
     return {
         name: boon_names.brag_and_boast,
         pic: `${IMG_FOLDER.boons}brag_and_boast.png`,
-        description: brag_and_boast_description,
+        description: boon_descriptions.brag_and_boast,
         on_pick: pick_brag_and_boast,
         unlocks: [brag_and_boast]
     }
@@ -14292,7 +14204,7 @@ function chilly_presence(){
     return {
         name: boon_names.chilly_presence,
         pic: `${IMG_FOLDER.boons}chilly_presence.png`,
-        description: chilly_presence_description,
+        description: boon_descriptions.chilly_presence,
         prereq: prereq_chilly_presence,
         unlocks: [chilly_presence]
     }
@@ -14315,18 +14227,15 @@ function choose_your_path(){
     return {
         name: boon_names.choose_your_path,
         pic: `${IMG_FOLDER.boons}choose_your_path.png`,
-        description: choose_your_path_description
+        description: boon_descriptions.choose_your_path
     }
 }
-
-// Pick where to go after each boss fight
-// Boss exits have the background
 
 function clean_mind(){
     return {
         name: boon_names.clean_mind,
         pic: `${IMG_FOLDER.boons}clean_mind.png`,
-        description: clean_mind_description,
+        description: boon_descriptions.clean_mind,
         prereq_clean_mind,
         after_pick: pick_clean_mind,
         unlocks: [clean_mind]
@@ -14348,7 +14257,7 @@ function creative(){
     return {
         name: boon_names.creative,
         pic: `${IMG_FOLDER.boons}creative.png`,
-        description: creative_description,
+        description: boon_descriptions.creative,
         prereq: prereq_creative,
         on_pick: pick_creative
     }
@@ -14369,7 +14278,7 @@ function dazing_blows(){
     return {
         name: boon_names.dazing_blows,
         pic: `${IMG_FOLDER.boons}dazing_blows.png`,
-        description: dazing_blows_description,
+        description: boon_descriptions.dazing_blows,
     }
 }
 
@@ -14377,7 +14286,7 @@ function duplicate(){
     return {
         name: boon_names.duplicate,
         pic: `${IMG_FOLDER.boons}duplicate.png`,
-        description: duplicate_description,
+        description: boon_descriptions.duplicate,
         after_pick: pick_duplicate,
         unlocks: [duplicate]
     }
@@ -14392,7 +14301,7 @@ function empty_rooms(){
     return {
         name: boon_names.empty_rooms,
         pic: `${IMG_FOLDER.boons}empty_rooms.png`,
-        description: empty_rooms_description,
+        description: boon_descriptions.empty_rooms,
         unlocks: [empty_rooms]
     }
 }
@@ -14401,7 +14310,7 @@ function escape_artist(){
     return {
         name: boon_names.escape_artist,
         pic: `${IMG_FOLDER.boons}escape_artist.png`,
-        description: escape_artist_description,
+        description: boon_descriptions.escape_artist,
     }
 }
 
@@ -14416,7 +14325,7 @@ function expend_vitality(){
     return {
         name: boon_names.expend_vitality,
         pic: `${IMG_FOLDER.boons}expend_vitality.png`,
-        description: expend_vitality_description,
+        description: boon_descriptions.expend_vitality,
         prereq: prereq_expend_vitality,
         on_pick: pick_expend_vitality
     }
@@ -14433,7 +14342,7 @@ function flame_strike(){
     return {
         name: boon_names.flame_strike,
         pic: `${IMG_FOLDER.boons}flame_strike.png`,
-        description: flame_strike_description,
+        description: boon_descriptions.flame_strike,
         prereq: prereq_flame_strike,
         unlocks: [flame_strike]
     }
@@ -14447,7 +14356,7 @@ function fleeting_thoughts(){
     return {
         name: boon_names.fleeting_thoughts,
         pic: `${IMG_FOLDER.boons}fleeting_thoughts.png`,
-        description: fleeting_thoughts_description,
+        description: boon_descriptions.fleeting_thoughts,
     }
 }
 
@@ -14455,7 +14364,7 @@ function fortitude(){
     return {
         name: boon_names.fortitude,
         pic: `${IMG_FOLDER.boons}fortitude.png`,
-        description: fortitude_description,
+        description: boon_descriptions.fortitude,
         prereq: prereq_fortitude,
         on_pick: pick_fortitude,
         unlocks: [fortitude]
@@ -14474,7 +14383,7 @@ function frenzy(){
     return {
         name: boon_names.frenzy,
         pic: `${IMG_FOLDER.boons}frenzy.png`,
-        description: frenzy_description,
+        description: boon_descriptions.frenzy,
     }
 }
 
@@ -14483,7 +14392,7 @@ function frugivore(){
     return {
         name: boon_names.frugivore,
         pic: `${IMG_FOLDER.boons}frugivore.png`,
-        description: frugivore_description,
+        description: boon_descriptions.frugivore,
         prereq: prereq_frugivore,
         unlocks: [frugivore]
     }
@@ -14496,7 +14405,7 @@ function future_sight(){
     return {
         name: boon_names.future_sight,
         pic: `${IMG_FOLDER.boons}future_sight.png`,
-        description: future_sight_description,
+        description: boon_descriptions.future_sight,
         on_pick: pick_future_sight
     }
 }
@@ -14512,7 +14421,7 @@ function gruntwork(){
     return {
         name: boon_names.gruntwork,
         pic: `${IMG_FOLDER.boons}gruntwork.png`,
-        description: gruntwork_description,
+        description: boon_descriptions.gruntwork,
         prereq: prereq_gruntwork,
         on_pick: pick_gruntwork
     }
@@ -14533,7 +14442,7 @@ function hoarder(){
     return {
         name: boon_names.hoarder,
         pic: `${IMG_FOLDER.boons}hoarder.png`,
-        description: hoarder_description
+        description: boon_descriptions.hoarder
     }
 }
 
@@ -14541,14 +14450,14 @@ function larger_chests(){
     return {
         name: boon_names.larger_chests,
         pic: `${IMG_FOLDER.boons}larger_chests.png`,
-        description: larger_chests_description
+        description: boon_descriptions.larger_chests
     }
 }
 function limitless(){
     return {
         name: boon_names.limitless,
         pic: `${IMG_FOLDER.boons}limitless.png`,
-        description: limitless_description,
+        description: boon_descriptions.limitless,
         on_pick: on_pick_limitless
     }
 }
@@ -14561,7 +14470,7 @@ function pacifism(){
     return {
         name: boon_names.pacifism,
         pic: `${IMG_FOLDER.boons}pacifism.png`,
-        description: pacifism_description,
+        description: boon_descriptions.pacifism,
     }
 }
 
@@ -14570,7 +14479,7 @@ function pain_reflexes(){
     return {
         name: boon_names.pain_reflexes,
         pic: `${IMG_FOLDER.boons}pain_reflexes.png`,
-        description: pain_reflexes_description,
+        description: boon_descriptions.pain_reflexes,
     }
 }
 
@@ -14578,7 +14487,7 @@ function perfect_the_basics(){
     return {
         name: boon_names.perfect_the_basics,
         pic: `${IMG_FOLDER.boons}perfect_the_basics.png`,
-        description: perfect_the_basics_description,
+        description: boon_descriptions.perfect_the_basics,
         prereq: prereq_perfect_the_basics,
         on_pick: pick_perfect_the_basics
     }
@@ -14594,8 +14503,8 @@ function pick_perfect_the_basics(){
     for(var basic of basics){
         GS.deck.remove(basic.id);
         switch(basic.name){
-            case basic_horizontal().name:
-                GS.deck.add(short_charge());
+            case basic_orthogonal().name:
+                GS.deck.add(short_charge_orthogonal());
                 break;
             case basic_diagonal().name:
                 GS.deck.add(short_charge_diagonal());
@@ -14625,7 +14534,7 @@ function picky_shopper(){
     return {
         name: boon_names.picky_shopper,
         pic: `${IMG_FOLDER.boons}picky_shopper.png`,
-        description: picky_shopper_description,
+        description: boon_descriptions.picky_shopper,
         unlocks: [picky_shopper]
     }
 }
@@ -14634,7 +14543,7 @@ function practice_makes_perfect(){
     return {
         name: boon_names.practice_makes_perfect,
         pic: `${IMG_FOLDER.boons}practice_makes_perfect.png`,
-        description: practice_makes_perfect_description,
+        description: boon_descriptions.practice_makes_perfect,
         prereq: prereq_practice_makes_perfect
     }
 }
@@ -14647,7 +14556,7 @@ function pressure_points(){
     return {
         name: boon_names.pressure_points,
         pic: `${IMG_FOLDER.boons}pressure_points.png`,
-        description: pressure_points_description,
+        description: boon_descriptions.pressure_points,
     }
 }
 
@@ -14656,7 +14565,7 @@ function quick_healing(){
     return {
         name: boon_names.quick_healing,
         pic: `${IMG_FOLDER.boons}quick_healing.png`,
-        description: quick_healing_description,
+        description: boon_descriptions.quick_healing,
         prereq: prereq_quick_healing,
         unlocks: [quick_healing]
     }
@@ -14669,7 +14578,7 @@ function rebirth(){
     return {
         name: boon_names.rebirth,
         pic: `${IMG_FOLDER.boons}rebirth.png`,
-        description: rebirth_description,
+        description: boon_descriptions.rebirth,
         unlocks: [rebirth]    
     }
 }
@@ -14678,7 +14587,7 @@ function repetition(){
     return {
         name: boon_names.repetition,
         pic: `${IMG_FOLDER.boons}repetition.png`,
-        description: repetition_description,
+        description: boon_descriptions.repetition,
         prereq: prereq_repetition,
         unlocks: [repetition]
     }
@@ -14692,7 +14601,7 @@ function retaliate(){
     return {
         name: boon_names.retaliate,
         pic: `${IMG_FOLDER.boons}retaliate.png`,
-        description: retaliate_description
+        description: boon_descriptions.retaliate
     }
 }
 
@@ -14716,12 +14625,21 @@ function retaliate_behavior(self, target, map){
         map.attack(spaces[0]);
     }
 }
+function rift_touched(){
+    return {
+        name: boon_names.rift_touched,
+        pic: `${IMG_FOLDER.boons}rift_touched.png`,
+        description: boon_descriptions.rift_touched,
+    }
+}
+
+
 
 function roar_of_challenge(){
     return {
         name: boon_names.roar_of_challenge,
         pic: `${IMG_FOLDER.boons}roar_of_challenge.png`,
-        description: roar_of_challenge_description,
+        description: boon_descriptions.roar_of_challenge,
         prereq: prereq_roar_of_challenge,
         on_pick: pick_roar_of_challenge,
         unlocks: [roar_of_challenge]
@@ -14740,7 +14658,7 @@ function safe_passage(){
     return {
         name: boon_names.safe_passage,
         pic: `${IMG_FOLDER.boons}safe_passage.png`,
-        description: safe_passage_description,
+        description: boon_descriptions.safe_passage,
         prereq: prereq_safe_passage,
         unlocks: [safe_passage]
     }
@@ -14754,7 +14672,7 @@ function shattered_glass(){
     return {
         name: boon_names.shattered_glass,
         pic: `${IMG_FOLDER.boons}shattered_glass.png`,
-        description: shattered_glass_description,
+        description: boon_descriptions.shattered_glass,
         prereq: prereq_shattered_glass,
         on_pick: on_pick_shattered_glass
     }
@@ -14768,13 +14686,11 @@ function on_pick_shattered_glass(){
     change_max_health(-2);
 }
 
-// Enemies explode on death
-
 function skill_trading(){
     return {
         name: boon_names.skill_trading,
         pic: `${IMG_FOLDER.boons}skill_trading.png`,
-        description: skill_trading_description
+        description: boon_descriptions.skill_trading
     }
 }
 
@@ -14782,7 +14698,7 @@ function slime_trail(){
     return {
         name: boon_names.slime_trail,
         pic: `${IMG_FOLDER.boons}slime_trail.png`,
-        description: slime_trail_description,
+        description: boon_descriptions.slime_trail,
         prereq: prereq_slime_trail,
         unlocks: [slime_trail]
     }
@@ -14795,7 +14711,7 @@ function sniper(){
     return {
         name: boon_names.sniper,
         pic: `${IMG_FOLDER.boons}sniper.png`,
-        description: sniper_description,
+        description: boon_descriptions.sniper,
     }
 }
 
@@ -14803,7 +14719,7 @@ function spiked_shoes(){
     return {
         name: boon_names.spiked_shoes,
         pic: `${IMG_FOLDER.boons}spiked_shoes.png`,
-        description: spiked_shoes_description,
+        description: boon_descriptions.spiked_shoes,
         prereq: prereq_spiked_shoes,
         on_pick: pick_spiked_shoes
     }
@@ -14822,7 +14738,7 @@ function spontaneous(){
     return {
         name: boon_names.spontaneous,
         pic: `${IMG_FOLDER.boons}spontaneous.png`,
-        description: spontaneous_description,
+        description: boon_descriptions.spontaneous,
         prereq: prereq_spontaneous,
         on_pick: pick_spontaneous
     }
@@ -14840,7 +14756,7 @@ function stable_mind(){
     return {
         name: boon_names.stable_mind,
         pic: `${IMG_FOLDER.boons}stable_mind.png`,
-        description: stable_mind_description,
+        description: boon_descriptions.stable_mind,
         prereq: prereq_stable_mind,
         unlocks: [stable_mind]
     }
@@ -14854,7 +14770,7 @@ function stealthy(){
     return {
         name: boon_names.stealthy,
         pic: `${IMG_FOLDER.boons}stealthy.png`,
-        description: stealthy_description,
+        description: boon_descriptions.stealthy,
     }
 }
 
@@ -14862,7 +14778,7 @@ function stubborn(){
     return {
         name: boon_names.stubborn,
         pic: `${IMG_FOLDER.boons}stubborn.png`,
-        description: stubborn_description,
+        description: boon_descriptions.stubborn,
     }
 }
 
@@ -14870,59 +14786,286 @@ function thick_soles(){
     return {
         name: boon_names.thick_soles,
         pic: `${IMG_FOLDER.boons}thick_soles.png`,
-        description: thick_soles_description,
+        description: boon_descriptions.thick_soles,
     }
 }
-// Todo:
-//  description
-//  implement
 
-function adrenaline_rush(){
+function vicious_cycle(){
     return {
-        name: boon_names.adrenaline_rush,
-        pic: `${IMG_FOLDER.boons}adrenaline_rush.png`,
-        description: adrenaline_rush_description,
+        name: boon_names.vicious_cycle,
+        pic: `${IMG_FOLDER.boons}vicious_cycle.png`,
+        description: boon_descriptions.vicious_cycle,
     }
 }
 
-// Hitting more than 1 enemy gives an extra turn.
+function apply_vicious_cycle(deck){
+    for(var i = 0; i < 2; ++i){
+        confuse_player([lash_out]);
+    }
+}
 
-function deck_stacking(){
+function get_achievements(){
+    return [
+        // Boss achievements
+        velociphile_achievement(),
+        spider_queen_achievement(),
+        two_headed_serpent_achievement(),
+        lich_achievement(),
+        young_dragon_achievement(),
+        forest_heart_achievement(),
+        arcane_sentry_achievement(),
+        
+        // Other 
+        ancient_knowledge_achievement(),
+        beyond_the_basics_achievement(),
+        clumsy_achievement(),
+        collector_achievement(),
+        jack_of_all_trades_achievement(),
+        minimalist_achievement(),
+        monster_hunter_achievement(),
+        non_violent_achievement(),
+        not_my_fault_achievement(),
+        one_life_achievement(),
+        peerless_sprinter_achievement(),
+        shrug_it_off_achievement(),
+        speed_runner_achievement(),
+        triple_achievement(),
+        without_a_scratch_achievement(),
+    ]
+}
+
+function arcane_sentry_achievement(){
     return {
-        name: boon_names.deck_stacking,
-        pic: `${IMG_FOLDER.boons}deck_stacking.png`,
-        description: deck_stacking_description
+        name: achievement_names.arcane_sentry,
+        description: achievement_description.arcane_sentry,
+        image: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
+        has: false,
+        boons: [choose_your_path],
+        cards: []
     }
 }
 
-// Choose the order of your deck when shuffling.
-function rift_touched(){
+function forest_heart_achievement(){
     return {
-        name: boon_names.rift_touched,
-        pic: `${IMG_FOLDER.boons}rift_touched.png`,
-        description: rift_touched_description,
+        name: achievement_names.forest_heart,
+        description: achievement_description.forest_heart,
+        image: `${IMG_FOLDER.tiles}forest_heart.png`,
+        has: false,
+        boons: [frugivore],
+        cards: []
     }
 }
 
-
-
-function serenity(){
+function lich_achievement(){
     return {
-        name: boon_names.serenity,
-        pic: `${IMG_FOLDER.boons}serenity.png`,
-        description: serenity_description,
-        prereq: prereq_serenity,
-        on_pick: pick_serenity,
-        unlocks: [serenity]
+        name: achievement_names.lich,
+        description: achievement_description.lich,
+        image: `${IMG_FOLDER.tiles}lich_rest.png`,
+        has: false,
+        boons: [rift_touched],
+        cards: []
     }
 }
 
-function prereq_serenity(){
-    return GS.deck.deck_min() > 4;
+function spider_queen_achievement(){
+    return {
+        name: achievement_names.spider_queen,
+        description: achievement_description.spider_queen,
+        image: `${IMG_FOLDER.tiles}spider_queen.png`,
+        has: false,
+        boons: [retaliate],
+        cards: [
+            stunning_leap_vertical, stunning_leap_horizontal, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice,
+            stunning_tread_diagonal, stunning_tread_orthogonal, stunning_retreat
+        ]
+    }
 }
 
-function pick_serenity(){
-    while(GS.deck.deck_min() > 4){
-        GS.deck.alter_min(-1);
+function two_headed_serpent_achievement(){
+    return {
+        name: achievement_names.two_headed_serpent,
+        description: achievement_description.two_headed_serpent,
+        image: `${IMG_FOLDER.tiles}serpent_head.png`,
+        has: false,
+        boons: [slime_trail],
+        cards: [
+            reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_sidestep_diagonal, reckless_sidestep_orthogonal, 
+            reckless_teleport, reckless_leap_forwards, reckless_leap_left, reckless_leap_right, reckless_spin
+        ]
+    }
+}
+
+function velociphile_achievement(){
+    return {
+        name: achievement_names.velociphile,
+        description: achievement_description.velociphile,
+        image: `${IMG_FOLDER.tiles}velociphile.png`,
+        has: false,
+        boons: [boss_slayer],
+        cards: [
+            teleport, sidestep_e, sidestep_n, sidestep_ne, sidestep_nw, 
+            sidestep_s, sidestep_se, sidestep_sw, sidestep_w, punch_orthogonal, 
+            punch_diagonal
+        ]
+    }
+}
+
+function young_dragon_achievement(){
+    return {
+        name: achievement_names.young_dragon,
+        description: achievement_description.young_dragon,
+        image: `${IMG_FOLDER.tiles}young_dragon_flight.png`,
+        has: false,
+        boons: [flame_strike],
+        cards: []
+    }
+}
+function ancient_knowledge_achievement(){
+    return {
+        name: achievement_names.ancient_knowledge,
+        description: achievement_description.ancient_knowledge,
+        image: `${IMG_FOLDER.achievements}ancient_knowledge.png`,
+        has: false,
+        boons: [clean_mind],
+    }
+}
+
+function beyond_the_basics_achievement(){
+    return {
+        name: achievement_names.beyond_the_basics,
+        description: achievement_description.beyond_the_basics,
+        image: `${IMG_FOLDER.achievements}beyond_the_basics.png`,
+        has: false,
+        boons: [perfect_the_basics],
+    }
+}
+
+function clumsy_achievement(){
+    return {
+        name: achievement_names.clumsy,
+        description: achievement_description.clumsy,
+        image: `${IMG_FOLDER.achievements}clumsy.png`,
+        has: false,
+        boons: [thick_soles],
+    }
+}
+
+function collector_achievement(){
+    return {
+        name: achievement_names.collector,
+        description: achievement_description.collector,
+        image: `${IMG_FOLDER.achievements}collector.png`,
+        has: false,
+        boons: [hoarder],
+    }
+}
+
+function jack_of_all_trades_achievement(){
+    return {
+        name: achievement_names.jack_of_all_trades,
+        description: achievement_description.jack_of_all_trades,
+        image: `${IMG_FOLDER.achievements}jack_of_all_trades.png`,
+        has: false,
+        boons: [spontaneous],
+    }
+}
+
+function minimalist_achievement(){
+    return {
+        name: achievement_names.minimalist,
+        description: achievement_description.minimalist,
+        image: `${IMG_FOLDER.achievements}minimalist.png`,
+        has: false,
+        boons: [stubborn],
+    }
+}
+
+function monster_hunter_achievement(){
+    return {
+        name: achievement_names.monster_hunter,
+        description: achievement_description.monster_hunter,
+        image: `${IMG_FOLDER.achievements}monster_hunter.png`,
+        has: false,
+        boons: [brag_and_boast],
+    }
+}
+
+function non_violent_achievement(){
+    return {
+        name: achievement_names.non_violent,
+        description: achievement_description.non_violent,
+        image: `${IMG_FOLDER.achievements}non_violent.png`,
+        has: false,
+        boons: [pacifism],
+    }
+}
+
+function not_my_fault_achievement(){
+    return {
+        name: achievement_names.not_my_fault,
+        description: achievement_description.not_my_fault,
+        image: `${IMG_FOLDER.achievements}not_my_fault.png`,
+        has: false,
+        boons: [pressure_points],
+    }
+}
+
+function one_life_achievement(){
+    return {
+        name: achievement_names.one_life,
+        description: achievement_description.one_life,
+        image: `${IMG_FOLDER.achievements}one_life.png`,
+        has: false,
+        boons: [frenzy],
+    }
+}
+
+function peerless_sprinter_achievement(){
+    return {
+        name: achievement_names.peerless_sprinter,
+        description: achievement_description.peerless_sprinter,
+        image: `${IMG_FOLDER.achievements}peerless_sprinter.png`,
+        has: false,
+        boons: [stealthy],
+    }
+}
+
+function shrug_it_off_achievement(){
+    return {
+        name: achievement_names.shrug_it_off,
+        description: achievement_description.shrug_it_off,
+        image: `${IMG_FOLDER.achievements}shrug_it_off.png`,
+        has: false,
+        boons: [quick_healing],
+    }
+}
+
+function speed_runner_achievement(){
+    return {
+        name: achievement_names.speed_runner,
+        description: achievement_description.speed_runner,
+        image: `${IMG_FOLDER.achievements}speed_runner.png`,
+        has: false,
+        boons: [repetition],
+    }
+}
+
+function triple_achievement(){
+    return {
+        name: achievement_names.triple,
+        description: achievement_description.triple,
+        image: `${IMG_FOLDER.achievements}triple.png`,
+        has: false,
+        boons: [duplicate],
+    }
+}
+
+function without_a_scratch_achievement(){
+    return {
+        name: achievement_names.without_a_scratch,
+        description: achievement_description.without_a_scratch,
+        image: `${IMG_FOLDER.achievements}without_a_scratch.png`,
+        has: false,
+        boons: [practice_makes_perfect],
     }
 }

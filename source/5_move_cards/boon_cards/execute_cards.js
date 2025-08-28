@@ -14,7 +14,7 @@ function execution_1(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `execution 1`,
+        name: card_names.execution_1,
         pic: `${IMG_FOLDER.cards}execution_1.png`,
         options,
         evolutions: [execution_2]
@@ -37,7 +37,7 @@ function execution_2(){
     spin = [...spin, ...spin];
     options.add_button(SPIN, spin);
     return{
-        name: `execution 2`,
+        name: card_names.execution_2,
         pic: `${IMG_FOLDER.cards}execution_2.png`,
         options,
         evolutions: [execution_3]
@@ -60,7 +60,7 @@ function execution_3(){
     spin = [...spin, ...spin, ...spin];
     options.add_button(SPIN, spin);
     return{
-        name: `execution 3`,
+        name: card_names.execution_3,
         pic: `${IMG_FOLDER.cards}execution_3.png`,
         options
     }

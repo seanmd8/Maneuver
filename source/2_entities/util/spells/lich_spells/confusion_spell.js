@@ -3,7 +3,7 @@ function confusion_spell_generator(){
     return {
         behavior: confusion_spell,
         telegraph_other: confusion_spell_telegraph,
-        description: confusion_spell_description,
+        description: lich_spell_descriptions.confusion,
         pic: `${IMG_FOLDER.tiles}lich_confusion.png`
     }
 }

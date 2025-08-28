@@ -1,0 +1,31 @@
+.control-box {
+    display: flex;
+    align-items: center;
+    border-style: solid;
+    height: 91px;
+    width: 594px;
+    margin: 2px;
+    font-size: 20px;
+    background-color: lightblue;
+    margin-bottom: 4px;
+}
+.control-box div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 91px;
+    width: 90px;
+    border-right: solid;
+    background-color: cadetblue;
+}
+.control-box p {
+    margin-left: 20px;
+}
+.control-box div table tr input {
+    min-width: 27px;
+    height: 27px;
+    margin-top: 1px;
+    margin-left: 1px;
+    font-size: 17px;
+}
+

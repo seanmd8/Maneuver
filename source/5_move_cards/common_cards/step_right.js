@@ -7,7 +7,7 @@ function step_right(){
     options.add_button(NE, [pmove(1, -1)]);
     options.add_button(W, [pmove(-2, 0)]);
     return{
-        name: `step right`,
+        name: card_names.step_right,
         pic: `${IMG_FOLDER.cards}step_right.png`,
         options
     }

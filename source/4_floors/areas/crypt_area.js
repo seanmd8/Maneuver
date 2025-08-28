@@ -7,7 +7,7 @@ function generate_crypt_area(){
                     darkling_tile, orb_of_insanity_tile],
         boss_floor_list: [lich_floor],
         next_area_list: area4,
-        description: crypt_description
+        description: area_descriptions.crypt
     }
 }
 

@@ -3,7 +3,7 @@
 function lava_moat_spell_generator(){
     return {
         behavior: lava_moat_spell,
-        description: lava_moat_spell_description,
+        description: lich_spell_descriptions.lava_moat,
         pic: `${IMG_FOLDER.tiles}lich_lava_moat.png`
     }
 }

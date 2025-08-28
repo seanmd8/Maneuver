@@ -2,10 +2,12 @@
 function spider_web_tile(){
     var spawn_timer = 2
     return{
-        type: `enemy`,
-        name: `Spider Web`,
+        type: entity_types.enemy,
+        name: enemy_names.spider_web,
         pic: `${IMG_FOLDER.tiles}spider_web.png`,
-        description: `${spider_web_description[0]}${spawn_timer + 1}${spider_web_description[1]}`,
+        description: 
+            `${enemy_descriptions.spider_web[0]}${spawn_timer + 1}`
+            +`${enemy_descriptions.spider_web[1]}`,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 4,

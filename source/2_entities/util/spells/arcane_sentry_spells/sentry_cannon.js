@@ -22,25 +22,31 @@ function sentry_transform_cannon(self, target, map){
             var node_difference = target.difference.minus(node.target.difference);
             if(node_difference.plus(direction).on_axis()){
                 // Node is behind the core so should be double cannon.
-                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_h.png`;
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_o.png`;
                 tile.behavior = node_double_cannon_behavior;
                 tile.telegraph = node_double_cannon_telegraph;
-                tile.description = arcane_sentry_node_description + `\n` + sentry_node_double_cannon_description;
+                tile.description = 
+                    `${boss_descriptions.arcane_sentry_node}\n`
+                    +`${sentry_mode_descriptions.node.double_cannon}`;
             }
             else{
                 // Single cannon.
-                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_h.png`;
+                tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_o.png`;
                 tile.behavior = node_cannon_behavior;
                 tile.telegraph = node_cannon_telegraph;
-                tile.description = arcane_sentry_node_description + `\n` + sentry_node_cannon_description;
+                tile.description = 
+                    `${boss_descriptions.arcane_sentry_node}\n`
+                    +`${sentry_mode_descriptions.node.cannon}`;
             }
         }
         // Core is single cannon.
-        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_h.png`;
+        self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_o.png`;
         self.tile.direction = direction;
         set_rotation(self.tile);
         self.tile.telegraph = node_cannon_telegraph;
-        self.tile.description = arcane_sentry_description+ `\n` + sentry_core_cannon_description;
+        self.tile.description = 
+            `${boss_descriptions.arcane_sentry}\n`
+            +`${sentry_mode_descriptions.core.cannon}`;
     }
     else{
         for(var node of nodes){
@@ -53,20 +59,26 @@ function sentry_transform_cannon(self, target, map){
                 tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_double_cannon_d.png`;
                 tile.behavior = node_double_cannon_behavior;
                 tile.telegraph = node_double_cannon_telegraph;
-                tile.description = arcane_sentry_node_description + `\n` + sentry_node_double_cannon_description;
+                tile.description = 
+                    `${boss_descriptions.arcane_sentry_node}\n`
+                    +`${sentry_mode_descriptions.node.double_cannon}`;
             }
             else{
                 // Single cannon.
                 tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_node_cannon_d.png`;
                 tile.behavior = node_cannon_behavior;
                 tile.telegraph = node_cannon_telegraph;
-                tile.description = arcane_sentry_node_description + `\n` + sentry_node_cannon_description;
+                tile.description = 
+                    `${boss_descriptions.arcane_sentry_node}\n`
+                    +`${sentry_mode_descriptions.node.cannon}`;
             }
         }
         self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core_cannon_d.png`;
         self.tile.telegraph = undefined;
         self.tile.direction = undefined;
-        self.tile.description = arcane_sentry_description+ `\n` + sentry_core_cannon_description;
+        self.tile.description = 
+            `${boss_descriptions.arcane_sentry}\n`
+            +`${sentry_mode_descriptions.core.cannon}`;
     }
 }
 

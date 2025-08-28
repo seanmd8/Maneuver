@@ -1,10 +1,10 @@
 /** @type {TileGenerator} Empty space.*/
 function empty_tile(){
     return {
-        type: `empty`,
-        name: `Empty`,
+        type: entity_types.empty,
+        name: special_tile_names.empty,
         pic: `${IMG_FOLDER.tiles}empty.png`,
-        description: empty_description,
+        description: special_tile_descriptions.empty,
         tags: new TagList([TAGS.unmovable])
     }
 }

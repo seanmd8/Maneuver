@@ -2,7 +2,7 @@
 function teleport_spell_generator(){
     return {
         behavior: teleport_spell,
-        description: teleport_spell_description,
+        description: lich_spell_descriptions.teleport,
         pic: `${IMG_FOLDER.tiles}lich_teleport.png`
     }
 }

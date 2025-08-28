@@ -7,7 +7,7 @@ function slip_through_nw(){
     options.add_button(SW, [pattack(0, 1), pattack(-1, 0), pmove(-1, 1)]);
     options.add_button(NW, [pmove(-2, -2)]);
     return{
-        name: `slip through nw`,
+        name: card_names.slip_through_nw,
         pic: `${IMG_FOLDER.cards}slip_through_nw.png`,
         options
     }

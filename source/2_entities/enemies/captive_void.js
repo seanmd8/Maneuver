@@ -3,10 +3,10 @@ function captive_void_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}captive_void_on.png`, `${IMG_FOLDER.tiles}captive_void_off.png`];
     var starting_cycle = 0;
     return {
-        type: `enemy`,
-        name: `Captive Void`,
+        type: entity_types.enemy,
+        name: enemy_names.captive_void,
         pic: pic_arr[starting_cycle],
-        description: captive_void_description,
+        description: enemy_descriptions.captive_void,
         tags: new TagList([TAGS.unmovable]),
         difficulty: 2,
         behavior: captive_void_ai,
@@ -31,7 +31,7 @@ function captive_void_ai(self, target, map){
             var end = self.location.plus(sign(space));
             if(map.is_in_bounds(start) && !map.check_empty(start) && !map.get_tile(start).tags.has(TAGS.unmovable)){
                 var moved = map.move(start, end)
-                if(moved && map.get_tile(end).type === `player`){
+                if(moved && map.get_tile(end).type === entity_types.player){
                     moved_player = true;
                 }
             }

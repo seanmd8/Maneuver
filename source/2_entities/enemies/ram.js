@@ -3,10 +3,10 @@ function ram_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}ram.png`, `${IMG_FOLDER.tiles}ram_charge.png`];
     var starting_cycle = 0;
     return{
-        type: `enemy`,
-        name: `Ram`,
+        type: entity_types.enemy,
+        name: enemy_names.ram,
         pic: pic_arr[starting_cycle],
-        description: ram_description,
+        description: enemy_descriptions.ram,
         tags: new TagList(),
         health: 2,
         difficulty: 5,
@@ -95,5 +95,5 @@ function ram_telegraph(location, map, self){
     if(self.cycle === 0){
         return [];
     }
-    return turret_h_telegraph(location, map, self);
+    return turret_o_telegraph(location, map, self);
 }

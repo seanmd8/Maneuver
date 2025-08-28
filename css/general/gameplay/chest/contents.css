@@ -1,0 +1,14 @@
+
+.chest-contents {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+}
+.chest-contents tr td {
+    width: fit-content
+}
+.chest-contents tr td img {
+    background-color: white;
+}
+

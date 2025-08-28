@@ -126,7 +126,7 @@ class GameMap{
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
                 var pos = new Point(x, y)
-                if(this.get_tile(pos).type === `empty`){
+                if(this.get_tile(pos).type === entity_types.empty){
                     if(rand === 0){
                         return pos;
                     }
@@ -168,7 +168,7 @@ class GameMap{
      * @returns {boolean} Returns true if the location is both in bounds and empty and false otherwise.
      */
     check_empty(location){
-        return this.is_in_bounds(location) && this.get_tile(location).type === `empty`;
+        return this.is_in_bounds(location) && this.get_tile(location).type === entity_types.empty;
     }
     /**
      * Checks if a location is in bounds and looks empty (could be something invisible).
@@ -180,7 +180,7 @@ class GameMap{
             return false;
         }
         var tile = this.get_tile(location);
-        var looks_empty = tile.look !== undefined && tile.look.type === `empty`;
+        var looks_empty = tile.look !== undefined && tile.look.type === entity_types.empty;
         return this.check_empty(location) || looks_empty;
     }
     /**
@@ -217,7 +217,7 @@ class GameMap{
      * @param {Tile} player The player tile to be placed,
      */
     set_player(player_location, player){
-        if(player.type !== `player`){
+        if(player.type !== entity_types.player){
             throw new Error(ERRORS.invalid_value)
         }
         this.check_bounds(player_location);
@@ -260,10 +260,10 @@ class GameMap{
             return;
         }
         this.#set_tile(location, tile);
-        if(tile.type === `enemy`){
+        if(tile.type === entity_types.enemy){
             this.#entity_list.add_enemy(location, tile);
         }
-        else if(!(tile.type === `empty`)){
+        else if(!(tile.type === entity_types.empty)){
             ++this.#entity_list.count_non_empty;
         }
         return location.copy();
@@ -377,7 +377,7 @@ class GameMap{
         }
         var start = this.get_tile(start_point);
         var end = this.get_tile(end_point);
-        if(start.type === `player` && end.type === `exit`){
+        if(start.type === entity_types.player && end.type === entity_types.exit){
             this.stats.increment_turn();
             var floor_turns = this.stats.finish_floor();
             if(floor_turns <= 3){
@@ -417,7 +417,7 @@ class GameMap{
             }
         }
         end = this.get_tile(end_point);
-        if(end.type === `empty` && this.get_tile(start_point) === start){
+        if(end.type === entity_types.empty && this.get_tile(start_point) === start){
             // Move.
             this.#entity_list.move_any(end_point, start);
             this.#set_tile(end_point, start);
@@ -478,10 +478,10 @@ class GameMap{
         }
         if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
             target.health -= 1;
-            if(source !== undefined && source.tile.type === `player`){
+            if(source !== undefined && source.tile.type === entity_types.player){
                 this.stats.increment_damage_dealt();
             }
-            if(target.type === `player`){
+            if(target.type === entity_types.player){
                 if(this.#is_player_turn){
                     this.stats.increment_turn_damage();
                 }
@@ -508,24 +508,24 @@ class GameMap{
             }
             if(current_health <= 0){
                 // Player death.
-                if(target.type === `player`){
+                if(target.type === entity_types.player){
                     if(GS.boons.has(boon_names.rebirth)){
                         this.player_heal(new Point(0, 0));
                         GS.boons.lose(boon_names.rebirth);
                         GS.refresh_boon_display();
-                        say_record(rebirth_revival_message);
+                        say_record(boon_messages.rebirth);
                         return true;
                     }
                     throw new Error(ERRORS.game_over);
                 }
                 // Non player death.
                 this.#set_tile(location, empty_tile());
-                if(target.type === `enemy`){
+                if(target.type === entity_types.enemy){
                     if(target.id === undefined){
                         throw new Error(ERRORS.missing_id);
                     }
                     this.#entity_list.remove_enemy(target.id);
-                    if(source !== undefined && source.tile.type === `player`){
+                    if(source !== undefined && source.tile.type === entity_types.player){
                         this.stats.increment_kills();
                     }
                 }
@@ -588,7 +588,7 @@ class GameMap{
                     var p_offset = pos.plus(offset);
                     if(
                         this.is_in_bounds(p_offset) && 
-                        this.get_tile(p_offset).type !== `player`
+                        this.get_tile(p_offset).type !== entity_types.player
                     ){
                         this.player_attack(direction.plus(offset));
                     }
@@ -600,7 +600,7 @@ class GameMap{
             if(error.message !== `game over`){
                 throw error;
             }
-            throw new Error(ERRORS.game_over, {cause: new Error(`player`)});
+            throw new Error(ERRORS.game_over, {cause: new Error(special_tile_names.player)});
         }
     }
     /**
@@ -621,7 +621,10 @@ class GameMap{
      */
     display_stats(location){
         var stats = this.stats.get_stats();
-        display.display_message(location, `Floor ${this.#floor_num} Turn ${stats.turn_number}`);
+        var stat_message = 
+            `${gameplay_labels.floor} ${this.#floor_num} `
+            +`${gameplay_labels.turn} ${stats.turn_number}`;
+        display.display_message(location, stat_message);
     }
     /**
      * Replaces the exit tile with a lock tile.
@@ -701,7 +704,11 @@ class GameMap{
             // Pacifism always fully heals you.
             this.player_heal(new Point(0, 0));
         }
-        var floor_description = `${floor_message}${this.#floor_num}.`;
+        if(GS.boons.has(boon_names.vicious_cycle) > 0){
+            // Vicious Cycle always fully heals you.
+            this.player_heal(new Point(0, 0));
+        }
+        var floor_description = `${gameplay_text.floor}${this.#floor_num}.`;
         if(this.#floor_num % area_size === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
@@ -830,11 +837,11 @@ class GameMap{
         var space = this.get_grid(location);
         space.action = `${IMG_FOLDER.actions}confuse.png`;
         var tile = space.tile;
-        if(tile.type === `enemy`){
+        if(tile.type === entity_types.enemy){
             stun(tile);
             return true;
         }
-        if(tile.type === `player`){
+        if(tile.type === entity_types.player){
             confuse_player();
             return true;
         }
@@ -929,7 +936,11 @@ class GameMap{
             return false;
         }
         var tile = this.get_tile(location);
-        return (tile.name === `Empty` || tile.on_enter !== undefined || tile.name === `Exit`);
+        return (
+            tile.name === special_tile_names.empty || 
+            tile.on_enter !== undefined || 
+            tile.name === special_tile_names.exit
+        );
     }
     get_initiative(){
         return this.#entity_list.get_initiative();

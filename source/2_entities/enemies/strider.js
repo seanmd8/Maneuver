@@ -1,10 +1,10 @@
 /** @type {TileGenerator} */
 function strider_tile(){
     return{
-        type: `enemy`,
-        name: `Strider`,
+        type: entity_types.enemy,
+        name: enemy_names.strider,
         pic: `${IMG_FOLDER.tiles}strider.png`,
-        description: strider_description,
+        description: enemy_descriptions.strider,
         tags: new TagList(),
         health: 2,
         difficulty: 4,

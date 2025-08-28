@@ -11,7 +11,7 @@ function chomp(){
     options.add_button(SW, [pattack(-1, 1), pattack(-1, 1)]);
     options.add_button(NW, [pattack(-1, -1), pattack(-1, -1)]);
     return{
-        name: `chomp`,
+        name: card_names.chomp,
         pic: `${IMG_FOLDER.cards}chomp.png`,
         options
     }

@@ -25,12 +25,16 @@ function sentry_transform_turret(self, target, map){
         tile.behavior = node_turret_behavior;
         tile.on_enter = undefined;
         tile.telegraph = node_turret_telegraph;
-        tile.description = arcane_sentry_node_description + `\n` + sentry_node_turret_description;
+        tile.description = 
+            `${boss_descriptions.arcane_sentry_node}\n`
+            +`${sentry_mode_descriptions.node.turret}`;
     }
     self.tile.pic = `${IMG_FOLDER.tiles}arcane_sentry_core.png`;
     self.tile.on_enter = undefined;
     self.tile.telegraph = undefined;
     self.tile.direction = undefined;
     self.tile.rotate = undefined;
-    self.tile.description = arcane_sentry_description + `\n` + sentry_core_turret_description;
+    self.tile.description = 
+        `${boss_descriptions.arcane_sentry}\n`
+        +`${sentry_mode_descriptions.core.turret}`;
 }

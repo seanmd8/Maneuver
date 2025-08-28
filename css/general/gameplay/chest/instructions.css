@@ -1,0 +1,12 @@
+
+.chest-instruction-text {
+    width: fit-content;
+    text-align: center;
+    margin: 15px auto 15px auto;
+    padding: 3px;
+    border-width: 3px;
+    border-style: solid;
+    border-color: black;
+    background-color:burlywood;
+}
+

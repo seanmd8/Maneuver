@@ -1,0 +1,26 @@
+
+.achievement-button {
+    margin-top: auto;
+    margin-bottom: auto;
+    font-weight: bold;
+    line-height: 20px;
+    font-size: 20px;
+    border-radius: 10px;
+    border-width: 3px;
+    border-style: solid;
+    padding: 5px;
+}
+.achievement-reset {
+    background-color: lightcoral;
+}
+.achievement-reset:hover{
+    background-color: maroon;
+    color: lightcoral;
+}
+.achievement-confirm-reset {
+    background-color: red;
+}
+.achievement-confirm-reset:hover{
+    background-color: black;
+    color: red;
+}

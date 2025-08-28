@@ -1,10 +1,10 @@
 /** @type {TileGenerator} */
 function unstable_wisp_tile(){
     return {
-        type: `enemy`,
-        name: `Unstable Wisp`,
+        type: entity_types.enemy,
+        name: enemy_names.unstable_wisp,
         pic: `${IMG_FOLDER.tiles}unstable_wisp.png`, 
-        description: unstable_wisp_description,
+        description: enemy_descriptions.unstable_wisp,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -54,5 +54,5 @@ function unstable_wisp_death(self, target, map){
             fireball.stun = undefined;
         }
     }
-    map.add_event({name: `Unstun`, behavior: unstun});
+    map.add_event({name: event_names.unstun, behavior: unstun});
 }

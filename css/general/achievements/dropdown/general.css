@@ -1,0 +1,14 @@
+
+.achievement-dropdown{
+    display: none;
+    width: 600px;
+    padding-left: 15px;
+    background-color: palegreen;
+    border-width: 0px 3px 3px 3px;
+    border-radius: 0px 0px 10px 10px ;
+    border-color: black;
+    border-style: solid;
+}
+.achievement-box-unlocked:hover .achievement-dropdown{
+    display: block;
+}

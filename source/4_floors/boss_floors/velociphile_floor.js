@@ -5,5 +5,5 @@ function velociphile_floor(floor_num,  area, map){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
     }
-    return velociphile_floor_message;
+    return boss_floor_message.velociphile;
 }

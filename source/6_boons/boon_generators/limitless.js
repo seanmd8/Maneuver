@@ -2,7 +2,7 @@ function limitless(){
     return {
         name: boon_names.limitless,
         pic: `${IMG_FOLDER.boons}limitless.png`,
-        description: limitless_description,
+        description: boon_descriptions.limitless,
         on_pick: on_pick_limitless
     }
 }

@@ -1,10 +1,10 @@
 /** @type {TileGenerator} */
 function living_tree_tile(){
     return {
-        type: `enemy`,
-        name: `Living Tree`,
+        type: entity_types.enemy,
+        name: enemy_names.living_tree,
         pic: `${IMG_FOLDER.tiles}living_tree.png`,
-        description: living_tree_description,
+        description: enemy_descriptions.living_tree,
         tags: new TagList(),
         health: 2,
         difficulty: 7,

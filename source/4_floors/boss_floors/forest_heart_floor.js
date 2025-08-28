@@ -29,5 +29,5 @@ function forest_heart_floor(floor_num,  area, map){
     map.add_tile(living_tree_rooted_tile(), new Point(mid_width + 2, mid_height));
     map.add_tile(vinesnare_bush_tile(), new Point(mid_width - 2, mid_height));
     map.add_tile(vinesnare_bush_tile(), new Point(mid_width + 3, mid_height));
-    return forest_heart_floor_message;
+    return boss_floor_message.forest_heart;
 }

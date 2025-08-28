@@ -2,10 +2,10 @@
 function fireball_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}fireball_n.png`, `${IMG_FOLDER.tiles}fireball_nw.png`];
     return {
-        type: `enemy`,
-        name: `Fireball`,
+        type: entity_types.enemy,
+        name: other_tile_names.fireball,
         pic: `${IMG_FOLDER.tiles}fireball.png`,
-        description: fireball_description,
+        description: other_tile_descriptions.fireball,
         tags: new TagList([TAGS.fireball, TAGS.unstunnable]),
         behavior: fireball_ai,
         telegraph: fireball_telegraph,

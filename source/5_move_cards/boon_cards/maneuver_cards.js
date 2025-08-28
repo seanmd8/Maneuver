@@ -7,7 +7,7 @@ function maneuver_1(){
     options.add_button(SW, [pmove(-2, 2)]);
     options.add_button(NW, [pmove(-2, -2)]);
     return{
-        name: `maneuver 1`,
+        name: card_names.maneuver_1,
         pic: `${IMG_FOLDER.cards}maneuver_1.png`,
         options,
         evolutions: [maneuver_2]
@@ -26,7 +26,7 @@ function maneuver_2(){
     options.add_button(S, [pmove(0, 2)]);
     options.add_button(W, [pmove(-2, 0)]);
     return{
-        name: `maneuver 2`,
+        name: card_names.maneuver_2,
         pic: `${IMG_FOLDER.cards}maneuver_2.png`,
         options,
         evolutions: [maneuver_3]
@@ -56,7 +56,7 @@ function maneuver_3(){
     ];
     options.add_button(SPIN, spin);
     return{
-        name: `maneuver 3`,
+        name: card_names.maneuver_3,
         pic: `${IMG_FOLDER.cards}maneuver_3.png`,
         options
     }

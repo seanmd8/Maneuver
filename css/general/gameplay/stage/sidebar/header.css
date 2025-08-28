@@ -1,0 +1,23 @@
+
+.sidebar-header {
+    width: 100%;
+    height: 60px;
+    border: solid;
+    border-radius: 15px 15px 0px 0px;
+    background-color: moccasin;
+    text-align:center;
+}
+.sidebar-header input {
+    margin: 4px 6px 0px 6px;
+    padding-left: 3px;
+    padding-right: 3px;
+    border-radius: 7px;
+    background-color: tan;
+    border: solid;
+    border-color: saddlebrown;
+}
+.sidebar-header input:hover {
+    background-color: saddlebrown;
+    color: tan;
+    cursor: pointer;
+}

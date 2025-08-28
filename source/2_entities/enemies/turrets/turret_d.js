@@ -1,10 +1,10 @@
 /** @type {TileGenerator} */
 function turret_d_tile(){
     return {
-        type: `enemy`,
-        name: `Turret`,
+        type: entity_types.enemy,
+        name: enemy_names.turret,
         pic: `${IMG_FOLDER.tiles}turret_d.png`,
-        description: turret_d_description,
+        description: enemy_descriptions.turret_d,
         tags: new TagList(),
         health: 1,
         difficulty: 2,

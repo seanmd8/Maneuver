@@ -1,10 +1,10 @@
 /** @type {TileGenerator} */
 function turret_r_tile(){
     var tile = {
-        type: `enemy`,
-        name: `Rotary Turret`,
+        type: entity_types.enemy,
+        name: enemy_names.turret_r,
         pic: ``,
-        description: turret_r_description,
+        description: enemy_descriptions.turret_r,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

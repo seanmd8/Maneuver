@@ -8,7 +8,7 @@ function stunning_punch_orthogonal(){
     options.add_button(W, [pstun(-1, 0), pstun(-1, 0)]);
     options.make_instant();
     return{
-        name: `stunning punch orthogonal`,
+        name: card_names.stunning_punch_orthogonal,
         pic: `${IMG_FOLDER.cards}stunning_punch_orthogonal.png`,
         options
     }
