@@ -1,0 +1,9 @@
+
+.achievement-box {
+    width: 600px;
+    height: fit-content;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 2px;
+}
+

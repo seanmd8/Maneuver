@@ -1,0 +1,17 @@
+
+.card-info {
+    border: solid;
+    border-radius: 100%;
+    border-width: 2px;
+    border-color: slategray;
+    background-color: white;
+    padding: 1px 6px;
+    font-weight: bold;
+    width: fit-content;
+    float: right;
+    margin-top: -20%;
+    cursor: pointer;
+}
+.card-info:hover {
+    background-color: lightgray;
+}

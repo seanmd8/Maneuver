@@ -1,0 +1,23 @@
+.control-edit-box {
+    display: flex;
+    align-items: center;
+    border-style: solid;
+    width: 600px;
+    height: 50px;
+    margin: 2px;
+    margin-bottom: 4px;
+    font-size: 20px;
+    background-color: lightblue;
+}
+.control-edit-box div {
+    width: 80px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: solid;
+    background-color: cadetblue;
+}
+.control-edit-box p {
+    margin-left: 10px;
+}

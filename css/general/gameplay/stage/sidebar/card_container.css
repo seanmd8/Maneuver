@@ -1,0 +1,13 @@
+
+.card-container{
+    padding-top: 5px;
+    width: 100%;
+}
+.card-container tr{
+    width: 100%;
+}
+.card-container tr td{
+    display: inline-block;
+    margin: 0px 0px 5px 5px;
+    padding: 0px;
+}

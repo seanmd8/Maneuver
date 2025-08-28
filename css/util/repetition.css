@@ -1,0 +1,12 @@
+.telegraph-repetition {
+    border-color: blue;
+}
+.telegraph-repetition legend {
+    border-color: blue;
+}
+.no-repetition {
+    border-color: slategrey;
+}
+.no-repetition legend {
+    border-color: slategrey;
+}

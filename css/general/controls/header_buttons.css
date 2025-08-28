@@ -1,0 +1,15 @@
+.control-header input {
+    display: inline-flex;
+    margin-right: 20px;
+    width: 70px;
+    height: 30px;
+    border-width: 3px;
+    border-style: groove;
+    border-color: blue;
+    background-color: aliceblue;
+
+}
+.control-header input:hover {
+    background-color: blueviolet;
+    color: aliceblue
+}

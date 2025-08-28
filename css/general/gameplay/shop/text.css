@@ -1,0 +1,15 @@
+
+.scrollable-text {
+    overflow-y: scroll;
+    overflow-x: scroll;
+    text-align: left;
+    height: 120px;
+    width: 375px;
+    padding: 5px;
+    background-color: var(--text-box-background-color);
+    border-color: slategrey;
+    border-style: solid;
+    border-width: medium;
+    text-wrap: nowrap;
+    display: inline-block;
+}

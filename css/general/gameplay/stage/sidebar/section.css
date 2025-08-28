@@ -1,0 +1,10 @@
+
+.sidebar-section {
+    height: 274px;
+    width: 100%;
+    border: solid;
+    background-color: white;
+}
+.sidebar-section hr{
+    width: 100%;
+}

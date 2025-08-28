@@ -1,0 +1,19 @@
+
+.navbar {
+    background-color: blue;
+    padding: 8px;
+    margin: 0px;
+}
+
+.navbar input{
+    background-color: lightblue;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.navbar input:hover{
+    background-color: darkgreen;
+    color: white;
+    cursor: pointer;
+}
+

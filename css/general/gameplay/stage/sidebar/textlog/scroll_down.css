@@ -1,0 +1,22 @@
+
+.scroll-down {
+    vertical-align: top;
+    display: inline-flex;
+    flex-direction: column-reverse;
+    overflow-y: scroll;
+    scrollbar-color: gray lightgray;
+    overflow-x: clip;
+    height: 100%;
+    width: 100%;
+}
+.scroll-down p {
+    margin: 0px;
+    padding: 4px;
+    padding-bottom: 12px;
+    padding-top: 12px;
+}
+.scroll-down hr {
+    border-color: black;
+    margin: 0px;
+}
+

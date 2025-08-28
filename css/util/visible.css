@@ -1,0 +1,6 @@
+.visible-section {
+    display: block;
+}
+.hidden-section {
+    display: none;
+}

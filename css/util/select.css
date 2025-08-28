@@ -1,0 +1,12 @@
+
+.selected-element {
+    box-shadow: 0 0 0 2px black;
+}
+
+.selectable {
+    border-spacing: 3px;
+}
+.selectable tr td {
+    border-spacing: 3px;
+    padding: 0px;
+}
