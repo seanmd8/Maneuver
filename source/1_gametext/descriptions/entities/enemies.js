@@ -132,6 +132,7 @@ const enemy_descriptions = {
         `Currently aiming diagonally.`
     ],
 }
+Object.freeze(enemy_descriptions);
 
 const enemy_names = {
     acid_bug: `Acid Bug`, 
@@ -173,3 +174,4 @@ const enemy_names = {
     vinesnare_bush: `Vinesnare Bush`, 
     walking_prism: `Walking Prism`,
 }
+Object.freeze(enemy_names);

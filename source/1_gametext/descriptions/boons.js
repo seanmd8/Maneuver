@@ -150,6 +150,7 @@ const boon_descriptions = {
     vicious_cycle: 
         `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`,
 }
+Object.freeze(boon_descriptions);
 
 const clean_mind_instructions =
     [`Choose a card to remove (`, `/2 remaining)`];

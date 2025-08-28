@@ -10,6 +10,7 @@ const event_descriptions = {
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
 }
+Object.freeze(event_descriptions);
 
 const event_names = {
     bramble_shield: `Bramble Shield`,
@@ -23,3 +24,4 @@ const event_names = {
     unstun: `Unstun`,
     wake_up: `Wake Up`,
 }
+Object.freeze(event_names);

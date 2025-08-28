@@ -41,6 +41,7 @@ const other_tile_descriptions = {
     wall_damaged: 
         `Damaged Wall: Something might live inside.`,
 }
+Object.freeze(other_tile_descriptions);
 
 const other_tile_names = {
     bookshelf: `Bookshelf`,
@@ -59,3 +60,4 @@ const other_tile_names = {
     wall: `Wall`,
     wall_damaged: `Damaged Wall`,
 }
+Object.freeze(other_tile_names);

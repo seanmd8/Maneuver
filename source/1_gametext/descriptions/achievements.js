@@ -8,6 +8,7 @@ const achievement_text = {
     unlocks_boon: `New Boon`,
     unlocks_cards: `New Cards`,
 }
+Object.freeze(achievement_text);
 
 const achievement_names = {
     // Boss
@@ -36,6 +37,8 @@ const achievement_names = {
     monster_hunter: `Monster Hunter`,
     minimalist: `Minimalist`
 }
+Object.freeze(achievement_names);
+
 const achievement_description = {
     // Boss
     velociphile: `Defeat the Velociphile.`,
@@ -63,6 +66,7 @@ const achievement_description = {
     monster_hunter: `Kill 5 total unique bosses.`,
     minimalist: `Reach floor 15 with only 5 cards in your deck.`
 }
+Object.freeze(achievement_description);
 
 const boss_achievements = [
     achievement_names.velociphile,
@@ -72,5 +76,4 @@ const boss_achievements = [
     achievement_names.young_dragon,
     achievement_names.forest_heart,
     achievement_names.arcane_sentry,
-
 ]

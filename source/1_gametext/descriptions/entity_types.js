@@ -6,3 +6,4 @@ const entity_types = {
     player: `Player`,
     terrain: `Terrain`,
 }
+Object.freeze(entity_types);

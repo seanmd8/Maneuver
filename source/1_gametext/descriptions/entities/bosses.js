@@ -1,6 +1,3 @@
-// Boss Descriptions
-const boss_death_description = 
-    ``;
 
 const boss_names = {
     arcane_sentry: `Arcane Sentry`,
@@ -13,6 +10,7 @@ const boss_names = {
     velociphile: `Velociphile`,
     young_dragon: `Young Dragon`,
 }
+Object.freeze(boss_names);
 
 const boss_descriptions = {
     arcane_sentry: 
@@ -50,6 +48,7 @@ const boss_descriptions = {
         `preparing to breath fire in a 3 long cone.`
     ],
 }
+Object.freeze(boss_descriptions);
 
 const boss_floor_message = {
     arcane_sentry: 
@@ -62,6 +61,7 @@ const boss_floor_message = {
     velociphile: `You hear a deafening shriek.`,
     young_dragon: `The air burns in your lungs.`,
 }
+Object.freeze(boss_floor_message);
 
 const boss_death_message = {
     general: 
@@ -80,6 +80,7 @@ const boss_death_message = {
     velociphile: `The wailing falls silent as the Velociphile is defeated.`,
     young_dragon: `Scales so soft are easily pierced. The Young Dragon's fire goes out.`,
 }
+Object.freeze(boss_death_message);
 
 // Boss Specific Descriptions
 
@@ -93,12 +94,14 @@ const lich_spell_descriptions = {
     summon: `Summon: Summons a random enemy`,
     teleport: `Teleport: The user moves to a random square on the map`,
 }
+Object.freeze(lich_spell_descriptions);
 
 const heart_spell_descriptions = {
     rest: `Currently, the Forest Heart is resting.`,
     growth: `Currently, the Forest Heart is preparing to grow plants.`,
     summon: `Currently, the Forest Heart is preparing to summon forest creatures.`,
 }
+Object.freeze(heart_spell_descriptions);
 
 const sentry_mode_descriptions = {
     core: {
@@ -120,3 +123,4 @@ const sentry_mode_descriptions = {
         double_cannon: `Shoots 2 fireballs in the direction it is aimed.`,
     }
 }
+Object.freeze(sentry_mode_descriptions);

@@ -20,6 +20,7 @@ const four_directions = {
     right:  `\u2B9E`,
     down:   `\u2B9F`
 }
+Object.freeze(four_directions);
 
 // Move types.
 const move_types = {

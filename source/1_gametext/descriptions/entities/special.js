@@ -9,6 +9,7 @@ const special_tile_descriptions = {
     lock: `Locked Exit: Defeat the boss to continue.`,
     player: `You: Click a card to move.`,
 }
+Object.freeze(special_tile_descriptions);
 
 const special_tile_names = {
     chest: `Chest`,
@@ -19,6 +20,7 @@ const special_tile_names = {
     you: `You`,
     player: `Player`,
 }
+Object.freeze(special_tile_names);
 
 const chest_text = {
     header: `Choose up to one reward:`,
@@ -26,3 +28,4 @@ const chest_text = {
     abandon: `Abandon`,
     add_card: `Add this card to your deck.`,
 }
+Object.freeze(chest_text);

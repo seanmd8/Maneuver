@@ -5,12 +5,16 @@ const screen_names = {
     controls: `Controls`,
     achievements: `Achievements`,
 }
+Object.freeze(screen_names);
+
 const control_screen_text = {
     default: `Default`,
     edit: `Edit`,
     save: `Save`,
     undo: `Undo`,
 }
+Object.freeze(control_screen_text);
+
 const shop_text = {
     header: `Choose one card to add or remove:`,
     add: `Add a card to your deck.`,
@@ -20,6 +24,8 @@ const shop_text = {
     confirm: `Confirm >`,
     current: `Current Deck (minimum `,
 }
+Object.freeze(shop_text);
+
 const gameplay_labels = {
     title: `Maneuver`,
     hand: `Hand of Cards`,
@@ -28,6 +34,8 @@ const gameplay_labels = {
     floor: `Floor`,
     turn: `Turn`,
 }
+Object.freeze(gameplay_labels);
+
 const gameplay_text = {
     welcome: 
         `Use cards to move (blue) and attack (red).\n` 
@@ -44,3 +52,4 @@ const gameplay_text = {
     select_card: 
         `Before choosing what move to make, you must first select a card to use.`,
 }
+Object.freeze(gameplay_text);

@@ -20,3 +20,4 @@ const area_descriptions = {
         `You have reached the end of the current content. Floors will continue to generate but `
         +`there will be no more boss fights. Good luck.`,
 }
+Object.freeze(area_descriptions);

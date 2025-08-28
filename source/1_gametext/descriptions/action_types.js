@@ -7,3 +7,4 @@ const action_types = {
     attack_until: `Attack Until`,
     heal: `Heal`,
 }
+Object.freeze(action_types);

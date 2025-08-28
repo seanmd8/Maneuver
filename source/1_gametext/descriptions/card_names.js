@@ -142,3 +142,4 @@ const card_names = {
     y_strike_ne: `Y Strike NE`,
     y_strike_nw: `Y Strike NW`,
 }
+Object.freeze(card_names);

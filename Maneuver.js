@@ -1965,6 +1965,7 @@ const achievement_text = {
     unlocks_boon: `New Boon`,
     unlocks_cards: `New Cards`,
 }
+Object.freeze(achievement_text);
 
 const achievement_names = {
     // Boss
@@ -1993,6 +1994,8 @@ const achievement_names = {
     monster_hunter: `Monster Hunter`,
     minimalist: `Minimalist`
 }
+Object.freeze(achievement_names);
+
 const achievement_description = {
     // Boss
     velociphile: `Defeat the Velociphile.`,
@@ -2020,6 +2023,7 @@ const achievement_description = {
     monster_hunter: `Kill 5 total unique bosses.`,
     minimalist: `Reach floor 15 with only 5 cards in your deck.`
 }
+Object.freeze(achievement_description);
 
 const boss_achievements = [
     achievement_names.velociphile,
@@ -2029,7 +2033,6 @@ const boss_achievements = [
     achievement_names.young_dragon,
     achievement_names.forest_heart,
     achievement_names.arcane_sentry,
-
 ]
 
 const action_types = {
@@ -2041,6 +2044,7 @@ const action_types = {
     attack_until: `Attack Until`,
     heal: `Heal`,
 }
+Object.freeze(action_types);
 
 const area_descriptions = {
     ruins: 
@@ -2063,6 +2067,7 @@ const area_descriptions = {
         `You have reached the end of the current content. Floors will continue to generate but `
         +`there will be no more boss fights. Good luck.`,
 }
+Object.freeze(area_descriptions);
 
 
 const boon_names = {
@@ -2216,6 +2221,7 @@ const boon_descriptions = {
     vicious_cycle: 
         `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`,
 }
+Object.freeze(boon_descriptions);
 
 const clean_mind_instructions =
     [`Choose a card to remove (`, `/2 remaining)`];
@@ -2370,6 +2376,7 @@ const card_names = {
     y_strike_ne: `Y Strike NE`,
     y_strike_nw: `Y Strike NW`,
 }
+Object.freeze(card_names);
 
 // Button Options.
 const null_move_button = `--`;
@@ -2392,6 +2399,7 @@ const four_directions = {
     right:  `\u2B9E`,
     down:   `\u2B9F`
 }
+Object.freeze(four_directions);
 
 // Move types.
 const move_types = {
@@ -2444,9 +2452,6 @@ Object.freeze(CONTROLS_TEXT);
 
 const KEYBOARD_SYMBOL_MAP = new Map();
 KEYBOARD_SYMBOL_MAP.set(` `, `space`);
-// Boss Descriptions
-const boss_death_description = 
-    ``;
 
 const boss_names = {
     arcane_sentry: `Arcane Sentry`,
@@ -2459,6 +2464,7 @@ const boss_names = {
     velociphile: `Velociphile`,
     young_dragon: `Young Dragon`,
 }
+Object.freeze(boss_names);
 
 const boss_descriptions = {
     arcane_sentry: 
@@ -2496,6 +2502,7 @@ const boss_descriptions = {
         `preparing to breath fire in a 3 long cone.`
     ],
 }
+Object.freeze(boss_descriptions);
 
 const boss_floor_message = {
     arcane_sentry: 
@@ -2508,6 +2515,7 @@ const boss_floor_message = {
     velociphile: `You hear a deafening shriek.`,
     young_dragon: `The air burns in your lungs.`,
 }
+Object.freeze(boss_floor_message);
 
 const boss_death_message = {
     general: 
@@ -2526,6 +2534,7 @@ const boss_death_message = {
     velociphile: `The wailing falls silent as the Velociphile is defeated.`,
     young_dragon: `Scales so soft are easily pierced. The Young Dragon's fire goes out.`,
 }
+Object.freeze(boss_death_message);
 
 // Boss Specific Descriptions
 
@@ -2539,12 +2548,14 @@ const lich_spell_descriptions = {
     summon: `Summon: Summons a random enemy`,
     teleport: `Teleport: The user moves to a random square on the map`,
 }
+Object.freeze(lich_spell_descriptions);
 
 const heart_spell_descriptions = {
     rest: `Currently, the Forest Heart is resting.`,
     growth: `Currently, the Forest Heart is preparing to grow plants.`,
     summon: `Currently, the Forest Heart is preparing to summon forest creatures.`,
 }
+Object.freeze(heart_spell_descriptions);
 
 const sentry_mode_descriptions = {
     core: {
@@ -2566,6 +2577,7 @@ const sentry_mode_descriptions = {
         double_cannon: `Shoots 2 fireballs in the direction it is aimed.`,
     }
 }
+Object.freeze(sentry_mode_descriptions);
 
 // Normal Enemy Descriptions.
 
@@ -2701,6 +2713,7 @@ const enemy_descriptions = {
         `Currently aiming diagonally.`
     ],
 }
+Object.freeze(enemy_descriptions);
 
 const enemy_names = {
     acid_bug: `Acid Bug`, 
@@ -2742,6 +2755,7 @@ const enemy_names = {
     vinesnare_bush: `Vinesnare Bush`, 
     walking_prism: `Walking Prism`,
 }
+Object.freeze(enemy_names);
 
 const event_descriptions = {
     falling_rubble: 
@@ -2754,6 +2768,7 @@ const event_descriptions = {
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
 }
+Object.freeze(event_descriptions);
 
 const event_names = {
     bramble_shield: `Bramble Shield`,
@@ -2767,6 +2782,7 @@ const event_names = {
     unstun: `Unstun`,
     wake_up: `Wake Up`,
 }
+Object.freeze(event_names);
 const other_tile_descriptions = {
     bookshelf: 
         `Bookshelf: When damaged, adds a random temporary card to your deck.`,
@@ -2810,6 +2826,7 @@ const other_tile_descriptions = {
     wall_damaged: 
         `Damaged Wall: Something might live inside.`,
 }
+Object.freeze(other_tile_descriptions);
 
 const other_tile_names = {
     bookshelf: `Bookshelf`,
@@ -2828,6 +2845,7 @@ const other_tile_names = {
     wall: `Wall`,
     wall_damaged: `Damaged Wall`,
 }
+Object.freeze(other_tile_names);
 
 
 const special_tile_descriptions = {
@@ -2840,6 +2858,7 @@ const special_tile_descriptions = {
     lock: `Locked Exit: Defeat the boss to continue.`,
     player: `You: Click a card to move.`,
 }
+Object.freeze(special_tile_descriptions);
 
 const special_tile_names = {
     chest: `Chest`,
@@ -2850,6 +2869,7 @@ const special_tile_names = {
     you: `You`,
     player: `Player`,
 }
+Object.freeze(special_tile_names);
 
 const chest_text = {
     header: `Choose up to one reward:`,
@@ -2857,6 +2877,7 @@ const chest_text = {
     abandon: `Abandon`,
     add_card: `Add this card to your deck.`,
 }
+Object.freeze(chest_text);
 
 const entity_types = {
     chest: `Chest`,
@@ -2866,6 +2887,7 @@ const entity_types = {
     player: `Player`,
     terrain: `Terrain`,
 }
+Object.freeze(entity_types);
 
 const screen_names = {
     gameplay: `Gameplay`,
@@ -2873,12 +2895,16 @@ const screen_names = {
     controls: `Controls`,
     achievements: `Achievements`,
 }
+Object.freeze(screen_names);
+
 const control_screen_text = {
     default: `Default`,
     edit: `Edit`,
     save: `Save`,
     undo: `Undo`,
 }
+Object.freeze(control_screen_text);
+
 const shop_text = {
     header: `Choose one card to add or remove:`,
     add: `Add a card to your deck.`,
@@ -2888,6 +2914,8 @@ const shop_text = {
     confirm: `Confirm >`,
     current: `Current Deck (minimum `,
 }
+Object.freeze(shop_text);
+
 const gameplay_labels = {
     title: `Maneuver`,
     hand: `Hand of Cards`,
@@ -2896,6 +2924,8 @@ const gameplay_labels = {
     floor: `Floor`,
     turn: `Turn`,
 }
+Object.freeze(gameplay_labels);
+
 const gameplay_text = {
     welcome: 
         `Use cards to move (blue) and attack (red).\n` 
@@ -2912,6 +2942,7 @@ const gameplay_text = {
     select_card: 
         `Before choosing what move to make, you must first select a card to use.`,
 }
+Object.freeze(gameplay_text);
 
 const SIDEBAR_BUTTONS = {
     text_log: `Messages`, 
