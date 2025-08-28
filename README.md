@@ -10,7 +10,9 @@ Alternatively, to download it so you can play offline, download it as a zip file
 Gameplay Changelog:
 
 8/28/25
-- Removed a card that was underperforming.
+- Removed a card that was underperforming
+- Changed several card names to make them more consistant
+- Non Boss Achievements are now displayed alphabetically
 
 8/22/25
 - Overhauled the looks of many parts of the game
