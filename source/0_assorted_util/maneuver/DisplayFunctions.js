@@ -289,7 +289,7 @@ function reset_achievements(){
 }
 
 function display_deck_to_duplicate(){
-    display.display_message(UIIDS.deck_select_message, duplicate_instructions);
+    display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
     var finish = (card, deck) => {
         deck.add(copy_card(card));
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
@@ -298,7 +298,7 @@ function display_deck_to_duplicate(){
     refresh_deck_select_screen(selector);
 }
 function display_deck_to_remove(remaining){
-    var message = `${clean_mind_instructions[0]}${remaining}${clean_mind_instructions[1]}`;
+    var message = `${boon_messages.clean_mind[0]}${remaining}${boon_messages.clean_mind[1]}`;
     display.display_message(UIIDS.deck_select_message, message);
     var finish = (card, deck) => {
         deck.remove(card.id);

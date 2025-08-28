@@ -152,11 +152,10 @@ const boon_descriptions = {
 }
 Object.freeze(boon_descriptions);
 
-const clean_mind_instructions =
-    [`Choose a card to remove (`, `/2 remaining)`];
-const duplicate_instructions =
-    `Choose a card to copy:`;
-const practice_makes_perfect_message =
-    `Your maximum health has increased.`
-const rebirth_revival_message = 
-    `You died, but were brought back to life.`;
+const boon_messages = {
+    clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
+    duplicate: `Choose a card to copy:`,
+    practice_makes_perfect: `Your maximum health has increased.`,
+    rebirth: `You died, but were brought back to life.`,
+}
+Object.freeze(boon_messages);

@@ -31,7 +31,7 @@ function boss_death(self, target, map){
         player_tile.max_health === player_tile.health
     ){
         ++player_tile.max_health;
-        death_message = `${death_message}\n${practice_makes_perfect_message}`
+        death_message = `${death_message}\n${boon_messages.practice_makes_perfect}`
     }
     map.player_heal(new Point(0, 0));
     var new_boss_kill = GS.achieve(self.tile.death_achievement);

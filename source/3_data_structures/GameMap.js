@@ -513,7 +513,7 @@ class GameMap{
                         this.player_heal(new Point(0, 0));
                         GS.boons.lose(boon_names.rebirth);
                         GS.refresh_boon_display();
-                        say_record(rebirth_revival_message);
+                        say_record(boon_messages.rebirth);
                         return true;
                     }
                     throw new Error(ERRORS.game_over);

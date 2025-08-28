@@ -1594,7 +1594,7 @@ function reset_achievements(){
 }
 
 function display_deck_to_duplicate(){
-    display.display_message(UIIDS.deck_select_message, duplicate_instructions);
+    display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
     var finish = (card, deck) => {
         deck.add(copy_card(card));
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
@@ -1603,7 +1603,7 @@ function display_deck_to_duplicate(){
     refresh_deck_select_screen(selector);
 }
 function display_deck_to_remove(remaining){
-    var message = `${clean_mind_instructions[0]}${remaining}${clean_mind_instructions[1]}`;
+    var message = `${boon_messages.clean_mind[0]}${remaining}${boon_messages.clean_mind[1]}`;
     display.display_message(UIIDS.deck_select_message, message);
     var finish = (card, deck) => {
         deck.remove(card.id);
@@ -2223,14 +2223,13 @@ const boon_descriptions = {
 }
 Object.freeze(boon_descriptions);
 
-const clean_mind_instructions =
-    [`Choose a card to remove (`, `/2 remaining)`];
-const duplicate_instructions =
-    `Choose a card to copy:`;
-const practice_makes_perfect_message =
-    `Your maximum health has increased.`
-const rebirth_revival_message = 
-    `You died, but were brought back to life.`;
+const boon_messages = {
+    clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
+    duplicate: `Choose a card to copy:`,
+    practice_makes_perfect: `Your maximum health has increased.`,
+    rebirth: `You died, but were brought back to life.`,
+}
+Object.freeze(boon_messages);
 
 
 const card_names = {
@@ -7264,7 +7263,7 @@ function boss_death(self, target, map){
         player_tile.max_health === player_tile.health
     ){
         ++player_tile.max_health;
-        death_message = `${death_message}\n${practice_makes_perfect_message}`
+        death_message = `${death_message}\n${boon_messages.practice_makes_perfect}`
     }
     map.player_heal(new Point(0, 0));
     var new_boss_kill = GS.achieve(self.tile.death_achievement);
@@ -9583,7 +9582,7 @@ class GameMap{
                         this.player_heal(new Point(0, 0));
                         GS.boons.lose(boon_names.rebirth);
                         GS.refresh_boon_display();
-                        say_record(rebirth_revival_message);
+                        say_record(boon_messages.rebirth);
                         return true;
                     }
                     throw new Error(ERRORS.game_over);
