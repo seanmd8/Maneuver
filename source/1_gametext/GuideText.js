@@ -9,7 +9,8 @@ const GUIDE_HEADERS = {
     bosses: `Bosses`,
     chests: `Chests`,
     sidebar: `Sidebar`,
-    confusion: `Confusion`
+    confusion: `Confusion`,
+    about: `About`,
 }
 Object.freeze(GUIDE_HEADERS);
 
@@ -113,7 +114,11 @@ const GUIDE_TEXT = {
         [`Certain enemies and cards will confuse you. Confusion adds a temporary bad card to your deck which `
         +`will go away after it goes to your discard pile, or when you go to the next floor. Cards will do `
         +`this if they highlight your current square in yellow.\n\n`
-        +`Here is a list of the possible confusion cards:\n\n`]
+        +`Here is a list of the possible confusion cards:\n\n`],
+    
+    about:
+        [`Maneuver is a game created by Sean Dunbar in 2023. If you would like to view the changelog or `
+        +`look at the source code, you can go to the `, `.\n\n`],
 }
 Object.freeze(GUIDE_TEXT);
 
@@ -134,4 +139,10 @@ const CARD_SYMBOLS = [
     {src: `${IMG_FOLDER.symbols}temporary.png`,         name: `temporary`,          x: 2, y: 2},
     {src: `${IMG_FOLDER.symbols}per_floor.png`,         name: `once per floor`,     x: 2, y: 2},
 ];
+
+const about_page_text = {
+    git_link: `https://github.com/seanmd8/Maneuver`,
+    git_text: `Github Page`,
+};
+Object.freeze(about_page_text);
 

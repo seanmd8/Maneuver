@@ -1275,6 +1275,12 @@ const DisplayHTML = {
     get_local_storage(key){
         return window.localStorage.getItem(key);
     },
+    make_anchor(destination, text){
+        var a = document.createElement(`a`);
+        a.href = destination;
+        a.innerText = text;
+        return a;
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -1852,6 +1858,18 @@ function display_guide(){
             y: 5
         }
     }));
+    var confusion_text = [
+        ...GUIDE_TEXT.confusion, ...CONFUSION_CARDS.map((card, i) => {
+        // Adds the space for confusion card images.
+        if(i % 4 !== 3){
+            return NBS;
+        }
+        return `\n`;
+    })];
+    
+    var about_links = [
+        display.make_anchor(about_page_text.git_link, about_page_text.git_text)
+    ];
 
     // Create guidebook text sections.
     var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
@@ -1861,15 +1879,8 @@ function display_guide(){
     var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
     var chests_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.chests, GUIDE_TEXT.chests, []);
     var sidebar_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.sidebar, GUIDE_TEXT.sidebar, []);
-    var confusion_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.confusion, 
-        [...GUIDE_TEXT.confusion, ...CONFUSION_CARDS.map((card, i) => {
-            // Adds the space for confusion card images.
-            if(i % 4 !== 3){
-                return NBS;
-            }
-            return `\n`;
-        })],
-        confusion_inline_arr);
+    var confusion_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.confusion, confusion_text, confusion_inline_arr);
+    var about_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.about, GUIDE_TEXT.about, about_links);
 
     var section_id_list = [
         basics_section, 
@@ -1879,7 +1890,8 @@ function display_guide(){
         bosses_section, 
         chests_section, 
         sidebar_section,
-        confusion_section
+        confusion_section,
+        about_section
     ];
 
     var swap_visibility = function(id_list, id){
@@ -1897,6 +1909,7 @@ function display_guide(){
     display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
     display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap_visibility(section_id_list, sidebar_section));
     display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap_visibility(section_id_list, confusion_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.about, swap_visibility(section_id_list, about_section));
 
     display.swap_screen(section_id_list, basics_section);
 }
@@ -2972,7 +2985,8 @@ const GUIDE_HEADERS = {
     bosses: `Bosses`,
     chests: `Chests`,
     sidebar: `Sidebar`,
-    confusion: `Confusion`
+    confusion: `Confusion`,
+    about: `About`,
 }
 Object.freeze(GUIDE_HEADERS);
 
@@ -3076,7 +3090,11 @@ const GUIDE_TEXT = {
         [`Certain enemies and cards will confuse you. Confusion adds a temporary bad card to your deck which `
         +`will go away after it goes to your discard pile, or when you go to the next floor. Cards will do `
         +`this if they highlight your current square in yellow.\n\n`
-        +`Here is a list of the possible confusion cards:\n\n`]
+        +`Here is a list of the possible confusion cards:\n\n`],
+    
+    about:
+        [`Maneuver is a game created by Sean Dunbar in 2023. If you would like to view the changelog or `
+        +`look at the source code, you can go to the `, `.\n\n`],
 }
 Object.freeze(GUIDE_TEXT);
 
@@ -3097,6 +3115,12 @@ const CARD_SYMBOLS = [
     {src: `${IMG_FOLDER.symbols}temporary.png`,         name: `temporary`,          x: 2, y: 2},
     {src: `${IMG_FOLDER.symbols}per_floor.png`,         name: `once per floor`,     x: 2, y: 2},
 ];
+
+const about_page_text = {
+    git_link: `https://github.com/seanmd8/Maneuver`,
+    git_text: `Github Page`,
+};
+Object.freeze(about_page_text);
 
 
 // ----------------UIID.js----------------

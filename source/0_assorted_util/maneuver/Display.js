@@ -738,6 +738,12 @@ const DisplayHTML = {
     get_local_storage(key){
         return window.localStorage.getItem(key);
     },
+    make_anchor(destination, text){
+        var a = document.createElement(`a`);
+        a.href = destination;
+        a.innerText = text;
+        return a;
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
