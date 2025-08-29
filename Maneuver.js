@@ -2687,7 +2687,7 @@ const other_tile_descriptions = {
         +`every turn, but it's not safe to move through. Cannot be stunned.`,
     repulsor: 
         `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or `
-        +`if touched. Takes 2 turns to recharge afterwards.`,
+        +`if touched. Takes 3 turns to recharge afterwards.`,
     sewer_grate: 
         `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
     smoldering_ashes: [
@@ -6759,7 +6759,7 @@ function repulsor_push_ai(self, target, map){
                     player_was_moved = true;
                 }
                 activated = true;
-                self.tile.cycle = 2;
+                self.tile.cycle = 3;
                 self.tile.pic = self.tile.pic_arr[1];
                 try {
                     // Push the creature away.
@@ -6781,7 +6781,7 @@ function repulsor_push_ai(self, target, map){
     }
 }
 
-/** @type {AIFunction} AI used by smoldering ashes.*/
+/** @type {AIFunction} AI used by repulsor.*/
 function repulsor_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){

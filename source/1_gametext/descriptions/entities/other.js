@@ -26,7 +26,7 @@ const other_tile_descriptions = {
         +`every turn, but it's not safe to move through. Cannot be stunned.`,
     repulsor: 
         `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or `
-        +`if touched. Takes 2 turns to recharge afterwards.`,
+        +`if touched. Takes 3 turns to recharge afterwards.`,
     sewer_grate: 
         `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
     smoldering_ashes: [
