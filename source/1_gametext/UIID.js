@@ -77,6 +77,8 @@ const HTML_UIIDS = {
                     removed_boon_table: `removedBoonTable`,
                 discard_pile: `discardPile`,
                     discard_pile_table: `discardPileTable`,
+                full_deck: `fullDeck`,
+                    full_deck_table: `fullDeckTable`,
                 text_log: `textLog`,
                     text_scroll: `textScroll`,
                 deck_order: `deckOrder`,

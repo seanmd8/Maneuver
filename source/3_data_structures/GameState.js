@@ -283,6 +283,13 @@ class GameState{
             on_click: restart(this)
         }]
         display.add_button_row(UIIDS.retry_button, restart_message);
+        refresh_full_deck_display(this.deck);
+        var swap_visibility = function(id_list, id){
+            return function(){
+                id_list.swap(id);
+            }
+        }
+        display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.full_deck));
     }
     /**
      * Adds a temporary card to the player's deck.

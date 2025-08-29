@@ -57,6 +57,14 @@ function refresh_discard_display(deck){
     display.add_tb_row(UIIDS.discard_pile_table, discard, SMALL_CARD_SCALE);
 }
 /**
+ * Displays the full deck to it's proper location.
+ */
+function refresh_full_deck_display(deck){
+    var full = deck.get_deck_info();
+    display.remove_children(UIIDS.full_deck_table);
+    display.add_tb_row(UIIDS.full_deck_table, full, SMALL_CARD_SCALE);
+}
+/**
  * Displays the library to it's proper location.
  */
 function refresh_deck_order_display(deck){

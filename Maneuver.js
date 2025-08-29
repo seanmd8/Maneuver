@@ -1362,6 +1362,14 @@ function refresh_discard_display(deck){
     display.add_tb_row(UIIDS.discard_pile_table, discard, SMALL_CARD_SCALE);
 }
 /**
+ * Displays the full deck to it's proper location.
+ */
+function refresh_full_deck_display(deck){
+    var full = deck.get_deck_info();
+    display.remove_children(UIIDS.full_deck_table);
+    display.add_tb_row(UIIDS.full_deck_table, full, SMALL_CARD_SCALE);
+}
+/**
  * Displays the library to it's proper location.
  */
 function refresh_deck_order_display(deck){
@@ -2947,6 +2955,7 @@ const SIDEBAR_BUTTONS = {
     text_log: `Messages`, 
     boon_list: `Boons`, 
     discard_pile: `Discard`, 
+    full_deck: `Full Deck`, 
     initiative: `Initiative`, 
     deck_order: `Deck`,
     sidebar: `Sidebar`
@@ -3169,6 +3178,8 @@ const HTML_UIIDS = {
                     removed_boon_table: `removedBoonTable`,
                 discard_pile: `discardPile`,
                     discard_pile_table: `discardPileTable`,
+                full_deck: `fullDeck`,
+                    full_deck_table: `fullDeckTable`,
                 text_log: `textLog`,
                     text_scroll: `textScroll`,
                 deck_order: `deckOrder`,
@@ -10315,6 +10326,13 @@ class GameState{
             on_click: restart(this)
         }]
         display.add_button_row(UIIDS.retry_button, restart_message);
+        refresh_full_deck_display(this.deck);
+        var swap_visibility = function(id_list, id){
+            return function(){
+                id_list.swap(id);
+            }
+        }
+        display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.full_deck));
     }
     /**
      * Adds a temporary card to the player's deck.
@@ -11012,7 +11030,7 @@ class ScreenTracker{
 
 const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.controls, UIIDS.achievements]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
-const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.initiative, UIIDS.deck_order]);
+const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.full_deck, UIIDS.initiative, UIIDS.deck_order]);
 
 class Shop{
     #deck;
@@ -14117,7 +14135,7 @@ BOON_LIST = [
     quick_healing, rebirth, repetition, retaliate, rift_touched, 
     roar_of_challenge, safe_passage, shattered_glass, skill_trading, slime_trail, 
     sniper, spiked_shoes, spontaneous, stable_mind, stealthy, 
-    stubborn, thick_soles, vicious_cycle
+    stubborn, thick_soles
 ];
 
 function change_max_health(amount){
