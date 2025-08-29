@@ -1,4 +1,13 @@
 
+const control_screen_text = {
+    default: `Default`,
+    edit: `Edit`,
+    save: `Save`,
+    undo: `Undo`,
+}
+Object.freeze(control_screen_text);
+
+
 const CONTROLS_TEXT = {
     header: `Controls`,
     stage: {
