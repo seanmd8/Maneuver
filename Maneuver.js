@@ -9593,7 +9593,8 @@ class GameMap{
                     var p_offset = pos.plus(offset);
                     if(
                         this.is_in_bounds(p_offset) && 
-                        this.get_tile(p_offset).type !== entity_types.player
+                        this.get_tile(p_offset).type !== entity_types.player &&
+                        this.get_tile(p_offset).type !== entity_types.chest
                     ){
                         this.player_attack(direction.plus(offset));
                     }
