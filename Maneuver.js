@@ -2199,7 +2199,7 @@ const boon_descriptions = {
     retaliate: 
         `When you are dealt damage, attack a nearby non boss enemy.`,
     rift_touched: 
-        `Two Darklings spawn on each floor.`,
+        `Two Darklings spawn on each non boss floor.`,
     roar_of_challenge: 
         `Gain 2 max health. Difficulty increases by 5 floors.`,
     safe_passage: 
