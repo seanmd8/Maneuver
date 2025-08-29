@@ -8,3 +8,10 @@ const SIDEBAR_BUTTONS = {
     sidebar: `Sidebar`
 }
 Object.freeze(SIDEBAR_BUTTONS);
+
+const record_types = {
+    achievement: `achievement`,
+    repeated_achievement: `repeated achievement`,
+    normal: `normal`,
+}
+Object.freeze(record_types);
