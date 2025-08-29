@@ -1,4 +1,3 @@
-
 function get_achievements(){
     return [
         // Boss achievements

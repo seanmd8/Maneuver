@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function reckless_teleport(){
     var options = new ButtonGrid();

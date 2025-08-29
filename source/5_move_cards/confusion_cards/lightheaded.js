@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function lightheaded(){
     var options = new ButtonGrid();

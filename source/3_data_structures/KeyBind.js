@@ -1,5 +1,3 @@
-
-
 class KeyBind{
     #controls
     alternate_is_pressed

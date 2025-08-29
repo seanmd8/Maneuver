@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function y_strike_nw(){
     var options = new ButtonGrid();

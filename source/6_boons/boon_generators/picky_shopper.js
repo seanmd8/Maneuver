@@ -1,4 +1,3 @@
-
 function picky_shopper(){
     return {
         name: boon_names.picky_shopper,

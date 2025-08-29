@@ -1,4 +1,3 @@
-
 class AchievementList{
     #list
     constructor(){

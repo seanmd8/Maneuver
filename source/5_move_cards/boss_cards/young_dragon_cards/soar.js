@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function soar(){
     var options = new ButtonGrid();

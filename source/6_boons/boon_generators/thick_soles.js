@@ -1,4 +1,3 @@
-
 function thick_soles(){
     return {
         name: boon_names.thick_soles,

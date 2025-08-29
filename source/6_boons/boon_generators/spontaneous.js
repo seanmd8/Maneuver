@@ -1,4 +1,3 @@
-
 function spontaneous(){
     return {
         name: boon_names.spontaneous,

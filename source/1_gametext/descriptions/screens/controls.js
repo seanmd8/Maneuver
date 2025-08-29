@@ -1,4 +1,3 @@
-
 const control_screen_text = {
     default: `Default`,
     edit: `Edit`,

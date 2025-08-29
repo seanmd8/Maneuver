@@ -1,4 +1,3 @@
-
 function frugivore(){
     return {
         name: boon_names.frugivore,

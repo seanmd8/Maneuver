@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function teleport(){
     var options = new ButtonGrid();

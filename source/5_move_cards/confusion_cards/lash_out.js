@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function lash_out(){
     var options = new ButtonGrid();

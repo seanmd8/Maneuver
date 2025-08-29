@@ -1,4 +1,3 @@
-
 const event_descriptions = {
     falling_rubble: 
         `Watch out, something is about to fall here.`,

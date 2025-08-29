@@ -1,4 +1,3 @@
-
 function expend_vitality(){
     return {
         name: boon_names.expend_vitality,

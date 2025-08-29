@@ -1,4 +1,3 @@
-
 function triple_achievement(){
     return {
         name: achievement_names.triple,

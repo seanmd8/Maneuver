@@ -145,4 +145,3 @@ const about_page_text = {
     git_text: `Github Page`,
 };
 Object.freeze(about_page_text);
-

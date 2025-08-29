@@ -1,4 +1,3 @@
-
 function peerless_sprinter_achievement(){
     return {
         name: achievement_names.peerless_sprinter,

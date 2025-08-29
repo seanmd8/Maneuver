@@ -11,4 +11,3 @@ function chest_tile(){
         contents: []
     }
 }
-

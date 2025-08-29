@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function reckless_sidestep_diagonal(){
     var options = new ButtonGrid();

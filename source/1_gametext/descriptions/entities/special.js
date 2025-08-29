@@ -1,4 +1,3 @@
-
 const special_tile_descriptions = {
     chest: `Chest: It might have something useful inside. Breaking it will damage `
     +`the contents.`,

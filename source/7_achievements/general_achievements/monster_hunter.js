@@ -1,4 +1,3 @@
-
 function monster_hunter_achievement(){
     return {
         name: achievement_names.monster_hunter,

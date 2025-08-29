@@ -45,4 +45,3 @@ function refresh_shop_display(shop){
     }
     display.set_button(UIIDS.shop_confirm, shop_text.confirm, confirm, shop.is_valid_selection());
 }
-

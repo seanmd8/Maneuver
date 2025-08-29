@@ -1,4 +1,3 @@
-
 function chilly_presence(){
     return {
         name: boon_names.chilly_presence,

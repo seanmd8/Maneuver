@@ -1,4 +1,3 @@
-
 function safe_passage(){
     return {
         name: boon_names.safe_passage,

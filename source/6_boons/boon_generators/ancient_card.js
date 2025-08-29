@@ -1,4 +1,3 @@
-
 function ancient_card(){
     return {
         name: boon_names.ancient_card,

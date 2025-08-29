@@ -1,4 +1,3 @@
-
 function speed_runner_achievement(){
     return {
         name: achievement_names.speed_runner,

@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function firebreathing_ne(){
     var options = new ButtonGrid();

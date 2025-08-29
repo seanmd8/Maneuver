@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function pike(){
     var options = new ButtonGrid();

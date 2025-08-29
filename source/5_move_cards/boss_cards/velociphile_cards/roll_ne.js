@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator} Dropped by the velociphile*/
 function roll_ne(){
     var options = new ButtonGrid();

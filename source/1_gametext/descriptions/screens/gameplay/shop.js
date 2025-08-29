@@ -1,4 +1,3 @@
-
 const shop_text = {
     header: `Choose one card to add or remove:`,
     add: `Add a card to your deck.`,

@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function stunning_tread_diagonal(){
     var options = new ButtonGrid();

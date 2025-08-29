@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function split_second_1(){
     var options = new ButtonGrid();

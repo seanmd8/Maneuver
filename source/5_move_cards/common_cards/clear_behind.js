@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function clear_behind(){
     var options = new ButtonGrid();

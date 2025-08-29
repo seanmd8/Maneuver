@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function stunning_slice(){
     var options = new ButtonGrid();

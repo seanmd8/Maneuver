@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function maneuver_1(){
     var options = new ButtonGrid();

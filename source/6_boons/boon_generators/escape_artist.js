@@ -1,4 +1,3 @@
-
 function escape_artist(){
     return {
         name: boon_names.escape_artist,

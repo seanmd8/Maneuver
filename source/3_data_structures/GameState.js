@@ -389,5 +389,3 @@ class GameState{
         return false;
     }
 }
-
-

@@ -1,4 +1,3 @@
-
 function shrug_it_off_achievement(){
     return {
         name: achievement_names.shrug_it_off,

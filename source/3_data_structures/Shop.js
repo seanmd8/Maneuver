@@ -1,4 +1,3 @@
-
 class Shop{
     #deck;
     #has_skill_trading;

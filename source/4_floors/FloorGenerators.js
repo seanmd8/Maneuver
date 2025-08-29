@@ -61,5 +61,3 @@ function boss_floor_common(floor_num,  area, map){
 function generate_sanctum_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
 }
-
-

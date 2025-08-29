@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator} Dropped by the forest heart*/
 function branch_strike(){
     var options = new ButtonGrid();

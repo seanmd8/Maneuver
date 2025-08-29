@@ -1,4 +1,3 @@
-
 function fleeting_thoughts(){
     return {
         name: boon_names.fleeting_thoughts,

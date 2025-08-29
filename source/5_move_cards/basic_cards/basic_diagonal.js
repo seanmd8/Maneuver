@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function basic_diagonal(){
     var options = new ButtonGrid();

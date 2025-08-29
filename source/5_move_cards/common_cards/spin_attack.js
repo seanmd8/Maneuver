@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function spin_attack(){
     var options = new ButtonGrid();

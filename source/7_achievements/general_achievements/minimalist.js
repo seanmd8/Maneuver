@@ -1,4 +1,3 @@
-
 function minimalist_achievement(){
     return {
         name: achievement_names.minimalist,

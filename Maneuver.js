@@ -551,7 +551,6 @@ function explain_card(card){
     }
     return text.trimEnd();
 }
-
 /**
  * Function to create the combined description of everything happening on a space of the game map.
  * @param {GridSpace} space The space to get a description of.
@@ -567,7 +566,6 @@ function grid_space_description(space){
     var descriptions = [tile, ...foreground, ...background];
     return descriptions.reduce((res, str) => `${res}${str}`);
 }
-
 function hp_description(tile){
     var hp = ``
     var stunned = ``;
@@ -582,7 +580,6 @@ function hp_description(tile){
     }
     return `${hp}${stunned}`;
 }
-
 /**
  * Function to create the full description including
  *      -stun amount
@@ -598,7 +595,6 @@ function tile_description(tile){
     }
     return `${hp_description(tile)}${tile.description}`;
 }
-
 function update_achievements(){
     var achievements = GS.data.achievements.all();
     display.remove_children(UIIDS.achievement_list);
@@ -609,7 +605,6 @@ function reset_achievements(){
     GS.data.reset_achievements();
     update_achievements();
 }
-
 function controls_chest_section(){
     var controls = GS.data.controls.get();
     display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
@@ -624,7 +619,6 @@ function edit_chest_controls(controls){
     display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
     display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
 }
-
 function setup_controls_page(){
     display.remove_children(UIIDS.stage_controls);
     controls_stage_section();
@@ -633,7 +627,6 @@ function setup_controls_page(){
     display.remove_children(UIIDS.chest_controls);
     controls_chest_section();
 }
-
 function controls_shop_section(){
     var controls = GS.data.controls.get();
     display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
@@ -648,8 +641,6 @@ function edit_shop_controls(controls){
     display.control_edit_box(UIIDS.shop_controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
     display.control_edit_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
 }
-
-
 function controls_stage_section(){
     var controls = GS.data.controls.get();
     display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
@@ -668,8 +659,6 @@ function edit_stage_controls(controls){
     display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
     display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
 }
-
-
 function display_deck_to_duplicate(){
     display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
     var finish = (card, deck) => {
@@ -679,7 +668,6 @@ function display_deck_to_duplicate(){
     var selector = new DeckSelector(GS.deck, finish);
     refresh_deck_select_screen(selector);
 }
-
 function refresh_deck_select_screen(selector){
     var cards = selector.get_display_info();
     cards.map((card) => {
@@ -704,7 +692,6 @@ function refresh_deck_select_screen(selector){
         selector.check_valid()
     );
 }
-
 function display_deck_to_remove(remaining){
     var message = `${boon_messages.clean_mind[0]}${remaining}${boon_messages.clean_mind[1]}`;
     display.display_message(UIIDS.deck_select_message, message);
@@ -722,7 +709,6 @@ function display_deck_to_remove(remaining){
     var selector = new DeckSelector(GS.deck, finish);
     refresh_deck_select_screen(selector);
 }
-
 function display_entire_deck(deck){
     // Display section header.
     var min_deck_size = deck.deck_min();
@@ -743,7 +729,6 @@ function display_entire_deck(deck){
     }
 
 }
-
 function refresh_shop_display(shop){
     var refresh = (f, card) => {
         return () => {
@@ -791,8 +776,6 @@ function refresh_shop_display(shop){
     }
     display.set_button(UIIDS.shop_confirm, shop_text.confirm, confirm, shop.is_valid_selection());
 }
-
-
 function display_boons(boon_list){
     // Updates the list of boons they have.
     display.remove_children(UIIDS.boon_list_table);
@@ -804,7 +787,6 @@ function display_boons(boon_list){
     var lost = boon_list.get_lost();
     display.add_tb_row(UIIDS.removed_boon_table, lost, SMALL_CARD_SCALE);
 }
-
 /**
  * Displays the library to it's proper location.
  */
@@ -813,7 +795,6 @@ function refresh_deck_order_display(deck){
     display.remove_children(UIIDS.deck_order_table);
     display.add_tb_row(UIIDS.deck_order_table, [future_sight(), ...library], SMALL_CARD_SCALE);
 }
-
 /**
  * Displays the discard pile to it's proper location.
  */
@@ -822,7 +803,6 @@ function refresh_discard_display(deck){
     display.remove_children(UIIDS.discard_pile_table);
     display.add_tb_row(UIIDS.discard_pile_table, discard, SMALL_CARD_SCALE);
 }
-
 /**
  * Displays the full deck to it's proper location.
  */
@@ -831,7 +811,6 @@ function refresh_full_deck_display(deck){
     display.remove_children(UIIDS.full_deck_table);
     display.add_tb_row(UIIDS.full_deck_table, full, SMALL_CARD_SCALE);
 }
-
 /**
  * Function to create and add the buttons for the sidebar.
  */
@@ -848,7 +827,6 @@ function create_sidebar(){
     display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
     SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
 }
-
 function update_initiative(map){
     var info = map.get_initiative().map(e => {
         let str = `${e.name}\n` + hp_description(e);
@@ -868,7 +846,6 @@ function update_initiative(map){
     display.remove_children(UIIDS.initiative);
     display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
 }
-
 /**
  * Function to give a message to the user.
  * @param {string} msg message text.
@@ -881,7 +858,6 @@ function say_record(msg, type = record_types.normal){
     say(msg);
     GS.record_message(msg, type);
 }
-
 /**
  * Displays the hand to it's proper location.
  */
@@ -906,7 +882,6 @@ function player_hand_greyed(is_greyed){
     var toggle = is_greyed ? display.add_class : display.remove_class;
     toggle(UIIDS.hand_display, `greyed-out`);
 }
-
 function display_move_buttons(card, hand_position){
     display.select(UIIDS.hand_display, 0, hand_position);
     display.remove_children(UIIDS.move_buttons);
@@ -923,8 +898,6 @@ function display_move_buttons(card, hand_position){
     var explanation = move_types.alt + `\n` + explain_card(card);
     display.add_on_click(UIIDS.move_info, function(){say(explanation)});
 }
-
-
 function telegraph_repetition_boon(repeat){
     display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
     display.remove_class(UIIDS.move_box, `telegraph-repetition`);
@@ -934,7 +907,6 @@ function telegraph_repetition_boon(repeat){
     display.add_class(UIIDS.hand_box, class_name);
     display.add_class(UIIDS.move_box, class_name);
 }
-
 /**
  * Function to display the player's current and max health.
  * @param {Tile} player The player to get health from.
@@ -961,7 +933,6 @@ function display_health(player, scale){
     }
     display.add_tb_row(UIIDS.health_display, health, scale);
 }
-
 function display_map(map){
     // Updates the GameMap display.
     display.remove_children(UIIDS.map_display);
@@ -976,7 +947,6 @@ function display_map(map){
     // Updates the initiative tracker display.
     update_initiative(map);
 }
-
 /**
  * Function to create a dropdown menu capable of switching between the game and guide screens.
  * @param {string} location Where to create it.
@@ -1008,7 +978,6 @@ function create_main_dropdown(location){
     ];
     display.create_dropdown(location, options);
 }
-
 /**
  * Function to get an array of buttons with the keys used for controls as the value to use when displaying the guide.
  * @returns {HTMLElement[]} The array of buttons.
@@ -1095,7 +1064,6 @@ function display_guide(){
 
     display.swap_screen(section_id_list, basics_section);
 }
-
 /**
  * Function to get an array of images for the card symbols to use when displaying the guide..
  * @returns {HTMLElement[]} The array of images.
@@ -1107,7 +1075,6 @@ function make_guidebook_images(arr){
     }
     return images;
 }
-
 // ----------------Display.js----------------
 // File containing the display class which interacts with wherever the game is being displayed. 
 // Currently the only way to display is via HTML, but if I wanted to port the game, this should
@@ -1912,7 +1879,6 @@ function make_test_deck(test_cards){
     deck.deal();
     return deck;
 }
-
 // Library for the various kinds of errors that the game could throw
 const ERRORS = {
     invalid_type: `invalid type`,
@@ -1934,8 +1900,6 @@ const ERRORS = {
     failed_to_load: `Failed to load`,
 }
 Object.freeze(ERRORS);
-
-
 // ----------------ManeuverUtil.js----------------
 // File for utility functions used throughout the program.
 
@@ -1976,7 +1940,6 @@ function floor_has_chest(floor_of_area){
     }
     return false;
 }
-
 const area_descriptions = {
     ruins: 
         `You have entered the ruins.`,
@@ -1999,8 +1962,6 @@ const area_descriptions = {
         +`there will be no more boss fights. Good luck.`,
 }
 Object.freeze(area_descriptions);
-
-
 const boon_names = {
     ancient_card: `Ancient Card`,
     bitter_determination: `Bitter Determination`,
@@ -2161,7 +2122,6 @@ const boon_messages = {
     rebirth: `You died, but were brought back to life.`,
 }
 Object.freeze(boon_messages);
-
 const action_types = {
     move: `Move`,
     attack: `Attack`,
@@ -2172,7 +2132,6 @@ const action_types = {
     heal: `Heal`,
 }
 Object.freeze(action_types);
-
 const card_names = {
     advance: `Advance`,
     basic_diagonal: `Basic Diagonal`,
@@ -2317,7 +2276,6 @@ const card_names = {
     y_strike_nw: `Y Strike NW`,
 }
 Object.freeze(card_names);
-
 // Button Options.
 const null_move_button = `--`;
 const NW = `NW`;
@@ -2364,7 +2322,6 @@ const move_types = {
     instant: `Instant: Take an extra turn.`
 }
 Object.freeze(move_types);
-
 const boss_names = {
     arcane_sentry: `Arcane Sentry`,
     arcane_sentry_node: `Arcane Sentry Node`,
@@ -2490,7 +2447,6 @@ const sentry_mode_descriptions = {
     }
 }
 Object.freeze(sentry_mode_descriptions);
-
 // Normal Enemy Descriptions.
 
 const enemy_descriptions = {
@@ -2677,7 +2633,6 @@ const entity_types = {
     terrain: `Terrain`,
 }
 Object.freeze(entity_types);
-
 const event_descriptions = {
     falling_rubble: 
         `Watch out, something is about to fall here.`,
@@ -2767,8 +2722,6 @@ const other_tile_names = {
     wall_damaged: `Damaged Wall`,
 }
 Object.freeze(other_tile_names);
-
-
 const special_tile_descriptions = {
     chest: `Chest: It might have something useful inside. Breaking it will damage `
     +`the contents.`,
@@ -2799,8 +2752,6 @@ const chest_text = {
     add_card: `Add this card to your deck.`,
 }
 Object.freeze(chest_text);
-
-
 const achievement_text = {
     title: `Achievements`,
     reset: `Reset`,
@@ -2879,8 +2830,6 @@ const boss_achievements = [
     achievement_names.forest_heart,
     achievement_names.arcane_sentry,
 ]
-
-
 const control_screen_text = {
     default: `Default`,
     edit: `Edit`,
@@ -2917,7 +2866,6 @@ Object.freeze(CONTROLS_TEXT);
 
 const KEYBOARD_SYMBOL_MAP = new Map();
 KEYBOARD_SYMBOL_MAP.set(` `, `space`);
-
 const shop_text = {
     header: `Choose one card to add or remove:`,
     add: `Add a card to your deck.`,
@@ -2928,7 +2876,6 @@ const shop_text = {
     current: `Current Deck (minimum `,
 }
 Object.freeze(shop_text);
-
 const SIDEBAR_BUTTONS = {
     text_log: `Messages`, 
     boon_list: `Boons`, 
@@ -2946,7 +2893,6 @@ const record_types = {
     normal: `normal`,
 }
 Object.freeze(record_types);
-
 const gameplay_labels = {
     title: `Maneuver`,
     hand: `Hand of Cards`,
@@ -2974,7 +2920,6 @@ const gameplay_text = {
         `Before choosing what move to make, you must first select a card to use.`,
 }
 Object.freeze(gameplay_text);
-
 // ----------------GuideText.js----------------
 // This file contains the headers and text for the guide / tutorial section.
 
@@ -3122,9 +3067,6 @@ const about_page_text = {
     git_text: `Github Page`,
 };
 Object.freeze(about_page_text);
-
-
-
 const screen_names = {
     gameplay: `Gameplay`,
     guide: `Guidebook`,
@@ -3132,7 +3074,6 @@ const screen_names = {
     achievements: `Achievements`,
 }
 Object.freeze(screen_names);
-
 // ----------------UIID.js----------------
 // File containing a library of ids used to retrieve elements of the ui.
 
@@ -3264,7 +3205,6 @@ const HTML_UIIDS = {
 Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
-
 SENTRY_MODES = Object.freeze({
     saw: "Saw",
     cannon: "Cannon",
@@ -4050,7 +3990,6 @@ function two_headed_serpent_telegraph(location, map, self){
     }
     return attacks;
 }
-
 /** @type {TileGenerator} */
 function velociphile_tile(){
     var health = 3;
@@ -4385,8 +4324,6 @@ function animated_boulder_wake_up(self, target, map){
         self.tile.tags.remove(TAGS.hidden);
     }
 }
-
-
 /** @type {TileGenerator} */
 function brightling_tile(){
     var starting_cycle = 0;
@@ -4675,7 +4612,6 @@ function darkling_telegraph(location, map, self){
     }
     return spider_telegraph(self.direction, map, self);
 }
-
 /** @type {TileGenerator}*/
 function gem_crawler_tile(){
     var cycle = random_num(2);
@@ -4782,8 +4718,6 @@ function igneous_crab_telegraph(location, map, self){
     }
     return spider_telegraph(location, map, self);
 }
-
-
 /** @type {TileGenerator} */
 function living_tree_tile(){
     return {
@@ -4830,15 +4764,12 @@ function living_tree_ai(self, target, map){
     }
     self.tile.cycle = 1 - self.tile.cycle;
 }
-
-
 /** @type {TelegraphFunction} Function to telegraph living tree attacks.*/
 function living_tree_telegraph(location, map, self){
     return get_2_away().map(p => {
         return p.plus(location);
     })
 }
-
 /** @type {TileGenerator} */
 function living_tree_rooted_tile(){
     return {
@@ -4866,8 +4797,6 @@ function living_tree_rooted_ai(self, target, map){
         throw new Error(ERRORS.skip_animation);
     }
 }
-
-
 /** @type {TileGenerator} */
 function magma_spewer_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}magma_spewer.png`, `${IMG_FOLDER.tiles}magma_spewer_firing.png`];
@@ -5099,7 +5028,6 @@ function paper_construct_ai(self, target, map){
     })[0];
     set_rotation(self.tile);
 }
-
 /** @type {TileGenerator}*/
 function pheonix_tile(){
     return {
@@ -5175,8 +5103,6 @@ function pheonix_telegraph(location, map, self){
     }
     return telegraph;
 }
-
-
 /** @type {TileGenerator} */
 function large_porcuslime_tile(){
     return {
@@ -6572,7 +6498,6 @@ function bookshelf_on_hit(self, target, map){
     GS.give_temp_card(card);
     GS.refresh_deck_display();
 }
-
 /** @type {TileGenerator} A damaged wall that might spawn something on death.*/
 function coffin_tile(){
     return {
@@ -6753,7 +6678,6 @@ function lava_pool_tile(){
         on_enter: hazard
     }
 }
-
 /** @type {TileGenerator} A sturdy wall.*/
 function magmatic_boulder_tile(){
     return {
@@ -6795,8 +6719,6 @@ function raging_fire_hit(self, target, map){
         self.tile.pic = self.tile.pic_arr[intensity];
     }
 }
-
-
 /** @type {TileGenerator} Pushes things away.*/
 function repulsor_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}repulsor.png`, `${IMG_FOLDER.tiles}repulsor_reloading.png`];
@@ -6887,7 +6809,6 @@ function repulsor_telegraph_other(location, map, self){
     }
     return spaces;
 }
-
 /** @type {TileGenerator} Spawns corrosive slime nearby.*/
 function sewer_grate_tile(){
     return{
@@ -6942,7 +6863,6 @@ function smoldering_ashes_ai(self, target, map){
         map.add_tile(pheonix_tile(), self.location);
     }
 }
-
 /** @type {TileGenerator} */
 function thorn_bramble_tile(){
     return{
@@ -6956,7 +6876,6 @@ function thorn_bramble_tile(){
         on_enter: hazard
     }
 }
-
 /** @type {TileGenerator} A damaged wall that might spawn something on death.*/
 function damaged_wall_tile(){
     var health = random_num(2) + 1;
@@ -7019,8 +6938,6 @@ function armored_chest_tile(){
         contents: []
     }
 }
-
-
 /** @type {TileGenerator} A chest letting the user choose a reward. Currently empty.*/
 function chest_tile(){
     return {
@@ -7034,8 +6951,6 @@ function chest_tile(){
         contents: []
     }
 }
-
-
 /** @type {TileGenerator} Makes the correct type of chest*/
 function appropriate_chest_tile(){
     if(GS.boons.has(boon_names.larger_chests)){
@@ -7318,9 +7233,6 @@ function boss_death(self, target, map){
     
     say_record(death_message);
 }
-
-
-
 /**
  * Function to create a function that delays an event function for a specified number of turns.
  * @param {number} turn_count How many turns to delay it.
@@ -7340,7 +7252,6 @@ function delay_event(turn_count, delayed_function){
     }
     return delay_function();
 }
-
 /**
  * Function to create an event function representing an earthquake.
  * @param {number} amount The amount of falling debris that should be created.
@@ -7386,9 +7297,6 @@ function earthquake_event(amount, locations = undefined){
     }
     return earthquake(amount);
 }
-
-
-
 /**
  * Function to create an event function representing hazardous growth.
  * @param {Point[]} points A grid of locations to grow things at.
@@ -7803,7 +7711,6 @@ function generic_tile(){
         event_happening: undefined
     }
 }
-
 function node_cannon_behavior(self, target, map){
     var spawnpoint = self.location.plus(self.tile.direction);
     var fireball = shoot_fireball(self.tile.direction);
@@ -7899,7 +7806,6 @@ function sentry_cannon_direction(difference){
     }
     return sign(difference);
 }
-
 function node_double_cannon_behavior(self, target, map){
     if(self.tile.direction.on_axis()){
         node_o_double_cannon_ai(self, target, map);
@@ -7956,7 +7862,6 @@ function node_double_cannon_telegraph(location, map, self){
         return map.is_in_bounds(p) && !map.get_tile(p).tags.has(TAGS.arcane_sentry);
     });
 }
-
 function node_saw_behavior(self, target, map){
     for(var direction of HORIZONTAL_DIRECTIONS){
         map.attack(self.location.plus(direction));
@@ -7996,8 +7901,6 @@ function sentry_saw_direction(difference){
         return dir.on_axis();
     })[0];
 }
-
-
 function node_turret_behavior(self, target, map){
     var sign_dif = sign(target.difference);
     var sign_dir = sign(self.tile.direction);
@@ -8235,7 +8138,6 @@ function swaying_nettle_spell_telegraph(location, map, self){
         new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
     );
 }
-
 /** @type {SpellGenerator} */
 function thorn_bush_spell_generator(){
     return {
@@ -8402,7 +8304,6 @@ function flame_wave_spell(self, target, map){
 function flame_wave_spell_telegraph(location, map, self){
     return random_nearby().map(p => p.plus(location));
 }
-
 /** @type {SpellGenerator} */
 function lava_moat_spell_generator(){
     return {
@@ -8523,7 +8424,6 @@ function teleport_spell(self, target, map){
  * @callback SpellGenerator
  * @returns {Spell}
  */
-
 // ----------------TelegraphUtils.js----------------
 // File for utility functions and jsdoc typedefs used to telegraph enemy attacks and abilities.
 
@@ -8576,9 +8476,6 @@ function move_attack_telegraph(location, map, directions){
     }
     return attacks;
 }
-
-
-
 class AchievementList{
     #list
     constructor(){
@@ -8645,8 +8542,6 @@ class AchievementList{
         return filtered.length;
     }
 }
-
-
 class BoonTracker{
     #choices;
     #boons;
@@ -8736,8 +8631,6 @@ class BoonTracker{
     }
 
 }
-
-
 // ----------------ButtonGrid.js----------------
 // The ButtonGrid class is used to keep track of the possible moves a card has.
 
@@ -8868,7 +8761,6 @@ class ButtonGrid{
         return this.#buttons[Math.floor(num / 3)][num % 3].behavior;
     }
 }
-
 class DeckSelector{
     #deck;
     #cards;
@@ -9111,7 +9003,6 @@ class EntityList{
         });
     }
 }
-
 // ----------------GameMap.js----------------
 // GameMap class holds the information on the current floor and everything on it.
 
@@ -10466,11 +10357,6 @@ class GameState{
         return false;
     }
 }
-
-
-
-
-
 class KeyBind{
     #controls
     alternate_is_pressed
@@ -10917,7 +10803,6 @@ class MoveDeck{
         }
     }
 }
-
 /*
  * Class to save and load data to and from files and localstorage.
  * If you want to add new fields:
@@ -11042,8 +10927,6 @@ class SaveData{
         }
     }
 }
-
-
 class ScreenTracker{
     div;
     current;
@@ -11065,7 +10948,6 @@ class ScreenTracker{
 const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.controls, UIIDS.achievements]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.full_deck, UIIDS.initiative, UIIDS.deck_order]);
-
 class Shop{
     #deck;
     #has_skill_trading;
@@ -11176,7 +11058,6 @@ class Shop{
         return valid;
     }
 }
-
 class StatTracker{
     #turn_number;
     #turns_per_floor;
@@ -11885,10 +11766,6 @@ function boss_floor_common(floor_num,  area, map){
 function generate_sanctum_floor(floor_num, area, map){
     generate_normal_floor(floor_num, area, map);
 }
-
-
-
-
 /** @type {CardGenerator}*/
 function basic_diagonal(){
     var options = new ButtonGrid();
@@ -11903,7 +11780,6 @@ function basic_diagonal(){
         basic: true
     }
 }
-
 /** @type {CardGenerator}*/
 function basic_orthogonal(){
     var options = new ButtonGrid();
@@ -11918,7 +11794,6 @@ function basic_orthogonal(){
         basic: true
     }
 }
-
 /** @type {CardGenerator}*/
 function basic_slice(){
     var options = new ButtonGrid();
@@ -11933,7 +11808,6 @@ function basic_slice(){
         basic: true
     }
 }
-
 /** @type {CardGenerator}*/
 function execution_1(){
     var options = new ButtonGrid();
@@ -12023,9 +11897,6 @@ function lost_maneuver(){
         evolutions: [maneuver_1]
     }
 }
-
-
-
 /** @type {CardGenerator}*/
 function maneuver_1(){
     var options = new ButtonGrid();
@@ -12088,7 +11959,6 @@ function maneuver_3(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function split_second_1(){
     var options = new ButtonGrid();
@@ -12132,7 +12002,6 @@ function split_second_2(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function superweapon_1(){
     var options = new ButtonGrid();
@@ -12174,7 +12043,6 @@ function superweapon_2(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the Arcane Sentry*/
 function beam_ne(){
     var options = new ButtonGrid();
@@ -12186,7 +12054,6 @@ function beam_ne(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the Arcane Sentry*/
 function beam_nw(){
     var options = new ButtonGrid();
@@ -12198,7 +12065,6 @@ function beam_nw(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the Arcane Sentry*/
 function beam_se(){
     var options = new ButtonGrid();
@@ -12210,7 +12076,6 @@ function beam_se(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the Arcane Sentry*/
 function beam_sw(){
     var options = new ButtonGrid();
@@ -12222,7 +12087,6 @@ function beam_sw(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function saw_strike(){
     var options = new ButtonGrid();
@@ -12236,7 +12100,6 @@ function saw_strike(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the forest heart*/
 function branch_strike(){
     var options = new ButtonGrid();
@@ -12250,7 +12113,6 @@ function branch_strike(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the forest heart*/
 function snack(){
     var options = new ButtonGrid();
@@ -12263,7 +12125,6 @@ function snack(){
         per_floor: snack
     }
 }
-
 /** @type {CardGenerator} Dropped by the forest heart*/
 function vine_snare(){
     var options = new ButtonGrid();
@@ -12277,7 +12138,6 @@ function vine_snare(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the lich*/
 function beam_diagonal(){
     var options = new ButtonGrid();
@@ -12291,7 +12151,6 @@ function beam_diagonal(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the lich*/
 function beam_orthogonal(){
     var options = new ButtonGrid();
@@ -12305,7 +12164,6 @@ function beam_orthogonal(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the lich*/
 function debilitating_confusion(){
     var options = new ButtonGrid();
@@ -12324,7 +12182,6 @@ function debilitating_confusion(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the lich*/
 function instant_teleport(){
     var options = new ButtonGrid();
@@ -12336,7 +12193,6 @@ function instant_teleport(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the spider queen*/
 function bite(){
     var options = new ButtonGrid();
@@ -12355,7 +12211,6 @@ function bite(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the spider queen*/
 function chomp(){
     var options = new ButtonGrid();
@@ -12373,7 +12228,6 @@ function chomp(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the spider queen*/
 function skitter(){
     var options = new ButtonGrid();
@@ -12391,7 +12245,6 @@ function skitter(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the two headed serpent.*/
 function fangs(){
     var options = new ButtonGrid();
@@ -12405,7 +12258,6 @@ function fangs(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the two headed serpent*/
 function regenerate(){
     var options = new ButtonGrid();
@@ -12417,7 +12269,6 @@ function regenerate(){
         per_floor: regenerate
     }
 }
-
 /** @type {CardGenerator} Dropped by the two headed serpent.*/
 function slither(){
     var options = new ButtonGrid();
@@ -12432,7 +12283,6 @@ function slither(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the velociphile*/
 function roll_horizontal(){
     var options = new ButtonGrid();
@@ -12444,7 +12294,6 @@ function roll_horizontal(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the velociphile*/
 function roll_ne(){
     var options = new ButtonGrid();
@@ -12456,7 +12305,6 @@ function roll_ne(){
         options
     }
 }
-
 /** @type {CardGenerator} Dropped by the velociphile*/
 function roll_nw(){
     var options = new ButtonGrid();
@@ -12468,7 +12316,6 @@ function roll_nw(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function firebreathing_horizontal(){
     var options = new ButtonGrid();
@@ -12486,7 +12333,6 @@ function firebreathing_horizontal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function firebreathing_ne(){
     var options = new ButtonGrid();
@@ -12504,7 +12350,6 @@ function firebreathing_ne(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function firebreathing_nw(){
     var options = new ButtonGrid();
@@ -12522,7 +12367,6 @@ function firebreathing_nw(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function firebreathing_vertical(){
     var options = new ButtonGrid();
@@ -12540,7 +12384,6 @@ function firebreathing_vertical(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function glide(){
     var options = new ButtonGrid();
@@ -12556,7 +12399,6 @@ function glide(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function soar(){
     var options = new ButtonGrid();
@@ -12876,7 +12718,6 @@ function copy_card(source){
         per_floor: source.per_floor,
     }
 }
-
 /** @type {CardGenerator}*/
 function advance(){
     var options = new ButtonGrid();
@@ -12889,7 +12730,6 @@ function advance(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function bounding_retreat(){
     var options = new ButtonGrid();
@@ -12902,7 +12742,6 @@ function bounding_retreat(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function breakthrough_horizontal(){
     var options = new ButtonGrid();
@@ -12914,7 +12753,6 @@ function breakthrough_horizontal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function breakthrough_vertical(){
     var options = new ButtonGrid();
@@ -12926,7 +12764,6 @@ function breakthrough_vertical(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function butterfly(){
     var options = new ButtonGrid();
@@ -12940,7 +12777,6 @@ function butterfly(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function charge_horizontal(){
     var options = new ButtonGrid();
@@ -12952,7 +12788,6 @@ function charge_horizontal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function charge_vertical(){
     var options = new ButtonGrid();
@@ -12964,7 +12799,6 @@ function charge_vertical(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function clear_behind(){
     var options = new ButtonGrid();
@@ -12976,7 +12810,6 @@ function clear_behind(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function clear_in_front(){
     var options = new ButtonGrid();
@@ -12988,7 +12821,6 @@ function clear_in_front(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function combat_diagonal(){
     var options = new ButtonGrid();
@@ -13002,7 +12834,6 @@ function combat_diagonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function combat_orthogonal(){
     var options = new ButtonGrid();
@@ -13016,7 +12847,6 @@ function combat_orthogonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function dash_ne(){
     var options = new ButtonGrid();
@@ -13029,7 +12859,6 @@ function dash_ne(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function dash_nw(){
     var options = new ButtonGrid();
@@ -13042,7 +12871,6 @@ function dash_nw(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function diamond_attack(){
     var options = new ButtonGrid();
@@ -13055,7 +12883,6 @@ function diamond_attack(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function diamond_slice(){
     var options = new ButtonGrid();
@@ -13074,7 +12901,6 @@ function diamond_slice(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function explosion(){
     var area = [];
@@ -13092,7 +12918,6 @@ function explosion(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function flanking_diagonal(){
     var options = new ButtonGrid();
@@ -13104,7 +12929,6 @@ function flanking_diagonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function flanking_horizontal(){
     var options = new ButtonGrid();
@@ -13116,7 +12940,6 @@ function flanking_horizontal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function flanking_vertical(){
     var options = new ButtonGrid();
@@ -13128,7 +12951,6 @@ function flanking_vertical(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function force(){
     var options = new ButtonGrid();
@@ -13140,7 +12962,6 @@ function force(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function fork(){
     var options = new ButtonGrid();
@@ -13154,7 +12975,6 @@ function fork(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function hit_and_run(){
     var options = new ButtonGrid();
@@ -13165,7 +12985,6 @@ function hit_and_run(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function horsemanship(){
     var options = new ButtonGrid();
@@ -13179,7 +12998,6 @@ function horsemanship(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function jab_diagonal(){
     var options = new ButtonGrid();
@@ -13193,7 +13011,6 @@ function jab_diagonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function jab_orthogonal(){
     var options = new ButtonGrid();
@@ -13207,7 +13024,6 @@ function jab_orthogonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function jump(){
     var options = new ButtonGrid();
@@ -13221,7 +13037,6 @@ function jump(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function leap_left(){
     var options = new ButtonGrid();
@@ -13235,7 +13050,6 @@ function leap_left(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function leap_right(){
     var options = new ButtonGrid();
@@ -13248,7 +13062,6 @@ function leap_right(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function lunge_left(){
     var options = new ButtonGrid();
@@ -13262,7 +13075,6 @@ function lunge_left(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function lunge_right(){
     var options = new ButtonGrid();
@@ -13276,7 +13088,6 @@ function lunge_right(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function overcome_horizontal(){
     var options = new ButtonGrid();
@@ -13288,7 +13099,6 @@ function overcome_horizontal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function overcome_vertical(){
     var options = new ButtonGrid();
@@ -13300,7 +13110,6 @@ function overcome_vertical(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function pike(){
     var options = new ButtonGrid();
@@ -13315,7 +13124,6 @@ function pike(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function push_back(){
     var options = new ButtonGrid();
@@ -13328,7 +13136,6 @@ function push_back(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function short_charge_diagonal(){
     var options = new ButtonGrid();
@@ -13342,7 +13149,6 @@ function short_charge_diagonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function short_charge_orthogonal(){
     var options = new ButtonGrid();
@@ -13356,7 +13162,6 @@ function short_charge_orthogonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function slash_step_forwards(){
     var options = new ButtonGrid();
@@ -13368,7 +13173,6 @@ function slash_step_forwards(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function slash_step_left(){
     var options = new ButtonGrid();
@@ -13380,7 +13184,6 @@ function slash_step_left(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function slash_step_right(){
     var options = new ButtonGrid();
@@ -13392,7 +13195,6 @@ function slash_step_right(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function slice_twice(){
     var options = new ButtonGrid();
@@ -13403,7 +13205,6 @@ function slice_twice(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function slip_through_ne(){
     var options = new ButtonGrid();
@@ -13417,7 +13218,6 @@ function slip_through_ne(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function slip_through_nw(){
     var options = new ButtonGrid();
@@ -13431,7 +13231,6 @@ function slip_through_nw(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function spearhead(){
     var options = new ButtonGrid();
@@ -13443,7 +13242,6 @@ function spearhead(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function spin_attack(){
     var options = new ButtonGrid();
@@ -13455,7 +13253,6 @@ function spin_attack(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function sprint_horizontal(){
     var options = new ButtonGrid();
@@ -13467,7 +13264,6 @@ function sprint_horizontal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function sprint_vertical(){
     var options = new ButtonGrid();
@@ -13479,7 +13275,6 @@ function sprint_vertical(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function step_left(){
     var options = new ButtonGrid();
@@ -13493,7 +13288,6 @@ function step_left(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function step_right(){
     var options = new ButtonGrid();
@@ -13507,7 +13301,6 @@ function step_right(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stunning_leap_horizontal(){
     var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
@@ -13520,7 +13313,6 @@ function stunning_leap_horizontal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stunning_leap_vertical(){
     var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
@@ -13533,7 +13325,6 @@ function stunning_leap_vertical(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stunning_retreat(){
     var options = new ButtonGrid();
@@ -13547,7 +13338,6 @@ function stunning_retreat(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stunning_slice(){
     var options = new ButtonGrid();
@@ -13561,7 +13351,6 @@ function stunning_slice(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function thwack(){
     var options = new ButtonGrid();
@@ -13573,7 +13362,6 @@ function thwack(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function trample(){
     var options = new ButtonGrid();
@@ -13586,7 +13374,6 @@ function trample(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function trident(){
     var options = new ButtonGrid();
@@ -13600,7 +13387,6 @@ function trident(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function t_strike_horizontal(){
     var options = new ButtonGrid();
@@ -13614,7 +13400,6 @@ function t_strike_horizontal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function t_strike_vertical(){
     var options = new ButtonGrid();
@@ -13628,7 +13413,6 @@ function t_strike_vertical(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function y_leap(){
     var options = new ButtonGrid();
@@ -13641,7 +13425,6 @@ function y_leap(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function y_strike_ne(){
     var options = new ButtonGrid();
@@ -13655,7 +13438,6 @@ function y_strike_ne(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function y_strike_nw(){
     var options = new ButtonGrid();
@@ -13669,7 +13451,6 @@ function y_strike_nw(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function freeze_up(){
     var options = new ButtonGrid();
@@ -13680,7 +13461,6 @@ function freeze_up(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function lash_out(){
     var options = new ButtonGrid();
@@ -13700,7 +13480,6 @@ function lash_out(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function lightheaded(){
     var options = new ButtonGrid();
@@ -13712,7 +13491,6 @@ function lightheaded(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stumble_e(){
     var options = new ButtonGrid();
@@ -13723,7 +13501,6 @@ function stumble_e(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stumble_n(){
     var options = new ButtonGrid();
@@ -13734,7 +13511,6 @@ function stumble_n(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stumble_ne(){
     var options = new ButtonGrid();
@@ -13745,7 +13521,6 @@ function stumble_ne(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stumble_nw(){
     var options = new ButtonGrid();
@@ -13756,7 +13531,6 @@ function stumble_nw(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stumble_s(){
     var options = new ButtonGrid();
@@ -13767,7 +13541,6 @@ function stumble_s(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stumble_se(){
     var options = new ButtonGrid();
@@ -13778,7 +13551,6 @@ function stumble_se(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stumble_sw(){
     var options = new ButtonGrid();
@@ -13789,7 +13561,6 @@ function stumble_sw(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stumble_w(){
     var options = new ButtonGrid();
@@ -13800,7 +13571,6 @@ function stumble_w(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function punch_diagonal(){
     var options = new ButtonGrid();
@@ -13815,7 +13585,6 @@ function punch_diagonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function punch_orthogonal(){
     var options = new ButtonGrid();
@@ -13830,7 +13599,6 @@ function punch_orthogonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function reckless_attack_left(){
     var options = new ButtonGrid();
@@ -13842,7 +13610,6 @@ function reckless_attack_left(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function reckless_attack_right(){
     var options = new ButtonGrid();
@@ -13854,7 +13621,6 @@ function reckless_attack_right(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function reckless_leap_forwards (){
     var options = new ButtonGrid();
@@ -13867,7 +13633,6 @@ function reckless_leap_forwards (){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function reckless_leap_left(){
     var options = new ButtonGrid();
@@ -13880,7 +13645,6 @@ function reckless_leap_left(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function reckless_leap_right(){
     var options = new ButtonGrid();
@@ -13893,7 +13657,6 @@ function reckless_leap_right(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function reckless_sidestep_diagonal(){
     var options = new ButtonGrid();
@@ -13908,7 +13671,6 @@ function reckless_sidestep_diagonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function reckless_sidestep_orthogonal(){
     var options = new ButtonGrid();
@@ -13923,7 +13685,6 @@ function reckless_sidestep_orthogonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function reckless_spin(){
     var options = new ButtonGrid();
@@ -13935,7 +13696,6 @@ function reckless_spin(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function reckless_sprint(){
     var options = new ButtonGrid();
@@ -13949,7 +13709,6 @@ function reckless_sprint(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function reckless_teleport(){
     var options = new ButtonGrid();
@@ -13961,7 +13720,6 @@ function reckless_teleport(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function sidestep_e(){
     var options = new ButtonGrid();
@@ -13973,7 +13731,6 @@ function sidestep_e(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function sidestep_n(){
     var options = new ButtonGrid();
@@ -13985,7 +13742,6 @@ function sidestep_n(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function sidestep_ne(){
     var options = new ButtonGrid();
@@ -13997,7 +13753,6 @@ function sidestep_ne(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function sidestep_nw(){
     var options = new ButtonGrid();
@@ -14009,7 +13764,6 @@ function sidestep_nw(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function sidestep_s(){
     var options = new ButtonGrid();
@@ -14021,7 +13775,6 @@ function sidestep_s(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function sidestep_se(){
     var options = new ButtonGrid();
@@ -14033,7 +13786,6 @@ function sidestep_se(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function sidestep_sw(){
     var options = new ButtonGrid();
@@ -14045,7 +13797,6 @@ function sidestep_sw(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function sidestep_w(){
     var options = new ButtonGrid();
@@ -14057,7 +13808,6 @@ function sidestep_w(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stunning_punch_diagonal(){
     var options = new ButtonGrid();
@@ -14072,7 +13822,6 @@ function stunning_punch_diagonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stunning_punch_orthogonal(){
     var options = new ButtonGrid();
@@ -14087,7 +13836,6 @@ function stunning_punch_orthogonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stunning_tread_diagonal(){
     var options = new ButtonGrid();
@@ -14101,7 +13849,6 @@ function stunning_tread_diagonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function stunning_tread_orthogonal(){
     var options = new ButtonGrid();
@@ -14115,7 +13862,6 @@ function stunning_tread_orthogonal(){
         options
     }
 }
-
 /** @type {CardGenerator}*/
 function teleport(){
     var options = new ButtonGrid();
@@ -14126,7 +13872,6 @@ function teleport(){
         options
     }
 }
-
 /** @type {CardGenerator} Shown in shop to denote adding a card to your deck.*/
 function symbol_add_card(){
     return{
@@ -14135,7 +13880,6 @@ function symbol_add_card(){
         options: new ButtonGrid()
     }
 }
-
 /** @type {CardGenerator} Shown in shop ind=stead of the remove symbol when your deck is at the minimum size.*/
 function symbol_deck_at_minimum(){
     return{
@@ -14144,7 +13888,6 @@ function symbol_deck_at_minimum(){
         options: new ButtonGrid()
     }
 }
-
 /** @type {CardGenerator} Shown in show to denote removing a card from your deck.*/
 function symbol_remove_card(){
     return{
@@ -14153,7 +13896,6 @@ function symbol_remove_card(){
         options: new ButtonGrid()
     }
 }
-
 BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
     chilly_presence, choose_your_path, clean_mind, creative, dazing_blows, 
@@ -14179,7 +13921,6 @@ function max_health_at_least(amount){
     var max_health = GS.map.get_player().max_health;
     return max_health !== undefined && max_health > amount;
 }
-
 function ancient_card(){
     return {
         name: boon_names.ancient_card,
@@ -14207,8 +13948,6 @@ function ancient_card_2(){
 function pick_ancient_card_2(){
     GS.deck.add(lost_maneuver());
 }
-
-
 function bitter_determination(){
     return {
         name: boon_names.bitter_determination,
@@ -14216,7 +13955,6 @@ function bitter_determination(){
         description: boon_descriptions.bitter_determination,
     }
 }
-
 function boss_slayer(){
     return {
         name: boon_names.boss_slayer,
@@ -14224,8 +13962,6 @@ function boss_slayer(){
         description: boon_descriptions.boss_slayer,
     }
 }
-
-
 function brag_and_boast(){
     return {
         name: boon_names.brag_and_boast,
@@ -14245,8 +13981,6 @@ function pick_brag_and_boast(){
         GS.deck.add(card);
     }
 }
-
-
 function chilly_presence(){
     return {
         name: boon_names.chilly_presence,
@@ -14269,7 +14003,6 @@ function proc_chilly_presence(tile){
         stun(tile);
     }
 }
-
 function choose_your_path(){
     return {
         name: boon_names.choose_your_path,
@@ -14277,7 +14010,6 @@ function choose_your_path(){
         description: boon_descriptions.choose_your_path
     }
 }
-
 function clean_mind(){
     return {
         name: boon_names.clean_mind,
@@ -14299,7 +14031,6 @@ function pick_clean_mind(){
     GAME_SCREEN_DIVISIONS.swap(UIIDS.deck_select);
 
 }
-
 function creative(){
     return {
         name: boon_names.creative,
@@ -14320,7 +14051,6 @@ function pick_creative(){
     GS.deck.deal();
     GS.refresh_deck_display();
 }
-
 function dazing_blows(){
     return {
         name: boon_names.dazing_blows,
@@ -14328,7 +14058,6 @@ function dazing_blows(){
         description: boon_descriptions.dazing_blows,
     }
 }
-
 function duplicate(){
     return {
         name: boon_names.duplicate,
@@ -14343,7 +14072,6 @@ function pick_duplicate(){
     display_deck_to_duplicate();
     GAME_SCREEN_DIVISIONS.swap(UIIDS.deck_select);
 }
-
 function empty_rooms(){
     return {
         name: boon_names.empty_rooms,
@@ -14352,7 +14080,6 @@ function empty_rooms(){
         unlocks: [empty_rooms]
     }
 }
-
 function escape_artist(){
     return {
         name: boon_names.escape_artist,
@@ -14367,7 +14094,6 @@ function escape_artist_behavior(self, target, map){
         teleport_spell(self, target, map);
     }
 }
-
 function expend_vitality(){
     return {
         name: boon_names.expend_vitality,
@@ -14398,7 +14124,6 @@ function flame_strike(){
 function prereq_flame_strike(){
     return GS.boons.has(boon_names.flame_strike) < 3;
 }
-
 function fleeting_thoughts(){
     return {
         name: boon_names.fleeting_thoughts,
@@ -14406,7 +14131,6 @@ function fleeting_thoughts(){
         description: boon_descriptions.fleeting_thoughts,
     }
 }
-
 function fortitude(){
     return {
         name: boon_names.fortitude,
@@ -14425,7 +14149,6 @@ function prereq_fortitude(){
 function pick_fortitude(){
     change_max_health(1);
 }
-
 function frenzy(){
     return {
         name: boon_names.frenzy,
@@ -14433,8 +14156,6 @@ function frenzy(){
         description: boon_descriptions.frenzy,
     }
 }
-
-
 function frugivore(){
     return {
         name: boon_names.frugivore,
@@ -14447,7 +14168,6 @@ function frugivore(){
 function prereq_frugivore(){
     return GS.boons.has(boon_names.frugivore) < 2;
 }
-
 function future_sight(){
     return {
         name: boon_names.future_sight,
@@ -14463,7 +14183,6 @@ function pick_future_sight(){
     });
     SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
 }
-
 function gruntwork(){
     return {
         name: boon_names.gruntwork,
@@ -14484,7 +14203,6 @@ function pick_gruntwork(){
     GS.deck.deal();
     GS.refresh_deck_display();
 }
-
 function hoarder(){
     return {
         name: boon_names.hoarder,
@@ -14492,7 +14210,6 @@ function hoarder(){
         description: boon_descriptions.hoarder
     }
 }
-
 function larger_chests(){
     return {
         name: boon_names.larger_chests,
@@ -14520,8 +14237,6 @@ function pacifism(){
         description: boon_descriptions.pacifism,
     }
 }
-
-
 function pain_reflexes(){
     return {
         name: boon_names.pain_reflexes,
@@ -14529,7 +14244,6 @@ function pain_reflexes(){
         description: boon_descriptions.pain_reflexes,
     }
 }
-
 function perfect_the_basics(){
     return {
         name: boon_names.perfect_the_basics,
@@ -14576,7 +14290,6 @@ function get_card_matches(card_list){
         return names.includes(card.name);
     });
 }
-
 function picky_shopper(){
     return {
         name: boon_names.picky_shopper,
@@ -14585,7 +14298,6 @@ function picky_shopper(){
         unlocks: [picky_shopper]
     }
 }
-
 function practice_makes_perfect(){
     return {
         name: boon_names.practice_makes_perfect,
@@ -14598,7 +14310,6 @@ function practice_makes_perfect(){
 function prereq_practice_makes_perfect(){
     return GS.map.get_player().max_health !== undefined;
 }
-
 function pressure_points(){
     return {
         name: boon_names.pressure_points,
@@ -14606,8 +14317,6 @@ function pressure_points(){
         description: boon_descriptions.pressure_points,
     }
 }
-
-
 function quick_healing(){
     return {
         name: boon_names.quick_healing,
@@ -14620,7 +14329,6 @@ function quick_healing(){
 function prereq_quick_healing(){
     return GS.boons.has(boon_names.quick_healing) < 3;
 }
-
 function rebirth(){
     return {
         name: boon_names.rebirth,
@@ -14629,7 +14337,6 @@ function rebirth(){
         unlocks: [rebirth]    
     }
 }
-
 function repetition(){
     return {
         name: boon_names.repetition,
@@ -14643,7 +14350,6 @@ function repetition(){
 function prereq_repetition(){
     return GS.boons.has(boon_names.repetition) < 3;
 }
-
 function retaliate(){
     return {
         name: boon_names.retaliate,
@@ -14679,9 +14385,6 @@ function rift_touched(){
         description: boon_descriptions.rift_touched,
     }
 }
-
-
-
 function roar_of_challenge(){
     return {
         name: boon_names.roar_of_challenge,
@@ -14700,7 +14403,6 @@ function prereq_roar_of_challenge(){
 function pick_roar_of_challenge(){
     change_max_health(2);
 }
-
 function safe_passage(){
     return {
         name: boon_names.safe_passage,
@@ -14732,7 +14434,6 @@ function prereq_shattered_glass(){
 function on_pick_shattered_glass(){
     change_max_health(-2);
 }
-
 function skill_trading(){
     return {
         name: boon_names.skill_trading,
@@ -14740,7 +14441,6 @@ function skill_trading(){
         description: boon_descriptions.skill_trading
     }
 }
-
 function slime_trail(){
     return {
         name: boon_names.slime_trail,
@@ -14761,7 +14461,6 @@ function sniper(){
         description: boon_descriptions.sniper,
     }
 }
-
 function spiked_shoes(){
     return {
         name: boon_names.spiked_shoes,
@@ -14779,8 +14478,6 @@ function prereq_spiked_shoes(){
 function pick_spiked_shoes(){
     change_max_health(-1);
 }
-
-
 function spontaneous(){
     return {
         name: boon_names.spontaneous,
@@ -14798,7 +14495,6 @@ function prereq_spontaneous(){
 function pick_spontaneous(){
     GS.deck.alter_min(5);
 }
-
 function stable_mind(){
     return {
         name: boon_names.stable_mind,
@@ -14812,7 +14508,6 @@ function stable_mind(){
 function prereq_stable_mind(){
     return GS.boons.has(boon_names.stable_mind) < 2;
 }
-
 function stealthy(){
     return {
         name: boon_names.stealthy,
@@ -14820,7 +14515,6 @@ function stealthy(){
         description: boon_descriptions.stealthy,
     }
 }
-
 function stubborn(){
     return {
         name: boon_names.stubborn,
@@ -14828,7 +14522,6 @@ function stubborn(){
         description: boon_descriptions.stubborn,
     }
 }
-
 function thick_soles(){
     return {
         name: boon_names.thick_soles,
@@ -14836,7 +14529,6 @@ function thick_soles(){
         description: boon_descriptions.thick_soles,
     }
 }
-
 function vicious_cycle(){
     return {
         name: boon_names.vicious_cycle,
@@ -14850,7 +14542,6 @@ function apply_vicious_cycle(deck){
         confuse_player([lash_out]);
     }
 }
-
 function get_achievements(){
     return [
         // Boss achievements
@@ -14880,7 +14571,6 @@ function get_achievements(){
         without_a_scratch_achievement(),
     ]
 }
-
 function arcane_sentry_achievement(){
     return {
         name: achievement_names.arcane_sentry,
@@ -14891,7 +14581,6 @@ function arcane_sentry_achievement(){
         cards: []
     }
 }
-
 function forest_heart_achievement(){
     return {
         name: achievement_names.forest_heart,
@@ -14902,7 +14591,6 @@ function forest_heart_achievement(){
         cards: []
     }
 }
-
 function lich_achievement(){
     return {
         name: achievement_names.lich,
@@ -14913,7 +14601,6 @@ function lich_achievement(){
         cards: []
     }
 }
-
 function spider_queen_achievement(){
     return {
         name: achievement_names.spider_queen,
@@ -14927,7 +14614,6 @@ function spider_queen_achievement(){
         ]
     }
 }
-
 function two_headed_serpent_achievement(){
     return {
         name: achievement_names.two_headed_serpent,
@@ -14941,7 +14627,6 @@ function two_headed_serpent_achievement(){
         ]
     }
 }
-
 function velociphile_achievement(){
     return {
         name: achievement_names.velociphile,
@@ -14956,7 +14641,6 @@ function velociphile_achievement(){
         ]
     }
 }
-
 function young_dragon_achievement(){
     return {
         name: achievement_names.young_dragon,
@@ -14976,7 +14660,6 @@ function ancient_knowledge_achievement(){
         boons: [clean_mind],
     }
 }
-
 function beyond_the_basics_achievement(){
     return {
         name: achievement_names.beyond_the_basics,
@@ -14986,7 +14669,6 @@ function beyond_the_basics_achievement(){
         boons: [perfect_the_basics],
     }
 }
-
 function clumsy_achievement(){
     return {
         name: achievement_names.clumsy,
@@ -14996,7 +14678,6 @@ function clumsy_achievement(){
         boons: [thick_soles],
     }
 }
-
 function collector_achievement(){
     return {
         name: achievement_names.collector,
@@ -15006,7 +14687,6 @@ function collector_achievement(){
         boons: [hoarder],
     }
 }
-
 function jack_of_all_trades_achievement(){
     return {
         name: achievement_names.jack_of_all_trades,
@@ -15016,7 +14696,6 @@ function jack_of_all_trades_achievement(){
         boons: [spontaneous],
     }
 }
-
 function minimalist_achievement(){
     return {
         name: achievement_names.minimalist,
@@ -15026,7 +14705,6 @@ function minimalist_achievement(){
         boons: [stubborn],
     }
 }
-
 function monster_hunter_achievement(){
     return {
         name: achievement_names.monster_hunter,
@@ -15036,7 +14714,6 @@ function monster_hunter_achievement(){
         boons: [brag_and_boast],
     }
 }
-
 function non_violent_achievement(){
     return {
         name: achievement_names.non_violent,
@@ -15046,7 +14723,6 @@ function non_violent_achievement(){
         boons: [pacifism],
     }
 }
-
 function not_my_fault_achievement(){
     return {
         name: achievement_names.not_my_fault,
@@ -15056,7 +14732,6 @@ function not_my_fault_achievement(){
         boons: [pressure_points],
     }
 }
-
 function one_life_achievement(){
     return {
         name: achievement_names.one_life,
@@ -15066,7 +14741,6 @@ function one_life_achievement(){
         boons: [frenzy],
     }
 }
-
 function peerless_sprinter_achievement(){
     return {
         name: achievement_names.peerless_sprinter,
@@ -15076,7 +14750,6 @@ function peerless_sprinter_achievement(){
         boons: [stealthy],
     }
 }
-
 function shrug_it_off_achievement(){
     return {
         name: achievement_names.shrug_it_off,
@@ -15086,7 +14759,6 @@ function shrug_it_off_achievement(){
         boons: [quick_healing],
     }
 }
-
 function speed_runner_achievement(){
     return {
         name: achievement_names.speed_runner,
@@ -15096,7 +14768,6 @@ function speed_runner_achievement(){
         boons: [repetition],
     }
 }
-
 function triple_achievement(){
     return {
         name: achievement_names.triple,
@@ -15106,7 +14777,6 @@ function triple_achievement(){
         boons: [duplicate],
     }
 }
-
 function without_a_scratch_achievement(){
     return {
         name: achievement_names.without_a_scratch,

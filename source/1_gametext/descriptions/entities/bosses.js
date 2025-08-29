@@ -1,4 +1,3 @@
-
 const boss_names = {
     arcane_sentry: `Arcane Sentry`,
     arcane_sentry_node: `Arcane Sentry Node`,

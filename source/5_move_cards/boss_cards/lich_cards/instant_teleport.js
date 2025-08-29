@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator} Dropped by the lich*/
 function instant_teleport(){
     var options = new ButtonGrid();

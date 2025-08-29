@@ -1,4 +1,3 @@
-
 function hoarder(){
     return {
         name: boon_names.hoarder,

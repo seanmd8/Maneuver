@@ -1,4 +1,3 @@
-
 function node_saw_behavior(self, target, map){
     for(var direction of HORIZONTAL_DIRECTIONS){
         map.attack(self.location.plus(direction));

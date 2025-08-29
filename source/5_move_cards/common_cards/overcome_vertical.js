@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function overcome_vertical(){
     var options = new ButtonGrid();

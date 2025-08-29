@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator} Dropped by the lich*/
 function beam_orthogonal(){
     var options = new ButtonGrid();

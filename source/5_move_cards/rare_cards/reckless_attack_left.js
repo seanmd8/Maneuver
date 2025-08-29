@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function reckless_attack_left(){
     var options = new ButtonGrid();

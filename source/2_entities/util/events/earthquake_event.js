@@ -1,4 +1,3 @@
-
 /**
  * Function to create an event function representing an earthquake.
  * @param {number} amount The amount of falling debris that should be created.

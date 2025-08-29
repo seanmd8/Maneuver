@@ -1,4 +1,3 @@
-
 const gameplay_labels = {
     title: `Maneuver`,
     hand: `Hand of Cards`,

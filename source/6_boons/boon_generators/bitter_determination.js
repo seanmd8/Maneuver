@@ -1,4 +1,3 @@
-
 function bitter_determination(){
     return {
         name: boon_names.bitter_determination,

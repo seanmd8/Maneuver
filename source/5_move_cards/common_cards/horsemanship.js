@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function horsemanship(){
     var options = new ButtonGrid();

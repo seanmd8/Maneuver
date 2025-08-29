@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function jump(){
     var options = new ButtonGrid();

@@ -1,4 +1,3 @@
-
 function beyond_the_basics_achievement(){
     return {
         name: achievement_names.beyond_the_basics,

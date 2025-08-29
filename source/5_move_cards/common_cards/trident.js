@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function trident(){
     var options = new ButtonGrid();

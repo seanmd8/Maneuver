@@ -1,4 +1,3 @@
-
 function node_cannon_behavior(self, target, map){
     var spawnpoint = self.location.plus(self.tile.direction);
     var fireball = shoot_fireball(self.tile.direction);

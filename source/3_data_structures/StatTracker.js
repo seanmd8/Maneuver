@@ -1,4 +1,3 @@
-
 class StatTracker{
     #turn_number;
     #turns_per_floor;

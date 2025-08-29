@@ -1,4 +1,3 @@
-
 function duplicate(){
     return {
         name: boon_names.duplicate,

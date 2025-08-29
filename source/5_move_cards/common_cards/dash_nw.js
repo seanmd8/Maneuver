@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function dash_nw(){
     var options = new ButtonGrid();

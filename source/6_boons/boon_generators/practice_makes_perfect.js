@@ -1,4 +1,3 @@
-
 function practice_makes_perfect(){
     return {
         name: boon_names.practice_makes_perfect,

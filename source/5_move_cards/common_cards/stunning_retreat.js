@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function stunning_retreat(){
     var options = new ButtonGrid();

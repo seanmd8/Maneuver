@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator} Shown in show to denote removing a card from your deck.*/
 function symbol_remove_card(){
     return{

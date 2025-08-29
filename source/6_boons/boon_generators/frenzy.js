@@ -1,4 +1,3 @@
-
 function frenzy(){
     return {
         name: boon_names.frenzy,

@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator} Dropped by the spider queen*/
 function skitter(){
     var options = new ButtonGrid();

@@ -1,4 +1,3 @@
-
 class ScreenTracker{
     div;
     current;

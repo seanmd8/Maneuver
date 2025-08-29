@@ -1,4 +1,3 @@
-
 const screen_names = {
     gameplay: `Gameplay`,
     guide: `Guidebook`,

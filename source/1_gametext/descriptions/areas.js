@@ -1,4 +1,3 @@
-
 const area_descriptions = {
     ruins: 
         `You have entered the ruins.`,

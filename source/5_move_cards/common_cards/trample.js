@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function trample(){
     var options = new ButtonGrid();

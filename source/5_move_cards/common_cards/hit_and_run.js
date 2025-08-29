@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function hit_and_run(){
     var options = new ButtonGrid();

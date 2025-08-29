@@ -1,4 +1,3 @@
-
 /** @type {TileGenerator}*/
 function gem_crawler_tile(){
     var cycle = random_num(2);

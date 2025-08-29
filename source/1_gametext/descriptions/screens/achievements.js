@@ -1,4 +1,3 @@
-
 const achievement_text = {
     title: `Achievements`,
     reset: `Reset`,

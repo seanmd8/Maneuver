@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function saw_strike(){
     var options = new ButtonGrid();

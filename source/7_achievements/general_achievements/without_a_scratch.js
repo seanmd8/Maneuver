@@ -1,4 +1,3 @@
-
 function without_a_scratch_achievement(){
     return {
         name: achievement_names.without_a_scratch,

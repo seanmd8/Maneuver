@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function reckless_leap_forwards (){
     var options = new ButtonGrid();

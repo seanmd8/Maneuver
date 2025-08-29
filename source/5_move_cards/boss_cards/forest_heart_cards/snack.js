@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator} Dropped by the forest heart*/
 function snack(){
     var options = new ButtonGrid();

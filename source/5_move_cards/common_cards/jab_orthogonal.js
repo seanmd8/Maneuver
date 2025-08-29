@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function jab_orthogonal(){
     var options = new ButtonGrid();

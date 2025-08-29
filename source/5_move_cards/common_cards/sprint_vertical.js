@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function sprint_vertical(){
     var options = new ButtonGrid();

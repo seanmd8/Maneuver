@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function t_strike_horizontal(){
     var options = new ButtonGrid();

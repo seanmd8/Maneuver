@@ -50,4 +50,3 @@ function move_attack_telegraph(location, map, directions){
     }
     return attacks;
 }
-

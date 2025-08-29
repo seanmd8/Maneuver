@@ -55,4 +55,3 @@ function igneous_crab_telegraph(location, map, self){
     }
     return spider_telegraph(location, map, self);
 }
-

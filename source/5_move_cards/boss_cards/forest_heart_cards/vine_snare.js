@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator} Dropped by the forest heart*/
 function vine_snare(){
     var options = new ButtonGrid();

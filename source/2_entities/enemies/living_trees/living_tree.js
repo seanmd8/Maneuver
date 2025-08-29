@@ -44,4 +44,3 @@ function living_tree_ai(self, target, map){
     }
     self.tile.cycle = 1 - self.tile.cycle;
 }
-

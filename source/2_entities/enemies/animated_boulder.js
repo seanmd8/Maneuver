@@ -65,4 +65,3 @@ function animated_boulder_wake_up(self, target, map){
         self.tile.tags.remove(TAGS.hidden);
     }
 }
-

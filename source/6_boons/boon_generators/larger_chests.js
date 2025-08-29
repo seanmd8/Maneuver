@@ -1,4 +1,3 @@
-
 function larger_chests(){
     return {
         name: boon_names.larger_chests,

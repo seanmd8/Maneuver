@@ -1,4 +1,3 @@
-
 const card_names = {
     advance: `Advance`,
     basic_diagonal: `Basic Diagonal`,

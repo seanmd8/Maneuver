@@ -19,4 +19,3 @@ const ERRORS = {
     failed_to_load: `Failed to load`,
 }
 Object.freeze(ERRORS);
-

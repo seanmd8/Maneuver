@@ -14,4 +14,3 @@ function display_move_buttons(card, hand_position){
     var explanation = move_types.alt + `\n` + explain_card(card);
     display.add_on_click(UIIDS.move_info, function(){say(explanation)});
 }
-

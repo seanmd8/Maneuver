@@ -1,4 +1,3 @@
-
 // Button Options.
 const null_move_button = `--`;
 const NW = `NW`;

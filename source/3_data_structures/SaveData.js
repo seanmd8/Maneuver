@@ -1,4 +1,3 @@
-
 /*
  * Class to save and load data to and from files and localstorage.
  * If you want to add new fields:

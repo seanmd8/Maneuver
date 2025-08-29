@@ -25,4 +25,3 @@ function living_tree_rooted_ai(self, target, map){
         throw new Error(ERRORS.skip_animation);
     }
 }
-

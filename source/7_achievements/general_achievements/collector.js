@@ -1,4 +1,3 @@
-
 function collector_achievement(){
     return {
         name: achievement_names.collector,

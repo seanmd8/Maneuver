@@ -1,4 +1,3 @@
-
 function retaliate(){
     return {
         name: boon_names.retaliate,

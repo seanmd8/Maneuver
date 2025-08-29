@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function slash_step_forwards(){
     var options = new ButtonGrid();
