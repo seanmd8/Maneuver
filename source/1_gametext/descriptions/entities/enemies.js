@@ -15,6 +15,9 @@ const enemy_descriptions = {
     carrion_flies: 
         `Carrion Flies: Will attack the player if they are nearby. Otherwise wanders `
         +`aimlessly. Over time they will multiply.`,
+    claustropede:
+        `Claustropede: Will attack the player if they are nearby. Otherwise moves one space closer. `
+        +`When hit it will spend it's next turn dividing and teleporting away.`,
     clay_golem: 
         `Clay Golem: Will attack the player if it is next to them. Otherwise `
         +`it will move 1 space closer. Taking damage will stun it and it cannot `
@@ -138,6 +141,7 @@ const enemy_names = {
     brightling: `Brightling`, 
     captive_void: `Captive Void`, 
     carrion_flies: `Carrion Flies`, 
+    claustropede: `Claustropede`,
     clay_golem: `Clay Golem`, 
     corrosive_caterpillar: `Corrosive Caterpillar`, 
     darkling: `Darkling`, 
@@ -197,6 +201,8 @@ const enemy_flavor = {
     carrion_flies: 
         `Swarms move about at random attracted by the ample food sources available down here. They `
         +`tend to multiply quickly making it important to get rid of them as soon as possible.`,
+    claustropede:
+        ``,
     clay_golem: 
         `These golems are built to last with their tough skin showing countless scars. That makes it `
         +`likely that their construction wasn't recent. Thankfully they are incredibly slow moving `
@@ -259,7 +265,7 @@ const enemy_flavor = {
         +`of regaining their former size through several weeks of feeding.`,
     ram: 
         `While herbivorous, these creatures are fiercely territorial. They can run at high speeds, but `
-        `find it difficult to change directions making them easy to dodge.`,
+        +`find it difficult to change directions making them easy to dodge.`,
     rat: 
         ``,
     scorpion: 
