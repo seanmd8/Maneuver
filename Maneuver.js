@@ -2536,6 +2536,9 @@ const enemy_descriptions = {
     shadow_knight: 
         `Shadow Knight: Moves in an L shape. If it tramples the player, `
         +`it will move again.`,
+    shadow_knight_elite: 
+        `Shadow Knight Elite: Moves in an L shape. Attacks twice. If it tramples the player, `
+        +`it will move again. Smarter than normal shadow knights.`,
     shadow_scout: 
         `Shadow Scout: Will attack the player if it is next to them. Otherwise it will `
         +`move 1 space closer. Can go invisible every other turn.`,
@@ -2620,6 +2623,7 @@ const enemy_names = {
     scorpion: `Scorpion`, 
     scythe: `Scythe`, 
     shadow_knight: `Shadow Knight`, 
+    shadow_knight_elite: `Shadow Knight Elite`, 
     shadow_scout: `Shadow Scout`, 
     specter: `Specter`, 
     spider_web: `Spider Web`, 
@@ -2742,6 +2746,8 @@ const enemy_flavor = {
         +`high speeds, it is even capable of slicing through steel. The position of the blades make it `
         +`easy to stop if you are directly in front of it however.`,
     shadow_knight: 
+        ``,
+    shadow_knight_elite: 
         ``,
     shadow_scout: 
         ``,
@@ -5836,9 +5842,6 @@ function scythe_telegraph(location, map, self){
     }
     return attacks;
 }
-const L_SHAPES = [new Point(1, 2), new Point(-1, 2), new Point(1, -2), new Point(-1, -2),
-                  new Point(2, 1), new Point(-2, 1), new Point(2, -1), new Point(-2, -1)];
-
 /** @type {TileGenerator} */
 function shadow_knight_tile(){
     return{
@@ -5905,6 +5908,99 @@ function shadow_knight_telegraph(location, map, self){
     }
     return attacks;
 }
+const L_SHAPES = [new Point(1, 2), new Point(-1, 2), new Point(1, -2), new Point(-1, -2),
+                  new Point(2, 1), new Point(-2, 1), new Point(2, -1), new Point(-2, -1)];
+
+/** @type {TelegraphFunction} */
+function shadow_knight_telegraph(location, map, self){
+    var attacks = [];
+    var Ls = [new Point(1, 2), new Point(2, 1)];
+    for(var L of  Ls){
+        for(var transformation of DIAGONAL_DIRECTIONS){
+            attacks.push(L.times(transformation).plus(location));
+        }
+    }
+    return attacks;
+}
+/** @type {TileGenerator} */
+function shadow_knight_elite_tile(){
+    return{
+        type: entity_types.enemy,
+        name: enemy_names.shadow_knight_elite,
+        pic: `${IMG_FOLDER.tiles}shadow_knight_elite.png`,
+        description: enemy_descriptions.shadow_knight_elite,
+        tags: new TagList(),
+        health: 3,
+        difficulty: 6,
+        behavior: shadow_knight_elite_ai,
+        telegraph: shadow_knight_telegraph
+    }
+}
+
+/** @type {AIFunction} AI used by shadow knights.*/
+function shadow_knight_elite_ai(self, target, map){
+    var player_location = self.location.plus(target.difference);
+    var possible_moves = L_SHAPES.map((p) => {
+        return self.location.plus(p);
+    });
+
+    // If player can be attacked, attack twice then move to a random space an L away from them.
+    var attack = possible_moves.filter((p) => {
+        return point_equals(p, player_location);
+    });
+    if(attack.length > 0){
+        map.attack(player_location);
+        map.attack(player_location);
+        var possible_ends = L_SHAPES.map((p) => {
+            return p.plus(player_location);
+        });
+        possible_ends = randomize_arr(possible_ends);
+        for(var i = 0; i < possible_ends.length && !map.check_empty(possible_ends[i]); ++i){}
+        if(i < possible_ends.length){
+            map.move(self.location, possible_ends[i]);
+        }
+        return;
+    }
+    
+    // If it can move to a square that can attack the player next turn, do so.
+    var setup_attack = possible_moves.filter((p) => {
+        if(p.minus(player_location).taxicab_distance() === 3){
+            var hits = L_SHAPES.filter((p2) => {
+                return point_equals(p2.plus(p), player_location);
+            })
+            if(hits.length > 0 && map.check_empty(p)){
+                return true;
+            }
+        }
+        return false;
+    });
+    if(setup_attack.length > 0){
+        map.move(self.location, setup_attack[0]);
+        return;
+    }
+    
+    // Order moves based off of proximity to player.
+    var ordered_moves = possible_moves.filter((p) => {
+        return map.check_empty(p);
+    }).toSorted((p1, p2) => {
+        var distance_1 = p1.minus(player_location).taxicab_distance();
+        var distance_2 = p2.minus(player_location).taxicab_distance();
+        return distance_1 - distance_2;
+    });
+    // If there are no legal moves, don't move.
+    if(ordered_moves.length === 0){
+        return;
+    }
+    // If next to the player, move away.
+    if(target.difference.within_radius(1)){
+        map.move(self.location, ordered_moves[ordered_moves.length - 1]);
+        return;
+    }
+    
+    // Oterwise, move closer
+    map.move(self.location, ordered_moves[0]);
+}
+
 /** @type {TileGenerator} */
 function shadow_scout_tile(){
     var starting_cycle = random_num(2);
@@ -7767,7 +7863,7 @@ const ENEMY_LIST = [
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_d_tile, moving_turret_o_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
     paper_construct_tile, specter_tile, gem_crawler_tile, claustropede_tile, wheel_of_fire_tile,
-    blood_crescent_tile, unspeakable_tile,
+    blood_crescent_tile, unspeakable_tile, shadow_knight_elite_tile,
 ];
 
 // This is an array of all bosses.
@@ -11595,7 +11691,10 @@ function generate_court_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}court.png`,
         generate_floor: generate_court_floor,
-        enemy_list: [shadow_scout_tile, claustropede_tile, unspeakable_tile, wheel_of_fire_tile, blood_crescent_tile],
+        enemy_list: [
+            shadow_scout_tile, claustropede_tile, unspeakable_tile, wheel_of_fire_tile, blood_crescent_tile,
+            shadow_knight_elite_tile,
+        ],
         boss_floor_list: [],
         next_area_list: [generate_default_area],
         description: area_descriptions.court

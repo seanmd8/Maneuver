@@ -1,6 +1,3 @@
-const L_SHAPES = [new Point(1, 2), new Point(-1, 2), new Point(1, -2), new Point(-1, -2),
-                  new Point(2, 1), new Point(-2, 1), new Point(2, -1), new Point(-2, -1)];
-
 /** @type {TileGenerator} */
 function shadow_knight_tile(){
     return{

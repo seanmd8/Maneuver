@@ -87,6 +87,9 @@ const enemy_descriptions = {
     shadow_knight: 
         `Shadow Knight: Moves in an L shape. If it tramples the player, `
         +`it will move again.`,
+    shadow_knight_elite: 
+        `Shadow Knight Elite: Moves in an L shape. Attacks twice. If it tramples the player, `
+        +`it will move again. Smarter than normal shadow knights.`,
     shadow_scout: 
         `Shadow Scout: Will attack the player if it is next to them. Otherwise it will `
         +`move 1 space closer. Can go invisible every other turn.`,
@@ -171,6 +174,7 @@ const enemy_names = {
     scorpion: `Scorpion`, 
     scythe: `Scythe`, 
     shadow_knight: `Shadow Knight`, 
+    shadow_knight_elite: `Shadow Knight Elite`, 
     shadow_scout: `Shadow Scout`, 
     specter: `Specter`, 
     spider_web: `Spider Web`, 
@@ -293,6 +297,8 @@ const enemy_flavor = {
         +`high speeds, it is even capable of slicing through steel. The position of the blades make it `
         +`easy to stop if you are directly in front of it however.`,
     shadow_knight: 
+        ``,
+    shadow_knight_elite: 
         ``,
     shadow_scout: 
         ``,
