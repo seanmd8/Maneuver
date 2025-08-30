@@ -132,6 +132,9 @@ const enemy_descriptions = {
         `Currently aiming orthogonally.`,
         `Currently aiming diagonally.`
     ],
+    wheel_of_fire:
+        `Wheel of Fire: Can shoot a jet of fire in any direction that hits the first thing in it's `
+        +`path. If no target is sighted, it will instead move 1 space randomly.`,
 }
 Object.freeze(enemy_descriptions);
 
@@ -175,6 +178,7 @@ const enemy_names = {
     vampire: `Vampire`, 
     vinesnare_bush: `Vinesnare Bush`, 
     walking_prism: `Walking Prism`,
+    wheel_of_fire: `Wheel of Fire`,
 }
 Object.freeze(enemy_names);
 
@@ -331,6 +335,8 @@ const enemy_flavor = {
         +`the feet of whoever steps on them dragging them in range of the plant's thorny whips. `
         +`A careful traveller may be able to make use of their roots to move around faster.`,
     walking_prism: 
+        ``,
+    wheel_of_fire:
         ``,
 }
 Object.freeze(enemy_descriptions);

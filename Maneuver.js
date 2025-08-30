@@ -431,7 +431,7 @@ function point_equals(p1, p2){
 // Settings just used for testing. Leave as undefined when not in use.
 function init_settings(){
     const init = {
-        enemies: undefined,
+        enemies: [wheel_of_fire_tile],
         chests: undefined,
         cards: undefined,
         area: undefined,
@@ -2581,6 +2581,9 @@ const enemy_descriptions = {
         `Currently aiming orthogonally.`,
         `Currently aiming diagonally.`
     ],
+    wheel_of_fire:
+        `Wheel of Fire: Can shoot a jet of fire in any direction that hits the first thing in it's `
+        +`path. If no target is sighted, it will instead move 1 space randomly.`,
 }
 Object.freeze(enemy_descriptions);
 
@@ -2624,6 +2627,7 @@ const enemy_names = {
     vampire: `Vampire`, 
     vinesnare_bush: `Vinesnare Bush`, 
     walking_prism: `Walking Prism`,
+    wheel_of_fire: `Wheel of Fire`,
 }
 Object.freeze(enemy_names);
 
@@ -2780,6 +2784,8 @@ const enemy_flavor = {
         +`the feet of whoever steps on them dragging them in range of the plant's thorny whips. `
         +`A careful traveller may be able to make use of their roots to move around faster.`,
     walking_prism: 
+        ``,
+    wheel_of_fire:
         ``,
 }
 Object.freeze(enemy_descriptions);
@@ -6244,7 +6250,7 @@ function moving_turret_o_telegraph(location, map, self){
 /** @type {AIFunction} AI used by all turrets to fire towards the player.*/
 function turret_fire_ai(self, target, map){
     // Fires a shot in the direction of the player.
-    var direction = sign(target.difference)
+    var direction = sign(target.difference);
     for(var space = self.location.plus(direction); !map.attack(space) && map.check_empty(space); space.plus_equals(direction)){}
 }
 /** @type {TileGenerator} */
@@ -6672,6 +6678,56 @@ function walking_prism_telegraph(location, map, self){
         return turret_o_telegraph(location, map, self);
     }
     return turret_d_telegraph(location, map, self);
+}
+/** @type {TileGenerator} */
+function wheel_of_fire_tile(){
+    return {
+        type: entity_types.enemy,
+        name: enemy_names.wheel_of_fire,
+        pic: `${IMG_FOLDER.tiles}wheel_of_fire.png`,
+        description: enemy_descriptions.wheel_of_fire,
+        tags: new TagList(),
+        health: 1,
+        difficulty: 1,
+        behavior: wheel_of_fire_ai,
+        telegraph: wheel_of_fire_telegraph
+    }
+}
+
+/** @type {AIFunction} AI used by Wheels of Fire.*/
+function wheel_of_fire_ai(self, target, map){
+    if((target.difference.on_axis() || target.difference.on_diagonal())){
+        var direction = sign(target.difference);
+        var hit = false;
+        for(var space = self.location.plus(direction); !hit; space.plus_equals(direction)){
+            hit = map.attack(space);
+            if(map.check_empty(space)){
+                var fire = raging_fire_tile();
+                map.add_tile(fire, space);
+            }
+            else{
+                hit = true;
+            }
+        }
+    }
+    else{
+        var direction = get_empty_nearby(self.location, random_nearby(), map);
+        if(!(direction === undefined)){
+            map.move(self.location, self.location.plus(direction));
+        }
+    }
+}
+
+/** @type {TelegraphFunction} */
+function wheel_of_fire_telegraph(location, map, self){
+    var dir_arrs = ALL_DIRECTIONS.map((p) => {
+        return get_points_in_direction(location, p, map);
+    })
+    var attacks = [];
+    for(var arr of dir_arrs){
+        attacks.push(...arr);
+    }
+    return attacks;
 }
 /** @type {TileGenerator}.*/
 function bookshelf_tile(){
@@ -7607,7 +7663,7 @@ const ENEMY_LIST = [
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, animated_boulder_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_d_tile, moving_turret_o_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
-    paper_construct_tile, specter_tile, gem_crawler_tile, claustropede_tile
+    paper_construct_tile, specter_tile, gem_crawler_tile, claustropede_tile, wheel_of_fire_tile
 ];
 
 // This is an array of all bosses.
