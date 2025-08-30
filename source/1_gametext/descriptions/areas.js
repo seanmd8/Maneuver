@@ -13,8 +13,8 @@ const area_descriptions = {
         `You have entered the subteranean forest.`,
     library: 
         `You have entered the arcane library.`,
-    sanctum: 
-        `You have entered the sanctum.`,
+    court: 
+        `You have entered the candlelit court.`,
     default: 
         `You have reached the end of the current content. Floors will continue to generate but `
         +`there will be no more boss fights. Good luck.`,

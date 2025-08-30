@@ -1955,8 +1955,8 @@ const area_descriptions = {
         `You have entered the subteranean forest.`,
     library: 
         `You have entered the arcane library.`,
-    sanctum: 
-        `You have entered the sanctum.`,
+    court: 
+        `You have entered the candlelit court.`,
     default: 
         `You have reached the end of the current content. Floors will continue to generate but `
         +`there will be no more boss fights. Good luck.`,
@@ -11591,6 +11591,22 @@ function many_walls_terrain(floor_num, area, map){
     }
 }
 /** @type {AreaGenerator}*/
+function generate_court_area(){
+    return {
+        background: `${IMG_FOLDER.backgrounds}court.png`,
+        generate_floor: generate_court_floor,
+        enemy_list: [shadow_scout_tile, claustropede_tile, unspeakable_tile, wheel_of_fire_tile, blood_crescent_tile],
+        boss_floor_list: [],
+        next_area_list: [generate_default_area],
+        description: area_descriptions.court
+    }
+}
+
+/** @type {FloorGenerator}*/
+function generate_court_floor(floor_num, area, map){
+    generate_normal_floor(floor_num, area, map);
+}
+/** @type {AreaGenerator}*/
 function generate_crypt_area(){
     return {
         background: `${IMG_FOLDER.backgrounds}crypt.png`,
@@ -11861,7 +11877,7 @@ const area1 = [generate_ruins_area];
 const area2 = [generate_sewers_area, generate_basement_area];
 const area3 = [generate_magma_area, generate_crypt_area];
 const area4 = [generate_forest_area, generate_library_area];
-const area5 = area_end;//[generate_sanctum_area];
+const area5 = area_end;//[generate_court_area];
 
 /**
  * @typedef {Object} Area A section of the dungeon that ends with a boss fight.
@@ -11879,18 +11895,6 @@ const area5 = area_end;//[generate_sanctum_area];
  */
 
 // ---Unfinished Areas---
-
-/** @type {AreaGenerator}*/
-function generate_sanctum_area(){
-    return {
-        background: `${IMG_FOLDER.backgrounds}sanctum.png`,
-        generate_floor: generate_sanctum_floor,
-        enemy_list: [],
-        boss_floor_list: [],
-        next_area_list: [generate_default_area],
-        description: sanctum_description
-    }
-}
 
 /** @type {AreaGenerator}*/
 function generate_default_area(){
@@ -12139,10 +12143,7 @@ function boss_floor_common(floor_num,  area, map){
     }
 }
 
-/** @type {FloorGenerator}*/
-function generate_sanctum_floor(floor_num, area, map){
-    generate_normal_floor(floor_num, area, map);
-}
+
 /** @type {CardGenerator}*/
 function basic_diagonal(){
     var options = new ButtonGrid();
