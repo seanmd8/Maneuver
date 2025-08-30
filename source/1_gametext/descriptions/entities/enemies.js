@@ -6,6 +6,9 @@ const enemy_descriptions = {
         `Animated Boulder: Wakes up when something touches it. Each turn it will `
         +`damage everything close to it, then move 1 space closer to the player. `
         +`After 3 turns, it will go back to sleep.`,
+    blood_crescent:
+        `Blood Crescent: Will move 3 spaces diagonally towards the player damaging them if it `
+        +`hits them or passes next to them. Only moves every other turn.`,
     brightling: 
         `Brightling: Is not aggressive. Will occasionally teleport the player `
         +`close to it before teleoprting away the next turn.`,
@@ -141,6 +144,7 @@ Object.freeze(enemy_descriptions);
 const enemy_names = {
     acid_bug: `Acid Bug`, 
     animated_boulder: `Animated Boulder`, 
+    blood_crescent: `Blood Crescent`,
     brightling: `Brightling`, 
     captive_void: `Captive Void`, 
     carrion_flies: `Carrion Flies`, 
@@ -193,6 +197,8 @@ const enemy_flavor = {
         +`area to create powerful elementals with a desire to be left alone. While their rocky makeup `
         +`makes them all but invulnerable and completely indistinguishable from stationary parts of `
         +`the terrain, they tend to tire quickly making fleeing a viable option.`,
+    blood_crescent:
+        ``,
     brightling: 
         `Beings from a higher plane of existance who have been attracted to the natural magic of the `
         +`area. Both curious and cautious, they warp space to bring creatures closer to be studied `

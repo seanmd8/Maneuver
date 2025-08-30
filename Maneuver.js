@@ -431,7 +431,7 @@ function point_equals(p1, p2){
 // Settings just used for testing. Leave as undefined when not in use.
 function init_settings(){
     const init = {
-        enemies: [wheel_of_fire_tile],
+        enemies: undefined,
         chests: undefined,
         cards: undefined,
         area: undefined,
@@ -2455,6 +2455,9 @@ const enemy_descriptions = {
         `Animated Boulder: Wakes up when something touches it. Each turn it will `
         +`damage everything close to it, then move 1 space closer to the player. `
         +`After 3 turns, it will go back to sleep.`,
+    blood_crescent:
+        `Blood Crescent: Will move 3 spaces diagonally towards the player damaging them if it `
+        +`hits them or passes next to them. Only moves every other turn.`,
     brightling: 
         `Brightling: Is not aggressive. Will occasionally teleport the player `
         +`close to it before teleoprting away the next turn.`,
@@ -2590,6 +2593,7 @@ Object.freeze(enemy_descriptions);
 const enemy_names = {
     acid_bug: `Acid Bug`, 
     animated_boulder: `Animated Boulder`, 
+    blood_crescent: `Blood Crescent`,
     brightling: `Brightling`, 
     captive_void: `Captive Void`, 
     carrion_flies: `Carrion Flies`, 
@@ -2642,6 +2646,8 @@ const enemy_flavor = {
         +`area to create powerful elementals with a desire to be left alone. While their rocky makeup `
         +`makes them all but invulnerable and completely indistinguishable from stationary parts of `
         +`the terrain, they tend to tire quickly making fleeing a viable option.`,
+    blood_crescent:
+        ``,
     brightling: 
         `Beings from a higher plane of existance who have been attracted to the natural magic of the `
         +`area. Both curious and cautious, they warp space to bring creatures closer to be studied `
@@ -4489,6 +4495,70 @@ function animated_boulder_wake_up(self, target, map){
         self.tile.look = undefined;
         self.tile.tags.remove(TAGS.hidden);
     }
+}
+/** @type {TileGenerator} */
+function blood_crescent_tile(){
+    return{
+        type: entity_types.enemy,
+        name: enemy_names.blood_crescent,
+        pic: `${IMG_FOLDER.tiles}blood_crescent.png`,
+        description: enemy_descriptions.blood_crescent,
+        tags: new TagList(),
+        health: 1,
+        difficulty: 4,
+        behavior: blood_crescent_ai,
+        telegraph: blood_crescent_telegraph,
+        rotate: 90 * random_num(4)
+    }
+}
+
+/** @type {AIFunction} AI used by Blood Crescents.*/
+function blood_crescent_ai(self, target, map){
+    if(self.tile.rotate === undefined){
+        throw new Error(ERRORS.missing_property)
+    }
+    var distance = 3;
+    self.tile.direction = order_nearby(target.difference).filter((p) => {
+        return p.on_diagonal();
+    })[0];
+    // Rotate image based on direction.
+    var direction = self.tile.direction;
+    set_rotation(self.tile);
+    var ahead = self.location.plus(direction);
+    if(point_equals(target.difference, ahead.times(-1))){
+        map.attack(ahead);
+    }
+    for(var i = 0; i < distance && map.move(self.location, self.location.plus(direction)) ; ++i){
+        // moves <distance> spaces attacking each space it passes next to. Stops when blocked.
+        self.location.plus_equals(direction);
+        target.difference.minus_equals(direction);
+        var passed = [new Point(direction.x, 0), new Point(0, direction.y)];
+        for(var p of passed){
+            if(point_equals(target.difference, p.times(-1)) || map.check_empty(self.location.minus(p))){
+                map.attack(self.location.minus(p));
+            }
+        }
+        if(i + 1 < distance){
+            ahead = self.location.plus(direction);
+            if(point_equals(target.difference, ahead.times(-1))){
+                map.attack(ahead);
+            }
+        }
+    }
+}
+
+/** @type {TelegraphFunction} */
+function blood_crescent_telegraph(location, map, self){
+    var attacks = [];
+    for(var direction of DIAGONAL_DIRECTIONS){
+        var current = location.copy();
+        for(var i = 0; i < 3 && map.check_empty(current.plus_equals(direction)); ++i){
+            attacks.push(current.copy());
+            attacks.push(current.plus(direction.times(new Point(-1, 0))));
+            attacks.push(current.plus(direction.times(new Point(0, -1))));
+        }
+    }
+    return attacks;
 }
 /** @type {TileGenerator} */
 function brightling_tile(){
@@ -7663,7 +7733,8 @@ const ENEMY_LIST = [
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, animated_boulder_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_d_tile, moving_turret_o_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
-    paper_construct_tile, specter_tile, gem_crawler_tile, claustropede_tile, wheel_of_fire_tile
+    paper_construct_tile, specter_tile, gem_crawler_tile, claustropede_tile, wheel_of_fire_tile,
+    blood_crescent_tile,
 ];
 
 // This is an array of all bosses.
