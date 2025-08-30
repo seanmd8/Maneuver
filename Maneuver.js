@@ -2457,7 +2457,7 @@ const enemy_descriptions = {
         +`After 3 turns, it will go back to sleep.`,
     blood_crescent:
         `Blood Crescent: Will move 3 spaces diagonally towards the player damaging them if it `
-        +`hits them or passes next to them. Only moves every other turn.`,
+        +`hits them or passes next to them.`,
     brightling: 
         `Brightling: Is not aggressive. Will occasionally teleport the player `
         +`close to it before teleoprting away the next turn.`,
@@ -2568,6 +2568,9 @@ const enemy_descriptions = {
     turret_r: 
         `Turret: Does not move. Fires beams in two directions hitting `
         +`the first thing in their path. Rotates every turn.`,
+    unspeakable:
+        `Unspeakable: Moves towards the player 1 space. Does not attack. On death, `
+        +`confuses the player 3 times, polluting their deck with bad cards.`,
     unstable_wisp: 
         `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes `
         +`into a ring of fireballs on death.`,
@@ -2627,6 +2630,7 @@ const enemy_names = {
     turret: `Turret`, 
     turret_m: `Moving Turret`, 
     turret_r: `Rotary Turret`, 
+    unspeakable: `Unspeakable`,
     unstable_wisp: `Unstable Wisp`, 
     vampire: `Vampire`, 
     vinesnare_bush: `Vinesnare Bush`, 
@@ -2778,6 +2782,8 @@ const enemy_flavor = {
     turret_r: 
         `While it can't fire in as many directions at once, this turret can keep watch over more `
         +`directions overall. Thankfully it rotates at a fixed speed so it's movement can be predicted.`,
+    unspeakable:
+        ``,
     unstable_wisp: 
         `Beings of elemental fire that naturally spawn from the extreme heat. They are very unstable `
         +`and can explode violently if disrupted. They are not aggressive however so as long as you `
@@ -4505,7 +4511,7 @@ function blood_crescent_tile(){
         description: enemy_descriptions.blood_crescent,
         tags: new TagList(),
         health: 1,
-        difficulty: 4,
+        difficulty: 5,
         behavior: blood_crescent_ai,
         telegraph: blood_crescent_telegraph,
         rotate: 90 * random_num(4)
@@ -6453,6 +6459,33 @@ function turret_r_telegraph(location, map, self){
     ];
 }
 /** @type {TileGenerator} */
+function unspeakable_tile(){
+    return {
+        type: entity_types.enemy,
+        name: enemy_names.unspeakable,
+        pic: `${IMG_FOLDER.tiles}unspeakable.png`,
+        description: enemy_descriptions.unspeakable,
+        tags: new TagList(),
+        health: 1,
+        difficulty: 3,
+        behavior: move_closer_ai,
+        telegraph_other: unspeakable_telegraph,
+        on_death: unspeakable_death,
+    }
+}
+
+/** @type {AIFunction} Function used when unspeakableas die to confuse the player.*/
+function unspeakable_death(self, target, map){
+    for(var i = 0; i < 3; ++i){
+        map.stun_tile(self.location.plus(target.difference));
+    }
+}
+
+/** @type {TelegraphFunction} */
+function unspeakable_telegraph(location, map, self){
+    return [map.get_player_location()];
+}
+/** @type {TileGenerator} */
 function unstable_wisp_tile(){
     return {
         type: entity_types.enemy,
@@ -6758,7 +6791,7 @@ function wheel_of_fire_tile(){
         description: enemy_descriptions.wheel_of_fire,
         tags: new TagList(),
         health: 1,
-        difficulty: 1,
+        difficulty: 6,
         behavior: wheel_of_fire_ai,
         telegraph: wheel_of_fire_telegraph
     }
@@ -7734,7 +7767,7 @@ const ENEMY_LIST = [
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_d_tile, moving_turret_o_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
     paper_construct_tile, specter_tile, gem_crawler_tile, claustropede_tile, wheel_of_fire_tile,
-    blood_crescent_tile,
+    blood_crescent_tile, unspeakable_tile,
 ];
 
 // This is an array of all bosses.

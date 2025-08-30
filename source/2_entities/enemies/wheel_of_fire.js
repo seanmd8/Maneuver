@@ -7,7 +7,7 @@ function wheel_of_fire_tile(){
         description: enemy_descriptions.wheel_of_fire,
         tags: new TagList(),
         health: 1,
-        difficulty: 1,
+        difficulty: 6,
         behavior: wheel_of_fire_ai,
         telegraph: wheel_of_fire_telegraph
     }

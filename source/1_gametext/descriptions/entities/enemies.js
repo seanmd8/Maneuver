@@ -8,7 +8,7 @@ const enemy_descriptions = {
         +`After 3 turns, it will go back to sleep.`,
     blood_crescent:
         `Blood Crescent: Will move 3 spaces diagonally towards the player damaging them if it `
-        +`hits them or passes next to them. Only moves every other turn.`,
+        +`hits them or passes next to them.`,
     brightling: 
         `Brightling: Is not aggressive. Will occasionally teleport the player `
         +`close to it before teleoprting away the next turn.`,
@@ -119,6 +119,9 @@ const enemy_descriptions = {
     turret_r: 
         `Turret: Does not move. Fires beams in two directions hitting `
         +`the first thing in their path. Rotates every turn.`,
+    unspeakable:
+        `Unspeakable: Moves towards the player 1 space. Does not attack. On death, `
+        +`confuses the player 3 times, polluting their deck with bad cards.`,
     unstable_wisp: 
         `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes `
         +`into a ring of fireballs on death.`,
@@ -178,6 +181,7 @@ const enemy_names = {
     turret: `Turret`, 
     turret_m: `Moving Turret`, 
     turret_r: `Rotary Turret`, 
+    unspeakable: `Unspeakable`,
     unstable_wisp: `Unstable Wisp`, 
     vampire: `Vampire`, 
     vinesnare_bush: `Vinesnare Bush`, 
@@ -329,6 +333,8 @@ const enemy_flavor = {
     turret_r: 
         `While it can't fire in as many directions at once, this turret can keep watch over more `
         +`directions overall. Thankfully it rotates at a fixed speed so it's movement can be predicted.`,
+    unspeakable:
+        ``,
     unstable_wisp: 
         `Beings of elemental fire that naturally spawn from the extreme heat. They are very unstable `
         +`and can explode violently if disrupted. They are not aggressive however so as long as you `
