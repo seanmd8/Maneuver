@@ -67,7 +67,7 @@ const ENEMY_LIST = [
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_d_tile, moving_turret_o_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
     paper_construct_tile, specter_tile, gem_crawler_tile, claustropede_tile, wheel_of_fire_tile,
-    blood_crescent_tile, unspeakable_tile, shadow_knight_elite_tile,
+    blood_crescent_tile, unspeakable_tile, shadow_knight_elite_tile, starcaller_tile
 ];
 
 // This is an array of all bosses.

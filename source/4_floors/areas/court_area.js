@@ -5,7 +5,7 @@ function generate_court_area(){
         generate_floor: generate_court_floor,
         enemy_list: [
             shadow_scout_tile, claustropede_tile, unspeakable_tile, wheel_of_fire_tile, blood_crescent_tile,
-            shadow_knight_elite_tile,
+            shadow_knight_elite_tile, starcaller_tile
         ],
         boss_floor_list: [],
         next_area_list: [generate_default_area],

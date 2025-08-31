@@ -2552,6 +2552,9 @@ const enemy_descriptions = {
     spider: 
         `Spider: Will attack the player if it is next to them. `
         +`Otherwise it will move 1 space closer.`,
+    starcaller:
+        `Starcaller: Every 3 turns it will summon an object from another realm targeting `
+        +`the player's location.`,
     strider: 
         `Strider: Attacks then moves 2 spaces away in one direction.`,
     swaying_nettle: 
@@ -2628,6 +2631,7 @@ const enemy_names = {
     specter: `Specter`, 
     spider_web: `Spider Web`, 
     spider: `Spider`, 
+    starcaller: `Starcaller`,
     strider: `Strider`, 
     swaying_nettle: `Swaying Nettle`, 
     thorn_bush: `Thorn Bush`, 
@@ -2764,6 +2768,11 @@ const enemy_flavor = {
         `The spiders here reach sizes unseen anywhere else. They tend to hunt for their prey rather `
         +`than lying in wait in a web. Thankfully their large size hasn't made them very tough so they `
         +`are easily dispatched.`,
+    starcaller:
+        ``,
+    starcaller:
+        `Starcaller: Every 3 turns it will summon an object from another realm targeting `
+        +`the player's location creating a small explosion.`,
     strider: 
         `These long legged creatures navigate the trecherous terrain of the magmatic caves with ease.`
         +`The strength of their barbed feet seems to mostly be used for defense as they can be seen `
@@ -2818,15 +2827,17 @@ const entity_types = {
 }
 Object.freeze(entity_types);
 const event_descriptions = {
-    falling_rubble: 
-        `Watch out, something is about to fall here.`,
     darkling_rift: 
         `If this space isn't blocked, a darkling will teleport here `
         +`next turn damaging everything nearby.`,
-    thorn_root: 
-        `Watch out, brambles are about to sprout damaging anything standing here.`,
+    falling_rubble: 
+        `Watch out, something is about to fall here.`,
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
+    starfall:
+        `Something is about to be pulled into existence here damaging anything standing here.`,
+    thorn_root: 
+        `Watch out, brambles are about to sprout damaging anything standing here.`,
 }
 Object.freeze(event_descriptions);
 
@@ -2839,6 +2850,7 @@ const event_names = {
     falling_rubble: `Falling Rubble`,
     nettle_shield: `Nettle Shield`,
     spell_announcement: `Spell Announcement`,
+    starfall: `Starfall`,
     unstun: `Unstun`,
     wake_up: `Wake Up`,
 }
@@ -2866,6 +2878,8 @@ const other_tile_descriptions = {
     magmatic_boulder: 
         `Magmatic Boulder: The light reflecting off of it gives you the `
         +`feeling of being watched.`,
+    moon_rock:
+        `Moon Rock: A chunk of fragile rock from somewhere else.`,
     raging_fire: 
         `Raging Fire: The very ground here is burning. It will grow weaker `
         +`every turn, but it's not safe to move through. Cannot be stunned.`,
@@ -2874,6 +2888,8 @@ const other_tile_descriptions = {
         +`if touched. Takes 3 turns to recharge afterwards.`,
     sewer_grate: 
         `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
+    shatter_sphere:
+        `Shatter Sphere: Explodes when damaged harming everything nearby.`,
     smoldering_ashes: [
         `Smoldering Ashes: A pheonix will be reborn here in `, 
         ` turns unless you scatter the ashes by attacking them or moving onto them.`
@@ -2897,9 +2913,11 @@ const other_tile_names = {
     fruit_tree_rotting: `Rotting Fruit Tree`,
     lava_pool: `Lava Pool`,
     magmatic_boulder: `Magmatic Boulder`,
+    moon_rock: `Moon Rock`,
     raging_fire: `Raging Fire`,
     repulsor: `Repulsor`,
     sewer_grate: `Sewer Grate`,
+    shatter_sphere: `Shatter Sphere`,
     smoldering_ashes: `Smoldering Ashes`,
     thorn_bramble: `Thorn Brambles`,
     wall: `Wall`,
@@ -6197,6 +6215,61 @@ function spider_web_ai(self, target, map){
     }
 }
 /** @type {TileGenerator} */
+function starcaller_tile(){
+    var pic_arr = [`${IMG_FOLDER.tiles}starcaller_off.png`, `${IMG_FOLDER.tiles}starcaller_on.png`];
+    var starting_cycle = random_num(3) + 1;
+    var summons = [
+        carrion_flies_tile,
+        shatter_sphere_tile,
+        moon_rock_tile,
+    ]
+    return {
+        type: entity_types.enemy,
+        name: enemy_names.starcaller,
+        pic: `${IMG_FOLDER.tiles}starcaller_off.png`,
+        description: enemy_descriptions.starcaller,
+        tags: new TagList(),
+        health: 2,
+        difficulty: 4,
+        behavior: starcaller_ai,
+        pic_arr,
+        cycle: starting_cycle,
+        summons
+    }
+}
+
+/** @type {AIFunction} AI used by starcallers.*/
+function starcaller_ai(self, target, map){
+    if(self.tile.cycle === 0){
+        // Shoot
+        map.attack(self.tile.direction);
+        if(map.check_empty(self.tile.direction)){
+            var spawn = rand_no_repeates(self.tile.summons, 1)[0]();
+            map.add_tile(spawn, self.tile.direction);
+        }
+        self.tile.cycle = 3;
+        self.tile.pic = self.tile.pic_arr[0];
+    }
+    --self.tile.cycle;
+
+    if(self.tile.cycle === 0){
+        // Prep to shoot next turn.
+        self.tile.pic = self.tile.pic_arr[1];
+        self.tile.direction = self.location.plus(target.difference);
+        var starfall = function(map_to_use){
+            if(self.tile.health === undefined || self.tile.health > 0){
+                var destination = {
+                    pic: `${IMG_FOLDER.tiles}starfall_destination.png`,
+                    description: event_descriptions.starfall,
+                    telegraph: hazard_telegraph
+                }
+                map_to_use.mark_event(self.tile.direction, destination, false);
+            }
+        }
+        map.add_event({name: event_names.starfall, behavior: starfall});
+    }
+}
+/** @type {TileGenerator} */
 function strider_tile(){
     return{
         type: entity_types.enemy,
@@ -7159,6 +7232,17 @@ function magmatic_boulder_tile(){
         tags: new TagList([TAGS.unmovable]),
     }
 }
+/** @type {TileGenerator} */
+function moon_rock_tile(){
+    return {
+        type: entity_types.terrain,
+        name: other_tile_names.moon_rock,
+        pic: `${IMG_FOLDER.tiles}moon_rock.png`,
+        description: other_tile_descriptions.moon_rock,
+        tags: new TagList(),
+        health: 1,
+    }
+}
 /** @type {TileGenerator} A fire which goes away over time. */
 function raging_fire_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}raging_fire_weak.png`, `${IMG_FOLDER.tiles}raging_fire.png`];
@@ -7296,6 +7380,20 @@ function sewer_grate_tile(){
 function sewer_grate_ai(self, target, map){
     spawn_nearby(map, corrosive_slime_tile(), self.location);
 }
+/** @type {TileGenerator} */
+function shatter_sphere_tile(){
+    return {
+        type: entity_types.terrain,
+        name: other_tile_names.shatter_sphere,
+        pic: `${IMG_FOLDER.tiles}shatter_sphere.png`,
+        description: other_tile_descriptions.shatter_sphere,
+        tags: new TagList(),
+        health: 1,
+        telegraph_other: spider_telegraph,
+        on_death: acid_bug_death,
+    }
+}
+
 /** @type {TileGenerator} Dropped by Pheonixes to respawn them. */
 function smoldering_ashes_tile(){
     var spawn_timer = 2;
@@ -7863,7 +7961,7 @@ const ENEMY_LIST = [
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_d_tile, moving_turret_o_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
     paper_construct_tile, specter_tile, gem_crawler_tile, claustropede_tile, wheel_of_fire_tile,
-    blood_crescent_tile, unspeakable_tile, shadow_knight_elite_tile,
+    blood_crescent_tile, unspeakable_tile, shadow_knight_elite_tile, starcaller_tile
 ];
 
 // This is an array of all bosses.
@@ -11693,7 +11791,7 @@ function generate_court_area(){
         generate_floor: generate_court_floor,
         enemy_list: [
             shadow_scout_tile, claustropede_tile, unspeakable_tile, wheel_of_fire_tile, blood_crescent_tile,
-            shadow_knight_elite_tile,
+            shadow_knight_elite_tile, starcaller_tile
         ],
         boss_floor_list: [],
         next_area_list: [generate_default_area],

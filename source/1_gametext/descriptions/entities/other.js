@@ -21,6 +21,8 @@ const other_tile_descriptions = {
     magmatic_boulder: 
         `Magmatic Boulder: The light reflecting off of it gives you the `
         +`feeling of being watched.`,
+    moon_rock:
+        `Moon Rock: A chunk of fragile rock from somewhere else.`,
     raging_fire: 
         `Raging Fire: The very ground here is burning. It will grow weaker `
         +`every turn, but it's not safe to move through. Cannot be stunned.`,
@@ -29,6 +31,8 @@ const other_tile_descriptions = {
         +`if touched. Takes 3 turns to recharge afterwards.`,
     sewer_grate: 
         `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
+    shatter_sphere:
+        `Shatter Sphere: Explodes when damaged harming everything nearby.`,
     smoldering_ashes: [
         `Smoldering Ashes: A pheonix will be reborn here in `, 
         ` turns unless you scatter the ashes by attacking them or moving onto them.`
@@ -52,9 +56,11 @@ const other_tile_names = {
     fruit_tree_rotting: `Rotting Fruit Tree`,
     lava_pool: `Lava Pool`,
     magmatic_boulder: `Magmatic Boulder`,
+    moon_rock: `Moon Rock`,
     raging_fire: `Raging Fire`,
     repulsor: `Repulsor`,
     sewer_grate: `Sewer Grate`,
+    shatter_sphere: `Shatter Sphere`,
     smoldering_ashes: `Smoldering Ashes`,
     thorn_bramble: `Thorn Brambles`,
     wall: `Wall`,

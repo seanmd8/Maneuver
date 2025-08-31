@@ -103,6 +103,9 @@ const enemy_descriptions = {
     spider: 
         `Spider: Will attack the player if it is next to them. `
         +`Otherwise it will move 1 space closer.`,
+    starcaller:
+        `Starcaller: Every 3 turns it will summon an object from another realm targeting `
+        +`the player's location.`,
     strider: 
         `Strider: Attacks then moves 2 spaces away in one direction.`,
     swaying_nettle: 
@@ -179,6 +182,7 @@ const enemy_names = {
     specter: `Specter`, 
     spider_web: `Spider Web`, 
     spider: `Spider`, 
+    starcaller: `Starcaller`,
     strider: `Strider`, 
     swaying_nettle: `Swaying Nettle`, 
     thorn_bush: `Thorn Bush`, 
@@ -315,6 +319,11 @@ const enemy_flavor = {
         `The spiders here reach sizes unseen anywhere else. They tend to hunt for their prey rather `
         +`than lying in wait in a web. Thankfully their large size hasn't made them very tough so they `
         +`are easily dispatched.`,
+    starcaller:
+        ``,
+    starcaller:
+        `Starcaller: Every 3 turns it will summon an object from another realm targeting `
+        +`the player's location creating a small explosion.`,
     strider: 
         `These long legged creatures navigate the trecherous terrain of the magmatic caves with ease.`
         +`The strength of their barbed feet seems to mostly be used for defense as they can be seen `
