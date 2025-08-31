@@ -4,7 +4,8 @@ function starcaller_tile(){
     var starting_cycle = random_num(3) + 1;
     var summons = [
         carrion_flies_tile,
-        shatter_sphere_tile,
+        shatter_sphere_d_tile,
+        shatter_sphere_o_tile,
         moon_rock_tile,
     ]
     return {
@@ -28,7 +29,7 @@ function starcaller_ai(self, target, map){
         // Shoot
         map.attack(self.tile.direction);
         if(map.check_empty(self.tile.direction)){
-            var spawn = rand_no_repeates(self.tile.summons, 1)[0]();
+            var spawn = rand_no_repeats(self.tile.summons, 1)[0]();
             map.add_tile(spawn, self.tile.direction);
         }
         self.tile.cycle = 3;
@@ -43,7 +44,7 @@ function starcaller_ai(self, target, map){
         var starfall = function(map_to_use){
             if(self.tile.health === undefined || self.tile.health > 0){
                 var destination = {
-                    pic: `${IMG_FOLDER.tiles}starfall_destination.png`,
+                    pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
                     description: event_descriptions.starfall,
                     telegraph: hazard_telegraph
                 }

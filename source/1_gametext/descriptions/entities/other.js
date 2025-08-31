@@ -31,8 +31,10 @@ const other_tile_descriptions = {
         +`if touched. Takes 3 turns to recharge afterwards.`,
     sewer_grate: 
         `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
-    shatter_sphere:
-        `Shatter Sphere: Explodes when damaged harming everything nearby.`,
+    shatter_sphere_d:
+        `Shatter Sphere: Explodes when damaged harming everything diagonal to it.`,
+    shatter_sphere_o:
+        `Shatter Sphere: Explodes when damaged harming everything orthogonal to it.`,
     smoldering_ashes: [
         `Smoldering Ashes: A pheonix will be reborn here in `, 
         ` turns unless you scatter the ashes by attacking them or moving onto them.`

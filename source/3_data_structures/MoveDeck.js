@@ -206,7 +206,7 @@ class MoveDeck{
         if(this.#decklist.length <= this.#min_deck_size){
             return [];
         }
-        return rand_no_repeates(this.#decklist, size);
+        return rand_no_repeats(this.#decklist, size);
     }
     /**
      * Removes a card from the decklist.

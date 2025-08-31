@@ -20,7 +20,7 @@ function delay(milliseconds){
  * @param {number} draws Number of draws. If it is larger than source.length, then source.length will be used instead.
  * @returns {T[]} Array of random draws.
  */
-function rand_no_repeates(source, draws){
+function rand_no_repeats(source, draws){
     var index_arr = [];
     var result = [];
     draws = Math.min(draws, source.length);
@@ -45,7 +45,7 @@ function rand_from(source){
     if(source.length === 0){
         throw new Error(ERRORS.array_size);
     }
-    return rand_no_repeates(source, 1)[0];
+    return rand_no_repeats(source, 1)[0];
 }
 /**
  * Wraps a string so each line has a maximum number of characters before automatically inserting a newline character.
@@ -2888,8 +2888,10 @@ const other_tile_descriptions = {
         +`if touched. Takes 3 turns to recharge afterwards.`,
     sewer_grate: 
         `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
-    shatter_sphere:
-        `Shatter Sphere: Explodes when damaged harming everything nearby.`,
+    shatter_sphere_d:
+        `Shatter Sphere: Explodes when damaged harming everything diagonal to it.`,
+    shatter_sphere_o:
+        `Shatter Sphere: Explodes when damaged harming everything orthogonal to it.`,
     smoldering_ashes: [
         `Smoldering Ashes: A pheonix will be reborn here in `, 
         ` turns unless you scatter the ashes by attacking them or moving onto them.`
@@ -6220,7 +6222,8 @@ function starcaller_tile(){
     var starting_cycle = random_num(3) + 1;
     var summons = [
         carrion_flies_tile,
-        shatter_sphere_tile,
+        shatter_sphere_d_tile,
+        shatter_sphere_o_tile,
         moon_rock_tile,
     ]
     return {
@@ -6244,7 +6247,7 @@ function starcaller_ai(self, target, map){
         // Shoot
         map.attack(self.tile.direction);
         if(map.check_empty(self.tile.direction)){
-            var spawn = rand_no_repeates(self.tile.summons, 1)[0]();
+            var spawn = rand_no_repeats(self.tile.summons, 1)[0]();
             map.add_tile(spawn, self.tile.direction);
         }
         self.tile.cycle = 3;
@@ -6259,7 +6262,7 @@ function starcaller_ai(self, target, map){
         var starfall = function(map_to_use){
             if(self.tile.health === undefined || self.tile.health > 0){
                 var destination = {
-                    pic: `${IMG_FOLDER.tiles}starfall_destination.png`,
+                    pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
                     description: event_descriptions.starfall,
                     telegraph: hazard_telegraph
                 }
@@ -7066,7 +7069,7 @@ function coffin_tile_death(self, target, map){
     }
     var new_enemy = rand_from(self.tile.summons)();
     if(new_enemy.type === entity_types.chest){
-        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
+        var cards = rand_no_repeats(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(let card of cards){
             add_card_to_chest(new_enemy, card());
         }
@@ -7382,18 +7385,62 @@ function sewer_grate_ai(self, target, map){
 }
 /** @type {TileGenerator} */
 function shatter_sphere_tile(){
+    return rand_no_repeats(
+        [shatter_sphere_d_tile, shatter_sphere_o_tile], 1
+    )[0]();
+}
+/** @type {TileGenerator} */
+function shatter_sphere_d_tile(){
     return {
         type: entity_types.terrain,
         name: other_tile_names.shatter_sphere,
-        pic: `${IMG_FOLDER.tiles}shatter_sphere.png`,
-        description: other_tile_descriptions.shatter_sphere,
+        pic: `${IMG_FOLDER.tiles}shatter_sphere_d.png`,
+        description: other_tile_descriptions.shatter_sphere_d,
         tags: new TagList(),
         health: 1,
-        telegraph_other: spider_telegraph,
-        on_death: acid_bug_death,
+        telegraph_other: shatter_sphere_d_telegraph,
+        on_death: shatter_sphere_d_death,
     }
 }
 
+/** @type {AIFunction}*/
+function shatter_sphere_d_death(self, target, map){
+    var attacks = randomize_arr(DIAGONAL_DIRECTIONS);
+    for(var attack of attacks){
+        map.attack(self.location.plus(attack));
+    }
+}
+
+/** @type {TelegraphFunction} */
+function shatter_sphere_d_telegraph(location, map, self){
+    return DIAGONAL_DIRECTIONS.map(a => a.plus(location));
+}
+/** @type {TileGenerator} */
+function shatter_sphere_o_tile(){
+    return {
+        type: entity_types.terrain,
+        name: other_tile_names.shatter_sphere,
+        pic: `${IMG_FOLDER.tiles}shatter_sphere_o.png`,
+        description: other_tile_descriptions.shatter_sphere_o,
+        tags: new TagList(),
+        health: 1,
+        telegraph_other: shatter_sphere_o_telegraph,
+        on_death: shatter_sphere_o_death,
+    }
+}
+
+/** @type {AIFunction}*/
+function shatter_sphere_o_death(self, target, map){
+    var attacks = randomize_arr(HORIZONTAL_DIRECTIONS);
+    for(var attack of attacks){
+        map.attack(self.location.plus(attack));
+    }
+}
+
+/** @type {TelegraphFunction} */
+function shatter_sphere_o_telegraph(location, map, self){
+    return HORIZONTAL_DIRECTIONS.map(a => a.plus(location));
+}
 /** @type {TileGenerator} Dropped by Pheonixes to respawn them. */
 function smoldering_ashes_tile(){
     var spawn_timer = 2;
@@ -7770,7 +7817,7 @@ function boss_death(self, target, map){
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
         // Create a chest containing a random card from it's loot table.
         var chest = appropriate_chest_tile();
-        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
+        var cards = rand_no_repeats(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(var card of cards){
             add_card_to_chest(chest, card());
         }
@@ -7852,7 +7899,7 @@ function earthquake_event(amount, locations = undefined){
                 }
             }
             else{
-                var spaces = rand_no_repeates(locations, amount);
+                var spaces = rand_no_repeats(locations, amount);
                 for(var i = 0; i < amount; ++i){
                     space = spaces[i];
                     if(map_to_use.check_empty(space)){
@@ -11284,7 +11331,7 @@ class MoveDeck{
         if(this.#decklist.length <= this.#min_deck_size){
             return [];
         }
-        return rand_no_repeates(this.#decklist, size);
+        return rand_no_repeats(this.#decklist, size);
     }
     /**
      * Removes a card from the decklist.
@@ -11537,11 +11584,11 @@ class Shop{
     }
     #generate_add_row(){
         var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
-        var add_list_generators = rand_no_repeates(COMMON_CARDS, amount);
+        var add_list_generators = rand_no_repeats(COMMON_CARDS, amount);
         var index_of_rare = random_num(4);
         var rares = get_achievement_cards();
         if(index_of_rare < add_list_generators.length && rares.length > 0){
-            var rare = rand_no_repeates(rares, 1);
+            var rare = rand_no_repeats(rares, 1);
             add_list_generators[index_of_rare] = rare[0];
         }
         this.#add_row = add_list_generators.map((g) => {return g()});
