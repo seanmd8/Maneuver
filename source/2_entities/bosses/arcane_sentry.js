@@ -1,8 +1,9 @@
-SENTRY_MODES = Object.freeze({
+const SENTRY_MODES = {
     saw: "Saw",
     cannon: "Cannon",
     turret: "Turret"
-});
+};
+Object.freeze(SENTRY_MODES);
 
 const SENTRY_MAX_SAW_CYCLE = 4;
 const SENTRY_MAX_CANNON_CYCLE = 3;

@@ -1,4 +1,4 @@
-BOON_LIST = [
+const BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
     chilly_presence, choose_your_path, clean_mind, creative, dazing_blows, 
     duplicate, empty_rooms, escape_artist, expend_vitality, flame_strike, 

@@ -135,10 +135,6 @@ class MoveDeck{
         this.#library.push(new_card);
         this.#library = randomize_arr(this.#library);
     }
-    /**
-     * Displays the hand.
-     * @param {string} table Where it should be dispalyed.
-     */
     get_hand_info(){
         var make_prep_move = function(card, hand_pos){
             return function(){
@@ -271,7 +267,7 @@ class MoveDeck{
         return this.#hand[hand_position].options.is_instant();
     }
     copy(){
-        var new_deck = new this.constructor(this.#hand_size, this.#min_deck_size);
+        var new_deck = this.constructor(this.#hand_size, this.#min_deck_size);
         new_deck.#id_count = this.#id_count;
         new_deck.#decklist = this.#decklist;
         return new_deck;

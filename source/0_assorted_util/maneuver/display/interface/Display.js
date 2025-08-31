@@ -449,7 +449,7 @@ const DisplayHTML = {
         element.classList.remove(css_class);
     },
     create_stacked_p: function(location, content){
-        element = DisplayHTML.get_element(location);
+        var element = DisplayHTML.get_element(location);
         for(var message of content){
             var p = document.createElement(`p`);
             p.innerText = message.str;
@@ -466,7 +466,7 @@ const DisplayHTML = {
                     break;
             }
             element.append(p);
-            hr = document.createElement(`hr`);
+            var hr = document.createElement(`hr`);
             element.append(hr);
         }
     },

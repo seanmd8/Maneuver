@@ -226,7 +226,6 @@ class GameState{
     }
     /** 
      * Sets up the next floor then leaves the shop.
-     * @returns {void} 
      */
     async new_floor(){
         // Creates the next floor.
@@ -342,7 +341,6 @@ class GameState{
     }
     /**
      * Records a message in the text log, then displays the text log.
-     * @param {string} msg The message to record.
      */
     record_message(str, type){
         this.#text_log.push({

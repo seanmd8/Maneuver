@@ -320,8 +320,6 @@ const enemy_flavor = {
         +`than lying in wait in a web. Thankfully their large size hasn't made them very tough so they `
         +`are easily dispatched.`,
     starcaller:
-        ``,
-    starcaller:
         `Starcaller: Every 3 turns it will summon an object from another realm targeting `
         +`the player's location creating a small explosion.`,
     strider: 

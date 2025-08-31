@@ -144,6 +144,7 @@ function pheal(x, y){
  * @property {string} pic The card's image.
  * @property {ButtonGrid} options A button grid object which determines what actions the player can use the card to perform.
  * @property {CardGenerator[]=} evolutions A list of cards to be added once this is removed.
+ * @property {boolean} basic If it is a basic card.
  * 
  * @property {number=} id A unique id that will be added to the card when it is added to the deck.
  * @property {boolean=} temp Given true when the card is temporary and will be removed on use or on end of floor.

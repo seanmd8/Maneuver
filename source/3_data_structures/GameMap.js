@@ -22,7 +22,7 @@
 /**
  * @typedef {Object} GridSpaceLayer
  * @property {string} pic
- * @property {string=} descrtiption
+ * @property {string=} description
  * @property {TelegraphFunction=} telegraph
  * @property {TelegraphFunction=} telegraph_other
  */
@@ -948,11 +948,6 @@ class GameMap{
     }
 }
 
-/**
- * Creates an empty space to add to the game map's grid.
- * @param {}
- * @returns {GridSpace} The resulting array.
- */
 function grid_space(area){
     return {
         foreground: [],

@@ -216,7 +216,7 @@ function range(start = 0, stop, step = 1){
 
 function cross(arr1, arr2, f){
     for(var e1 of arr1){
-        for(e2 of arr2){
+        for(var e2 of arr2){
             f(e1, e2);
         }
     }
@@ -431,7 +431,7 @@ function point_equals(p1, p2){
 // Settings just used for testing. Leave as undefined when not in use.
 function init_settings(){
     const init = {
-        enemies: undefined,
+        enemies: [starcaller_tile],
         chests: undefined,
         cards: undefined,
         area: undefined,
@@ -1526,7 +1526,7 @@ const DisplayHTML = {
         element.classList.remove(css_class);
     },
     create_stacked_p: function(location, content){
-        element = DisplayHTML.get_element(location);
+        var element = DisplayHTML.get_element(location);
         for(var message of content){
             var p = document.createElement(`p`);
             p.innerText = message.str;
@@ -1543,7 +1543,7 @@ const DisplayHTML = {
                     break;
             }
             element.append(p);
-            hr = document.createElement(`hr`);
+            var hr = document.createElement(`hr`);
             element.append(hr);
         }
     },
@@ -2769,8 +2769,6 @@ const enemy_flavor = {
         +`than lying in wait in a web. Thankfully their large size hasn't made them very tough so they `
         +`are easily dispatched.`,
     starcaller:
-        ``,
-    starcaller:
         `Starcaller: Every 3 turns it will summon an object from another realm targeting `
         +`the player's location creating a small explosion.`,
     strider: 
@@ -3409,11 +3407,12 @@ const HTML_UIIDS = {
 Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
-SENTRY_MODES = Object.freeze({
+const SENTRY_MODES = {
     saw: "Saw",
     cannon: "Cannon",
     turret: "Turret"
-});
+};
+Object.freeze(SENTRY_MODES);
 
 const SENTRY_MAX_SAW_CYCLE = 4;
 const SENTRY_MAX_CANNON_CYCLE = 3;
@@ -6247,7 +6246,7 @@ function starcaller_ai(self, target, map){
         // Shoot
         map.attack(self.tile.direction);
         if(map.check_empty(self.tile.direction)){
-            var spawn = rand_no_repeats(self.tile.summons, 1)[0]();
+            var spawn = rand_from(self.tile.summons)();
             map.add_tile(spawn, self.tile.direction);
         }
         self.tile.cycle = 3;
@@ -6340,9 +6339,9 @@ function swaying_nettle_ai(self, target, map){
         self.tile.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var targets = self.tile.cycle === 0 ? DIAGONAL_DIRECTIONS : ORTHOGONAL_DIRECTIONS;
-    for(var target of targets){
-        var target_space = self.location.plus(target);
+    var attacks = self.tile.cycle === 0 ? DIAGONAL_DIRECTIONS : ORTHOGONAL_DIRECTIONS;
+    for(var attack of attacks){
+        var target_space = self.location.plus(attack);
         if(map.is_in_bounds(target_space) && !map.get_tile(target_space).tags.has(TAGS.nettle_immune)){
             map.attack(target_space);
         }
@@ -6677,7 +6676,7 @@ function unstable_wisp_tile(){
 function unstable_wisp_ai(self, target, map){
     var start = self.location.copy();
     var moved = undefined;
-    var directions = random_nearby(target.difference);
+    var directions = random_nearby();
     for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health > 0) && !moved; ++i){
         // Moves a space randomly.
         for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
@@ -7385,9 +7384,7 @@ function sewer_grate_ai(self, target, map){
 }
 /** @type {TileGenerator} */
 function shatter_sphere_tile(){
-    return rand_no_repeats(
-        [shatter_sphere_d_tile, shatter_sphere_o_tile], 1
-    )[0]();
+    return rand_from([shatter_sphere_d_tile, shatter_sphere_o_tile])();
 }
 /** @type {TileGenerator} */
 function shatter_sphere_d_tile(){
@@ -7675,10 +7672,6 @@ function add_card_to_chest(chest, card){
     chest.contents.push(content);
 }
 
-/**
- * @param {Tile} chest 
- * @param {Card} card 
- */
 function add_boon_to_chest(chest, boon){
     if(chest.contents === undefined){
         throw new Error(ERRORS.missing_property);
@@ -7989,7 +7982,7 @@ function growth_event(points, root, grown){
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
  * @property {number=} id Given a unique one when added to a EntityList.
- * @property {Tile || undefined} look Used when tiles disguise themselves as something else.
+ * @property {Tile=} look Used when tiles disguise themselves as something else.
  */
 
 /**
@@ -9644,7 +9637,7 @@ class EntityList{
 /**
  * @typedef {Object} GridSpaceLayer
  * @property {string} pic
- * @property {string=} descrtiption
+ * @property {string=} description
  * @property {TelegraphFunction=} telegraph
  * @property {TelegraphFunction=} telegraph_other
  */
@@ -10570,11 +10563,6 @@ class GameMap{
     }
 }
 
-/**
- * Creates an empty space to add to the game map's grid.
- * @param {}
- * @returns {GridSpace} The resulting array.
- */
 function grid_space(area){
     return {
         foreground: [],
@@ -10812,7 +10800,6 @@ class GameState{
     }
     /** 
      * Sets up the next floor then leaves the shop.
-     * @returns {void} 
      */
     async new_floor(){
         // Creates the next floor.
@@ -10928,7 +10915,6 @@ class GameState{
     }
     /**
      * Records a message in the text log, then displays the text log.
-     * @param {string} msg The message to record.
      */
     record_message(str, type){
         this.#text_log.push({
@@ -11260,10 +11246,6 @@ class MoveDeck{
         this.#library.push(new_card);
         this.#library = randomize_arr(this.#library);
     }
-    /**
-     * Displays the hand.
-     * @param {string} table Where it should be dispalyed.
-     */
     get_hand_info(){
         var make_prep_move = function(card, hand_pos){
             return function(){
@@ -11396,7 +11378,7 @@ class MoveDeck{
         return this.#hand[hand_position].options.is_instant();
     }
     copy(){
-        var new_deck = new this.constructor(this.#hand_size, this.#min_deck_size);
+        var new_deck = this.constructor(this.#hand_size, this.#min_deck_size);
         new_deck.#id_count = this.#id_count;
         new_deck.#decklist = this.#decklist;
         return new_deck;
@@ -13180,6 +13162,7 @@ function pheal(x, y){
  * @property {string} pic The card's image.
  * @property {ButtonGrid} options A button grid object which determines what actions the player can use the card to perform.
  * @property {CardGenerator[]=} evolutions A list of cards to be added once this is removed.
+ * @property {boolean} basic If it is a basic card.
  * 
  * @property {number=} id A unique id that will be added to the card when it is added to the deck.
  * @property {boolean=} temp Given true when the card is temporary and will be removed on use or on end of floor.
@@ -14518,7 +14501,7 @@ function symbol_remove_card(){
         options: new ButtonGrid()
     }
 }
-BOON_LIST = [
+const BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
     chilly_presence, choose_your_path, clean_mind, creative, dazing_blows, 
     duplicate, empty_rooms, escape_artist, expend_vitality, flame_strike, 

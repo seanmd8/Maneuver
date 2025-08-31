@@ -48,7 +48,7 @@
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
  * @property {number=} id Given a unique one when added to a EntityList.
- * @property {Tile || undefined} look Used when tiles disguise themselves as something else.
+ * @property {Tile=} look Used when tiles disguise themselves as something else.
  */
 
 /**

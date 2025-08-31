@@ -29,7 +29,7 @@ function starcaller_ai(self, target, map){
         // Shoot
         map.attack(self.tile.direction);
         if(map.check_empty(self.tile.direction)){
-            var spawn = rand_no_repeats(self.tile.summons, 1)[0]();
+            var spawn = rand_from(self.tile.summons)();
             map.add_tile(spawn, self.tile.direction);
         }
         self.tile.cycle = 3;
