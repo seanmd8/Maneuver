@@ -27,7 +27,7 @@ function turret_o_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function turret_o_telegraph(location, map, self){
     var attacks = [];
-    for(var direction of HORIZONTAL_DIRECTIONS){
+    for(var direction of ORTHOGONAL_DIRECTIONS){
         attacks.push(...get_points_in_direction(location, direction, map));
     }
     return attacks;

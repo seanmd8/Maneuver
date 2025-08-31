@@ -4182,12 +4182,12 @@ function two_headed_serpent_telegraph(location, map, self){
     if(self.cycle === 0){
         return attacks;
     }
-    for(var direction of HORIZONTAL_DIRECTIONS){
+    for(var direction of ORTHOGONAL_DIRECTIONS){
         attacks.push(location.plus(direction));
     }
-    for(var move of HORIZONTAL_DIRECTIONS){
+    for(var move of ORTHOGONAL_DIRECTIONS){
         if(map.check_empty(location.plus(move))){
-            for(var direction of HORIZONTAL_DIRECTIONS){
+            for(var direction of ORTHOGONAL_DIRECTIONS){
                 attacks.push(location.plus(move).plus(direction));
             }
         }
@@ -4341,11 +4341,11 @@ function young_dragon_behavior(self, target, map){
     }
     if(self.tile.cycle === 2){
         // Breathe fire.
-        var horizontal_cone = [];
+        var orthogonal_cone = [];
         for(var i = 1; i <= self.tile.range; ++i){
             for(var j = -(i - 1); j < i; ++j){
-                // Creates the horizontal cone pattern pointing North.
-                horizontal_cone.push(new Point(j, -1 * i));
+                // Creates the orthogonal cone pattern pointing North.
+                orthogonal_cone.push(new Point(j, -1 * i));
             }
         }
         var diagonal_cone = [];
@@ -5235,7 +5235,7 @@ function noxious_toad_telegraph(location, map, self){
     if(self.cycle === 1){
         return attacks;
     }
-    for(var direction of HORIZONTAL_DIRECTIONS){
+    for(var direction of ORTHOGONAL_DIRECTIONS){
         var move = location.plus(direction.times(2));
         if(map.check_empty(move)){
             attacks.push(...spider_telegraph(move, map, self));
@@ -5305,7 +5305,7 @@ function paper_construct_tile(){
         health: 1,
         difficulty: 2,
         behavior: paper_construct_ai,
-        telegraph: porcuslime_horizontal_telegraph,
+        telegraph: porcuslime_orthogonal_telegraph,
         rotate: 90 * random_num(4)
     }
 }
@@ -5468,7 +5468,7 @@ function large_porcuslime_ai(self, target, map){
 function large_porcuslime_telegraph(location, map, self){
     return [
         ...porcuslime_diagonal_telegraph(location, map, self),
-        ...porcuslime_horizontal_telegraph(location, map, self)
+        ...porcuslime_orthogonal_telegraph(location, map, self)
     ]
 }
 /** @type {TileGenerator} */
@@ -5506,7 +5506,7 @@ function medium_porcuslime_ai(self, target, map){
     }
     if(self.tile.cycle === 0){
         // If cycle is at 0, direction will be orthogonally towards the player.
-        porcuslime_horizontal_ai(self, target, map);
+        porcuslime_orthogonal_ai(self, target, map);
     }
     else{
         // If cycle is at 1, direction will be diagonally towards the player.
@@ -5523,7 +5523,7 @@ function medium_porcuslime_telegraph(location, map, self){
         throw new Error(ERRORS.missing_property);
     }
     if(self.cycle === 0){
-        return porcuslime_horizontal_telegraph(location, map, self);
+        return porcuslime_orthogonal_telegraph(location, map, self);
     }
     return porcuslime_diagonal_telegraph(location, map, self);
 }
@@ -5541,7 +5541,7 @@ function porcuslime_diagonal_ai(self, target, map){
     move_attack_ai(self, {tile: target.tile, difference: direction}, map);
 }
 /** @type {AIFunction} AI used by small and medium porcuslimes when moving orthogonally.*/
-function porcuslime_horizontal_ai(self, target, map){
+function porcuslime_orthogonal_ai(self, target, map){
     var directions = order_nearby(target.difference);
     var direction = undefined;
     for(var i = 0; i < directions.length && direction === undefined; ++i){
@@ -5558,8 +5558,8 @@ function porcuslime_diagonal_telegraph(location, map, self){
     return move_attack_telegraph(location, map, DIAGONAL_DIRECTIONS);
 }
 /** @type {TelegraphFunction} */
-function porcuslime_horizontal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, HORIZONTAL_DIRECTIONS);
+function porcuslime_orthogonal_telegraph(location, map, self){
+    return move_attack_telegraph(location, map, ORTHOGONAL_DIRECTIONS);
 }
 /** @type {TileGenerator} */
 function small_d_porcuslime_tile(){
@@ -5585,8 +5585,8 @@ function small_o_porcuslime_tile(){
         tags: new TagList(),
         health: 1,
         difficulty: 3,
-        behavior: porcuslime_horizontal_ai,
-        telegraph: porcuslime_horizontal_telegraph,
+        behavior: porcuslime_orthogonal_ai,
+        telegraph: porcuslime_orthogonal_telegraph,
         }
 }
 /** @type {TileGenerator} */
@@ -6143,7 +6143,7 @@ function specter_move(current, passing, map){
 /** @type {TelegraphFunction} */
 function specter_telegraph(location, map, self){
     var attacks = [];
-    for(var direction of HORIZONTAL_DIRECTIONS){
+    for(var direction of ORTHOGONAL_DIRECTIONS){
         attacks.push(...get_specter_moves(location, direction, map));
     }
     return attacks;
@@ -6340,7 +6340,7 @@ function swaying_nettle_ai(self, target, map){
         self.tile.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var targets = self.tile.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;
+    var targets = self.tile.cycle === 0 ? DIAGONAL_DIRECTIONS : ORTHOGONAL_DIRECTIONS;
     for(var target of targets){
         var target_space = self.location.plus(target);
         if(map.is_in_bounds(target_space) && !map.get_tile(target_space).tags.has(TAGS.nettle_immune)){
@@ -6357,7 +6357,7 @@ function swaying_nettle_telegraph(location, map, self){
         self.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var targets = self.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;
+    var targets = self.cycle === 0 ? DIAGONAL_DIRECTIONS : ORTHOGONAL_DIRECTIONS;
     return targets.map(target => {
         return target.plus(location);
     })
@@ -6448,7 +6448,7 @@ function moving_turret_d_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function moving_turret_o_tile(){
-    var direction = rand_from(HORIZONTAL_DIRECTIONS).copy();
+    var direction = rand_from(ORTHOGONAL_DIRECTIONS).copy();
     var tile = {
         type: entity_types.enemy,
         name: enemy_names.turret_m,
@@ -6564,7 +6564,7 @@ function turret_o_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function turret_o_telegraph(location, map, self){
     var attacks = [];
-    for(var direction of HORIZONTAL_DIRECTIONS){
+    for(var direction of ORTHOGONAL_DIRECTIONS){
         attacks.push(...get_points_in_direction(location, direction, map));
     }
     return attacks;
@@ -6781,7 +6781,7 @@ function vampire_hit(self, target, map){
 /** @type {TelegraphFunction} */
 function vampire_telegraph(location, map, self){
     var attacks = [];
-    for(var move_direction of HORIZONTAL_DIRECTIONS){
+    for(var move_direction of ORTHOGONAL_DIRECTIONS){
         var move = location.plus(move_direction);
         if(map.check_empty(move)){
             for(var attack_direction of DIAGONAL_DIRECTIONS){
@@ -6928,7 +6928,7 @@ function walking_prism_on_hit(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
-        var directions = HORIZONTAL_DIRECTIONS;
+        var directions = ORTHOGONAL_DIRECTIONS;
     }
     else{
         var directions = DIAGONAL_DIRECTIONS;
@@ -7431,7 +7431,7 @@ function shatter_sphere_o_tile(){
 
 /** @type {AIFunction}*/
 function shatter_sphere_o_death(self, target, map){
-    var attacks = randomize_arr(HORIZONTAL_DIRECTIONS);
+    var attacks = randomize_arr(ORTHOGONAL_DIRECTIONS);
     for(var attack of attacks){
         map.attack(self.location.plus(attack));
     }
@@ -7439,7 +7439,7 @@ function shatter_sphere_o_death(self, target, map){
 
 /** @type {TelegraphFunction} */
 function shatter_sphere_o_telegraph(location, map, self){
-    return HORIZONTAL_DIRECTIONS.map(a => a.plus(location));
+    return ORTHOGONAL_DIRECTIONS.map(a => a.plus(location));
 }
 /** @type {TileGenerator} Dropped by Pheonixes to respawn them. */
 function smoldering_ashes_tile(){
@@ -8480,14 +8480,14 @@ function node_double_cannon_telegraph(location, map, self){
     });
 }
 function node_saw_behavior(self, target, map){
-    for(var direction of HORIZONTAL_DIRECTIONS){
+    for(var direction of ORTHOGONAL_DIRECTIONS){
         map.attack(self.location.plus(direction));
     }
 }
 
 function node_saw_telegraph(location, map, self){
     return [
-        ...HORIZONTAL_DIRECTIONS.map((p) => {return p.plus(location)}), 
+        ...ORTHOGONAL_DIRECTIONS.map((p) => {return p.plus(location)}), 
         ...hazard_telegraph(location, map, self)
     ];
 }
@@ -9052,9 +9052,9 @@ function teleport_spell(self, target, map){
  * @returns {Point[]} An array of the points on the map it could currently attack.
  */
 
-const HORIZONTAL_DIRECTIONS = [new Point(1, 0), new Point(-1, 0), new Point(0, -1), new Point(0, 1)];
+const ORTHOGONAL_DIRECTIONS = [new Point(1, 0), new Point(-1, 0), new Point(0, -1), new Point(0, 1)];
 const DIAGONAL_DIRECTIONS = [new Point(1, 1), new Point(-1, 1), new Point(1, -1), new Point(-1, -1)];
-const ALL_DIRECTIONS = [...HORIZONTAL_DIRECTIONS, ...DIAGONAL_DIRECTIONS];
+const ALL_DIRECTIONS = [...ORTHOGONAL_DIRECTIONS, ...DIAGONAL_DIRECTIONS];
 
 /** @type {TelegraphFunction} */
 function hazard_telegraph(location, map, self){

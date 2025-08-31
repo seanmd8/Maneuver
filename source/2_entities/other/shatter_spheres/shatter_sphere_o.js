@@ -14,7 +14,7 @@ function shatter_sphere_o_tile(){
 
 /** @type {AIFunction}*/
 function shatter_sphere_o_death(self, target, map){
-    var attacks = randomize_arr(HORIZONTAL_DIRECTIONS);
+    var attacks = randomize_arr(ORTHOGONAL_DIRECTIONS);
     for(var attack of attacks){
         map.attack(self.location.plus(attack));
     }
@@ -22,5 +22,5 @@ function shatter_sphere_o_death(self, target, map){
 
 /** @type {TelegraphFunction} */
 function shatter_sphere_o_telegraph(location, map, self){
-    return HORIZONTAL_DIRECTIONS.map(a => a.plus(location));
+    return ORTHOGONAL_DIRECTIONS.map(a => a.plus(location));
 }

@@ -64,7 +64,7 @@ function vampire_hit(self, target, map){
 /** @type {TelegraphFunction} */
 function vampire_telegraph(location, map, self){
     var attacks = [];
-    for(var move_direction of HORIZONTAL_DIRECTIONS){
+    for(var move_direction of ORTHOGONAL_DIRECTIONS){
         var move = location.plus(move_direction);
         if(map.check_empty(move)){
             for(var attack_direction of DIAGONAL_DIRECTIONS){

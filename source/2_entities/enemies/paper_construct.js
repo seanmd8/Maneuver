@@ -9,7 +9,7 @@ function paper_construct_tile(){
         health: 1,
         difficulty: 2,
         behavior: paper_construct_ai,
-        telegraph: porcuslime_horizontal_telegraph,
+        telegraph: porcuslime_orthogonal_telegraph,
         rotate: 90 * random_num(4)
     }
 }

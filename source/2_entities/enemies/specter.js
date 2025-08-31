@@ -92,7 +92,7 @@ function specter_move(current, passing, map){
 /** @type {TelegraphFunction} */
 function specter_telegraph(location, map, self){
     var attacks = [];
-    for(var direction of HORIZONTAL_DIRECTIONS){
+    for(var direction of ORTHOGONAL_DIRECTIONS){
         attacks.push(...get_specter_moves(location, direction, map));
     }
     return attacks;
