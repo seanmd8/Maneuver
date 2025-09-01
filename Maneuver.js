@@ -2535,7 +2535,7 @@ const enemy_descriptions = {
         +`closer every other turn.`,
     scythe: 
         `Scythe: Will move 3 spaces diagonally towards the player `
-        +`damaging them if it passes next to them. Can only see diagonally.`,
+        +`damaging them if it passes next to them.`,
     shadow_knight: 
         `Shadow Knight: Moves in an L shape. If it tramples the player, `
         +`it will move again.`,
