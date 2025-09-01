@@ -25,6 +25,9 @@ function boss_death(self, target, map){
     if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
         GS.achieve(achievement_names.not_my_fault);
     }
+    if(stats.boss_kill_start === stats.turn_number){
+        GS.achieve(achievement_names.one_hit_wonder);
+    }
     if( // Practice makes perfect
         GS.boons.has(boon_names.practice_makes_perfect) && 
         player_tile.max_health !== undefined && 

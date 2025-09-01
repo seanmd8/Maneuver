@@ -2322,7 +2322,7 @@ const move_types = {
     
     per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
     temp: `Temporary: Removed from your deck when used, or at the end of the floor.`,
-    instant: `Instant: Take an extra turn.`
+    instant: `Instant: Play another card this turn.`
 }
 Object.freeze(move_types);
 const boss_names = {
@@ -2986,6 +2986,7 @@ const achievement_names = {
     speed_runner: `Speed Runner`,
     triple: `Three Of A Kind`,
     beyond_the_basics: `Beyond The Basics`,
+    one_hit_wonder: `One Hit Wonder`,
     one_life: `One Is All You Need`,
     without_a_scratch: `Without A Scratch`,
     clumsy: `Clumsy`,
@@ -3015,6 +3016,7 @@ const achievement_description = {
     speed_runner: `Leave floor 10 in 100 turns or less.`,
     triple: `Have 3 or more of the same non temporary card in your deck.`,
     beyond_the_basics: `Remove all basic cards from your deck.`,
+    one_hit_wonder: `Defeat a boss in a single turn.`,
     one_life: `Defeat any boss with exactly 1 max health.`,
     without_a_scratch: `Leave floor 10 without taking any damage.`,
     clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
@@ -7829,6 +7831,9 @@ function boss_death(self, target, map){
     if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
         GS.achieve(achievement_names.not_my_fault);
     }
+    if(stats.boss_kill_start === stats.turn_number){
+        GS.achieve(achievement_names.one_hit_wonder);
+    }
     if( // Practice makes perfect
         GS.boons.has(boon_names.practice_makes_perfect) && 
         player_tile.max_health !== undefined && 
@@ -10099,6 +10104,9 @@ class GameMap{
             if(source !== undefined && source.tile.type === entity_types.player){
                 this.stats.increment_damage_dealt();
             }
+            if(target.tags.has(TAGS.boss)){
+                this.stats.damage_boss();
+            }
             if(target.type === entity_types.player){
                 if(this.#is_player_turn){
                     this.stats.increment_turn_damage();
@@ -10151,7 +10159,7 @@ class GameMap{
                     --this.#entity_list.count_non_empty;
                 }
                 if(target.on_death !== undefined){
-                    // Trigger on_death/
+                    // Trigger on_death
                     var player_pos = this.#entity_list.get_player_pos();
                     var dying_entity = {
                         tile: target,
@@ -11668,6 +11676,7 @@ class StatTracker{
     #turn_damage;
     #chests;
     #damage_dealt;
+    #boss_kill_start;
     #total_damage_per_floor;
     #kills;
     #total_kills_per_floor;
@@ -11679,6 +11688,7 @@ class StatTracker{
         this.#turn_damage = 0;
         this.#chests = 0;
         this.#damage_dealt = 0;
+        this.#boss_kill_start = 0;
         this.#total_damage_per_floor = [0];
         this.#kills = 0;
         this.#total_kills_per_floor = [0]
@@ -11724,6 +11734,16 @@ class StatTracker{
     increment_damage_dealt(){
         ++this.#damage_dealt;
     }
+    damage_boss(){
+        if(this.#boss_kill_start === undefined){
+            this.#boss_kill_start = this.#turn_number;
+            return;
+        }
+        this.#boss_kill_start = Math.min(this.#boss_kill_start, this.#turn_number);
+    }
+    reset_boss_damage(){
+        this.#boss_kill_start = undefined;
+    }
     increment_kills(){
         ++this.#kills;
     }
@@ -11735,6 +11755,7 @@ class StatTracker{
             turn_damage: this.#turn_damage,
             chests: this.#chests,
             damage_dealt: this.#damage_dealt,
+            boss_kill_start: this.#boss_kill_start,
             total_damage_per_floor: this.#total_damage_per_floor,
             kills: this.#kills,
             total_kills_per_floor: this.#total_kills_per_floor
@@ -12367,6 +12388,7 @@ function boss_floor_common(floor_num,  area, map){
     if(GS.boons.has(boon_names.pacifism) === 0){
         map.lock();
     }
+    GS.map.stats.reset_boss_damage();
     if(chance(GS.boons.has(boon_names.frugivore), 2)){
         map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
@@ -15194,6 +15216,7 @@ function get_achievements(){
         monster_hunter_achievement(),
         non_violent_achievement(),
         not_my_fault_achievement(),
+        one_hit_wonder_achievement(),
         one_life_achievement(),
         peerless_sprinter_achievement(),
         shrug_it_off_achievement(),
@@ -15264,7 +15287,7 @@ function velociphile_achievement(){
         description: achievement_description.velociphile,
         image: `${IMG_FOLDER.tiles}velociphile.png`,
         has: false,
-        boons: [boss_slayer],
+        boons: [roar_of_challenge],
         cards: [
             teleport, sidestep_e, sidestep_n, sidestep_ne, sidestep_nw, 
             sidestep_s, sidestep_se, sidestep_sw, sidestep_w, punch_orthogonal, 
@@ -15361,6 +15384,15 @@ function not_my_fault_achievement(){
         image: `${IMG_FOLDER.achievements}not_my_fault.png`,
         has: false,
         boons: [pressure_points],
+    }
+}
+function one_hit_wonder_achievement(){
+    return {
+        name: achievement_names.one_hit_wonder,
+        description: achievement_description.one_hit_wonder,
+        image: `${IMG_FOLDER.achievements}one_hit_wonder.png`,
+        has: false,
+        boons: [boss_slayer],
     }
 }
 function one_life_achievement(){

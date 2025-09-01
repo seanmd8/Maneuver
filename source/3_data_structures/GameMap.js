@@ -481,6 +481,9 @@ class GameMap{
             if(source !== undefined && source.tile.type === entity_types.player){
                 this.stats.increment_damage_dealt();
             }
+            if(target.tags.has(TAGS.boss)){
+                this.stats.damage_boss();
+            }
             if(target.type === entity_types.player){
                 if(this.#is_player_turn){
                     this.stats.increment_turn_damage();
@@ -533,7 +536,7 @@ class GameMap{
                     --this.#entity_list.count_non_empty;
                 }
                 if(target.on_death !== undefined){
-                    // Trigger on_death/
+                    // Trigger on_death
                     var player_pos = this.#entity_list.get_player_pos();
                     var dying_entity = {
                         tile: target,

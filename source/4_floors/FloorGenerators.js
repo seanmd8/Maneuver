@@ -52,6 +52,7 @@ function boss_floor_common(floor_num,  area, map){
     if(GS.boons.has(boon_names.pacifism) === 0){
         map.lock();
     }
+    GS.map.stats.reset_boss_damage();
     if(chance(GS.boons.has(boon_names.frugivore), 2)){
         map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }

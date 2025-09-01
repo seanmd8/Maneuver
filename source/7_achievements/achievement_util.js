@@ -19,6 +19,7 @@ function get_achievements(){
         monster_hunter_achievement(),
         non_violent_achievement(),
         not_my_fault_achievement(),
+        one_hit_wonder_achievement(),
         one_life_achievement(),
         peerless_sprinter_achievement(),
         shrug_it_off_achievement(),

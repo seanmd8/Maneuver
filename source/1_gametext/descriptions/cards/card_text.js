@@ -41,6 +41,6 @@ const move_types = {
     
     per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
     temp: `Temporary: Removed from your deck when used, or at the end of the floor.`,
-    instant: `Instant: Take an extra turn.`
+    instant: `Instant: Play another card this turn.`
 }
 Object.freeze(move_types);
