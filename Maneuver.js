@@ -1965,6 +1965,7 @@ Object.freeze(area_descriptions);
 const boon_names = {
     ancient_card: `Ancient Card`,
     bitter_determination: `Bitter Determination`,
+    blood_alchemy: `Blood Alchemy`,
     boss_slayer: `Boss Slayer`,
     brag_and_boast: `Brag & Boast`,
     chilly_presence: `Chilly Presence`,
@@ -2016,6 +2017,8 @@ Object.freeze(boon_names);
 const boon_descriptions = {
     bitter_determination: 
         `At the start of each floor, heal 1 if your health is exactly 1.`,
+    blood_alchemy:
+        `Take 2 damage, gain 2 max hp.`,
     boss_slayer: 
         `Bosses start with 2 less hp.`,
     brag_and_boast: 
@@ -14502,16 +14505,16 @@ function symbol_remove_card(){
     }
 }
 const BOON_LIST = [
-    ancient_card, ancient_card_2, bitter_determination, boss_slayer, brag_and_boast, 
-    chilly_presence, choose_your_path, clean_mind, creative, dazing_blows, 
-    duplicate, empty_rooms, escape_artist, expend_vitality, flame_strike, 
-    fleeting_thoughts, fortitude, frenzy, frugivore, future_sight, 
-    gruntwork, hoarder, larger_chests, limitless, pacifism, 
-    pain_reflexes, perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, 
-    quick_healing, rebirth, repetition, retaliate, rift_touched, 
-    roar_of_challenge, safe_passage, shattered_glass, skill_trading, slime_trail, 
-    sniper, spiked_shoes, spontaneous, stable_mind, stealthy, 
-    stubborn, thick_soles
+    ancient_card, ancient_card_2, bitter_determination, blood_alchemy, boss_slayer, 
+    brag_and_boast, chilly_presence, choose_your_path, clean_mind, creative, 
+    dazing_blows, duplicate, empty_rooms, escape_artist, expend_vitality, 
+    flame_strike, fleeting_thoughts, fortitude, frenzy, frugivore, 
+    future_sight, gruntwork, hoarder, larger_chests, limitless, 
+    pacifism, pain_reflexes, perfect_the_basics, picky_shopper, practice_makes_perfect, 
+    pressure_points, quick_healing, rebirth, repetition, retaliate, 
+    rift_touched, roar_of_challenge, safe_passage, shattered_glass, skill_trading, 
+    slime_trail, sniper, spiked_shoes, spontaneous, stable_mind, 
+    stealthy, stubborn, thick_soles
 ];
 
 function change_max_health(amount){
@@ -14559,6 +14562,29 @@ function bitter_determination(){
         pic: `${IMG_FOLDER.boons}bitter_determination.png`,
         description: boon_descriptions.bitter_determination,
     }
+}
+function blood_alchemy(){
+    return {
+        name: boon_names.blood_alchemy,
+        pic: `${IMG_FOLDER.boons}blood_alchemy.png`,
+        description: boon_descriptions.blood_alchemy,
+        prereq: prereq_blood_alchemy,
+        on_pick: pick_blood_alchemy,
+        unlocks: [blood_alchemy]
+    }
+}
+
+function prereq_blood_alchemy(){
+    var player = GS.map.get_player();
+    return player.max_health !== undefined && player.health > 2;
+}
+
+function pick_blood_alchemy(){
+    for(var i = 0; i < 2; ++i){
+        var location = GS.map.get_player_location();
+        GS.map.attack(location);
+    }
+    change_max_health(2);
 }
 function boss_slayer(){
     return {

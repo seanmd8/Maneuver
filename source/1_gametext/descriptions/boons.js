@@ -1,6 +1,7 @@
 const boon_names = {
     ancient_card: `Ancient Card`,
     bitter_determination: `Bitter Determination`,
+    blood_alchemy: `Blood Alchemy`,
     boss_slayer: `Boss Slayer`,
     brag_and_boast: `Brag & Boast`,
     chilly_presence: `Chilly Presence`,
@@ -52,6 +53,8 @@ Object.freeze(boon_names);
 const boon_descriptions = {
     bitter_determination: 
         `At the start of each floor, heal 1 if your health is exactly 1.`,
+    blood_alchemy:
+        `Take 2 damage, gain 2 max hp.`,
     boss_slayer: 
         `Bosses start with 2 less hp.`,
     brag_and_boast: 
