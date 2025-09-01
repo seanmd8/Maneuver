@@ -11,7 +11,7 @@ const enemy_descriptions = {
         +`hits them or passes next to them.`,
     brightling: 
         `Brightling: Is not aggressive. Will occasionally teleport the player `
-        +`close to it before teleoprting away the next turn.`,
+        +`close to it before teleporting away the next turn.`,
     captive_void: 
         `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it `
         +`turns it off for 2 turns.`,

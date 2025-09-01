@@ -431,7 +431,7 @@ function point_equals(p1, p2){
 // Settings just used for testing. Leave as undefined when not in use.
 function init_settings(){
     const init = {
-        enemies: [starcaller_tile],
+        enemies: undefined,
         chests: undefined,
         cards: undefined,
         area: undefined,
@@ -2460,7 +2460,7 @@ const enemy_descriptions = {
         +`hits them or passes next to them.`,
     brightling: 
         `Brightling: Is not aggressive. Will occasionally teleport the player `
-        +`close to it before teleoprting away the next turn.`,
+        +`close to it before teleporting away the next turn.`,
     captive_void: 
         `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it `
         +`turns it off for 2 turns.`,
