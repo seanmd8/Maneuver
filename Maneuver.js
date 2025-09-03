@@ -431,10 +431,10 @@ function point_equals(p1, p2){
 // Settings just used for testing. Leave as undefined when not in use.
 function init_settings(){
     const init = {
-        enemies: [maw_tile],
-        chests: [roar_of_challenge, roar_of_challenge],
+        enemies: undefined,
+        chests: undefined,
         cards: undefined,
-        area: generate_court_area,
+        area: undefined,
         area_size: undefined,
         achievements: undefined,
         save: undefined,
@@ -4787,7 +4787,7 @@ function blood_crescent_ai(self, target, map){
     var direction = self.tile.direction;
     set_rotation(self.tile);
     var ahead = self.location.plus(direction);
-    if(point_equals(target.difference, ahead.times(-1))){
+    if(point_equals(self.location.plus(target.difference), ahead)){
         map.attack(ahead);
     }
     for(var i = 0; i < distance && map.move(self.location, self.location.plus(direction)) ; ++i){
@@ -4802,7 +4802,7 @@ function blood_crescent_ai(self, target, map){
         }
         if(i + 1 < distance){
             ahead = self.location.plus(direction);
-            if(point_equals(target.difference, ahead.times(-1))){
+            if(point_equals(self.location.plus(target.difference), ahead)){
                 map.attack(ahead);
             }
         }
