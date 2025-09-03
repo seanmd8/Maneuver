@@ -299,7 +299,6 @@ class GameMap{
      * Function to display the gamemap and the player's health.
      * Clicking on a tile will give info about it.
      * Resets tiles marked as hit afterwards.
-     * @returns {void}
      */
     display(){
         var make_on_click = function(space, location, gameMap){
@@ -387,6 +386,10 @@ class GameMap{
                 this.#area.next_area_list = [end.next_area];
             }
             throw new Error(ERRORS.floor_complete);
+        }
+        if(start.type === entity_types.player && end.type === entity_types.final_exit){
+            this.stats.increment_turn();
+            throw new Error(ERRORS.victory);
         }
         if(end.on_enter !== undefined){
             // If the destination does something if moved onto, call it.

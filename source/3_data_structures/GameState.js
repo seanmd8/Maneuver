@@ -115,27 +115,28 @@ class GameState{
     }
     handle_errors(e){
         var m = e.message
-        if(m === ERRORS.floor_complete){
-            // If the player has reached the end of the floor.
-            this.map.display_stats(UIIDS.stats);
-            this.enter_shop();
-        }
-        else if(m === ERRORS.game_over){
-            // If the player's health reached 0
-            this.game_over(e.cause.message);
-        }
-        else if(m === ERRORS.pass_turn){
-            // If the enemies' turn was interrupted,
-            // prep for player's next turn.
-            try{
-                this.prep_turn();
-            }
-            catch(error){
-                this.handle_errors(error);
-            }
-        }
-        else{
-            throw error;
+        switch(m){
+            case ERRORS.floor_complete:
+                this.map.display_stats(UIIDS.stats);
+                this.enter_shop();
+                break;
+            case ERRORS.game_over:
+                this.game_over(e.cause.message);
+                break;
+            case ERRORS.pass_turn:
+                try{
+                    this.prep_turn();
+                }
+                catch(error){
+                    this.handle_errors(error);
+                }
+                break;
+            case ERRORS.victory:
+                this.victory();
+                break;
+            default:
+                throw e;
+
         }
     }
     /**
@@ -277,7 +278,6 @@ class GameState{
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
         say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
-        display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
                 display.remove_children(UIIDS.retry_button);
@@ -290,6 +290,18 @@ class GameState{
             on_click: restart(this)
         }]
         display.add_button_row(UIIDS.retry_button, restart_message);
+        refresh_full_deck_display(this.deck);
+        var swap_visibility = function(id_list, id){
+            return function(){
+                id_list.swap(id);
+            }
+        }
+        display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.full_deck));
+    }
+    victory(){
+        display_map(this.map);
+        display_victory()
+        say_record(gameplay_text.victory);
         refresh_full_deck_display(this.deck);
         var swap_visibility = function(id_list, id){
             return function(){

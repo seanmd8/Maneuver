@@ -23,5 +23,7 @@ const gameplay_text = {
         `\n--------------------\n`,
     select_card: 
         `Before choosing what move to make, you must first select a card to use.`,
+    victory:
+        `You have emerged from the dungeon victorious! Click on the board to begin again.`,
 }
 Object.freeze(gameplay_text);

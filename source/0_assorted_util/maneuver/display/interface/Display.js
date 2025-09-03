@@ -744,6 +744,15 @@ const DisplayHTML = {
         a.innerText = text;
         return a;
     },
+    toggle_visibility(destination, is_visible){
+        var element = DisplayHTML.get_element(destination);
+        if(!is_visible){
+            element.classList.add(`hidden-section`);
+        }
+        else{
+            element.classList.remove(`hidden-section`);            
+        }
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){

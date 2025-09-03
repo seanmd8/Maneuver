@@ -474,6 +474,7 @@ const CARD_SCALE = 90;
 const SMALL_CARD_SCALE = 75;
 const CHEST_CONTENTS_SIZE = 120;
 const TILE_SCALE = 40;
+const VICTORY_IMG_SCALE = TILE_SCALE * FLOOR_HEIGHT + 12;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 160;
@@ -858,6 +859,24 @@ function say(msg){
 function say_record(msg, type = record_types.normal){
     say(msg);
     GS.record_message(msg, type);
+}
+function display_victory(){
+    display.toggle_visibility(UIIDS.hand_box, false);
+    display.toggle_visibility(UIIDS.move_box, false);
+    display.toggle_visibility(UIIDS.retry_box, false);
+    display.remove_children(UIIDS.map_display);
+    display.add_tb_row(UIIDS.map_display, [{
+        name: achievement_names.victory,
+        //foreground: [`${image_folder.other}border.png`],
+        pic: `${IMG_FOLDER.achievements}victory.png`,
+        on_click: () => {
+            display.toggle_visibility(UIIDS.hand_box, true);
+            display.toggle_visibility(UIIDS.move_box, true);
+            display.toggle_visibility(UIIDS.retry_box, true);
+            player_hand_greyed(false);
+            GS.setup();
+        },
+    }], VICTORY_IMG_SCALE);
 }
 /**
  * Displays the hand to it's proper location.
@@ -1822,6 +1841,15 @@ const DisplayHTML = {
         a.innerText = text;
         return a;
     },
+    toggle_visibility(destination, is_visible){
+        var element = DisplayHTML.get_element(destination);
+        if(!is_visible){
+            element.classList.add(`hidden-section`);
+        }
+        else{
+            element.classList.remove(`hidden-section`);            
+        }
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -1899,6 +1927,7 @@ const ERRORS = {
     out_of_bounds: `out of bounds`,
     divide_by_0: `divide by 0`,
     failed_to_load: `Failed to load`,
+    victory: `Victory`,
 }
 Object.freeze(ERRORS);
 // ----------------ManeuverUtil.js----------------
@@ -3183,6 +3212,8 @@ const gameplay_text = {
         `\n--------------------\n`,
     select_card: 
         `Before choosing what move to make, you must first select a card to use.`,
+    victory:
+        `You have emerged from the dungeon victorious! Click on the board to begin again.`,
 }
 Object.freeze(gameplay_text);
 // ----------------GuideText.js----------------
@@ -3436,6 +3467,7 @@ const HTML_UIIDS = {
                 move_info: `moveInfo`,
                 move_buttons: `moveButtons`,
             display_message: `displayMessage`,
+            retry_box: `retryBox`,
             retry_button: `retryButton`,
         shop: `shop`,
             shop_instructions: `shopInstructions`,
@@ -3966,7 +3998,7 @@ function lord_of_shadow_and_flame_tile(){
     `${IMG_FOLDER.tiles}lord_summon.png`
     ]
 
-    var health = 1;
+    var health = 13;
     if(GS.boons.has(boon_names.boss_slayer)){
         health -= 2;
     }
@@ -4125,6 +4157,7 @@ function check_fireball_target(map, location){
 function lord_of_shadow_and_flame_on_death(self, target, map){
     map.add_tile(final_exit_tile());
     map.add_event({name: event_names.earthquake, behavior: eternal_earthquake_event(8)});
+    boss_death(self, target, map);
 }
 /** @type {TileGenerator} */
 function spider_queen_tile(){
@@ -10627,7 +10660,6 @@ class GameMap{
      * Function to display the gamemap and the player's health.
      * Clicking on a tile will give info about it.
      * Resets tiles marked as hit afterwards.
-     * @returns {void}
      */
     display(){
         var make_on_click = function(space, location, gameMap){
@@ -10715,6 +10747,10 @@ class GameMap{
                 this.#area.next_area_list = [end.next_area];
             }
             throw new Error(ERRORS.floor_complete);
+        }
+        if(start.type === entity_types.player && end.type === entity_types.final_exit){
+            this.stats.increment_turn();
+            throw new Error(ERRORS.victory);
         }
         if(end.on_enter !== undefined){
             // If the destination does something if moved onto, call it.
@@ -11402,27 +11438,28 @@ class GameState{
     }
     handle_errors(e){
         var m = e.message
-        if(m === ERRORS.floor_complete){
-            // If the player has reached the end of the floor.
-            this.map.display_stats(UIIDS.stats);
-            this.enter_shop();
-        }
-        else if(m === ERRORS.game_over){
-            // If the player's health reached 0
-            this.game_over(e.cause.message);
-        }
-        else if(m === ERRORS.pass_turn){
-            // If the enemies' turn was interrupted,
-            // prep for player's next turn.
-            try{
-                this.prep_turn();
-            }
-            catch(error){
-                this.handle_errors(error);
-            }
-        }
-        else{
-            throw error;
+        switch(m){
+            case ERRORS.floor_complete:
+                this.map.display_stats(UIIDS.stats);
+                this.enter_shop();
+                break;
+            case ERRORS.game_over:
+                this.game_over(e.cause.message);
+                break;
+            case ERRORS.pass_turn:
+                try{
+                    this.prep_turn();
+                }
+                catch(error){
+                    this.handle_errors(error);
+                }
+                break;
+            case ERRORS.victory:
+                this.victory();
+                break;
+            default:
+                throw e;
+
         }
     }
     /**
@@ -11564,7 +11601,6 @@ class GameState{
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
         say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
-        display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
                 display.remove_children(UIIDS.retry_button);
@@ -11577,6 +11613,18 @@ class GameState{
             on_click: restart(this)
         }]
         display.add_button_row(UIIDS.retry_button, restart_message);
+        refresh_full_deck_display(this.deck);
+        var swap_visibility = function(id_list, id){
+            return function(){
+                id_list.swap(id);
+            }
+        }
+        display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.full_deck));
+    }
+    victory(){
+        display_map(this.map);
+        display_victory()
+        say_record(gameplay_text.victory);
         refresh_full_deck_display(this.deck);
         var swap_visibility = function(id_list, id){
             return function(){

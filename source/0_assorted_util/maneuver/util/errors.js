@@ -17,5 +17,6 @@ const ERRORS = {
     out_of_bounds: `out of bounds`,
     divide_by_0: `divide by 0`,
     failed_to_load: `Failed to load`,
+    victory: `Victory`,
 }
 Object.freeze(ERRORS);

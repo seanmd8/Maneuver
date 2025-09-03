@@ -6,7 +6,7 @@ function lord_of_shadow_and_flame_tile(){
     `${IMG_FOLDER.tiles}lord_summon.png`
     ]
 
-    var health = 1;
+    var health = 13;
     if(GS.boons.has(boon_names.boss_slayer)){
         health -= 2;
     }
@@ -165,4 +165,5 @@ function check_fireball_target(map, location){
 function lord_of_shadow_and_flame_on_death(self, target, map){
     map.add_tile(final_exit_tile());
     map.add_event({name: event_names.earthquake, behavior: eternal_earthquake_event(8)});
+    boss_death(self, target, map);
 }

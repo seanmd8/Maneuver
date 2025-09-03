@@ -95,6 +95,7 @@ const HTML_UIIDS = {
                 move_info: `moveInfo`,
                 move_buttons: `moveButtons`,
             display_message: `displayMessage`,
+            retry_box: `retryBox`,
             retry_button: `retryButton`,
         shop: `shop`,
             shop_instructions: `shopInstructions`,
