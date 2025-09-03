@@ -19,6 +19,7 @@ const achievement_names = {
     forest_heart: `Expert Lumberjack`,
     arcane_sentry: `Security Bypass`,
     lord_of_shadow_and_flame: `Deeper and Deeper`,
+    victory: `Victory`,
 
     // Normal
     non_violent: `Non Violent`,
@@ -50,6 +51,7 @@ const achievement_description = {
     forest_heart: `Defeat the Forest Heart.`,
     arcane_sentry: `Defeat the Arcane Sentry.`,
     lord_of_shadow_and_flame: `Defeat the Lord of Shadow and Flame.`,
+    victory: `Escape victorious.`,
 
     // Normal
     non_violent: `Reach the first boss without killing anything.`,

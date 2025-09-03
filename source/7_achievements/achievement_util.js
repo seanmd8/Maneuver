@@ -9,6 +9,7 @@ function get_achievements(){
         forest_heart_achievement(),
         arcane_sentry_achievement(),
         lord_of_shadow_and_flame_achievement(),
+        victory_achievement(),
         
         // Other 
         ancient_knowledge_achievement(),

@@ -3062,6 +3062,7 @@ const achievement_names = {
     forest_heart: `Expert Lumberjack`,
     arcane_sentry: `Security Bypass`,
     lord_of_shadow_and_flame: `Deeper and Deeper`,
+    victory: `Victory`,
 
     // Normal
     non_violent: `Non Violent`,
@@ -3093,6 +3094,7 @@ const achievement_description = {
     forest_heart: `Defeat the Forest Heart.`,
     arcane_sentry: `Defeat the Arcane Sentry.`,
     lord_of_shadow_and_flame: `Defeat the Lord of Shadow and Flame.`,
+    victory: `Escape victorious.`,
 
     // Normal
     non_violent: `Reach the first boss without killing anything.`,
@@ -11624,6 +11626,7 @@ class GameState{
     victory(){
         display_map(this.map);
         display_victory()
+        this.achieve(achievement_names.victory);
         say_record(gameplay_text.victory);
         refresh_full_deck_display(this.deck);
         var swap_visibility = function(id_list, id){
@@ -16009,6 +16012,7 @@ function get_achievements(){
         forest_heart_achievement(),
         arcane_sentry_achievement(),
         lord_of_shadow_and_flame_achievement(),
+        victory_achievement(),
         
         // Other 
         ancient_knowledge_achievement(),
@@ -16107,6 +16111,14 @@ function velociphile_achievement(){
             sidestep_s, sidestep_se, sidestep_sw, sidestep_w, punch_orthogonal, 
             punch_diagonal
         ]
+    }
+}
+function victory_achievement(){
+    return {
+        name: achievement_names.victory,
+        description: achievement_description.victory,
+        image: `${IMG_FOLDER.achievements}victory.png`,
+        has: false,
     }
 }
 function young_dragon_achievement(){

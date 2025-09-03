@@ -301,6 +301,7 @@ class GameState{
     victory(){
         display_map(this.map);
         display_victory()
+        this.achieve(achievement_names.victory);
         say_record(gameplay_text.victory);
         refresh_full_deck_display(this.deck);
         var swap_visibility = function(id_list, id){
