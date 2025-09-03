@@ -7,7 +7,7 @@ const area1 = [generate_ruins_area];
 const area2 = [generate_sewers_area, generate_basement_area];
 const area3 = [generate_magma_area, generate_crypt_area];
 const area4 = [generate_forest_area, generate_library_area];
-const area5 = area_end;//[generate_court_area];
+const area5 = [generate_court_area];
 
 /**
  * @typedef {Object} Area A section of the dungeon that ends with a boss fight.

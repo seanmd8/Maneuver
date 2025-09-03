@@ -121,26 +121,20 @@ function order_nearby(direction){
     if(sign_dir.x === 0){
         // Target is along the vertical line.
         var pair = randomize_arr([new Point(1, sign_dir.y), new Point(-1, sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(1, 0), new Point(-1, 0)])
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(1, -1 * sign_dir.y), new Point(-1, -1 * sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
     }
     else if(sign_dir.y === 0){
         // Target is along the horizontal line.
         var pair = randomize_arr([new Point(sign_dir.x, 1), new Point(sign_dir.x, 1)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(0, 1), new Point(0, -1)])
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(-1 * sign_dir.x, 1), new Point(-1 * sign_dir.x, -1)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
     }
     else if(Math.abs(direction.x) > Math.abs(direction.y)){  
         // Target is closer to the horizontal line than the vertical one.
@@ -163,14 +157,11 @@ function order_nearby(direction){
     else{
         // Target is along the diagonal.
         var pair = randomize_arr([new Point(sign_dir.x, 0), new Point(0, sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(-1 * sign_dir.x, sign_dir.y), new Point(sign_dir.x, -1 * sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(-1 * sign_dir.x, 0), new Point(0, -1 * sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
     }
     ordering.push(new Point(-1 * sign_dir.x, -1 * sign_dir.y));
     return ordering;

@@ -3966,7 +3966,7 @@ function lord_of_shadow_and_flame_tile(){
     `${IMG_FOLDER.tiles}lord_summon.png`
     ]
 
-    var health = 13;
+    var health = 1;
     if(GS.boons.has(boon_names.boss_slayer)){
         health -= 2;
     }
@@ -3991,7 +3991,7 @@ function lord_of_shadow_and_flame_tile(){
         death_achievement: achievement_names.lord_of_shadow_and_flame,
         behavior: lord_of_shadow_and_flame_behavior,
         telegraph: lord_of_shadow_and_flame_telegraph,
-        on_death: boss_death,
+        on_death: lord_of_shadow_and_flame_on_death,
         pic_arr,
         cycle: 0,
         summons,
@@ -8578,17 +8578,16 @@ function earthquake_event(amount, locations = undefined){
  * @param {number} amount The amount of falling debris that should be created.
  * @returns {MapEventFunction} The event.
  */
-function earthquake_event(amount){
+function eternal_earthquake_event(amount){
     var falling_rubble = function(locations){
         return function(map_to_use){
             for(var location of locations){
                 map_to_use.attack(location);
-                var next_wave = eternal_earthquake_event(locations.length + 5);
-                map_to_use.add_event({name: event_names.earthquake, behavior: next_wave});
             }
         }
     }
     var earthquake = function(amount){
+        amount = Math.min(amount, FLOOR_HEIGHT * FLOOR_WIDTH * 4/5)
         var falling_rubble_layer = {
             pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
             description: event_descriptions.falling_rubble,
@@ -8596,25 +8595,18 @@ function earthquake_event(amount){
         }
         return function(map_to_use){
             var rubble = [];
-            var space;
-            if(locations === undefined){
-                for(var j = 0; j < amount; ++j){
-                    space = map_to_use.random_empty();
+            while(rubble.length < amount){
+                var space = map_to_use.random_space();
+                if(rubble.find((p) => {
+                    return point_equals(p, space);
+                }) === undefined){
                     map_to_use.mark_event(space, falling_rubble_layer);
                     rubble.push(space);
                 }
             }
-            else{
-                var spaces = rand_no_repeats(locations, amount);
-                for(var i = 0; i < amount; ++i){
-                    space = spaces[i];
-                    if(map_to_use.check_empty(space)){
-                        map_to_use.mark_event(space, falling_rubble_layer);
-                        rubble.push(space);
-                    }
-                }
-            }
             map_to_use.add_event({name: event_names.falling_rubble, behavior: falling_rubble(rubble)});
+            var next_wave = eternal_earthquake_event(rubble.length + 5);
+            map_to_use.add_event({name: event_names.earthquake, behavior: next_wave});
         }
     }
     return earthquake(amount);
@@ -8768,26 +8760,20 @@ function order_nearby(direction){
     if(sign_dir.x === 0){
         // Target is along the vertical line.
         var pair = randomize_arr([new Point(1, sign_dir.y), new Point(-1, sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(1, 0), new Point(-1, 0)])
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(1, -1 * sign_dir.y), new Point(-1, -1 * sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
     }
     else if(sign_dir.y === 0){
         // Target is along the horizontal line.
         var pair = randomize_arr([new Point(sign_dir.x, 1), new Point(sign_dir.x, 1)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(0, 1), new Point(0, -1)])
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(-1 * sign_dir.x, 1), new Point(-1 * sign_dir.x, -1)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
     }
     else if(Math.abs(direction.x) > Math.abs(direction.y)){  
         // Target is closer to the horizontal line than the vertical one.
@@ -8810,14 +8796,11 @@ function order_nearby(direction){
     else{
         // Target is along the diagonal.
         var pair = randomize_arr([new Point(sign_dir.x, 0), new Point(0, sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(-1 * sign_dir.x, sign_dir.y), new Point(sign_dir.x, -1 * sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(-1 * sign_dir.x, 0), new Point(0, -1 * sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
     }
     ordering.push(new Point(-1 * sign_dir.x, -1 * sign_dir.y));
     return ordering;
@@ -11022,10 +11005,7 @@ class GameMap{
                 }
                 throw error;
             }
-            
         }
-        
-        
     }
     /**
      * Clears the current floor and goes to the next one then generates it based on the current area.
@@ -12888,7 +12868,7 @@ const area1 = [generate_ruins_area];
 const area2 = [generate_sewers_area, generate_basement_area];
 const area3 = [generate_magma_area, generate_crypt_area];
 const area4 = [generate_forest_area, generate_library_area];
-const area5 = area_end;//[generate_court_area];
+const area5 = [generate_court_area];
 
 /**
  * @typedef {Object} Area A section of the dungeon that ends with a boss fight.

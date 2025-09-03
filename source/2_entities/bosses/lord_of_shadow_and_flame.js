@@ -6,7 +6,7 @@ function lord_of_shadow_and_flame_tile(){
     `${IMG_FOLDER.tiles}lord_summon.png`
     ]
 
-    var health = 13;
+    var health = 1;
     if(GS.boons.has(boon_names.boss_slayer)){
         health -= 2;
     }
@@ -31,7 +31,7 @@ function lord_of_shadow_and_flame_tile(){
         death_achievement: achievement_names.lord_of_shadow_and_flame,
         behavior: lord_of_shadow_and_flame_behavior,
         telegraph: lord_of_shadow_and_flame_telegraph,
-        on_death: boss_death,
+        on_death: lord_of_shadow_and_flame_on_death,
         pic_arr,
         cycle: 0,
         summons,

@@ -677,10 +677,7 @@ class GameMap{
                 }
                 throw error;
             }
-            
         }
-        
-        
     }
     /**
      * Clears the current floor and goes to the next one then generates it based on the current area.
