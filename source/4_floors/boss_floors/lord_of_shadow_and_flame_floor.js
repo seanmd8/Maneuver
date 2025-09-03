@@ -10,5 +10,9 @@ function lord_of_shadow_and_flame_floor(floor_num,  area, map){
     ]
     var spawnpoint = rand_from(locations);
     map.add_tile(lord_of_shadow_and_flame_tile(), spawnpoint);
-    return boss_floor_message.lord_of_shadow_and_flame;
+    var message = boss_floor_message.lord_of_shadow_and_flame;
+    var pacifism_message = GS.boons.has(boon_names.pacifism) > 0
+        ? `\n${boss_floor_message.lord_pacifism}`
+        : ``;
+    return `${message}${pacifism_message}`;
 }

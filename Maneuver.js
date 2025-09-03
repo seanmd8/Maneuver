@@ -2418,6 +2418,7 @@ const boss_floor_message = {
     forest_heart: `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`,
     lich: `Dust and dark magic swirl in the air.`,
     lord_of_shadow_and_flame: `Reality swirls and unravels around a solitary figure.`,
+    lord_pacifism: `There is no escape. Despite your pacifism, you must find a way to fight.`,
     spider_queen: `The floor is thick with webs.`,
     two_headed_serpent: `The discarded skin of a massive creature litters the floor.`,
     velociphile: `You hear a deafening shriek.`,
@@ -11492,8 +11493,10 @@ class GameState{
                     stun_count += 1
                 }
                 if( // Pacifism
-                    this.boons.has(boon_names.pacifism) && 
-                    !action.change.is_origin()
+                    this.boons.has(boon_names.pacifism) > 0 && 
+                    !action.change.is_origin() &&
+                    this.map.is_in_bounds(target) &&
+                    !this.map.get_tile(target).tags.has(TAGS.altar)
                 ){
                     stun_count += 2 * attack_count;
                     attack_count = 0;
@@ -13042,7 +13045,11 @@ function lord_of_shadow_and_flame_floor(floor_num,  area, map){
     ]
     var spawnpoint = rand_from(locations);
     map.add_tile(lord_of_shadow_and_flame_tile(), spawnpoint);
-    return boss_floor_message.lord_of_shadow_and_flame;
+    var message = boss_floor_message.lord_of_shadow_and_flame;
+    var pacifism_message = GS.boons.has(boon_names.pacifism) > 0
+        ? `\n${boss_floor_message.lord_pacifism}`
+        : ``;
+    return `${message}${pacifism_message}`;
 }
 /** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){

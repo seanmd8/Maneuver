@@ -167,8 +167,10 @@ class GameState{
                     stun_count += 1
                 }
                 if( // Pacifism
-                    this.boons.has(boon_names.pacifism) && 
-                    !action.change.is_origin()
+                    this.boons.has(boon_names.pacifism) > 0 && 
+                    !action.change.is_origin() &&
+                    this.map.is_in_bounds(target) &&
+                    !this.map.get_tile(target).tags.has(TAGS.altar)
                 ){
                     stun_count += 2 * attack_count;
                     attack_count = 0;
