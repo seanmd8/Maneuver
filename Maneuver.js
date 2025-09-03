@@ -11019,6 +11019,13 @@ class GameMap{
             this.#set_tile(pos, exit);
         }
     }
+    remove_exit(){
+        for(var pos of this.#exit_pos){
+            this.#set_tile(pos, empty_tile());
+            this.get_grid(pos).floor = this.#area.background;
+        }
+        this.#exit_pos = [];
+    }
     /**
      * Schedules an event to happen at end of turn.
      * @param {MapEvent} event The even to be added.
@@ -13035,6 +13042,7 @@ function lich_floor(floor_num,  area, map){
 }
 /** @type {FloorGenerator} Generates the floor where the Lord of Shadow and Flame appears.*/
 function lord_of_shadow_and_flame_floor(floor_num,  area, map){
+    map.remove_exit();
     var mid_width = Math.floor(FLOOR_WIDTH / 2) - 1;
     var mid_height = Math.floor(FLOOR_HEIGHT / 2) - 1;
     var locations = [

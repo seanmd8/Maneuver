@@ -1,5 +1,6 @@
 /** @type {FloorGenerator} Generates the floor where the Lord of Shadow and Flame appears.*/
 function lord_of_shadow_and_flame_floor(floor_num,  area, map){
+    map.remove_exit();
     var mid_width = Math.floor(FLOOR_WIDTH / 2) - 1;
     var mid_height = Math.floor(FLOOR_HEIGHT / 2) - 1;
     var locations = [

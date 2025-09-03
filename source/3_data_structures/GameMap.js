@@ -655,6 +655,13 @@ class GameMap{
             this.#set_tile(pos, exit);
         }
     }
+    remove_exit(){
+        for(var pos of this.#exit_pos){
+            this.#set_tile(pos, empty_tile());
+            this.get_grid(pos).floor = this.#area.background;
+        }
+        this.#exit_pos = [];
+    }
     /**
      * Schedules an event to happen at end of turn.
      * @param {MapEvent} event The even to be added.
