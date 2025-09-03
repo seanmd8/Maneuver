@@ -8,6 +8,7 @@ function get_achievements(){
         young_dragon_achievement(),
         forest_heart_achievement(),
         arcane_sentry_achievement(),
+        lord_of_shadow_and_flame_achievement(),
         
         // Other 
         ancient_knowledge_achievement(),

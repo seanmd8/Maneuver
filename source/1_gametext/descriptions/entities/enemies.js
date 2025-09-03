@@ -46,6 +46,9 @@ const enemy_descriptions = {
     magma_spewer: 
         `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
         +`get close.`,
+    maw:
+        `Maw: Attacks the player twixe is they are 1 space away orthogonally. Otherwise moves 1 `
+        +`space orthogonally towards them. Taking damage will stun it twice.`,
     noxious_toad: 
         `Noxious Toad: Every other turn it will hop over a space orthogonally. `
         +`If it lands near the player, it will damage everything next to it.`,
@@ -88,7 +91,7 @@ const enemy_descriptions = {
         `Shadow Knight: Moves in an L shape. If it tramples the player, `
         +`it will move again.`,
     shadow_knight_elite: 
-        `Shadow Knight Elite: Moves in an L shape. Attacks twice. If it tramples the player, `
+        `Shadow Knight Elite: Moves in an L shape. If it tramples the player, `
         +`it will move again. Smarter than normal shadow knights.`,
     shadow_scout: 
         `Shadow Scout: Will attack the player if it is next to them. Otherwise it will `
@@ -127,7 +130,7 @@ const enemy_descriptions = {
         +`the first thing in their path. Rotates every turn.`,
     unspeakable:
         `Unspeakable: Moves towards the player 1 space. Does not attack. On death, `
-        +`confuses the player 3 times, polluting their deck with bad cards.`,
+        +`confuses the player 2 times, polluting their deck with bad cards.`,
     unstable_wisp: 
         `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes `
         +`into a ring of fireballs on death.`,
@@ -165,6 +168,7 @@ const enemy_names = {
     igneous_crab: `Igneous Crab`, 
     living_tree: `Living Tree`, 
     magma_spewer: `Magma Spewer`, 
+    maw: `Maw`,
     noxious_toad: `Noxious Toad`, 
     orb_of_insanity: `Orb of Insanity`, 
     paper_construct: `Paper Construct`, 
@@ -257,6 +261,8 @@ const enemy_flavor = {
         +`power source, it also allows them to fire rocks at high speeds through pressurized jets `
         +`on their head. This gives them a powerful natural defense mechanism that can take out targets `
         +`at great distances.`,
+    maw:
+        ``,
     noxious_toad: 
         `Capable of leaping great distances to navigate the difficcult terrain of the sewers, these `
         +`toads have also developed a natural defense mechanism which sets them apart from their `

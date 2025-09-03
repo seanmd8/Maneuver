@@ -110,24 +110,32 @@ class GameState{
             await this.prep_turn();
         }
         catch (error){
-            var m = error.message;
-            if(m === ERRORS.floor_complete){
-                // If the player has reached the end of the floor.
-                this.map.display_stats(UIIDS.stats);
-                this.enter_shop();
-            }
-            else if(m === ERRORS.game_over){
-                // If the player's health reached 0
-                this.game_over(error.cause.message);
-            }
-            else if(m === ERRORS.pass_turn){
-                // If the enemies' turn was interrupted,
-                // prep for player's next turn.
+            this.handle_errors(error);
+        }
+    }
+    handle_errors(e){
+        var m = e.message
+        if(m === ERRORS.floor_complete){
+            // If the player has reached the end of the floor.
+            this.map.display_stats(UIIDS.stats);
+            this.enter_shop();
+        }
+        else if(m === ERRORS.game_over){
+            // If the player's health reached 0
+            this.game_over(e.cause.message);
+        }
+        else if(m === ERRORS.pass_turn){
+            // If the enemies' turn was interrupted,
+            // prep for player's next turn.
+            try{
                 this.prep_turn();
             }
-            else{
-                throw error;
+            catch(error){
+                this.handle_errors(error);
             }
+        }
+        else{
+            throw error;
         }
     }
     /**

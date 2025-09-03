@@ -7,7 +7,7 @@ function blood_crescent_tile(){
         description: enemy_descriptions.blood_crescent,
         tags: new TagList(),
         health: 1,
-        difficulty: 5,
+        difficulty: 6,
         behavior: blood_crescent_ai,
         telegraph: blood_crescent_telegraph,
         rotate: 90 * random_num(4)

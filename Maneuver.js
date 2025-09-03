@@ -431,10 +431,10 @@ function point_equals(p1, p2){
 // Settings just used for testing. Leave as undefined when not in use.
 function init_settings(){
     const init = {
-        enemies: undefined,
-        chests: undefined,
+        enemies: [maw_tile],
+        chests: [roar_of_challenge, roar_of_challenge],
         cards: undefined,
-        area: undefined,
+        area: generate_court_area,
         area_size: undefined,
         achievements: undefined,
         save: undefined,
@@ -523,6 +523,7 @@ const IMG_FOLDER = {
 Object.freeze(IMG_FOLDER);
 
 const TAGS = {
+    altar: `Altar`,
     boss: `Boss`,
     unmovable: `Unmovable`,
     unstunnable: `Unstunnable`,
@@ -2330,6 +2331,7 @@ const boss_names = {
     arcane_sentry_node: `Arcane Sentry Node`,
     forest_heart: `Forest Heart`,
     lich: `Lich`,
+    lord_of_shadow_and_flame: `Lord of Shadow and Flame`,
     spider_queen: `Spider Queen`,
     two_headed_serpent: `Two Headed Serpent`,
     two_headed_serpent_body: `Two Headed Serpent Body`,
@@ -2345,12 +2347,16 @@ const boss_descriptions = {
         `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry. Cannot be stunned.`,
     forest_heart: 
         `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage `
-        +`each turn and cannot be stunned.`,
+        +`each turn and cannot be stunned. Reacts to damage by calling for aid from the forest.`,
     lich: 
         `Lich (Boss): An undead wielder of dark magic. Alternates between moving `
         +`one space away from you and casting a spell.`,
     lich_announcement: 
         `The Lich is currently preparing to cast:`,
+    lord_of_shadow_and_flame:
+        `Lord of Shadow and Flame (Final Boss): _____. Summons altars from which to cast it's spells. `
+        +`When next to the player it will prepare to attack all nearby spaces next turn. Moves at `
+        +`double speed while under half health.`,
     spider_queen: 
         `Spider Queen (Boss): Her back crawls with her young. Moves like a `
         +`normal spider. Taking damage will stun her, but will also spawn a spider.`,
@@ -2382,6 +2388,7 @@ const boss_floor_message = {
         +`INTRUDER DETECTED!`,
     forest_heart: `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`,
     lich: `Dust and dark magic swirl in the air.`,
+    lord_of_shadow_and_flame: `Reality swirls and unravels around a solitary figure.`,
     spider_queen: `The floor is thick with webs.`,
     two_headed_serpent: `The discarded skin of a massive creature litters the floor.`,
     velociphile: `You hear a deafening shriek.`,
@@ -2399,6 +2406,9 @@ const boss_death_message = {
     arcane_sentry_node: `NODE OFFLINE!`,
     forest_heart: `Branches rain from above as the ancient tree is felled.`,
     lich: `The Lich's body crumbles to dust.`,
+    lord_of_shadow_and_flame: 
+        `As the ruler of this space fades from reality, the room begins to quake. `
+        +`Better leave quickly.`,
     spider_queen: `As the Spider Queen falls to the floor, the last of her children emerge.`,
     two_headed_serpent: 
         `It's body too small to regenerate any further, all four of the serpent's `
@@ -2498,6 +2508,9 @@ const enemy_descriptions = {
     magma_spewer: 
         `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
         +`get close.`,
+    maw:
+        `Maw: Attacks the player twixe is they are 1 space away orthogonally. Otherwise moves 1 `
+        +`space orthogonally towards them. Taking damage will stun it twice.`,
     noxious_toad: 
         `Noxious Toad: Every other turn it will hop over a space orthogonally. `
         +`If it lands near the player, it will damage everything next to it.`,
@@ -2540,7 +2553,7 @@ const enemy_descriptions = {
         `Shadow Knight: Moves in an L shape. If it tramples the player, `
         +`it will move again.`,
     shadow_knight_elite: 
-        `Shadow Knight Elite: Moves in an L shape. Attacks twice. If it tramples the player, `
+        `Shadow Knight Elite: Moves in an L shape. If it tramples the player, `
         +`it will move again. Smarter than normal shadow knights.`,
     shadow_scout: 
         `Shadow Scout: Will attack the player if it is next to them. Otherwise it will `
@@ -2579,7 +2592,7 @@ const enemy_descriptions = {
         +`the first thing in their path. Rotates every turn.`,
     unspeakable:
         `Unspeakable: Moves towards the player 1 space. Does not attack. On death, `
-        +`confuses the player 3 times, polluting their deck with bad cards.`,
+        +`confuses the player 2 times, polluting their deck with bad cards.`,
     unstable_wisp: 
         `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes `
         +`into a ring of fireballs on death.`,
@@ -2617,6 +2630,7 @@ const enemy_names = {
     igneous_crab: `Igneous Crab`, 
     living_tree: `Living Tree`, 
     magma_spewer: `Magma Spewer`, 
+    maw: `Maw`,
     noxious_toad: `Noxious Toad`, 
     orb_of_insanity: `Orb of Insanity`, 
     paper_construct: `Paper Construct`, 
@@ -2709,6 +2723,8 @@ const enemy_flavor = {
         +`power source, it also allows them to fire rocks at high speeds through pressurized jets `
         +`on their head. This gives them a powerful natural defense mechanism that can take out targets `
         +`at great distances.`,
+    maw:
+        ``,
     noxious_toad: 
         `Capable of leaping great distances to navigate the difficcult terrain of the sewers, these `
         +`toads have also developed a natural defense mechanism which sets them apart from their `
@@ -2823,11 +2839,14 @@ const entity_types = {
     empty: `Empty`,
     enemy: `Enemy`,
     exit: `Exit`,
+    final_exit: `Final Exit`,
     player: `Player`,
     terrain: `Terrain`,
 }
 Object.freeze(entity_types);
 const event_descriptions = {
+    black_hole:
+        `A Black Hole is beginning to form here.`,
     darkling_rift: 
         `If this space isn't blocked, a darkling will teleport here `
         +`next turn damaging everything nearby.`,
@@ -2836,13 +2855,16 @@ const event_descriptions = {
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
     starfall:
-        `Something is about to be pulled into existence here damaging anything standing here.`,
+        `Something is about to be pulled into existence damaging anything standing here.`,
+    sunlight:
+        `This space is rapidly heating up.`,
     thorn_root: 
         `Watch out, brambles are about to sprout damaging anything standing here.`,
 }
 Object.freeze(event_descriptions);
 
 const event_names = {
+    black_hole: `Black Hole`,
     bramble_shield: `Bramble Shield`,
     darkling_rift: `Darkling Rift`,
     delay: `Delay`,
@@ -2854,9 +2876,32 @@ const event_names = {
     starfall: `Starfall`,
     unstun: `Unstun`,
     wake_up: `Wake Up`,
+    warp: `Spacial Warp`
 }
 Object.freeze(event_names);
 const other_tile_descriptions = {
+    altar_of_scouring:
+        `Altar of Scouring: Activate by moving here. When activated, creates a wall of fireballs to `
+        +`wipe the screen clean.`,
+    altar_of_shadow:
+        `Altar of Shadow: Activate by moving here. When activated, the Lord of Shadow and Flame will `
+        +`become invisible until another altar is activated.`,
+    altar_of_singularity:
+        `Altar of Singularity: Activate by moving here. When activated, create a Black Hole in this space.`,
+    altar_of_space:
+        `Altar of Space: Activate by moving here. When activated, rearrange the floor.`,
+    altar_of_stars:
+        `Altar of Stars: Activate by moving here. When activated, for the next 3 turns it will `
+        +`summon an object from another realm targeting the player's location.`,
+    altar_of_stasis:
+        `Altar of Stasis: Activate by moving here. When activated, rewinds time healing the Lord `
+        +`of Shadow and Flame by 2 and all altars by 1.`,
+    altar_of_sunlight:
+        `Altar of Sunlight: Activate by moving here. When activated, create an expanding fire `
+        +`centered on the player's location.`,
+    black_hole: 
+        `Black Hole: Draws everything on screen closer to it. The `
+        +`Lord of Shadow and Flame is immune. Decays every turn.`,
     bookshelf: 
         `Bookshelf: When damaged, adds a random temporary card to your deck.`,
     coffin: 
@@ -2908,6 +2953,14 @@ const other_tile_descriptions = {
 Object.freeze(other_tile_descriptions);
 
 const other_tile_names = {
+    altar_of_scouring: `Altar of Scouring`,
+    altar_of_shadow: `Altar of Shadow`,
+    altar_of_singularity: `Altar of Singularity`,
+    altar_of_space: `Altar of Space`,
+    altar_of_stars: `Altar of Stars`,
+    altar_of_stasis: `Altar of Stasis`,
+    altar_of_sunlight: `Altar of Sunlight`,
+    black_hole: `Black Hole`,
     bookshelf: `Bookshelf`,
     coffin: `Coffin`,
     corrosive_slime: `Corrosive Slime`,
@@ -2934,6 +2987,7 @@ const special_tile_descriptions = {
     +`a normal chest and armored to protect it's contents.`,
     empty: `There is nothing here.`,
     exit: `Exit: Stairs to the next floor.`,
+    final_exit: `Return Portal: Move here to leave the dungeon and win the game.`,
     lock: `Locked Exit: Defeat the boss to continue.`,
     player: `You: Click a card to move.`,
 }
@@ -2944,6 +2998,7 @@ const special_tile_names = {
     chest_armored: `Armored Chest`,
     empty: `Empty`,
     exit: `Exit`,
+    final_exit: `Return Portal`,
     lock: `Locked Exit`,
     you: `You`,
     player: `Player`,
@@ -2977,6 +3032,7 @@ const achievement_names = {
     young_dragon: `Novice Dragonslayer`,
     forest_heart: `Expert Lumberjack`,
     arcane_sentry: `Security Bypass`,
+    lord_of_shadow_and_flame: `Deeper and Deeper`,
 
     // Normal
     non_violent: `Non Violent`,
@@ -3007,6 +3063,7 @@ const achievement_description = {
     young_dragon: `Defeat the Young Dragon.`,
     forest_heart: `Defeat the Forest Heart.`,
     arcane_sentry: `Defeat the Arcane Sentry.`,
+    lord_of_shadow_and_flame: `Defeat the Lord of Shadow and Flame.`,
 
     // Normal
     non_violent: `Reach the first boss without killing anything.`,
@@ -3036,6 +3093,7 @@ const boss_achievements = [
     achievement_names.young_dragon,
     achievement_names.forest_heart,
     achievement_names.arcane_sentry,
+    achievement_names.lord_of_shadow_and_flame,
 ]
 const control_screen_text = {
     default: `Default`,
@@ -3901,6 +3959,174 @@ function lich_hit(self, target, map){
     self.tile.pic = self.tile.spells[self.tile.cycle].pic;
 }
 /** @type {TileGenerator} */
+function lord_of_shadow_and_flame_tile(){
+    var pic_arr = [
+    `${IMG_FOLDER.tiles}lord_move.png`,
+    `${IMG_FOLDER.tiles}lord_attack.png`,
+    `${IMG_FOLDER.tiles}lord_summon.png`
+    ]
+
+    var health = 13;
+    if(GS.boons.has(boon_names.boss_slayer)){
+        health -= 2;
+    }
+    var summons = [
+        altar_of_sunlight_tile,
+        altar_of_stars_tile,
+        altar_of_scouring_tile,
+        altar_of_shadow_tile,
+        altar_of_space_tile,
+        altar_of_stasis_tile,
+        altar_of_singularity_tile,
+    ]
+    return {
+        type: entity_types.enemy,
+        name: boss_names.lord_of_shadow_and_flame,
+        pic: pic_arr[0],
+        description: boss_descriptions.lord_of_shadow_and_flame,
+        tags: new TagList([TAGS.boss]),
+        health,
+        max_health: 13,
+        death_message: boss_death_message.lord_of_shadow_and_flame,
+        death_achievement: achievement_names.lord_of_shadow_and_flame,
+        behavior: lord_of_shadow_and_flame_behavior,
+        telegraph: lord_of_shadow_and_flame_telegraph,
+        on_death: boss_death,
+        pic_arr,
+        cycle: 0,
+        summons,
+        card_drops: BOSS_CARDS.lord_of_shadow_and_flame
+    }
+}
+
+/** @type {AIFunction} AI used by the Lord of Shadow and Flame.*/
+function lord_of_shadow_and_flame_behavior(self, target, map){
+    var lord_slow_pics = [
+        `${IMG_FOLDER.tiles}lord_move.png`,
+        `${IMG_FOLDER.tiles}lord_attack.png`,
+        `${IMG_FOLDER.tiles}lord_summon.png`
+    ];
+    var lord_fast_pics = [
+        `${IMG_FOLDER.tiles}lord_fast_move.png`,
+        `${IMG_FOLDER.tiles}lord_fast_attack.png`,
+        `${IMG_FOLDER.tiles}lord_fast_summon.png`
+    ];
+
+    self.tile.pic_arr = self.tile.health < self.tile.max_health / 2 ? lord_fast_pics : lord_slow_pics;
+    switch(self.tile.cycle){
+        case 2: // Summon Mode
+            // Do nothing since the actual summon should be an event that is already in motion.
+            break;
+        case 1: // Attack Mode
+            var attacks = randomize_arr(ALL_DIRECTIONS).map((p) => {
+                return self.location.plus(p);
+            }).filter((p) => {
+                return map.is_in_bounds(p);
+            })
+            for(var attack of attacks){
+                var tile = map.get_tile(attack);
+                if(!tile.tags.has(TAGS.altar)){
+                    map.attack(attack);
+                }
+            }
+            break;
+        case 0: // Movement Mode
+            if(!target.difference.within_radius(1)){
+                var speed = self.tile.health < self.tile.max_health / 2 ? 2 : 1;
+                for(var i = 0; i < speed; ++i){
+                    var nearest = get_nearest_altar(map, self.location);
+                    if(nearest !== undefined){
+                        var dir = self.location.minus(nearest);
+                        var choices = reverse_arr(order_nearby(sign(dir)).filter((p) => {
+                            return map.is_in_bounds(p.plus(self.location));
+                        }));
+                        for(var choice of choices){
+                            var destination = self.location.plus(choice);
+                            var is_altar = map.get_tile(destination).tags.has(TAGS.altar);
+                            var is_empty = map.check_empty(destination);
+                            var is_fireball_target = check_fireball_target(map, destination);
+                            if(is_altar || (is_empty && !is_fireball_target)){
+                                if(map.move(self.location, destination)){
+                                    self.location.plus_equals(choice);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        default:
+            throw new Error(ERRORS.invalid_value);
+    }
+    
+    if(target.difference.within_radius(1)){
+        // Prep attack
+        self.tile.pic = self.tile.pic_arr[1];
+        self.tile.cycle = 1;
+    }
+    else if(self.tile.cycle === 2 || get_nearest_altar(map, self.location) !== undefined){
+        // Prep move
+        self.tile.pic = self.tile.pic_arr[0];
+        self.tile.cycle = 0;
+    }
+    else{
+        // Prep summon
+        self.tile.pic = self.tile.pic_arr[2];
+        self.tile.cycle = 2;
+        var make = rand_no_repeats(self.tile.summons, 4);
+        var xs = rand_no_repeats(range(0, FLOOR_WIDTH), make.length);
+        var ys = rand_no_repeats(range(0, FLOOR_HEIGHT), make.length);
+        for(var i = 0; i < make.length; ++i){
+            var destination = new Point(xs[i], ys[i]);
+            if(!point_equals(destination, self.location)){
+                map.add_event({
+                    name: event_names.altarfall, 
+                    behavior: altar_event(destination, make[i])
+                });
+            }
+        }
+    }
+}
+
+/** @type {TelegraphFunction} */
+function lord_of_shadow_and_flame_telegraph(location, map, self){
+    if(self.cycle === 1){
+        return spider_telegraph(location, map, self);
+    }
+    return [];
+}
+
+function get_nearest_altar(map, location){
+    for(var i = 1; i < Math.max(FLOOR_HEIGHT, FLOOR_WIDTH); ++i){
+        var corner_1 = location.plus(new Point(1, 1).times(i));
+        var corner_2 = location.plus(new Point(-1, -1).times(i));
+        var rectangle = point_rectangle(corner_1, corner_2);
+        for(var p of rectangle){
+            if(map.is_in_bounds(p) && map.get_tile(p).tags.has(TAGS.altar)){
+                return p;
+            }
+        }
+    }
+    return undefined;
+}
+
+function check_fireball_target(map, location){
+    var fireballs = point_rectangle(location.plus(1, 1), location.plus(-1, -1)).filter((p) => {
+        // Is there a fireball at p?
+        return map.is_in_bounds(p) && map.get_tile(p).tags.has(TAGS.fireball);
+    }).filter((p) => {
+        // Is the fireball at p headed to location?
+        return point_equals(map.get_tile(p).direction.plus(p), location);
+    });
+    return fireballs.length > 0;
+}
+
+function lord_of_shadow_and_flame_on_death(self, target, map){
+    map.add_tile(final_exit_tile());
+    map.add_event({name: event_names.earthquake, behavior: eternal_earthquake_event(8)});
+}
+/** @type {TileGenerator} */
 function spider_queen_tile(){
     var health = 3;
     if(GS.boons.has(boon_names.boss_slayer)){
@@ -4541,7 +4767,7 @@ function blood_crescent_tile(){
         description: enemy_descriptions.blood_crescent,
         tags: new TagList(),
         health: 1,
-        difficulty: 5,
+        difficulty: 6,
         behavior: blood_crescent_ai,
         telegraph: blood_crescent_telegraph,
         rotate: 90 * random_num(4)
@@ -4761,7 +4987,23 @@ function carrion_flies_ai(self, target, map){
     }
 }
 /** @type {TileGenerator} */
-function claustropede_tile(){
+function claustropede_2_tile(){
+    return {
+        type: entity_types.enemy,
+        name: enemy_names.claustropede,
+        pic: `${IMG_FOLDER.tiles}claustropede_2.png`,
+        description: enemy_descriptions.claustropede,
+        tags: new TagList(),
+        health: 2,
+        difficulty: 6,
+        behavior: claustropede_ai,
+        on_hit: claustropede_hit,
+        telegraph: claustropede_telegraph,
+        cycle: 0,
+    }
+}
+/** @type {TileGenerator} */
+function claustropede_3_tile(){
     return {
         type: entity_types.enemy,
         name: enemy_names.claustropede,
@@ -4769,19 +5011,18 @@ function claustropede_tile(){
         description: enemy_descriptions.claustropede,
         tags: new TagList(),
         health: 3,
-        difficulty: 5,
+        difficulty: 10,
         behavior: claustropede_ai,
         on_hit: claustropede_hit,
         telegraph: claustropede_telegraph,
         cycle: 0,
     }
 }
-
 /** @type {AIFunction} AI used by claustropedes.*/
 function claustropede_ai(self, target, map){
     if(self.tile.cycle === 1){
         self.tile.cycle = 0;
-        var copy = claustropede_tile();
+        var copy = claustropede_2_tile();
         var health = self.tile.health;
         copy.health = health;
         var pic = `${IMG_FOLDER.tiles}claustropede_3.png`;
@@ -5176,6 +5417,49 @@ function magma_spewer_ai(self, target, map){
     }
     self.tile.cycle = 1 - self.tile.cycle;
     self.tile.pic = self.tile.pic_arr[self.tile.cycle];
+}
+/** @type {TileGenerator} */
+function maw_tile(){
+    return {
+        type: entity_types.enemy,
+        name: enemy_names.maw,
+        pic: `${IMG_FOLDER.tiles}maw.png`,
+        description: enemy_descriptions.maw,
+        tags: new TagList(),
+        health: 5,
+        difficulty: 7,
+        behavior: maw_ai,
+        telegraph: maw_telegraph,
+        on_hit: maw_hit,
+    }
+}
+
+/** @type {AIFunction} AI used by maws.*/
+function maw_ai(self, target, map){
+    if(target.difference.on_axis() && target.difference.within_radius(1)){
+        map.attack(self.location.plus(target.difference));
+        map.attack(self.location.plus(target.difference));
+    }
+    else{
+        var moves = order_nearby(target.difference).filter((p) => {
+            return p.on_axis();
+        });
+        var has_moved = false;
+        for(var i = 0; i < moves.length && !has_moved; ++i){
+            has_moved = map.move(self.location, self.location.plus(moves[i]));
+        }
+    }
+}
+/** @type {AIFunction}.*/
+function maw_hit(self, target, map){
+    stun(self.tile);
+    stun(self.tile);
+}
+/** @type {TelegraphFunction} */
+function maw_telegraph(location, map, self){
+    return ORTHOGONAL_DIRECTIONS.map((p) => {
+        return location.plus(p);
+    })
 }
 /** @type {TileGenerator} */
 function noxious_toad_tile(){
@@ -5954,7 +6238,7 @@ function shadow_knight_elite_tile(){
         pic: `${IMG_FOLDER.tiles}shadow_knight_elite.png`,
         description: enemy_descriptions.shadow_knight_elite,
         tags: new TagList(),
-        health: 3,
+        health: 2,
         difficulty: 6,
         behavior: shadow_knight_elite_ai,
         telegraph: shadow_knight_telegraph
@@ -5973,7 +6257,6 @@ function shadow_knight_elite_ai(self, target, map){
         return point_equals(p, player_location);
     });
     if(attack.length > 0){
-        map.attack(player_location);
         map.attack(player_location);
         var possible_ends = L_SHAPES.map((p) => {
             return p.plus(player_location);
@@ -6223,7 +6506,7 @@ function spider_web_ai(self, target, map){
 /** @type {TileGenerator} */
 function starcaller_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}starcaller_off.png`, `${IMG_FOLDER.tiles}starcaller_on.png`];
-    var starting_cycle = random_num(3) + 1;
+    var starting_cycle = random_num(4) + 1;
     var summons = [
         carrion_flies_tile,
         shatter_sphere_d_tile,
@@ -6236,7 +6519,7 @@ function starcaller_tile(){
         pic: `${IMG_FOLDER.tiles}starcaller_off.png`,
         description: enemy_descriptions.starcaller,
         tags: new TagList(),
-        health: 2,
+        health: 1,
         difficulty: 4,
         behavior: starcaller_ai,
         pic_arr,
@@ -6254,7 +6537,7 @@ function starcaller_ai(self, target, map){
             var spawn = rand_from(self.tile.summons)();
             map.add_tile(spawn, self.tile.direction);
         }
-        self.tile.cycle = 3;
+        self.tile.cycle = 4;
         self.tile.pic = self.tile.pic_arr[0];
     }
     --self.tile.cycle;
@@ -6652,7 +6935,7 @@ function unspeakable_tile(){
 
 /** @type {AIFunction} Function used when unspeakableas die to confuse the player.*/
 function unspeakable_death(self, target, map){
-    for(var i = 0; i < 3; ++i){
+    for(var i = 0; i < 2; ++i){
         map.stun_tile(self.location.plus(target.difference));
     }
 }
@@ -7007,6 +7290,344 @@ function wheel_of_fire_telegraph(location, map, self){
         attacks.push(...arr);
     }
     return attacks;
+}
+function altar_on_enter(f){
+    return (self, target, map) => {
+        if(target.tile.type === entity_types.player || target.tile.tags.has(TAGS.boss)){
+            self.tile.health = 1;
+            map.attack(self.location);
+            var boss_tile = get_boss(map);
+            if(boss_tile !== undefined){
+                boss_tile.tags.remove(TAGS.hidden);
+                boss_tile.look = undefined;
+            }
+            f(self, target, map);
+        }
+    }
+}
+
+function get_boss(map){
+    var locations = [];
+    cross(range(0, FLOOR_WIDTH), range(0, FLOOR_HEIGHT), (x, y) => {
+        locations.push(new Point(x, y));
+    });
+    locations = locations.filter((p) => {
+        return map.get_tile(p).tags.has(TAGS.boss);
+    });
+    return locations.length > 0 ? map.get_tile(locations[0]) : undefined;
+   
+}
+/** @type {TileGenerator}*/
+function altar_of_scouring_tile(){
+    return {
+        type: entity_types.terrain,
+        name: other_tile_names.altar_of_scouring,
+        pic: `${IMG_FOLDER.tiles}altar_of_scouring.png`,
+        description: other_tile_descriptions.altar_of_scouring,
+        tags: new TagList([TAGS.altar]),
+        health: 1,
+        on_enter: altar_on_enter(altar_of_scouring_on_enter)
+    }
+}
+
+function altar_of_scouring_on_enter(self, target, map){
+    var left = self.location.x;
+    var right = FLOOR_WIDTH - left;
+    var top = self.location.y;
+    var bottom = FLOOR_HEIGHT - top;
+    var max = Math.max(left, right, top, bottom);
+    switch(max){
+        case left:
+            for(var i = 0; i < FLOOR_HEIGHT; ++i){
+                var spawnpoint = new Point(0, i);
+                map.attack(spawnpoint);
+                if(map.check_empty(spawnpoint)){
+                    map.add_tile(shoot_fireball(new Point(1, 0)), spawnpoint);
+                }
+            }
+            break;
+        case right:
+            for(var i = 0; i < FLOOR_HEIGHT; ++i){
+                var spawnpoint = new Point(FLOOR_WIDTH - 1, i);
+                map.attack(spawnpoint);
+                if(map.check_empty(spawnpoint)){
+                    map.add_tile(shoot_fireball(new Point(-1, 0)), spawnpoint);
+                }
+            }
+            break;
+        case bottom:
+            for(var i = 0; i < FLOOR_WIDTH; ++i){
+                var spawnpoint = new Point(i, FLOOR_HEIGHT- 1);
+                map.attack(spawnpoint);
+                if(map.check_empty(spawnpoint)){
+                    map.add_tile(shoot_fireball(new Point(0, -1)), spawnpoint);
+                }
+            }
+            break;
+        case top:
+            for(var i = 0; i < FLOOR_WIDTH; ++i){
+                var spawnpoint = new Point(i, 0);
+                map.attack(spawnpoint);
+                if(map.check_empty(spawnpoint)){
+                    map.add_tile(shoot_fireball(new Point(0, 1)), spawnpoint);
+                }
+            }
+            break;
+    }
+}
+/** @type {TileGenerator}*/
+function altar_of_shadow_tile(){
+    return {
+        type: entity_types.terrain,
+        name: other_tile_names.altar_of_shadow,
+        pic: `${IMG_FOLDER.tiles}altar_of_shadow.png`,
+        description: other_tile_descriptions.altar_of_shadow,
+        tags: new TagList([TAGS.altar]),
+        health: 1,
+        on_enter: altar_on_enter(altar_of_shadow_on_enter)
+    }
+}
+
+function altar_of_shadow_on_enter(self, target, map){
+    var boss_tile = get_boss(map);
+    if(boss_tile !== undefined){
+        boss_tile.tags.add(TAGS.hidden);
+        boss_tile.look = empty_tile();
+    }
+}
+
+
+/** @type {TileGenerator}*/
+function altar_of_singularity_tile(){
+    return {
+        type: entity_types.terrain,
+        name: other_tile_names.altar_of_singularity,
+        pic: `${IMG_FOLDER.tiles}altar_of_singularity.png`,
+        description: other_tile_descriptions.altar_of_singularity,
+        tags: new TagList([TAGS.altar]),
+        health: 1,
+        on_enter: altar_on_enter(altar_of_singularity_on_enter)
+    }
+}
+
+function altar_of_singularity_on_enter(self, target, map){
+    var mark = {
+        pic: `${IMG_FOLDER.tiles}black_hole_beginning.png`,
+        description: event_descriptions.black_hole,
+        telegraph: hazard_telegraph
+    }
+    var fall = function(location){
+        return function(map_to_use){
+            map_to_use.attack(location);
+            if(map_to_use.check_empty(location)){
+                map_to_use.add_tile(black_hole_tile(), location);
+            }
+        }
+    }
+    var delay = (map_to_use) => {
+        var destination = self.location;
+        map_to_use.mark_event(destination, mark);
+        map_to_use.add_event({name: event_names.black_hole, behavior: fall(destination)});
+    }
+    // If this is the last altar, wait an extra turn so the lord can summon then move.
+    var wait = get_nearest_altar(map, self.location) === undefined ? 2 : 1;
+    map.add_event({name: event_names.black_hole, behavior: delay_event(wait, delay)});
+
+}
+/** @type {TileGenerator}*/
+function altar_of_space_tile(){
+    return {
+        type: entity_types.terrain,
+        name: other_tile_names.altar_of_space,
+        pic: `${IMG_FOLDER.tiles}altar_of_space.png`,
+        description: other_tile_descriptions.altar_of_space,
+        tags: new TagList([TAGS.altar]),
+        health: 1,
+        on_enter: altar_on_enter(altar_of_space_on_enter)
+    }
+}
+
+function altar_of_space_on_enter(self, target, map){
+    var warp = (map_to_use) => {
+        var to_move = [];
+        cross(range(0, FLOOR_WIDTH), range(0, FLOOR_HEIGHT), (x, y) => {
+            to_move.push(new Point(x, y));
+        })
+        to_move = to_move.filter((p) => {
+            return !map_to_use.get_tile(p).tags.has(TAGS.unmovable);
+        });
+        for(var p of to_move){
+            teleport_spell({location: p}, undefined, map_to_use);
+        }
+    }
+    map.add_event({name: event_names.warp , behavior: warp});
+
+}
+/** @type {TileGenerator}*/
+function altar_of_stars_tile(){
+    var summons = [
+        carrion_flies_tile,
+        shatter_sphere_d_tile,
+        shatter_sphere_o_tile,
+        moon_rock_tile,
+    ]
+    return {
+        type: entity_types.terrain,
+        name: other_tile_names.altar_of_stars,
+        pic: `${IMG_FOLDER.tiles}altar_of_stars.png`,
+        description: other_tile_descriptions.altar_of_stars,
+        tags: new TagList([TAGS.altar]),
+        health: 1,
+        on_enter: altar_on_enter(altar_of_stars_on_enter),
+        summons
+    }
+}
+
+function altar_of_stars_on_enter(self, target, map){
+    var mark = {
+        pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
+        description: event_descriptions.starfall,
+        telegraph: hazard_telegraph
+    }
+    var fall = function(location){
+        return function(map_to_use){
+            map_to_use.attack(location);
+            if(map_to_use.check_empty(location)){
+                map_to_use.add_tile(rand_from(self.tile.summons)(), location);
+            }
+        }
+    }
+    var delay = (map_to_use) => {
+        var destination = map_to_use.get_player_location();
+        map_to_use.mark_event(destination, mark);
+        map_to_use.add_event({name: event_names.starfall, behavior: fall(destination)});
+    }
+    for(var i = 0; i < 3; ++i){
+        map.add_event({name: event_names.starfall, behavior: delay_event(i + 1, delay)});
+    }
+}
+/** @type {TileGenerator}*/
+function altar_of_stasis_tile(){
+    return {
+        type: entity_types.terrain,
+        name: other_tile_names.altar_of_stasis,
+        pic: `${IMG_FOLDER.tiles}altar_of_stasis.png`,
+        description: other_tile_descriptions.altar_of_stasis,
+        tags: new TagList([TAGS.altar]),
+        health: 1,
+        on_enter: altar_on_enter(altar_of_stasis_on_enter)
+    }
+}
+
+function altar_of_stasis_on_enter(self, target, map){
+    cross(range(0, FLOOR_WIDTH), range(0, FLOOR_HEIGHT), (x, y) => {
+        var space = new Point(x, y);
+        var tile = map.get_tile(space);
+        if(tile.tags.has(TAGS.boss)){
+            map.heal(space, 2)
+        }
+        if(tile.tags.has(TAGS.altar)){
+            map.heal(space, 1);
+        }
+    })
+}
+/** @type {TileGenerator}*/
+function altar_of_sunlight_tile(){
+    return {
+        type: entity_types.terrain,
+        name: other_tile_names.altar_of_sunlight,
+        pic: `${IMG_FOLDER.tiles}altar_of_sunlight.png`,
+        description: other_tile_descriptions.altar_of_sunlight,
+        tags: new TagList([TAGS.altar]),
+        health: 1,
+        on_enter: altar_on_enter(altar_of_sunlight_on_enter)
+    }
+}
+
+function altar_of_sunlight_on_enter(self, target, map){
+    var mark = {
+        pic: `${IMG_FOLDER.tiles}sunlight.png`,
+        description: event_descriptions.sunlight,
+        telegraph: hazard_telegraph
+    }
+    var fire = function(locations){
+        return function(map_to_use){
+            for(var location of locations){
+                map_to_use.attack(location);
+                if(map_to_use.check_empty(location)){
+                    map_to_use.add_tile(raging_fire_tile(), location);
+                }
+            }
+        }
+    }
+    var delay = (points) => {
+        return (map_to_use) => {
+            for(var point of points){
+                map_to_use.mark_event(point, mark);
+            }
+            map_to_use.add_event({name: other_tile_names.raging_fire, behavior: fire(points)});
+        }
+    } 
+    var target = map.get_player_location();
+    for(var i = 0; i < 3; ++i){
+        var rectangle = point_rectangle(target.plus(new Point(i, i)), target.plus(new Point(-i, -i)));
+        var rectangle = rectangle.filter((p) => {
+            return map.is_in_bounds(p);
+        })
+        map.add_event({name: event_names.delay, behavior: delay_event(i + 1, delay(rectangle))});
+    }
+}
+/** @type {TileGenerator} */
+function black_hole_tile(){
+    return {
+        type: entity_types.enemy,
+        name: other_tile_names.black_hole,
+        pic: `${IMG_FOLDER.tiles}black_hole.png`,
+        description: other_tile_descriptions.black_hole,
+        health: 6,
+        tags: new TagList([TAGS.unmovable]),
+        behavior: black_hole_ai,
+        telegraph_other: black_hole_telegraph_other,
+    }
+}
+
+/** @type {AIFunction}.*/
+function black_hole_ai(self, target, map){
+    var moved_player = false;
+    var spaces = [];
+    for(var i = 2; i < Math.max(FLOOR_HEIGHT, FLOOR_WIDTH); ++i){
+        var rectangle = point_rectangle(new Point(i, i), new Point(-i, -i)).map((p) => {
+            return self.location.plus(p);
+        }).filter((p) => {
+            return map.is_in_bounds(p);
+        })
+        spaces.push(...rectangle);
+    }
+    for(var start of spaces){
+        var end = start.plus(sign(self.location.minus(start)));
+        if(!map.get_tile(start).tags.has(TAGS.unmovable) && !map.get_tile(start).tags.has(TAGS.boss)){
+            var moved = map.move(start, end)
+            if(moved && map.get_tile(end).type === entity_types.player){
+                moved_player = true;
+            }
+        }
+    }
+    map.attack(self.location);
+    if(moved_player){
+        throw new Error(ERRORS.pass_turn);
+    }
+}
+
+/** @type {TelegraphFunction} */
+function black_hole_telegraph_other(location, map, self){
+    spaces = [];
+    for(var i = 2; i < Math.max(FLOOR_HEIGHT, FLOOR_WIDTH); ++i){
+        spaces.push(...point_rectangle(
+            location.plus(new Point(i, i)), 
+            location.plus(new Point(-i, -i))
+        ));            
+    }
+    return spaces;
 }
 /** @type {TileGenerator}.*/
 function bookshelf_tile(){
@@ -7719,6 +8340,16 @@ function exit_tile(){
         tags: new TagList([TAGS.unmovable])
     }
 }
+/** @type {TileGenerator} The player must move here to complete the game.*/
+function final_exit_tile(){
+    return {
+        type: entity_types.final_exit,
+        name: special_tile_names.final_exit,
+        pic: `${IMG_FOLDER.tiles}final_exit.png`,
+        description: special_tile_descriptions.final_exit,
+        tags: new TagList([TAGS.unmovable])
+    }
+}
 /** @type {TileGenerator} Must be unlocked to reveal the exit.*/
 function lock_tile(){
     return {
@@ -7851,6 +8482,34 @@ function boss_death(self, target, map){
     say_record(death_message);
 }
 /**
+ * Function to create an event function representing hazardous growth.
+ * @param {Point} destination A grid of locations to grow things at.
+ * @returns {MapEventFunction} The event.
+ */
+function altar_event(destination, altar){
+    var mark = {
+        pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
+        description: event_descriptions.starfall,
+        telegraph: hazard_telegraph
+    }
+
+    var grow = function(location){
+        return function(map_to_use){
+            map_to_use.attack(location);
+            if(map_to_use.check_empty(location)){
+                map_to_use.add_tile(altar(), location);
+            }
+        }
+    }
+    var plant = function(location){
+        return function(map_to_use){
+            map_to_use.mark_event(location, mark);
+            map_to_use.add_event({name: altar().name, behavior: grow(location)});
+        }
+    }
+    return plant(destination);
+}
+/**
  * Function to create a function that delays an event function for a specified number of turns.
  * @param {number} turn_count How many turns to delay it.
  * @param {function} delayed_function The event to fire after the delay.
@@ -7880,6 +8539,52 @@ function earthquake_event(amount, locations = undefined){
         return function(map_to_use){
             for(var location of locations){
                 map_to_use.attack(location);
+            }
+        }
+    }
+    var earthquake = function(amount){
+        var falling_rubble_layer = {
+            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
+            description: event_descriptions.falling_rubble,
+            telegraph: hazard_telegraph
+        }
+        return function(map_to_use){
+            var rubble = [];
+            var space;
+            if(locations === undefined){
+                for(var j = 0; j < amount; ++j){
+                    space = map_to_use.random_empty();
+                    map_to_use.mark_event(space, falling_rubble_layer);
+                    rubble.push(space);
+                }
+            }
+            else{
+                var spaces = rand_no_repeats(locations, amount);
+                for(var i = 0; i < amount; ++i){
+                    space = spaces[i];
+                    if(map_to_use.check_empty(space)){
+                        map_to_use.mark_event(space, falling_rubble_layer);
+                        rubble.push(space);
+                    }
+                }
+            }
+            map_to_use.add_event({name: event_names.falling_rubble, behavior: falling_rubble(rubble)});
+        }
+    }
+    return earthquake(amount);
+}
+/**
+ * Function to create an event function representing an earthquake that gets stronger over time.
+ * @param {number} amount The amount of falling debris that should be created.
+ * @returns {MapEventFunction} The event.
+ */
+function earthquake_event(amount){
+    var falling_rubble = function(locations){
+        return function(map_to_use){
+            for(var location of locations){
+                map_to_use.attack(location);
+                var next_wave = eternal_earthquake_event(locations.length + 5);
+                map_to_use.add_event({name: event_names.earthquake, behavior: next_wave});
             }
         }
     }
@@ -8008,8 +8713,8 @@ const ENEMY_LIST = [
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, animated_boulder_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_d_tile, moving_turret_o_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
-    paper_construct_tile, specter_tile, gem_crawler_tile, claustropede_tile, wheel_of_fire_tile,
-    blood_crescent_tile, unspeakable_tile, shadow_knight_elite_tile, starcaller_tile
+    paper_construct_tile, specter_tile, gem_crawler_tile, claustropede_2_tile, claustropede_3_tile, 
+    wheel_of_fire_tile, blood_crescent_tile, unspeakable_tile, shadow_knight_elite_tile, maw_tile
 ];
 
 // This is an array of all bosses.
@@ -8238,10 +8943,27 @@ function set_rotation(tile){
  * @returns {Point[]} An array of the points around the edge.
  */
 function point_rectangle(p1, p2){
-    if(p1.x === p2.x || p1.y === p2.y){
-        // The rectangle can't be 1 dimensional.
-        throw new Error(ERRORS.invalid_value);
+    if(p1.x === p2.x && p1.y === p2.y){
+        // 1x1
+        return [p1.copy()];
     }
+    if(p1.x === p2.x){
+        // 1xn
+        var y_min = Math.min(p1.y, p2.y);
+        var y_max = Math.max(p1.y, p2.y);
+        return range(y_min, y_max).map((y) => {
+            return new Point(p1.x, y);
+        })
+    }
+    if(p1.y === p2.y){
+        // nx1
+        var x_min = Math.min(p1.x, p2.x);
+        var x_max = Math.max(p1.x, p2.x);
+        return range(x_min, x_max).map((x) => {
+            return new Point(x, p1.y);
+        })
+    }
+
     var rectangle = [
         p1.copy(),
         p2.copy(),
@@ -9536,7 +10258,7 @@ class EntityList{
             }
             this.move_enemy(location, entity.id);
         }
-        else{
+        else if(entity.tags.has(TAGS.unmovable)){
             throw new Error(ERRORS.invalid_type);
         }
     }
@@ -10695,24 +11417,32 @@ class GameState{
             await this.prep_turn();
         }
         catch (error){
-            var m = error.message;
-            if(m === ERRORS.floor_complete){
-                // If the player has reached the end of the floor.
-                this.map.display_stats(UIIDS.stats);
-                this.enter_shop();
-            }
-            else if(m === ERRORS.game_over){
-                // If the player's health reached 0
-                this.game_over(error.cause.message);
-            }
-            else if(m === ERRORS.pass_turn){
-                // If the enemies' turn was interrupted,
-                // prep for player's next turn.
+            this.handle_errors(error);
+        }
+    }
+    handle_errors(e){
+        var m = e.message
+        if(m === ERRORS.floor_complete){
+            // If the player has reached the end of the floor.
+            this.map.display_stats(UIIDS.stats);
+            this.enter_shop();
+        }
+        else if(m === ERRORS.game_over){
+            // If the player's health reached 0
+            this.game_over(e.cause.message);
+        }
+        else if(m === ERRORS.pass_turn){
+            // If the enemies' turn was interrupted,
+            // prep for player's next turn.
+            try{
                 this.prep_turn();
             }
-            else{
-                throw error;
+            catch(error){
+                this.handle_errors(error);
             }
+        }
+        else{
+            throw error;
         }
     }
     /**
@@ -11843,10 +12573,10 @@ function generate_court_area(){
         background: `${IMG_FOLDER.backgrounds}court.png`,
         generate_floor: generate_court_floor,
         enemy_list: [
-            shadow_scout_tile, claustropede_tile, unspeakable_tile, wheel_of_fire_tile, blood_crescent_tile,
-            shadow_knight_elite_tile, starcaller_tile
+            shadow_scout_tile, claustropede_2_tile, claustropede_3_tile, unspeakable_tile, wheel_of_fire_tile, 
+            blood_crescent_tile, shadow_knight_elite_tile, maw_tile
         ],
-        boss_floor_list: [],
+        boss_floor_list: [lord_of_shadow_and_flame_floor],
         next_area_list: [generate_default_area],
         description: area_descriptions.court
     }
@@ -11854,7 +12584,38 @@ function generate_court_area(){
 
 /** @type {FloorGenerator}*/
 function generate_court_floor(floor_num, area, map){
-    generate_normal_floor(floor_num, area, map);
+    var terrains = [
+        starcaller_terrain,
+        shatter_sphere_terrain
+    ]
+    if(chance(2, 3)){
+        rand_from(terrains)(floor_num, area, map);
+        generate_normal_floor(floor_num - 3, area, map);
+    }
+    else{
+        generate_normal_floor(floor_num, area, map);
+    }
+}
+
+function starcaller_terrain(floor_num, area, map){
+    var amount = random_num(2) + 1;
+    var offsets = rand_no_repeats(range(0, 4), amount);
+    for(var offset of offsets){
+        var tile = starcaller_tile();
+        tile.cycle = offset + 1;
+        map.spawn_safely(tile, SAFE_SPAWN_ATTEMPTS, true);
+    }
+}
+
+function shatter_sphere_terrain(floor_num, area, map){
+    var amount = random_num(6) + random_num(6);
+    var summons = [
+        shatter_sphere_tile,
+        moon_rock_tile
+    ]
+    for(var i = 0; i < amount; ++i){
+        map.spawn_safely(rand_from(summons)(), SAFE_SPAWN_ATTEMPTS, true);
+    }
 }
 /** @type {AreaGenerator}*/
 function generate_crypt_area(){
@@ -12237,6 +12998,20 @@ function lich_floor(floor_num,  area, map){
     }
     map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
     return boss_floor_message.lich;
+}
+/** @type {FloorGenerator} Generates the floor where the Lord of Shadow and Flame appears.*/
+function lord_of_shadow_and_flame_floor(floor_num,  area, map){
+    var mid_width = Math.floor(FLOOR_WIDTH / 2) - 1;
+    var mid_height = Math.floor(FLOOR_HEIGHT / 2) - 1;
+    var locations = [
+        new Point(mid_width, mid_height),
+        new Point(mid_width + 1, mid_height),
+        new Point(mid_width + 1, mid_height + 1),
+        new Point(mid_width, mid_height + 1),
+    ]
+    var spawnpoint = rand_from(locations);
+    map.add_tile(lord_of_shadow_and_flame_tile(), spawnpoint);
+    return boss_floor_message.lord_of_shadow_and_flame;
 }
 /** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){
@@ -14536,7 +15311,7 @@ const BOON_LIST = [
     pressure_points, quick_healing, rebirth, repetition, retaliate, 
     rift_touched, roar_of_challenge, safe_passage, shattered_glass, skill_trading, 
     slime_trail, sniper, spiked_shoes, spontaneous, stable_mind, 
-    stealthy, stubborn, thick_soles
+    stealthy, stubborn, thick_soles, vicious_cycle
 ];
 
 function change_max_health(amount){
@@ -15205,6 +15980,7 @@ function get_achievements(){
         young_dragon_achievement(),
         forest_heart_achievement(),
         arcane_sentry_achievement(),
+        lord_of_shadow_and_flame_achievement(),
         
         // Other 
         ancient_knowledge_achievement(),
@@ -15252,6 +16028,16 @@ function lich_achievement(){
         image: `${IMG_FOLDER.tiles}lich_rest.png`,
         has: false,
         boons: [rift_touched],
+        cards: []
+    }
+}
+function lord_of_shadow_and_flame_achievement(){
+    return {
+        name: achievement_names.lord_of_shadow_and_flame,
+        description: achievement_description.lord_of_shadow_and_flame,
+        image: `${IMG_FOLDER.tiles}lord_move.png`,
+        has: false,
+        boons: [vicious_cycle],
         cards: []
     }
 }

@@ -3,6 +3,7 @@ const entity_types = {
     empty: `Empty`,
     enemy: `Enemy`,
     exit: `Exit`,
+    final_exit: `Final Exit`,
     player: `Player`,
     terrain: `Terrain`,
 }

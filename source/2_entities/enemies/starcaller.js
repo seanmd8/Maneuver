@@ -1,7 +1,7 @@
 /** @type {TileGenerator} */
 function starcaller_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}starcaller_off.png`, `${IMG_FOLDER.tiles}starcaller_on.png`];
-    var starting_cycle = random_num(3) + 1;
+    var starting_cycle = random_num(4) + 1;
     var summons = [
         carrion_flies_tile,
         shatter_sphere_d_tile,
@@ -14,7 +14,7 @@ function starcaller_tile(){
         pic: `${IMG_FOLDER.tiles}starcaller_off.png`,
         description: enemy_descriptions.starcaller,
         tags: new TagList(),
-        health: 2,
+        health: 1,
         difficulty: 4,
         behavior: starcaller_ai,
         pic_arr,
@@ -32,7 +32,7 @@ function starcaller_ai(self, target, map){
             var spawn = rand_from(self.tile.summons)();
             map.add_tile(spawn, self.tile.direction);
         }
-        self.tile.cycle = 3;
+        self.tile.cycle = 4;
         self.tile.pic = self.tile.pic_arr[0];
     }
     --self.tile.cycle;

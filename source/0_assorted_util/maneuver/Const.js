@@ -96,6 +96,7 @@ const IMG_FOLDER = {
 Object.freeze(IMG_FOLDER);
 
 const TAGS = {
+    altar: `Altar`,
     boss: `Boss`,
     unmovable: `Unmovable`,
     unstunnable: `Unstunnable`,

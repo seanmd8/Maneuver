@@ -1,4 +1,26 @@
 const other_tile_descriptions = {
+    altar_of_scouring:
+        `Altar of Scouring: Activate by moving here. When activated, creates a wall of fireballs to `
+        +`wipe the screen clean.`,
+    altar_of_shadow:
+        `Altar of Shadow: Activate by moving here. When activated, the Lord of Shadow and Flame will `
+        +`become invisible until another altar is activated.`,
+    altar_of_singularity:
+        `Altar of Singularity: Activate by moving here. When activated, create a Black Hole in this space.`,
+    altar_of_space:
+        `Altar of Space: Activate by moving here. When activated, rearrange the floor.`,
+    altar_of_stars:
+        `Altar of Stars: Activate by moving here. When activated, for the next 3 turns it will `
+        +`summon an object from another realm targeting the player's location.`,
+    altar_of_stasis:
+        `Altar of Stasis: Activate by moving here. When activated, rewinds time healing the Lord `
+        +`of Shadow and Flame by 2 and all altars by 1.`,
+    altar_of_sunlight:
+        `Altar of Sunlight: Activate by moving here. When activated, create an expanding fire `
+        +`centered on the player's location.`,
+    black_hole: 
+        `Black Hole: Draws everything on screen closer to it. The `
+        +`Lord of Shadow and Flame is immune. Decays every turn.`,
     bookshelf: 
         `Bookshelf: When damaged, adds a random temporary card to your deck.`,
     coffin: 
@@ -50,6 +72,14 @@ const other_tile_descriptions = {
 Object.freeze(other_tile_descriptions);
 
 const other_tile_names = {
+    altar_of_scouring: `Altar of Scouring`,
+    altar_of_shadow: `Altar of Shadow`,
+    altar_of_singularity: `Altar of Singularity`,
+    altar_of_space: `Altar of Space`,
+    altar_of_stars: `Altar of Stars`,
+    altar_of_stasis: `Altar of Stasis`,
+    altar_of_sunlight: `Altar of Sunlight`,
+    black_hole: `Black Hole`,
     bookshelf: `Bookshelf`,
     coffin: `Coffin`,
     corrosive_slime: `Corrosive Slime`,

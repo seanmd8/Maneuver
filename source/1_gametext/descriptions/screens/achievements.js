@@ -18,6 +18,7 @@ const achievement_names = {
     young_dragon: `Novice Dragonslayer`,
     forest_heart: `Expert Lumberjack`,
     arcane_sentry: `Security Bypass`,
+    lord_of_shadow_and_flame: `Deeper and Deeper`,
 
     // Normal
     non_violent: `Non Violent`,
@@ -48,6 +49,7 @@ const achievement_description = {
     young_dragon: `Defeat the Young Dragon.`,
     forest_heart: `Defeat the Forest Heart.`,
     arcane_sentry: `Defeat the Arcane Sentry.`,
+    lord_of_shadow_and_flame: `Defeat the Lord of Shadow and Flame.`,
 
     // Normal
     non_violent: `Reach the first boss without killing anything.`,
@@ -77,4 +79,5 @@ const boss_achievements = [
     achievement_names.young_dragon,
     achievement_names.forest_heart,
     achievement_names.arcane_sentry,
+    achievement_names.lord_of_shadow_and_flame,
 ]

@@ -6,7 +6,7 @@ function shadow_knight_elite_tile(){
         pic: `${IMG_FOLDER.tiles}shadow_knight_elite.png`,
         description: enemy_descriptions.shadow_knight_elite,
         tags: new TagList(),
-        health: 3,
+        health: 2,
         difficulty: 6,
         behavior: shadow_knight_elite_ai,
         telegraph: shadow_knight_telegraph
@@ -25,7 +25,6 @@ function shadow_knight_elite_ai(self, target, map){
         return point_equals(p, player_location);
     });
     if(attack.length > 0){
-        map.attack(player_location);
         map.attack(player_location);
         var possible_ends = L_SHAPES.map((p) => {
             return p.plus(player_location);

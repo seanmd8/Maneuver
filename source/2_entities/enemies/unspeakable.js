@@ -16,7 +16,7 @@ function unspeakable_tile(){
 
 /** @type {AIFunction} Function used when unspeakableas die to confuse the player.*/
 function unspeakable_death(self, target, map){
-    for(var i = 0; i < 3; ++i){
+    for(var i = 0; i < 2; ++i){
         map.stun_tile(self.location.plus(target.difference));
     }
 }
