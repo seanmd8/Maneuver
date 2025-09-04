@@ -434,7 +434,7 @@ function point_equals(p1, p2){
 // Settings just used for testing. Leave as undefined when not in use.
 function init_settings(){
     const init = {
-        enemies: undefined,
+        enemies: [starcaller_tile, starcaller_tile, starcaller_tile],
         chests: undefined,
         cards: undefined,
         area: undefined,
@@ -6543,10 +6543,12 @@ function spider_web_ai(self, target, map){
         ++self.tile.spawn_timer;
     }
 }
+const STARCALLER_TIMER = 4;
+
 /** @type {TileGenerator} */
 function starcaller_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}starcaller_off.png`, `${IMG_FOLDER.tiles}starcaller_on.png`];
-    var starting_cycle = random_num(4) + 1;
+    var starting_cycle = random_num(STARCALLER_TIMER) + 1;
     var summons = [
         carrion_flies_tile,
         shatter_sphere_d_tile,
@@ -6577,12 +6579,10 @@ function starcaller_ai(self, target, map){
             var spawn = rand_from(self.tile.summons)();
             map.add_tile(spawn, self.tile.direction);
         }
-        self.tile.cycle = 4;
+        self.tile.cycle = STARCALLER_TIMER;
         self.tile.pic = self.tile.pic_arr[0];
     }
-    --self.tile.cycle;
-
-    if(self.tile.cycle === 0){
+    else if(self.tile.cycle === 1){
         // Prep to shoot next turn.
         self.tile.pic = self.tile.pic_arr[1];
         self.tile.direction = self.location.plus(target.difference);
@@ -6597,6 +6597,10 @@ function starcaller_ai(self, target, map){
             }
         }
         map.add_event({name: event_names.starfall, behavior: starfall});
+    }
+    --self.tile.cycle;
+    if(self.tile.cycle !== 0 && self.tile.cycle !== STARCALLER_TIMER){
+        throw new Error(ERRORS.skip_animation);
     }
 }
 /** @type {TileGenerator} */
@@ -8046,7 +8050,10 @@ function sewer_grate_tile(){
 
 /** @type {AIFunction} AI used by spider webs.*/
 function sewer_grate_ai(self, target, map){
-    spawn_nearby(map, corrosive_slime_tile(), self.location);
+    var spawned = spawn_nearby(map, corrosive_slime_tile(), self.location);
+    if(spawned === undefined){
+        throw new Error(ERRORS.skip_animation);
+    }
 }
 /** @type {TileGenerator} */
 function shatter_sphere_tile(){

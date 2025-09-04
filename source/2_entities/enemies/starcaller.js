@@ -1,7 +1,9 @@
+const STARCALLER_TIMER = 4;
+
 /** @type {TileGenerator} */
 function starcaller_tile(){
     var pic_arr = [`${IMG_FOLDER.tiles}starcaller_off.png`, `${IMG_FOLDER.tiles}starcaller_on.png`];
-    var starting_cycle = random_num(4) + 1;
+    var starting_cycle = random_num(STARCALLER_TIMER) + 1;
     var summons = [
         carrion_flies_tile,
         shatter_sphere_d_tile,
@@ -32,12 +34,10 @@ function starcaller_ai(self, target, map){
             var spawn = rand_from(self.tile.summons)();
             map.add_tile(spawn, self.tile.direction);
         }
-        self.tile.cycle = 4;
+        self.tile.cycle = STARCALLER_TIMER;
         self.tile.pic = self.tile.pic_arr[0];
     }
-    --self.tile.cycle;
-
-    if(self.tile.cycle === 0){
+    else if(self.tile.cycle === 1){
         // Prep to shoot next turn.
         self.tile.pic = self.tile.pic_arr[1];
         self.tile.direction = self.location.plus(target.difference);
@@ -52,5 +52,9 @@ function starcaller_ai(self, target, map){
             }
         }
         map.add_event({name: event_names.starfall, behavior: starfall});
+    }
+    --self.tile.cycle;
+    if(self.tile.cycle !== 0 && self.tile.cycle !== STARCALLER_TIMER){
+        throw new Error(ERRORS.skip_animation);
     }
 }

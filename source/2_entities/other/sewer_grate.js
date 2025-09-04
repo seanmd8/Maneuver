@@ -12,5 +12,8 @@ function sewer_grate_tile(){
 
 /** @type {AIFunction} AI used by spider webs.*/
 function sewer_grate_ai(self, target, map){
-    spawn_nearby(map, corrosive_slime_tile(), self.location);
+    var spawned = spawn_nearby(map, corrosive_slime_tile(), self.location);
+    if(spawned === undefined){
+        throw new Error(ERRORS.skip_animation);
+    }
 }
