@@ -256,6 +256,9 @@ class Point{
      * @param {number} y The y value of the new point.
      */
     constructor(x, y){
+        if(x === undefined || y === undefined){
+            throw new Error(ERRORS.invalid_value);
+        }
         this.x = x;
         this.y = y;
     }
@@ -11295,9 +11298,10 @@ class GameMap{
         }
         var tile = this.get_tile(location);
         return (
-            tile.name === special_tile_names.empty || 
+            tile.name === entity_types.empty || 
+            tile.type === entity_types.exit ||
             tile.on_enter !== undefined || 
-            tile.name === special_tile_names.exit
+            tile.tags.has(TAGS.hidden)
         );
     }
     get_initiative(){
