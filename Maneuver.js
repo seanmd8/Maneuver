@@ -435,8 +435,8 @@ function point_equals(p1, p2){
 function init_settings(){
     const init = {
         enemies: undefined,
-        chests: [spontaneous],
-        cards: [lightheaded],
+        chests: undefined,
+        cards: undefined,
         area: undefined,
         area_size: undefined,
         achievements: undefined,
@@ -2386,9 +2386,9 @@ const boss_descriptions = {
     lich_announcement: 
         `The Lich is currently preparing to cast:`,
     lord_of_shadow_and_flame:
-        `Lord of Shadow and Flame (Final Boss): _____. Summons altars from which to cast it's spells. `
-        +`When next to the player it will prepare to attack all nearby spaces next turn. Moves at `
-        +`double speed while under half health.`,
+        `Lord of Shadow and Flame (Final Boss): Ruler from beyond the veil of reality. Summons `
+        +`altars from which to cast it's spells. When next to the player it will prepare to attack `
+        +`all nearby spaces next turn. Moves at double speed while under half health.`,
     spider_queen: 
         `Spider Queen (Boss): Her back crawls with her young. Moves like a `
         +`normal spider. Taking damage will stun her, but will also spawn a spider.`,
