@@ -19,7 +19,7 @@ function blood_crescent_ai(self, target, map){
     if(self.tile.rotate === undefined){
         throw new Error(ERRORS.missing_property)
     }
-    var distance = 3;
+    var distance = 2;
     self.tile.direction = order_nearby(target.difference).filter((p) => {
         return p.on_diagonal();
     })[0];
@@ -54,7 +54,7 @@ function blood_crescent_telegraph(location, map, self){
     var attacks = [];
     for(var direction of DIAGONAL_DIRECTIONS){
         var current = location.copy();
-        for(var i = 0; i < 3 && map.check_empty(current.plus_equals(direction)); ++i){
+        for(var i = 0; i < 2 && map.check_empty(current.plus_equals(direction)); ++i){
             attacks.push(current.copy());
             attacks.push(current.plus(direction.times(new Point(-1, 0))));
             attacks.push(current.plus(direction.times(new Point(0, -1))));

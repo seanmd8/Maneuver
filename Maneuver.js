@@ -2499,7 +2499,7 @@ const enemy_descriptions = {
         +`damage everything close to it, then move 1 space closer to the player. `
         +`After 3 turns, it will go back to sleep.`,
     blood_crescent:
-        `Blood Crescent: Will move 3 spaces diagonally towards the player damaging them if it `
+        `Blood Crescent: Will move 2 spaces diagonally towards the player damaging them if it `
         +`hits them or passes next to them.`,
     brightling: 
         `Brightling: Is not aggressive. Will occasionally teleport the player `
@@ -4815,7 +4815,7 @@ function blood_crescent_ai(self, target, map){
     if(self.tile.rotate === undefined){
         throw new Error(ERRORS.missing_property)
     }
-    var distance = 3;
+    var distance = 2;
     self.tile.direction = order_nearby(target.difference).filter((p) => {
         return p.on_diagonal();
     })[0];
@@ -4850,7 +4850,7 @@ function blood_crescent_telegraph(location, map, self){
     var attacks = [];
     for(var direction of DIAGONAL_DIRECTIONS){
         var current = location.copy();
-        for(var i = 0; i < 3 && map.check_empty(current.plus_equals(direction)); ++i){
+        for(var i = 0; i < 2 && map.check_empty(current.plus_equals(direction)); ++i){
             attacks.push(current.copy());
             attacks.push(current.plus(direction.times(new Point(-1, 0))));
             attacks.push(current.plus(direction.times(new Point(0, -1))));
@@ -4934,7 +4934,7 @@ function captive_void_ai(self, target, map){
     }
     if(self.tile.cycle === 0){
         var moved_player = false;
-        var spaces = get_2_away();
+        var spaces = point_rectangle(new Point(-2, -2), new Point(2, 2));
         for(var space of spaces){
             var start = self.location.plus(space);
             var end = self.location.plus(sign(space));
@@ -4974,7 +4974,7 @@ function captive_void_telegraph_other(location, map, self){
     }
     var spaces = [];
     if(self.cycle === 0){
-        spaces = get_2_away().map(p => {
+        spaces = point_rectangle(new Point(-2, -2), new Point(2, 2)).map((p) => {
             return location.plus(p);
         });
     }
@@ -5345,7 +5345,7 @@ function living_tree_ai(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     // Checks if it can attack the player.
-    var hits = get_2_away().filter(p => {
+    var hits = point_rectangle(new Point(-2, -2), new Point(2, 2)).filter((p) => {
         return point_equals(p, target.difference);
     });
     if(hits.length > 0){
@@ -5371,7 +5371,8 @@ function living_tree_ai(self, target, map){
 }
 /** @type {TelegraphFunction} Function to telegraph living tree attacks.*/
 function living_tree_telegraph(location, map, self){
-    return get_2_away().map(p => {
+    var spaces = point_rectangle(new Point(-2, -2), new Point(2, 2));
+    return spaces.map(p => {
         return p.plus(location);
     })
 }
@@ -5392,7 +5393,7 @@ function living_tree_rooted_tile(){
 /** @type {AIFunction} AI used by living trees that are rooted.*/
 function living_tree_rooted_ai(self, target, map){
     // Checks if it can attack the player.
-    var hits = get_2_away().filter(p => {
+    var hits = point_rectangle(new Point(-2, -2), new Point(2, 2)).filter((p) => {
         return point_equals(p, target.difference);
     });
     if(hits.length > 0){
@@ -8804,7 +8805,7 @@ function order_nearby(direction){
     }
     else if(sign_dir.y === 0){
         // Target is along the horizontal line.
-        var pair = randomize_arr([new Point(sign_dir.x, 1), new Point(sign_dir.x, 1)]);
+        var pair = randomize_arr([new Point(sign_dir.x, 1), new Point(sign_dir.x, -1)]);
         ordering.push(...pair);
         pair = randomize_arr([new Point(0, 1), new Point(0, -1)])
         ordering.push(...pair);
@@ -9002,24 +9003,6 @@ function point_rectangle(p1, p2){
         rectangle.push(new Point(x_max, y));
     }
     return rectangle;
-}
-
-
-/**
- * Function to make a square of points with a side length 5 centered on the origin.
- * @returns {Point[]} the points.
- */
-function get_2_away(){
-    var points = [];
-    for(var x = -2; x <= 2; ++x){
-        for(var y = -2; y <= 2; ++y){
-            var p = new Point(x, y);
-            if(p.within_radius(2) && !p.within_radius(1)){
-                points.push(p);
-            }
-        }
-    }
-    return points;
 }
 
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */
@@ -13553,7 +13536,7 @@ function saw_strike(){
 /** @type {CardGenerator} Dropped by the forest heart*/
 function branch_strike(){
     var options = new ButtonGrid();
-    var targets = get_2_away().map(p => {
+    var targets = point_rectangle(new Point(-2, -2), new Point(2, 2)).map(p => {
         return pattack(p.x, p.y);
     });
     options.add_button(SPIN, targets);

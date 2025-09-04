@@ -25,7 +25,7 @@ function captive_void_ai(self, target, map){
     }
     if(self.tile.cycle === 0){
         var moved_player = false;
-        var spaces = get_2_away();
+        var spaces = point_rectangle(new Point(-2, -2), new Point(2, 2));
         for(var space of spaces){
             var start = self.location.plus(space);
             var end = self.location.plus(sign(space));
@@ -65,7 +65,7 @@ function captive_void_telegraph_other(location, map, self){
     }
     var spaces = [];
     if(self.cycle === 0){
-        spaces = get_2_away().map(p => {
+        spaces = point_rectangle(new Point(-2, -2), new Point(2, 2)).map((p) => {
             return location.plus(p);
         });
     }

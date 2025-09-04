@@ -1,7 +1,7 @@
 /** @type {CardGenerator} Dropped by the forest heart*/
 function branch_strike(){
     var options = new ButtonGrid();
-    var targets = get_2_away().map(p => {
+    var targets = point_rectangle(new Point(-2, -2), new Point(2, 2)).map(p => {
         return pattack(p.x, p.y);
     });
     options.add_button(SPIN, targets);
