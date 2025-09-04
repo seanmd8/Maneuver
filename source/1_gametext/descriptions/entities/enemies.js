@@ -47,8 +47,8 @@ const enemy_descriptions = {
         `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
         +`get close.`,
     maw:
-        `Maw: Attacks the player twixe is they are 1 space away orthogonally. Otherwise moves 1 `
-        +`space orthogonally towards them. Taking damage will stun it twice.`,
+        `Maw: Attacks the player 3 times if they are 1 space away orthogonally. Otherwise moves 1 `
+        +`space orthogonally towards them. Taking damage stuns it twice.`,
     noxious_toad: 
         `Noxious Toad: Every other turn it will hop over a space orthogonally. `
         +`If it lands near the player, it will damage everything next to it.`,

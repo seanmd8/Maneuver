@@ -6,8 +6,8 @@ function maw_tile(){
         pic: `${IMG_FOLDER.tiles}maw.png`,
         description: enemy_descriptions.maw,
         tags: new TagList(),
-        health: 5,
-        difficulty: 7,
+        health: 4,
+        difficulty: 4,
         behavior: maw_ai,
         telegraph: maw_telegraph,
         on_hit: maw_hit,
@@ -17,6 +17,7 @@ function maw_tile(){
 /** @type {AIFunction} AI used by maws.*/
 function maw_ai(self, target, map){
     if(target.difference.on_axis() && target.difference.within_radius(1)){
+        map.attack(self.location.plus(target.difference));
         map.attack(self.location.plus(target.difference));
         map.attack(self.location.plus(target.difference));
     }

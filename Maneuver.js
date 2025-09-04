@@ -434,7 +434,7 @@ function point_equals(p1, p2){
 // Settings just used for testing. Leave as undefined when not in use.
 function init_settings(){
     const init = {
-        enemies: [starcaller_tile, starcaller_tile, starcaller_tile],
+        enemies: undefined,
         chests: undefined,
         cards: undefined,
         area: undefined,
@@ -2542,8 +2542,8 @@ const enemy_descriptions = {
         `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
         +`get close.`,
     maw:
-        `Maw: Attacks the player twixe is they are 1 space away orthogonally. Otherwise moves 1 `
-        +`space orthogonally towards them. Taking damage will stun it twice.`,
+        `Maw: Attacks the player 3 times if they are 1 space away orthogonally. Otherwise moves 1 `
+        +`space orthogonally towards them. Taking damage stuns it twice.`,
     noxious_toad: 
         `Noxious Toad: Every other turn it will hop over a space orthogonally. `
         +`If it lands near the player, it will damage everything next to it.`,
@@ -5466,8 +5466,8 @@ function maw_tile(){
         pic: `${IMG_FOLDER.tiles}maw.png`,
         description: enemy_descriptions.maw,
         tags: new TagList(),
-        health: 5,
-        difficulty: 7,
+        health: 4,
+        difficulty: 4,
         behavior: maw_ai,
         telegraph: maw_telegraph,
         on_hit: maw_hit,
@@ -5477,6 +5477,7 @@ function maw_tile(){
 /** @type {AIFunction} AI used by maws.*/
 function maw_ai(self, target, map){
     if(target.difference.on_axis() && target.difference.within_radius(1)){
+        map.attack(self.location.plus(target.difference));
         map.attack(self.location.plus(target.difference));
         map.attack(self.location.plus(target.difference));
     }
