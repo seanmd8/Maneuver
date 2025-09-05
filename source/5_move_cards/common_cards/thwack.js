@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function thwack(){
     var options = new ButtonGrid();

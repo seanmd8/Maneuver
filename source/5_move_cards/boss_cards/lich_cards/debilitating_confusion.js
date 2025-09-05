@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator} Dropped by the lich*/
 function debilitating_confusion(){
     var options = new ButtonGrid();

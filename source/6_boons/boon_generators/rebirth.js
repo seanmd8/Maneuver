@@ -1,4 +1,3 @@
-
 function rebirth(){
     return {
         name: boon_names.rebirth,

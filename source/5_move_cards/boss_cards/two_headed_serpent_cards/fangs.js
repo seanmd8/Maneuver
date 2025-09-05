@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator} Dropped by the two headed serpent.*/
 function fangs(){
     var options = new ButtonGrid();

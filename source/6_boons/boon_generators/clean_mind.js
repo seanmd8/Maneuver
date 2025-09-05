@@ -1,4 +1,3 @@
-
 function clean_mind(){
     return {
         name: boon_names.clean_mind,

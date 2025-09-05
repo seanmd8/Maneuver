@@ -33,7 +33,7 @@ function medium_porcuslime_ai(self, target, map){
     }
     if(self.tile.cycle === 0){
         // If cycle is at 0, direction will be orthogonally towards the player.
-        porcuslime_horizontal_ai(self, target, map);
+        porcuslime_orthogonal_ai(self, target, map);
     }
     else{
         // If cycle is at 1, direction will be diagonally towards the player.
@@ -50,7 +50,7 @@ function medium_porcuslime_telegraph(location, map, self){
         throw new Error(ERRORS.missing_property);
     }
     if(self.cycle === 0){
-        return porcuslime_horizontal_telegraph(location, map, self);
+        return porcuslime_orthogonal_telegraph(location, map, self);
     }
     return porcuslime_diagonal_telegraph(location, map, self);
 }

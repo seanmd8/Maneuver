@@ -1,5 +1,3 @@
-
-
 function node_turret_behavior(self, target, map){
     var sign_dif = sign(target.difference);
     var sign_dir = sign(self.tile.direction);

@@ -1,18 +1,3 @@
-// ToDo
-//      Handle Death
-//      Handle Spells
-//      New Pics?
-//      Test Stun immunity
-//      Test Nettle immunity (along with nettle's nettle immunity)
-//      Add Cards
-//      Double check which things replace previous spawns and how.
-
-//      Playtest
-//      Finish Forest
-//      Clean up testing, put forest into context
-//      Try to beat it
-
-
 /** @type {TileGenerator} */
 function forest_heart_tile(){
     var pic_arr = [
@@ -22,8 +7,8 @@ function forest_heart_tile(){
     var spells = [
         // Index + 1 corresponds with the health it's triggered at.
         /*1*/greater_thorn_bush_spell_generator(),
-        /*2*/forest_heart_rest_spell_generator(),
         /*3*/swaying_nettle_spell_generator(),
+        /*2*/forest_heart_rest_spell_generator(),
         /*4*/living_tree_spell_generator(),
         /*5*/thorn_bush_spell_generator(),
         /*6*/rotting_fruit_spell_generator(),

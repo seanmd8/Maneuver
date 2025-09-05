@@ -1,4 +1,3 @@
-
 function brag_and_boast(){
     return {
         name: boon_names.brag_and_boast,

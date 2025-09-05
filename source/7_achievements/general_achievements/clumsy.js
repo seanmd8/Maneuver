@@ -1,4 +1,3 @@
-
 function clumsy_achievement(){
     return {
         name: achievement_names.clumsy,

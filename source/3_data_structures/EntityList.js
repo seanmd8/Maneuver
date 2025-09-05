@@ -117,7 +117,7 @@ class EntityList{
             }
             this.move_enemy(location, entity.id);
         }
-        else{
+        else if(entity.tags.has(TAGS.unmovable)){
             throw new Error(ERRORS.invalid_type);
         }
     }

@@ -23,9 +23,9 @@ function swaying_nettle_ai(self, target, map){
         self.tile.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var targets = self.tile.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;
-    for(var target of targets){
-        var target_space = self.location.plus(target);
+    var attacks = self.tile.cycle === 0 ? DIAGONAL_DIRECTIONS : ORTHOGONAL_DIRECTIONS;
+    for(var attack of attacks){
+        var target_space = self.location.plus(attack);
         if(map.is_in_bounds(target_space) && !map.get_tile(target_space).tags.has(TAGS.nettle_immune)){
             map.attack(target_space);
         }
@@ -40,7 +40,7 @@ function swaying_nettle_telegraph(location, map, self){
         self.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var targets = self.cycle === 0 ? DIAGONAL_DIRECTIONS : HORIZONTAL_DIRECTIONS;
+    var targets = self.cycle === 0 ? DIAGONAL_DIRECTIONS : ORTHOGONAL_DIRECTIONS;
     return targets.map(target => {
         return target.plus(location);
     })

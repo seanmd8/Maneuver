@@ -52,19 +52,9 @@ function boss_floor_common(floor_num,  area, map){
     if(GS.boons.has(boon_names.pacifism) === 0){
         map.lock();
     }
-    if(GS.boons.has(boon_names.rift_touched)){
-        for(var i = 0; i < 2; ++i){
-            map.spawn_safely(darkling_tile(), SAFE_SPAWN_ATTEMPTS, true);
-        }
-    }
+    GS.map.stats.reset_boss_damage();
     if(chance(GS.boons.has(boon_names.frugivore), 2)){
         map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
-
-/** @type {FloorGenerator}*/
-function generate_sanctum_floor(floor_num, area, map){
-    generate_normal_floor(floor_num, area, map);
-}
-
 

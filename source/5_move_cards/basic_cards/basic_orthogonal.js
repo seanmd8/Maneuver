@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function basic_orthogonal(){
     var options = new ButtonGrid();

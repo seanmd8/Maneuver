@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator} Dropped by the Arcane Sentry*/
 function beam_ne(){
     var options = new ButtonGrid();

@@ -95,11 +95,11 @@ function young_dragon_behavior(self, target, map){
     }
     if(self.tile.cycle === 2){
         // Breathe fire.
-        var horizontal_cone = [];
+        var orthogonal_cone = [];
         for(var i = 1; i <= self.tile.range; ++i){
             for(var j = -(i - 1); j < i; ++j){
-                // Creates the horizontal cone pattern pointing North.
-                horizontal_cone.push(new Point(j, -1 * i));
+                // Creates the orthogonal cone pattern pointing North.
+                orthogonal_cone.push(new Point(j, -1 * i));
             }
         }
         var diagonal_cone = [];

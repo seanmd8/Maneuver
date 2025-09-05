@@ -1,4 +1,3 @@
-
 function boss_slayer(){
     return {
         name: boon_names.boss_slayer,

@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function y_leap(){
     var options = new ButtonGrid();

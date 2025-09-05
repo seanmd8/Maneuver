@@ -1,4 +1,3 @@
-
 function jack_of_all_trades_achievement(){
     return {
         name: achievement_names.jack_of_all_trades,

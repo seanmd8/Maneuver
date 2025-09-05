@@ -1,4 +1,3 @@
-
 function empty_rooms(){
     return {
         name: boon_names.empty_rooms,

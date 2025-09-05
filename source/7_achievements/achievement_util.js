@@ -1,4 +1,3 @@
-
 function get_achievements(){
     return [
         // Boss achievements
@@ -9,6 +8,8 @@ function get_achievements(){
         young_dragon_achievement(),
         forest_heart_achievement(),
         arcane_sentry_achievement(),
+        lord_of_shadow_and_flame_achievement(),
+        victory_achievement(),
         
         // Other 
         ancient_knowledge_achievement(),
@@ -20,6 +21,7 @@ function get_achievements(){
         monster_hunter_achievement(),
         non_violent_achievement(),
         not_my_fault_achievement(),
+        one_hit_wonder_achievement(),
         one_life_achievement(),
         peerless_sprinter_achievement(),
         shrug_it_off_achievement(),

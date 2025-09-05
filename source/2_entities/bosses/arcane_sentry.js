@@ -1,15 +1,16 @@
-SENTRY_MODES = Object.freeze({
+const SENTRY_MODES = {
     saw: "Saw",
     cannon: "Cannon",
     turret: "Turret"
-});
+};
+Object.freeze(SENTRY_MODES);
 
 const SENTRY_MAX_SAW_CYCLE = 4;
 const SENTRY_MAX_CANNON_CYCLE = 3;
 
 /** @type {TileGenerator} */
 function arcane_sentry_tile(){
-    var health = 6;
+    var health = 7;
     if(GS.boons.has(boon_names.boss_slayer)){
         health -= 2;
     }
@@ -32,7 +33,7 @@ function arcane_sentry_tile(){
 }
 
 function arcane_node_tile(){
-    var health = 4;
+    var health = 5;
     if(GS.boons.has(boon_names.boss_slayer)){
         health -= 2;
     }

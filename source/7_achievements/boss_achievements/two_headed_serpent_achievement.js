@@ -1,4 +1,3 @@
-
 function two_headed_serpent_achievement(){
     return {
         name: achievement_names.two_headed_serpent,

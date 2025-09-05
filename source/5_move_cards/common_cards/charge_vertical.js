@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function charge_vertical(){
     var options = new ButtonGrid();

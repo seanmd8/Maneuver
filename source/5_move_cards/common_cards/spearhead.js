@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function spearhead(){
     var options = new ButtonGrid();

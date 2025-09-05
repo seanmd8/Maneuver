@@ -60,7 +60,7 @@ class MoveDeck{
         if(hand_pos >= this.#hand.length || hand_pos < 0){
             throw new Error(ERRORS.invalid_value);
         }
-        if(!(this.#hand[hand_pos].temp !== undefined && this.#hand[hand_pos].temp === true)){
+        if(this.#hand[hand_pos].temp === undefined || this.#hand[hand_pos].temp === false){
             this.#discard_pile.push(this.#hand[hand_pos]);
         }
         if(this.#library.length === 0){
@@ -81,7 +81,7 @@ class MoveDeck{
      */
     discard_all(){
         for(var card of this.#hand){
-            if(this.#hand.temp === undefined || this.#hand.temp === false){
+            if(card.temp === undefined || card.temp === false){
                 this.#discard_pile.push(card);
             }
         }
@@ -100,8 +100,6 @@ class MoveDeck{
                 this.#hand.push(top_card);
             }
         }
-
-        
     }
     /**
      * Adds a new card to the decklist.
@@ -135,10 +133,6 @@ class MoveDeck{
         this.#library.push(new_card);
         this.#library = randomize_arr(this.#library);
     }
-    /**
-     * Displays the hand.
-     * @param {string} table Where it should be dispalyed.
-     */
     get_hand_info(){
         var make_prep_move = function(card, hand_pos){
             return function(){
@@ -206,7 +200,7 @@ class MoveDeck{
         if(this.#decklist.length <= this.#min_deck_size){
             return [];
         }
-        return rand_no_repeates(this.#decklist, size);
+        return rand_no_repeats(this.#decklist, size);
     }
     /**
      * Removes a card from the decklist.
@@ -271,7 +265,7 @@ class MoveDeck{
         return this.#hand[hand_position].options.is_instant();
     }
     copy(){
-        var new_deck = new this.constructor(this.#hand_size, this.#min_deck_size);
+        var new_deck = this.constructor(this.#hand_size, this.#min_deck_size);
         new_deck.#id_count = this.#id_count;
         new_deck.#decklist = this.#decklist;
         return new_deck;

@@ -1,4 +1,3 @@
-
 /** @type {SpellGenerator} */
 function lava_moat_spell_generator(){
     return {

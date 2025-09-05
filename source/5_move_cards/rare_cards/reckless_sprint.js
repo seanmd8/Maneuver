@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function reckless_sprint(){
     var options = new ButtonGrid();

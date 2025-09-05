@@ -5,4 +5,3 @@ function rift_touched(){
         description: boon_descriptions.rift_touched,
     }
 }
-

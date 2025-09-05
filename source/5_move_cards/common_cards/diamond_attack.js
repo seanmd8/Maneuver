@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function diamond_attack(){
     var options = new ButtonGrid();

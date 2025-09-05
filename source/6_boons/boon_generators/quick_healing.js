@@ -1,4 +1,3 @@
-
 function quick_healing(){
     return {
         name: boon_names.quick_healing,

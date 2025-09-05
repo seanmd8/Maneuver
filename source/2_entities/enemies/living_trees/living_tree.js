@@ -20,7 +20,7 @@ function living_tree_ai(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     // Checks if it can attack the player.
-    var hits = get_2_away().filter(p => {
+    var hits = point_rectangle(new Point(-2, -2), new Point(2, 2)).filter((p) => {
         return point_equals(p, target.difference);
     });
     if(hits.length > 0){
@@ -44,4 +44,3 @@ function living_tree_ai(self, target, map){
     }
     self.tile.cycle = 1 - self.tile.cycle;
 }
-

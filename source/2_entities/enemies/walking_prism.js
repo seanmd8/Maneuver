@@ -43,7 +43,7 @@ function walking_prism_on_hit(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
-        var directions = HORIZONTAL_DIRECTIONS;
+        var directions = ORTHOGONAL_DIRECTIONS;
     }
     else{
         var directions = DIAGONAL_DIRECTIONS;

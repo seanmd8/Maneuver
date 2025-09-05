@@ -1,6 +1,3 @@
-
-
-
 /**
  * Function to create a function that delays an event function for a specified number of turns.
  * @param {number} turn_count How many turns to delay it.

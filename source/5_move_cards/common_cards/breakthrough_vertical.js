@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function breakthrough_vertical(){
     var options = new ButtonGrid();

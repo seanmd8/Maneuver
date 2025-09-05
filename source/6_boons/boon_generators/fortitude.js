@@ -1,4 +1,3 @@
-
 function fortitude(){
     return {
         name: boon_names.fortitude,

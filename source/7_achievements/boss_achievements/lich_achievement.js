@@ -1,4 +1,3 @@
-
 function lich_achievement(){
     return {
         name: achievement_names.lich,

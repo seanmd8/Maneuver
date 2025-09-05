@@ -1,4 +1,3 @@
-
 function future_sight(){
     return {
         name: boon_names.future_sight,

@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function stunning_leap_vertical(){
     var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));

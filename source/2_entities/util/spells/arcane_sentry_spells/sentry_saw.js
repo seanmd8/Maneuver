@@ -1,13 +1,12 @@
-
 function node_saw_behavior(self, target, map){
-    for(var direction of HORIZONTAL_DIRECTIONS){
+    for(var direction of ORTHOGONAL_DIRECTIONS){
         map.attack(self.location.plus(direction));
     }
 }
 
 function node_saw_telegraph(location, map, self){
     return [
-        ...HORIZONTAL_DIRECTIONS.map((p) => {return p.plus(location)}), 
+        ...ORTHOGONAL_DIRECTIONS.map((p) => {return p.plus(location)}), 
         ...hazard_telegraph(location, map, self)
     ];
 }

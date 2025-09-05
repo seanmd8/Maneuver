@@ -12,7 +12,7 @@ function porcuslime_diagonal_ai(self, target, map){
     move_attack_ai(self, {tile: target.tile, difference: direction}, map);
 }
 /** @type {AIFunction} AI used by small and medium porcuslimes when moving orthogonally.*/
-function porcuslime_horizontal_ai(self, target, map){
+function porcuslime_orthogonal_ai(self, target, map){
     var directions = order_nearby(target.difference);
     var direction = undefined;
     for(var i = 0; i < directions.length && direction === undefined; ++i){
@@ -29,6 +29,6 @@ function porcuslime_diagonal_telegraph(location, map, self){
     return move_attack_telegraph(location, map, DIAGONAL_DIRECTIONS);
 }
 /** @type {TelegraphFunction} */
-function porcuslime_horizontal_telegraph(location, map, self){
-    return move_attack_telegraph(location, map, HORIZONTAL_DIRECTIONS);
+function porcuslime_orthogonal_telegraph(location, map, self){
+    return move_attack_telegraph(location, map, ORTHOGONAL_DIRECTIONS);
 }

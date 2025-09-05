@@ -19,6 +19,9 @@ class Point{
      * @param {number} y The y value of the new point.
      */
     constructor(x, y){
+        if(x === undefined || y === undefined){
+            throw new Error(ERRORS.invalid_value);
+        }
         this.x = x;
         this.y = y;
     }

@@ -1,4 +1,3 @@
-
 function forest_heart_achievement(){
     return {
         name: achievement_names.forest_heart,

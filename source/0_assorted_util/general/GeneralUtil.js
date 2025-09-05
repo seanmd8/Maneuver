@@ -19,7 +19,7 @@ function delay(milliseconds){
  * @param {number} draws Number of draws. If it is larger than source.length, then source.length will be used instead.
  * @returns {T[]} Array of random draws.
  */
-function rand_no_repeates(source, draws){
+function rand_no_repeats(source, draws){
     var index_arr = [];
     var result = [];
     draws = Math.min(draws, source.length);
@@ -44,7 +44,7 @@ function rand_from(source){
     if(source.length === 0){
         throw new Error(ERRORS.array_size);
     }
-    return rand_no_repeates(source, 1)[0];
+    return rand_no_repeats(source, 1)[0];
 }
 /**
  * Wraps a string so each line has a maximum number of characters before automatically inserting a newline character.
@@ -215,7 +215,7 @@ function range(start = 0, stop, step = 1){
 
 function cross(arr1, arr2, f){
     for(var e1 of arr1){
-        for(e2 of arr2){
+        for(var e2 of arr2){
             f(e1, e2);
         }
     }

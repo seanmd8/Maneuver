@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function sidestep_s(){
     var options = new ButtonGrid();

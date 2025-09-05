@@ -1,5 +1,3 @@
-
-
 class BoonTracker{
     #choices;
     #boons;
@@ -89,4 +87,3 @@ class BoonTracker{
     }
 
 }
-

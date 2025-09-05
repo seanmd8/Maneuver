@@ -1,4 +1,3 @@
-
 /**
  * Function to create an event function representing an earthquake.
  * @param {number} amount The amount of falling debris that should be created.
@@ -30,7 +29,7 @@ function earthquake_event(amount, locations = undefined){
                 }
             }
             else{
-                var spaces = rand_no_repeates(locations, amount);
+                var spaces = rand_no_repeats(locations, amount);
                 for(var i = 0; i < amount; ++i){
                     space = spaces[i];
                     if(map_to_use.check_empty(space)){

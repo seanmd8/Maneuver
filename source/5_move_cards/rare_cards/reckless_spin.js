@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function reckless_spin(){
     var options = new ButtonGrid();

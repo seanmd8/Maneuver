@@ -1,4 +1,3 @@
-
 function stubborn(){
     return {
         name: boon_names.stubborn,

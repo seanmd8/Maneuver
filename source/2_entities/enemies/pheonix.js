@@ -73,4 +73,3 @@ function pheonix_telegraph(location, map, self){
     }
     return telegraph;
 }
-

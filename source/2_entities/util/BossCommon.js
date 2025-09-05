@@ -9,7 +9,7 @@ function boss_death(self, target, map){
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
         // Create a chest containing a random card from it's loot table.
         var chest = appropriate_chest_tile();
-        var cards = rand_no_repeates(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
+        var cards = rand_no_repeats(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(var card of cards){
             add_card_to_chest(chest, card());
         }
@@ -24,6 +24,9 @@ function boss_death(self, target, map){
     var stats = map.stats.get_stats()
     if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
         GS.achieve(achievement_names.not_my_fault);
+    }
+    if(stats.boss_kill_start === stats.turn_number){
+        GS.achieve(achievement_names.one_hit_wonder);
     }
     if( // Practice makes perfect
         GS.boons.has(boon_names.practice_makes_perfect) && 

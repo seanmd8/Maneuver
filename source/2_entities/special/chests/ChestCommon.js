@@ -106,10 +106,6 @@ function add_card_to_chest(chest, card){
     chest.contents.push(content);
 }
 
-/**
- * @param {Tile} chest 
- * @param {Card} card 
- */
 function add_boon_to_chest(chest, boon){
     if(chest.contents === undefined){
         throw new Error(ERRORS.missing_property);

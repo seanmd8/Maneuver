@@ -1,4 +1,3 @@
-
 function node_double_cannon_behavior(self, target, map){
     if(self.tile.direction.on_axis()){
         node_o_double_cannon_ai(self, target, map);

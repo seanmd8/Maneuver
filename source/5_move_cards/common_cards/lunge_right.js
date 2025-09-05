@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function lunge_right(){
     var options = new ButtonGrid();

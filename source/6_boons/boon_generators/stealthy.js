@@ -1,4 +1,3 @@
-
 function stealthy(){
     return {
         name: boon_names.stealthy,

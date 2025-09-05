@@ -18,7 +18,7 @@ function unstable_wisp_tile(){
 function unstable_wisp_ai(self, target, map){
     var start = self.location.copy();
     var moved = undefined;
-    var directions = random_nearby(target.difference);
+    var directions = random_nearby();
     for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health > 0) && !moved; ++i){
         // Moves a space randomly.
         for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}

@@ -1,4 +1,3 @@
-
 function stable_mind(){
     return {
         name: boon_names.stable_mind,

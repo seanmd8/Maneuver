@@ -1,4 +1,3 @@
-
 function one_life_achievement(){
     return {
         name: achievement_names.one_life,

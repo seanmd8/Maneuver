@@ -1,4 +1,3 @@
-
 class StatTracker{
     #turn_number;
     #turns_per_floor;
@@ -6,6 +5,7 @@ class StatTracker{
     #turn_damage;
     #chests;
     #damage_dealt;
+    #boss_kill_start;
     #total_damage_per_floor;
     #kills;
     #total_kills_per_floor;
@@ -17,6 +17,7 @@ class StatTracker{
         this.#turn_damage = 0;
         this.#chests = 0;
         this.#damage_dealt = 0;
+        this.#boss_kill_start = 0;
         this.#total_damage_per_floor = [0];
         this.#kills = 0;
         this.#total_kills_per_floor = [0]
@@ -62,6 +63,16 @@ class StatTracker{
     increment_damage_dealt(){
         ++this.#damage_dealt;
     }
+    damage_boss(){
+        if(this.#boss_kill_start === undefined){
+            this.#boss_kill_start = this.#turn_number;
+            return;
+        }
+        this.#boss_kill_start = Math.min(this.#boss_kill_start, this.#turn_number);
+    }
+    reset_boss_damage(){
+        this.#boss_kill_start = undefined;
+    }
     increment_kills(){
         ++this.#kills;
     }
@@ -73,6 +84,7 @@ class StatTracker{
             turn_damage: this.#turn_damage,
             chests: this.#chests,
             damage_dealt: this.#damage_dealt,
+            boss_kill_start: this.#boss_kill_start,
             total_damage_per_floor: this.#total_damage_per_floor,
             kills: this.#kills,
             total_kills_per_floor: this.#total_kills_per_floor

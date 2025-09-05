@@ -110,24 +110,33 @@ class GameState{
             await this.prep_turn();
         }
         catch (error){
-            var m = error.message;
-            if(m === ERRORS.floor_complete){
-                // If the player has reached the end of the floor.
+            this.handle_errors(error);
+        }
+    }
+    handle_errors(e){
+        var m = e.message
+        switch(m){
+            case ERRORS.floor_complete:
                 this.map.display_stats(UIIDS.stats);
                 this.enter_shop();
-            }
-            else if(m === ERRORS.game_over){
-                // If the player's health reached 0
-                this.game_over(error.cause.message);
-            }
-            else if(m === ERRORS.pass_turn){
-                // If the enemies' turn was interrupted,
-                // prep for player's next turn.
-                this.prep_turn();
-            }
-            else{
-                throw error;
-            }
+                break;
+            case ERRORS.game_over:
+                this.game_over(e.cause.message);
+                break;
+            case ERRORS.pass_turn:
+                try{
+                    this.prep_turn();
+                }
+                catch(error){
+                    this.handle_errors(error);
+                }
+                break;
+            case ERRORS.victory:
+                this.victory();
+                break;
+            default:
+                throw e;
+
         }
     }
     /**
@@ -158,8 +167,10 @@ class GameState{
                     stun_count += 1
                 }
                 if( // Pacifism
-                    this.boons.has(boon_names.pacifism) && 
-                    !action.change.is_origin()
+                    this.boons.has(boon_names.pacifism) > 0 && 
+                    !action.change.is_origin() &&
+                    this.map.is_in_bounds(target) &&
+                    !this.map.get_tile(target).tags.has(TAGS.altar)
                 ){
                     stun_count += 2 * attack_count;
                     attack_count = 0;
@@ -226,7 +237,6 @@ class GameState{
     }
     /** 
      * Sets up the next floor then leaves the shop.
-     * @returns {void} 
      */
     async new_floor(){
         // Creates the next floor.
@@ -270,7 +280,6 @@ class GameState{
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
         say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
-        display.remove_children(UIIDS.move_buttons);
         var restart = function(game){
             return function(message, position){
                 display.remove_children(UIIDS.retry_button);
@@ -283,6 +292,26 @@ class GameState{
             on_click: restart(this)
         }]
         display.add_button_row(UIIDS.retry_button, restart_message);
+        refresh_full_deck_display(this.deck);
+        var swap_visibility = function(id_list, id){
+            return function(){
+                id_list.swap(id);
+            }
+        }
+        display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.full_deck));
+    }
+    victory(){
+        display_map(this.map);
+        display_victory()
+        this.achieve(achievement_names.victory);
+        say_record(gameplay_text.victory);
+        refresh_full_deck_display(this.deck);
+        var swap_visibility = function(id_list, id){
+            return function(){
+                id_list.swap(id);
+            }
+        }
+        display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.full_deck));
     }
     /**
      * Adds a temporary card to the player's deck.
@@ -335,7 +364,6 @@ class GameState{
     }
     /**
      * Records a message in the text log, then displays the text log.
-     * @param {string} msg The message to record.
      */
     record_message(str, type){
         this.#text_log.push({
@@ -382,5 +410,3 @@ class GameState{
         return false;
     }
 }
-
-

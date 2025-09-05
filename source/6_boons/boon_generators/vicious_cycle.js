@@ -1,4 +1,3 @@
-
 function vicious_cycle(){
     return {
         name: boon_names.vicious_cycle,

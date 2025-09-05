@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function step_right(){
     var options = new ButtonGrid();

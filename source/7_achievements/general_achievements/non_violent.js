@@ -1,4 +1,3 @@
-
 function non_violent_achievement(){
     return {
         name: achievement_names.non_violent,

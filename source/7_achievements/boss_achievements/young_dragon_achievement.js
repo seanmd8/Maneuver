@@ -1,4 +1,3 @@
-
 function young_dragon_achievement(){
     return {
         name: achievement_names.young_dragon,

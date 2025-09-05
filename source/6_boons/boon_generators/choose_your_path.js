@@ -1,4 +1,3 @@
-
 function choose_your_path(){
     return {
         name: boon_names.choose_your_path,

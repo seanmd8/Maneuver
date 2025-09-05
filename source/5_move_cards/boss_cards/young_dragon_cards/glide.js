@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function glide(){
     var options = new ButtonGrid();

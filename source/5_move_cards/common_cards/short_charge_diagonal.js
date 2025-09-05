@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function short_charge_diagonal(){
     var options = new ButtonGrid();

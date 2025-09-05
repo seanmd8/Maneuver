@@ -1,4 +1,3 @@
-
 function spider_queen_achievement(){
     return {
         name: achievement_names.spider_queen,

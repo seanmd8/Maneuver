@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function freeze_up(){
     var options = new ButtonGrid();

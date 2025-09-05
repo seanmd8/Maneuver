@@ -1,9 +1,9 @@
-
 const boss_names = {
     arcane_sentry: `Arcane Sentry`,
     arcane_sentry_node: `Arcane Sentry Node`,
     forest_heart: `Forest Heart`,
     lich: `Lich`,
+    lord_of_shadow_and_flame: `Lord of Shadow and Flame`,
     spider_queen: `Spider Queen`,
     two_headed_serpent: `Two Headed Serpent`,
     two_headed_serpent_body: `Two Headed Serpent Body`,
@@ -19,12 +19,16 @@ const boss_descriptions = {
         `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry. Cannot be stunned.`,
     forest_heart: 
         `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage `
-        +`each turn and cannot be stunned.`,
+        +`each turn and cannot be stunned. Reacts to damage by calling for aid from the forest.`,
     lich: 
         `Lich (Boss): An undead wielder of dark magic. Alternates between moving `
         +`one space away from you and casting a spell.`,
     lich_announcement: 
         `The Lich is currently preparing to cast:`,
+    lord_of_shadow_and_flame:
+        `Lord of Shadow and Flame (Final Boss): Ruler from beyond the veil of reality. Summons `
+        +`altars from which to cast it's spells. When next to the player it will prepare to attack `
+        +`all nearby spaces next turn. Moves at double speed while under half health.`,
     spider_queen: 
         `Spider Queen (Boss): Her back crawls with her young. Moves like a `
         +`normal spider. Taking damage will stun her, but will also spawn a spider.`,
@@ -56,6 +60,8 @@ const boss_floor_message = {
         +`INTRUDER DETECTED!`,
     forest_heart: `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`,
     lich: `Dust and dark magic swirl in the air.`,
+    lord_of_shadow_and_flame: `Reality swirls and unravels around a solitary figure.`,
+    lord_pacifism: `There is no escape. Despite your pacifism, you must find a way to fight.`,
     spider_queen: `The floor is thick with webs.`,
     two_headed_serpent: `The discarded skin of a massive creature litters the floor.`,
     velociphile: `You hear a deafening shriek.`,
@@ -73,6 +79,9 @@ const boss_death_message = {
     arcane_sentry_node: `NODE OFFLINE!`,
     forest_heart: `Branches rain from above as the ancient tree is felled.`,
     lich: `The Lich's body crumbles to dust.`,
+    lord_of_shadow_and_flame: 
+        `As the ruler of this space fades from reality, the room begins to quake. `
+        +`Better leave quickly.`,
     spider_queen: `As the Spider Queen falls to the floor, the last of her children emerge.`,
     two_headed_serpent: 
         `It's body too small to regenerate any further, all four of the serpent's `

@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function slip_through_nw(){
     var options = new ButtonGrid();

@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function flanking_diagonal(){
     var options = new ButtonGrid();

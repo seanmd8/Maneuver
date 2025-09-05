@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function combat_orthogonal(){
     var options = new ButtonGrid();

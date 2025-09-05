@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function combat_diagonal(){
     var options = new ButtonGrid();

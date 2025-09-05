@@ -9,6 +9,31 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+9/4/25
+- Added fifth and final area: Candlelit Court
+- Added Candlelit Court boss: Lord of Shadow and Flame
+- Added new enemy: Wheel of Fire
+- Added new enemy: Shadow Knight Elite
+- Added new enemy: Starcaller
+- Added new enemy: Unspeakable
+- Added new enemy: Blood Crescent
+- Added new enemy: Claustropede
+- Added new enemy: Maw
+- Added new terrain: Shattersphere
+- Added new terrain: Moon Rock
+- Added 3 new Achievements
+- Added 2 new Boons
+- Added victory screen
+- You can now see your full deck after dying or winning the game
+- New Guidebook page: About page which links to the github
+- Rebalanced Repulsor terrain: Takes 3 turns to recharge rather than 2
+- Rebalanced Arcane Sentry boss: Upped health of nodes and core by 1
+- Rebalanced Forest Heart boss: changed health thresholds for certain behaviors
+- Rebalanced Rift Touched boon: No longer works on boss floors
+- Rebalanced Shattered Glass boon: No longer damages chests
+- Fixed bug where card telegraphs would not highlight tiles with hidden entities
+- Fixed bug where Spontaneous boon didn't remove temporary cards
+
 8/28/25
 - Removed a card that was underperforming
 - Changed several card names to make them more consistant

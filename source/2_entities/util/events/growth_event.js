@@ -1,5 +1,3 @@
-
-
 /**
  * Function to create an event function representing hazardous growth.
  * @param {Point[]} points A grid of locations to grow things at.

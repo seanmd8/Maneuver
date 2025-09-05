@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function superweapon_1(){
     var options = new ButtonGrid();

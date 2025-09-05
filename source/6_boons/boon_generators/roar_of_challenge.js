@@ -1,4 +1,3 @@
-
 function roar_of_challenge(){
     return {
         name: boon_names.roar_of_challenge,

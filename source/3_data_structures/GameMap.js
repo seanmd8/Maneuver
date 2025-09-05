@@ -22,7 +22,7 @@
 /**
  * @typedef {Object} GridSpaceLayer
  * @property {string} pic
- * @property {string=} descrtiption
+ * @property {string=} description
  * @property {TelegraphFunction=} telegraph
  * @property {TelegraphFunction=} telegraph_other
  */
@@ -299,7 +299,6 @@ class GameMap{
      * Function to display the gamemap and the player's health.
      * Clicking on a tile will give info about it.
      * Resets tiles marked as hit afterwards.
-     * @returns {void}
      */
     display(){
         var make_on_click = function(space, location, gameMap){
@@ -387,6 +386,10 @@ class GameMap{
                 this.#area.next_area_list = [end.next_area];
             }
             throw new Error(ERRORS.floor_complete);
+        }
+        if(start.type === entity_types.player && end.type === entity_types.final_exit){
+            this.stats.increment_turn();
+            throw new Error(ERRORS.victory);
         }
         if(end.on_enter !== undefined){
             // If the destination does something if moved onto, call it.
@@ -481,6 +484,9 @@ class GameMap{
             if(source !== undefined && source.tile.type === entity_types.player){
                 this.stats.increment_damage_dealt();
             }
+            if(target.tags.has(TAGS.boss)){
+                this.stats.damage_boss();
+            }
             if(target.type === entity_types.player){
                 if(this.#is_player_turn){
                     this.stats.increment_turn_damage();
@@ -533,7 +539,7 @@ class GameMap{
                     --this.#entity_list.count_non_empty;
                 }
                 if(target.on_death !== undefined){
-                    // Trigger on_death/
+                    // Trigger on_death
                     var player_pos = this.#entity_list.get_player_pos();
                     var dying_entity = {
                         tile: target,
@@ -588,7 +594,8 @@ class GameMap{
                     var p_offset = pos.plus(offset);
                     if(
                         this.is_in_bounds(p_offset) && 
-                        this.get_tile(p_offset).type !== entity_types.player
+                        this.get_tile(p_offset).type !== entity_types.player &&
+                        this.get_tile(p_offset).type !== entity_types.chest
                     ){
                         this.player_attack(direction.plus(offset));
                     }
@@ -648,6 +655,13 @@ class GameMap{
             this.#set_tile(pos, exit);
         }
     }
+    remove_exit(){
+        for(var pos of this.#exit_pos){
+            this.#set_tile(pos, empty_tile());
+            this.get_grid(pos).floor = this.#area.background;
+        }
+        this.#exit_pos = [];
+    }
     /**
      * Schedules an event to happen at end of turn.
      * @param {MapEvent} event The even to be added.
@@ -673,10 +687,7 @@ class GameMap{
                 }
                 throw error;
             }
-            
         }
-        
-        
     }
     /**
      * Clears the current floor and goes to the next one then generates it based on the current area.
@@ -937,9 +948,10 @@ class GameMap{
         }
         var tile = this.get_tile(location);
         return (
-            tile.name === special_tile_names.empty || 
+            tile.name === entity_types.empty || 
+            tile.type === entity_types.exit ||
             tile.on_enter !== undefined || 
-            tile.name === special_tile_names.exit
+            tile.tags.has(TAGS.hidden)
         );
     }
     get_initiative(){
@@ -947,11 +959,6 @@ class GameMap{
     }
 }
 
-/**
- * Creates an empty space to add to the game map's grid.
- * @param {}
- * @returns {GridSpace} The resulting array.
- */
 function grid_space(area){
     return {
         foreground: [],

@@ -48,7 +48,7 @@
  * // Properties added later //
  * @property {number=} stun When the tile is stunned, it's turn will be skipped.
  * @property {number=} id Given a unique one when added to a EntityList.
- * @property {Tile || undefined} look Used when tiles disguise themselves as something else.
+ * @property {Tile=} look Used when tiles disguise themselves as something else.
  */
 
 /**
@@ -66,7 +66,8 @@ const ENEMY_LIST = [
     orb_of_insanity_tile, carrion_flies_tile, magma_spewer_tile, igneous_crab_tile, animated_boulder_tile,
     pheonix_tile, strider_tile, swaying_nettle_tile, thorn_bush_tile, living_tree_tile,
     moving_turret_d_tile, moving_turret_o_tile, walking_prism_tile, unstable_wisp_tile, captive_void_tile,
-    paper_construct_tile, specter_tile, gem_crawler_tile
+    paper_construct_tile, specter_tile, gem_crawler_tile, claustropede_2_tile, claustropede_3_tile, 
+    wheel_of_fire_tile, blood_crescent_tile, unspeakable_tile, shadow_knight_elite_tile, maw_tile
 ];
 
 // This is an array of all bosses.
@@ -120,26 +121,20 @@ function order_nearby(direction){
     if(sign_dir.x === 0){
         // Target is along the vertical line.
         var pair = randomize_arr([new Point(1, sign_dir.y), new Point(-1, sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(1, 0), new Point(-1, 0)])
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(1, -1 * sign_dir.y), new Point(-1, -1 * sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
     }
     else if(sign_dir.y === 0){
         // Target is along the horizontal line.
-        var pair = randomize_arr([new Point(sign_dir.x, 1), new Point(sign_dir.x, 1)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        var pair = randomize_arr([new Point(sign_dir.x, 1), new Point(sign_dir.x, -1)]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(0, 1), new Point(0, -1)])
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(-1 * sign_dir.x, 1), new Point(-1 * sign_dir.x, -1)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
     }
     else if(Math.abs(direction.x) > Math.abs(direction.y)){  
         // Target is closer to the horizontal line than the vertical one.
@@ -162,14 +157,11 @@ function order_nearby(direction){
     else{
         // Target is along the diagonal.
         var pair = randomize_arr([new Point(sign_dir.x, 0), new Point(0, sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(-1 * sign_dir.x, sign_dir.y), new Point(sign_dir.x, -1 * sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
         pair = randomize_arr([new Point(-1 * sign_dir.x, 0), new Point(0, -1 * sign_dir.y)]);
-        ordering.push(pair[0]);
-        ordering.push(pair[1]);
+        ordering.push(...pair);
     }
     ordering.push(new Point(-1 * sign_dir.x, -1 * sign_dir.y));
     return ordering;
@@ -295,10 +287,27 @@ function set_rotation(tile){
  * @returns {Point[]} An array of the points around the edge.
  */
 function point_rectangle(p1, p2){
-    if(p1.x === p2.x || p1.y === p2.y){
-        // The rectangle can't be 1 dimensional.
-        throw new Error(ERRORS.invalid_value);
+    if(p1.x === p2.x && p1.y === p2.y){
+        // 1x1
+        return [p1.copy()];
     }
+    if(p1.x === p2.x){
+        // 1xn
+        var y_min = Math.min(p1.y, p2.y);
+        var y_max = Math.max(p1.y, p2.y);
+        return range(y_min, y_max).map((y) => {
+            return new Point(p1.x, y);
+        })
+    }
+    if(p1.y === p2.y){
+        // nx1
+        var x_min = Math.min(p1.x, p2.x);
+        var x_max = Math.max(p1.x, p2.x);
+        return range(x_min, x_max).map((x) => {
+            return new Point(x, p1.y);
+        })
+    }
+
     var rectangle = [
         p1.copy(),
         p2.copy(),
@@ -318,24 +327,6 @@ function point_rectangle(p1, p2){
         rectangle.push(new Point(x_max, y));
     }
     return rectangle;
-}
-
-
-/**
- * Function to make a square of points with a side length 5 centered on the origin.
- * @returns {Point[]} the points.
- */
-function get_2_away(){
-    var points = [];
-    for(var x = -2; x <= 2; ++x){
-        for(var y = -2; y <= 2; ++y){
-            var p = new Point(x, y);
-            if(p.within_radius(2) && !p.within_radius(1)){
-                points.push(p);
-            }
-        }
-    }
-    return points;
 }
 
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */

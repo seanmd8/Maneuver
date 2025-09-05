@@ -21,4 +21,3 @@ function lost_maneuver(){
         evolutions: [maneuver_1]
     }
 }
-

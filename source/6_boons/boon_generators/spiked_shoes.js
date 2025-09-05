@@ -1,4 +1,3 @@
-
 function spiked_shoes(){
     return {
         name: boon_names.spiked_shoes,

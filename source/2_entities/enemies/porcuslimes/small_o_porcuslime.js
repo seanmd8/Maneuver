@@ -8,7 +8,7 @@ function small_o_porcuslime_tile(){
         tags: new TagList(),
         health: 1,
         difficulty: 3,
-        behavior: porcuslime_horizontal_ai,
-        telegraph: porcuslime_horizontal_telegraph,
+        behavior: porcuslime_orthogonal_ai,
+        telegraph: porcuslime_orthogonal_telegraph,
         }
 }

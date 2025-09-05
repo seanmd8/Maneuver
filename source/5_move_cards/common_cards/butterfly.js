@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function butterfly(){
     var options = new ButtonGrid();

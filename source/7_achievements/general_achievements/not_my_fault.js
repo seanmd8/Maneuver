@@ -1,4 +1,3 @@
-
 function not_my_fault_achievement(){
     return {
         name: achievement_names.not_my_fault,

@@ -29,4 +29,3 @@ function raging_fire_hit(self, target, map){
         self.tile.pic = self.tile.pic_arr[intensity];
     }
 }
-

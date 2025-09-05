@@ -1,4 +1,3 @@
-
 /** @type {CardGenerator}*/
 function stumble_ne(){
     var options = new ButtonGrid();

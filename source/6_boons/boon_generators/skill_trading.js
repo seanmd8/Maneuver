@@ -1,4 +1,3 @@
-
 function skill_trading(){
     return {
         name: boon_names.skill_trading,

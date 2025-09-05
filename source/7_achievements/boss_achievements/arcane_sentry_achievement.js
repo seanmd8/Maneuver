@@ -1,4 +1,3 @@
-
 function arcane_sentry_achievement(){
     return {
         name: achievement_names.arcane_sentry,
