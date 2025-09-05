@@ -7,7 +7,7 @@ function maw_tile(){
         description: enemy_descriptions.maw,
         tags: new TagList(),
         health: 4,
-        difficulty: 4,
+        difficulty: 3,
         behavior: maw_ai,
         telegraph: maw_telegraph,
         on_hit: maw_hit,
