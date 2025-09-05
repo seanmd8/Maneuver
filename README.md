@@ -9,6 +9,9 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+9/5/25
+- Fixed bug with Specter which could cause a crash
+
 9/4/25
 - Added fifth and final area: Candlelit Court
 - Added Candlelit Court boss: Lord of Shadow and Flame
