@@ -435,6 +435,7 @@ function point_equals(p1, p2){
 function init_settings(){
     const init = {
         enemies: undefined,
+        spawnpoints: undefined,
         chests: undefined,
         cards: undefined,
         area: undefined,
@@ -6381,32 +6382,36 @@ function specter_tile(){
 function specter_ai(self, target, map){
     if(target.difference.on_axis()){
         // If orthogonal, move towards player.
-        var direction = sign(target.difference);
-        var locations = get_specter_moves(self.location, direction, map);
-        specter_move(self.location, locations, map);
-        return;
+        var locations = get_specter_moves(self.location, sign(target.difference), map);
+        var moved = specter_move(self.location, locations, map);
+        if(moved){
+            return;
+        }
     }
     var dir1 = sign(new Point(target.difference.x, 0));
     var dir2 = sign(new Point(0, target.difference.y));
-    var direction = chance(1, 2) ? dir1 : dir2;
+    var direction = rand_from([dir1, dir2]);
     var target_location = self.location.plus(target.difference);
     var locations = get_specter_moves(self.location, direction, map);
     for(var i = 0; i < locations.length; ++i){
+        // If it can move to the same axis as the player, and the destination is not next
+        //  to them do so.
         if(
             map.check_empty(locations[i]) && 
             target_location.minus(locations[i]).on_axis() &&
             !target_location.minus(locations[i]).within_radius(1)
         ){
-            // If can move to the axis and the destination is not next to the player, do so.
             specter_move(self.location, locations.slice(0, i + 1), map);
             return;
         }
     }
     if(
-        point_equals(sign(locations[locations.length - 1]), sign(self.location)) && // Same quadrant
+        locations.length > 0 &&
+        point_equals(sign(target.difference), sign(target_location.minus(locations[locations.length - 1]))) &&
         !target_location.minus(locations[locations.length - 1]).within_radius(1)
     ){
-        // If it cant reach the axis, go as far is it can as long as it doesn't end next to a player.
+        // If it can move towards the player's axis at full speed without ending next to them, 
+        // or passing them do so.
         specter_move(self.location, locations, map);
         return;
     }
@@ -6441,7 +6446,7 @@ function get_specter_moves(current, direction, map){
 
 function specter_move(current, passing, map){
     if(passing.length === 0){
-        return;
+        return false;
     }
     var destination = passing.pop();
     map.move(current, destination);
@@ -6450,7 +6455,7 @@ function specter_move(current, passing, map){
         map.stun_tile(location);
         map.attack(location);
     }
-    return;                
+    return true;                
 }
 
 /** @type {TelegraphFunction} */
@@ -11352,8 +11357,14 @@ class GameState{
         }
 
         // Prep map
-        for(var enemy of init.enemies){
-            this.map.spawn_safely(enemy(), SAFE_SPAWN_ATTEMPTS, true);
+        for(var i = 0; i < init.enemies.length; ++i){
+            var enemy = init.enemies[i]();
+            if(init.spawnpoints === undefined || init.spawnpoints.length <= i){
+                this.map.spawn_safely(enemy, SAFE_SPAWN_ATTEMPTS, true);
+            }
+            else{
+                this.map.add_tile(enemy, init.spawnpoints[i]);
+            }
         }
         for(var boon of init.chests){
             var chest = chest_tile();
