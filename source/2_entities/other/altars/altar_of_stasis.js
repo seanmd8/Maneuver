@@ -16,7 +16,7 @@ function altar_of_stasis_on_enter(self, target, map){
         var space = new Point(x, y);
         var tile = map.get_tile(space);
         if(tile.tags.has(TAGS.boss)){
-            map.heal(space, 2)
+            map.heal(space, 3)
         }
         if(tile.tags.has(TAGS.altar)){
             map.heal(space, 1);

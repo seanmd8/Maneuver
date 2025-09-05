@@ -2928,7 +2928,7 @@ const other_tile_descriptions = {
         +`summon an object from another realm targeting the player's location.`,
     altar_of_stasis:
         `Altar of Stasis: Activate by moving here. When activated, rewinds time healing the Lord `
-        +`of Shadow and Flame by 2 and all altars by 1.`,
+        +`of Shadow and Flame by 3 and all altars by 1.`,
     altar_of_sunlight:
         `Altar of Sunlight: Activate by moving here. When activated, create an expanding fire `
         +`centered on the player's location.`,
@@ -7554,7 +7554,7 @@ function altar_of_stasis_on_enter(self, target, map){
         var space = new Point(x, y);
         var tile = map.get_tile(space);
         if(tile.tags.has(TAGS.boss)){
-            map.heal(space, 2)
+            map.heal(space, 3)
         }
         if(tile.tags.has(TAGS.altar)){
             map.heal(space, 1);
