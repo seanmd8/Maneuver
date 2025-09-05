@@ -5,6 +5,7 @@
 function init_settings(){
     const init = {
         enemies: undefined,
+        spawnpoints: undefined,
         chests: undefined,
         cards: undefined,
         area: undefined,

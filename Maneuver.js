@@ -435,6 +435,7 @@ function point_equals(p1, p2){
 function init_settings(){
     const init = {
         enemies: undefined,
+        spawnpoints: undefined,
         chests: undefined,
         cards: undefined,
         area: undefined,
@@ -11352,8 +11353,14 @@ class GameState{
         }
 
         // Prep map
-        for(var enemy of init.enemies){
-            this.map.spawn_safely(enemy(), SAFE_SPAWN_ATTEMPTS, true);
+        for(var i = 0; i < init.enemies.length; ++i){
+            var enemy = init.enemies[i]();
+            if(init.spawnpoints === undefined || init.spawnpoints.length <= i){
+                this.map.spawn_safely(enemy, SAFE_SPAWN_ATTEMPTS, true);
+            }
+            else{
+                this.map.add_tile(enemy, init.spawnpoints[i]);
+            }
         }
         for(var boon of init.chests){
             var chest = chest_tile();
