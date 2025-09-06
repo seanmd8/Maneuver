@@ -1,4 +1,5 @@
 /*https://www.1001fonts.com/quivira-font.html*/
+/*Font used only for unicode arrows to ensure they display in all browsers*/
 @font-face {
     font-family: "ArrowFont";
     src: url(./fonts/quivira.regular.otf);
