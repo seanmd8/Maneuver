@@ -428,10 +428,7 @@ function point_equals(p1, p2){
         throw Error(ERRORS.invalid_type);
     }
 }
-// ----------------Const.js----------------
-// File containing global constants used throughout the program.
-
-// Settings just used for testing. Leave as undefined when not in use.
+// Initialization settings used for testing.
 function init_settings(){
     const init = {
         enemies: undefined,
@@ -444,17 +441,50 @@ function init_settings(){
         save: undefined,
         load: undefined,
     }
+    // Determines the starting enemies on the first floor.
     init.enemies = init.enemies ? init.enemies : [spider_tile];
+    // Determines the boons found in chests on the first floor.
     init.chests = init.chests ? init.chests : [];
+    // Determines the cards in the starting deck.
     init.make_deck = init.cards ? () => {return make_test_deck(init.cards)} : () => {return make_starting_deck()};
+    // Determines the area to start in.
     init.area = init.area? [init.area] : area1;
+    // Determines the size of each area. 
+    // Set to a minimum of 2 since bosses cannot generate on the first floor.
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
+    // Determines achievements that should be automatically gained upon starting the game.
     init.achievements = init.achievements ? init.achievements : [];
+    // Determines the way of saving and loading the game.
     init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
     init.load = init.load ? init.load: SaveData.load_local_function(`player1`);
     return init;
 }
+// Default keyboard controls
+const DEFAULT_CONTROLS = {
+    stage: {
+        direction: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
+        card: [`h`, `j`, `k`, `l`],
+        info: [`i`],
+        retry: [`r`]
+    },
+    shop: {
+        add: [`q`, `w`, `e`, `r`, `t`, `y`],
+        remove: [`a`, `s`, `d`, `f`, `g`, `h`],
+        confirm: [` `],
+    },
+    chest: {
+        choose: [`h`, `j`, `k`, `l`, `;`],
+        confirm: [` `],
+        reject: [`escape`]
+    },
+    toggle: {
+        alt: [`shift`]
+    }
+}
+Object.freeze(DEFAULT_CONTROLS);
 
+
+// GameState global.
 var GS;
 
 // Starting player stats.
@@ -487,32 +517,6 @@ const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
 
 
-
-
-// Keyboard controls.
-const DEFAULT_CONTROLS = {
-    stage: {
-        direction: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
-        card: [`h`, `j`, `k`, `l`],
-        info: [`i`],
-        retry: [`r`]
-    },
-    shop: {
-        add: [`q`, `w`, `e`, `r`, `t`, `y`],
-        remove: [`a`, `s`, `d`, `f`, `g`, `h`],
-        confirm: [` `],
-    },
-    chest: {
-        choose: [`h`, `j`, `k`, `l`, `;`],
-        confirm: [` `],
-        reject: [`escape`]
-    },
-    toggle: {
-        alt: [`shift`]
-    }
-}
-Object.freeze(DEFAULT_CONTROLS);
-
 // Image folder file structure.
 const IMG_FOLDER = {
     src: `images/`,
@@ -526,7 +530,7 @@ const IMG_FOLDER = {
     boons: `boons/`
 }
 Object.freeze(IMG_FOLDER);
-
+// Tags that entities can have.
 const TAGS = {
     altar: `Altar`,
     boss: `Boss`,
