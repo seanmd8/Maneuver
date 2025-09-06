@@ -280,7 +280,7 @@ class GameState{
      * @param {string} cause Cause of death.
      */
     game_over(cause){
-        // Tells the user the game is over, prevents them fro m continuing, tells them the cause
+        // Tells the user the game is over, prevents them from continuing, tells them the cause
         // and gives them the chance to retry.
         display_map(this.map);
         display.remove_children(UIIDS.hand_display);
