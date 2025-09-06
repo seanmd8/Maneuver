@@ -824,6 +824,7 @@ body>div{
 @font-face {
     font-family: "ArrowFont";
     src: url(./fonts/quivira.regular.otf);
+    unicode-range: U+2B9C-2B9F;
 }
 .greyed-out {
     opacity: 0.7;
