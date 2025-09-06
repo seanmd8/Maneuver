@@ -518,6 +518,7 @@ body>div{
     border-width: 4px;
     font-size: 18px;
     margin-left: 2px;
+    font-family: QuiviraArrows;
 }
 
 
@@ -819,6 +820,11 @@ body>div{
     --guidebook-background-color: antiquewhite;
 }
 
+/*https://www.1001fonts.com/quivira-font.html*/
+@font-face {
+    font-family: "QuiviraArrows";
+    src: url(./fonts/quivera.regular.otf);
+}
 .greyed-out {
     opacity: 0.7;
 }
