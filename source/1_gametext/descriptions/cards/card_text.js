@@ -14,10 +14,10 @@ const SPIN = `Spin`;
 // Directions.
 const four_directions = {
     // Unicode arrows
-    left:   `\u25C4`,
-    up:     `\u25B2`,
-    right:  `\u25BA`,
-    down:   `\u25BC`
+    left:   `\u2B9C`,
+    up:     `\u2B9D`,
+    right:  `\u2B9E`,
+    down:   `\u2B9F`
 }
 Object.freeze(four_directions);
 
