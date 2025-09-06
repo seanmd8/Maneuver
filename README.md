@@ -11,6 +11,7 @@ Gameplay Changelog:
 
 9/6/25
 - Rebalanced Fortitude Boon: Now heals for 1 in addition to raising your max health
+- Fixed bug where Blood Alchemy boon would cause a crash if it killed you
 - Added font to ensure unicode characters appear properly on mobile and all browsers
 
 9/5/25

@@ -39,13 +39,26 @@ function chest_on_enter(self, target, map){
         description: chest_text.abandon,
         on_click: leave_chest
     };
-    var pick = function(on_choose){
+    var pick = function(on_choose, name){
         return function(){
-            var go_back = true;
-            if(on_choose !== undefined){
-                go_back = on_choose();
+            try{
+                var go_back = true;
+                if(on_choose !== undefined){
+                    go_back = on_choose();
+                }
+                leave_chest(go_back);
             }
-            leave_chest(go_back);
+            catch(error){
+                if(error.message = ERRORS.game_over){
+                    GS.refresh_boon_display();
+                    leave_chest(true);
+                    error = new Error(ERRORS.game_over, {cause: new Error(name)});
+                    GS.game_over(error.cause.message);
+                }
+                else{
+                    throw error;
+                }
+            }
         }
     }
     var content_row = [];
@@ -55,7 +68,7 @@ function chest_on_enter(self, target, map){
             return function(){
                 let confirm_button = {
                     description: chest_text.take,
-                    on_click: pick(item.on_choose)
+                    on_click: pick(item.on_choose, item.name)
                 };
                 display.display_message(UIIDS.content_description, item.description);
                 display.remove_children(UIIDS.chest_confirm_row);

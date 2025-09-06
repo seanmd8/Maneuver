@@ -45,11 +45,11 @@ class BoonTracker{
                 if(boon.unlocks !== undefined){
                     this.#choices.push(...boon.unlocks.map(f => f()));
                 }
+                this.#boons.push(boon);
+                ++this.total;
                 if(boon.on_pick !== undefined){
                     boon.on_pick();
                 }
-                this.#boons.push(boon);
-                ++this.total;
                 if(boon.after_pick !== undefined){
                     boon.after_pick();
                     return false;

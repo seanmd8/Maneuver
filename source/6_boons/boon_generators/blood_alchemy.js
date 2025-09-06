@@ -15,9 +15,9 @@ function prereq_blood_alchemy(){
 }
 
 function pick_blood_alchemy(){
+    change_max_health(2);
     for(var i = 0; i < 2; ++i){
         var location = GS.map.get_player_location();
         GS.map.attack(location);
     }
-    change_max_health(2);
 }

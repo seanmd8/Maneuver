@@ -8269,13 +8269,26 @@ function chest_on_enter(self, target, map){
         description: chest_text.abandon,
         on_click: leave_chest
     };
-    var pick = function(on_choose){
+    var pick = function(on_choose, name){
         return function(){
-            var go_back = true;
-            if(on_choose !== undefined){
-                go_back = on_choose();
+            try{
+                var go_back = true;
+                if(on_choose !== undefined){
+                    go_back = on_choose();
+                }
+                leave_chest(go_back);
             }
-            leave_chest(go_back);
+            catch(error){
+                if(error.message = ERRORS.game_over){
+                    GS.refresh_boon_display();
+                    leave_chest(true);
+                    error = new Error(ERRORS.game_over, {cause: new Error(name)});
+                    GS.game_over(error.cause.message);
+                }
+                else{
+                    throw error;
+                }
+            }
         }
     }
     var content_row = [];
@@ -8285,7 +8298,7 @@ function chest_on_enter(self, target, map){
             return function(){
                 let confirm_button = {
                     description: chest_text.take,
-                    on_click: pick(item.on_choose)
+                    on_click: pick(item.on_choose, item.name)
                 };
                 display.display_message(UIIDS.content_description, item.description);
                 display.remove_children(UIIDS.chest_confirm_row);
@@ -9932,11 +9945,11 @@ class BoonTracker{
                 if(boon.unlocks !== undefined){
                     this.#choices.push(...boon.unlocks.map(f => f()));
                 }
+                this.#boons.push(boon);
+                ++this.total;
                 if(boon.on_pick !== undefined){
                     boon.on_pick();
                 }
-                this.#boons.push(boon);
-                ++this.total;
                 if(boon.after_pick !== undefined){
                     boon.after_pick();
                     return false;
@@ -11598,7 +11611,7 @@ class GameState{
      * @param {string} cause Cause of death.
      */
     game_over(cause){
-        // Tells the user the game is over, prevents them fro m continuing, tells them the cause
+        // Tells the user the game is over, prevents them from continuing, tells them the cause
         // and gives them the chance to retry.
         display_map(this.map);
         display.remove_children(UIIDS.hand_display);
@@ -15412,11 +15425,11 @@ function prereq_blood_alchemy(){
 }
 
 function pick_blood_alchemy(){
+    change_max_health(2);
     for(var i = 0; i < 2; ++i){
         var location = GS.map.get_player_location();
         GS.map.attack(location);
     }
-    change_max_health(2);
 }
 function boss_slayer(){
     return {
