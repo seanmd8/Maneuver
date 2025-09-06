@@ -15,4 +15,5 @@ function prereq_fortitude(){
 
 function pick_fortitude(){
     change_max_health(1);
+    GS.map.heal(GS.map.get_player_location(), 1);
 }

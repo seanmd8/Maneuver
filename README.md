@@ -9,6 +9,10 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+9/6/25
+- Rebalanced Fortitude Boon: Now heals for 1 in addition to raising your max health
+- Added font to ensure unicode characters appear properly on mobile and all browsers
+
 9/5/25
 - Fixed bug with Specter which could cause a crash
 

@@ -83,7 +83,7 @@ const boon_descriptions = {
     fleeting_thoughts: 
         `Temporary cards added to your deck will happen instantly.`,
     fortitude: 
-        `Gain an extra max health.`,
+        `Gain an extra max health and heal for 1.`,
     frenzy: 
         `Deal double damage while you only have 1 health.`,
     frugivore: 
