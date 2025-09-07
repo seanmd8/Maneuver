@@ -14,6 +14,7 @@ const boon_names = {
     escape_artist: `Escape Artist`,
     expend_vitality: `Expend Vitality`,
     flame_strike: `Flame Strike`,
+    flame_worship: `Flame Worship`,
     fleeting_thoughts: `Fleeting Thoughts`,
     fortitude: `Fortitude`,
     frenzy: `Frenzy`,
@@ -80,6 +81,8 @@ const boon_descriptions = {
         `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
     flame_strike: 
         `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`,
+    flame_worship:
+        `An Altar of Scouring spawns on each non boss floor`,
     fleeting_thoughts: 
         `Temporary cards added to your deck will happen instantly.`,
     fortitude: 

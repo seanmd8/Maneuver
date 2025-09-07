@@ -2016,6 +2016,7 @@ const boon_names = {
     escape_artist: `Escape Artist`,
     expend_vitality: `Expend Vitality`,
     flame_strike: `Flame Strike`,
+    flame_worship: `Flame Worship`,
     fleeting_thoughts: `Fleeting Thoughts`,
     fortitude: `Fortitude`,
     frenzy: `Frenzy`,
@@ -2082,6 +2083,8 @@ const boon_descriptions = {
         `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
     flame_strike: 
         `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`,
+    flame_worship:
+        `An Altar of Scouring spawns on each non boss floor`,
     fleeting_thoughts: 
         `Temporary cards added to your deck will happen instantly.`,
     fortitude: 
@@ -13189,6 +13192,9 @@ function generate_normal_floor(floor_num, area, map){
             map.spawn_safely(darkling_tile(), SAFE_SPAWN_ATTEMPTS, true);
         }
     }
+    if(GS.boons.has(boon_names.flame_worship)){
+        map.spawn_safely(altar_of_scouring_tile(), SAFE_SPAWN_ATTEMPTS, true);
+    }
     var enemy_list = area.enemy_list;
     for(var i = floor_num * 2; i > 0;){
         var choice = random_num(enemy_list.length);
@@ -15357,13 +15363,13 @@ const BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, blood_alchemy, boss_slayer, 
     brag_and_boast, chilly_presence, choose_your_path, clean_mind, creative, 
     dazing_blows, duplicate, empty_rooms, escape_artist, expend_vitality, 
-    flame_strike, fleeting_thoughts, fortitude, frenzy, frugivore, 
-    future_sight, gruntwork, hoarder, larger_chests, limitless, 
-    pacifism, pain_reflexes, perfect_the_basics, picky_shopper, practice_makes_perfect, 
-    pressure_points, quick_healing, rebirth, repetition, retaliate, 
-    rift_touched, roar_of_challenge, safe_passage, shattered_glass, skill_trading, 
-    slime_trail, sniper, spiked_shoes, spontaneous, stable_mind, 
-    stealthy, stubborn, thick_soles, vicious_cycle
+    flame_strike, flame_worship, fleeting_thoughts, fortitude, frenzy, 
+    frugivore, future_sight, gruntwork, hoarder, larger_chests, 
+    limitless, pacifism, pain_reflexes, perfect_the_basics, picky_shopper, 
+    practice_makes_perfect, pressure_points, quick_healing, rebirth, repetition, 
+    retaliate, rift_touched, roar_of_challenge, safe_passage, shattered_glass, 
+    skill_trading, slime_trail, sniper, spiked_shoes, spontaneous, 
+    stable_mind, stealthy, stubborn, thick_soles, vicious_cycle
 ];
 
 function change_max_health(amount){
@@ -15603,6 +15609,13 @@ function flame_strike(){
 
 function prereq_flame_strike(){
     return GS.boons.has(boon_names.flame_strike) < 3;
+}
+function flame_worship(){
+    return {
+        name: boon_names.flame_worship,
+        pic: `${IMG_FOLDER.boons}flame_worship.png`,
+        description: boon_descriptions.flame_worship,
+    }
 }
 function fleeting_thoughts(){
     return {
@@ -16091,7 +16104,7 @@ function lord_of_shadow_and_flame_achievement(){
         description: achievement_description.lord_of_shadow_and_flame,
         image: `${IMG_FOLDER.tiles}lord_move.png`,
         has: false,
-        boons: [vicious_cycle],
+        boons: [flame_worship],
         cards: []
     }
 }
@@ -16141,6 +16154,8 @@ function victory_achievement(){
         description: achievement_description.victory,
         image: `${IMG_FOLDER.achievements}victory.png`,
         has: false,
+        boons: [vicious_cycle],
+        cards: []
     }
 }
 function young_dragon_achievement(){
