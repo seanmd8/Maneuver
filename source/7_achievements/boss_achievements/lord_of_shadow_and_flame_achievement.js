@@ -4,7 +4,7 @@ function lord_of_shadow_and_flame_achievement(){
         description: achievement_description.lord_of_shadow_and_flame,
         image: `${IMG_FOLDER.tiles}lord_move.png`,
         has: false,
-        boons: [vicious_cycle],
+        boons: [flame_worship],
         cards: []
     }
 }

@@ -10,6 +10,7 @@ Alternatively, to download it so you can play offline, download it as a zip file
 Gameplay Changelog:
 
 9/6/25
+- Added 1 new boon
 - Rebalanced Fortitude Boon: Now heals for 1 in addition to raising your max health
 - Fixed bug where Blood Alchemy boon would cause a crash if it killed you
 - Added font to ensure unicode characters appear properly on mobile and all browsers

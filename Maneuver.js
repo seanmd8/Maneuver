@@ -428,10 +428,7 @@ function point_equals(p1, p2){
         throw Error(ERRORS.invalid_type);
     }
 }
-// ----------------Const.js----------------
-// File containing global constants used throughout the program.
-
-// Settings just used for testing. Leave as undefined when not in use.
+// Initialization settings used for testing.
 function init_settings(){
     const init = {
         enemies: undefined,
@@ -444,17 +441,50 @@ function init_settings(){
         save: undefined,
         load: undefined,
     }
+    // Determines the starting enemies on the first floor.
     init.enemies = init.enemies ? init.enemies : [spider_tile];
+    // Determines the boons found in chests on the first floor.
     init.chests = init.chests ? init.chests : [];
+    // Determines the cards in the starting deck.
     init.make_deck = init.cards ? () => {return make_test_deck(init.cards)} : () => {return make_starting_deck()};
+    // Determines the area to start in.
     init.area = init.area? [init.area] : area1;
+    // Determines the size of each area. 
+    // Set to a minimum of 2 since bosses cannot generate on the first floor.
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
+    // Determines achievements that should be automatically gained upon starting the game.
     init.achievements = init.achievements ? init.achievements : [];
+    // Determines the way of saving and loading the game.
     init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
     init.load = init.load ? init.load: SaveData.load_local_function(`player1`);
     return init;
 }
+// Default keyboard controls
+const DEFAULT_CONTROLS = {
+    stage: {
+        direction: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
+        card: [`h`, `j`, `k`, `l`],
+        info: [`i`],
+        retry: [`r`]
+    },
+    shop: {
+        add: [`q`, `w`, `e`, `r`, `t`, `y`],
+        remove: [`a`, `s`, `d`, `f`, `g`, `h`],
+        confirm: [` `],
+    },
+    chest: {
+        choose: [`h`, `j`, `k`, `l`, `;`],
+        confirm: [` `],
+        reject: [`escape`]
+    },
+    toggle: {
+        alt: [`shift`]
+    }
+}
+Object.freeze(DEFAULT_CONTROLS);
 
+
+// GameState global.
 var GS;
 
 // Starting player stats.
@@ -487,32 +517,6 @@ const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
 
 
-
-
-// Keyboard controls.
-const DEFAULT_CONTROLS = {
-    stage: {
-        direction: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
-        card: [`h`, `j`, `k`, `l`],
-        info: [`i`],
-        retry: [`r`]
-    },
-    shop: {
-        add: [`q`, `w`, `e`, `r`, `t`, `y`],
-        remove: [`a`, `s`, `d`, `f`, `g`, `h`],
-        confirm: [` `],
-    },
-    chest: {
-        choose: [`h`, `j`, `k`, `l`, `;`],
-        confirm: [` `],
-        reject: [`escape`]
-    },
-    toggle: {
-        alt: [`shift`]
-    }
-}
-Object.freeze(DEFAULT_CONTROLS);
-
 // Image folder file structure.
 const IMG_FOLDER = {
     src: `images/`,
@@ -526,7 +530,7 @@ const IMG_FOLDER = {
     boons: `boons/`
 }
 Object.freeze(IMG_FOLDER);
-
+// Tags that entities can have.
 const TAGS = {
     altar: `Altar`,
     boss: `Boss`,
@@ -2012,6 +2016,7 @@ const boon_names = {
     escape_artist: `Escape Artist`,
     expend_vitality: `Expend Vitality`,
     flame_strike: `Flame Strike`,
+    flame_worship: `Flame Worship`,
     fleeting_thoughts: `Fleeting Thoughts`,
     fortitude: `Fortitude`,
     frenzy: `Frenzy`,
@@ -2078,6 +2083,8 @@ const boon_descriptions = {
         `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
     flame_strike: 
         `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`,
+    flame_worship:
+        `An Altar of Scouring spawns on each non boss floor`,
     fleeting_thoughts: 
         `Temporary cards added to your deck will happen instantly.`,
     fortitude: 
@@ -13185,6 +13192,9 @@ function generate_normal_floor(floor_num, area, map){
             map.spawn_safely(darkling_tile(), SAFE_SPAWN_ATTEMPTS, true);
         }
     }
+    if(GS.boons.has(boon_names.flame_worship)){
+        map.spawn_safely(altar_of_scouring_tile(), SAFE_SPAWN_ATTEMPTS, true);
+    }
     var enemy_list = area.enemy_list;
     for(var i = floor_num * 2; i > 0;){
         var choice = random_num(enemy_list.length);
@@ -15353,13 +15363,13 @@ const BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, blood_alchemy, boss_slayer, 
     brag_and_boast, chilly_presence, choose_your_path, clean_mind, creative, 
     dazing_blows, duplicate, empty_rooms, escape_artist, expend_vitality, 
-    flame_strike, fleeting_thoughts, fortitude, frenzy, frugivore, 
-    future_sight, gruntwork, hoarder, larger_chests, limitless, 
-    pacifism, pain_reflexes, perfect_the_basics, picky_shopper, practice_makes_perfect, 
-    pressure_points, quick_healing, rebirth, repetition, retaliate, 
-    rift_touched, roar_of_challenge, safe_passage, shattered_glass, skill_trading, 
-    slime_trail, sniper, spiked_shoes, spontaneous, stable_mind, 
-    stealthy, stubborn, thick_soles, vicious_cycle
+    flame_strike, flame_worship, fleeting_thoughts, fortitude, frenzy, 
+    frugivore, future_sight, gruntwork, hoarder, larger_chests, 
+    limitless, pacifism, pain_reflexes, perfect_the_basics, picky_shopper, 
+    practice_makes_perfect, pressure_points, quick_healing, rebirth, repetition, 
+    retaliate, rift_touched, roar_of_challenge, safe_passage, shattered_glass, 
+    skill_trading, slime_trail, sniper, spiked_shoes, spontaneous, 
+    stable_mind, stealthy, stubborn, thick_soles, vicious_cycle
 ];
 
 function change_max_health(amount){
@@ -15599,6 +15609,13 @@ function flame_strike(){
 
 function prereq_flame_strike(){
     return GS.boons.has(boon_names.flame_strike) < 3;
+}
+function flame_worship(){
+    return {
+        name: boon_names.flame_worship,
+        pic: `${IMG_FOLDER.boons}flame_worship.png`,
+        description: boon_descriptions.flame_worship,
+    }
 }
 function fleeting_thoughts(){
     return {
@@ -16087,7 +16104,7 @@ function lord_of_shadow_and_flame_achievement(){
         description: achievement_description.lord_of_shadow_and_flame,
         image: `${IMG_FOLDER.tiles}lord_move.png`,
         has: false,
-        boons: [vicious_cycle],
+        boons: [flame_worship],
         cards: []
     }
 }
@@ -16137,6 +16154,8 @@ function victory_achievement(){
         description: achievement_description.victory,
         image: `${IMG_FOLDER.achievements}victory.png`,
         has: false,
+        boons: [vicious_cycle],
+        cards: []
     }
 }
 function young_dragon_achievement(){
