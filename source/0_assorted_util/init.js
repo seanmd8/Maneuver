@@ -1,9 +1,9 @@
 // Initialization settings used for testing.
 function init_settings(){
     const init = {
-        enemies: [],
+        enemies: undefined,
         spawnpoints: undefined,
-        chests: BOON_LIST,
+        chests: undefined,
         cards: undefined,
         area: undefined,
         area_size: undefined,
