@@ -1,4 +1,5 @@
 const boon_names = {
+    locked: `Locked`,
     not_encountered: `Not Encountered`,
 
     ancient_card: `Ancient Card`,
@@ -54,6 +55,7 @@ const boon_names = {
 Object.freeze(boon_names);
 
 const boon_descriptions = {
+    locked: `You have not unlocked this boon yet.`,
     not_encountered:
         `You have not yet picked this boon.`,
 

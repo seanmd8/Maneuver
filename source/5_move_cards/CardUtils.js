@@ -63,7 +63,6 @@ function get_locked_achievement_cards(){
     });
     return list;
 }
-
 function get_all_achievement_cards(){
     var list = [];
     get_achievements().map((a) => {

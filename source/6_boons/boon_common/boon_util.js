@@ -23,3 +23,14 @@ function max_health_at_least(amount){
     var max_health = GS.map.get_player().max_health;
     return max_health !== undefined && max_health > amount;
 }
+
+function get_locked_boons(){
+    var list = [];
+    GS.data.achievements.all().map((a) => {
+        if(a.boons!== undefined && !a.has){
+            list.push(...a.boons);
+        }
+    });
+    return list;
+
+}

@@ -1948,8 +1948,14 @@ function update_journal_boons(){
 
 }
 function boons_encountered(boons, encountered){
+    var locked = get_locked_boons();
     return boons.map((b) => {
         var boon = b();
+        if(locked.find((l) => {
+            return l().name === boon.name;
+        })){
+            return symbol_locked_boon();
+        }
         if(encountered.has(boon.name)){
             return boon;
         }
@@ -2134,6 +2140,7 @@ const area_descriptions = {
 }
 Object.freeze(area_descriptions);
 const boon_names = {
+    locked: `Locked`,
     not_encountered: `Not Encountered`,
 
     ancient_card: `Ancient Card`,
@@ -2189,6 +2196,7 @@ const boon_names = {
 Object.freeze(boon_names);
 
 const boon_descriptions = {
+    locked: `You have not unlocked this boon yet.`,
     not_encountered:
         `You have not yet picked this boon.`,
 
@@ -14253,7 +14261,6 @@ function get_locked_achievement_cards(){
     });
     return list;
 }
-
 function get_all_achievement_cards(){
     var list = [];
     get_achievements().map((a) => {
@@ -15723,6 +15730,24 @@ function change_max_health(amount){
 function max_health_at_least(amount){
     var max_health = GS.map.get_player().max_health;
     return max_health !== undefined && max_health > amount;
+}
+
+function get_locked_boons(){
+    var list = [];
+    GS.data.achievements.all().map((a) => {
+        if(a.boons!== undefined && !a.has){
+            list.push(...a.boons);
+        }
+    });
+    return list;
+
+}
+function symbol_locked_boon(){
+    return {
+        name: boon_names.locked,
+        pic: `${IMG_FOLDER.other}locked.png`,
+        description: boon_descriptions.locked,
+    }
 }
 function symbol_not_encountered_boon(){
     return {

@@ -5,8 +5,14 @@ function update_journal_boons(){
 
 }
 function boons_encountered(boons, encountered){
+    var locked = get_locked_boons();
     return boons.map((b) => {
         var boon = b();
+        if(locked.find((l) => {
+            return l().name === boon.name;
+        })){
+            return symbol_locked_boon();
+        }
         if(encountered.has(boon.name)){
             return boon;
         }
