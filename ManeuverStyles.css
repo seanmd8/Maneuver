@@ -808,6 +808,9 @@ body>div{
     border-radius: 0px;
     appearance: base-select;
 }
+.journal-card-box {
+    width: 942px;
+}
 
 :root{
     --card-box-color: white;

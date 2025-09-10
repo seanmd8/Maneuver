@@ -129,6 +129,7 @@ const card_names = {
     superweapon_2: `Superweapon 2`,
     symbol_add_card: `Add`,
     symbol_deck_at_minimum: `Minimum`,
+    symbol_not_encountered_card: `Not Encountered`,
     symbol_remove_card: `Remove`,
     t_strike_horizontal: `T Strike Horizontal`,
     t_strike_vertical: `T Strike Vertical`,

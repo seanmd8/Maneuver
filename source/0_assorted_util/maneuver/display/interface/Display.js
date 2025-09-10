@@ -753,6 +753,29 @@ const DisplayHTML = {
             element.classList.remove(`hidden-section`);            
         }
     },
+    journal_card_section(destination, header, cards){
+        var place = DisplayHTML.get_element(destination);
+
+        var box = document.createElement(`fieldset`);
+        var legend = document.createElement(`legend`);
+        var table = document.createElement(`table`);
+
+        box.classList.add(`shop-section-box`);
+        box.classList.add(`journal-card-box`);
+        legend.innerText = header;
+        var table_id = `${destination} ${header} table`;
+        table.id = table_id;
+
+        place.append(box);
+        box.append(legend);
+        box.append(table);
+        
+        for(var i = 0; i < Math.ceil(cards.length / JOURNAL_DISPLAY_WIDTH); ++i){
+            var slice_start = i * JOURNAL_DISPLAY_WIDTH;
+            var slice = cards.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            display.add_tb_row(table_id, slice, CARD_SCALE);
+        }
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){

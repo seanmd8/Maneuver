@@ -513,6 +513,7 @@ const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 160;
 const DECK_DISPLAY_WIDTH = 5;
+const JOURNAL_DISPLAY_WIDTH = 10;
 const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
 
@@ -990,19 +991,27 @@ function create_main_dropdown(location){
             on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
         },
         {
+            label: screen_names.achievements,
+            on_change: () => {
+                update_achievements();
+                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
+            }
+        },
+        {
+            label: screen_names.journal,
+            on_change: () => {
+                update_journal();
+                DISPLAY_DIVISIONS.swap(UIIDS.journal);
+            }
+        },
+        {
             label: screen_names.controls,
             on_change: () => {
                 setup_controls_page();
                 DISPLAY_DIVISIONS.swap(UIIDS.controls);
             }
         },
-        {
-            label: screen_names.achievements,
-            on_change: () => {
-                update_achievements();
-                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
-            }
-        }
+
     ];
     display.create_dropdown(location, options);
 }
@@ -1103,6 +1112,54 @@ function make_guidebook_images(arr){
     }
     return images;
 }
+function update_journal(){
+    display.remove_children(UIIDS.journal_cards);
+    display_basic_cards();
+    display_common_cards();
+    display_achievement_cards();
+    display_boon_cards();
+    display_confusion_cards();
+    display_boss_cards();
+}
+
+function display_basic_cards(){
+    var cards = cards_encountered(BASIC_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards);
+}
+function display_common_cards(){
+    var cards = cards_encountered(COMMON_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards);
+}
+function display_achievement_cards(){
+    var cards = cards_encountered(get_achievement_cards(), GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards);
+}
+function display_boon_cards(){
+    var cards = cards_encountered(BOON_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards);
+}
+function display_confusion_cards(){
+    var cards = cards_encountered(CONFUSION_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards);
+}
+function display_boss_cards(){
+    var cards = cards_encountered(get_boss_cards(), GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards);
+}
+
+
+function cards_encountered(cards, encountered){
+    return cards.map((c) => {
+        var card = c();
+        if(encountered.has(card.name)){
+            return card;
+        }
+        return symbol_not_encountered_card();
+    });
+}
+
+// not_encountered_card
+// encountered
 // ----------------Display.js----------------
 // File containing the display class which interacts with wherever the game is being displayed. 
 // Currently the only way to display is via HTML, but if I wanted to port the game, this should
@@ -1858,6 +1915,29 @@ const DisplayHTML = {
             element.classList.remove(`hidden-section`);            
         }
     },
+    journal_card_section(destination, header, cards){
+        var place = DisplayHTML.get_element(destination);
+
+        var box = document.createElement(`fieldset`);
+        var legend = document.createElement(`legend`);
+        var table = document.createElement(`table`);
+
+        box.classList.add(`shop-section-box`);
+        box.classList.add(`journal-card-box`);
+        legend.innerText = header;
+        var table_id = `${destination} ${header} table`;
+        table.id = table_id;
+
+        place.append(box);
+        box.append(legend);
+        box.append(table);
+        
+        for(var i = 0; i < Math.ceil(cards.length / JOURNAL_DISPLAY_WIDTH); ++i){
+            var slice_start = i * JOURNAL_DISPLAY_WIDTH;
+            var slice = cards.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            display.add_tb_row(table_id, slice, CARD_SCALE);
+        }
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -2307,6 +2387,7 @@ const card_names = {
     superweapon_2: `Superweapon 2`,
     symbol_add_card: `Add`,
     symbol_deck_at_minimum: `Minimum`,
+    symbol_not_encountered_card: `Not Encountered`,
     symbol_remove_card: `Remove`,
     t_strike_horizontal: `T Strike Horizontal`,
     t_strike_vertical: `T Strike Vertical`,
@@ -3377,11 +3458,21 @@ const about_page_text = {
     git_text: `Github Page`,
 };
 Object.freeze(about_page_text);
+const journal_card_headers = {
+    basic: `Basic Cards`,
+    common: `Common Cards`,
+    achievement: `Achievement Cards`,
+    boon: `Boon Cards`,
+    confusion: `Confusion Cards`,
+    boss: `Boss Cards`,
+}
+Object.freeze(journal_card_headers);
 const screen_names = {
     gameplay: `Gameplay`,
     guide: `Guidebook`,
-    controls: `Controls`,
     achievements: `Achievements`,
+    journal: `Journal`,
+    controls: `Controls`,
 }
 Object.freeze(screen_names);
 // ----------------UIID.js----------------
@@ -3506,12 +3597,14 @@ const HTML_UIIDS = {
     guide: `guide`,
         guide_box: `guide-box`,
             guide_navbar: `guideNavbar`,
+    achievements: `achievements`,
+        achievement_list: `achievement-list`,
+    journal: `journal`,
+        journal_cards: `journalCards`,
     controls: `controls`,
         stage_controls: `stageControls`,
         shop_controls: `shopControls`,
         chest_controls: `chestControls`,
-    achievements: `achievements`,
-        achievement_list: `achievement-list`
 }
 Object.freeze(HTML_UIIDS);
 
@@ -12024,6 +12117,7 @@ class MoveDeck{
         this.#library = randomize_arr(this.#library);
         this.#check_three_kind_achievement(new_card.name);
         this.#check_jack_of_all_trades_achievement();
+        GS.data.add_card(new_card.name);
     }
     /**
      * Adds a new card to the library after giving it a temp tag.
@@ -12036,6 +12130,7 @@ class MoveDeck{
         this.#id_count++;
         this.#library.push(new_card);
         this.#library = randomize_arr(this.#library);
+        GS.data.add_card(new_card.name);
     }
     get_hand_info(){
         var make_prep_move = function(card, hand_pos){
@@ -12205,27 +12300,31 @@ class MoveDeck{
 class SaveData{
     controls;
     achievements;
-    load_function;
-    save_function;
+    cards;
+    
+    #load_function;
+    #save_function;
     constructor(load, save){
-        this.load_function = load;
-        this.save_function = save;
+        this.#load_function = load;
+        this.#save_function = save;
         this.load();
     }
     load(){
-        var data = this.load_function();
+        var data = this.#load_function();
         data = SaveData.#load_missing(data);
         this.controls = new KeyBind();
         this.controls.set(data.controls);
         this.achievements = new AchievementList();
         this.achievements.set(data.achievements)
+        this.cards = new SearchTree(data.cards);
     }
     save(){
         var data = {
             controls: this.controls.get(),
-            achievements: this.achievements.get()
+            achievements: this.achievements.get(),
+            cards: this.cards.to_list(),
         }
-        this.save_function(data);        
+        this.#save_function(data);        
     }
     set_controls(new_controls){
         this.controls.set(new_controls);
@@ -12241,6 +12340,12 @@ class SaveData{
     reset_achievements(){
         this.achievements = new AchievementList();
         this.save();
+    }
+    add_card(name){
+        var added = this.cards.add(name);
+        if(added){
+            this.save();
+        }
     }
     
 
@@ -12336,9 +12441,109 @@ class ScreenTracker{
     }
 }
 
-const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.controls, UIIDS.achievements]);
+const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.achievements, UIIDS.journal, UIIDS.controls, ]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.full_deck, UIIDS.initiative, UIIDS.deck_order]);
+class SearchTreeNode{
+    data;
+    left;
+    right;
+    constructor(data){
+        this.data = data;
+    }
+    compare(node){
+        var other = node instanceof SearchTreeNode ? node.data : node;
+        if(this.data < other){
+            return -1;
+        }
+        if(this.data > other){
+            return 1;
+        }
+        return 0;
+    }
+}
+
+class SearchTree{
+    // Singleton BST that can convert to and from a sorted list.
+    #root
+    constructor(list = []){
+        this.#root = undefined;
+        this.add_all(list);
+    }
+    add(str){
+        var to_add = new SearchTreeNode(str);
+        if(this.#root === undefined){
+            this.#root = to_add;
+            return true;
+        }
+        var current = this.#root;
+        while(current !== undefined){
+            switch(current.compare(to_add)){
+                case -1:
+                    if(current.left === undefined){
+                        current.left = to_add;
+                        current = undefined;
+                    }
+                    else{
+                        current = current.left;
+                    }
+                    break;
+                case 0:
+                    return false;
+                case 1:
+                    if(current.right === undefined){
+                        current.right = to_add;
+                        current = undefined;
+                    }
+                    else{
+                        current = current.right;
+                    }
+                    break;
+            }
+        }
+        return true;
+    }
+    has(str){
+        var current = this.#root;
+        while(current !== undefined){
+            switch(current.compare(str)){
+                case -1:
+                    current = current.left;
+                    break;
+                case 0:
+                    return true;
+                case 1:
+                    current = current.right;
+                    break;
+            }
+        }
+        return false;
+    }
+    to_list(){
+        return this.#recursive_to_list(this.#root);
+    }
+    #recursive_to_list(current){
+        if(current === undefined){
+            return [];
+        }
+        return [
+            ...this.#recursive_to_list(current.left), 
+            current.data, 
+            ...this.#recursive_to_list(current.right)
+        ];
+    }
+    remove_all(){
+        this.#root = undefined;
+    }
+    add_all(list){
+        if(list.length > 0){
+            var half = Math.floor(list.length / 2);
+            this.add(list[half]);
+            this.add_all(list.slice(0, half));
+            this.add_all(list.slice(half + 1, list.length));
+        }
+    }
+}
 class Shop{
     #deck;
     #has_skill_trading;
@@ -15348,6 +15553,14 @@ function symbol_deck_at_minimum(){
     return{
         name: card_names.symbol_deck_at_minimum,
         pic: `${IMG_FOLDER.other}x.png`,
+        options: new ButtonGrid()
+    }
+}
+/** @type {CardGenerator} Shown in the journal for cards you have not yet added to your deck.*/
+function symbol_not_encountered_card(){
+    return{
+        name: card_names.symbol_not_encountered_card,
+        pic: `${IMG_FOLDER.other}not_encountered.png`,
         options: new ButtonGrid()
     }
 }

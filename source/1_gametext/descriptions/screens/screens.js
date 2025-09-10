@@ -1,7 +1,8 @@
 const screen_names = {
     gameplay: `Gameplay`,
     guide: `Guidebook`,
-    controls: `Controls`,
     achievements: `Achievements`,
+    journal: `Journal`,
+    controls: `Controls`,
 }
 Object.freeze(screen_names);

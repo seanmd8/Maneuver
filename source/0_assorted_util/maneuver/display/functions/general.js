@@ -13,19 +13,27 @@ function create_main_dropdown(location){
             on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
         },
         {
+            label: screen_names.achievements,
+            on_change: () => {
+                update_achievements();
+                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
+            }
+        },
+        {
+            label: screen_names.journal,
+            on_change: () => {
+                update_journal();
+                DISPLAY_DIVISIONS.swap(UIIDS.journal);
+            }
+        },
+        {
             label: screen_names.controls,
             on_change: () => {
                 setup_controls_page();
                 DISPLAY_DIVISIONS.swap(UIIDS.controls);
             }
         },
-        {
-            label: screen_names.achievements,
-            on_change: () => {
-                update_achievements();
-                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
-            }
-        }
+
     ];
     display.create_dropdown(location, options);
 }

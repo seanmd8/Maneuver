@@ -120,6 +120,7 @@ class MoveDeck{
         this.#library = randomize_arr(this.#library);
         this.#check_three_kind_achievement(new_card.name);
         this.#check_jack_of_all_trades_achievement();
+        GS.data.add_card(new_card.name);
     }
     /**
      * Adds a new card to the library after giving it a temp tag.
@@ -132,6 +133,7 @@ class MoveDeck{
         this.#id_count++;
         this.#library.push(new_card);
         this.#library = randomize_arr(this.#library);
+        GS.data.add_card(new_card.name);
     }
     get_hand_info(){
         var make_prep_move = function(card, hand_pos){

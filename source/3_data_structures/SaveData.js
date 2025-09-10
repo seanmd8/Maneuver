@@ -9,27 +9,31 @@
 class SaveData{
     controls;
     achievements;
-    load_function;
-    save_function;
+    cards;
+    
+    #load_function;
+    #save_function;
     constructor(load, save){
-        this.load_function = load;
-        this.save_function = save;
+        this.#load_function = load;
+        this.#save_function = save;
         this.load();
     }
     load(){
-        var data = this.load_function();
+        var data = this.#load_function();
         data = SaveData.#load_missing(data);
         this.controls = new KeyBind();
         this.controls.set(data.controls);
         this.achievements = new AchievementList();
         this.achievements.set(data.achievements)
+        this.cards = new SearchTree(data.cards);
     }
     save(){
         var data = {
             controls: this.controls.get(),
-            achievements: this.achievements.get()
+            achievements: this.achievements.get(),
+            cards: this.cards.to_list(),
         }
-        this.save_function(data);        
+        this.#save_function(data);        
     }
     set_controls(new_controls){
         this.controls.set(new_controls);
@@ -45,6 +49,12 @@ class SaveData{
     reset_achievements(){
         this.achievements = new AchievementList();
         this.save();
+    }
+    add_card(name){
+        var added = this.cards.add(name);
+        if(added){
+            this.save();
+        }
     }
     
 
