@@ -3,8 +3,10 @@ function gruntwork(){
         name: boon_names.gruntwork,
         pic: `${IMG_FOLDER.boons}gruntwork.png`,
         description: boon_descriptions.gruntwork,
+        prereq_description: boon_prereq_descriptions.gruntwork,
         prereq: prereq_gruntwork,
-        on_pick: pick_gruntwork
+        on_pick: pick_gruntwork,
+        max: 1,
     }
 }
 

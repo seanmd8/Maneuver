@@ -124,6 +124,7 @@ const HTML_UIIDS = {
         achievement_list: `achievement-list`,
     journal: `journal`,
         journal_cards: `journalCards`,
+        journal_boons: `journalBoons`,
     controls: `controls`,
         stage_controls: `stageControls`,
         shop_controls: `shopControls`,

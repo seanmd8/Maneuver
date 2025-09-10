@@ -1,4 +1,6 @@
 const boon_names = {
+    not_encountered: `Not Encountered`,
+
     ancient_card: `Ancient Card`,
     bitter_determination: `Bitter Determination`,
     blood_alchemy: `Blood Alchemy`,
@@ -52,6 +54,9 @@ const boon_names = {
 Object.freeze(boon_names);
 
 const boon_descriptions = {
+    not_encountered:
+        `You have not yet picked this boon.`,
+
     bitter_determination: 
         `At the start of each floor, heal 1 if your health is exactly 1.`,
     blood_alchemy:
@@ -157,7 +162,41 @@ const boon_descriptions = {
 }
 Object.freeze(boon_descriptions);
 
+const boon_prereq_descriptions = {
+    none: 
+        `Prerequisites: None.`,
+    blood_alchemy:
+        `Prerequisites: You must have at least 3 health and not have Limitless.`,
+    clean_mind:
+        `Prerequisites: You must be at least 2 cards above your minimum deck size.`,
+    creative:
+        `Prerequisites: You must have at least 10 cards in your deck.`,
+    expend_vitality:
+        `Prerequisites: You must have at least 2 max health and not have Limitless.`,
+    fortitude: 
+        `Prerequisites: You must not have Limitless.`,
+    gruntwork:
+        `Prerequisites: You must not have Limitless.`,
+    perfect_the_basics:
+        `Prerequisites: You must have at least 2 basic cards in your deck.`,
+    practice_makes_perfect:
+        `Prerequisites: You must not have Limitless.`,
+    roar_of_challenge:
+        `Prerequisites: You must not have Limitless.`,
+    safe_passage:
+        `Prerequisites: You must have health less than your max health or have Limitless.`,
+    shattered_glass:
+        `Prerequisites: You must have at least 3 max health and not have Limitless.`,
+    spiked_shoes:
+        `Prerequisites: You must have at least 2 max health and not have Limitless.`,
+    spontaneous:
+        `Prerequisites: You must have at least 10 cards in your deck.`,
+}
+Object.freeze(boon_prereq_descriptions);
+
 const boon_messages = {
+    section_header: `Boons`,
+
     clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
     duplicate: `Choose a card to copy:`,
     practice_makes_perfect: `Your maximum health has increased.`,

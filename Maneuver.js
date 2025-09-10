@@ -431,9 +431,9 @@ function point_equals(p1, p2){
 // Initialization settings used for testing.
 function init_settings(){
     const init = {
-        enemies: undefined,
+        enemies: [],
         spawnpoints: undefined,
-        chests: undefined,
+        chests: BOON_LIST,
         cards: undefined,
         area: undefined,
         area_size: undefined,
@@ -1112,7 +1112,22 @@ function make_guidebook_images(arr){
     }
     return images;
 }
-function update_journal(){
+function update_journal_boons(){
+    display.remove_children(UIIDS.journal_boons);
+    var boons = boons_encountered(BOON_LIST, GS.data.boons);
+    display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons);
+
+}
+function boons_encountered(boons, encountered){
+    return boons.map((b) => {
+        var boon = b();
+        if(encountered.has(boon.name)){
+            return boon;
+        }
+        return symbol_not_encountered_boon();
+    });
+}
+function update_journal_cards(){
     display.remove_children(UIIDS.journal_cards);
     display_basic_cards();
     display_common_cards();
@@ -1147,7 +1162,6 @@ function display_boss_cards(){
     display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards);
 }
 
-
 function cards_encountered(cards, encountered){
     return cards.map((c) => {
         var card = c();
@@ -1157,9 +1171,10 @@ function cards_encountered(cards, encountered){
         return symbol_not_encountered_card();
     });
 }
-
-// not_encountered_card
-// encountered
+function update_journal(){
+    update_journal_cards();
+    update_journal_boons();
+}
 // ----------------Display.js----------------
 // File containing the display class which interacts with wherever the game is being displayed. 
 // Currently the only way to display is via HTML, but if I wanted to port the game, this should
@@ -1938,6 +1953,29 @@ const DisplayHTML = {
             display.add_tb_row(table_id, slice, CARD_SCALE);
         }
     },
+    journal_boon_section(destination, header, boons){
+        var place = DisplayHTML.get_element(destination);
+
+        var box = document.createElement(`fieldset`);
+        var legend = document.createElement(`legend`);
+        var table = document.createElement(`table`);
+
+        box.classList.add(`shop-section-box`);
+        box.classList.add(`journal-card-box`);
+        legend.innerText = header;
+        var table_id = `${destination} ${header} table`;
+        table.id = table_id;
+
+        place.append(box);
+        box.append(legend);
+        box.append(table);
+        
+        for(var i = 0; i < Math.ceil(boons.length / JOURNAL_DISPLAY_WIDTH); ++i){
+            var slice_start = i * JOURNAL_DISPLAY_WIDTH;
+            var slice = boons.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            display.add_tb_row(table_id, slice, CARD_SCALE);
+        }
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -2081,6 +2119,8 @@ const area_descriptions = {
 }
 Object.freeze(area_descriptions);
 const boon_names = {
+    not_encountered: `Not Encountered`,
+
     ancient_card: `Ancient Card`,
     bitter_determination: `Bitter Determination`,
     blood_alchemy: `Blood Alchemy`,
@@ -2134,6 +2174,9 @@ const boon_names = {
 Object.freeze(boon_names);
 
 const boon_descriptions = {
+    not_encountered:
+        `You have not yet picked this boon.`,
+
     bitter_determination: 
         `At the start of each floor, heal 1 if your health is exactly 1.`,
     blood_alchemy:
@@ -2239,7 +2282,41 @@ const boon_descriptions = {
 }
 Object.freeze(boon_descriptions);
 
+const boon_prereq_descriptions = {
+    none: 
+        `Prerequisites: None.`,
+    blood_alchemy:
+        `Prerequisites: You must have at least 3 health and not have Limitless.`,
+    clean_mind:
+        `Prerequisites: You must be at least 2 cards above your minimum deck size.`,
+    creative:
+        `Prerequisites: You must have at least 10 cards in your deck.`,
+    expend_vitality:
+        `Prerequisites: You must have at least 2 max health and not have Limitless.`,
+    fortitude: 
+        `Prerequisites: You must not have Limitless.`,
+    gruntwork:
+        `Prerequisites: You must not have Limitless.`,
+    perfect_the_basics:
+        `Prerequisites: You must have at least 2 basic cards in your deck.`,
+    practice_makes_perfect:
+        `Prerequisites: You must not have Limitless.`,
+    roar_of_challenge:
+        `Prerequisites: You must not have Limitless.`,
+    safe_passage:
+        `Prerequisites: You must have health less than your max health or have Limitless.`,
+    shattered_glass:
+        `Prerequisites: You must have at least 3 max health and not have Limitless.`,
+    spiked_shoes:
+        `Prerequisites: You must have at least 2 max health and not have Limitless.`,
+    spontaneous:
+        `Prerequisites: You must have at least 10 cards in your deck.`,
+}
+Object.freeze(boon_prereq_descriptions);
+
 const boon_messages = {
+    section_header: `Boons`,
+
     clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
     duplicate: `Choose a card to copy:`,
     practice_makes_perfect: `Your maximum health has increased.`,
@@ -3601,6 +3678,7 @@ const HTML_UIIDS = {
         achievement_list: `achievement-list`,
     journal: `journal`,
         journal_cards: `journalCards`,
+        journal_boons: `journalBoons`,
     controls: `controls`,
         stage_controls: `stageControls`,
         shop_controls: `shopControls`,
@@ -10004,7 +10082,7 @@ class BoonTracker{
     #lost_boons;
     total;
     constructor(initial_choices){
-        this.#choices = initial_choices.map(b => b());
+        this.#choices = [...initial_choices];
         this.#boons = [];
         this.#lost_boons = [];
         this.total = 0;
@@ -10019,7 +10097,7 @@ class BoonTracker{
         });
         var picks = [];
         while(picks.length < amount && choice_list.length > 0){
-            var boon = choice_list.pop();
+            var boon = choice_list.pop()();
             if(boon.prereq === undefined || boon.prereq()){
                 if(locked.find((b) => {return b().name === boon.name}) === undefined){
                     picks.push(boon);
@@ -10039,14 +10117,19 @@ class BoonTracker{
     }
     pick(name){
         for(var i = 0; i < this.#choices.length; ++i){
-            var boon = this.#choices[i];
+            var boon_fun = this.#choices[i];
+            var boon = boon_fun();
             if(boon.name === name){
                 this.#choices.splice(i, 1);
                 if(boon.unlocks !== undefined){
-                    this.#choices.push(...boon.unlocks.map(f => f()));
+                    this.#choices.push(...boon.unlocks);
+                }
+                if(boon.max === undefined || this.has(boon.name) < boon.max){
+                    this.#choices.push(boon_fun);
                 }
                 this.#boons.push(boon);
                 ++this.total;
+                GS.data.add_boon(boon.name);
                 if(boon.on_pick !== undefined){
                     boon.on_pick();
                 }
@@ -12301,6 +12384,7 @@ class SaveData{
     controls;
     achievements;
     cards;
+    boons;
     
     #load_function;
     #save_function;
@@ -12317,12 +12401,14 @@ class SaveData{
         this.achievements = new AchievementList();
         this.achievements.set(data.achievements)
         this.cards = new SearchTree(data.cards);
+        this.boons = new SearchTree(data.boons);
     }
     save(){
         var data = {
             controls: this.controls.get(),
             achievements: this.achievements.get(),
             cards: this.cards.to_list(),
+            boons: this.boons.to_list(),
         }
         this.#save_function(data);        
     }
@@ -12343,6 +12429,12 @@ class SaveData{
     }
     add_card(name){
         var added = this.cards.add(name);
+        if(added){
+            this.save();
+        }
+    }
+    add_boon(name){
+        var added = this.boons.add(name);
         if(added){
             this.save();
         }
@@ -15597,13 +15689,20 @@ function max_health_at_least(amount){
     var max_health = GS.map.get_player().max_health;
     return max_health !== undefined && max_health > amount;
 }
+function symbol_not_encountered_boon(){
+    return {
+        name: boon_names.not_encountered,
+        pic: `${IMG_FOLDER.other}not_encountered.png`,
+        description: boon_descriptions.not_encountered,
+    }
+}
 function ancient_card(){
     return {
         name: boon_names.ancient_card,
         pic: `${IMG_FOLDER.cards}lost_technique.png`,
         description: chest_text.add_card,
+        prereq_description: boon_prereq_descriptions.none,
         on_pick: pick_ancient_card,
-        unlocks: [ancient_card]
     }
 }
 
@@ -15616,8 +15715,8 @@ function ancient_card_2(){
         name: boon_names.ancient_card,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         description: chest_text.add_card,
+        prereq_description: boon_prereq_descriptions.none,
         on_pick: pick_ancient_card_2,
-        unlocks: [ancient_card_2]
     }
 }
 
@@ -15629,6 +15728,8 @@ function bitter_determination(){
         name: boon_names.bitter_determination,
         pic: `${IMG_FOLDER.boons}bitter_determination.png`,
         description: boon_descriptions.bitter_determination,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function blood_alchemy(){
@@ -15636,9 +15737,9 @@ function blood_alchemy(){
         name: boon_names.blood_alchemy,
         pic: `${IMG_FOLDER.boons}blood_alchemy.png`,
         description: boon_descriptions.blood_alchemy,
+        prereq_description: boon_prereq_descriptions.blood_alchemy,
         prereq: prereq_blood_alchemy,
         on_pick: pick_blood_alchemy,
-        unlocks: [blood_alchemy]
     }
 }
 
@@ -15659,6 +15760,8 @@ function boss_slayer(){
         name: boon_names.boss_slayer,
         pic: `${IMG_FOLDER.boons}boss_slayer.png`,
         description: boon_descriptions.boss_slayer,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function brag_and_boast(){
@@ -15666,8 +15769,8 @@ function brag_and_boast(){
         name: boon_names.brag_and_boast,
         pic: `${IMG_FOLDER.boons}brag_and_boast.png`,
         description: boon_descriptions.brag_and_boast,
+        prereq_description: boon_prereq_descriptions.none,
         on_pick: pick_brag_and_boast,
-        unlocks: [brag_and_boast]
     }
 }
 
@@ -15685,13 +15788,9 @@ function chilly_presence(){
         name: boon_names.chilly_presence,
         pic: `${IMG_FOLDER.boons}chilly_presence.png`,
         description: boon_descriptions.chilly_presence,
-        prereq: prereq_chilly_presence,
-        unlocks: [chilly_presence]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 4
     }
-}
-
-function prereq_chilly_presence(){
-    return GS.boons.has(boon_names.chilly_presence) < 5;
 }
 
 function proc_chilly_presence(tile){
@@ -15706,7 +15805,9 @@ function choose_your_path(){
     return {
         name: boon_names.choose_your_path,
         pic: `${IMG_FOLDER.boons}choose_your_path.png`,
-        description: boon_descriptions.choose_your_path
+        description: boon_descriptions.choose_your_path,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function clean_mind(){
@@ -15714,9 +15815,9 @@ function clean_mind(){
         name: boon_names.clean_mind,
         pic: `${IMG_FOLDER.boons}clean_mind.png`,
         description: boon_descriptions.clean_mind,
+        prereq_description: boon_prereq_descriptions.clean_mind,
         prereq_clean_mind,
         after_pick: pick_clean_mind,
-        unlocks: [clean_mind]
     }
 }
 
@@ -15735,8 +15836,10 @@ function creative(){
         name: boon_names.creative,
         pic: `${IMG_FOLDER.boons}creative.png`,
         description: boon_descriptions.creative,
+        prereq_description: boon_prereq_descriptions.creative,
         prereq: prereq_creative,
-        on_pick: pick_creative
+        on_pick: pick_creative,
+        max: 1,
     }
 }
 
@@ -15755,6 +15858,8 @@ function dazing_blows(){
         name: boon_names.dazing_blows,
         pic: `${IMG_FOLDER.boons}dazing_blows.png`,
         description: boon_descriptions.dazing_blows,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function duplicate(){
@@ -15762,8 +15867,8 @@ function duplicate(){
         name: boon_names.duplicate,
         pic: `${IMG_FOLDER.boons}duplicate.png`,
         description: boon_descriptions.duplicate,
+        prereq_description: boon_prereq_descriptions.none,
         after_pick: pick_duplicate,
-        unlocks: [duplicate]
     }
 }
 
@@ -15776,7 +15881,7 @@ function empty_rooms(){
         name: boon_names.empty_rooms,
         pic: `${IMG_FOLDER.boons}empty_rooms.png`,
         description: boon_descriptions.empty_rooms,
-        unlocks: [empty_rooms]
+        prereq_description: boon_prereq_descriptions.none,
     }
 }
 function escape_artist(){
@@ -15784,6 +15889,8 @@ function escape_artist(){
         name: boon_names.escape_artist,
         pic: `${IMG_FOLDER.boons}escape_artist.png`,
         description: boon_descriptions.escape_artist,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 
@@ -15798,8 +15905,10 @@ function expend_vitality(){
         name: boon_names.expend_vitality,
         pic: `${IMG_FOLDER.boons}expend_vitality.png`,
         description: boon_descriptions.expend_vitality,
+        prereq_description: boon_prereq_descriptions.expend_vitality,
         prereq: prereq_expend_vitality,
-        on_pick: pick_expend_vitality
+        on_pick: pick_expend_vitality,
+        max: 1,
     }
 }
 
@@ -15815,19 +15924,17 @@ function flame_strike(){
         name: boon_names.flame_strike,
         pic: `${IMG_FOLDER.boons}flame_strike.png`,
         description: boon_descriptions.flame_strike,
-        prereq: prereq_flame_strike,
-        unlocks: [flame_strike]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 3,
     }
-}
-
-function prereq_flame_strike(){
-    return GS.boons.has(boon_names.flame_strike) < 3;
 }
 function flame_worship(){
     return {
         name: boon_names.flame_worship,
         pic: `${IMG_FOLDER.boons}flame_worship.png`,
         description: boon_descriptions.flame_worship,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function fleeting_thoughts(){
@@ -15835,6 +15942,8 @@ function fleeting_thoughts(){
         name: boon_names.fleeting_thoughts,
         pic: `${IMG_FOLDER.boons}fleeting_thoughts.png`,
         description: boon_descriptions.fleeting_thoughts,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function fortitude(){
@@ -15842,9 +15951,9 @@ function fortitude(){
         name: boon_names.fortitude,
         pic: `${IMG_FOLDER.boons}fortitude.png`,
         description: boon_descriptions.fortitude,
+        prereq_description: boon_prereq_descriptions.fortitude,
         prereq: prereq_fortitude,
         on_pick: pick_fortitude,
-        unlocks: [fortitude]
     }
 }
 
@@ -15861,6 +15970,8 @@ function frenzy(){
         name: boon_names.frenzy,
         pic: `${IMG_FOLDER.boons}frenzy.png`,
         description: boon_descriptions.frenzy,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function frugivore(){
@@ -15868,19 +15979,18 @@ function frugivore(){
         name: boon_names.frugivore,
         pic: `${IMG_FOLDER.boons}frugivore.png`,
         description: boon_descriptions.frugivore,
-        prereq: prereq_frugivore,
-        unlocks: [frugivore]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 2,
     }
-}
-function prereq_frugivore(){
-    return GS.boons.has(boon_names.frugivore) < 2;
 }
 function future_sight(){
     return {
         name: boon_names.future_sight,
         pic: `${IMG_FOLDER.boons}future_sight.png`,
         description: boon_descriptions.future_sight,
-        on_pick: pick_future_sight
+        prereq_description: boon_prereq_descriptions.none,
+        on_pick: pick_future_sight,
+        max: 1,
     }
 }
 
@@ -15895,8 +16005,10 @@ function gruntwork(){
         name: boon_names.gruntwork,
         pic: `${IMG_FOLDER.boons}gruntwork.png`,
         description: boon_descriptions.gruntwork,
+        prereq_description: boon_prereq_descriptions.gruntwork,
         prereq: prereq_gruntwork,
-        on_pick: pick_gruntwork
+        on_pick: pick_gruntwork,
+        max: 1,
     }
 }
 
@@ -15914,14 +16026,18 @@ function hoarder(){
     return {
         name: boon_names.hoarder,
         pic: `${IMG_FOLDER.boons}hoarder.png`,
-        description: boon_descriptions.hoarder
+        description: boon_descriptions.hoarder,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function larger_chests(){
     return {
         name: boon_names.larger_chests,
         pic: `${IMG_FOLDER.boons}larger_chests.png`,
-        description: boon_descriptions.larger_chests
+        description: boon_descriptions.larger_chests,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function limitless(){
@@ -15929,7 +16045,9 @@ function limitless(){
         name: boon_names.limitless,
         pic: `${IMG_FOLDER.boons}limitless.png`,
         description: boon_descriptions.limitless,
-        on_pick: on_pick_limitless
+        prereq_description: boon_prereq_descriptions.none,
+        on_pick: on_pick_limitless,
+        max: 1,
     }
 }
 
@@ -15942,6 +16060,8 @@ function pacifism(){
         name: boon_names.pacifism,
         pic: `${IMG_FOLDER.boons}pacifism.png`,
         description: boon_descriptions.pacifism,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function pain_reflexes(){
@@ -15949,6 +16069,8 @@ function pain_reflexes(){
         name: boon_names.pain_reflexes,
         pic: `${IMG_FOLDER.boons}pain_reflexes.png`,
         description: boon_descriptions.pain_reflexes,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function perfect_the_basics(){
@@ -15956,8 +16078,10 @@ function perfect_the_basics(){
         name: boon_names.perfect_the_basics,
         pic: `${IMG_FOLDER.boons}perfect_the_basics.png`,
         description: boon_descriptions.perfect_the_basics,
+        prereq_description: boon_prereq_descriptions.perfect_the_basics,
         prereq: prereq_perfect_the_basics,
-        on_pick: pick_perfect_the_basics
+        on_pick: pick_perfect_the_basics,
+        max: 1,
     }
 }
 
@@ -16002,7 +16126,7 @@ function picky_shopper(){
         name: boon_names.picky_shopper,
         pic: `${IMG_FOLDER.boons}picky_shopper.png`,
         description: boon_descriptions.picky_shopper,
-        unlocks: [picky_shopper]
+        prereq_description: boon_prereq_descriptions.none,
     }
 }
 function practice_makes_perfect(){
@@ -16010,7 +16134,9 @@ function practice_makes_perfect(){
         name: boon_names.practice_makes_perfect,
         pic: `${IMG_FOLDER.boons}practice_makes_perfect.png`,
         description: boon_descriptions.practice_makes_perfect,
-        prereq: prereq_practice_makes_perfect
+        prereq_description: boon_prereq_descriptions.practice_makes_perfect,
+        prereq: prereq_practice_makes_perfect,
+        max: 1,
     }
 }
 
@@ -16022,6 +16148,8 @@ function pressure_points(){
         name: boon_names.pressure_points,
         pic: `${IMG_FOLDER.boons}pressure_points.png`,
         description: boon_descriptions.pressure_points,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function quick_healing(){
@@ -16029,19 +16157,16 @@ function quick_healing(){
         name: boon_names.quick_healing,
         pic: `${IMG_FOLDER.boons}quick_healing.png`,
         description: boon_descriptions.quick_healing,
-        prereq: prereq_quick_healing,
-        unlocks: [quick_healing]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 3,
     }
-}
-function prereq_quick_healing(){
-    return GS.boons.has(boon_names.quick_healing) < 3;
 }
 function rebirth(){
     return {
         name: boon_names.rebirth,
         pic: `${IMG_FOLDER.boons}rebirth.png`,
         description: boon_descriptions.rebirth,
-        unlocks: [rebirth]    
+        prereq_description: boon_prereq_descriptions.none,
     }
 }
 function repetition(){
@@ -16049,19 +16174,17 @@ function repetition(){
         name: boon_names.repetition,
         pic: `${IMG_FOLDER.boons}repetition.png`,
         description: boon_descriptions.repetition,
-        prereq: prereq_repetition,
-        unlocks: [repetition]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 3,
     }
-}
-
-function prereq_repetition(){
-    return GS.boons.has(boon_names.repetition) < 3;
 }
 function retaliate(){
     return {
         name: boon_names.retaliate,
         pic: `${IMG_FOLDER.boons}retaliate.png`,
-        description: boon_descriptions.retaliate
+        description: boon_descriptions.retaliate,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 
@@ -16090,6 +16213,8 @@ function rift_touched(){
         name: boon_names.rift_touched,
         pic: `${IMG_FOLDER.boons}rift_touched.png`,
         description: boon_descriptions.rift_touched,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function roar_of_challenge(){
@@ -16097,9 +16222,9 @@ function roar_of_challenge(){
         name: boon_names.roar_of_challenge,
         pic: `${IMG_FOLDER.boons}roar_of_challenge.png`,
         description: boon_descriptions.roar_of_challenge,
+        prereq_description: boon_prereq_descriptions.roar_of_challenge,
         prereq: prereq_roar_of_challenge,
         on_pick: pick_roar_of_challenge,
-        unlocks: [roar_of_challenge]
     }
 }
 
@@ -16115,8 +16240,8 @@ function safe_passage(){
         name: boon_names.safe_passage,
         pic: `${IMG_FOLDER.boons}safe_passage.png`,
         description: boon_descriptions.safe_passage,
+        prereq_description: boon_prereq_descriptions.safe_passage,
         prereq: prereq_safe_passage,
-        unlocks: [safe_passage]
     }
 }
 
@@ -16129,8 +16254,10 @@ function shattered_glass(){
         name: boon_names.shattered_glass,
         pic: `${IMG_FOLDER.boons}shattered_glass.png`,
         description: boon_descriptions.shattered_glass,
+        prereq_description: boon_prereq_descriptions.shattered_glass,
         prereq: prereq_shattered_glass,
-        on_pick: on_pick_shattered_glass
+        on_pick: on_pick_shattered_glass,
+        max: 1,
     }
 }
 
@@ -16145,7 +16272,9 @@ function skill_trading(){
     return {
         name: boon_names.skill_trading,
         pic: `${IMG_FOLDER.boons}skill_trading.png`,
-        description: boon_descriptions.skill_trading
+        description: boon_descriptions.skill_trading,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function slime_trail(){
@@ -16153,19 +16282,17 @@ function slime_trail(){
         name: boon_names.slime_trail,
         pic: `${IMG_FOLDER.boons}slime_trail.png`,
         description: boon_descriptions.slime_trail,
-        prereq: prereq_slime_trail,
-        unlocks: [slime_trail]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 2,
     }
-}
-
-function prereq_slime_trail(){
-    return GS.boons.has(boon_names.slime_trail) < 2;
 }
 function sniper(){
     return {
         name: boon_names.sniper,
         pic: `${IMG_FOLDER.boons}sniper.png`,
         description: boon_descriptions.sniper,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function spiked_shoes(){
@@ -16173,8 +16300,10 @@ function spiked_shoes(){
         name: boon_names.spiked_shoes,
         pic: `${IMG_FOLDER.boons}spiked_shoes.png`,
         description: boon_descriptions.spiked_shoes,
+        prereq_description: boon_prereq_descriptions.spiked_shoes,
         prereq: prereq_spiked_shoes,
-        on_pick: pick_spiked_shoes
+        on_pick: pick_spiked_shoes,
+        max: 1,
     }
 }
 
@@ -16190,8 +16319,10 @@ function spontaneous(){
         name: boon_names.spontaneous,
         pic: `${IMG_FOLDER.boons}spontaneous.png`,
         description: boon_descriptions.spontaneous,
+        prereq_description: boon_prereq_descriptions.spontaneous,
         prereq: prereq_spontaneous,
-        on_pick: pick_spontaneous
+        on_pick: pick_spontaneous,
+        max: 1,
     }
 }
 
@@ -16207,19 +16338,17 @@ function stable_mind(){
         name: boon_names.stable_mind,
         pic: `${IMG_FOLDER.boons}stable_mind.png`,
         description: boon_descriptions.stable_mind,
-        prereq: prereq_stable_mind,
-        unlocks: [stable_mind]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 2,
     }
-}
-
-function prereq_stable_mind(){
-    return GS.boons.has(boon_names.stable_mind) < 2;
 }
 function stealthy(){
     return {
         name: boon_names.stealthy,
         pic: `${IMG_FOLDER.boons}stealthy.png`,
         description: boon_descriptions.stealthy,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function stubborn(){
@@ -16227,6 +16356,8 @@ function stubborn(){
         name: boon_names.stubborn,
         pic: `${IMG_FOLDER.boons}stubborn.png`,
         description: boon_descriptions.stubborn,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function thick_soles(){
@@ -16234,6 +16365,8 @@ function thick_soles(){
         name: boon_names.thick_soles,
         pic: `${IMG_FOLDER.boons}thick_soles.png`,
         description: boon_descriptions.thick_soles,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function vicious_cycle(){
@@ -16241,6 +16374,8 @@ function vicious_cycle(){
         name: boon_names.vicious_cycle,
         pic: `${IMG_FOLDER.boons}vicious_cycle.png`,
         description: boon_descriptions.vicious_cycle,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 

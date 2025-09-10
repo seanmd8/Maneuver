@@ -3,9 +3,9 @@ function fortitude(){
         name: boon_names.fortitude,
         pic: `${IMG_FOLDER.boons}fortitude.png`,
         description: boon_descriptions.fortitude,
+        prereq_description: boon_prereq_descriptions.fortitude,
         prereq: prereq_fortitude,
         on_pick: pick_fortitude,
-        unlocks: [fortitude]
     }
 }
 

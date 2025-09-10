@@ -3,11 +3,7 @@ function repetition(){
         name: boon_names.repetition,
         pic: `${IMG_FOLDER.boons}repetition.png`,
         description: boon_descriptions.repetition,
-        prereq: prereq_repetition,
-        unlocks: [repetition]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 3,
     }
-}
-
-function prereq_repetition(){
-    return GS.boons.has(boon_names.repetition) < 3;
 }

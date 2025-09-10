@@ -3,8 +3,10 @@ function creative(){
         name: boon_names.creative,
         pic: `${IMG_FOLDER.boons}creative.png`,
         description: boon_descriptions.creative,
+        prereq_description: boon_prereq_descriptions.creative,
         prereq: prereq_creative,
-        on_pick: pick_creative
+        on_pick: pick_creative,
+        max: 1,
     }
 }
 

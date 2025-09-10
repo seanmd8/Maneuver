@@ -3,11 +3,7 @@ function slime_trail(){
         name: boon_names.slime_trail,
         pic: `${IMG_FOLDER.boons}slime_trail.png`,
         description: boon_descriptions.slime_trail,
-        prereq: prereq_slime_trail,
-        unlocks: [slime_trail]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 2,
     }
-}
-
-function prereq_slime_trail(){
-    return GS.boons.has(boon_names.slime_trail) < 2;
 }

@@ -3,7 +3,9 @@ function limitless(){
         name: boon_names.limitless,
         pic: `${IMG_FOLDER.boons}limitless.png`,
         description: boon_descriptions.limitless,
-        on_pick: on_pick_limitless
+        prereq_description: boon_prereq_descriptions.none,
+        on_pick: on_pick_limitless,
+        max: 1,
     }
 }
 

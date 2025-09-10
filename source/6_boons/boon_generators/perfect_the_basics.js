@@ -3,8 +3,10 @@ function perfect_the_basics(){
         name: boon_names.perfect_the_basics,
         pic: `${IMG_FOLDER.boons}perfect_the_basics.png`,
         description: boon_descriptions.perfect_the_basics,
+        prereq_description: boon_prereq_descriptions.perfect_the_basics,
         prereq: prereq_perfect_the_basics,
-        on_pick: pick_perfect_the_basics
+        on_pick: pick_perfect_the_basics,
+        max: 1,
     }
 }
 

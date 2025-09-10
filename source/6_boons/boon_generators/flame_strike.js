@@ -3,11 +3,7 @@ function flame_strike(){
         name: boon_names.flame_strike,
         pic: `${IMG_FOLDER.boons}flame_strike.png`,
         description: boon_descriptions.flame_strike,
-        prereq: prereq_flame_strike,
-        unlocks: [flame_strike]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 3,
     }
-}
-
-function prereq_flame_strike(){
-    return GS.boons.has(boon_names.flame_strike) < 3;
 }

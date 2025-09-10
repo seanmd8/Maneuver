@@ -3,7 +3,9 @@ function future_sight(){
         name: boon_names.future_sight,
         pic: `${IMG_FOLDER.boons}future_sight.png`,
         description: boon_descriptions.future_sight,
-        on_pick: pick_future_sight
+        prereq_description: boon_prereq_descriptions.none,
+        on_pick: pick_future_sight,
+        max: 1,
     }
 }
 

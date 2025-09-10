@@ -3,8 +3,8 @@ function ancient_card(){
         name: boon_names.ancient_card,
         pic: `${IMG_FOLDER.cards}lost_technique.png`,
         description: chest_text.add_card,
+        prereq_description: boon_prereq_descriptions.none,
         on_pick: pick_ancient_card,
-        unlocks: [ancient_card]
     }
 }
 
@@ -17,8 +17,8 @@ function ancient_card_2(){
         name: boon_names.ancient_card,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         description: chest_text.add_card,
+        prereq_description: boon_prereq_descriptions.none,
         on_pick: pick_ancient_card_2,
-        unlocks: [ancient_card_2]
     }
 }
 

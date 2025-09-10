@@ -3,6 +3,8 @@ function vicious_cycle(){
         name: boon_names.vicious_cycle,
         pic: `${IMG_FOLDER.boons}vicious_cycle.png`,
         description: boon_descriptions.vicious_cycle,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 

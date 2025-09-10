@@ -3,6 +3,8 @@ function escape_artist(){
         name: boon_names.escape_artist,
         pic: `${IMG_FOLDER.boons}escape_artist.png`,
         description: boon_descriptions.escape_artist,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 

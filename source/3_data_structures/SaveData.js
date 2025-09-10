@@ -10,6 +10,7 @@ class SaveData{
     controls;
     achievements;
     cards;
+    boons;
     
     #load_function;
     #save_function;
@@ -26,12 +27,14 @@ class SaveData{
         this.achievements = new AchievementList();
         this.achievements.set(data.achievements)
         this.cards = new SearchTree(data.cards);
+        this.boons = new SearchTree(data.boons);
     }
     save(){
         var data = {
             controls: this.controls.get(),
             achievements: this.achievements.get(),
             cards: this.cards.to_list(),
+            boons: this.boons.to_list(),
         }
         this.#save_function(data);        
     }
@@ -52,6 +55,12 @@ class SaveData{
     }
     add_card(name){
         var added = this.cards.add(name);
+        if(added){
+            this.save();
+        }
+    }
+    add_boon(name){
+        var added = this.boons.add(name);
         if(added){
             this.save();
         }

@@ -3,9 +3,9 @@ function blood_alchemy(){
         name: boon_names.blood_alchemy,
         pic: `${IMG_FOLDER.boons}blood_alchemy.png`,
         description: boon_descriptions.blood_alchemy,
+        prereq_description: boon_prereq_descriptions.blood_alchemy,
         prereq: prereq_blood_alchemy,
         on_pick: pick_blood_alchemy,
-        unlocks: [blood_alchemy]
     }
 }
 

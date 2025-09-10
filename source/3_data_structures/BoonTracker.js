@@ -4,7 +4,7 @@ class BoonTracker{
     #lost_boons;
     total;
     constructor(initial_choices){
-        this.#choices = initial_choices.map(b => b());
+        this.#choices = [...initial_choices];
         this.#boons = [];
         this.#lost_boons = [];
         this.total = 0;
@@ -19,7 +19,7 @@ class BoonTracker{
         });
         var picks = [];
         while(picks.length < amount && choice_list.length > 0){
-            var boon = choice_list.pop();
+            var boon = choice_list.pop()();
             if(boon.prereq === undefined || boon.prereq()){
                 if(locked.find((b) => {return b().name === boon.name}) === undefined){
                     picks.push(boon);
@@ -39,14 +39,19 @@ class BoonTracker{
     }
     pick(name){
         for(var i = 0; i < this.#choices.length; ++i){
-            var boon = this.#choices[i];
+            var boon_fun = this.#choices[i];
+            var boon = boon_fun();
             if(boon.name === name){
                 this.#choices.splice(i, 1);
                 if(boon.unlocks !== undefined){
-                    this.#choices.push(...boon.unlocks.map(f => f()));
+                    this.#choices.push(...boon.unlocks);
+                }
+                if(boon.max === undefined || this.has(boon.name) < boon.max){
+                    this.#choices.push(boon_fun);
                 }
                 this.#boons.push(boon);
                 ++this.total;
+                GS.data.add_boon(boon.name);
                 if(boon.on_pick !== undefined){
                     boon.on_pick();
                 }

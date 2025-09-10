@@ -2,7 +2,9 @@ function retaliate(){
     return {
         name: boon_names.retaliate,
         pic: `${IMG_FOLDER.boons}retaliate.png`,
-        description: boon_descriptions.retaliate
+        description: boon_descriptions.retaliate,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 

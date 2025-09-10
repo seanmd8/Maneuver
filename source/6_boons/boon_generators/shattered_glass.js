@@ -3,8 +3,10 @@ function shattered_glass(){
         name: boon_names.shattered_glass,
         pic: `${IMG_FOLDER.boons}shattered_glass.png`,
         description: boon_descriptions.shattered_glass,
+        prereq_description: boon_prereq_descriptions.shattered_glass,
         prereq: prereq_shattered_glass,
-        on_pick: on_pick_shattered_glass
+        on_pick: on_pick_shattered_glass,
+        max: 1,
     }
 }
 
