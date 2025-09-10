@@ -606,575 +606,6 @@ function tile_description(tile){
     }
     return `${hp_description(tile)}${tile.description}`;
 }
-function update_achievements(){
-    var achievements = GS.data.achievements.all();
-    display.remove_children(UIIDS.achievement_list);
-    display.show_achievements(UIIDS.achievement_list, achievements);
-}
-
-function reset_achievements(){
-    GS.data.reset_achievements();
-    update_achievements();
-}
-function controls_chest_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
-    display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
-    display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
-    display.control_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
-}
-
-function edit_chest_controls(controls){
-    display.add_edit_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, controls_chest_section, controls);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
-}
-function setup_controls_page(){
-    display.remove_children(UIIDS.stage_controls);
-    controls_stage_section();
-    display.remove_children(UIIDS.shop_controls);
-    controls_shop_section();
-    display.remove_children(UIIDS.chest_controls);
-    controls_chest_section();
-}
-function controls_shop_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
-    display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
-    display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
-    display.control_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
-}
-
-function edit_shop_controls(controls){
-    display.add_edit_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, controls_shop_section, controls);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.add, CONTROLS_TEXT.shop.add);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
-}
-function controls_stage_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
-    display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
-    display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
-    display.control_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
-    display.control_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
-    display.control_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
-}
-
-function edit_stage_controls(controls){
-    display.add_edit_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, controls_stage_section, controls);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.card, CONTROLS_TEXT.stage.card);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
-    display.control_edit_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
-}
-function display_deck_to_duplicate(){
-    display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
-    var finish = (card, deck) => {
-        deck.add(copy_card(card));
-        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
-    }
-    var selector = new DeckSelector(GS.deck, finish);
-    refresh_deck_select_screen(selector);
-}
-function refresh_deck_select_screen(selector){
-    var cards = selector.get_display_info();
-    cards.map((card) => {
-        var prev_on_click = card.on_click;
-        card.on_click = () => {
-            prev_on_click();
-            display.display_message(UIIDS.deck_select_card_info, explain_card(card.card));
-            refresh_deck_select_screen(selector);
-        }
-        return card;
-    });
-    display.remove_children(UIIDS.deck_select_table);
-    for(var i = 0; i < Math.ceil(cards.length / DECK_DISPLAY_WIDTH); ++i){
-        var slice_start = i * DECK_DISPLAY_WIDTH;
-        var slice = cards.slice(slice_start, slice_start + DECK_DISPLAY_WIDTH);
-        display.add_tb_row(UIIDS.deck_select_table, slice, CARD_SCALE);
-    }
-    display.set_button(
-        UIIDS.deck_select_confirm, 
-        shop_text.confirm, 
-        () => {selector.confirm();}, 
-        selector.check_valid()
-    );
-}
-function display_deck_to_remove(remaining){
-    var message = `${boon_messages.clean_mind[0]}${remaining}${boon_messages.clean_mind[1]}`;
-    display.display_message(UIIDS.deck_select_message, message);
-    var finish = (card, deck) => {
-        deck.remove(card.id);
-        if(remaining > 1){
-            display_deck_to_remove(remaining - 1);
-        }
-        else{
-            GS.deck.deal();
-            GS.refresh_deck_display();
-            GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
-        }
-    }
-    var selector = new DeckSelector(GS.deck, finish);
-    refresh_deck_select_screen(selector);
-}
-function display_entire_deck(deck){
-    // Display section header.
-    var min_deck_size = deck.deck_min();
-    display.display_message(UIIDS.current_deck, `${shop_text.current}${min_deck_size}):`);
-    // Display deck with limited cards per line.
-    var decklist = deck.get_deck_info();
-    var card_explanation = (card) => {
-        return () => {
-            display.display_message(UIIDS.shop_message, explain_card(card))       
-        }
-    };
-    for(var card of decklist){
-            card.on_click = card_explanation(card);
-    }
-    for(var i = 0; i < Math.ceil(decklist.length / DECK_DISPLAY_WIDTH); ++i){
-        var row = decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
-        display.add_tb_row(UIIDS.display_deck, row, CARD_SCALE);
-    }
-
-}
-function refresh_shop_display(shop){
-    var refresh = (f, card) => {
-        return () => {
-            f();
-            display.display_message(UIIDS.shop_message, explain_card(card));
-            refresh_shop_display(shop);
-        }
-    };
-    display.remove_children(UIIDS.add_card);
-    display.remove_children(UIIDS.remove_card);
-
-    var add_row = shop.get_add_row();
-    for(var a of add_row){
-        if(a.on_click !== undefined){
-            a.on_click = refresh(a.on_click, a.card);
-        }
-        else{
-            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.add)};
-        }
-    }
-    display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
-
-    var remove_row = shop.get_remove_row();
-    for(var r of remove_row){
-        if(r.on_click !== undefined){
-            r.on_click = refresh(r.on_click, r.card);
-        }
-        else if(r.name === card_names.symbol_remove_card){
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.remove)};
-        }
-        else{
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.min)};
-        }
-    }
-    display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
-    
-    var confirm = () => {
-        if(shop.is_valid_selection()){
-            shop.confirm();
-            GS.new_floor();
-        }
-        else{
-            display.display_message(UIIDS.shop_message, shop_text.invalid);
-        }
-    }
-    display.set_button(UIIDS.shop_confirm, shop_text.confirm, confirm, shop.is_valid_selection());
-}
-function display_boons(boon_list){
-    // Updates the list of boons they have.
-    display.remove_children(UIIDS.boon_list_table);
-    var gained = boon_list.get_gained();
-    display.add_tb_row(UIIDS.boon_list_table, gained, SMALL_CARD_SCALE);
-
-    // Updates the list of used up boons.
-    display.remove_children(UIIDS.removed_boon_table);
-    var lost = boon_list.get_lost();
-    display.add_tb_row(UIIDS.removed_boon_table, lost, SMALL_CARD_SCALE);
-}
-/**
- * Displays the library to it's proper location.
- */
-function refresh_deck_order_display(deck){
-    var library = deck.get_library_info();
-    display.remove_children(UIIDS.deck_order_table);
-    display.add_tb_row(UIIDS.deck_order_table, [future_sight(), ...library], SMALL_CARD_SCALE);
-}
-/**
- * Displays the discard pile to it's proper location.
- */
-function refresh_discard_display(deck){
-    var discard = deck.get_discard_info();
-    display.remove_children(UIIDS.discard_pile_table);
-    display.add_tb_row(UIIDS.discard_pile_table, discard, SMALL_CARD_SCALE);
-}
-/**
- * Displays the full deck to it's proper location.
- */
-function refresh_full_deck_display(deck){
-    var full = deck.get_deck_info();
-    display.remove_children(UIIDS.full_deck_table);
-    display.add_tb_row(UIIDS.full_deck_table, full, SMALL_CARD_SCALE);
-}
-/**
- * Function to create and add the buttons for the sidebar.
- */
-function create_sidebar(){
-    var location = UIIDS.sidebar_header;
-    var swap_visibility = function(id_list, id){
-        return function(){
-            id_list.swap(id);
-        }
-    }
-    display.remove_children(location);
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
-    SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
-}
-function update_initiative(map){
-    var info = map.get_initiative().map(e => {
-        let str = `${e.name}\n` + hp_description(e);
-        let on_click = function(){
-            display.click(`${UIIDS.map_display} ${e.location.y} ${e.location.x}`);
-        }
-        return {
-            pic: e.pic,
-            rotate: e.rotate,
-            flip: e.flip,
-            stun: e.stun !== undefined && e.stun > 0,
-            name: e.name,
-            str,
-            on_click,
-        }
-    });
-    display.remove_children(UIIDS.initiative);
-    display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
-}
-/**
- * Function to give a message to the user.
- * @param {string} msg message text.
- */
-function say(msg){
-    display.display_message(UIIDS.display_message, msg);
-}
-
-function say_record(msg, type = record_types.normal){
-    say(msg);
-    GS.record_message(msg, type);
-}
-function display_victory(){
-    display.toggle_visibility(UIIDS.hand_box, false);
-    display.toggle_visibility(UIIDS.move_box, false);
-    display.toggle_visibility(UIIDS.retry_box, false);
-    display.remove_children(UIIDS.map_display);
-    display.add_tb_row(UIIDS.map_display, [{
-        name: achievement_names.victory,
-        //foreground: [`${image_folder.other}border.png`],
-        pic: `${IMG_FOLDER.achievements}victory.png`,
-        on_click: () => {
-            display.toggle_visibility(UIIDS.hand_box, true);
-            display.toggle_visibility(UIIDS.move_box, true);
-            display.toggle_visibility(UIIDS.retry_box, true);
-            player_hand_greyed(false);
-            GS.setup();
-        },
-    }], VICTORY_IMG_SCALE);
-}
-/**
- * Displays the hand to it's proper location.
- */
-function refresh_hand_display(deck){
-    // Updates the hand.
-    var card_row = deck.get_hand_info();
-    display.remove_children(UIIDS.hand_display);
-    display.add_tb_row(UIIDS.hand_display, card_row, CARD_SCALE);
-
-    // Shows how many cards are left in your deck.
-    var remaining = deck.get_deck_count();
-    display.display_message(UIIDS.deck_count, `${remaining}`);
-
-    // Makes sure the card info button shows that no card is selected.
-    var explain_blank_moves = function(){
-        say(gameplay_text.select_card);
-    }
-    display.add_on_click(UIIDS.move_info, explain_blank_moves);
-}
-
-function player_hand_greyed(is_greyed){
-    var toggle = is_greyed ? display.add_class : display.remove_class;
-    toggle(UIIDS.hand_display, `greyed-out`);
-}
-function display_move_buttons(card, hand_position){
-    display.select(UIIDS.hand_display, 0, hand_position);
-    display.remove_children(UIIDS.move_buttons);
-    var button_data = card.options.show_buttons(hand_position);
-    for(let row of button_data){
-        let button_row = row.map(button => {return {
-            description: button.description,
-            on_click: function(){
-                GS.data.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
-            }
-        }});
-        display.add_button_row(UIIDS.move_buttons, button_row);
-    }
-    var explanation = move_types.alt + `\n` + explain_card(card);
-    display.add_on_click(UIIDS.move_info, function(){say(explanation)});
-}
-function telegraph_repetition_boon(repeat){
-    display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
-    display.remove_class(UIIDS.move_box, `telegraph-repetition`);
-    display.remove_class(UIIDS.hand_box, `no-repetition`);
-    display.remove_class(UIIDS.move_box, `no-repetition`);
-    var class_name = repeat ? `telegraph-repetition` : `no-repetition`;
-    display.add_class(UIIDS.hand_box, class_name);
-    display.add_class(UIIDS.move_box, class_name);
-}
-/**
- * Function to display the player's current and max health.
- * @param {Tile} player The player to get health from.
- * @param {number} scale The size of the display images.
- */
-function display_health(player, scale){
-    if(player.health === undefined){
-        throw new Error(ERRORS.missing_property);
-    }
-    var health = [];
-    for(var i = 0; i < player.health; ++i){
-        health.push({
-            pic: `${IMG_FOLDER.other}heart.png`, 
-            name: `heart`
-        });
-    }
-    if(player.max_health !== undefined){
-        for(var i = 0; i < (player.max_health - player.health); ++i){
-            health.push({
-                pic: `${IMG_FOLDER.other}heart_broken.png`, 
-                name: `broken heart`
-            });
-        }
-    }
-    display.add_tb_row(UIIDS.health_display, health, scale);
-}
-function display_map(map){
-    // Updates the GameMap display.
-    display.remove_children(UIIDS.map_display);
-    var grid = map.display();
-    for(var row of grid){
-        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE);
-    }
-    map.clear_telegraphs();
-    // Updates the health bar display.
-    display.remove_children(UIIDS.health_display);
-    display_health(map.get_player(), TILE_SCALE);
-    // Updates the initiative tracker display.
-    update_initiative(map);
-}
-/**
- * Function to create a dropdown menu capable of switching between the game and guide screens.
- * @param {string} location Where to create it.
- */
-function create_main_dropdown(location){
-    var options = [
-        {
-            label: screen_names.gameplay,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
-        }, 
-        {
-            label: screen_names.guide,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
-        },
-        {
-            label: screen_names.achievements,
-            on_change: () => {
-                update_achievements();
-                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
-            }
-        },
-        {
-            label: screen_names.journal,
-            on_change: () => {
-                update_journal();
-                DISPLAY_DIVISIONS.swap(UIIDS.journal);
-            }
-        },
-        {
-            label: screen_names.controls,
-            on_change: () => {
-                setup_controls_page();
-                DISPLAY_DIVISIONS.swap(UIIDS.controls);
-            }
-        },
-
-    ];
-    display.create_dropdown(location, options);
-}
-/**
- * Function to get an array of buttons with the keys used for controls as the value to use when displaying the guide.
- * @returns {HTMLElement[]} The array of buttons.
- */
-function get_control_symbols(){
-    var current_controls = GS.data.controls.get();
-    var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
-    var buttons = [];
-    for(var symbol of button_symbols){
-        buttons.push(display.create_button(symbol, `${symbol} key`));
-    }
-    return buttons;
-}
-/**
- * Function to display the guide.
- */
-function display_guide(){
-    var section_location = UIIDS.guide_box;
-    var navbar_location = UIIDS.guide_navbar;
-
-    // Create the image arrays for the sections with images.
-    var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
-    var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
-        card = card();
-        return {
-            src: card.pic,
-            name: card.name,
-            x: 5,
-            y: 5
-        }
-    }));
-    var confusion_text = [
-        ...GUIDE_TEXT.confusion, ...CONFUSION_CARDS.map((card, i) => {
-        // Adds the space for confusion card images.
-        if(i % 4 !== 3){
-            return NBS;
-        }
-        return `\n`;
-    })];
-    
-    var about_links = [
-        display.make_anchor(about_page_text.git_link, about_page_text.git_text)
-    ];
-
-    // Create guidebook text sections.
-    var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
-    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_symbol_arr);
-    var enemies_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
-    var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
-    var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
-    var chests_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.chests, GUIDE_TEXT.chests, []);
-    var sidebar_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.sidebar, GUIDE_TEXT.sidebar, []);
-    var confusion_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.confusion, confusion_text, confusion_inline_arr);
-    var about_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.about, GUIDE_TEXT.about, about_links);
-
-    var section_id_list = [
-        basics_section, 
-        cards_section, 
-        enemies_section, 
-        shop_section, 
-        bosses_section, 
-        chests_section, 
-        sidebar_section,
-        confusion_section,
-        about_section
-    ];
-
-    var swap_visibility = function(id_list, id){
-        return function(){
-            display.swap_screen(id_list, id);
-        }
-    }
-
-    // Create guidebook navbar.
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap_visibility(section_id_list, basics_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap_visibility(section_id_list, cards_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap_visibility(section_id_list, enemies_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap_visibility(section_id_list, shop_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap_visibility(section_id_list, sidebar_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap_visibility(section_id_list, confusion_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.about, swap_visibility(section_id_list, about_section));
-
-    display.swap_screen(section_id_list, basics_section);
-}
-/**
- * Function to get an array of images for the card symbols to use when displaying the guide..
- * @returns {HTMLElement[]} The array of images.
- */
-function make_guidebook_images(arr){
-    var images = [];
-    for(var img of arr){
-        images.push(display.create_image(img.src, `${img.name} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE)));
-    }
-    return images;
-}
-function update_journal_boons(){
-    display.remove_children(UIIDS.journal_boons);
-    var boons = boons_encountered(BOON_LIST, GS.data.boons);
-    display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons);
-
-}
-function boons_encountered(boons, encountered){
-    return boons.map((b) => {
-        var boon = b();
-        if(encountered.has(boon.name)){
-            return boon;
-        }
-        return symbol_not_encountered_boon();
-    });
-}
-function update_journal_cards(){
-    display.remove_children(UIIDS.journal_cards);
-    display_basic_cards();
-    display_common_cards();
-    display_achievement_cards();
-    display_boon_cards();
-    display_confusion_cards();
-    display_boss_cards();
-}
-
-function display_basic_cards(){
-    var cards = cards_encountered(BASIC_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards);
-}
-function display_common_cards(){
-    var cards = cards_encountered(COMMON_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards);
-}
-function display_achievement_cards(){
-    var cards = cards_encountered(get_achievement_cards(), GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards);
-}
-function display_boon_cards(){
-    var cards = cards_encountered(BOON_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards);
-}
-function display_confusion_cards(){
-    var cards = cards_encountered(CONFUSION_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards);
-}
-function display_boss_cards(){
-    var cards = cards_encountered(get_boss_cards(), GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards);
-}
-
-function cards_encountered(cards, encountered){
-    return cards.map((c) => {
-        var card = c();
-        if(encountered.has(card.name)){
-            return card;
-        }
-        return symbol_not_encountered_card();
-    });
-}
-function update_journal(){
-    update_journal_cards();
-    update_journal_boons();
-}
 // ----------------Display.js----------------
 // File containing the display class which interacts with wherever the game is being displayed. 
 // Currently the only way to display is via HTML, but if I wanted to port the game, this should
@@ -2004,6 +1435,590 @@ const DisplayHTML = {
 const display = get_display(MARKUP_LANGUAGE);
 
 const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.
+function update_achievements(){
+    var achievements = GS.data.achievements.all();
+    display.remove_children(UIIDS.achievement_list);
+    display.show_achievements(UIIDS.achievement_list, achievements);
+}
+
+function reset_achievements(){
+    GS.data.reset_achievements();
+    update_achievements();
+}
+function controls_chest_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
+    display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
+    display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+
+function edit_chest_controls(controls){
+    display.add_edit_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, controls_chest_section, controls);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+function setup_controls_page(){
+    display.remove_children(UIIDS.stage_controls);
+    controls_stage_section();
+    display.remove_children(UIIDS.shop_controls);
+    controls_shop_section();
+    display.remove_children(UIIDS.chest_controls);
+    controls_chest_section();
+}
+function controls_shop_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
+    display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
+    display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
+    display.control_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+
+function edit_shop_controls(controls){
+    display.add_edit_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, controls_shop_section, controls);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.add, CONTROLS_TEXT.shop.add);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+function controls_stage_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
+    display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
+    display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+
+function edit_stage_controls(controls){
+    display.add_edit_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, controls_stage_section, controls);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.card, CONTROLS_TEXT.stage.card);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_edit_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+function display_deck_to_duplicate(){
+    display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
+    var finish = (card, deck) => {
+        deck.add(copy_card(card));
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+    }
+    var selector = new DeckSelector(GS.deck, finish);
+    refresh_deck_select_screen(selector);
+}
+function refresh_deck_select_screen(selector){
+    var cards = selector.get_display_info();
+    cards.map((card) => {
+        var prev_on_click = card.on_click;
+        card.on_click = () => {
+            prev_on_click();
+            display.display_message(UIIDS.deck_select_card_info, explain_card(card.card));
+            refresh_deck_select_screen(selector);
+        }
+        return card;
+    });
+    display.remove_children(UIIDS.deck_select_table);
+    for(var i = 0; i < Math.ceil(cards.length / DECK_DISPLAY_WIDTH); ++i){
+        var slice_start = i * DECK_DISPLAY_WIDTH;
+        var slice = cards.slice(slice_start, slice_start + DECK_DISPLAY_WIDTH);
+        display.add_tb_row(UIIDS.deck_select_table, slice, CARD_SCALE);
+    }
+    display.set_button(
+        UIIDS.deck_select_confirm, 
+        shop_text.confirm, 
+        () => {selector.confirm();}, 
+        selector.check_valid()
+    );
+}
+function display_deck_to_remove(remaining){
+    var message = `${boon_messages.clean_mind[0]}${remaining}${boon_messages.clean_mind[1]}`;
+    display.display_message(UIIDS.deck_select_message, message);
+    var finish = (card, deck) => {
+        deck.remove(card.id);
+        if(remaining > 1){
+            display_deck_to_remove(remaining - 1);
+        }
+        else{
+            GS.deck.deal();
+            GS.refresh_deck_display();
+            GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+        }
+    }
+    var selector = new DeckSelector(GS.deck, finish);
+    refresh_deck_select_screen(selector);
+}
+function display_entire_deck(deck){
+    // Display section header.
+    var min_deck_size = deck.deck_min();
+    display.display_message(UIIDS.current_deck, `${shop_text.current}${min_deck_size}):`);
+    // Display deck with limited cards per line.
+    var decklist = deck.get_deck_info();
+    var card_explanation = (card) => {
+        return () => {
+            display.display_message(UIIDS.shop_message, explain_card(card))       
+        }
+    };
+    for(var card of decklist){
+            card.on_click = card_explanation(card);
+    }
+    for(var i = 0; i < Math.ceil(decklist.length / DECK_DISPLAY_WIDTH); ++i){
+        var row = decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
+        display.add_tb_row(UIIDS.display_deck, row, CARD_SCALE);
+    }
+
+}
+function refresh_shop_display(shop){
+    var refresh = (f, card) => {
+        return () => {
+            f();
+            display.display_message(UIIDS.shop_message, explain_card(card));
+            refresh_shop_display(shop);
+        }
+    };
+    display.remove_children(UIIDS.add_card);
+    display.remove_children(UIIDS.remove_card);
+
+    var add_row = shop.get_add_row();
+    for(var a of add_row){
+        if(a.on_click !== undefined){
+            a.on_click = refresh(a.on_click, a.card);
+        }
+        else{
+            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.add)};
+        }
+    }
+    display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
+
+    var remove_row = shop.get_remove_row();
+    for(var r of remove_row){
+        if(r.on_click !== undefined){
+            r.on_click = refresh(r.on_click, r.card);
+        }
+        else if(r.name === card_names.symbol_remove_card){
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.remove)};
+        }
+        else{
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.min)};
+        }
+    }
+    display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
+    
+    var confirm = () => {
+        if(shop.is_valid_selection()){
+            shop.confirm();
+            GS.new_floor();
+        }
+        else{
+            display.display_message(UIIDS.shop_message, shop_text.invalid);
+        }
+    }
+    display.set_button(UIIDS.shop_confirm, shop_text.confirm, confirm, shop.is_valid_selection());
+}
+function display_boons(boon_list){
+    // Updates the list of boons they have.
+    display.remove_children(UIIDS.boon_list_table);
+    var gained = boon_list.get_gained();
+    display.add_tb_row(UIIDS.boon_list_table, gained, SMALL_CARD_SCALE);
+
+    // Updates the list of used up boons.
+    display.remove_children(UIIDS.removed_boon_table);
+    var lost = boon_list.get_lost();
+    display.add_tb_row(UIIDS.removed_boon_table, lost, SMALL_CARD_SCALE);
+}
+/**
+ * Displays the library to it's proper location.
+ */
+function refresh_deck_order_display(deck){
+    var library = deck.get_library_info();
+    display.remove_children(UIIDS.deck_order_table);
+    display.add_tb_row(UIIDS.deck_order_table, [future_sight(), ...library], SMALL_CARD_SCALE);
+}
+/**
+ * Displays the discard pile to it's proper location.
+ */
+function refresh_discard_display(deck){
+    var discard = deck.get_discard_info();
+    display.remove_children(UIIDS.discard_pile_table);
+    display.add_tb_row(UIIDS.discard_pile_table, discard, SMALL_CARD_SCALE);
+}
+/**
+ * Displays the full deck to it's proper location.
+ */
+function refresh_full_deck_display(deck){
+    var full = deck.get_deck_info();
+    display.remove_children(UIIDS.full_deck_table);
+    display.add_tb_row(UIIDS.full_deck_table, full, SMALL_CARD_SCALE);
+}
+/**
+ * Function to create and add the buttons for the sidebar.
+ */
+function create_sidebar(){
+    var location = UIIDS.sidebar_header;
+    var swap_visibility = function(id_list, id){
+        return function(){
+            id_list.swap(id);
+        }
+    }
+    display.remove_children(location);
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
+    SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
+}
+function update_initiative(map){
+    var info = map.get_initiative().map(e => {
+        let str = `${e.name}\n` + hp_description(e);
+        let on_click = function(){
+            display.click(`${UIIDS.map_display} ${e.location.y} ${e.location.x}`);
+        }
+        return {
+            pic: e.pic,
+            rotate: e.rotate,
+            flip: e.flip,
+            stun: e.stun !== undefined && e.stun > 0,
+            name: e.name,
+            str,
+            on_click,
+        }
+    });
+    display.remove_children(UIIDS.initiative);
+    display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
+}
+/**
+ * Function to give a message to the user.
+ * @param {string} msg message text.
+ */
+function say(msg){
+    display.display_message(UIIDS.display_message, msg);
+}
+
+function say_record(msg, type = record_types.normal){
+    say(msg);
+    GS.record_message(msg, type);
+}
+function display_victory(){
+    display.toggle_visibility(UIIDS.hand_box, false);
+    display.toggle_visibility(UIIDS.move_box, false);
+    display.toggle_visibility(UIIDS.retry_box, false);
+    display.remove_children(UIIDS.map_display);
+    display.add_tb_row(UIIDS.map_display, [{
+        name: achievement_names.victory,
+        //foreground: [`${image_folder.other}border.png`],
+        pic: `${IMG_FOLDER.achievements}victory.png`,
+        on_click: () => {
+            display.toggle_visibility(UIIDS.hand_box, true);
+            display.toggle_visibility(UIIDS.move_box, true);
+            display.toggle_visibility(UIIDS.retry_box, true);
+            player_hand_greyed(false);
+            GS.setup();
+        },
+    }], VICTORY_IMG_SCALE);
+}
+/**
+ * Displays the hand to it's proper location.
+ */
+function refresh_hand_display(deck){
+    // Updates the hand.
+    var card_row = deck.get_hand_info();
+    display.remove_children(UIIDS.hand_display);
+    display.add_tb_row(UIIDS.hand_display, card_row, CARD_SCALE);
+
+    // Shows how many cards are left in your deck.
+    var remaining = deck.get_deck_count();
+    display.display_message(UIIDS.deck_count, `${remaining}`);
+
+    // Makes sure the card info button shows that no card is selected.
+    var explain_blank_moves = function(){
+        say(gameplay_text.select_card);
+    }
+    display.add_on_click(UIIDS.move_info, explain_blank_moves);
+}
+
+function player_hand_greyed(is_greyed){
+    var toggle = is_greyed ? display.add_class : display.remove_class;
+    toggle(UIIDS.hand_display, `greyed-out`);
+}
+function display_move_buttons(card, hand_position){
+    display.select(UIIDS.hand_display, 0, hand_position);
+    display.remove_children(UIIDS.move_buttons);
+    var button_data = card.options.show_buttons(hand_position);
+    for(let row of button_data){
+        let button_row = row.map(button => {return {
+            description: button.description,
+            on_click: function(){
+                GS.data.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
+            }
+        }});
+        display.add_button_row(UIIDS.move_buttons, button_row);
+    }
+    var explanation = move_types.alt + `\n` + explain_card(card);
+    display.add_on_click(UIIDS.move_info, function(){say(explanation)});
+}
+function telegraph_repetition_boon(repeat){
+    display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
+    display.remove_class(UIIDS.move_box, `telegraph-repetition`);
+    display.remove_class(UIIDS.hand_box, `no-repetition`);
+    display.remove_class(UIIDS.move_box, `no-repetition`);
+    var class_name = repeat ? `telegraph-repetition` : `no-repetition`;
+    display.add_class(UIIDS.hand_box, class_name);
+    display.add_class(UIIDS.move_box, class_name);
+}
+/**
+ * Function to display the player's current and max health.
+ * @param {Tile} player The player to get health from.
+ * @param {number} scale The size of the display images.
+ */
+function display_health(player, scale){
+    if(player.health === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    var health = [];
+    for(var i = 0; i < player.health; ++i){
+        health.push({
+            pic: `${IMG_FOLDER.other}heart.png`, 
+            name: `heart`
+        });
+    }
+    if(player.max_health !== undefined){
+        for(var i = 0; i < (player.max_health - player.health); ++i){
+            health.push({
+                pic: `${IMG_FOLDER.other}heart_broken.png`, 
+                name: `broken heart`
+            });
+        }
+    }
+    display.add_tb_row(UIIDS.health_display, health, scale);
+}
+function display_map(map){
+    // Updates the GameMap display.
+    display.remove_children(UIIDS.map_display);
+    var grid = map.display();
+    for(var row of grid){
+        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE);
+    }
+    map.clear_telegraphs();
+    // Updates the health bar display.
+    display.remove_children(UIIDS.health_display);
+    display_health(map.get_player(), TILE_SCALE);
+    // Updates the initiative tracker display.
+    update_initiative(map);
+}
+/**
+ * Function to create a dropdown menu capable of switching between the game and guide screens.
+ * @param {string} location Where to create it.
+ */
+function create_main_dropdown(location){
+    var options = [
+        {
+            label: screen_names.gameplay,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
+        }, 
+        {
+            label: screen_names.guide,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
+        },
+        {
+            label: screen_names.achievements,
+            on_change: () => {
+                update_achievements();
+                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
+            }
+        },
+        {
+            label: screen_names.journal,
+            on_change: () => {
+                update_journal();
+                DISPLAY_DIVISIONS.swap(UIIDS.journal);
+            }
+        },
+        {
+            label: screen_names.controls,
+            on_change: () => {
+                setup_controls_page();
+                DISPLAY_DIVISIONS.swap(UIIDS.controls);
+            }
+        },
+
+    ];
+    display.create_dropdown(location, options);
+}
+/**
+ * Function to get an array of buttons with the keys used for controls as the value to use when displaying the guide.
+ * @returns {HTMLElement[]} The array of buttons.
+ */
+function get_control_symbols(){
+    var current_controls = GS.data.controls.get();
+    var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
+    var buttons = [];
+    for(var symbol of button_symbols){
+        buttons.push(display.create_button(symbol, `${symbol} key`));
+    }
+    return buttons;
+}
+/**
+ * Function to display the guide.
+ */
+function display_guide(){
+    var section_location = UIIDS.guide_box;
+    var navbar_location = UIIDS.guide_navbar;
+
+    // Create the image arrays for the sections with images.
+    var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
+    var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
+        card = card();
+        return {
+            src: card.pic,
+            name: card.name,
+            x: 5,
+            y: 5
+        }
+    }));
+    var confusion_text = [
+        ...GUIDE_TEXT.confusion, ...CONFUSION_CARDS.map((card, i) => {
+        // Adds the space for confusion card images.
+        if(i % 4 !== 3){
+            return NBS;
+        }
+        return `\n`;
+    })];
+    
+    var about_links = [
+        display.make_anchor(about_page_text.git_link, about_page_text.git_text)
+    ];
+
+    // Create guidebook text sections.
+    var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
+    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_symbol_arr);
+    var enemies_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
+    var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
+    var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
+    var chests_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.chests, GUIDE_TEXT.chests, []);
+    var sidebar_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.sidebar, GUIDE_TEXT.sidebar, []);
+    var confusion_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.confusion, confusion_text, confusion_inline_arr);
+    var about_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.about, GUIDE_TEXT.about, about_links);
+
+    var section_id_list = [
+        basics_section, 
+        cards_section, 
+        enemies_section, 
+        shop_section, 
+        bosses_section, 
+        chests_section, 
+        sidebar_section,
+        confusion_section,
+        about_section
+    ];
+
+    var swap_visibility = function(id_list, id){
+        return function(){
+            display.swap_screen(id_list, id);
+        }
+    }
+
+    // Create guidebook navbar.
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap_visibility(section_id_list, basics_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap_visibility(section_id_list, cards_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap_visibility(section_id_list, enemies_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap_visibility(section_id_list, shop_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap_visibility(section_id_list, sidebar_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap_visibility(section_id_list, confusion_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.about, swap_visibility(section_id_list, about_section));
+
+    display.swap_screen(section_id_list, basics_section);
+}
+/**
+ * Function to get an array of images for the card symbols to use when displaying the guide..
+ * @returns {HTMLElement[]} The array of images.
+ */
+function make_guidebook_images(arr){
+    var images = [];
+    for(var img of arr){
+        images.push(display.create_image(img.src, `${img.name} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE)));
+    }
+    return images;
+}
+function update_journal_boons(){
+    display.remove_children(UIIDS.journal_boons);
+    var boons = boons_encountered(BOON_LIST, GS.data.boons);
+    display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons);
+
+}
+function boons_encountered(boons, encountered){
+    return boons.map((b) => {
+        var boon = b();
+        if(encountered.has(boon.name)){
+            return boon;
+        }
+        return symbol_not_encountered_boon();
+    });
+}
+function update_journal_cards(){
+    display.remove_children(UIIDS.journal_cards);
+    display_basic_cards();
+    display_common_cards();
+    display_achievement_cards();
+    display_boon_cards();
+    display_confusion_cards();
+    display_boss_cards();
+}
+
+function display_basic_cards(){
+    var cards = cards_encountered(BASIC_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards);
+}
+function display_common_cards(){
+    var cards = cards_encountered(COMMON_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards);
+}
+function display_achievement_cards(){
+    var cards = cards_locked(get_all_achievement_cards(), get_locked_achievement_cards());
+    var cards = cards_encountered(cards, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards);
+}
+function display_boon_cards(){
+    var cards = cards_encountered(BOON_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards);
+}
+function display_confusion_cards(){
+    var cards = cards_encountered(CONFUSION_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards);
+}
+function display_boss_cards(){
+    var cards = cards_encountered(get_boss_cards(), GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards);
+}
+
+function cards_encountered(cards, encountered){
+    return cards.map((c) => {
+        var card = c();
+        if(card.name === card_names.symbol_locked){
+            return card;
+        }
+        if(encountered.has(card.name)){
+            return card;
+        }
+        return symbol_not_encountered_card();
+    });
+}
+function cards_locked(cards, locked){
+    return cards.map((c) => {
+        var card = c();
+        if(locked.find((l) => {
+            return l().name === card.name;
+        })){
+            return symbol_locked_card;
+        }
+        return c;
+    });
+}
+function update_journal(){
+    update_journal_cards();
+    update_journal_boons();
+}
 /** @returns {MoveDeck} Returns a normal starting deck.*/
 function make_starting_deck(){
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
@@ -2334,6 +2349,12 @@ const action_types = {
 }
 Object.freeze(action_types);
 const card_names = {
+    symbol_add_card: `Add`,
+    symbol_deck_at_minimum: `Minimum`,
+    symbol_locked: `Locked`,
+    symbol_not_encountered_card: `Not Encountered`,
+    symbol_remove_card: `Remove`,
+
     advance: `Advance`,
     basic_diagonal: `Basic Diagonal`,
     basic_orthogonal: `Basic Orthogonal`,
@@ -2462,10 +2483,6 @@ const card_names = {
     stunning_tread_orthogonal: `Stunning Tread Orthogonal`,
     superweapon_1: `Superweapon 1`,
     superweapon_2: `Superweapon 2`,
-    symbol_add_card: `Add`,
-    symbol_deck_at_minimum: `Minimum`,
-    symbol_not_encountered_card: `Not Encountered`,
-    symbol_remove_card: `Remove`,
     t_strike_horizontal: `T Strike Horizontal`,
     t_strike_vertical: `T Strike Vertical`,
     teleport: `Teleport`,
@@ -10041,7 +10058,7 @@ class AchievementList{
     }
     all(){
         // Returns all achievements.
-        return this.#list;
+        return [...this.#list];
     }
     has(name){
         // Checks if they have the achievement with the chosen name.
@@ -14227,6 +14244,16 @@ function get_achievement_cards(){
     });
     return list;
 }
+function get_locked_achievement_cards(){
+    var list = [];
+    GS.data.achievements.all().map((a) => {
+        if(a.cards !== undefined && !a.has){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
+
 function get_all_achievement_cards(){
     var list = [];
     get_achievements().map((a) => {
@@ -15645,6 +15672,14 @@ function symbol_deck_at_minimum(){
     return{
         name: card_names.symbol_deck_at_minimum,
         pic: `${IMG_FOLDER.other}x.png`,
+        options: new ButtonGrid()
+    }
+}
+/** @type {CardGenerator} Shown in the journal for cards you have not yet unlocked.*/
+function symbol_locked_card(){
+    return{
+        name: card_names.symbol_locked,
+        pic: `${IMG_FOLDER.other}locked.png`,
         options: new ButtonGrid()
     }
 }

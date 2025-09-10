@@ -29,7 +29,7 @@ class AchievementList{
     }
     all(){
         // Returns all achievements.
-        return this.#list;
+        return [...this.#list];
     }
     has(name){
         // Checks if they have the achievement with the chosen name.

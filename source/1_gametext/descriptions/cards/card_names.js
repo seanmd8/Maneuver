@@ -1,4 +1,10 @@
 const card_names = {
+    symbol_add_card: `Add`,
+    symbol_deck_at_minimum: `Minimum`,
+    symbol_locked: `Locked`,
+    symbol_not_encountered_card: `Not Encountered`,
+    symbol_remove_card: `Remove`,
+
     advance: `Advance`,
     basic_diagonal: `Basic Diagonal`,
     basic_orthogonal: `Basic Orthogonal`,
@@ -127,10 +133,6 @@ const card_names = {
     stunning_tread_orthogonal: `Stunning Tread Orthogonal`,
     superweapon_1: `Superweapon 1`,
     superweapon_2: `Superweapon 2`,
-    symbol_add_card: `Add`,
-    symbol_deck_at_minimum: `Minimum`,
-    symbol_not_encountered_card: `Not Encountered`,
-    symbol_remove_card: `Remove`,
     t_strike_horizontal: `T Strike Horizontal`,
     t_strike_vertical: `T Strike Vertical`,
     teleport: `Teleport`,

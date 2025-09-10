@@ -54,6 +54,16 @@ function get_achievement_cards(){
     });
     return list;
 }
+function get_locked_achievement_cards(){
+    var list = [];
+    GS.data.achievements.all().map((a) => {
+        if(a.cards !== undefined && !a.has){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
+
 function get_all_achievement_cards(){
     var list = [];
     get_achievements().map((a) => {
