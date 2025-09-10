@@ -123,6 +123,7 @@ const HTML_UIIDS = {
     achievements: `achievements`,
         achievement_list: `achievement-list`,
     journal: `journal`,
+        journal_navbar: `journalNavbar`,
         journal_cards: `journalCards`,
         journal_boons: `journalBoons`,
     controls: `controls`,

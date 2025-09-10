@@ -2025,6 +2025,26 @@ function update_journal(){
     update_journal_cards();
     update_journal_boons();
 }
+
+function setup_journal_navbar(){
+    var id = UIIDS.journal_navbar;
+
+    var section_id_list = [
+        UIIDS.journal_cards,
+        UIIDS.journal_boons,
+    ];
+
+    var swap_visibility = function(id_list, id){
+        return function(){
+            display.swap_screen(id_list, id);
+        }
+    }
+
+    display.create_visibility_toggle(id, journal_navbar_labels.cards, swap_visibility(section_id_list, UIIDS.journal_cards));
+    display.create_visibility_toggle(id, journal_navbar_labels.boons, swap_visibility(section_id_list, UIIDS.journal_boons));
+
+    display.swap_screen(section_id_list, UIIDS.journal_cards);
+}
 /** @returns {MoveDeck} Returns a normal starting deck.*/
 function make_starting_deck(){
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
@@ -2093,6 +2113,7 @@ function initiate_game(){
     GS = new GameState();
     GS.setup();
     display_guide();
+    setup_journal_navbar();
     setup_controls_page();
 }
 
@@ -3569,6 +3590,11 @@ const journal_card_headers = {
     boss: `Boss Cards`,
 }
 Object.freeze(journal_card_headers);
+const journal_navbar_labels = {
+    cards: `Cards`,
+    boons: `Boons`,
+}
+Object.freeze(journal_navbar_labels);
 const screen_names = {
     gameplay: `Gameplay`,
     guide: `Guidebook`,
@@ -3702,6 +3728,7 @@ const HTML_UIIDS = {
     achievements: `achievements`,
         achievement_list: `achievement-list`,
     journal: `journal`,
+        journal_navbar: `journalNavbar`,
         journal_cards: `journalCards`,
         journal_boons: `journalBoons`,
     controls: `controls`,
