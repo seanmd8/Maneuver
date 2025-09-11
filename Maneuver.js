@@ -886,6 +886,8 @@ const card_names = {
     symbol_remove_card: `Remove`,
 
     advance: `Advance`,
+    back_stab_1: `Back Stab 1`,
+    back_stab_2: `Back Stab 2`,
     basic_diagonal: `Basic Diagonal`,
     basic_orthogonal: `Basic Orthogonal`,
     basic_slice: `Basic Slice`,
@@ -896,6 +898,8 @@ const card_names = {
     beam_se: `Beam SE`,
     beam_sw: `Beam SW`,
     bite: `Bite`,
+    blink_1: `Blink 1`,
+    blink_2: `Blink 2`,
     bounding_retreat: `Bounding Retreat`,
     branch_strike: `Branch Strike`,
     breakthrough_horizontal: `Breakthrough Horizontal`,
@@ -13686,18 +13690,6 @@ function execution_3(){
     }
 }
 /** @type {CardGenerator}*/
-function lost_technique(){
-    var options = new ButtonGrid();
-    options.add_button(C, [], 5);
-    return{
-        name: card_names.lost_technique,
-        pic: `${IMG_FOLDER.cards}lost_technique.png`,
-        options,
-        evolutions: [split_second_1, execution_1, superweapon_1]
-    }
-}
-
-/** @type {CardGenerator}*/
 function lost_maneuver(){
     var options = new ButtonGrid();
     options.add_button(C, [], 5);
@@ -13705,69 +13697,7 @@ function lost_maneuver(){
         name: card_names.lost_maneuver,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         options,
-        evolutions: [maneuver_1]
-    }
-}
-/** @type {CardGenerator}*/
-function maneuver_1(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pmove(2, -2)]);
-    options.add_button(SE, [pmove(2, 2)]);
-    options.add_button(SW, [pmove(-2, 2)]);
-    options.add_button(NW, [pmove(-2, -2)]);
-    return{
-        name: card_names.maneuver_1,
-        pic: `${IMG_FOLDER.cards}maneuver_1.png`,
-        options,
-        evolutions: [maneuver_2]
-    }
-}
-
-/** @type {CardGenerator}*/
-function maneuver_2(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pmove(2, -2)]);
-    options.add_button(SE, [pmove(2, 2)]);
-    options.add_button(SW, [pmove(-2, 2)]);
-    options.add_button(NW, [pmove(-2, -2)]);
-    options.add_button(N, [pmove(0, -2)]);
-    options.add_button(E, [pmove(2, 0)]);
-    options.add_button(S, [pmove(0, 2)]);
-    options.add_button(W, [pmove(-2, 0)]);
-    return{
-        name: card_names.maneuver_2,
-        pic: `${IMG_FOLDER.cards}maneuver_2.png`,
-        options,
-        evolutions: [maneuver_3]
-    }
-}
-
-/** @type {CardGenerator}*/
-function maneuver_3(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pmove(2, -2)]);
-    options.add_button(SE, [pmove(2, 2)]);
-    options.add_button(SW, [pmove(-2, 2)]);
-    options.add_button(NW, [pmove(-2, -2)]);
-    options.add_button(N, [pmove(0, -2)]);
-    options.add_button(E, [pmove(2, 0)]);
-    options.add_button(S, [pmove(0, 2)]);
-    options.add_button(W, [pmove(-2, 0)]);
-    var spin = [
-        pstun(1, 1),
-        pstun(1, 0),
-        pstun(1, -1),
-        pstun(0, 1),
-        pstun(0, -1),
-        pstun(-1, 1),
-        pstun(-1, 0),
-        pstun(-1, -1)
-    ];
-    options.add_button(SPIN, spin);
-    return{
-        name: card_names.maneuver_3,
-        pic: `${IMG_FOLDER.cards}maneuver_3.png`,
-        options
+        evolutions: [maneuver_1, blink_1, back_stab_1]
     }
 }
 /** @type {CardGenerator}*/
@@ -13851,6 +13781,137 @@ function superweapon_2(){
     return{
         name: card_names.superweapon_2,
         pic: `${IMG_FOLDER.cards}superweapon_2.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function back_stab_1(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    return{
+        name: card_names.back_stab_1,
+        pic: `${IMG_FOLDER.cards}back_stab_1.png`,
+        options,
+        evolutions: [back_stab_2]
+    }
+}
+
+/** @type {CardGenerator}*/
+function back_stab_2(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2), pattack(-1, 1), pattack(-1, 0), pattack(0, 1)]);
+    options.add_button(SE, [pmove(2, 2), pattack(-1, -1), pattack(-1, 0), pattack(0, -1)]);
+    options.add_button(SW, [pmove(-2, 2), pattack(1, -1), pattack(1, 0), pattack(0, -1)]);
+    options.add_button(NW, [pmove(-2, -2), pattack(1, 1), pattack(1, 0), pattack(0, 1)]);
+    return{
+        name: card_names.back_stab_2,
+        pic: `${IMG_FOLDER.cards}back_stab_2.png`,
+        options,
+    }
+}
+/** @type {CardGenerator}*/
+function blink_1(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    return{
+        name: card_names.blink_1,
+        pic: `${IMG_FOLDER.cards}blink_1.png`,
+        options,
+        evolutions: [blink_2]
+    }
+}
+
+/** @type {CardGenerator}*/
+function blink_2(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    options.make_instant();
+    return{
+        name: card_names.blink_2,
+        pic: `${IMG_FOLDER.cards}blink_2.png`,
+        options,
+    }
+}
+/** @type {CardGenerator}*/
+function lost_technique(){
+    var options = new ButtonGrid();
+    options.add_button(C, [], 5);
+    return{
+        name: card_names.lost_technique,
+        pic: `${IMG_FOLDER.cards}lost_technique.png`,
+        options,
+        evolutions: [split_second_1, execution_1, superweapon_1]
+    }
+}
+
+/** @type {CardGenerator}*/
+function maneuver_1(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    return{
+        name: card_names.maneuver_1,
+        pic: `${IMG_FOLDER.cards}maneuver_1.png`,
+        options,
+        evolutions: [maneuver_2]
+    }
+}
+
+/** @type {CardGenerator}*/
+function maneuver_2(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    options.add_button(N, [pmove(0, -2)]);
+    options.add_button(E, [pmove(2, 0)]);
+    options.add_button(S, [pmove(0, 2)]);
+    options.add_button(W, [pmove(-2, 0)]);
+    return{
+        name: card_names.maneuver_2,
+        pic: `${IMG_FOLDER.cards}maneuver_2.png`,
+        options,
+        evolutions: [maneuver_3]
+    }
+}
+
+/** @type {CardGenerator}*/
+function maneuver_3(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    options.add_button(N, [pmove(0, -2)]);
+    options.add_button(E, [pmove(2, 0)]);
+    options.add_button(S, [pmove(0, 2)]);
+    options.add_button(W, [pmove(-2, 0)]);
+    var spin = [
+        pstun(1, 1),
+        pstun(1, 0),
+        pstun(1, -1),
+        pstun(0, 1),
+        pstun(0, -1),
+        pstun(-1, 1),
+        pstun(-1, 0),
+        pstun(-1, -1)
+    ];
+    options.add_button(SPIN, spin);
+    return{
+        name: card_names.maneuver_3,
+        pic: `${IMG_FOLDER.cards}maneuver_3.png`,
         options
     }
 }
@@ -14231,11 +14292,14 @@ const BASIC_CARDS = [
 ];
 
 const BOON_CARDS = [
-    lost_technique, lost_maneuver,
+    lost_technique,
     execution_1, execution_2, execution_3,
-    maneuver_1, maneuver_2, maneuver_3,
     split_second_1, split_second_2,
-    superweapon_1, superweapon_2
+    superweapon_1, superweapon_2,
+    lost_maneuver,
+    maneuver_1, maneuver_2, maneuver_3,
+    back_stab_1, back_stab_2,
+    blink_1, blink_2,
 ];
 
 const BOSS_CARDS = {

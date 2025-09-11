@@ -9,15 +9,3 @@ function lost_technique(){
         evolutions: [split_second_1, execution_1, superweapon_1]
     }
 }
-
-/** @type {CardGenerator}*/
-function lost_maneuver(){
-    var options = new ButtonGrid();
-    options.add_button(C, [], 5);
-    return{
-        name: card_names.lost_maneuver,
-        pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
-        options,
-        evolutions: [maneuver_1]
-    }
-}

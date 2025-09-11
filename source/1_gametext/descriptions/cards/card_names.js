@@ -6,6 +6,8 @@ const card_names = {
     symbol_remove_card: `Remove`,
 
     advance: `Advance`,
+    back_stab_1: `Back Stab 1`,
+    back_stab_2: `Back Stab 2`,
     basic_diagonal: `Basic Diagonal`,
     basic_orthogonal: `Basic Orthogonal`,
     basic_slice: `Basic Slice`,
@@ -16,6 +18,8 @@ const card_names = {
     beam_se: `Beam SE`,
     beam_sw: `Beam SW`,
     bite: `Bite`,
+    blink_1: `Blink 1`,
+    blink_2: `Blink 2`,
     bounding_retreat: `Bounding Retreat`,
     branch_strike: `Branch Strike`,
     breakthrough_horizontal: `Breakthrough Horizontal`,
