@@ -546,1505 +546,6 @@ const TAGS = {
     fireball: `Fireball`
 }
 Object.freeze(TAGS);
-function explain_card(card){
-    var text = ``;
-    text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
-    text += `${card.options.explain_buttons()}`;
-    text += `\n`;
-    if(card.per_floor !== undefined){
-        text += `${move_types.per_floor}\n`;
-    }
-    else if(card.temp){
-        text += `${move_types.temp}\n`;
-    }
-    if(card.options.is_instant()){
-        text += `${move_types.instant}\n`;
-    }
-    return text.trimEnd();
-}
-/**
- * Function to create the combined description of everything happening on a space of the game map.
- * @param {GridSpace} space The space to get a description of.
- * @returns {string} The properly formatted description.
- */
-function grid_space_description(space){
-    var tile = space.tile.look === undefined ? space.tile : space.tile.look;
-    tile = tile_description(tile);
-    var foreground = space.foreground.filter((fg) => fg.description !== undefined);
-    foreground = foreground.map((fg) => `${gameplay_text.divider}${fg.description}`);
-    var background = space.background.filter((bg) => bg.description !== undefined);
-    background = background.map((bg) => `${gameplay_text.divider}${bg.description}`);
-    var descriptions = [tile, ...foreground, ...background];
-    return descriptions.reduce((res, str) => `${res}${str}`);
-}
-function hp_description(tile){
-    var hp = ``
-    var stunned = ``;
-    if(tile.max_health !== undefined && tile.health !== undefined){
-        hp = `(${tile.health}/${tile.max_health} hp) `;
-    }
-    else if(tile.health !== undefined){
-        hp = `(${tile.health} hp) `;
-    }
-    if(tile.stun !== undefined && tile.stun > 0){
-        stunned = `*${gameplay_text.stunned}${tile.stun}* `;
-    }
-    return `${hp}${stunned}`;
-}
-/**
- * Function to create the full description including
- *      -stun amount
- *      -health
- *      -max health
- * when appropriate.
- * @param {Tile} tile Tile to make the description for.
- * @returns {string} The formatted description.
- */
-function tile_description(tile){
-    if(tile.description === undefined){
-        throw new Error(ERRORS.missing_property);
-    }
-    return `${hp_description(tile)}${tile.description}`;
-}
-// ----------------Display.js----------------
-// File containing the display class which interacts with wherever the game is being displayed. 
-// Currently the only way to display is via HTML, but if I wanted to port the game, this should
-// make it easier to do without too much editing outside of this file and the uiid file. This also
-// standardizes how information is displayed making it easier to create new display elements.
-
-/**
- * @typedef {Object} CellInfo The info required to create a table cell with an image.
- * @property {string} pic The image to be displayed in the cell.
- * @property {string=} name If name is provided, it will be used as mouseover text.
- * @property {number=} rotate If rotate is provided (in 90 degree increments) the image will be rotated by that amount.
- * @property {boolean=} flip If flip is provided, the image will be flipped horizontally.
- */
-
-/**
- * @typedef {Object} ButtonInfo The info required to create a button table cell.
- * @property {string} description The text to be displayed in the button.
- * @property {OnClickFunction=} on_click The function to be called when the button is clicked.
- */
-
-/**
- * @callback OnClickFunction A function to be called when an element is clicked.
- * @param {CellInfo} tile The object used to create this element.
- * @param {Point} position The row and column of the element.
- */
-
-
-/**
- * @callback NormalCallback A function with no args or returns.
- * @returns {void}
- */
-
-/**
- * @typedef {Object} DropdownOption
- * @property {string} label The label that should be displayed in the dropdown menu.
- * @property {NormalCallback} on_change The function executed when this option is chosen.
- */
-
-/**
- * @callback add_tb_row A function to add a row of images to a table.
- * @param {string} location The ID of the table to be added to.
- * @param {CellInfo[]} row_contents The objects used to construct the row's contents.
- * @param {number} scale The size of the images.
- */
-
-/**
- * @callback add_button_row A function to add a row of buttons to a table.
- * @param {string} location The ID of the table to be added to.
- * @param {ButtonInfo[]} row_contents The objects used to construct the row's contents.
- */
-
-/**
- * @callback display_message A function to display a message to an element.
- * @param {string} location The ID of the element to display the message to.
- * @param {string} message The message to be displayed.
- */
-
-/**
- * @callback remove_children A function to remove all rows from a table.
- * @param {string} location The ID of the table to remove rows from.
- */
-
-/**
- * @callback swap_screen A function to swap which div from a group is visible
- * @param {string[]} divisions An array of div names to set to invisible.
- * @param {string} [screen = undefined] Optional parameter for the ID of a div to set to visible.
- */
-
-/**
- * @callback select A function to outline one image from a row of images in a table.
- * @param {string} location The ID of the table.
- * @param {number} row_num The row number of the image.
- * @param {number} column_num The column number of the image.
- */
-
-/**
- * @callback press A function to handle keyboard controls.
- * @param {KeyboardEvent} key_press The keystroke to handle.
- */
-
-/**
- * @callback create_visibility_toggle A function to create a section of text that can be minimized with the press of a button.location, header, body
- * @param {string} location Where to create the section.
- * @param {string} header What the section is called.
- * @param {HTMLElement} body_elemnt The text to display in the section.
- */
-
-/**
- * @callback create_dropdown A function to create a dropdown menu where the user can select an option.
- * @param {string} location Where the dropdown menu should be added to.
- * @param {DropdownOption[]} options_arr An array of each label and associated function that make up the dropdown menu.
- */
-
-/**
- * @callback create_alternating_text_section A function to create a section of interspersed text with images and other elements.
- * @param {string} location The id of the div element to put the section in.
- * @param {string} header The header to give the section. The div id will be of the form `${header} section`.
- * @param {string[]} par_arr An array of the strings which other elements should be placed between.
- * @param {HTMLElement[]} inline_arr An array of other elements to be added inline inbetween the strings. 
- *                                  It's length should be 1 or 0 less than par_arr's.
- * @returns {string} The div id.
- */
-
-/**
- * @callback create_button Creates and returns a button element.
- * @param {string} label The button text.
- * @param {string} id The element id.
- * @param {NormalCallback=} on_click If provided, called when it is clicked.
- * @returns {HTMLInputElement} The created button.
- */
-
-/**
- * @callback create_image Creates and returns an image eleemnt.
- * @param {string} src The pic to display.
- * @param {string} id The element id
- * @param {number | Point} size How largethe pic should be.
- * @returns {HTMLImageElement} The created image.
- */
-
-/**
- * @callback add_on_click Adds an on_click function to an element.
- * @param {string} location The id of the element to add an on_click to.
- * @param {function} on_click The function to call when the element is clicked on.
- */
-
-/**
- * @typedef {Object} DisplayLibrary The library of functions used to handle displaying things in a specific language.
- * @property {add_tb_row} add_tb_row
- * @property {add_button_row} add_button_row
- * @property {display_message} display_message
- * @property {remove_children} remove_children
- * @property {swap_screen} swap_screen
- * @property {select} select
- * @property {press} press
- * @property {create_visibility_toggle} create_visibility_toggle
- * @property {create_dropdown} create_dropdown
- * @property {create_alternating_text_section} create_alternating_text_section
- * @property {create_button} create_button
- * @property {create_image} create_image
- * @property {add_on_click} add_on_click
- */
-
-
-/**
- * A function to get the display library for a given language.
- * @param {string} language The language to get the library for.
- * @returns {DisplayLibrary}
- */
-function get_display(language){
-    // Factory function for the display classes (currently only html)
-    switch(language){
-        case `html`:
-            return DisplayHTML;
-        default:
-            throw new Error(ERRORS.invalid_value);
-    }
-}
-
-/**
- * @callback get_transformation A helper function to format all css transformation properties detailed by an object into a single string.
- * @param {CellInfo} to_display The object that contains which transformations to perform.
- * @returns {string} String that can be used to apply the appropriate transformations.
- */
-
-/**
- * @callback html_constructor Typedef for a HTMLElement constructor
- * @returns {*}
- * 
- * @overload 
- * @param {string} location
- * @returns {HTMLElement}
- * 
- * @overload
- * @param {string} location
- * @param {html_constructor} type
- * @returns {HTMLElement}
- * 
- * @callback get_element Function to get a html element, make sure it's not void, and optionally make sure it is the correct type.
- * @param {string} location The ID of the element to get.
- * @param {function} [type = undefined] Optional constructor of the type of element it should be.
- * @returns {*} Returns the element which is optionally guarenteed to be the right type.
- */
-
-/**
- * @typedef {Object} HTML_Helpers A collection of the helper functions used by the DisplayHTML library.
- * @property {get_transformation} get_transformation
- * @property {get_element} get_element
- */
-
-
-/**
- * Library containing functions used to diplay things in HTML.
- * Implements DisplayLibrary.
- * @type {DisplayLibrary & HTML_Helpers}
- */
-const DisplayHTML = {
-    // Required functions.
-    add_tb_row: function(location, row_contents, scale){
-        var table = DisplayHTML.get_element(location, HTMLTableElement);
-        var row_num = table.rows.length;
-        var row = document.createElement(`tr`);
-        row.id = `${location} row ${row_num}`;
-        row.style.height = `auto`;
-        row.style.minHeight= `${scale}px`; 
-        for(var i = 0; i < row_contents.length; ++i){
-            var to_display = row_contents[i];
-            // Make table cell
-            var cell = document.createElement(`td`);
-            cell.id = `${location} ${row_num} ${i}`;
-            cell.style.height = `${scale}px`;
-            cell.style.width = `${scale}px`;
-            cell.classList.add(`relative`);
-            if(to_display.on_click !== undefined){
-                cell.onclick = to_display.on_click;
-            }
-            if(to_display.name !== undefined){
-                cell.title = to_display.name;
-            }
-            if(to_display.selected === true){
-                cell.classList.add(`selected-element`);
-            }
-            var layers = [];
-            var image;
-            // Foreground images
-            if(to_display.foreground !== undefined){
-                for(let pic of to_display.foreground){
-                    image = document.createElement(`img`);
-                    image.src = `${IMG_FOLDER.src}${pic}`;
-                    layers.push(image);
-                }
-            }
-            // Main image
-            image = document.createElement(`img`);
-            image.src = `${IMG_FOLDER.src}${to_display.pic}`;
-            if(to_display.name !== undefined){
-                image.alt = to_display.name;
-            }
-            image.style.transform = DisplayHTML.get_transformation(to_display);
-            layers.push(image);
-            // Background images
-            if(to_display.background !== undefined){
-                for(let pic of to_display.background){
-                    image = document.createElement(`img`);
-                    image.src = `${IMG_FOLDER.src}${pic}`;
-                    layers.push(image);
-                }
-            }
-            // Style/size images
-            layers = layers.reverse();
-            for(let layer of layers){
-                layer.height = scale;
-                layer.width = scale;
-                layer.classList.add(`absolute`);
-                cell.append(layer);
-            }
-            row.append(cell);
-        }
-        table.append(row);
-    },
-    add_button_row: function(location, row_contents){
-        var table = DisplayHTML.get_element(location, HTMLTableElement);
-        var row_num = table.rows.length;
-        var row = document.createElement(`tr`);
-        row.id = `${location} row ${row_num}`;
-        for(var i = 0; i < row_contents.length; ++i){
-            var button = row_contents[i];
-            row.append(DisplayHTML.create_button(button.description, `${location} ${row_num} ${i}`, button.on_click));
-        }
-        table.append(row);
-    },
-    display_message: function(location, message){
-        DisplayHTML.get_element(location).innerText = message;
-    },
-    remove_children: function(location){
-        var element = DisplayHTML.get_element(location);
-        while(element.firstChild){
-            element.removeChild(element.lastChild);
-        }
-    },
-    swap_screen: function(divisions, screen = undefined){
-        for(var i = 0; i < divisions.length; ++i){
-            DisplayHTML.get_element(divisions[i], HTMLDivElement);
-            display.remove_class(divisions[i], `visible-section`);
-            display.add_class(divisions[i], `hidden-section`);
-        }
-        if(screen !== undefined){
-            DisplayHTML.get_element(screen, HTMLDivElement);
-            display.remove_class(screen, `hidden-section`);
-            display.add_class(screen, `visible-section`);
-        }
-    },
-    select: function(location, row_num, column_num){
-        var row = DisplayHTML.get_element(`${location} row ${row_num}`, HTMLTableRowElement);
-        var column_count = row.cells.length;
-        for(var i = 0; i < column_count; ++i){
-            DisplayHTML.get_element(`${location} ${row_num} ${i}`, HTMLTableCellElement).classList.remove("selected-element");
-        }
-        DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add("selected-element");
-    },
-    press: function(key_press){
-        var key = key_press.key.toLowerCase();
-        GS.data.controls.toggle_press(key);
-        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
-            if(GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
-                GS.data.controls.stage(key);
-            }
-            else if(GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
-                GS.data.controls.shop(key);
-            }
-            else if(GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
-                GS.data.controls.chest(key);
-            }
-        }
-        else if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
-            display.set_control(key);
-        }
-    },
-    unpress: function(key_press){
-        var key = key_press.key.toLowerCase();
-        GS.data.controls.toggle_unpress(key);
-    },
-    click: function(location){
-        try{
-            var element = DisplayHTML.get_element(location);
-            if(element !== undefined && element.onclick !== undefined){
-                element.click();
-            }
-        }
-        catch(error){
-            if(error.message !== ERRORS.value_not_found){
-                throw error;
-            }
-        }
-    },
-    create_visibility_toggle: function(location, header, on_click){
-        var section = DisplayHTML.get_element(location);
-        var element = document.createElement(`input`);
-        element.type = `button`;
-
-        element.value = header;
-        element.onclick = on_click;
-        section.append(element);
-    },
-    create_dropdown: function(location, options_arr){
-        var doc_location = this.get_element(location);
-        var select_button = document.createElement(`select`);
-        var select_id = `${location} select`
-        select_button.id = select_id;
-        var select_func = function(options, select_id){
-            var option_func_map = new Map()
-            for(var option of options){
-                option_func_map.set(option.label, option.on_change);
-            }
-            return function(){
-                var select_element = DisplayHTML.get_element(select_id, HTMLSelectElement);
-                var label = select_element.value;
-                var chosen_option = option_func_map.get(label);
-                if(chosen_option === undefined){
-                    throw new Error("unrecognized value in select element");
-                }
-                chosen_option();
-            }
-        }
-        select_button.onchange = select_func(options_arr, select_id);
-        for(var option_data of options_arr){
-            var option = document.createElement(`option`);
-            option.value = option_data.label;
-            option.innerText = option_data.label;
-            select_button.append(option);
-        }
-        doc_location.append(select_button);
-    },
-    create_alternating_text_section: function(location, header, par_arr, inline_arr){
-        if(par_arr.length !== inline_arr.length && par_arr.length !== inline_arr.length + 1){
-            throw new Error(ERRORS.array_size);
-        }
-        var body_div = document.createElement(`div`);
-        var body_div_id = `${header} section`;
-        body_div.id = body_div_id;
-        body_div.classList.add(`guidebook-section`)
-
-
-        var body_header = document.createElement(`h2`);
-        body_header.id = `${body_div_id} header`;
-        body_header.innerText = `${header}:`;
-        body_div.append(body_header);
-
-        for(var i = 0; i < par_arr.length; ++i){
-            var body_text = document.createElement(`p`);
-            body_text.id = `${body_div_id} text ${i}`;
-            body_text.innerText = par_arr[i];
-            body_text.style.display = `inline`;
-            body_div.append(body_text);
-            if(i < inline_arr.length){
-                inline_arr[i].id = `${body_div_id} non-text ${i}`
-                inline_arr[i].style.display = `inline`;
-                body_div.append(inline_arr[i]);
-            }
-        }
-        var destination = DisplayHTML.get_element(location, HTMLDivElement);
-        destination.append(body_div);
-        return body_div_id;
-    },
-    create_button: function(label, id = undefined, on_click = undefined){
-        var button = document.createElement(`input`);
-        button.type = `button`;
-        button.id = id;
-        if(on_click !== undefined){
-            button.onclick = on_click;
-        }
-        button.value = label;
-        return button;
-    },
-    set_button: function(location, text, on_click, clickable){
-        var button = DisplayHTML.get_element(location, HTMLInputElement);
-        button.onclick = on_click;
-        button.value = text;
-        if(clickable){
-            button.classList.remove(`greyed-out`);
-        }
-        else{
-            button.classList.add(`greyed-out`);
-        }
-    },
-    create_image: function(src, id, size){
-        var image = document.createElement(`img`);
-        image.src = `${IMG_FOLDER.src}${src}`;
-        image.id = id;
-        if(typeof size === `number`){
-            image.width = size;
-            image.height = size;
-        }
-        else{
-            image.width = size.x;
-            image.height = size.y;
-        }
-        return image;
-    },
-    add_on_click: function(location, on_click){
-        var element = DisplayHTML.get_element(location);
-        element.onclick = on_click;
-    },
-    add_class: function(location, css_class){
-        var element = DisplayHTML.get_element(location);
-        element.classList.add(css_class);
-    },
-    remove_class: function(location, css_class){
-        var element = DisplayHTML.get_element(location);
-        element.classList.remove(css_class);
-    },
-    create_stacked_p: function(location, content){
-        var element = DisplayHTML.get_element(location);
-        for(var message of content){
-            var p = document.createElement(`p`);
-            p.innerText = message.str;
-            p.classList.add(`log-text`);
-            switch(message.type){
-                case record_types.achievement:
-                    p.classList.add(`achievement-log-text`);
-                    break;
-                case record_types.repeated_achievement:
-                    p.classList.add(`repeated-achievement-log-text`);
-                    break;
-                default:
-                    p.classList.add(`normal-log-text`);
-                    break;
-            }
-            element.append(p);
-            var hr = document.createElement(`hr`);
-            element.append(hr);
-        }
-    },
-    detect_keys: function(){
-        document.onkeydown = display.press;
-        document.onkeyup = display.unpress;
-    },
-    create_initiative: function(location, contents, size){
-        location = DisplayHTML.get_element(location);
-        for(let element of contents){
-            let container = document.createElement(`div`);
-            let picbox = document.createElement(`div`);
-            let pic = document.createElement(`img`);
-            let parbox = document.createElement(`div`);
-            let par = document.createElement(`p`);
-
-            container.classList.add(`initiative-element`);
-            if(element.on_click !== undefined){
-                container.onclick = element.on_click;
-            }
-            pic.src = `${IMG_FOLDER.src}${element.pic}`;
-            pic.alt = element.name;
-            pic.title = element.name;
-            pic.style.height = `${size}px`;
-            pic.style.width = `${size}px`;
-            pic.style.transform = DisplayHTML.get_transformation(element);
-            if(element.stun){
-                pic.classList.add(`stun-background`);
-            }
-            par.innerText = element.str;
-
-            picbox.append(pic);
-            parbox.append(par);
-            container.append(picbox);
-            container.append(parbox);
-            location.append(container);
-        }
-    },
-    add_controls_header: function(location, description, edit_function){
-        var div = document.createElement(`div`);
-        div.classList.add(`control-header`);
-        var header = document.createElement(`h2`);
-        header.innerText = description;
-        var edit_mode = function(controls){
-            return () => {
-                setup_controls_page();
-                DisplayHTML.remove_children(location);
-                edit_function(controls);
-            }
-        }
-        var edit_button = DisplayHTML.create_button(control_screen_text.edit, undefined, edit_mode(GS.data.controls.get()));
-        var default_button = DisplayHTML.create_button(control_screen_text.default, undefined, edit_mode(new KeyBind().get()));
-        div.append(header);
-        div.append(edit_button);
-        div.append(default_button);
-        var place = DisplayHTML.get_element(location);
-        place.append(div);
-    },
-    add_edit_controls_header: function(location, description, view_function, controls){
-        var div = document.createElement(`div`);
-        div.classList.add(`control-header`);
-        var header = document.createElement(`h2`);
-        header.innerText = description;
-        var save_button = DisplayHTML.create_button(control_screen_text.save, undefined, () => {
-            if(KeyBind.is_valid(controls)){
-                GS.data.set_controls(controls);
-                DisplayHTML.remove_children(location);
-                view_function();
-            }
-        });
-        var undo_edit_button = DisplayHTML.create_button(control_screen_text.undo, undefined, () => {
-            DisplayHTML.remove_children(location);
-            view_function();
-        });
-        div.append(header);
-        div.append(save_button);
-        div.append(undo_edit_button);
-        var place = DisplayHTML.get_element(location);
-        place.append(div);
-    },
-
-    control_box: function(location, controls, description){
-        var div = document.createElement(`div`);
-        div.classList.add(`control-box`);
-        var tb = document.createElement(`table`);
-        for(var r = 0; r < Math.ceil(controls.length / 3); ++r){
-            var start = r * 3;
-            var row = document.createElement(`tr`);
-            for(var c = 0; c < 3 && c + start < controls.length; ++c){
-                var button_text = controls[start + c];
-                if(KEYBOARD_SYMBOL_MAP.has(button_text)){
-                    button_text = KEYBOARD_SYMBOL_MAP.get(button_text);
-                }
-                row.append(DisplayHTML.create_button(button_text));
-            }
-            tb.append(row);
-        }
-        var table_div = document.createElement(`div`);
-        table_div.append(tb);
-        div.append(table_div);
-        var p = document.createElement(`p`);
-        p.innerText = description;
-        div.append(p);
-        var place = DisplayHTML.get_element(location);
-        place.append(div);
-    },
-    control_edit_box: function(location, controls, description){
-        var edit = (display, button, controls, i) => {
-            return () => {
-                var unclicked = button.classList.contains(`edit-control`);
-                var boxes = document.querySelectorAll(`#${location} .control-edit-box div input`);
-                for(var box of boxes){
-                    box.classList.remove(`edit-control`);
-                }
-                display.set_control = undefined;
-                if(!unclicked){
-                    button.classList.add(`edit-control`);
-                    display.set_control = (key) => {
-                        controls[i] = key;
-                        button.value = KEYBOARD_SYMBOL_MAP.has(key) ? KEYBOARD_SYMBOL_MAP.get(key) : key;
-                        button.classList.remove(`edit-control`);
-                        display.set_control = undefined;
-                    }
-                }
-            }
-        }
-        for(var i = 0; i < controls.length; ++i){
-            var div = document.createElement(`div`);
-            div.classList.add(`control-edit-box`);
-            var button_div = document.createElement(`div`);
-            var button_text = controls[i];
-            if(KEYBOARD_SYMBOL_MAP.has(button_text)){
-                button_text = KEYBOARD_SYMBOL_MAP.get(button_text);
-            }
-            var button = DisplayHTML.create_button(button_text);
-            button.onclick = edit(this, button, controls, i);
-            button_div.append(button);
-            div.append(button_div);
-            var p = document.createElement(`p`);
-            p.innerText = (controls.length === 1 ? description : `${description} ${i + 1}`);
-            div.append(p);
-            var place = DisplayHTML.get_element(location);
-            place.append(div);
-        }
-    },
-    show_achievements: function(location, achievements){
-        var place = DisplayHTML.get_element(location);
-
-        var toprow = document.createElement(`div`);
-        toprow.classList.add(`opposite-sides`);
-        // Header
-        var header = document.createElement(`div`);
-        header.classList.add(`achievement-header`);
-        var title = document.createElement(`h2`);
-        var complete = achievements.filter((a) => {return a.has}).length;
-        title.innerText = `${achievement_text.title}  (${complete} / ${achievements.length})`;
-        header.append(title);
-        toprow.append(header);
-        
-        var reset = document.createElement(`button`);
-        reset.classList.add(`achievement-button`);
-        var set_reset_button = () => {
-            reset.innerText = achievement_text.reset;
-            reset.classList.add(`achievement-reset`);
-            reset.classList.remove(`achievement-confirm-reset`);
-            reset.onclick = set_confirm_reset_button;
-        }
-        var set_confirm_reset_button = () => {
-            reset.innerText = achievement_text.confirm_reset;
-            reset.classList.add(`achievement-confirm-reset`);
-            reset.classList.remove(`achievement-reset`);
-            reset.onclick = reset_achievements;
-            setTimeout(() => {set_reset_button();}, 4000);
-        }
-        set_reset_button();
-        toprow.append(reset);
-        place.append(toprow);
-
-        for(var a of achievements){
-            var div = document.createElement(`div`);
-            div.classList.add(`achievement-box`);
-            if(a.has){
-                div.classList.add('achievement-box-unlocked');
-            }
-
-            // Achievement image
-            var img_box = document.createElement(`div`);
-            img_box.classList.add(`achievement-img-box`);
-            div.append(img_box);
-
-            var img_name = a.has ? a.image : `${IMG_FOLDER.other}locked.png`;
-            var img = document.createElement(`img`);
-            img.src = `${IMG_FOLDER.src}${img_name}`;
-            img.alt = a.has? `unlocked` : `locked`;
-            img.title = img.alt;
-            img_box.append(img);
-
-            // Achievement description
-            var text_box = document.createElement(`div`);
-            text_box.classList.add(`achievement-text-box`);
-            div.append(text_box);
-
-            if(a.has){
-                img_box.classList.add(`achievement-unlocked-image`);
-                text_box.classList.add(`achievement-unlocked-text`);
-            }
-            else{
-                text_box.classList.add(`achievement-locked-text`)
-            }
-
-            var h3 = document.createElement(`h3`);
-            h3.innerText = `${a.name}:`
-            text_box.append(h3);
-
-            var p = document.createElement(`p`);
-            p.innerText = a.description;
-            text_box.append(p);
-
-            // Unlocks
-            var unlocks = document.createElement(`div`);
-            unlocks.classList.add(`achievement-dropdown`);
-
-            // New Boons
-            if(a.boons!== undefined && a.boons.length > 0){
-                var unlock_boons_header = document.createElement(`h3`);
-                unlock_boons_header.innerText = `--- ${achievement_text.unlocks_boon} ---`
-                unlocks.append(unlock_boons_header);
-                
-                for(var boon of a.boons){
-                    boon = boon();
-                    img = document.createElement(`img`);
-                    img.src = `${IMG_FOLDER.src}${boon.pic}`;
-                    img.alt = boon.name;
-                    img.title = boon.name;
-                    unlocks.append(img);
-                }
-            }
-
-            // New cards
-            if(a.cards !== undefined && a.cards.length > 0){
-                var unlock_cards_header = document.createElement(`h3`);
-                unlock_cards_header.innerText = `--- ${achievement_text.unlocks_cards} ---`;
-                unlocks.append(unlock_cards_header);
-
-                for(var card of a.cards){
-                    card = card();
-                    img = document.createElement(`img`);
-                    img.src = `${IMG_FOLDER.src}${card.pic}`;
-                    img.alt = card.name;
-                    img.title = card.name;
-                    unlocks.append(img);
-                }
-            }
-
-            div.append(unlocks);
-            place.append(div);
-        }
-    },
-    stop_space_scrolling: function(){
-        window.addEventListener('keydown', (e) => {
-            if (e.key === ` ` && e.target === document.body) {
-              e.preventDefault();
-            }
-        });
-    },
-    set_local_storage(key, data){
-        window.localStorage.setItem(key, data);
-    },
-    get_local_storage(key){
-        return window.localStorage.getItem(key);
-    },
-    make_anchor(destination, text){
-        var a = document.createElement(`a`);
-        a.href = destination;
-        a.innerText = text;
-        return a;
-    },
-    toggle_visibility(destination, is_visible){
-        var element = DisplayHTML.get_element(destination);
-        if(!is_visible){
-            element.classList.add(`hidden-section`);
-        }
-        else{
-            element.classList.remove(`hidden-section`);            
-        }
-    },
-    journal_card_section(destination, header, cards){
-        var place = DisplayHTML.get_element(destination);
-
-        var box = document.createElement(`fieldset`);
-        var legend = document.createElement(`legend`);
-        var table = document.createElement(`table`);
-
-        box.classList.add(`shop-section-box`);
-        box.classList.add(`journal-card-box`);
-        legend.innerText = header;
-        var table_id = `${destination} ${header} table`;
-        table.id = table_id;
-
-        place.append(box);
-        box.append(legend);
-        box.append(table);
-        
-        for(var i = 0; i < Math.ceil(cards.length / JOURNAL_DISPLAY_WIDTH); ++i){
-            var slice_start = i * JOURNAL_DISPLAY_WIDTH;
-            var slice = cards.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
-            display.add_tb_row(table_id, slice, CARD_SCALE);
-        }
-    },
-    journal_boon_section(destination, header, boons){
-        var place = DisplayHTML.get_element(destination);
-
-        var box = document.createElement(`fieldset`);
-        var legend = document.createElement(`legend`);
-        var table = document.createElement(`table`);
-
-        box.classList.add(`shop-section-box`);
-        box.classList.add(`journal-card-box`);
-        legend.innerText = header;
-        var table_id = `${destination} ${header} table`;
-        table.id = table_id;
-
-        place.append(box);
-        box.append(legend);
-        box.append(table);
-        
-        for(var i = 0; i < Math.ceil(boons.length / JOURNAL_DISPLAY_WIDTH); ++i){
-            var slice_start = i * JOURNAL_DISPLAY_WIDTH;
-            var slice = boons.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
-            display.add_tb_row(table_id, slice, CARD_SCALE);
-        }
-    },
-
-    // Non Required helper functions.
-    get_transformation: function(to_display){
-        var transformation = ``;
-        if(to_display.rotate !== undefined){
-            transformation += `rotate(${to_display.rotate}deg) `;
-        }
-        if(to_display.flip){
-            transformation += `scaleX(-1) `;
-        }
-        return transformation;   
-    },
-    get_element: function(location, type = undefined){
-        var element = document.getElementById(location);
-        if(element === null){
-            throw new Error(ERRORS.value_not_found);
-        }
-        if(type !== undefined && !(element instanceof type)){
-            throw new Error(ERRORS.invalid_type);
-        }
-        return element
-    }
-}
-
-// Set up the display library and the onkeydown function.
-const display = get_display(MARKUP_LANGUAGE);
-
-const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.
-function update_achievements(){
-    var achievements = GS.data.achievements.all();
-    display.remove_children(UIIDS.achievement_list);
-    display.show_achievements(UIIDS.achievement_list, achievements);
-}
-
-function reset_achievements(){
-    GS.data.reset_achievements();
-    update_achievements();
-}
-function controls_chest_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
-    display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
-    display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
-    display.control_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
-}
-
-function edit_chest_controls(controls){
-    display.add_edit_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, controls_chest_section, controls);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
-}
-function setup_controls_page(){
-    display.remove_children(UIIDS.stage_controls);
-    controls_stage_section();
-    display.remove_children(UIIDS.shop_controls);
-    controls_shop_section();
-    display.remove_children(UIIDS.chest_controls);
-    controls_chest_section();
-}
-function controls_shop_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
-    display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
-    display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
-    display.control_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
-}
-
-function edit_shop_controls(controls){
-    display.add_edit_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, controls_shop_section, controls);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.add, CONTROLS_TEXT.shop.add);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
-}
-function controls_stage_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
-    display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
-    display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
-    display.control_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
-    display.control_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
-    display.control_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
-}
-
-function edit_stage_controls(controls){
-    display.add_edit_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, controls_stage_section, controls);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.card, CONTROLS_TEXT.stage.card);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
-    display.control_edit_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
-}
-function display_deck_to_duplicate(){
-    display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
-    var finish = (card, deck) => {
-        deck.add(copy_card(card));
-        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
-    }
-    var selector = new DeckSelector(GS.deck, finish);
-    refresh_deck_select_screen(selector);
-}
-function refresh_deck_select_screen(selector){
-    var cards = selector.get_display_info();
-    cards.map((card) => {
-        var prev_on_click = card.on_click;
-        card.on_click = () => {
-            prev_on_click();
-            display.display_message(UIIDS.deck_select_card_info, explain_card(card.card));
-            refresh_deck_select_screen(selector);
-        }
-        return card;
-    });
-    display.remove_children(UIIDS.deck_select_table);
-    for(var i = 0; i < Math.ceil(cards.length / DECK_DISPLAY_WIDTH); ++i){
-        var slice_start = i * DECK_DISPLAY_WIDTH;
-        var slice = cards.slice(slice_start, slice_start + DECK_DISPLAY_WIDTH);
-        display.add_tb_row(UIIDS.deck_select_table, slice, CARD_SCALE);
-    }
-    display.set_button(
-        UIIDS.deck_select_confirm, 
-        shop_text.confirm, 
-        () => {selector.confirm();}, 
-        selector.check_valid()
-    );
-}
-function display_deck_to_remove(remaining){
-    var message = `${boon_messages.clean_mind[0]}${remaining}${boon_messages.clean_mind[1]}`;
-    display.display_message(UIIDS.deck_select_message, message);
-    var finish = (card, deck) => {
-        deck.remove(card.id);
-        if(remaining > 1){
-            display_deck_to_remove(remaining - 1);
-        }
-        else{
-            GS.deck.deal();
-            GS.refresh_deck_display();
-            GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
-        }
-    }
-    var selector = new DeckSelector(GS.deck, finish);
-    refresh_deck_select_screen(selector);
-}
-function display_entire_deck(deck){
-    // Display section header.
-    var min_deck_size = deck.deck_min();
-    display.display_message(UIIDS.current_deck, `${shop_text.current}${min_deck_size}):`);
-    // Display deck with limited cards per line.
-    var decklist = deck.get_deck_info();
-    var card_explanation = (card) => {
-        return () => {
-            display.display_message(UIIDS.shop_message, explain_card(card))       
-        }
-    };
-    for(var card of decklist){
-            card.on_click = card_explanation(card);
-    }
-    for(var i = 0; i < Math.ceil(decklist.length / DECK_DISPLAY_WIDTH); ++i){
-        var row = decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
-        display.add_tb_row(UIIDS.display_deck, row, CARD_SCALE);
-    }
-
-}
-function refresh_shop_display(shop){
-    var refresh = (f, card) => {
-        return () => {
-            f();
-            display.display_message(UIIDS.shop_message, explain_card(card));
-            refresh_shop_display(shop);
-        }
-    };
-    display.remove_children(UIIDS.add_card);
-    display.remove_children(UIIDS.remove_card);
-
-    var add_row = shop.get_add_row();
-    for(var a of add_row){
-        if(a.on_click !== undefined){
-            a.on_click = refresh(a.on_click, a.card);
-        }
-        else{
-            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.add)};
-        }
-    }
-    display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
-
-    var remove_row = shop.get_remove_row();
-    for(var r of remove_row){
-        if(r.on_click !== undefined){
-            r.on_click = refresh(r.on_click, r.card);
-        }
-        else if(r.name === card_names.symbol_remove_card){
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.remove)};
-        }
-        else{
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.min)};
-        }
-    }
-    display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
-    
-    var confirm = () => {
-        if(shop.is_valid_selection()){
-            shop.confirm();
-            GS.new_floor();
-        }
-        else{
-            display.display_message(UIIDS.shop_message, shop_text.invalid);
-        }
-    }
-    display.set_button(UIIDS.shop_confirm, shop_text.confirm, confirm, shop.is_valid_selection());
-}
-function display_boons(boon_list){
-    // Updates the list of boons they have.
-    display.remove_children(UIIDS.boon_list_table);
-    var gained = boon_list.get_gained();
-    display.add_tb_row(UIIDS.boon_list_table, gained, SMALL_CARD_SCALE);
-
-    // Updates the list of used up boons.
-    display.remove_children(UIIDS.removed_boon_table);
-    var lost = boon_list.get_lost();
-    display.add_tb_row(UIIDS.removed_boon_table, lost, SMALL_CARD_SCALE);
-}
-/**
- * Displays the library to it's proper location.
- */
-function refresh_deck_order_display(deck){
-    var library = deck.get_library_info();
-    display.remove_children(UIIDS.deck_order_table);
-    display.add_tb_row(UIIDS.deck_order_table, [future_sight(), ...library], SMALL_CARD_SCALE);
-}
-/**
- * Displays the discard pile to it's proper location.
- */
-function refresh_discard_display(deck){
-    var discard = deck.get_discard_info();
-    display.remove_children(UIIDS.discard_pile_table);
-    display.add_tb_row(UIIDS.discard_pile_table, discard, SMALL_CARD_SCALE);
-}
-/**
- * Displays the full deck to it's proper location.
- */
-function refresh_full_deck_display(deck){
-    var full = deck.get_deck_info();
-    display.remove_children(UIIDS.full_deck_table);
-    display.add_tb_row(UIIDS.full_deck_table, full, SMALL_CARD_SCALE);
-}
-/**
- * Function to create and add the buttons for the sidebar.
- */
-function create_sidebar(){
-    var location = UIIDS.sidebar_header;
-    var swap_visibility = function(id_list, id){
-        return function(){
-            id_list.swap(id);
-        }
-    }
-    display.remove_children(location);
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
-    SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
-}
-function update_initiative(map){
-    var info = map.get_initiative().map(e => {
-        let str = `${e.name}\n` + hp_description(e);
-        let on_click = function(){
-            display.click(`${UIIDS.map_display} ${e.location.y} ${e.location.x}`);
-        }
-        return {
-            pic: e.pic,
-            rotate: e.rotate,
-            flip: e.flip,
-            stun: e.stun !== undefined && e.stun > 0,
-            name: e.name,
-            str,
-            on_click,
-        }
-    });
-    display.remove_children(UIIDS.initiative);
-    display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
-}
-/**
- * Function to give a message to the user.
- * @param {string} msg message text.
- */
-function say(msg){
-    display.display_message(UIIDS.display_message, msg);
-}
-
-function say_record(msg, type = record_types.normal){
-    say(msg);
-    GS.record_message(msg, type);
-}
-function display_victory(){
-    display.toggle_visibility(UIIDS.hand_box, false);
-    display.toggle_visibility(UIIDS.move_box, false);
-    display.toggle_visibility(UIIDS.retry_box, false);
-    display.remove_children(UIIDS.map_display);
-    display.add_tb_row(UIIDS.map_display, [{
-        name: achievement_names.victory,
-        //foreground: [`${image_folder.other}border.png`],
-        pic: `${IMG_FOLDER.achievements}victory.png`,
-        on_click: () => {
-            display.toggle_visibility(UIIDS.hand_box, true);
-            display.toggle_visibility(UIIDS.move_box, true);
-            display.toggle_visibility(UIIDS.retry_box, true);
-            player_hand_greyed(false);
-            GS.setup();
-        },
-    }], VICTORY_IMG_SCALE);
-}
-/**
- * Displays the hand to it's proper location.
- */
-function refresh_hand_display(deck){
-    // Updates the hand.
-    var card_row = deck.get_hand_info();
-    display.remove_children(UIIDS.hand_display);
-    display.add_tb_row(UIIDS.hand_display, card_row, CARD_SCALE);
-
-    // Shows how many cards are left in your deck.
-    var remaining = deck.get_deck_count();
-    display.display_message(UIIDS.deck_count, `${remaining}`);
-
-    // Makes sure the card info button shows that no card is selected.
-    var explain_blank_moves = function(){
-        say(gameplay_text.select_card);
-    }
-    display.add_on_click(UIIDS.move_info, explain_blank_moves);
-}
-
-function player_hand_greyed(is_greyed){
-    var toggle = is_greyed ? display.add_class : display.remove_class;
-    toggle(UIIDS.hand_display, `greyed-out`);
-}
-function display_move_buttons(card, hand_position){
-    display.select(UIIDS.hand_display, 0, hand_position);
-    display.remove_children(UIIDS.move_buttons);
-    var button_data = card.options.show_buttons(hand_position);
-    for(let row of button_data){
-        let button_row = row.map(button => {return {
-            description: button.description,
-            on_click: function(){
-                GS.data.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
-            }
-        }});
-        display.add_button_row(UIIDS.move_buttons, button_row);
-    }
-    var explanation = move_types.alt + `\n` + explain_card(card);
-    display.add_on_click(UIIDS.move_info, function(){say(explanation)});
-}
-function telegraph_repetition_boon(repeat){
-    display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
-    display.remove_class(UIIDS.move_box, `telegraph-repetition`);
-    display.remove_class(UIIDS.hand_box, `no-repetition`);
-    display.remove_class(UIIDS.move_box, `no-repetition`);
-    var class_name = repeat ? `telegraph-repetition` : `no-repetition`;
-    display.add_class(UIIDS.hand_box, class_name);
-    display.add_class(UIIDS.move_box, class_name);
-}
-/**
- * Function to display the player's current and max health.
- * @param {Tile} player The player to get health from.
- * @param {number} scale The size of the display images.
- */
-function display_health(player, scale){
-    if(player.health === undefined){
-        throw new Error(ERRORS.missing_property);
-    }
-    var health = [];
-    for(var i = 0; i < player.health; ++i){
-        health.push({
-            pic: `${IMG_FOLDER.other}heart.png`, 
-            name: `heart`
-        });
-    }
-    if(player.max_health !== undefined){
-        for(var i = 0; i < (player.max_health - player.health); ++i){
-            health.push({
-                pic: `${IMG_FOLDER.other}heart_broken.png`, 
-                name: `broken heart`
-            });
-        }
-    }
-    display.add_tb_row(UIIDS.health_display, health, scale);
-}
-function display_map(map){
-    // Updates the GameMap display.
-    display.remove_children(UIIDS.map_display);
-    var grid = map.display();
-    for(var row of grid){
-        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE);
-    }
-    map.clear_telegraphs();
-    // Updates the health bar display.
-    display.remove_children(UIIDS.health_display);
-    display_health(map.get_player(), TILE_SCALE);
-    // Updates the initiative tracker display.
-    update_initiative(map);
-}
-/**
- * Function to create a dropdown menu capable of switching between the game and guide screens.
- * @param {string} location Where to create it.
- */
-function create_main_dropdown(location){
-    var options = [
-        {
-            label: screen_names.gameplay,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
-        }, 
-        {
-            label: screen_names.guide,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
-        },
-        {
-            label: screen_names.achievements,
-            on_change: () => {
-                update_achievements();
-                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
-            }
-        },
-        {
-            label: screen_names.journal,
-            on_change: () => {
-                update_journal();
-                DISPLAY_DIVISIONS.swap(UIIDS.journal);
-            }
-        },
-        {
-            label: screen_names.controls,
-            on_change: () => {
-                setup_controls_page();
-                DISPLAY_DIVISIONS.swap(UIIDS.controls);
-            }
-        },
-
-    ];
-    display.create_dropdown(location, options);
-}
-/**
- * Function to get an array of buttons with the keys used for controls as the value to use when displaying the guide.
- * @returns {HTMLElement[]} The array of buttons.
- */
-function get_control_symbols(){
-    var current_controls = GS.data.controls.get();
-    var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
-    var buttons = [];
-    for(var symbol of button_symbols){
-        buttons.push(display.create_button(symbol, `${symbol} key`));
-    }
-    return buttons;
-}
-/**
- * Function to display the guide.
- */
-function display_guide(){
-    var section_location = UIIDS.guide_box;
-    var navbar_location = UIIDS.guide_navbar;
-
-    // Create the image arrays for the sections with images.
-    var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
-    var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
-        card = card();
-        return {
-            src: card.pic,
-            name: card.name,
-            x: 5,
-            y: 5
-        }
-    }));
-    var confusion_text = [
-        ...GUIDE_TEXT.confusion, ...CONFUSION_CARDS.map((card, i) => {
-        // Adds the space for confusion card images.
-        if(i % 4 !== 3){
-            return NBS;
-        }
-        return `\n`;
-    })];
-    
-    var about_links = [
-        display.make_anchor(about_page_text.git_link, about_page_text.git_text)
-    ];
-
-    // Create guidebook text sections.
-    var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
-    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_symbol_arr);
-    var enemies_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
-    var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
-    var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
-    var chests_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.chests, GUIDE_TEXT.chests, []);
-    var sidebar_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.sidebar, GUIDE_TEXT.sidebar, []);
-    var confusion_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.confusion, confusion_text, confusion_inline_arr);
-    var about_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.about, GUIDE_TEXT.about, about_links);
-
-    var section_id_list = [
-        basics_section, 
-        cards_section, 
-        enemies_section, 
-        shop_section, 
-        bosses_section, 
-        chests_section, 
-        sidebar_section,
-        confusion_section,
-        about_section
-    ];
-
-    var swap_visibility = function(id_list, id){
-        return function(){
-            display.swap_screen(id_list, id);
-        }
-    }
-
-    // Create guidebook navbar.
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap_visibility(section_id_list, basics_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap_visibility(section_id_list, cards_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap_visibility(section_id_list, enemies_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap_visibility(section_id_list, shop_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap_visibility(section_id_list, sidebar_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap_visibility(section_id_list, confusion_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.about, swap_visibility(section_id_list, about_section));
-
-    display.swap_screen(section_id_list, basics_section);
-}
-/**
- * Function to get an array of images for the card symbols to use when displaying the guide..
- * @returns {HTMLElement[]} The array of images.
- */
-function make_guidebook_images(arr){
-    var images = [];
-    for(var img of arr){
-        images.push(display.create_image(img.src, `${img.name} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE)));
-    }
-    return images;
-}
-function update_journal_boons(){
-    display.remove_children(UIIDS.journal_boons);
-    var boons = boons_encountered(BOON_LIST, GS.data.boons);
-    display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons);
-
-}
-function boons_encountered(boons, encountered){
-    var locked = get_locked_boons();
-    return boons.map((b) => {
-        var boon = b();
-        if(locked.find((l) => {
-            return l().name === boon.name;
-        })){
-            return symbol_locked_boon();
-        }
-        if(encountered.has(boon.name)){
-            return boon;
-        }
-        return symbol_not_encountered_boon();
-    });
-}
-function update_journal_cards(){
-    display.remove_children(UIIDS.journal_cards);
-    display_basic_cards();
-    display_common_cards();
-    display_achievement_cards();
-    display_boon_cards();
-    display_confusion_cards();
-    display_boss_cards();
-}
-
-function display_basic_cards(){
-    var cards = cards_encountered(BASIC_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards);
-}
-function display_common_cards(){
-    var cards = cards_encountered(COMMON_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards);
-}
-function display_achievement_cards(){
-    var cards = cards_locked(get_all_achievement_cards(), get_locked_achievement_cards());
-    var cards = cards_encountered(cards, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards);
-}
-function display_boon_cards(){
-    var cards = cards_encountered(BOON_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards);
-}
-function display_confusion_cards(){
-    var cards = cards_encountered(CONFUSION_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards);
-}
-function display_boss_cards(){
-    var cards = cards_encountered(get_boss_cards(), GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards);
-}
-
-function cards_encountered(cards, encountered){
-    return cards.map((c) => {
-        var card = c();
-        if(card.name === card_names.symbol_locked){
-            return card;
-        }
-        if(encountered.has(card.name)){
-            return card;
-        }
-        return symbol_not_encountered_card();
-    });
-}
-function cards_locked(cards, locked){
-    return cards.map((c) => {
-        var card = c();
-        if(locked.find((l) => {
-            return l().name === card.name;
-        })){
-            return symbol_locked_card;
-        }
-        return c;
-    });
-}
-function update_journal(){
-    update_journal_cards();
-    update_journal_boons();
-}
-
-function setup_journal_navbar(){
-    var id = UIIDS.journal_navbar;
-
-    var section_id_list = [
-        UIIDS.journal_cards,
-        UIIDS.journal_boons,
-    ];
-
-    var swap_visibility = function(id_list, id){
-        return function(){
-            display.swap_screen(id_list, id);
-        }
-    }
-
-    display.create_visibility_toggle(id, journal_navbar_labels.cards, swap_visibility(section_id_list, UIIDS.journal_cards));
-    display.create_visibility_toggle(id, journal_navbar_labels.boons, swap_visibility(section_id_list, UIIDS.journal_boons));
-
-    display.swap_screen(section_id_list, UIIDS.journal_cards);
-}
 /** @returns {MoveDeck} Returns a normal starting deck.*/
 function make_starting_deck(){
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
@@ -3739,6 +2240,1505 @@ const HTML_UIIDS = {
 Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
+function explain_card(card){
+    var text = ``;
+    text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
+    text += `${card.options.explain_buttons()}`;
+    text += `\n`;
+    if(card.per_floor !== undefined){
+        text += `${move_types.per_floor}\n`;
+    }
+    else if(card.temp){
+        text += `${move_types.temp}\n`;
+    }
+    if(card.options.is_instant()){
+        text += `${move_types.instant}\n`;
+    }
+    return text.trimEnd();
+}
+/**
+ * Function to create the combined description of everything happening on a space of the game map.
+ * @param {GridSpace} space The space to get a description of.
+ * @returns {string} The properly formatted description.
+ */
+function grid_space_description(space){
+    var tile = space.tile.look === undefined ? space.tile : space.tile.look;
+    tile = tile_description(tile);
+    var foreground = space.foreground.filter((fg) => fg.description !== undefined);
+    foreground = foreground.map((fg) => `${gameplay_text.divider}${fg.description}`);
+    var background = space.background.filter((bg) => bg.description !== undefined);
+    background = background.map((bg) => `${gameplay_text.divider}${bg.description}`);
+    var descriptions = [tile, ...foreground, ...background];
+    return descriptions.reduce((res, str) => `${res}${str}`);
+}
+function hp_description(tile){
+    var hp = ``
+    var stunned = ``;
+    if(tile.max_health !== undefined && tile.health !== undefined){
+        hp = `(${tile.health}/${tile.max_health} hp) `;
+    }
+    else if(tile.health !== undefined){
+        hp = `(${tile.health} hp) `;
+    }
+    if(tile.stun !== undefined && tile.stun > 0){
+        stunned = `*${gameplay_text.stunned}${tile.stun}* `;
+    }
+    return `${hp}${stunned}`;
+}
+/**
+ * Function to create the full description including
+ *      -stun amount
+ *      -health
+ *      -max health
+ * when appropriate.
+ * @param {Tile} tile Tile to make the description for.
+ * @returns {string} The formatted description.
+ */
+function tile_description(tile){
+    if(tile.description === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    return `${hp_description(tile)}${tile.description}`;
+}
+// ----------------Display.js----------------
+// File containing the display class which interacts with wherever the game is being displayed. 
+// Currently the only way to display is via HTML, but if I wanted to port the game, this should
+// make it easier to do without too much editing outside of this file and the uiid file. This also
+// standardizes how information is displayed making it easier to create new display elements.
+
+/**
+ * @typedef {Object} CellInfo The info required to create a table cell with an image.
+ * @property {string} pic The image to be displayed in the cell.
+ * @property {string=} name If name is provided, it will be used as mouseover text.
+ * @property {number=} rotate If rotate is provided (in 90 degree increments) the image will be rotated by that amount.
+ * @property {boolean=} flip If flip is provided, the image will be flipped horizontally.
+ */
+
+/**
+ * @typedef {Object} ButtonInfo The info required to create a button table cell.
+ * @property {string} description The text to be displayed in the button.
+ * @property {OnClickFunction=} on_click The function to be called when the button is clicked.
+ */
+
+/**
+ * @callback OnClickFunction A function to be called when an element is clicked.
+ * @param {CellInfo} tile The object used to create this element.
+ * @param {Point} position The row and column of the element.
+ */
+
+
+/**
+ * @callback NormalCallback A function with no args or returns.
+ * @returns {void}
+ */
+
+/**
+ * @typedef {Object} DropdownOption
+ * @property {string} label The label that should be displayed in the dropdown menu.
+ * @property {NormalCallback} on_change The function executed when this option is chosen.
+ */
+
+/**
+ * @callback add_tb_row A function to add a row of images to a table.
+ * @param {string} location The ID of the table to be added to.
+ * @param {CellInfo[]} row_contents The objects used to construct the row's contents.
+ * @param {number} scale The size of the images.
+ */
+
+/**
+ * @callback add_button_row A function to add a row of buttons to a table.
+ * @param {string} location The ID of the table to be added to.
+ * @param {ButtonInfo[]} row_contents The objects used to construct the row's contents.
+ */
+
+/**
+ * @callback display_message A function to display a message to an element.
+ * @param {string} location The ID of the element to display the message to.
+ * @param {string} message The message to be displayed.
+ */
+
+/**
+ * @callback remove_children A function to remove all rows from a table.
+ * @param {string} location The ID of the table to remove rows from.
+ */
+
+/**
+ * @callback swap_screen A function to swap which div from a group is visible
+ * @param {string[]} divisions An array of div names to set to invisible.
+ * @param {string} [screen = undefined] Optional parameter for the ID of a div to set to visible.
+ */
+
+/**
+ * @callback select A function to outline one image from a row of images in a table.
+ * @param {string} location The ID of the table.
+ * @param {number} row_num The row number of the image.
+ * @param {number} column_num The column number of the image.
+ */
+
+/**
+ * @callback press A function to handle keyboard controls.
+ * @param {KeyboardEvent} key_press The keystroke to handle.
+ */
+
+/**
+ * @callback create_visibility_toggle A function to create a section of text that can be minimized with the press of a button.location, header, body
+ * @param {string} location Where to create the section.
+ * @param {string} header What the section is called.
+ * @param {HTMLElement} body_elemnt The text to display in the section.
+ */
+
+/**
+ * @callback create_dropdown A function to create a dropdown menu where the user can select an option.
+ * @param {string} location Where the dropdown menu should be added to.
+ * @param {DropdownOption[]} options_arr An array of each label and associated function that make up the dropdown menu.
+ */
+
+/**
+ * @callback create_alternating_text_section A function to create a section of interspersed text with images and other elements.
+ * @param {string} location The id of the div element to put the section in.
+ * @param {string} header The header to give the section. The div id will be of the form `${header} section`.
+ * @param {string[]} par_arr An array of the strings which other elements should be placed between.
+ * @param {HTMLElement[]} inline_arr An array of other elements to be added inline inbetween the strings. 
+ *                                  It's length should be 1 or 0 less than par_arr's.
+ * @returns {string} The div id.
+ */
+
+/**
+ * @callback create_button Creates and returns a button element.
+ * @param {string} label The button text.
+ * @param {string} id The element id.
+ * @param {NormalCallback=} on_click If provided, called when it is clicked.
+ * @returns {HTMLInputElement} The created button.
+ */
+
+/**
+ * @callback create_image Creates and returns an image eleemnt.
+ * @param {string} src The pic to display.
+ * @param {string} id The element id
+ * @param {number | Point} size How largethe pic should be.
+ * @returns {HTMLImageElement} The created image.
+ */
+
+/**
+ * @callback add_on_click Adds an on_click function to an element.
+ * @param {string} location The id of the element to add an on_click to.
+ * @param {function} on_click The function to call when the element is clicked on.
+ */
+
+/**
+ * @typedef {Object} DisplayLibrary The library of functions used to handle displaying things in a specific language.
+ * @property {add_tb_row} add_tb_row
+ * @property {add_button_row} add_button_row
+ * @property {display_message} display_message
+ * @property {remove_children} remove_children
+ * @property {swap_screen} swap_screen
+ * @property {select} select
+ * @property {press} press
+ * @property {create_visibility_toggle} create_visibility_toggle
+ * @property {create_dropdown} create_dropdown
+ * @property {create_alternating_text_section} create_alternating_text_section
+ * @property {create_button} create_button
+ * @property {create_image} create_image
+ * @property {add_on_click} add_on_click
+ */
+
+
+/**
+ * A function to get the display library for a given language.
+ * @param {string} language The language to get the library for.
+ * @returns {DisplayLibrary}
+ */
+function get_display(language){
+    // Factory function for the display classes (currently only html)
+    switch(language){
+        case `html`:
+            return DisplayHTML;
+        default:
+            throw new Error(ERRORS.invalid_value);
+    }
+}
+
+/**
+ * @callback get_transformation A helper function to format all css transformation properties detailed by an object into a single string.
+ * @param {CellInfo} to_display The object that contains which transformations to perform.
+ * @returns {string} String that can be used to apply the appropriate transformations.
+ */
+
+/**
+ * @callback html_constructor Typedef for a HTMLElement constructor
+ * @returns {*}
+ * 
+ * @overload 
+ * @param {string} location
+ * @returns {HTMLElement}
+ * 
+ * @overload
+ * @param {string} location
+ * @param {html_constructor} type
+ * @returns {HTMLElement}
+ * 
+ * @callback get_element Function to get a html element, make sure it's not void, and optionally make sure it is the correct type.
+ * @param {string} location The ID of the element to get.
+ * @param {function} [type = undefined] Optional constructor of the type of element it should be.
+ * @returns {*} Returns the element which is optionally guarenteed to be the right type.
+ */
+
+/**
+ * @typedef {Object} HTML_Helpers A collection of the helper functions used by the DisplayHTML library.
+ * @property {get_transformation} get_transformation
+ * @property {get_element} get_element
+ */
+
+
+/**
+ * Library containing functions used to diplay things in HTML.
+ * Implements DisplayLibrary.
+ * @type {DisplayLibrary & HTML_Helpers}
+ */
+const DisplayHTML = {
+    // Required functions.
+    add_tb_row: function(location, row_contents, scale){
+        var table = DisplayHTML.get_element(location, HTMLTableElement);
+        var row_num = table.rows.length;
+        var row = document.createElement(`tr`);
+        row.id = `${location} row ${row_num}`;
+        row.style.height = `auto`;
+        row.style.minHeight= `${scale}px`; 
+        for(var i = 0; i < row_contents.length; ++i){
+            var to_display = row_contents[i];
+            // Make table cell
+            var cell = document.createElement(`td`);
+            cell.id = `${location} ${row_num} ${i}`;
+            cell.style.height = `${scale}px`;
+            cell.style.width = `${scale}px`;
+            cell.classList.add(`relative`);
+            if(to_display.on_click !== undefined){
+                cell.onclick = to_display.on_click;
+            }
+            if(to_display.name !== undefined){
+                cell.title = to_display.name;
+            }
+            if(to_display.selected === true){
+                cell.classList.add(`selected-element`);
+            }
+            var layers = [];
+            var image;
+            // Foreground images
+            if(to_display.foreground !== undefined){
+                for(let pic of to_display.foreground){
+                    image = document.createElement(`img`);
+                    image.src = `${IMG_FOLDER.src}${pic}`;
+                    layers.push(image);
+                }
+            }
+            // Main image
+            image = document.createElement(`img`);
+            image.src = `${IMG_FOLDER.src}${to_display.pic}`;
+            if(to_display.name !== undefined){
+                image.alt = to_display.name;
+            }
+            image.style.transform = DisplayHTML.get_transformation(to_display);
+            layers.push(image);
+            // Background images
+            if(to_display.background !== undefined){
+                for(let pic of to_display.background){
+                    image = document.createElement(`img`);
+                    image.src = `${IMG_FOLDER.src}${pic}`;
+                    layers.push(image);
+                }
+            }
+            // Style/size images
+            layers = layers.reverse();
+            for(let layer of layers){
+                layer.height = scale;
+                layer.width = scale;
+                layer.classList.add(`absolute`);
+                cell.append(layer);
+            }
+            row.append(cell);
+        }
+        table.append(row);
+    },
+    add_button_row: function(location, row_contents){
+        var table = DisplayHTML.get_element(location, HTMLTableElement);
+        var row_num = table.rows.length;
+        var row = document.createElement(`tr`);
+        row.id = `${location} row ${row_num}`;
+        for(var i = 0; i < row_contents.length; ++i){
+            var button = row_contents[i];
+            row.append(DisplayHTML.create_button(button.description, `${location} ${row_num} ${i}`, button.on_click));
+        }
+        table.append(row);
+    },
+    display_message: function(location, message){
+        DisplayHTML.get_element(location).innerText = message;
+    },
+    remove_children: function(location){
+        var element = DisplayHTML.get_element(location);
+        while(element.firstChild){
+            element.removeChild(element.lastChild);
+        }
+    },
+    swap_screen: function(divisions, screen = undefined){
+        for(var i = 0; i < divisions.length; ++i){
+            DisplayHTML.get_element(divisions[i], HTMLDivElement);
+            display.remove_class(divisions[i], `visible-section`);
+            display.add_class(divisions[i], `hidden-section`);
+        }
+        if(screen !== undefined){
+            DisplayHTML.get_element(screen, HTMLDivElement);
+            display.remove_class(screen, `hidden-section`);
+            display.add_class(screen, `visible-section`);
+        }
+    },
+    select: function(location, row_num, column_num){
+        var row = DisplayHTML.get_element(`${location} row ${row_num}`, HTMLTableRowElement);
+        var column_count = row.cells.length;
+        for(var i = 0; i < column_count; ++i){
+            DisplayHTML.get_element(`${location} ${row_num} ${i}`, HTMLTableCellElement).classList.remove("selected-element");
+        }
+        DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add("selected-element");
+    },
+    press: function(key_press){
+        var key = key_press.key.toLowerCase();
+        GS.data.controls.toggle_press(key);
+        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
+            if(GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
+                GS.data.controls.stage(key);
+            }
+            else if(GAME_SCREEN_DIVISIONS.is(UIIDS.shop)){
+                GS.data.controls.shop(key);
+            }
+            else if(GAME_SCREEN_DIVISIONS.is(UIIDS.chest)){
+                GS.data.controls.chest(key);
+            }
+        }
+        else if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
+            display.set_control(key);
+        }
+    },
+    unpress: function(key_press){
+        var key = key_press.key.toLowerCase();
+        GS.data.controls.toggle_unpress(key);
+    },
+    click: function(location){
+        try{
+            var element = DisplayHTML.get_element(location);
+            if(element !== undefined && element.onclick !== undefined){
+                element.click();
+            }
+        }
+        catch(error){
+            if(error.message !== ERRORS.value_not_found){
+                throw error;
+            }
+        }
+    },
+    create_visibility_toggle: function(location, header, on_click){
+        var section = DisplayHTML.get_element(location);
+        var element = document.createElement(`input`);
+        element.type = `button`;
+
+        element.value = header;
+        element.onclick = on_click;
+        section.append(element);
+    },
+    create_dropdown: function(location, options_arr){
+        var doc_location = this.get_element(location);
+        var select_button = document.createElement(`select`);
+        var select_id = `${location} select`
+        select_button.id = select_id;
+        var select_func = function(options, select_id){
+            var option_func_map = new Map()
+            for(var option of options){
+                option_func_map.set(option.label, option.on_change);
+            }
+            return function(){
+                var select_element = DisplayHTML.get_element(select_id, HTMLSelectElement);
+                var label = select_element.value;
+                var chosen_option = option_func_map.get(label);
+                if(chosen_option === undefined){
+                    throw new Error("unrecognized value in select element");
+                }
+                chosen_option();
+            }
+        }
+        select_button.onchange = select_func(options_arr, select_id);
+        for(var option_data of options_arr){
+            var option = document.createElement(`option`);
+            option.value = option_data.label;
+            option.innerText = option_data.label;
+            select_button.append(option);
+        }
+        doc_location.append(select_button);
+    },
+    create_alternating_text_section: function(location, header, par_arr, inline_arr){
+        if(par_arr.length !== inline_arr.length && par_arr.length !== inline_arr.length + 1){
+            throw new Error(ERRORS.array_size);
+        }
+        var body_div = document.createElement(`div`);
+        var body_div_id = `${header} section`;
+        body_div.id = body_div_id;
+        body_div.classList.add(`guidebook-section`)
+
+
+        var body_header = document.createElement(`h2`);
+        body_header.id = `${body_div_id} header`;
+        body_header.innerText = `${header}:`;
+        body_div.append(body_header);
+
+        for(var i = 0; i < par_arr.length; ++i){
+            var body_text = document.createElement(`p`);
+            body_text.id = `${body_div_id} text ${i}`;
+            body_text.innerText = par_arr[i];
+            body_text.style.display = `inline`;
+            body_div.append(body_text);
+            if(i < inline_arr.length){
+                inline_arr[i].id = `${body_div_id} non-text ${i}`
+                inline_arr[i].style.display = `inline`;
+                body_div.append(inline_arr[i]);
+            }
+        }
+        var destination = DisplayHTML.get_element(location, HTMLDivElement);
+        destination.append(body_div);
+        return body_div_id;
+    },
+    create_button: function(label, id = undefined, on_click = undefined){
+        var button = document.createElement(`input`);
+        button.type = `button`;
+        button.id = id;
+        if(on_click !== undefined){
+            button.onclick = on_click;
+        }
+        button.value = label;
+        return button;
+    },
+    set_button: function(location, text, on_click, clickable){
+        var button = DisplayHTML.get_element(location, HTMLInputElement);
+        button.onclick = on_click;
+        button.value = text;
+        if(clickable){
+            button.classList.remove(`greyed-out`);
+        }
+        else{
+            button.classList.add(`greyed-out`);
+        }
+    },
+    create_image: function(src, id, size){
+        var image = document.createElement(`img`);
+        image.src = `${IMG_FOLDER.src}${src}`;
+        image.id = id;
+        if(typeof size === `number`){
+            image.width = size;
+            image.height = size;
+        }
+        else{
+            image.width = size.x;
+            image.height = size.y;
+        }
+        return image;
+    },
+    add_on_click: function(location, on_click){
+        var element = DisplayHTML.get_element(location);
+        element.onclick = on_click;
+    },
+    add_class: function(location, css_class){
+        var element = DisplayHTML.get_element(location);
+        element.classList.add(css_class);
+    },
+    remove_class: function(location, css_class){
+        var element = DisplayHTML.get_element(location);
+        element.classList.remove(css_class);
+    },
+    create_stacked_p: function(location, content){
+        var element = DisplayHTML.get_element(location);
+        for(var message of content){
+            var p = document.createElement(`p`);
+            p.innerText = message.str;
+            p.classList.add(`log-text`);
+            switch(message.type){
+                case record_types.achievement:
+                    p.classList.add(`achievement-log-text`);
+                    break;
+                case record_types.repeated_achievement:
+                    p.classList.add(`repeated-achievement-log-text`);
+                    break;
+                default:
+                    p.classList.add(`normal-log-text`);
+                    break;
+            }
+            element.append(p);
+            var hr = document.createElement(`hr`);
+            element.append(hr);
+        }
+    },
+    detect_keys: function(){
+        document.onkeydown = display.press;
+        document.onkeyup = display.unpress;
+    },
+    create_initiative: function(location, contents, size){
+        location = DisplayHTML.get_element(location);
+        for(let element of contents){
+            let container = document.createElement(`div`);
+            let picbox = document.createElement(`div`);
+            let pic = document.createElement(`img`);
+            let parbox = document.createElement(`div`);
+            let par = document.createElement(`p`);
+
+            container.classList.add(`initiative-element`);
+            if(element.on_click !== undefined){
+                container.onclick = element.on_click;
+            }
+            pic.src = `${IMG_FOLDER.src}${element.pic}`;
+            pic.alt = element.name;
+            pic.title = element.name;
+            pic.style.height = `${size}px`;
+            pic.style.width = `${size}px`;
+            pic.style.transform = DisplayHTML.get_transformation(element);
+            if(element.stun){
+                pic.classList.add(`stun-background`);
+            }
+            par.innerText = element.str;
+
+            picbox.append(pic);
+            parbox.append(par);
+            container.append(picbox);
+            container.append(parbox);
+            location.append(container);
+        }
+    },
+    add_controls_header: function(location, description, edit_function){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-header`);
+        var header = document.createElement(`h2`);
+        header.innerText = description;
+        var edit_mode = function(controls){
+            return () => {
+                setup_controls_page();
+                DisplayHTML.remove_children(location);
+                edit_function(controls);
+            }
+        }
+        var edit_button = DisplayHTML.create_button(control_screen_text.edit, undefined, edit_mode(GS.data.controls.get()));
+        var default_button = DisplayHTML.create_button(control_screen_text.default, undefined, edit_mode(new KeyBind().get()));
+        div.append(header);
+        div.append(edit_button);
+        div.append(default_button);
+        var place = DisplayHTML.get_element(location);
+        place.append(div);
+    },
+    add_edit_controls_header: function(location, description, view_function, controls){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-header`);
+        var header = document.createElement(`h2`);
+        header.innerText = description;
+        var save_button = DisplayHTML.create_button(control_screen_text.save, undefined, () => {
+            if(KeyBind.is_valid(controls)){
+                GS.data.set_controls(controls);
+                DisplayHTML.remove_children(location);
+                view_function();
+            }
+        });
+        var undo_edit_button = DisplayHTML.create_button(control_screen_text.undo, undefined, () => {
+            DisplayHTML.remove_children(location);
+            view_function();
+        });
+        div.append(header);
+        div.append(save_button);
+        div.append(undo_edit_button);
+        var place = DisplayHTML.get_element(location);
+        place.append(div);
+    },
+
+    control_box: function(location, controls, description){
+        var div = document.createElement(`div`);
+        div.classList.add(`control-box`);
+        var tb = document.createElement(`table`);
+        for(var r = 0; r < Math.ceil(controls.length / 3); ++r){
+            var start = r * 3;
+            var row = document.createElement(`tr`);
+            for(var c = 0; c < 3 && c + start < controls.length; ++c){
+                var button_text = controls[start + c];
+                if(KEYBOARD_SYMBOL_MAP.has(button_text)){
+                    button_text = KEYBOARD_SYMBOL_MAP.get(button_text);
+                }
+                row.append(DisplayHTML.create_button(button_text));
+            }
+            tb.append(row);
+        }
+        var table_div = document.createElement(`div`);
+        table_div.append(tb);
+        div.append(table_div);
+        var p = document.createElement(`p`);
+        p.innerText = description;
+        div.append(p);
+        var place = DisplayHTML.get_element(location);
+        place.append(div);
+    },
+    control_edit_box: function(location, controls, description){
+        var edit = (display, button, controls, i) => {
+            return () => {
+                var unclicked = button.classList.contains(`edit-control`);
+                var boxes = document.querySelectorAll(`#${location} .control-edit-box div input`);
+                for(var box of boxes){
+                    box.classList.remove(`edit-control`);
+                }
+                display.set_control = undefined;
+                if(!unclicked){
+                    button.classList.add(`edit-control`);
+                    display.set_control = (key) => {
+                        controls[i] = key;
+                        button.value = KEYBOARD_SYMBOL_MAP.has(key) ? KEYBOARD_SYMBOL_MAP.get(key) : key;
+                        button.classList.remove(`edit-control`);
+                        display.set_control = undefined;
+                    }
+                }
+            }
+        }
+        for(var i = 0; i < controls.length; ++i){
+            var div = document.createElement(`div`);
+            div.classList.add(`control-edit-box`);
+            var button_div = document.createElement(`div`);
+            var button_text = controls[i];
+            if(KEYBOARD_SYMBOL_MAP.has(button_text)){
+                button_text = KEYBOARD_SYMBOL_MAP.get(button_text);
+            }
+            var button = DisplayHTML.create_button(button_text);
+            button.onclick = edit(this, button, controls, i);
+            button_div.append(button);
+            div.append(button_div);
+            var p = document.createElement(`p`);
+            p.innerText = (controls.length === 1 ? description : `${description} ${i + 1}`);
+            div.append(p);
+            var place = DisplayHTML.get_element(location);
+            place.append(div);
+        }
+    },
+    show_achievements: function(location, achievements){
+        var place = DisplayHTML.get_element(location);
+
+        var toprow = document.createElement(`div`);
+        toprow.classList.add(`opposite-sides`);
+        // Header
+        var header = document.createElement(`div`);
+        header.classList.add(`achievement-header`);
+        var title = document.createElement(`h2`);
+        var complete = achievements.filter((a) => {return a.has}).length;
+        title.innerText = `${achievement_text.title}  (${complete} / ${achievements.length})`;
+        header.append(title);
+        toprow.append(header);
+        
+        var reset = document.createElement(`button`);
+        reset.classList.add(`achievement-button`);
+        var set_reset_button = () => {
+            reset.innerText = achievement_text.reset;
+            reset.classList.add(`achievement-reset`);
+            reset.classList.remove(`achievement-confirm-reset`);
+            reset.onclick = set_confirm_reset_button;
+        }
+        var set_confirm_reset_button = () => {
+            reset.innerText = achievement_text.confirm_reset;
+            reset.classList.add(`achievement-confirm-reset`);
+            reset.classList.remove(`achievement-reset`);
+            reset.onclick = reset_achievements;
+            setTimeout(() => {set_reset_button();}, 4000);
+        }
+        set_reset_button();
+        toprow.append(reset);
+        place.append(toprow);
+
+        for(var a of achievements){
+            var div = document.createElement(`div`);
+            div.classList.add(`achievement-box`);
+            if(a.has){
+                div.classList.add('achievement-box-unlocked');
+            }
+
+            // Achievement image
+            var img_box = document.createElement(`div`);
+            img_box.classList.add(`achievement-img-box`);
+            div.append(img_box);
+
+            var img_name = a.has ? a.image : `${IMG_FOLDER.other}locked.png`;
+            var img = document.createElement(`img`);
+            img.src = `${IMG_FOLDER.src}${img_name}`;
+            img.alt = a.has? `unlocked` : `locked`;
+            img.title = img.alt;
+            img_box.append(img);
+
+            // Achievement description
+            var text_box = document.createElement(`div`);
+            text_box.classList.add(`achievement-text-box`);
+            div.append(text_box);
+
+            if(a.has){
+                img_box.classList.add(`achievement-unlocked-image`);
+                text_box.classList.add(`achievement-unlocked-text`);
+            }
+            else{
+                text_box.classList.add(`achievement-locked-text`)
+            }
+
+            var h3 = document.createElement(`h3`);
+            h3.innerText = `${a.name}:`
+            text_box.append(h3);
+
+            var p = document.createElement(`p`);
+            p.innerText = a.description;
+            text_box.append(p);
+
+            // Unlocks
+            var unlocks = document.createElement(`div`);
+            unlocks.classList.add(`achievement-dropdown`);
+
+            // New Boons
+            if(a.boons!== undefined && a.boons.length > 0){
+                var unlock_boons_header = document.createElement(`h3`);
+                unlock_boons_header.innerText = `--- ${achievement_text.unlocks_boon} ---`
+                unlocks.append(unlock_boons_header);
+                
+                for(var boon of a.boons){
+                    boon = boon();
+                    img = document.createElement(`img`);
+                    img.src = `${IMG_FOLDER.src}${boon.pic}`;
+                    img.alt = boon.name;
+                    img.title = boon.name;
+                    unlocks.append(img);
+                }
+            }
+
+            // New cards
+            if(a.cards !== undefined && a.cards.length > 0){
+                var unlock_cards_header = document.createElement(`h3`);
+                unlock_cards_header.innerText = `--- ${achievement_text.unlocks_cards} ---`;
+                unlocks.append(unlock_cards_header);
+
+                for(var card of a.cards){
+                    card = card();
+                    img = document.createElement(`img`);
+                    img.src = `${IMG_FOLDER.src}${card.pic}`;
+                    img.alt = card.name;
+                    img.title = card.name;
+                    unlocks.append(img);
+                }
+            }
+
+            div.append(unlocks);
+            place.append(div);
+        }
+    },
+    stop_space_scrolling: function(){
+        window.addEventListener('keydown', (e) => {
+            if (e.key === ` ` && e.target === document.body) {
+              e.preventDefault();
+            }
+        });
+    },
+    set_local_storage(key, data){
+        window.localStorage.setItem(key, data);
+    },
+    get_local_storage(key){
+        return window.localStorage.getItem(key);
+    },
+    make_anchor(destination, text){
+        var a = document.createElement(`a`);
+        a.href = destination;
+        a.innerText = text;
+        return a;
+    },
+    toggle_visibility(destination, is_visible){
+        var element = DisplayHTML.get_element(destination);
+        if(!is_visible){
+            element.classList.add(`hidden-section`);
+        }
+        else{
+            element.classList.remove(`hidden-section`);            
+        }
+    },
+    journal_card_section(destination, header, cards){
+        var place = DisplayHTML.get_element(destination);
+
+        var box = document.createElement(`fieldset`);
+        var legend = document.createElement(`legend`);
+        var table = document.createElement(`table`);
+
+        box.classList.add(`shop-section-box`);
+        box.classList.add(`journal-card-box`);
+        legend.innerText = header;
+        var table_id = `${destination} ${header} table`;
+        table.id = table_id;
+
+        place.append(box);
+        box.append(legend);
+        box.append(table);
+        
+        for(var i = 0; i < Math.ceil(cards.length / JOURNAL_DISPLAY_WIDTH); ++i){
+            var slice_start = i * JOURNAL_DISPLAY_WIDTH;
+            var slice = cards.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            display.add_tb_row(table_id, slice, CARD_SCALE);
+        }
+    },
+    journal_boon_section(destination, header, boons){
+        var place = DisplayHTML.get_element(destination);
+
+        var box = document.createElement(`fieldset`);
+        var legend = document.createElement(`legend`);
+        var table = document.createElement(`table`);
+
+        box.classList.add(`shop-section-box`);
+        box.classList.add(`journal-card-box`);
+        legend.innerText = header;
+        var table_id = `${destination} ${header} table`;
+        table.id = table_id;
+
+        place.append(box);
+        box.append(legend);
+        box.append(table);
+        
+        for(var i = 0; i < Math.ceil(boons.length / JOURNAL_DISPLAY_WIDTH); ++i){
+            var slice_start = i * JOURNAL_DISPLAY_WIDTH;
+            var slice = boons.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            display.add_tb_row(table_id, slice, CARD_SCALE);
+        }
+    },
+
+    // Non Required helper functions.
+    get_transformation: function(to_display){
+        var transformation = ``;
+        if(to_display.rotate !== undefined){
+            transformation += `rotate(${to_display.rotate}deg) `;
+        }
+        if(to_display.flip){
+            transformation += `scaleX(-1) `;
+        }
+        return transformation;   
+    },
+    get_element: function(location, type = undefined){
+        var element = document.getElementById(location);
+        if(element === null){
+            throw new Error(ERRORS.value_not_found);
+        }
+        if(type !== undefined && !(element instanceof type)){
+            throw new Error(ERRORS.invalid_type);
+        }
+        return element
+    }
+}
+
+// Set up the display library and the onkeydown function.
+const display = get_display(MARKUP_LANGUAGE);
+
+const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.
+function update_achievements(){
+    var achievements = GS.data.achievements.all();
+    display.remove_children(UIIDS.achievement_list);
+    display.show_achievements(UIIDS.achievement_list, achievements);
+}
+
+function reset_achievements(){
+    GS.data.reset_achievements();
+    update_achievements();
+}
+function controls_chest_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
+    display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
+    display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+
+function edit_chest_controls(controls){
+    display.add_edit_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, controls_chest_section, controls);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+function setup_controls_page(){
+    display.remove_children(UIIDS.stage_controls);
+    controls_stage_section();
+    display.remove_children(UIIDS.shop_controls);
+    controls_shop_section();
+    display.remove_children(UIIDS.chest_controls);
+    controls_chest_section();
+}
+function controls_shop_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
+    display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
+    display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
+    display.control_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+
+function edit_shop_controls(controls){
+    display.add_edit_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, controls_shop_section, controls);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.add, CONTROLS_TEXT.shop.add);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+function controls_stage_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
+    display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
+    display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+
+function edit_stage_controls(controls){
+    display.add_edit_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, controls_stage_section, controls);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.card, CONTROLS_TEXT.stage.card);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_edit_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+function display_deck_to_duplicate(){
+    display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
+    var finish = (card, deck) => {
+        deck.add(copy_card(card));
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+    }
+    var selector = new DeckSelector(GS.deck, finish);
+    refresh_deck_select_screen(selector);
+}
+function refresh_deck_select_screen(selector){
+    var cards = selector.get_display_info();
+    cards.map((card) => {
+        var prev_on_click = card.on_click;
+        card.on_click = () => {
+            prev_on_click();
+            display.display_message(UIIDS.deck_select_card_info, explain_card(card.card));
+            refresh_deck_select_screen(selector);
+        }
+        return card;
+    });
+    display.remove_children(UIIDS.deck_select_table);
+    for(var i = 0; i < Math.ceil(cards.length / DECK_DISPLAY_WIDTH); ++i){
+        var slice_start = i * DECK_DISPLAY_WIDTH;
+        var slice = cards.slice(slice_start, slice_start + DECK_DISPLAY_WIDTH);
+        display.add_tb_row(UIIDS.deck_select_table, slice, CARD_SCALE);
+    }
+    display.set_button(
+        UIIDS.deck_select_confirm, 
+        shop_text.confirm, 
+        () => {selector.confirm();}, 
+        selector.check_valid()
+    );
+}
+function display_deck_to_remove(remaining){
+    var message = `${boon_messages.clean_mind[0]}${remaining}${boon_messages.clean_mind[1]}`;
+    display.display_message(UIIDS.deck_select_message, message);
+    var finish = (card, deck) => {
+        deck.remove(card.id);
+        if(remaining > 1){
+            display_deck_to_remove(remaining - 1);
+        }
+        else{
+            GS.deck.deal();
+            GS.refresh_deck_display();
+            GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+        }
+    }
+    var selector = new DeckSelector(GS.deck, finish);
+    refresh_deck_select_screen(selector);
+}
+function display_entire_deck(deck){
+    // Display section header.
+    var min_deck_size = deck.deck_min();
+    display.display_message(UIIDS.current_deck, `${shop_text.current}${min_deck_size}):`);
+    // Display deck with limited cards per line.
+    var decklist = deck.get_deck_info();
+    var card_explanation = (card) => {
+        return () => {
+            display.display_message(UIIDS.shop_message, explain_card(card))       
+        }
+    };
+    for(var card of decklist){
+            card.on_click = card_explanation(card);
+    }
+    for(var i = 0; i < Math.ceil(decklist.length / DECK_DISPLAY_WIDTH); ++i){
+        var row = decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
+        display.add_tb_row(UIIDS.display_deck, row, CARD_SCALE);
+    }
+
+}
+function refresh_shop_display(shop){
+    var refresh = (f, card) => {
+        return () => {
+            f();
+            display.display_message(UIIDS.shop_message, explain_card(card));
+            refresh_shop_display(shop);
+        }
+    };
+    display.remove_children(UIIDS.add_card);
+    display.remove_children(UIIDS.remove_card);
+
+    var add_row = shop.get_add_row();
+    for(var a of add_row){
+        if(a.on_click !== undefined){
+            a.on_click = refresh(a.on_click, a.card);
+        }
+        else{
+            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.add)};
+        }
+    }
+    display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
+
+    var remove_row = shop.get_remove_row();
+    for(var r of remove_row){
+        if(r.on_click !== undefined){
+            r.on_click = refresh(r.on_click, r.card);
+        }
+        else if(r.name === card_names.symbol_remove_card){
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.remove)};
+        }
+        else{
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.min)};
+        }
+    }
+    display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
+    
+    var confirm = () => {
+        if(shop.is_valid_selection()){
+            shop.confirm();
+            GS.new_floor();
+        }
+        else{
+            display.display_message(UIIDS.shop_message, shop_text.invalid);
+        }
+    }
+    display.set_button(UIIDS.shop_confirm, shop_text.confirm, confirm, shop.is_valid_selection());
+}
+function display_boons(boon_list){
+    // Updates the list of boons they have.
+    display.remove_children(UIIDS.boon_list_table);
+    var gained = boon_list.get_gained();
+    display.add_tb_row(UIIDS.boon_list_table, gained, SMALL_CARD_SCALE);
+
+    // Updates the list of used up boons.
+    display.remove_children(UIIDS.removed_boon_table);
+    var lost = boon_list.get_lost();
+    display.add_tb_row(UIIDS.removed_boon_table, lost, SMALL_CARD_SCALE);
+}
+/**
+ * Displays the library to it's proper location.
+ */
+function refresh_deck_order_display(deck){
+    var library = deck.get_library_info();
+    display.remove_children(UIIDS.deck_order_table);
+    display.add_tb_row(UIIDS.deck_order_table, [future_sight(), ...library], SMALL_CARD_SCALE);
+}
+/**
+ * Displays the discard pile to it's proper location.
+ */
+function refresh_discard_display(deck){
+    var discard = deck.get_discard_info();
+    display.remove_children(UIIDS.discard_pile_table);
+    display.add_tb_row(UIIDS.discard_pile_table, discard, SMALL_CARD_SCALE);
+}
+/**
+ * Displays the full deck to it's proper location.
+ */
+function refresh_full_deck_display(deck){
+    var full = deck.get_deck_info();
+    display.remove_children(UIIDS.full_deck_table);
+    display.add_tb_row(UIIDS.full_deck_table, full, SMALL_CARD_SCALE);
+}
+/**
+ * Function to create and add the buttons for the sidebar.
+ */
+function create_sidebar(){
+    var location = UIIDS.sidebar_header;
+    var swap_visibility = function(id_list, id){
+        return function(){
+            id_list.swap(id);
+        }
+    }
+    display.remove_children(location);
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
+    SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
+}
+function update_initiative(map){
+    var info = map.get_initiative().map(e => {
+        let str = `${e.name}\n` + hp_description(e);
+        let on_click = function(){
+            display.click(`${UIIDS.map_display} ${e.location.y} ${e.location.x}`);
+        }
+        return {
+            pic: e.pic,
+            rotate: e.rotate,
+            flip: e.flip,
+            stun: e.stun !== undefined && e.stun > 0,
+            name: e.name,
+            str,
+            on_click,
+        }
+    });
+    display.remove_children(UIIDS.initiative);
+    display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
+}
+/**
+ * Function to give a message to the user.
+ * @param {string} msg message text.
+ */
+function say(msg){
+    display.display_message(UIIDS.display_message, msg);
+}
+
+function say_record(msg, type = record_types.normal){
+    say(msg);
+    GS.record_message(msg, type);
+}
+function display_victory(){
+    display.toggle_visibility(UIIDS.hand_box, false);
+    display.toggle_visibility(UIIDS.move_box, false);
+    display.toggle_visibility(UIIDS.retry_box, false);
+    display.remove_children(UIIDS.map_display);
+    display.add_tb_row(UIIDS.map_display, [{
+        name: achievement_names.victory,
+        //foreground: [`${image_folder.other}border.png`],
+        pic: `${IMG_FOLDER.achievements}victory.png`,
+        on_click: () => {
+            display.toggle_visibility(UIIDS.hand_box, true);
+            display.toggle_visibility(UIIDS.move_box, true);
+            display.toggle_visibility(UIIDS.retry_box, true);
+            player_hand_greyed(false);
+            GS.setup();
+        },
+    }], VICTORY_IMG_SCALE);
+}
+/**
+ * Displays the hand to it's proper location.
+ */
+function refresh_hand_display(deck){
+    // Updates the hand.
+    var card_row = deck.get_hand_info();
+    display.remove_children(UIIDS.hand_display);
+    display.add_tb_row(UIIDS.hand_display, card_row, CARD_SCALE);
+
+    // Shows how many cards are left in your deck.
+    var remaining = deck.get_deck_count();
+    display.display_message(UIIDS.deck_count, `${remaining}`);
+
+    // Makes sure the card info button shows that no card is selected.
+    var explain_blank_moves = function(){
+        say(gameplay_text.select_card);
+    }
+    display.add_on_click(UIIDS.move_info, explain_blank_moves);
+}
+
+function player_hand_greyed(is_greyed){
+    var toggle = is_greyed ? display.add_class : display.remove_class;
+    toggle(UIIDS.hand_display, `greyed-out`);
+}
+function display_move_buttons(card, hand_position){
+    display.select(UIIDS.hand_display, 0, hand_position);
+    display.remove_children(UIIDS.move_buttons);
+    var button_data = card.options.show_buttons(hand_position);
+    for(let row of button_data){
+        let button_row = row.map(button => {return {
+            description: button.description,
+            on_click: function(){
+                GS.data.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
+            }
+        }});
+        display.add_button_row(UIIDS.move_buttons, button_row);
+    }
+    var explanation = move_types.alt + `\n` + explain_card(card);
+    display.add_on_click(UIIDS.move_info, function(){say(explanation)});
+}
+function telegraph_repetition_boon(repeat){
+    display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
+    display.remove_class(UIIDS.move_box, `telegraph-repetition`);
+    display.remove_class(UIIDS.hand_box, `no-repetition`);
+    display.remove_class(UIIDS.move_box, `no-repetition`);
+    var class_name = repeat ? `telegraph-repetition` : `no-repetition`;
+    display.add_class(UIIDS.hand_box, class_name);
+    display.add_class(UIIDS.move_box, class_name);
+}
+/**
+ * Function to display the player's current and max health.
+ * @param {Tile} player The player to get health from.
+ * @param {number} scale The size of the display images.
+ */
+function display_health(player, scale){
+    if(player.health === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    var health = [];
+    for(var i = 0; i < player.health; ++i){
+        health.push({
+            pic: `${IMG_FOLDER.other}heart.png`, 
+            name: `heart`
+        });
+    }
+    if(player.max_health !== undefined){
+        for(var i = 0; i < (player.max_health - player.health); ++i){
+            health.push({
+                pic: `${IMG_FOLDER.other}heart_broken.png`, 
+                name: `broken heart`
+            });
+        }
+    }
+    display.add_tb_row(UIIDS.health_display, health, scale);
+}
+function display_map(map){
+    // Updates the GameMap display.
+    display.remove_children(UIIDS.map_display);
+    var grid = map.display();
+    for(var row of grid){
+        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE);
+    }
+    map.clear_telegraphs();
+    // Updates the health bar display.
+    display.remove_children(UIIDS.health_display);
+    display_health(map.get_player(), TILE_SCALE);
+    // Updates the initiative tracker display.
+    update_initiative(map);
+}
+/**
+ * Function to create a dropdown menu capable of switching between the game and guide screens.
+ * @param {string} location Where to create it.
+ */
+function create_main_dropdown(location){
+    var options = [
+        {
+            label: screen_names.gameplay,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
+        }, 
+        {
+            label: screen_names.guide,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
+        },
+        {
+            label: screen_names.achievements,
+            on_change: () => {
+                update_achievements();
+                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
+            }
+        },
+        {
+            label: screen_names.journal,
+            on_change: () => {
+                update_journal();
+                DISPLAY_DIVISIONS.swap(UIIDS.journal);
+            }
+        },
+        {
+            label: screen_names.controls,
+            on_change: () => {
+                setup_controls_page();
+                DISPLAY_DIVISIONS.swap(UIIDS.controls);
+            }
+        },
+
+    ];
+    display.create_dropdown(location, options);
+}
+/**
+ * Function to get an array of buttons with the keys used for controls as the value to use when displaying the guide.
+ * @returns {HTMLElement[]} The array of buttons.
+ */
+function get_control_symbols(){
+    var current_controls = GS.data.controls.get();
+    var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
+    var buttons = [];
+    for(var symbol of button_symbols){
+        buttons.push(display.create_button(symbol, `${symbol} key`));
+    }
+    return buttons;
+}
+/**
+ * Function to display the guide.
+ */
+function display_guide(){
+    var section_location = UIIDS.guide_box;
+    var navbar_location = UIIDS.guide_navbar;
+
+    // Create the image arrays for the sections with images.
+    var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
+    var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
+        card = card();
+        return {
+            src: card.pic,
+            name: card.name,
+            x: 5,
+            y: 5
+        }
+    }));
+    var confusion_text = [
+        ...GUIDE_TEXT.confusion, ...CONFUSION_CARDS.map((card, i) => {
+        // Adds the space for confusion card images.
+        if(i % 4 !== 3){
+            return NBS;
+        }
+        return `\n`;
+    })];
+    
+    var about_links = [
+        display.make_anchor(about_page_text.git_link, about_page_text.git_text)
+    ];
+
+    // Create guidebook text sections.
+    var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
+    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_symbol_arr);
+    var enemies_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
+    var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
+    var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
+    var chests_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.chests, GUIDE_TEXT.chests, []);
+    var sidebar_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.sidebar, GUIDE_TEXT.sidebar, []);
+    var confusion_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.confusion, confusion_text, confusion_inline_arr);
+    var about_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.about, GUIDE_TEXT.about, about_links);
+
+    var section_id_list = [
+        basics_section, 
+        cards_section, 
+        enemies_section, 
+        shop_section, 
+        bosses_section, 
+        chests_section, 
+        sidebar_section,
+        confusion_section,
+        about_section
+    ];
+
+    var swap_visibility = function(id_list, id){
+        return function(){
+            display.swap_screen(id_list, id);
+        }
+    }
+
+    // Create guidebook navbar.
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap_visibility(section_id_list, basics_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap_visibility(section_id_list, cards_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap_visibility(section_id_list, enemies_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap_visibility(section_id_list, shop_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap_visibility(section_id_list, sidebar_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap_visibility(section_id_list, confusion_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.about, swap_visibility(section_id_list, about_section));
+
+    display.swap_screen(section_id_list, basics_section);
+}
+/**
+ * Function to get an array of images for the card symbols to use when displaying the guide..
+ * @returns {HTMLElement[]} The array of images.
+ */
+function make_guidebook_images(arr){
+    var images = [];
+    for(var img of arr){
+        images.push(display.create_image(img.src, `${img.name} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE)));
+    }
+    return images;
+}
+function update_journal_boons(){
+    display.remove_children(UIIDS.journal_boons);
+    var boons = boons_encountered(BOON_LIST, GS.data.boons);
+    display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons);
+
+}
+function boons_encountered(boons, encountered){
+    var locked = get_locked_boons();
+    return boons.map((b) => {
+        var boon = b();
+        if(locked.find((l) => {
+            return l().name === boon.name;
+        })){
+            return symbol_locked_boon();
+        }
+        if(encountered.has(boon.name)){
+            return boon;
+        }
+        return symbol_not_encountered_boon();
+    });
+}
+function update_journal_cards(){
+    display.remove_children(UIIDS.journal_cards);
+    display_basic_cards();
+    display_common_cards();
+    display_achievement_cards();
+    display_boon_cards();
+    display_confusion_cards();
+    display_boss_cards();
+}
+
+function display_basic_cards(){
+    var cards = cards_encountered(BASIC_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards);
+}
+function display_common_cards(){
+    var cards = cards_encountered(COMMON_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards);
+}
+function display_achievement_cards(){
+    var cards = cards_locked(get_all_achievement_cards(), get_locked_achievement_cards());
+    var cards = cards_encountered(cards, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards);
+}
+function display_boon_cards(){
+    var cards = cards_encountered(BOON_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards);
+}
+function display_confusion_cards(){
+    var cards = cards_encountered(CONFUSION_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards);
+}
+function display_boss_cards(){
+    var cards = cards_encountered(get_boss_cards(), GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards);
+}
+
+function cards_encountered(cards, encountered){
+    return cards.map((c) => {
+        var card = c();
+        if(card.name === card_names.symbol_locked){
+            return card;
+        }
+        if(encountered.has(card.name)){
+            return card;
+        }
+        return symbol_not_encountered_card();
+    });
+}
+function cards_locked(cards, locked){
+    return cards.map((c) => {
+        var card = c();
+        if(locked.find((l) => {
+            return l().name === card.name;
+        })){
+            return symbol_locked_card;
+        }
+        return c;
+    });
+}
+function update_journal(){
+    update_journal_cards();
+    update_journal_boons();
+}
+
+function setup_journal_navbar(){
+    var id = UIIDS.journal_navbar;
+
+    var section_id_list = [
+        UIIDS.journal_cards,
+        UIIDS.journal_boons,
+    ];
+
+    var swap_visibility = function(id_list, id){
+        return function(){
+            display.swap_screen(id_list, id);
+        }
+    }
+
+    display.create_visibility_toggle(id, journal_navbar_labels.cards, swap_visibility(section_id_list, UIIDS.journal_cards));
+    display.create_visibility_toggle(id, journal_navbar_labels.boons, swap_visibility(section_id_list, UIIDS.journal_boons));
+
+    display.swap_screen(section_id_list, UIIDS.journal_cards);
+}
 const SENTRY_MODES = {
     saw: "Saw",
     cannon: "Cannon",
