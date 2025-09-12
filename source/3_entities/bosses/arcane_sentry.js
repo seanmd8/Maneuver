@@ -10,17 +10,13 @@ const SENTRY_MAX_CANNON_CYCLE = 3;
 
 /** @type {TileGenerator} */
 function arcane_sentry_tile(){
-    var health = 7;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return{
         type: entity_types.enemy,
         name: boss_names.arcane_sentry,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
         description: boss_descriptions.arcane_sentry,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry]),
-        health,
+        health: 7,
         death_message: boss_death_message.arcane_sentry,
         death_achievement: achievement_names.arcane_sentry,
         behavior: sentry_core_ai,
@@ -33,17 +29,13 @@ function arcane_sentry_tile(){
 }
 
 function arcane_node_tile(){
-    var health = 5;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return{
         type: entity_types.enemy,
         name: boss_names.arcane_sentry_node,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret`,
         description: boss_descriptions.arcane_sentry_node,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry, TAGS.controlled, TAGS.unstunnable]),
-        health,
+        health: 5,
         death_message: boss_death_message.arcane_sentry_node,
         on_hit: node_on_hit,
         on_death: node_on_death,

@@ -309,6 +309,7 @@ class GameMap{
                     tile = tile.look;
                 }
                 say(description);
+                GS.data.add_tile(tile.name);
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
                 var telegraph_other_spaces = [];
@@ -724,7 +725,8 @@ class GameMap{
             // Reached the next area.
             var next_list = this.#area.next_area_list;
             this.#area = rand_from(next_list);
-            floor_description += `\n${this.#area.description}`;
+            floor_description += `\n${gameplay_text.new_area}${this.#area.name}.`;
+            GS.data.add_area(this.#area.name);
             for(var list of this.#grid){
                 for(var point of list){
                     point.floor = this.#area.background;

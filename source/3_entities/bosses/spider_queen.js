@@ -1,16 +1,12 @@
 /** @type {TileGenerator} */
 function spider_queen_tile(){
-    var health = 3;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return{
         type: entity_types.enemy,
         name: boss_names.spider_queen,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
         description: boss_descriptions.spider_queen,
         tags: new TagList([TAGS.boss]),
-        health,
+        health: 3,
         death_message: boss_death_message.spider_queen,
         death_achievement: achievement_names.spider_queen,
         behavior: spider_ai,

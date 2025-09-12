@@ -1,24 +1,22 @@
 /** @type {AIFunction} AI used by claustropedes.*/
 function claustropede_ai(self, target, map){
     if(self.tile.cycle === 1){
-        self.tile.cycle = 0;
-        var copy = claustropede_2_tile();
-        var health = self.tile.health;
-        copy.health = health;
-        var pic = `${IMG_FOLDER.tiles}claustropede_3.png`;
-        switch(health){
-            case 2:
-                pic = `${IMG_FOLDER.tiles}claustropede_2.png`;
-                break;
+        var copy_fun;
+        switch(self.tile.health){
             case 1:
-                pic = `${IMG_FOLDER.tiles}claustropede_1.png`;
+                copy_fun = claustropede_1_tile;
                 break;
+            case 2:
+                copy_fun = claustropede_2_tile;
+                break;
+            default:
+                throw new Error(ERRORS.invalid_value);
         }
-        self.tile.pic = pic;
-        copy.pic = pic;
-        
-        teleport_spell(self, target, map);
-        map.spawn_safely(copy, 5, true);
+        for(var i = 0; i < 2; ++i){
+            map.attack(self.location);
+            var copy = copy_fun();
+            map.spawn_safely(copy, SAFE_SPAWN_ATTEMPTS, true);
+        }
     }
     else{
         spider_ai(self, target, map);

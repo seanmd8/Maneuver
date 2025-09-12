@@ -15,6 +15,8 @@ const gameplay_text = {
         +`Refer to the guidebook if you need more information.`,
     floor: 
         `Welcome to floor `,
+    new_area:
+        `You have entered the `,
     game_over: 
         `Game Over. You were killed by a `,
     stunned:    

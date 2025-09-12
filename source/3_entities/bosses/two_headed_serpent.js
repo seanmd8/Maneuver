@@ -5,6 +5,7 @@ function two_headed_serpent_tile(){
         type: entity_types.enemy,
         name: boss_names.two_headed_serpent,
         pic: pic_arr[1],
+        display_pic: pic_arr[1],
         description: boss_descriptions.two_headed_serpent_awake,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         health: 1,

@@ -1,13 +1,13 @@
 /** @type {TileGenerator} */
-function claustropede_3_tile(){
+function claustropede_1_tile(){
     return {
         type: entity_types.enemy,
-        name: enemy_names.claustropede_3,
-        pic: `${IMG_FOLDER.tiles}claustropede_3.png`,
+        name: enemy_names.claustropede_1,
+        pic: `${IMG_FOLDER.tiles}claustropede_1.png`,
         description: enemy_descriptions.claustropede,
         tags: new TagList(),
-        health: 3,
-        difficulty: 10,
+        health: 1,
+        difficulty: 1,
         behavior: claustropede_ai,
         on_hit: claustropede_hit,
         telegraph: claustropede_telegraph,

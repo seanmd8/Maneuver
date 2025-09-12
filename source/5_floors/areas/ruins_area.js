@@ -7,7 +7,7 @@ function generate_ruins_area(){
                     ram_tile, rat_tile, shadow_knight_tile],
         boss_floor_list: [velociphile_floor],
         next_area_list: area2,
-        description: area_descriptions.ruins
+        name: area_names.ruins,
     }
 }
 

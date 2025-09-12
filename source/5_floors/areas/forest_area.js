@@ -7,7 +7,7 @@ function generate_forest_area(){
                     scythe_tile, scorpion_tile, thorn_bush_tile],
         boss_floor_list: [forest_heart_floor],
         next_area_list: area5,
-        description: area_descriptions.forest
+        name: area_names.forest,
     }
 }
 

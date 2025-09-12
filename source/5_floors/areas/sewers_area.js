@@ -7,7 +7,7 @@ function generate_sewers_area(){
                     corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile, carrion_flies_tile],
         boss_floor_list: [two_headed_serpent_floor],
         next_area_list: area3,
-        description: area_descriptions.sewers
+        name: area_names.sewers,
     }
 }
 

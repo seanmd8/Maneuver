@@ -12,11 +12,18 @@ function arcane_sentry_floor(floor_num,  area, map){
     // Spawn the core.
     var core_pos = new Point(x_range[0], y_range[0]);
     var core = arcane_sentry_tile();
+    if(GS.boons.has(boon_names.boss_slayer)){
+        core.health -= 2;
+    }
     map.add_tile(core, core_pos);
 
     // Spawn the nodes.
     for(var direction of DIAGONAL_DIRECTIONS){
-        map.add_tile(arcane_node_tile(), core_pos.plus(direction));
+        var node = arcane_node_tile();
+        if(GS.boons.has(boon_names.boss_slayer)){
+            node.health -= 2;
+        }
+        map.add_tile(node, core_pos.plus(direction));
     }
     
     // Swap to turret mode for setup.

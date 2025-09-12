@@ -6,6 +6,7 @@ function swaying_nettle_tile(){
         type: entity_types.enemy,
         name: enemy_names.swaying_nettle,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.swaying_nettle,
         tags: new TagList([TAGS.unmovable, TAGS.nettle_immune]),
         health: 1,

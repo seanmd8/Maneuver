@@ -7,9 +7,6 @@ function lord_of_shadow_and_flame_tile(){
     ]
 
     var health = 13;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     var summons = [
         altar_of_sunlight_tile,
         altar_of_stars_tile,
@@ -23,10 +20,11 @@ function lord_of_shadow_and_flame_tile(){
         type: entity_types.enemy,
         name: boss_names.lord_of_shadow_and_flame,
         pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: boss_descriptions.lord_of_shadow_and_flame,
         tags: new TagList([TAGS.boss]),
         health,
-        max_health: 13,
+        max_health: health,
         death_message: boss_death_message.lord_of_shadow_and_flame,
         death_achievement: achievement_names.lord_of_shadow_and_flame,
         behavior: lord_of_shadow_and_flame_behavior,

@@ -6,6 +6,7 @@ function noxious_toad_tile(){
         type: entity_types.enemy,
         name: enemy_names.noxious_toad,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.noxious_toad, 
         tags: new TagList(),
         health: 1,

@@ -9,7 +9,7 @@ function generate_court_area(){
         ],
         boss_floor_list: [lord_of_shadow_and_flame_floor],
         next_area_list: [generate_default_area],
-        description: area_descriptions.court
+        name: area_names.court,
     }
 }
 

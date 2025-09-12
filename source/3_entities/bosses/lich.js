@@ -21,21 +21,18 @@ function lich_tile(){
         pheonix_tile,
         darkling_tile,
     ];
-    var health = 4;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     var starting_cycle = 0;
     return{
         type: entity_types.enemy,
         name: boss_names.lich,
         pic: spells[starting_cycle].pic,
+        display_pic: `${IMG_FOLDER.tiles}lich_rest.png`,
         description: 
             `${boss_descriptions.lich}\n`
             +`${boss_descriptions.lich_announcement}\n`
             +`${spells[starting_cycle].description}`,
         tags: new TagList([TAGS.boss]),
-        health,
+        health: 4,
         death_message: boss_death_message.lich,
         death_achievement: achievement_names.lich,
         behavior: lich_ai,

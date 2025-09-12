@@ -27,7 +27,8 @@ class GameState{
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = init.make_deck();
 
-        var starting_text = `${start.description}\n${gameplay_text.welcome}`;
+        var starting_text = `${gameplay_text.new_area}${start.name}.\n${gameplay_text.welcome}`;
+        this.data.add_area(start.name);
         say_record(starting_text);
         display.display_message(UIIDS.hand_label, `${gameplay_labels.hand}`);
         display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);

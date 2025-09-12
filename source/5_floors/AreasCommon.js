@@ -34,6 +34,6 @@ function generate_default_area(){
         enemy_list: ENEMY_LIST,
         boss_floor_list: [],
         next_area_list: [generate_default_area],
-        description: area_descriptions.default
+        name: area_names.default,
     }
 }

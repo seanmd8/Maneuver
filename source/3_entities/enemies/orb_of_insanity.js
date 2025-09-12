@@ -6,6 +6,7 @@ function orb_of_insanity_tile(){
         type: entity_types.enemy,
         name: enemy_names.orb_of_insanity,
         pic: pic_arr[0],
+        display_pic: pic_arr[1],
         description: enemy_descriptions.orb_of_insanity,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,

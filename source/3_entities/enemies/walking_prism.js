@@ -7,6 +7,7 @@ function walking_prism_tile(){
         type: entity_types.enemy,
         name: enemy_names.walking_prism,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[1],
         description: `${description_arr[0]}${description_arr[1 + starting_cycle]}`, 
         tags: new TagList(),
         health: 2,

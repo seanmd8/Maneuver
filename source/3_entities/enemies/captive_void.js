@@ -6,6 +6,7 @@ function captive_void_tile(){
         type: entity_types.enemy,
         name: enemy_names.captive_void,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.captive_void,
         tags: new TagList([TAGS.unmovable]),
         difficulty: 2,

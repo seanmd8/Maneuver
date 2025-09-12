@@ -7,6 +7,7 @@ function vinesnare_bush_tile(){
         type: entity_types.enemy,
         name: enemy_names.vinesnare_bush,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.vinesnare_bush,
         tags: new TagList([TAGS.unmovable]),
         health: 1,

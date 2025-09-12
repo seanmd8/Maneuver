@@ -8,17 +8,14 @@ function young_dragon_tile(){
         `${IMG_FOLDER.tiles}young_dragon_breath.png`,
         `${IMG_FOLDER.tiles}young_dragon_diagonal_breath.png`
     ];
-    var health = 5;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return {
         type: entity_types.enemy,
         name: boss_names.young_dragon,
         pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: `${boss_descriptions.young_dragon[0]}${boss_descriptions.young_dragon[1]}`,
         tags: new TagList([TAGS.boss]),
-        health,
+        health: 5,
         death_message: boss_death_message.young_dragon,
         death_achievement: achievement_names.young_dragon,
         behavior: young_dragon_behavior,

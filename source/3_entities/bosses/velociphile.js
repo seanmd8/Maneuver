@@ -1,16 +1,12 @@
 /** @type {TileGenerator} */
 function velociphile_tile(){
-    var health = 3;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return{
         type: entity_types.enemy,
         name: boss_names.velociphile,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
         description: boss_descriptions.velociphile,
         tags: new TagList([TAGS.boss]),
-        health,
+        health: 3,
         death_message: boss_death_message.velociphile,
         death_achievement: achievement_names.velociphile,
         behavior: velociphile_ai,

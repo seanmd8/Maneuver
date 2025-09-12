@@ -9,7 +9,7 @@ function generate_library_area(){
         ],
         boss_floor_list: [arcane_sentry_floor],
         next_area_list: area5,
-        description: area_descriptions.library
+        name: area_names.library,
     }
 }
 

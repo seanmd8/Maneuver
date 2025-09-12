@@ -6,6 +6,7 @@ function gem_crawler_tile(){
         type: entity_types.enemy,
         name: enemy_names.gem_crawler,
         pic: pic_arr[cycle],
+        display_pic: pic_arr[1],
         description: enemy_descriptions.gem_crawler,
         tags: new TagList(),
         health: 1,

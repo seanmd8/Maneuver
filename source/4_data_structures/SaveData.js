@@ -11,6 +11,8 @@ class SaveData{
     achievements;
     cards;
     boons;
+    tiles;
+    areas;
     
     #load_function;
     #save_function;
@@ -28,6 +30,8 @@ class SaveData{
         this.achievements.set(data.achievements)
         this.cards = new SearchTree(data.cards);
         this.boons = new SearchTree(data.boons);
+        this.tiles = new SearchTree(data.tiles);
+        this.areas = new SearchTree(data.areas);
     }
     save(){
         var data = {
@@ -35,6 +39,8 @@ class SaveData{
             achievements: this.achievements.get(),
             cards: this.cards.to_list(),
             boons: this.boons.to_list(),
+            tiles: this.tiles.to_list(),
+            areas: this.areas.to_list(),
         }
         this.#save_function(data);        
     }
@@ -65,7 +71,18 @@ class SaveData{
             this.save();
         }
     }
-    
+    add_tile(name){
+        var added = this.tiles.add(name);
+        if(added){
+            this.save();
+        }
+    }
+    add_area(name){
+        var added = this.areas.add(name);
+        if(added){
+            this.save();
+        }
+    }
 
     // Static functions
     static load_file_function(save_name){

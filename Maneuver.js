@@ -508,6 +508,9 @@ const CARD_SCALE = 90;
 const SMALL_CARD_SCALE = 75;
 const CHEST_CONTENTS_SIZE = 120;
 const TILE_SCALE = 40;
+const JOURNAL_BOSS_SCALE = 120;
+const JOURNAL_TILE_SCALE = 60;
+const JOURNAL_AREA_WIDTH = 6;
 const VICTORY_IMG_SCALE = TILE_SCALE * FLOOR_HEIGHT + 12;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
@@ -639,28 +642,20 @@ function floor_has_chest(floor_of_area){
     }
     return false;
 }
-const area_descriptions = {
-    ruins: 
-        `You have entered the ruins.`,
-    sewers: 
-        `You have entered the sewers.`,
-    basement: 
-        `You have entered the basement.`,
-    magma: 
-        `You have entered the magmatic caves.`,
-    crypt: 
-        `You have entered the crypt.`,
-    forest: 
-        `You have entered the subteranean forest.`,
-    library: 
-        `You have entered the arcane library.`,
-    court: 
-        `You have entered the candlelit court.`,
-    default: 
-        `You have reached the end of the current content. Floors will continue to generate but `
-        +`there will be no more boss fights. Good luck.`,
+const area_names = {
+    ruins: `City Ruins`,
+    sewers: `Sewers`,
+    basement: `Basement`,
+    magma: `Magmatic Caves`,
+    crypt: `Crypt`,
+    forest: `Subteranean Forest`,
+    library: `Arcane Library`,
+    court: `Candlelit Court`,
+    
+    default: `Post Game Area`,
+    unknown: `Unknown`
 }
-Object.freeze(area_descriptions);
+Object.freeze(area_names);
 const boon_names = {
     locked: `Locked`,
     not_encountered: `Not Encountered`,
@@ -1372,7 +1367,9 @@ const enemy_names = {
     brightling: `Brightling`, 
     captive_void: `Captive Void`, 
     carrion_flies: `Carrion Flies`, 
-    claustropede: `Claustropede`,
+    claustropede_1: `Claustropede x1`,
+    claustropede_2: `Claustropede x2`,
+    claustropede_3: `Claustropede x4`,
     clay_golem: `Clay Golem`, 
     corrosive_caterpillar: `Corrosive Caterpillar`, 
     darkling: `Darkling`, 
@@ -1927,6 +1924,8 @@ const gameplay_text = {
         +`Refer to the guidebook if you need more information.`,
     floor: 
         `Welcome to floor `,
+    new_area:
+        `You have entered the `,
     game_over: 
         `Game Over. You were killed by a `,
     stunned:    
@@ -2098,6 +2097,7 @@ Object.freeze(journal_card_headers);
 const journal_navbar_labels = {
     cards: `Cards`,
     boons: `Boons`,
+    areas: `Areas`,
 }
 Object.freeze(journal_navbar_labels);
 const screen_names = {
@@ -2236,6 +2236,7 @@ const HTML_UIIDS = {
         journal_navbar: `journalNavbar`,
         journal_cards: `journalCards`,
         journal_boons: `journalBoons`,
+        journal_areas: `journalAreas`,
     controls: `controls`,
         stage_controls: `stageControls`,
         shop_controls: `shopControls`,
@@ -3105,6 +3106,31 @@ const DisplayHTML = {
             display.add_tb_row(table_id, slice, CARD_SCALE);
         }
     },
+    journal_area_section(destination, info){
+        var place = DisplayHTML.get_element(destination);
+        var box = document.createElement(`div`);
+        place.append(box);
+
+        var h = document.createElement(`h3`)
+        h.innerText = info.name;
+        box.append(h);
+        
+        var boss = document.createElement(`table`)
+        var boss_id = `${destination} ${info.name} boss`;
+        boss.id = boss_id;
+        box.append(boss);
+        display.add_tb_row(boss_id, [info.boss], JOURNAL_BOSS_SCALE);
+
+        var tiles = document.createElement(`table`)
+        var tiles_id = `${destination} ${info.name} tiles`;
+        tiles.id = tiles_id;
+        box.append(tiles);
+        for(var i = 0; i < Math.ceil(info.tiles.length / JOURNAL_AREA_WIDTH); ++i){
+            var slice_start = i * JOURNAL_AREA_WIDTH;
+            var slice = info.tiles.slice(slice_start, slice_start + JOURNAL_AREA_WIDTH);
+            display.add_tb_row(tiles_id, slice, JOURNAL_TILE_SCALE);
+        }
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -3639,6 +3665,176 @@ function make_guidebook_images(arr){
     }
     return images;
 }
+function basement_display_info(){
+    var area = generate_basement_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: spider_queen_tile,
+        tiles: [
+            ...area.enemy_list, 
+            wall_tile, 
+            damaged_wall_tile
+        ],
+    }
+}
+function court_display_info(){
+    var area = generate_court_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: lord_of_shadow_and_flame_tile,
+        tiles: [
+            ...area.enemy_list, 
+            claustropede_1_tile,
+            starcaller_tile, 
+            moon_rock_tile, 
+            shatter_sphere_d_tile, 
+            shatter_sphere_o_tile
+        ],
+    }
+}
+function crypt_display_info(){
+    var area = generate_crypt_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: lich_tile,
+        tiles: [
+            ...area.enemy_list, 
+            coffin_tile
+        ],
+    }
+}
+function forest_display_info(){
+    var area = generate_forest_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: forest_heart_tile,
+        tiles: [
+            ...area.enemy_list, 
+            enticing_fruit_tree_tile,
+            thorn_bramble_tile,
+        ],
+    }
+}
+function library_display_info(){
+    var area = generate_library_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: arcane_sentry_tile,
+        tiles: [
+            ...area.enemy_list, 
+            bookshelf_tile
+        ],
+    }
+}
+function magma_display_info(){
+    var area = generate_magma_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: young_dragon_tile,
+        tiles: [
+            ...area.enemy_list, 
+            animated_boulder_tile, 
+            repulsor_tile, 
+            lava_pool_tile, 
+            magmatic_boulder_tile,
+            smoldering_ashes_tile,
+        ],
+    }
+}
+
+function ruins_display_info(){
+    var area = generate_ruins_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: velociphile_tile,
+        tiles: [
+            ...area.enemy_list
+        ],
+    }
+}
+
+function sewers_display_info(){
+    var area = generate_sewers_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: two_headed_serpent_tile,
+        tiles: [
+            ...area.enemy_list, 
+            corrosive_slime_tile, 
+            sewer_grate_tile,
+            small_d_porcuslime_tile,
+            small_o_porcuslime_tile,
+        ],
+    }
+}
+
+function update_journal_areas(){
+    display.remove_children(UIIDS.journal_areas);
+    show_assorted_tiles();
+    show_area(ruins_display_info());
+    show_area(basement_display_info());
+    show_area(sewers_display_info());
+    show_area(crypt_display_info());
+    show_area(magma_display_info());
+    show_area(forest_display_info());
+    show_area(library_display_info());
+    show_area(court_display_info());
+}
+
+function show_assorted_tiles(){
+
+}
+
+function show_area(info){
+    var visited = GS.data.areas.has(info.name);
+    if(!visited){
+        info.name = area_names.unknown;
+    }
+    var check_encountered = (t) => {
+        t = t();
+        if(!visited){
+            return {
+                name: boon_names.locked,
+                pic: `${IMG_FOLDER.other}locked.png`,
+                background: [info.background],
+                description: boon_descriptions.locked,
+            }
+        }
+        if(GS.data.tiles.has(t.name)){
+            return {
+                name: t.name,
+                pic: t.display_pic ? t.display_pic : t.pic,
+                background: [info.background],
+                description: t.description,
+            }
+        }
+        return {
+            name: boon_names.not_encountered,
+            pic: `${IMG_FOLDER.other}not_encountered.png`,
+            background: [info.background],
+            description: boon_descriptions.not_encountered,
+        }
+    };
+    info.boss = check_encountered(info.boss);
+    info.tiles = info.tiles.map(check_encountered).sort((a, b) => {
+        if(a.name < b.name){
+            return -1;
+        }
+        if(a.name > b.name){
+            return 1;
+        }
+        return 0;
+    });
+    display.journal_area_section(UIIDS.journal_areas, info);
+}
 function update_journal_boons(){
     display.remove_children(UIIDS.journal_boons);
     var boons = boons_encountered(BOON_LIST, GS.data.boons);
@@ -3722,6 +3918,7 @@ function cards_locked(cards, locked){
 function update_journal(){
     update_journal_cards();
     update_journal_boons();
+    update_journal_areas();
 }
 
 function setup_journal_navbar(){
@@ -3730,6 +3927,7 @@ function setup_journal_navbar(){
     var section_id_list = [
         UIIDS.journal_cards,
         UIIDS.journal_boons,
+        UIIDS.journal_areas,
     ];
 
     var swap_visibility = function(id_list, id){
@@ -3740,6 +3938,7 @@ function setup_journal_navbar(){
 
     display.create_visibility_toggle(id, journal_navbar_labels.cards, swap_visibility(section_id_list, UIIDS.journal_cards));
     display.create_visibility_toggle(id, journal_navbar_labels.boons, swap_visibility(section_id_list, UIIDS.journal_boons));
+    display.create_visibility_toggle(id, journal_navbar_labels.areas, swap_visibility(section_id_list, UIIDS.journal_areas));
 
     display.swap_screen(section_id_list, UIIDS.journal_cards);
 }
@@ -3755,17 +3954,13 @@ const SENTRY_MAX_CANNON_CYCLE = 3;
 
 /** @type {TileGenerator} */
 function arcane_sentry_tile(){
-    var health = 7;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return{
         type: entity_types.enemy,
         name: boss_names.arcane_sentry,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
         description: boss_descriptions.arcane_sentry,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry]),
-        health,
+        health: 7,
         death_message: boss_death_message.arcane_sentry,
         death_achievement: achievement_names.arcane_sentry,
         behavior: sentry_core_ai,
@@ -3778,17 +3973,13 @@ function arcane_sentry_tile(){
 }
 
 function arcane_node_tile(){
-    var health = 5;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return{
         type: entity_types.enemy,
         name: boss_names.arcane_sentry_node,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret`,
         description: boss_descriptions.arcane_sentry_node,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry, TAGS.controlled, TAGS.unstunnable]),
-        health,
+        health: 5,
         death_message: boss_death_message.arcane_sentry_node,
         on_hit: node_on_hit,
         on_death: node_on_death,
@@ -3957,9 +4148,10 @@ function forest_heart_tile(){
         type: entity_types.enemy,
         name: boss_names.forest_heart,
         pic: pic_arr[0],
+        display_pic: `${IMG_FOLDER.tiles}forest_heart.png`,
         description: boss_descriptions.forest_heart + heart_spell_descriptions.rest,
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
-        health: 12,
+        health,
         death_message: boss_death_message.forest_heart,
         death_achievement: achievement_names.forest_heart,
         behavior: forest_heart_ai,
@@ -3971,13 +4163,6 @@ function forest_heart_tile(){
         segment_list: [undefined, undefined],
         spells,
         card_drops: BOSS_CARDS.forest_heart
-    }
-    if(GS.boons.has(boon_names.boss_slayer)){
-        tile.health -= 2;
-        var next_spell = spells[tile.health - 2];
-        tile.description = boss_descriptions.forest_heart + next_spell.description;
-        tile.pic = next_spell.pic;
-        tile.telegraph_other = next_spell.telegraph_other;
     }
     return tile;
 }
@@ -4111,21 +4296,18 @@ function lich_tile(){
         pheonix_tile,
         darkling_tile,
     ];
-    var health = 4;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     var starting_cycle = 0;
     return{
         type: entity_types.enemy,
         name: boss_names.lich,
         pic: spells[starting_cycle].pic,
+        display_pic: `${IMG_FOLDER.tiles}lich_rest.png`,
         description: 
             `${boss_descriptions.lich}\n`
             +`${boss_descriptions.lich_announcement}\n`
             +`${spells[starting_cycle].description}`,
         tags: new TagList([TAGS.boss]),
-        health,
+        health: 4,
         death_message: boss_death_message.lich,
         death_achievement: achievement_names.lich,
         behavior: lich_ai,
@@ -4225,9 +4407,6 @@ function lord_of_shadow_and_flame_tile(){
     ]
 
     var health = 13;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     var summons = [
         altar_of_sunlight_tile,
         altar_of_stars_tile,
@@ -4241,10 +4420,11 @@ function lord_of_shadow_and_flame_tile(){
         type: entity_types.enemy,
         name: boss_names.lord_of_shadow_and_flame,
         pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: boss_descriptions.lord_of_shadow_and_flame,
         tags: new TagList([TAGS.boss]),
         health,
-        max_health: 13,
+        max_health: health,
         death_message: boss_death_message.lord_of_shadow_and_flame,
         death_achievement: achievement_names.lord_of_shadow_and_flame,
         behavior: lord_of_shadow_and_flame_behavior,
@@ -4387,17 +4567,13 @@ function lord_of_shadow_and_flame_on_death(self, target, map){
 }
 /** @type {TileGenerator} */
 function spider_queen_tile(){
-    var health = 3;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return{
         type: entity_types.enemy,
         name: boss_names.spider_queen,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
         description: boss_descriptions.spider_queen,
         tags: new TagList([TAGS.boss]),
-        health,
+        health: 3,
         death_message: boss_death_message.spider_queen,
         death_achievement: achievement_names.spider_queen,
         behavior: spider_ai,
@@ -4423,6 +4599,7 @@ function two_headed_serpent_tile(){
         type: entity_types.enemy,
         name: boss_names.two_headed_serpent,
         pic: pic_arr[1],
+        display_pic: pic_arr[1],
         description: boss_descriptions.two_headed_serpent_awake,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         health: 1,
@@ -4685,17 +4862,13 @@ function two_headed_serpent_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function velociphile_tile(){
-    var health = 3;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return{
         type: entity_types.enemy,
         name: boss_names.velociphile,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
         description: boss_descriptions.velociphile,
         tags: new TagList([TAGS.boss]),
-        health,
+        health: 3,
         death_message: boss_death_message.velociphile,
         death_achievement: achievement_names.velociphile,
         behavior: velociphile_ai,
@@ -4743,17 +4916,14 @@ function young_dragon_tile(){
         `${IMG_FOLDER.tiles}young_dragon_breath.png`,
         `${IMG_FOLDER.tiles}young_dragon_diagonal_breath.png`
     ];
-    var health = 5;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return {
         type: entity_types.enemy,
         name: boss_names.young_dragon,
         pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: `${boss_descriptions.young_dragon[0]}${boss_descriptions.young_dragon[1]}`,
         tags: new TagList([TAGS.boss]),
-        health,
+        health: 5,
         death_message: boss_death_message.young_dragon,
         death_achievement: achievement_names.young_dragon,
         behavior: young_dragon_behavior,
@@ -5138,6 +5308,7 @@ function captive_void_tile(){
         type: entity_types.enemy,
         name: enemy_names.captive_void,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.captive_void,
         tags: new TagList([TAGS.unmovable]),
         difficulty: 2,
@@ -5246,10 +5417,26 @@ function carrion_flies_ai(self, target, map){
     }
 }
 /** @type {TileGenerator} */
+function claustropede_1_tile(){
+    return {
+        type: entity_types.enemy,
+        name: enemy_names.claustropede_1,
+        pic: `${IMG_FOLDER.tiles}claustropede_1.png`,
+        description: enemy_descriptions.claustropede,
+        tags: new TagList(),
+        health: 1,
+        difficulty: 1,
+        behavior: claustropede_ai,
+        on_hit: claustropede_hit,
+        telegraph: claustropede_telegraph,
+        cycle: 0,
+    }
+}
+/** @type {TileGenerator} */
 function claustropede_2_tile(){
     return {
         type: entity_types.enemy,
-        name: enemy_names.claustropede,
+        name: enemy_names.claustropede_2,
         pic: `${IMG_FOLDER.tiles}claustropede_2.png`,
         description: enemy_descriptions.claustropede,
         tags: new TagList(),
@@ -5265,7 +5452,7 @@ function claustropede_2_tile(){
 function claustropede_3_tile(){
     return {
         type: entity_types.enemy,
-        name: enemy_names.claustropede,
+        name: enemy_names.claustropede_3,
         pic: `${IMG_FOLDER.tiles}claustropede_3.png`,
         description: enemy_descriptions.claustropede,
         tags: new TagList(),
@@ -5280,24 +5467,22 @@ function claustropede_3_tile(){
 /** @type {AIFunction} AI used by claustropedes.*/
 function claustropede_ai(self, target, map){
     if(self.tile.cycle === 1){
-        self.tile.cycle = 0;
-        var copy = claustropede_2_tile();
-        var health = self.tile.health;
-        copy.health = health;
-        var pic = `${IMG_FOLDER.tiles}claustropede_3.png`;
-        switch(health){
-            case 2:
-                pic = `${IMG_FOLDER.tiles}claustropede_2.png`;
-                break;
+        var copy_fun;
+        switch(self.tile.health){
             case 1:
-                pic = `${IMG_FOLDER.tiles}claustropede_1.png`;
+                copy_fun = claustropede_1_tile;
                 break;
+            case 2:
+                copy_fun = claustropede_2_tile;
+                break;
+            default:
+                throw new Error(ERRORS.invalid_value);
         }
-        self.tile.pic = pic;
-        copy.pic = pic;
-        
-        teleport_spell(self, target, map);
-        map.spawn_safely(copy, 5, true);
+        for(var i = 0; i < 2; ++i){
+            map.attack(self.location);
+            var copy = copy_fun();
+            map.spawn_safely(copy, SAFE_SPAWN_ATTEMPTS, true);
+        }
     }
     else{
         spider_ai(self, target, map);
@@ -5448,6 +5633,7 @@ function gem_crawler_tile(){
         type: entity_types.enemy,
         name: enemy_names.gem_crawler,
         pic: pic_arr[cycle],
+        display_pic: pic_arr[1],
         description: enemy_descriptions.gem_crawler,
         tags: new TagList(),
         health: 1,
@@ -5634,6 +5820,7 @@ function magma_spewer_tile(){
         type: entity_types.enemy,
         name: enemy_names.magma_spewer,
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
+        display_pic: pic_arr[1],
         description: enemy_descriptions.magma_spewer,
         tags: new TagList(),
         health: 1,
@@ -5730,6 +5917,7 @@ function noxious_toad_tile(){
         type: entity_types.enemy,
         name: enemy_names.noxious_toad,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.noxious_toad, 
         tags: new TagList(),
         health: 1,
@@ -5801,6 +5989,7 @@ function orb_of_insanity_tile(){
         type: entity_types.enemy,
         name: enemy_names.orb_of_insanity,
         pic: pic_arr[0],
+        display_pic: pic_arr[1],
         description: enemy_descriptions.orb_of_insanity,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
@@ -6028,6 +6217,7 @@ function medium_porcuslime_tile(){
         type: entity_types.enemy,
         name: enemy_names.porcuslime_medium,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.porcuslime_medium,
         tags: new TagList(),
         health: 2,
@@ -6146,6 +6336,7 @@ function ram_tile(){
         type: entity_types.enemy,
         name: enemy_names.ram,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[1],
         description: enemy_descriptions.ram,
         tags: new TagList(),
         health: 2,
@@ -6784,6 +6975,7 @@ function starcaller_tile(){
         type: entity_types.enemy,
         name: enemy_names.starcaller,
         pic: `${IMG_FOLDER.tiles}starcaller_off.png`,
+        display_pic: pic_arr[1],
         description: enemy_descriptions.starcaller,
         tags: new TagList(),
         health: 1,
@@ -6879,6 +7071,7 @@ function swaying_nettle_tile(){
         type: entity_types.enemy,
         name: enemy_names.swaying_nettle,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.swaying_nettle,
         tags: new TagList([TAGS.unmovable, TAGS.nettle_immune]),
         health: 1,
@@ -7356,6 +7549,7 @@ function vinesnare_bush_tile(){
         type: entity_types.enemy,
         name: enemy_names.vinesnare_bush,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.vinesnare_bush,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
@@ -7448,6 +7642,7 @@ function walking_prism_tile(){
         type: entity_types.enemy,
         name: enemy_names.walking_prism,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[1],
         description: `${description_arr[0]}${description_arr[1 + starting_cycle]}`, 
         tags: new TagList(),
         health: 2,
@@ -10909,6 +11104,7 @@ class GameMap{
                     tile = tile.look;
                 }
                 say(description);
+                GS.data.add_tile(tile.name);
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
                 var telegraph_other_spaces = [];
@@ -11324,7 +11520,8 @@ class GameMap{
             // Reached the next area.
             var next_list = this.#area.next_area_list;
             this.#area = rand_from(next_list);
-            floor_description += `\n${this.#area.description}`;
+            floor_description += `\n${gameplay_text.new_area}${this.#area.name}.`;
+            GS.data.add_area(this.#area.name);
             for(var list of this.#grid){
                 for(var point of list){
                     point.floor = this.#area.background;
@@ -11597,7 +11794,8 @@ class GameState{
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = init.make_deck();
 
-        var starting_text = `${start.description}\n${gameplay_text.welcome}`;
+        var starting_text = `${gameplay_text.new_area}${start.name}.\n${gameplay_text.welcome}`;
+        this.data.add_area(start.name);
         say_record(starting_text);
         display.display_message(UIIDS.hand_label, `${gameplay_labels.hand}`);
         display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
@@ -12441,6 +12639,8 @@ class SaveData{
     achievements;
     cards;
     boons;
+    tiles;
+    areas;
     
     #load_function;
     #save_function;
@@ -12458,6 +12658,8 @@ class SaveData{
         this.achievements.set(data.achievements)
         this.cards = new SearchTree(data.cards);
         this.boons = new SearchTree(data.boons);
+        this.tiles = new SearchTree(data.tiles);
+        this.areas = new SearchTree(data.areas);
     }
     save(){
         var data = {
@@ -12465,6 +12667,8 @@ class SaveData{
             achievements: this.achievements.get(),
             cards: this.cards.to_list(),
             boons: this.boons.to_list(),
+            tiles: this.tiles.to_list(),
+            areas: this.areas.to_list(),
         }
         this.#save_function(data);        
     }
@@ -12495,7 +12699,18 @@ class SaveData{
             this.save();
         }
     }
-    
+    add_tile(name){
+        var added = this.tiles.add(name);
+        if(added){
+            this.save();
+        }
+    }
+    add_area(name){
+        var added = this.areas.add(name);
+        if(added){
+            this.save();
+        }
+    }
 
     // Static functions
     static load_file_function(save_name){
@@ -12940,7 +13155,7 @@ function generate_basement_area(){
                     spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
         boss_floor_list: [spider_queen_floor],
         next_area_list: area3,
-        description: area_descriptions.basement
+        name: area_names.basement,
     }
 }
 
@@ -12981,7 +13196,7 @@ function generate_court_area(){
         ],
         boss_floor_list: [lord_of_shadow_and_flame_floor],
         next_area_list: [generate_default_area],
-        description: area_descriptions.court
+        name: area_names.court,
     }
 }
 
@@ -13029,7 +13244,7 @@ function generate_crypt_area(){
                     darkling_tile, orb_of_insanity_tile],
         boss_floor_list: [lich_floor],
         next_area_list: area4,
-        description: area_descriptions.crypt
+        name: area_names.crypt,
     }
 }
 
@@ -13054,7 +13269,7 @@ function generate_forest_area(){
                     scythe_tile, scorpion_tile, thorn_bush_tile],
         boss_floor_list: [forest_heart_floor],
         next_area_list: area5,
-        description: area_descriptions.forest
+        name: area_names.forest,
     }
 }
 
@@ -13094,7 +13309,7 @@ function generate_library_area(){
         ],
         boss_floor_list: [arcane_sentry_floor],
         next_area_list: area5,
-        description: area_descriptions.library
+        name: area_names.library,
     }
 }
 
@@ -13122,7 +13337,7 @@ function generate_magma_area(){
                     pheonix_tile, unstable_wisp_tile],
         boss_floor_list: [young_dragon_floor],
         next_area_list: area4,
-        description: area_descriptions.magma
+        name: area_names.magma,
     }
 }
 /** @type {FloorGenerator}*/
@@ -13215,7 +13430,7 @@ function generate_ruins_area(){
                     ram_tile, rat_tile, shadow_knight_tile],
         boss_floor_list: [velociphile_floor],
         next_area_list: area2,
-        description: area_descriptions.ruins
+        name: area_names.ruins,
     }
 }
 
@@ -13233,7 +13448,7 @@ function generate_sewers_area(){
                     corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile, carrion_flies_tile],
         boss_floor_list: [two_headed_serpent_floor],
         next_area_list: area3,
-        description: area_descriptions.sewers
+        name: area_names.sewers,
     }
 }
 
@@ -13318,7 +13533,7 @@ function generate_default_area(){
         enemy_list: ENEMY_LIST,
         boss_floor_list: [],
         next_area_list: [generate_default_area],
-        description: area_descriptions.default
+        name: area_names.default,
     }
 }
 /** @type {FloorGenerator} Generates the floor where the Arcane Sentry appears.*/
@@ -13335,11 +13550,18 @@ function arcane_sentry_floor(floor_num,  area, map){
     // Spawn the core.
     var core_pos = new Point(x_range[0], y_range[0]);
     var core = arcane_sentry_tile();
+    if(GS.boons.has(boon_names.boss_slayer)){
+        core.health -= 2;
+    }
     map.add_tile(core, core_pos);
 
     // Spawn the nodes.
     for(var direction of DIAGONAL_DIRECTIONS){
-        map.add_tile(arcane_node_tile(), core_pos.plus(direction));
+        var node = arcane_node_tile();
+        if(GS.boons.has(boon_names.boss_slayer)){
+            node.health -= 2;
+        }
+        map.add_tile(node, core_pos.plus(direction));
     }
     
     // Swap to turret mode for setup.
@@ -13374,6 +13596,13 @@ function forest_heart_floor(floor_num,  area, map){
     ]
     for(var i = 0; i < locations.length; ++i){
         var section = forest_heart_tile();
+        if(GS.boons.has(boon_names.boss_slayer)){
+            section.health -= 2;
+            var next_spell = section.spells[section.health - 2];
+            section.description = boss_descriptions.forest_heart + next_spell.description;
+            section.pic = next_spell.pic;
+            section.telegraph_other = next_spell.telegraph_other;
+        }
         if(i !== 0){
             section.behavior = undefined;
             section.tags.add(TAGS.hidden);
@@ -13399,7 +13628,11 @@ function lich_floor(floor_num,  area, map){
     for(var location of locations){
         map.add_tile(damaged_wall_tile(), location);
     }
-    map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
+    var boss = lich_tile();
+    if(GS.boons.has(boon_names.boss_slayer)){
+        boss.health -= 2;
+    }
+    map.spawn_safely(boss, SAFE_SPAWN_ATTEMPTS, true);
     return boss_floor_message.lich;
 }
 /** @type {FloorGenerator} Generates the floor where the Lord of Shadow and Flame appears.*/
@@ -13414,7 +13647,11 @@ function lord_of_shadow_and_flame_floor(floor_num,  area, map){
         new Point(mid_width, mid_height + 1),
     ]
     var spawnpoint = rand_from(locations);
-    map.add_tile(lord_of_shadow_and_flame_tile(), spawnpoint);
+    var boss = lord_of_shadow_and_flame_tile();
+    if(GS.boons.has(boon_names.boss_slayer)){
+        boss.health -= 2;
+    }
+    map.add_tile(boss, spawnpoint);
     var message = boss_floor_message.lord_of_shadow_and_flame;
     var pacifism_message = GS.boons.has(boon_names.pacifism) > 0
         ? `\n${boss_floor_message.lord_pacifism}`
@@ -13423,7 +13660,11 @@ function lord_of_shadow_and_flame_floor(floor_num,  area, map){
 }
 /** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){
-    map.spawn_safely(spider_queen_tile(), SAFE_SPAWN_ATTEMPTS, true);
+    var boss = spider_queen_tile();
+    if(GS.boons.has(boon_names.boss_slayer)){
+        boss.health -= 2;
+    }
+    map.spawn_safely(boss, SAFE_SPAWN_ATTEMPTS, true);
     for(var i = 0; i < 4; ++i){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
@@ -13502,7 +13743,11 @@ function two_headed_serpent_floor(floor_num, area, map){
 }
 /** @type {FloorGenerator} Generates the floor where the Velociphile appears.*/
 function velociphile_floor(floor_num,  area, map){
-    map.spawn_safely(velociphile_tile(), SAFE_SPAWN_ATTEMPTS, true);
+    var boss = velociphile_tile();
+    if(GS.boons.has(boon_names.boss_slayer)){
+        boss.health -= 2;
+    }
+    map.spawn_safely(boss, SAFE_SPAWN_ATTEMPTS, true);
     for(var i = 0; i < 8; ++i){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
@@ -13511,7 +13756,11 @@ function velociphile_floor(floor_num,  area, map){
 }
 /** @type {FloorGenerator} Generates the floor where the Young Dragon appears.*/
 function young_dragon_floor(floor_num,  area, map){
-    map.spawn_safely(young_dragon_tile(), SAFE_SPAWN_ATTEMPTS, true);
+    var boss = young_dragon_tile();
+    if(GS.boons.has(boon_names.boss_slayer)){
+        boss.health -= 2;
+    }
+    map.spawn_safely(boss, SAFE_SPAWN_ATTEMPTS, true);
     for(var i = 0; i < 22; ++i){
         map.add_tile(lava_pool_tile());
     }

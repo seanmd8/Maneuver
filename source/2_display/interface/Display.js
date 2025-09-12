@@ -799,6 +799,31 @@ const DisplayHTML = {
             display.add_tb_row(table_id, slice, CARD_SCALE);
         }
     },
+    journal_area_section(destination, info){
+        var place = DisplayHTML.get_element(destination);
+        var box = document.createElement(`div`);
+        place.append(box);
+
+        var h = document.createElement(`h3`)
+        h.innerText = info.name;
+        box.append(h);
+        
+        var boss = document.createElement(`table`)
+        var boss_id = `${destination} ${info.name} boss`;
+        boss.id = boss_id;
+        box.append(boss);
+        display.add_tb_row(boss_id, [info.boss], JOURNAL_BOSS_SCALE);
+
+        var tiles = document.createElement(`table`)
+        var tiles_id = `${destination} ${info.name} tiles`;
+        tiles.id = tiles_id;
+        box.append(tiles);
+        for(var i = 0; i < Math.ceil(info.tiles.length / JOURNAL_AREA_WIDTH); ++i){
+            var slice_start = i * JOURNAL_AREA_WIDTH;
+            var slice = info.tiles.slice(slice_start, slice_start + JOURNAL_AREA_WIDTH);
+            display.add_tb_row(tiles_id, slice, JOURNAL_TILE_SCALE);
+        }
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){

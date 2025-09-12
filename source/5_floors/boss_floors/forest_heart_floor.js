@@ -17,6 +17,13 @@ function forest_heart_floor(floor_num,  area, map){
     ]
     for(var i = 0; i < locations.length; ++i){
         var section = forest_heart_tile();
+        if(GS.boons.has(boon_names.boss_slayer)){
+            section.health -= 2;
+            var next_spell = section.spells[section.health - 2];
+            section.description = boss_descriptions.forest_heart + next_spell.description;
+            section.pic = next_spell.pic;
+            section.telegraph_other = next_spell.telegraph_other;
+        }
         if(i !== 0){
             section.behavior = undefined;
             section.tags.add(TAGS.hidden);

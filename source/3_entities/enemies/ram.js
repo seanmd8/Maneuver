@@ -6,6 +6,7 @@ function ram_tile(){
         type: entity_types.enemy,
         name: enemy_names.ram,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[1],
         description: enemy_descriptions.ram,
         tags: new TagList(),
         health: 2,

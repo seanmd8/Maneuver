@@ -23,9 +23,10 @@ function forest_heart_tile(){
         type: entity_types.enemy,
         name: boss_names.forest_heart,
         pic: pic_arr[0],
+        display_pic: `${IMG_FOLDER.tiles}forest_heart.png`,
         description: boss_descriptions.forest_heart + heart_spell_descriptions.rest,
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
-        health: 12,
+        health,
         death_message: boss_death_message.forest_heart,
         death_achievement: achievement_names.forest_heart,
         behavior: forest_heart_ai,
@@ -37,13 +38,6 @@ function forest_heart_tile(){
         segment_list: [undefined, undefined],
         spells,
         card_drops: BOSS_CARDS.forest_heart
-    }
-    if(GS.boons.has(boon_names.boss_slayer)){
-        tile.health -= 2;
-        var next_spell = spells[tile.health - 2];
-        tile.description = boss_descriptions.forest_heart + next_spell.description;
-        tile.pic = next_spell.pic;
-        tile.telegraph_other = next_spell.telegraph_other;
     }
     return tile;
 }
