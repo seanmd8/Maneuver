@@ -1,21 +1,23 @@
 function update_journal_areas(){
-    display.remove_children(UIIDS.journal_areas);
+    for(var i = 1; i < 6; ++i){
+        display.remove_children(`${UIIDS.journal_areas}${i}`);
+    }
     show_assorted_tiles();
-    show_area(ruins_display_info());
-    show_area(basement_display_info());
-    show_area(sewers_display_info());
-    show_area(crypt_display_info());
-    show_area(magma_display_info());
-    show_area(forest_display_info());
-    show_area(library_display_info());
-    show_area(court_display_info());
+    show_area(ruins_display_info(), 1);
+    show_area(basement_display_info(), 2);
+    show_area(sewers_display_info(), 2);
+    show_area(crypt_display_info(), 3);
+    show_area(magma_display_info(), 3);
+    show_area(forest_display_info(), 4);
+    show_area(library_display_info(), 4);
+    show_area(court_display_info(), 5);
 }
 
 function show_assorted_tiles(){
 
 }
 
-function show_area(info){
+function show_area(info, depth){
     var visited = GS.data.areas.has(info.name);
     if(!visited){
         info.name = area_names.unknown;
@@ -55,5 +57,5 @@ function show_area(info){
         }
         return 0;
     });
-    display.journal_area_section(UIIDS.journal_areas, info);
+    display.journal_area_section(`${UIIDS.journal_areas}${depth}`, info);
 }

@@ -1,3 +1,4 @@
 .control-style{
     background-color: var(--controls-background-color);
+    min-height: 100%;
 }

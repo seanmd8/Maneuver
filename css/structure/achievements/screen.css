@@ -1,6 +1,7 @@
 
 .achievements-style {
     background-color: var(--achievements-background-color);
+    min-height: 100%;
 }
 
 .achievement-section {

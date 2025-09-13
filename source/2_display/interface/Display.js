@@ -802,19 +802,22 @@ const DisplayHTML = {
     journal_area_section(destination, info){
         var place = DisplayHTML.get_element(destination);
         var box = document.createElement(`div`);
+        box.classList.add(`journal-area-box`);
         place.append(box);
 
-        var h = document.createElement(`h3`)
+        var h = document.createElement(`h2`);
         h.innerText = info.name;
         box.append(h);
         
-        var boss = document.createElement(`table`)
+        var boss = document.createElement(`table`);
+        boss.classList.add(`journal-area-boss`);
         var boss_id = `${destination} ${info.name} boss`;
         boss.id = boss_id;
         box.append(boss);
         display.add_tb_row(boss_id, [info.boss], JOURNAL_BOSS_SCALE);
 
-        var tiles = document.createElement(`table`)
+        var tiles = document.createElement(`table`);
+        tiles.classList.add(`journal-area-tiles`);
         var tiles_id = `${destination} ${info.name} tiles`;
         tiles.id = tiles_id;
         box.append(tiles);

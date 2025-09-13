@@ -1,0 +1,59 @@
+.journal-area-screen>div{
+    width: 840px;
+    display: inline-flex;
+    justify-content: center;
+}
+
+.journal-area-box {
+    border-width: 5px;
+    border-color: black;
+    border-radius: 10px;
+    border-style: solid;
+    display: inline-flex;
+    align-items: center;
+    flex-direction: column;
+    width: 404px;
+    height: 380px;
+    margin: 10px;
+}
+
+.journal-area-box h2 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.journal-area-box table {
+    margin-top: 3px;
+    margin-bottom: 3px;
+    border-spacing: 4px;
+    width: fit-content;
+}
+
+.journal-area-boss img {
+    border-width: 4px;    
+    border-style: solid;
+    border-color: black;
+}
+
+.journal-area-tiles img {
+    box-sizing: border-box;
+    border-width: 2px;    
+    border-style: solid;
+    border-color: black;
+}
+
+.area1 div {
+    background-color: var(--area1);
+}
+.area2 div {
+    background-color: var(--area2);
+}
+.area3 div{
+    background-color: var(--area3);
+}
+.area4 div {
+    background-color: var(--area4);
+}
+.area5 div {
+    background-color: var(--area5);
+}

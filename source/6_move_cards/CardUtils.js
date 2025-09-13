@@ -77,13 +77,15 @@ function get_all_achievement_cards(){
 }
 
 function get_boss_cards(){
-    var all = [];
-    for (var field in BOSS_CARDS) {
-        if (Object.hasOwn(BOSS_CARDS, field)) {
-            all = [...all, ...BOSS_CARDS[field]];
-        }
-    }
-    return all;
+    return [
+        ...BOSS_CARDS.velociphile,
+        ...BOSS_CARDS.spider_queen,
+        ...BOSS_CARDS.two_headed_serpent,
+        ...BOSS_CARDS.lich,
+        ...BOSS_CARDS.young_dragon,
+        ...BOSS_CARDS.forest_heart,
+        ...BOSS_CARDS.arcane_sentry,
+    ];
 }
 
 /**

@@ -3109,19 +3109,22 @@ const DisplayHTML = {
     journal_area_section(destination, info){
         var place = DisplayHTML.get_element(destination);
         var box = document.createElement(`div`);
+        box.classList.add(`journal-area-box`);
         place.append(box);
 
-        var h = document.createElement(`h3`)
+        var h = document.createElement(`h2`);
         h.innerText = info.name;
         box.append(h);
         
-        var boss = document.createElement(`table`)
+        var boss = document.createElement(`table`);
+        boss.classList.add(`journal-area-boss`);
         var boss_id = `${destination} ${info.name} boss`;
         boss.id = boss_id;
         box.append(boss);
         display.add_tb_row(boss_id, [info.boss], JOURNAL_BOSS_SCALE);
 
-        var tiles = document.createElement(`table`)
+        var tiles = document.createElement(`table`);
+        tiles.classList.add(`journal-area-tiles`);
         var tiles_id = `${destination} ${info.name} tiles`;
         tiles.id = tiles_id;
         box.append(tiles);
@@ -3777,23 +3780,25 @@ function sewers_display_info(){
 }
 
 function update_journal_areas(){
-    display.remove_children(UIIDS.journal_areas);
+    for(var i = 1; i < 6; ++i){
+        display.remove_children(`${UIIDS.journal_areas}${i}`);
+    }
     show_assorted_tiles();
-    show_area(ruins_display_info());
-    show_area(basement_display_info());
-    show_area(sewers_display_info());
-    show_area(crypt_display_info());
-    show_area(magma_display_info());
-    show_area(forest_display_info());
-    show_area(library_display_info());
-    show_area(court_display_info());
+    show_area(ruins_display_info(), 1);
+    show_area(basement_display_info(), 2);
+    show_area(sewers_display_info(), 2);
+    show_area(crypt_display_info(), 3);
+    show_area(magma_display_info(), 3);
+    show_area(forest_display_info(), 4);
+    show_area(library_display_info(), 4);
+    show_area(court_display_info(), 5);
 }
 
 function show_assorted_tiles(){
 
 }
 
-function show_area(info){
+function show_area(info, depth){
     var visited = GS.data.areas.has(info.name);
     if(!visited){
         info.name = area_names.unknown;
@@ -3833,7 +3838,7 @@ function show_area(info){
         }
         return 0;
     });
-    display.journal_area_section(UIIDS.journal_areas, info);
+    display.journal_area_section(`${UIIDS.journal_areas}${depth}`, info);
 }
 function update_journal_boons(){
     display.remove_children(UIIDS.journal_boons);
@@ -14612,13 +14617,15 @@ function get_all_achievement_cards(){
 }
 
 function get_boss_cards(){
-    var all = [];
-    for (var field in BOSS_CARDS) {
-        if (Object.hasOwn(BOSS_CARDS, field)) {
-            all = [...all, ...BOSS_CARDS[field]];
-        }
-    }
-    return all;
+    return [
+        ...BOSS_CARDS.velociphile,
+        ...BOSS_CARDS.spider_queen,
+        ...BOSS_CARDS.two_headed_serpent,
+        ...BOSS_CARDS.lich,
+        ...BOSS_CARDS.young_dragon,
+        ...BOSS_CARDS.forest_heart,
+        ...BOSS_CARDS.arcane_sentry,
+    ];
 }
 
 /**
