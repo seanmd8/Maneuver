@@ -1,5 +1,5 @@
 function update_journal_areas(){
-    for(var i = 1; i < 6; ++i){
+    for(var i = 0; i < 6; ++i){
         display.remove_children(`${UIIDS.journal_areas}${i}`);
     }
     show_area(assorted_tiles_display_info(), 0, true);
