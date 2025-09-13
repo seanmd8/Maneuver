@@ -3828,7 +3828,7 @@ function update_journal_areas(){
 
 function show_area(info, depth, force_visited = false){
     var visited = force_visited || GS.data.areas.has(info.name);
-    visited.true_name = visited.name;
+    info.true_name = info.name;
     if(!visited){
         info.name = area_names.unknown;
     }
