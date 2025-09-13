@@ -9,6 +9,10 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+9/13/25
+- Added new Journal screen to keep track of cards, boons, and tiles you encounter
+- Ancient Card Boon has 2 more card options
+
 9/6/25
 - Added 1 new boon
 - Rebalanced Fortitude Boon: Now heals for 1 in addition to raising your max health
