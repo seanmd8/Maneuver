@@ -716,7 +716,7 @@ Object.freeze(boon_names);
 const boon_descriptions = {
     locked: `You have not unlocked this boon yet.`,
     not_encountered:
-        `You have not yet picked this boon.`,
+        `You have never taken this boon.`,
 
     bitter_determination: 
         `At the start of each floor, heal 1 if your health is exactly 1.`,
@@ -1068,7 +1068,10 @@ const move_types = {
     
     per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
     temp: `Temporary: Removed from your deck when used, or at the end of the floor.`,
-    instant: `Instant: Play another card this turn.`
+    instant: `Instant: Play another card this turn.`,
+    
+    locked: `This card has not been unlocked yet.`,
+    not_found: `This card has never been added to your deck.`,
 }
 Object.freeze(move_types);
 const boss_names = {
@@ -2236,7 +2239,9 @@ const HTML_UIIDS = {
     journal: `journal`,
         journal_navbar: `journalNavbar`,
         journal_cards: `journalCards`,
+            journal_card_info: `journalCardInfo`, // Generated
         journal_boons: `journalBoons`,
+            journal_boon_info: `journalBoonInfo`, // Generated
         journal_areas: `journalAreas`,
     controls: `controls`,
         stage_controls: `stageControls`,
@@ -3084,6 +3089,15 @@ const DisplayHTML = {
             display.add_tb_row(table_id, slice, CARD_SCALE);
         }
     },
+    create_fixed_box(destination, id){
+        var place = DisplayHTML.get_element(destination);
+        var box = document.createElement(`p`);
+        box.id = id;
+        box.classList.add(`no-margins`);
+        box.classList.add(`scrollable-text`);
+        box.classList.add(`journal-info`);
+        place.append(box);
+    },
     journal_boon_section(destination, header, boons){
         var place = DisplayHTML.get_element(destination);
 
@@ -3854,6 +3868,7 @@ function show_area(info, depth, force_visited = false){
 }
 function update_journal_boons(){
     display.remove_children(UIIDS.journal_boons);
+    display.create_fixed_box(UIIDS.journal_boons, UIIDS.journal_boon_info);
     var boons = boons_encountered(BOON_LIST, GS.data.boons);
     display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons);
 
@@ -3862,19 +3877,21 @@ function boons_encountered(boons, encountered){
     var locked = get_locked_boons();
     return boons.map((b) => {
         var boon = b();
-        if(locked.find((l) => {
-            return l().name === boon.name;
-        })){
-            return symbol_locked_boon();
+        if(locked.find((l) => {return l().name === boon.name;})){
+            boon = symbol_locked_boon();
         }
-        if(encountered.has(boon.name)){
-            return boon;
+        else if(!encountered.has(boon.name)){
+            boon = symbol_not_encountered_boon();
         }
-        return symbol_not_encountered_boon();
+        boon.on_click = () => {
+            display.display_message(UIIDS.journal_boon_info, boon.description);
+        }
+        return boon;
     });
 }
 function update_journal_cards(){
     display.remove_children(UIIDS.journal_cards);
+    display.create_fixed_box(UIIDS.journal_cards, UIIDS.journal_card_info);
     display_basic_cards();
     display_common_cards();
     display_achievement_cards();
@@ -3913,12 +3930,22 @@ function cards_encountered(cards, encountered){
     return cards.map((c) => {
         var card = c();
         if(card.name === card_names.symbol_locked){
+            card.on_click = () => {
+                display.display_message(UIIDS.journal_card_info, move_types.locked);
+            }
             return card;
         }
         if(encountered.has(card.name)){
+            card.on_click = () => {
+                display.display_message(UIIDS.journal_card_info, explain_card(card));
+            }
             return card;
         }
-        return symbol_not_encountered_card();
+        var card = symbol_not_encountered_card();
+        card.on_click = () => {
+            display.display_message(UIIDS.journal_card_info, move_types.not_found);
+        }
+        return card;
     });
 }
 function cards_locked(cards, locked){

@@ -125,7 +125,9 @@ const HTML_UIIDS = {
     journal: `journal`,
         journal_navbar: `journalNavbar`,
         journal_cards: `journalCards`,
+            journal_card_info: `journalCardInfo`, // Generated
         journal_boons: `journalBoons`,
+            journal_boon_info: `journalBoonInfo`, // Generated
         journal_areas: `journalAreas`,
     controls: `controls`,
         stage_controls: `stageControls`,

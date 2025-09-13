@@ -1,3 +1,10 @@
 .journal-card-box {
     width: 942px;
 }
+
+.journal-info {
+    position: fixed;
+    left: 980px;
+    border-color: saddlebrown;
+    border-width: 4px;;
+}

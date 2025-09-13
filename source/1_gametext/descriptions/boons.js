@@ -57,7 +57,7 @@ Object.freeze(boon_names);
 const boon_descriptions = {
     locked: `You have not unlocked this boon yet.`,
     not_encountered:
-        `You have not yet picked this boon.`,
+        `You have never taken this boon.`,
 
     bitter_determination: 
         `At the start of each floor, heal 1 if your health is exactly 1.`,

@@ -1,5 +1,6 @@
 function update_journal_cards(){
     display.remove_children(UIIDS.journal_cards);
+    display.create_fixed_box(UIIDS.journal_cards, UIIDS.journal_card_info);
     display_basic_cards();
     display_common_cards();
     display_achievement_cards();
@@ -38,12 +39,22 @@ function cards_encountered(cards, encountered){
     return cards.map((c) => {
         var card = c();
         if(card.name === card_names.symbol_locked){
+            card.on_click = () => {
+                display.display_message(UIIDS.journal_card_info, move_types.locked);
+            }
             return card;
         }
         if(encountered.has(card.name)){
+            card.on_click = () => {
+                display.display_message(UIIDS.journal_card_info, explain_card(card));
+            }
             return card;
         }
-        return symbol_not_encountered_card();
+        var card = symbol_not_encountered_card();
+        card.on_click = () => {
+            display.display_message(UIIDS.journal_card_info, move_types.not_found);
+        }
+        return card;
     });
 }
 function cards_locked(cards, locked){

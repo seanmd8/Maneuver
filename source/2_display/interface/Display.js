@@ -776,6 +776,15 @@ const DisplayHTML = {
             display.add_tb_row(table_id, slice, CARD_SCALE);
         }
     },
+    create_fixed_box(destination, id){
+        var place = DisplayHTML.get_element(destination);
+        var box = document.createElement(`p`);
+        box.id = id;
+        box.classList.add(`no-margins`);
+        box.classList.add(`scrollable-text`);
+        box.classList.add(`journal-info`);
+        place.append(box);
+    },
     journal_boon_section(destination, header, boons){
         var place = DisplayHTML.get_element(destination);
 
