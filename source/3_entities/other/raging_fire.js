@@ -6,6 +6,7 @@ function raging_fire_tile(){
         type: entity_types.enemy,
         name: other_tile_names.raging_fire,
         pic: pic_arr[health - 1],
+        display_pic: pic_arr[1],
         description: other_tile_descriptions.raging_fire,
         tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
         health,

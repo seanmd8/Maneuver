@@ -3723,7 +3723,8 @@ function court_display_info(){
             starcaller_tile, 
             moon_rock_tile, 
             shatter_sphere_d_tile, 
-            shatter_sphere_o_tile
+            shatter_sphere_o_tile,
+            raging_fire_tile,
         ],
     }
 }
@@ -3760,7 +3761,8 @@ function library_display_info(){
         boss: arcane_sentry_tile,
         tiles: [
             ...area.enemy_list, 
-            bookshelf_tile
+            bookshelf_tile,
+            fireball_tile,
         ],
     }
 }
@@ -3777,6 +3779,8 @@ function magma_display_info(){
             lava_pool_tile, 
             magmatic_boulder_tile,
             smoldering_ashes_tile,
+            raging_fire_tile,
+            fireball_tile,
         ],
     }
 }
@@ -8237,7 +8241,8 @@ function fireball_tile(){
     return {
         type: entity_types.enemy,
         name: other_tile_names.fireball,
-        pic: `${IMG_FOLDER.tiles}fireball.png`,
+        pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: other_tile_descriptions.fireball,
         tags: new TagList([TAGS.fireball, TAGS.unstunnable]),
         behavior: fireball_ai,
@@ -8387,6 +8392,7 @@ function raging_fire_tile(){
         type: entity_types.enemy,
         name: other_tile_names.raging_fire,
         pic: pic_arr[health - 1],
+        display_pic: pic_arr[1],
         description: other_tile_descriptions.raging_fire,
         tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
         health,

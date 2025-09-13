@@ -6,7 +6,8 @@ function library_display_info(){
         boss: arcane_sentry_tile,
         tiles: [
             ...area.enemy_list, 
-            bookshelf_tile
+            bookshelf_tile,
+            fireball_tile,
         ],
     }
 }

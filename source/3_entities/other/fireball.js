@@ -4,7 +4,8 @@ function fireball_tile(){
     return {
         type: entity_types.enemy,
         name: other_tile_names.fireball,
-        pic: `${IMG_FOLDER.tiles}fireball.png`,
+        pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: other_tile_descriptions.fireball,
         tags: new TagList([TAGS.fireball, TAGS.unstunnable]),
         behavior: fireball_ai,

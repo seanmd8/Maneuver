@@ -10,7 +10,8 @@ function court_display_info(){
             starcaller_tile, 
             moon_rock_tile, 
             shatter_sphere_d_tile, 
-            shatter_sphere_o_tile
+            shatter_sphere_o_tile,
+            raging_fire_tile,
         ],
     }
 }

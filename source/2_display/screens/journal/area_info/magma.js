@@ -11,6 +11,8 @@ function magma_display_info(){
             lava_pool_tile, 
             magmatic_boulder_tile,
             smoldering_ashes_tile,
+            raging_fire_tile,
+            fireball_tile,
         ],
     }
 }
