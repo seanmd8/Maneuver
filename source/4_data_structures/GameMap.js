@@ -538,6 +538,9 @@ class GameMap{
                 }
                 else{
                     --this.#entity_list.count_non_empty;
+                    if(target.type === entity_types.chest && source !== undefined && source.tile.type === entity_types.player){
+                        this.stats.increment_chest_kills();
+                    }
                 }
                 if(target.on_death !== undefined){
                     // Trigger on_death

@@ -1789,22 +1789,23 @@ const achievement_names = {
     victory: `Victory`,
 
     // Normal
-    non_violent: `Non Violent`,
-    not_my_fault: `Not My Fault`,
     ancient_knowledge: `Ancient Knowledge`,
-    peerless_sprinter: `Peerless Sprinter`,
-    speed_runner: `Speed Runner`,
-    triple: `Three Of A Kind`,
     beyond_the_basics: `Beyond The Basics`,
-    one_hit_wonder: `One Hit Wonder`,
-    one_life: `One Is All You Need`,
-    without_a_scratch: `Without A Scratch`,
     clumsy: `Clumsy`,
-    shrug_it_off: `Shrug It Off`,
     collector: `Collector`,
     jack_of_all_trades: `Jack Of All Trades`,
+    manic_vandal: `Manic Vandal`,
+    minimalist: `Minimalist`,
     monster_hunter: `Monster Hunter`,
-    minimalist: `Minimalist`
+    non_violent: `Non Violent`,
+    not_my_fault: `Not My Fault`,
+    one_hit_wonder: `One Hit Wonder`,
+    one_life: `One Is All You Need`,
+    peerless_sprinter: `Peerless Sprinter`,
+    shrug_it_off: `Shrug It Off`,
+    speed_runner: `Speed Runner`,
+    triple: `Three Of A Kind`,
+    without_a_scratch: `Without A Scratch`,
 }
 Object.freeze(achievement_names);
 
@@ -1821,22 +1822,23 @@ const achievement_description = {
     victory: `Escape victorious.`,
 
     // Normal
-    non_violent: `Reach the first boss without killing anything.`,
-    not_my_fault: `Let a boss die without killing anything on the floor yourself.`,
     ancient_knowledge: `Restore an ancient card to full power.`,
-    peerless_sprinter: `Speed through a floor in 3 turns or less.`,
-    speed_runner: `Leave floor 10 in 100 turns or less.`,
-    triple: `Have 3 or more of the same non temporary card in your deck.`,
     beyond_the_basics: `Remove all basic cards from your deck.`,
-    one_hit_wonder: `Defeat a boss in a single turn.`,
-    one_life: `Defeat any boss with exactly 1 max health.`,
-    without_a_scratch: `Leave floor 10 without taking any damage.`,
     clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
-    shrug_it_off: `Take 10 or more damage without dying in 1 run.`,
     collector: `Open 6 or more treasure chests in 1 run.`,
     jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
+    manic_vandal: `Destroy 7 or more treasure chests yourself in 1 run.`,
+    minimalist: `Reach floor 15 with only 5 cards in your deck.`,
     monster_hunter: `Kill 5 total unique bosses.`,
-    minimalist: `Reach floor 15 with only 5 cards in your deck.`
+    non_violent: `Reach the first boss without killing anything.`,
+    not_my_fault: `Let a boss die without killing anything on the floor yourself.`,
+    one_hit_wonder: `Defeat a boss in a single turn.`,
+    one_life: `Defeat any boss with exactly 1 max health.`,
+    peerless_sprinter: `Speed through a floor in 3 turns or less.`,
+    shrug_it_off: `Take 10 or more damage without dying in 1 run.`,
+    speed_runner: `Leave floor 10 in 100 turns or less.`,
+    triple: `Have 3 or more of the same non temporary card in your deck.`,
+    without_a_scratch: `Leave floor 10 without taking any damage.`,
 }
 Object.freeze(achievement_description);
 
@@ -11395,6 +11397,9 @@ class GameMap{
                 }
                 else{
                     --this.#entity_list.count_non_empty;
+                    if(target.type === entity_types.chest && source !== undefined && source.tile.type === entity_types.player){
+                        this.stats.increment_chest_kills();
+                    }
                 }
                 if(target.on_death !== undefined){
                     // Trigger on_death
@@ -13089,6 +13094,7 @@ class StatTracker{
     #boss_kill_start;
     #total_damage_per_floor;
     #kills;
+    #chest_kills;
     #total_kills_per_floor;
 
     constructor(){
@@ -13101,6 +13107,7 @@ class StatTracker{
         this.#boss_kill_start = 0;
         this.#total_damage_per_floor = [0];
         this.#kills = 0;
+        this.#chest_kills = 0;
         this.#total_kills_per_floor = [0]
     }
     increment_turn(){
@@ -13157,6 +13164,12 @@ class StatTracker{
     increment_kills(){
         ++this.#kills;
     }
+    increment_chest_kills(){
+        ++this.#chest_kills;
+        if(this.#chest_kills === 7){
+            GS.achieve(achievement_names.manic_vandal);
+        }
+    }
     get_stats(){
         return {
             turn_number: this.#turn_number,
@@ -13168,6 +13181,7 @@ class StatTracker{
             boss_kill_start: this.#boss_kill_start,
             total_damage_per_floor: this.#total_damage_per_floor,
             kills: this.#kills,
+            chest_kills: this.#chest_kills,
             total_kills_per_floor: this.#total_kills_per_floor
         }
     }
@@ -16866,6 +16880,7 @@ function get_achievements(){
         clumsy_achievement(),
         collector_achievement(),
         jack_of_all_trades_achievement(),
+        manic_vandal_achievement(),
         minimalist_achievement(),
         monster_hunter_achievement(),
         non_violent_achievement(),
@@ -17022,6 +17037,15 @@ function jack_of_all_trades_achievement(){
         image: `${IMG_FOLDER.achievements}jack_of_all_trades.png`,
         has: false,
         boons: [spontaneous],
+    }
+}
+function manic_vandal_achievement(){
+    return {
+        name: achievement_names.manic_vandal,
+        description: achievement_description.manic_vandal,
+        image: `${IMG_FOLDER.achievements}manic_vandal.png`,
+        has: false,
+        boons: [],
     }
 }
 function minimalist_achievement(){
