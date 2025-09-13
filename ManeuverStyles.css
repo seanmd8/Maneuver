@@ -96,6 +96,7 @@
 
 .achievements-style {
     background-color: var(--achievements-background-color);
+    min-height: 100%;
 }
 
 .achievement-section {
@@ -251,6 +252,7 @@ body>div{
 
 .control-style{
     background-color: var(--controls-background-color);
+    min-height: 100%;
 }
 
 .control-section {
@@ -353,7 +355,7 @@ body>div{
 }
 .game-style{
     background-color: var(--game-background-color);
-    height: 100%;
+    min-height: 100%;
 }
 
 .shop-confirm {
@@ -760,21 +762,18 @@ body>div{
 }
 
 
-
 .guide-style {
     background-color: var(--guidebook-background-color);
-    height: 100%;
+    min-height: 100%;
 }
 
 .guide-box-style{
     background-color: beige;
     margin: 8px;
 }
-
-
-
 .guidebook-section {
     padding-left: 20px;
+    padding-right: 20px;
     padding-top: 10px;
     padding-bottom: 10px;
     border-style: solid;
@@ -808,6 +807,100 @@ body>div{
     border-radius: 0px;
     appearance: base-select;
 }
+.journal-area-screen {
+    border-width: 0px 5px 5px 5px;
+    border-style: solid;
+    border-color: black;
+    width: 840px;
+    background-image: linear-gradient(white, black);
+    min-height: 100%;
+    padding-bottom: 0px;
+}
+
+.journal-area-screen>div{
+    width: 840px;
+    display: inline-flex;
+    justify-content: center;
+}
+
+.journal-area-box {
+    border-width: 5px;
+    border-color: black;
+    border-radius: 10px;
+    border-style: solid;
+    display: inline-flex;
+    align-items: center;
+    flex-direction: column;
+    width: 404px;
+    height: 384px;
+    margin: 10px;
+}
+
+.journal-area-box h2 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-width: 3px;
+    border-color: black;
+    border-style: solid;
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: lightgoldenrodyellow;
+}
+
+.journal-area-box table {
+    margin-top: 3px;
+    margin-bottom: 3px;
+    border-spacing: 4px;
+    width: fit-content;
+}
+
+.journal-area-boss img {
+    border-width: 4px;    
+    border-style: solid;
+    border-color: black;
+}
+
+.journal-area-tiles img {
+    box-sizing: border-box;
+    border-width: 2px;    
+    border-style: solid;
+    border-color: black;
+}
+
+.area0 div {
+    background-color: var(--area0);
+    height: fit-content;
+}
+.area1 div {
+    background-color: var(--area1);
+}
+.area2 div {
+    background-color: var(--area2);
+}
+.area3 div{
+    background-color: var(--area3);
+}
+.area4 div {
+    background-color: var(--area4);
+}
+.area5 div {
+    background-color: var(--area5);
+}
+.journal-card-box {
+    width: 942px;
+}
+
+.journal-info {
+    position: fixed;
+    left: 980px;
+    border-color: saddlebrown;
+    border-width: 4px;;
+}
+.journal-style{
+    background-color: var(--journal-background-color);
+    min-height: 100%;
+    padding-bottom: 0px;
+}
 
 :root{
     --card-box-color: white;
@@ -818,6 +911,14 @@ body>div{
     --controls-background-color: antiquewhite;
     --achievements-background-color: antiquewhite;
     --guidebook-background-color: antiquewhite;
+    --journal-background-color: antiquewhite;
+    
+    --area0: rgb(141, 207, 126);
+    --area1: rgb(250, 194, 130);
+    --area2: rgb(226, 175, 117);
+    --area3: rgb(182, 140, 92);
+    --area4: rgb(143, 111, 74);
+    --area5: rgb(112, 86, 56);
 }
 
 /*https://www.1001fonts.com/quivira-font.html*/

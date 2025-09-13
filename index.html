@@ -96,10 +96,10 @@
                 <legend id="deckSelectMessage"></legend>
                 <table id="deckSelectTable" class="selectable"></table>
             </fieldset>
-                <p id= "deckSelectCardInfo" class="no-margins scrollable-text"></p>
-                <div class="shop-button-container deck-select-confirm">
-                    <input type="button" id="deckSelectConfirm" class="shop-confirm"></input>
-                </div>
+            <p id="deckSelectCardInfo" class="no-margins scrollable-text"></p>
+            <div class="shop-button-container deck-select-confirm">
+                <input type="button" id="deckSelectConfirm" class="shop-confirm"></input>
+            </div>
         </div>
     </div>
     
@@ -111,14 +111,28 @@
         </div>
     </div>
     
+    <div id="achievements" class="achievements-style hidden-section">
+        <div id="achievement-list" class="achievement-section"></div>
+    </div>
+    
+    <div id="journal" class="journal-style">
+        <div id="journalNavbar" class="navbar"></div>
+        <div id="journalCards"></div>
+        <div id="journalBoons"></div>
+        <div id="journalAreas" class="journal-area-screen">
+            <div id="journalAreas0" class="area0"></div>
+            <div id="journalAreas1" class="area1"></div>
+            <div id="journalAreas2" class="area2"></div>
+            <div id="journalAreas3" class="area3"></div>
+            <div id="journalAreas4" class="area4"></div>
+            <div id="journalAreas5" class="area5"></div>
+        </div>
+    </div>
+    
     <div id="controls" class="control-style hidden-section">
         <div id="stageControls" class="control-section"></div>
         <div id="shopControls" class="control-section"></div>
         <div id="chestControls" class="control-section"></div>
-    </div>
-    
-    <div id="achievements" class="achievements-style hidden-section">
-        <div id="achievement-list" class="achievement-section"></div>
     </div>
     
     <body onload="initiate_game()"></body>

@@ -120,12 +120,19 @@ const HTML_UIIDS = {
     guide: `guide`,
         guide_box: `guide-box`,
             guide_navbar: `guideNavbar`,
+    achievements: `achievements`,
+        achievement_list: `achievement-list`,
+    journal: `journal`,
+        journal_navbar: `journalNavbar`,
+        journal_cards: `journalCards`,
+            journal_card_info: `journalCardInfo`, // Generated
+        journal_boons: `journalBoons`,
+            journal_boon_info: `journalBoonInfo`, // Generated
+        journal_areas: `journalAreas`,
     controls: `controls`,
         stage_controls: `stageControls`,
         shop_controls: `shopControls`,
         chest_controls: `chestControls`,
-    achievements: `achievements`,
-        achievement_list: `achievement-list`
 }
 Object.freeze(HTML_UIIDS);
 

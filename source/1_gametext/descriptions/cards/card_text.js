@@ -41,6 +41,9 @@ const move_types = {
     
     per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
     temp: `Temporary: Removed from your deck when used, or at the end of the floor.`,
-    instant: `Instant: Play another card this turn.`
+    instant: `Instant: Play another card this turn.`,
+    
+    locked: `This card has not been unlocked yet.`,
+    not_found: `This card has never been added to your deck.`,
 }
 Object.freeze(move_types);

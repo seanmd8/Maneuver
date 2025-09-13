@@ -21,6 +21,7 @@ const GUIDE_TEXT = {
         +`To finish a floor, you need to reach the stairs that lead down to the next one. Enemies will spawn `
         +`on each floor which will try to stop you from continuing. You do not need to defeat everything on `
         +`the current floor to continue, but may need to fight most of them to survive.\n\n`
+        +`Exit the dungeon by defeating the final boss on floor 25 to win.\n\n`
         +`Read more about controlling your character in the next section.\n`
         +`Good luck!\n\n`],
 
@@ -65,7 +66,7 @@ const GUIDE_TEXT = {
         +`Remember that you do not need to kill everything to go to the next stage. Sometimes it's better `
         +`to run past an enemy than to fight it and risk getting surrounded or cornered. There may also be `
         +`some creatures you encounter that are more helpful than harmful.\n\n`
-        +`Some enemies also have the ability to move you during their turn. When this happens, you will `
+        +`Some enemies also have the ability to forcibly move you. When that happens, you will `
         +`immediately get another turn.\n\n`
         +`Some effects will cause an enemy to become stunned. They will be hightlighted in yellow. Stunned `
         +`enemies will skip their next turn. Multiple instances of stun will cause multiple turns to get `
@@ -82,7 +83,7 @@ const GUIDE_TEXT = {
 
     bosses: 
         [`Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be `
-        +`locked until you defeat it's powerful occupant. When you defeat the boss, the stairs will be `
+        +`locked until you defeat it's occupant. When you defeat the boss, the stairs will be `
         +`unlocked, you will be fully healed, and it will drop a chest containing a powerful new card as a `
         +`reward.\n\n`
         +`When leaving the floor, you will enter a new area of the dungeon with a different set of `
@@ -105,9 +106,6 @@ const GUIDE_TEXT = {
         +`figure out what might be left to draw. It resets after shuffling.\n\n`
         +`- The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it `
         +`when trying to use one enemy to block the attack of another. It will not track hidden enemies.\n\n`
-        +`- The Boons tab will become available when you pick up your first boon. It will keep track of each `
-        +`boon you pick up and allow you to view their descriptions again by clicking on them. It will also `
-        +`track when certain boons are lost.\n\n`
         +`More tabs might become available as you play.\n\n`],
 
     confusion: 
@@ -117,7 +115,7 @@ const GUIDE_TEXT = {
         +`Here is a list of the possible confusion cards:\n\n`],
     
     about:
-        [`Maneuver is a game created by Sean Dunbar in 2023. If you would like to view the changelog or `
+        [`Maneuver is a game created by Sean Dunbar. It began in 2023. If you would like to view the changelog or `
         +`look at the source code, you can go to the `, `.\n\n`],
 }
 Object.freeze(GUIDE_TEXT);

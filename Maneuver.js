@@ -508,11 +508,15 @@ const CARD_SCALE = 90;
 const SMALL_CARD_SCALE = 75;
 const CHEST_CONTENTS_SIZE = 120;
 const TILE_SCALE = 40;
+const JOURNAL_BOSS_SCALE = 120;
+const JOURNAL_TILE_SCALE = 60;
+const JOURNAL_AREA_WIDTH = 6;
 const VICTORY_IMG_SCALE = TILE_SCALE * FLOOR_HEIGHT + 12;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 160;
 const DECK_DISPLAY_WIDTH = 5;
+const JOURNAL_DISPLAY_WIDTH = 10;
 const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
 
@@ -545,6 +549,1706 @@ const TAGS = {
     fireball: `Fireball`
 }
 Object.freeze(TAGS);
+/** @returns {MoveDeck} Returns a normal starting deck.*/
+function make_starting_deck(){
+    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
+
+    deck.add(basic_orthogonal());
+    deck.add(basic_orthogonal());
+    deck.add(basic_diagonal());
+    deck.add(basic_diagonal());
+    deck.add(basic_slice());
+    deck.add(basic_slice());
+    deck.add(short_charge_orthogonal());
+    deck.add(jump());
+
+    deck.deal();
+    return deck;
+}
+/** @returns {MoveDeck} Returns a custom deck for testing.*/
+function make_test_deck(test_cards){
+    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
+    for(var card of test_cards){
+        deck.add(card());
+    }
+    var size = test_cards.length;
+    for(var i = 0; i < Math.max(4 - size, 1); ++i){
+        deck.add(basic_orthogonal());
+    }
+    deck.add(basic_slice());
+    deck.deal();
+    return deck;
+}
+// Library for the various kinds of errors that the game could throw
+const ERRORS = {
+    invalid_type: `invalid type`,
+    missing_property: `missing property`,
+    pass_turn: `pass turn to player`,
+    skip_animation: `skip animation delay`,
+    game_over: `game over`,
+    floor_complete: `floor complete`,
+    array_size: `array size mismatch`,
+    missing_id: `id not found`,
+    invalid_value: `invalid value`,
+    value_not_found: `value not found`,
+    space_full: `space not empty`,
+    already_exists: `value already set`,
+    map_full: `map full`,
+    creature_died: `creature died`,
+    out_of_bounds: `out of bounds`,
+    divide_by_0: `divide by 0`,
+    failed_to_load: `Failed to load`,
+    victory: `Victory`,
+}
+Object.freeze(ERRORS);
+// ----------------ManeuverUtil.js----------------
+// File for utility functions used throughout the program.
+
+/**
+ * Initiates the game when the page is loaded.
+ * @returns {void}
+ */
+function initiate_game(){
+    display.detect_keys();
+    display.stop_space_scrolling();
+    DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
+    display.display_message(UIIDS.title, gameplay_labels.title);
+    create_main_dropdown(UIIDS.header_bar);
+    GS = new GameState();
+    GS.setup();
+    display_guide();
+    setup_journal_navbar();
+    setup_controls_page();
+}
+
+/**
+ * Function to add a random temporary debuff card to the player's deck.
+ */
+function confuse_player(choices = CONFUSION_CARDS){
+    // Chance redused by 50% for each stable_mind boon.
+    if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
+        var card = rand_from(choices)();
+        GS.give_temp_card(card);
+        GS.refresh_deck_display();
+    } 
+}
+
+function floor_has_chest(floor_of_area){
+    if(floor_of_area === CHEST_LOCATION){
+        return true;
+    }
+    if(GS.boons.has(boon_names.hoarder) && floor_of_area === SECOND_CHEST_LOCATION){
+        return true;
+    }
+    return false;
+}
+const area_names = {
+    ruins: `City Ruins`,
+    sewers: `Sewers`,
+    basement: `Basement`,
+    magma: `Magmatic Caves`,
+    crypt: `Crypt`,
+    forest: `Subterranean Forest`,
+    library: `Arcane Library`,
+    court: `Candlelit Court`,
+    
+    default: `Post Game Area`,
+    unknown: `Unknown`,
+    assorted: `Assorted`
+}
+Object.freeze(area_names);
+const boon_names = {
+    locked: `Locked`,
+    not_encountered: `Not Encountered`,
+
+    ancient_card: `Ancient Card`,
+    bitter_determination: `Bitter Determination`,
+    blood_alchemy: `Blood Alchemy`,
+    boss_slayer: `Boss Slayer`,
+    brag_and_boast: `Brag & Boast`,
+    chilly_presence: `Chilly Presence`,
+    choose_your_path: `Choose Your Path`,
+    clean_mind: `Clean Mind`,
+    creative: `Creative`,
+    dazing_blows: `Dazing Blows`,
+    duplicate: `Duplicate`,
+    empty_rooms: `Empty Rooms`,
+    escape_artist: `Escape Artist`,
+    expend_vitality: `Expend Vitality`,
+    flame_strike: `Flame Strike`,
+    flame_worship: `Flame Worship`,
+    fleeting_thoughts: `Fleeting Thoughts`,
+    fortitude: `Fortitude`,
+    frenzy: `Frenzy`,
+    frugivore: `Frugivore`,
+    future_sight: `Future Sight`,
+    gruntwork: `Gruntwork`,
+    hoarder: `Hoarder`,
+    larger_chests: `Larger Chests`,
+    limitless: `Limitless`,
+    pacifism: `Pacifism`,
+    pain_reflexes: `Pain Reflexes`,
+    perfect_the_basics: `Perfect the Basics`,
+    picky_shopper: `Picky Shopper`,
+    practice_makes_perfect: `Practice Makes Perfect`,
+    pressure_points: `Preassure Points`,
+    quick_healing: `Quick Healing`,
+    rebirth: `Rebirth`,
+    repetition: `Repetition`,
+    retaliate: `Retaliate`,
+    rift_touched: `Rift Touched`,
+    roar_of_challenge: `Roar of Challenge`,
+    safe_passage: `Safe Passage`,
+    shattered_glass: `Shattered Glass`,
+    skill_trading: `Skill Trading`,
+    slime_trail: `Slime Trail`,
+    sniper: `Sniper`,
+    spiked_shoes: `Spiked Shoes`,
+    spontaneous: `Spontaneous`,
+    stable_mind: `Stable Mind`,
+    stealthy: `Stealthy`,
+    stubborn: `Stubborn`,
+    thick_soles: `Thick Soles`,
+    vicious_cycle: `Vicious Cycle`,
+}
+Object.freeze(boon_names);
+
+const boon_descriptions = {
+    locked: `You have not unlocked this boon yet.`,
+    not_encountered:
+        `You have never taken this boon.`,
+
+    bitter_determination: 
+        `At the start of each floor, heal 1 if your health is exactly 1.`,
+    blood_alchemy:
+        `Take 2 damage, gain 2 max hp.`,
+    boss_slayer: 
+        `Bosses start with 2 less hp.`,
+    brag_and_boast: 
+        `Add 2 random boss cards and 2 random debuff cards to your deck.`,
+    chilly_presence: 
+        `Enemies have a 1/6 chance to become stunned at the end of their `
+        +`turn. Bosses are not affected.`,
+    choose_your_path: 
+        `You get to decide which area to go to after each boss fight.`,
+    clean_mind: 
+        `Remove any 2 cards from your deck.`,
+    creative: 
+        `Increase your hand size by 1. Increases minimum deck size by 5.`,
+    dazing_blows: 
+        `Your attacks stun enemies. Bosses are unaffected.`,
+    duplicate: 
+        `Get a copy of any card in your deck.`,
+    empty_rooms: 
+        `Difficulty decreases by 3 floors`,
+    escape_artist: 
+        `Teleport away when attacked.`,
+    expend_vitality: 
+        `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
+    flame_strike: 
+        `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`,
+    flame_worship:
+        `An Altar of Scouring spawns on each non boss floor`,
+    fleeting_thoughts: 
+        `Temporary cards added to your deck will happen instantly.`,
+    fortitude: 
+        `Gain an extra max health and heal for 1.`,
+    frenzy: 
+        `Deal double damage while you only have 1 health.`,
+    frugivore: 
+        `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
+        +`for 1, but might attract enemies.`,
+    future_sight: 
+        `You may look at the order of your deck.`,
+    gruntwork: 
+        `Gain 3 extra max health. Decrease your hand size by 1.`,
+    hoarder: 
+        `Encounter two chests in each area.`,
+    larger_chests: 
+        `All treasure chests contain 2 additional choices and are invulnerable.`,
+    limitless: 
+        `Remove your max health. Heal for 2. If you would be fully healed, heal `
+        +`for 1 instead.`,
+    pacifism: 
+        `If you would attack an enemy, stun them twice instead. Fully heal at `
+        +`the start of each floor. All boss floor exits unlock.`,
+    pain_reflexes: 
+        `Take a turn whenever you are attacked.`,
+    perfect_the_basics: 
+        `Replace all your basic cards with better ones.`,
+    picky_shopper: 
+        `Recieve an extra card choice for adding and removing cards in the shop.`,
+    practice_makes_perfect: 
+        `Defeating a boss while at max health increases your max health by 1.`,
+    pressure_points: 
+        `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`,
+    quick_healing: 
+        `After being dealt damage, you have a 1/4 chance to instantly heal it.`,
+    rebirth: 
+        `When you die, you are revived at full health and this boon is removed.`,
+    repetition: 
+        `Every 3rd turn, your cards happen twice.`,
+    retaliate: 
+        `When you are dealt damage, attack a nearby non boss enemy.`,
+    rift_touched: 
+        `Two Darklings spawn on each non boss floor.`,
+    roar_of_challenge: 
+        `Gain 2 max health. Difficulty increases by 5 floors.`,
+    safe_passage: 
+        `Fully heal and travel to the next floor.`,
+    shattered_glass: 
+        `Enemies explode on death damaging everything nearby other than you. Reduce your `
+        +`max health by 2.`,
+    skill_trading: 
+        `You may both add a card and remove a card at each shop.`,
+    slime_trail: 
+        `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`,
+    sniper: 
+        `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
+    spiked_shoes: 
+        `Attempting to move onto enemies damages them. Reduces your max health by 1.`,
+    spontaneous: 
+        `After using a non instant card, discard your whole hand. Minimum deck size `
+        +`increased by 5.`,
+    stable_mind: 
+        `You gain a 50% chance to resist confusion.`,
+    stealthy: 
+        `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`,
+    stubborn: 
+        `You can skip shops.`,
+    thick_soles: 
+        `You are immune to damage on your turn.`,
+    vicious_cycle: 
+        `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`,
+}
+Object.freeze(boon_descriptions);
+
+const boon_prereq_descriptions = {
+    none: 
+        `Prerequisites: None.`,
+    blood_alchemy:
+        `Prerequisites: You must have at least 3 health and not have Limitless.`,
+    clean_mind:
+        `Prerequisites: You must be at least 2 cards above your minimum deck size.`,
+    creative:
+        `Prerequisites: You must have at least 10 cards in your deck.`,
+    expend_vitality:
+        `Prerequisites: You must have at least 2 max health and not have Limitless.`,
+    fortitude: 
+        `Prerequisites: You must not have Limitless.`,
+    gruntwork:
+        `Prerequisites: You must not have Limitless.`,
+    perfect_the_basics:
+        `Prerequisites: You must have at least 2 basic cards in your deck.`,
+    practice_makes_perfect:
+        `Prerequisites: You must not have Limitless.`,
+    roar_of_challenge:
+        `Prerequisites: You must not have Limitless.`,
+    safe_passage:
+        `Prerequisites: You must have health less than your max health or have Limitless.`,
+    shattered_glass:
+        `Prerequisites: You must have at least 3 max health and not have Limitless.`,
+    spiked_shoes:
+        `Prerequisites: You must have at least 2 max health and not have Limitless.`,
+    spontaneous:
+        `Prerequisites: You must have at least 10 cards in your deck.`,
+}
+Object.freeze(boon_prereq_descriptions);
+
+const boon_messages = {
+    section_header: `Boons`,
+
+    clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
+    duplicate: `Choose a card to copy:`,
+    practice_makes_perfect: `Your maximum health has increased.`,
+    rebirth: `You died, but were brought back to life.`,
+}
+Object.freeze(boon_messages);
+const action_types = {
+    move: `Move`,
+    attack: `Attack`,
+    teleport: `Teleport`,
+    stun: `Stun`,
+    move_until: `Move Until`,
+    attack_until: `Attack Until`,
+    heal: `Heal`,
+}
+Object.freeze(action_types);
+const card_names = {
+    symbol_add_card: `Add`,
+    symbol_deck_at_minimum: `Minimum`,
+    symbol_locked: `Locked`,
+    symbol_not_encountered_card: `Not Encountered`,
+    symbol_remove_card: `Remove`,
+
+    advance: `Advance`,
+    back_stab_1: `Back Stab 1`,
+    back_stab_2: `Back Stab 2`,
+    basic_diagonal: `Basic Diagonal`,
+    basic_orthogonal: `Basic Orthogonal`,
+    basic_slice: `Basic Slice`,
+    beam_diagonal: `Beam Diagonal`,
+    beam_ne: `Beam NE`,
+    beam_nw: `Beam NW`,
+    beam_orthogonal: `Beam Orthogonal`,
+    beam_se: `Beam SE`,
+    beam_sw: `Beam SW`,
+    bite: `Bite`,
+    blink_1: `Blink 1`,
+    blink_2: `Blink 2`,
+    bounding_retreat: `Bounding Retreat`,
+    branch_strike: `Branch Strike`,
+    breakthrough_horizontal: `Breakthrough Horizontal`,
+    breakthrough_vertical: `Breakthrough Vertical`,
+    butterfly: `Butterfly`,
+    charge_horizontal: `Charge Horizontal`,
+    charge_vertical: `Charge Vertical`,
+    chomp: `Chomp`,
+    clear_behind: `Clear Behind`,
+    clear_in_front: `Clear in Front`,
+    combat_diagonal: `Combat Diagonal`,
+    combat_orthogonal: `Combat Orthogonal`,
+    dash_ne: `Dash NE`,
+    dash_nw: `Dash NW`,
+    debilitating_confusion: `Debilitating Confusion`,
+    diamond_attack: `Diamond Attack`,
+    diamond_slice: `Diamond Slice`,
+    execution_1: `Execution 1`,
+    execution_2: `Execution 2`,
+    execution_3: `Execution 3`,
+    explosion: `Explosion`,
+    fangs: `Fangs`,
+    firebreathing_horizontal: `Firebreathing Horizontal`,
+    firebreathing_ne: `Firebreathing NE`,
+    firebreathing_nw: `Firebreathing NW`,
+    firebreathing_vertical: `Firebreathing Vertical`,
+    flanking_diagonal: `Flanking Diagonal`,
+    flanking_horizontal: `Flanking Horizontal`,
+    flanking_vertical: `flanking Vertical`,
+    force: `Force`,
+    fork: `Fork`,
+    freeze_up: `Freeze Up`,
+    glide: `Glide`,
+    hit_and_run: `Hit and Run`,
+    horsemanship: ``,
+    instant_teleport: `Instant Teleport`,
+    jab_diagonal: `Jab Diagonal`,
+    jab_orthogonal: `Jab Orthogonal`,
+    jump: `Jump`,
+    lash_out: `Lash Out`,
+    leap_left: `Leap Left`,
+    leap_right: `Leap Right`,
+    lightheaded: `Lightheaded`,
+    lost_maneuver: `Lost Maneuver`,
+    lost_technique: `Lost Technique`,
+    lunge_left: `Lunge Left`,
+    lunge_right: `Lunge_right`,
+    maneuver_1: `Maneuver 1`,
+    maneuver_2: `Maneuver 2`,
+    maneuver_3: `Maneuver 3`,
+    overcome_horizontal: `Overcome Horizontal`,
+    overcome_vertical: `Overcome Vertical`,
+    pike: `Pike`,
+    punch_diagonal: `Punch Diagonal`,
+    punch_orthogonal: `Punch Orthogonal`,
+    push_back: `Push Back`,
+    reckless_attack_left: `Reckless Attack Left`,
+    reckless_attack_right: `Reckless Attack Right`,
+    reckless_leap_forwards: `Reckless Leap Forwards`,
+    reckless_leap_left: `Reckless Leap Left`,
+    reckless_leap_right: `Reckless Leap Right`,
+    reckless_sidestep_diagonal: `Reckless Sidestep Diagonal`,
+    reckless_sidestep_orthogonal: `Reckless Sidestep Orthogonal`,
+    reckless_spin: `Reckless Spin`,
+    reckless_sprint: `Reckless Sprint`,
+    reckless_teleport: `Reckless Teleport`,
+    regenerate: `Regenerate`,
+    roll_horizontal: `Roll Horizontal`,
+    roll_ne: `Roll NE`,
+    roll_nw: `Roll NW`,
+    saw_strike: `Saw Strike`,
+    short_charge_diagonal: `Short Charge Diagonal`,
+    short_charge_orthogonal: `Short Charge Orthogonal`,
+    sidestep_e: `Sidestep E`,
+    sidestep_n: `Sidestep N`,
+    sidestep_ne: `Sidestep NE`,
+    sidestep_nw: `Sidestep NW`,
+    sidestep_s: `Sidestep S`,
+    sidestep_se: `Sidestep SE`,
+    sidestep_sw: `Sidestep SW`,
+    sidestep_w: `Sidestep W`,
+    skitter: `Skitter`,
+    slash_step_forwards: `Slash Step Forwards`,
+    slash_step_left: `Slash Step Left`,
+    slash_step_right: `Slash step Right`,
+    slice_twice: `Slice Twice`,
+    slip_through_ne: `Slip Through NE`,
+    slip_through_nw: `Slice Through NW`,
+    slither: `Slither`,
+    snack: `Snack`,
+    soar: `Soar`,
+    spearhead: `Spearhead`,
+    spin_attack: `Spin Attack`,
+    split_second_1: `Split Second 1`,
+    split_second_2: `Split Second 2`,
+    sprint_horizontal: `Sprint Horizontal`,
+    sprint_vertical: `Sprint Vertical`,
+    step_left: `Step Left`,
+    step_right: `Step Right`,
+    stumble_e: `Stumble E`,
+    stumble_n: `Stumble N`,
+    stumble_ne: `Stumble NE`,
+    stumble_nw: `Stumble NW`,
+    stumble_s: `Stumble S`,
+    stumble_se: `Stumble SE`,
+    stumble_sw: `Stumble SW`,
+    stumble_w: `Stumble W`,
+    stunning_leap_horizontal: `Stunning Leap Horizontal`,
+    stunning_leap_vertical: `Stunning Leap Vertical`,
+    stunning_punch_diagonal: `Stunning Punch Diagonal`,
+    stunning_punch_orthogonal: `Stunning Punch Orthogonal`,
+    stunning_retreat: `Stunning Retreat`,
+    stunning_slice: `Stunning Slice`,
+    stunning_tread_diagonal: `Stunning Tread Diagonal`,
+    stunning_tread_orthogonal: `Stunning Tread Orthogonal`,
+    superweapon_1: `Superweapon 1`,
+    superweapon_2: `Superweapon 2`,
+    t_strike_horizontal: `T Strike Horizontal`,
+    t_strike_vertical: `T Strike Vertical`,
+    teleport: `Teleport`,
+    thwack: `Thwack`,
+    trample: `Trample`,
+    trident: `Trident`,
+    vine_snare: `Vine Snare`,
+    y_leap: `Y Leap`,
+    y_strike_ne: `Y Strike NE`,
+    y_strike_nw: `Y Strike NW`,
+}
+Object.freeze(card_names);
+// Button Options.
+const null_move_button = `--`;
+const NW = `NW`;
+const N = `N`;
+const NE = `NE`;
+const E = `E`;
+const SE = `SE`;
+const S = `S`;
+const SW = `SW`;
+const W = `W`;
+const C = `C`;
+const SPIN = `Spin`;
+
+// Directions.
+const four_directions = {
+    // Unicode arrows
+    left:   `\u2B9C`,
+    up:     `\u2B9D`,
+    right:  `\u2B9E`,
+    down:   `\u2B9F`
+}
+Object.freeze(four_directions);
+
+// Move types.
+const move_types = {
+    alt: `Shift click on a button to show actions on the map.`,
+    evolutions: `Dust and paint seems to be covering part of this card obscuring some of the options. `
+                +`Maybe you can find some way to remove it?`,
+    intro: `Move Options (actions will be performed in order):\n`,
+
+    attack: `Attack`,
+    move: `Move`,
+    teleport: `Teleport to a random space`,
+    stun: `Stun`,
+    confuse: `Confuse: you`,
+    move_until: `Move continuously`,
+    attack_until: `Attack continuously`,
+    heal: `Heal`,
+    you: `you`,
+    nothing: `Do nothing`,
+    
+    per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
+    temp: `Temporary: Removed from your deck when used, or at the end of the floor.`,
+    instant: `Instant: Play another card this turn.`,
+    
+    locked: `This card has not been unlocked yet.`,
+    not_found: `This card has never been added to your deck.`,
+}
+Object.freeze(move_types);
+const boss_names = {
+    arcane_sentry: `Arcane Sentry`,
+    arcane_sentry_node: `Arcane Sentry Node`,
+    forest_heart: `Forest Heart`,
+    lich: `Lich`,
+    lord_of_shadow_and_flame: `Lord of Shadow and Flame`,
+    spider_queen: `Spider Queen`,
+    two_headed_serpent: `Two Headed Serpent`,
+    two_headed_serpent_body: `Two Headed Serpent Body`,
+    velociphile: `Velociphile`,
+    young_dragon: `Young Dragon`,
+}
+Object.freeze(boss_names);
+
+const boss_descriptions = {
+    arcane_sentry: 
+        `Arcane Sentry (Boss): An automated defense station. Changes modes in response to damage.`,
+    arcane_sentry_node: 
+        `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry. Cannot be stunned.`,
+    forest_heart: 
+        `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage `
+        +`each turn and cannot be stunned. Reacts to damage by calling for aid from the forest.`,
+    lich: 
+        `Lich (Boss): An undead wielder of dark magic. Alternates between moving `
+        +`one space away from you and casting a spell.`,
+    lich_announcement: 
+        `The Lich is currently preparing to cast:`,
+    lord_of_shadow_and_flame:
+        `Lord of Shadow and Flame (Final Boss): Ruler from beyond the veil of reality. Summons `
+        +`altars from which to cast it's spells. When next to the player it will prepare to attack `
+        +`all nearby spaces next turn. Moves at double speed while under half health.`,
+    spider_queen: 
+        `Spider Queen (Boss): Her back crawls with her young. Moves like a `
+        +`normal spider. Taking damage will stun her, but will also spawn a spider.`,
+    two_headed_serpent_awake: 
+        `Two Headed Serpent (Boss): Moves then attacks 1 square orthogonally. `
+        +`When damaged, the neck will instantly grow a new head.`,
+    two_headed_serpent_asleep: 
+        `Two Headed Serpent (Boss): This head is sleeping. When damaged, `
+        +`the neck will grow a new head, which will spend it's turn waking up. `
+        +`The other head will then fall asleep.`,
+    two_headed_serpent_body: 
+        `Two Headed Serpent (Boss): The scales on the body are too tough to pierce.`,
+    velociphile: 
+        `Velociphile (Boss): A rolling ball of mouths and hate. Moves `
+        +`in straight lines. Must build up speed to ram you.`,
+    young_dragon: [
+        `Young Dragon (Boss): Be glad it's still young. Alternates between gliding and breathing fire.\n`
+        +`The Dragon is currently `, 
+        `preparing to fly a short distance.`, 
+        `preparing to aim it's fire breath.`, 
+        `preparing to breath fire in a 3 long cone.`
+    ],
+}
+Object.freeze(boss_descriptions);
+
+const boss_floor_message = {
+    arcane_sentry: 
+        `An alarm begins to blare.\n`
+        +`INTRUDER DETECTED!`,
+    forest_heart: `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`,
+    lich: `Dust and dark magic swirl in the air.`,
+    lord_of_shadow_and_flame: `Reality swirls and unravels around a solitary figure.`,
+    lord_pacifism: `There is no escape. Despite your pacifism, you must find a way to fight.`,
+    spider_queen: `The floor is thick with webs.`,
+    two_headed_serpent: `The discarded skin of a massive creature litters the floor.`,
+    velociphile: `You hear a deafening shriek.`,
+    young_dragon: `The air burns in your lungs.`,
+}
+Object.freeze(boss_floor_message);
+
+const boss_death_message = {
+    general: 
+        `The exit opens.\n`
+        +`You feel your wounds begin to heal.`,
+    arcane_sentry: 
+        `MAIN SYSTEMS FAILING!\n`
+        +`The ringing alarm subsides.`,
+    arcane_sentry_node: `NODE OFFLINE!`,
+    forest_heart: `Branches rain from above as the ancient tree is felled.`,
+    lich: `The Lich's body crumbles to dust.`,
+    lord_of_shadow_and_flame: 
+        `As the ruler of this space fades from reality, the room begins to quake. `
+        +`Better leave quickly.`,
+    spider_queen: `As the Spider Queen falls to the floor, the last of her children emerge.`,
+    two_headed_serpent: 
+        `It's body too small to regenerate any further, all four of the serpent's `
+        +`eyes close for the final time`,
+    velociphile: `The wailing falls silent as the Velociphile is defeated.`,
+    young_dragon: `Scales so soft are easily pierced. The Young Dragon's fire goes out.`,
+}
+Object.freeze(boss_death_message);
+
+// Boss Specific Descriptions
+
+const lich_spell_descriptions = {
+    confusion: `Confusion: Pollutes your deck with 2 bad temporary cards.`,
+    earthquake: `Earthquake: Causes chunks of the ceiling to rain down.`,
+    flame_wave: `Flame Wave: Shoots 3 explosive fireballs towards the target.`,
+    lava_moat: `Lava Moat: Creates pools of molten lava to shield the user.`,
+    piercing_beam: `Piercing Beam: Fires a piercing beam in the direction closest to the target.`,
+    rest: `Nothing.`,
+    summon: `Summon: Summons a random enemy`,
+    teleport: `Teleport: The user moves to a random square on the map`,
+}
+Object.freeze(lich_spell_descriptions);
+
+const heart_spell_descriptions = {
+    rest: `Currently, the Forest Heart is resting.`,
+    growth: `Currently, the Forest Heart is preparing to grow plants.`,
+    summon: `Currently, the Forest Heart is preparing to summon forest creatures.`,
+}
+Object.freeze(heart_spell_descriptions);
+
+const sentry_mode_descriptions = {
+    core: {
+        turret: 
+            `Currently the nodes are set to act as turrets.\n`
+            +`While in this mode, the sentry will continuously create paper constructs.`,
+        saw: 
+            `Spinning saws will damage everything around it or touching it, then it will move 1 space `
+            +`orthogonally.\n`
+            +`After 3 turns, it will revert.`,
+        cannon: 
+            `Currently preparing to shoot volleys of fireballs.\n`
+            +`After 2 volleys, it will revert.`,
+    },
+    node: {
+        turret: `Fires beams orthogonally that hit the first thing in their path.`,
+        saw: `Spinning saws will damage everything around it or touching it.`,
+        cannon: `Shoots a fireball in the direction it is aimed.`,
+        double_cannon: `Shoots 2 fireballs in the direction it is aimed.`,
+    }
+}
+Object.freeze(sentry_mode_descriptions);
+const enemy_descriptions = {
+    acid_bug: 
+        `Acid bug: Moves towards the player 1 space. Has no normal attack, `
+        +`but will spray acid upon death hurting everything next to it.`,
+    animated_boulder: 
+        `Animated Boulder: Wakes up when something touches it. Each turn it will `
+        +`damage everything close to it, then move 1 space closer to the player. `
+        +`After 3 turns, it will go back to sleep.`,
+    blood_crescent:
+        `Blood Crescent: Will move 2 spaces diagonally towards the player damaging them if it `
+        +`hits them or passes next to them.`,
+    brightling: 
+        `Brightling: Is not aggressive. Will occasionally teleport the player `
+        +`close to it before teleporting away the next turn.`,
+    captive_void: 
+        `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it `
+        +`turns it off for 2 turns.`,
+    carrion_flies: 
+        `Carrion Flies: Will attack the player if they are nearby. Otherwise wanders `
+        +`aimlessly. Over time they will multiply.`,
+    claustropede:
+        `Claustropede: Will attack the player if they are nearby. Otherwise moves one space closer. `
+        +`When hit it will spend it's next turn dividing and teleporting away.`,
+    clay_golem: 
+        `Clay Golem: Will attack the player if it is next to them. Otherwise `
+        +`it will move 1 space closer. Taking damage will stun it and it cannot `
+        +`move two turns in a row.`,
+    corrosive_caterpillar: 
+        `Corrosive Caterpillar: Is not aggressive. Leaves a trail of corrosive `
+        +`slime behind it when it moves or dies.`,
+    darkling: 
+        `Darkling: Teleports around randomly hurting everything next to the location it `
+        +`arrives at. Blocking it's rift will destroy it.`,
+    gem_crawler: 
+        `Gem Crawler: Every other turn it will move 1 space closer to the player, then attack them if `
+        +`it is next to them.`,
+    igneous_crab: 
+        `Igneous Crab: Will attack the player if it is next to them. Otherwise it will `
+        +`move 1 space closer. When damaged, it will spend the next 2 turns fleeing.`,
+    living_tree: 
+        `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
+        +`Moves one square in any direction every other turn if it didn't attack.`,
+    living_tree_rooted: 
+        `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
+        +`This one has put down roots making it unable to move.`,
+    magma_spewer: 
+        `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
+        +`get close.`,
+    maw:
+        `Maw: Attacks the player 3 times if they are 1 space away orthogonally. Otherwise moves 1 `
+        +`space orthogonally towards them. Taking damage stuns it twice.`,
+    noxious_toad: 
+        `Noxious Toad: Every other turn it will hop over a space orthogonally. `
+        +`If it lands near the player, it will damage everything next to it.`,
+    orb_of_insanity: 
+        `Orb of Insanity: Does not move or attack. If the player is within `
+        +`2 spaces of it, it will confuse them, polluting their deck with a bad temporary card.`,
+    paper_construct: 
+        `Paper Construct: Can shoot the player from up to 2 spaces away orthogonally. Otherwise, `
+        +`moves up to two spaces diagonally.`,
+    pheonix: 
+        `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `
+        +`Everything it flies over will be damaged and set on fire. When it dies, `
+        +`it drops a pile of ashes from which it will eventually be reborn.`,
+    porcuslime_large: 
+        `Large Porcuslime: Moves towards the player 1 space and attacks `
+        +`in that direction. Weakens when hit.`,
+    porcuslime_medium: 
+        `Medium Porcuslime: Moves towards the player 1 space and attacks `
+        +`in that direction. Alternates between orthoganal and diagonal `
+        +`movement. Splits when hit.`,
+    porcuslime_small_d: 
+        `Small Porcuslime: Moves towards the player 1 space diagonally and `
+        +`attacks in that direction.`,
+    porcuslime_small_h: 
+        `Small Porcuslime: Moves towards the player 1 space orthogonally `
+        +`and attacks in that direction.`,
+    ram: 
+        `Ram: Moves orthogonally. When it sees the player, it will `
+        +`prepare to charge towards them and ram them.`,
+    rat: 
+        `Rat: Will attack the player if it is next to them. Otherwise it will move `
+        +`2 spaces closer. After attacking, it will flee.`,
+    scorpion: 
+        `Scorpion: Will attack the player if it is next to them. Otherwise, moves 2 spaces `
+        +`closer every other turn.`,
+    scythe: 
+        `Scythe: Will move 3 spaces diagonally towards the player `
+        +`damaging them if it passes next to them.`,
+    shadow_knight: 
+        `Shadow Knight: Moves in an L shape. If it tramples the player, `
+        +`it will move again.`,
+    shadow_knight_elite: 
+        `Shadow Knight Elite: Moves in an L shape. If it tramples the player, `
+        +`it will move again. Smarter than normal shadow knights.`,
+    shadow_scout: 
+        `Shadow Scout: Will attack the player if it is next to them. Otherwise it will `
+        +`move 1 space closer. Can go invisible every other turn.`,
+    specter: 
+        `Specter: Can travel up to 3 spaces orthogonally. While doing so, it can pass through tiles `
+        +`without costing movement. Passing through a tile damages and stuns/confuses it.`,
+    spider_web: [
+        `Spider Web: Does not move or attack. Spawns a spider every `, 
+        ` turns. Slows over time.`
+    ],
+    spider: 
+        `Spider: Will attack the player if it is next to them. `
+        +`Otherwise it will move 1 space closer.`,
+    starcaller:
+        `Starcaller: Every 3 turns it will summon an object from another realm targeting `
+        +`the player's location.`,
+    strider: 
+        `Strider: Attacks then moves 2 spaces away in one direction.`,
+    swaying_nettle: 
+        `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal `
+        +`to it. Won't hurt each other`,
+    thorn_bush: 
+        `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`,
+    turret_d: 
+        `Turret: Does not move. Fires beams diagonally that hit the `
+        +`first thing in their path.`,
+    turret_h: 
+        `Turret: Does not move. Fires beams orthogonally that hit `
+        +`the first thing in their path.`,
+    turret_m:
+        `Moving Turret: Fires beams in two directions that hit the first thing in their path. `
+        +`Moves in the same direction until it hits something.`,
+    turret_r: 
+        `Turret: Does not move. Fires beams in two directions hitting `
+        +`the first thing in their path. Rotates every turn.`,
+    unspeakable:
+        `Unspeakable: Moves towards the player 1 space. Does not attack. On death, `
+        +`confuses the player 2 times, polluting their deck with bad cards.`,
+    unstable_wisp: 
+        `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes `
+        +`into a ring of fireballs on death.`,
+    vampire: 
+        `Vampire: Moves orthogonally then will attempt to attack diagonally. `
+        +`When it hits the player, it will heal itself. Teleports away and is `
+        +`stunned when hit.`,
+    vinesnare_bush: 
+        `Vinesnare Bush: Does not move. Can drag the player towards it using it's vines from up to 3 `
+        +`spaces away. It can then lash out at the player if they are still nearby next turn.`,
+    walking_prism: [
+        `Walking Prism: Has no normal attack, but will fire beams in 4 directions when damaged `
+        +`which hit the first thing in their path. Changes firing direction aftewards.\n`, 
+        `Currently aiming orthogonally.`,
+        `Currently aiming diagonally.`
+    ],
+    wheel_of_fire:
+        `Wheel of Fire: Can shoot a jet of fire in any direction that hits the first thing in it's `
+        +`path. If no target is sighted, it will instead move 1 space randomly.`,
+}
+Object.freeze(enemy_descriptions);
+
+const enemy_names = {
+    acid_bug: `Acid Bug`, 
+    animated_boulder: `Animated Boulder`, 
+    blood_crescent: `Blood Crescent`,
+    brightling: `Brightling`, 
+    captive_void: `Captive Void`, 
+    carrion_flies: `Carrion Flies`, 
+    claustropede_1: `Claustropede x1`,
+    claustropede_2: `Claustropede x2`,
+    claustropede_3: `Claustropede x4`,
+    clay_golem: `Clay Golem`, 
+    corrosive_caterpillar: `Corrosive Caterpillar`, 
+    darkling: `Darkling`, 
+    gem_crawler: `Gem Crawler`, 
+    igneous_crab: `Igneous Crab`, 
+    living_tree: `Living Tree`, 
+    magma_spewer: `Magma Spewer`, 
+    maw: `Maw`,
+    noxious_toad: `Noxious Toad`, 
+    orb_of_insanity: `Orb of Insanity`, 
+    paper_construct: `Paper Construct`, 
+    pheonix: `Pheonix`, 
+    porcuslime_large: `Large Porcuslime`, 
+    porcuslime_medium: `Medium Porcuslime`, 
+    porcuslime_small: `Small Porcuslime`, 
+    ram: `Ram`, 
+    rat: `Rat`, 
+    scorpion: `Scorpion`, 
+    scythe: `Scythe`, 
+    shadow_knight: `Shadow Knight`, 
+    shadow_knight_elite: `Shadow Knight Elite`, 
+    shadow_scout: `Shadow Scout`, 
+    specter: `Specter`, 
+    spider_web: `Spider Web`, 
+    spider: `Spider`, 
+    starcaller: `Starcaller`,
+    strider: `Strider`, 
+    swaying_nettle: `Swaying Nettle`, 
+    thorn_bush: `Thorn Bush`, 
+    turret: `Turret`, 
+    turret_m: `Moving Turret`, 
+    turret_r: `Rotary Turret`, 
+    unspeakable: `Unspeakable`,
+    unstable_wisp: `Unstable Wisp`, 
+    vampire: `Vampire`, 
+    vinesnare_bush: `Vinesnare Bush`, 
+    walking_prism: `Walking Prism`,
+    wheel_of_fire: `Wheel of Fire`,
+}
+Object.freeze(enemy_names);
+
+const enemy_flavor = {
+    acid_bug: 
+        `The explosive defenses these bugs have has left them without any natural predators. Their `
+        +`resulting lack of fear is probably what lead to their curious nature. These are best `
+        +`dispatched at range if possible. If they do manage to get close, be careful where you `
+        +`swing your weapon.`,
+    animated_boulder: 
+        `The magnetic fields present in these caverns have interacted with the natural magic of the `
+        +`area to create powerful elementals with a desire to be left alone. While their rocky makeup `
+        +`makes them all but invulnerable and completely indistinguishable from stationary parts of `
+        +`the terrain, they tend to tire quickly making fleeing a viable option.`,
+    blood_crescent:
+        ``,
+    brightling: 
+        `Beings from a higher plane of existance who have been attracted to the natural magic of the `
+        +`area. Both curious and cautious, they warp space to bring creatures closer to be studied `
+        +`before fleeing via the same method. They are entirely unaggressive and may help or hinder `
+        +`in equal parts through their unexpected teleportations.`,
+    captive_void: 
+        `Either the result of some strange experiment or perhaps another part of the library's expansive `
+        +`security system. Either way, these devices bend space around them to draw in everything `
+        +`nearby. Thankfully they can be temporarily disabled through the use of blunt force.`,
+    carrion_flies: 
+        `Swarms move about at random attracted by the ample food sources available down here. They `
+        +`tend to multiply quickly making it important to get rid of them as soon as possible.`,
+    claustropede:
+        ``,
+    clay_golem: 
+        `These golems are built to last with their tough skin showing countless scars. That makes it `
+        +`likely that their construction wasn't recent. Thankfully they are incredibly slow moving `
+        +`and seem to malfunction slightly when recieving damage. As long as you avoid being `
+        +`surrounded it will be possible to wear them out eventually, or just run past them.`,
+    corrosive_caterpillar: 
+        ``,
+    darkling: 
+        `It is unclear whether this relative of the brightling exibits less control over their spacial `
+        +`powers, or if they simply enjoy the whiplash of their constant relocations. Either way their `
+        +`method of transportation is far more dangerous to both them and anything nearby. Blocking `
+        +`rift often presents an easier way of dispatching them than tracking them down, but the `
+        +`chaos caused by their jumps can also be helpful for taking out large groups of foes.`,
+    gem_crawler: 
+        ``,
+    igneous_crab: 
+        `These creatures have shielded themselves in rocky shells which makes them much more difficult `
+        +`to kill than the giant spiders, however the cautious nature that led them to exhibit this `
+        +`behaviour has also led them to flee at the first sign of danger often showing less awareness `
+        +`of their surroundings as they do.`,
+    living_tree: 
+        `The magical energy permeating this forest which allows it to thrive far beneath the sight of `
+        +`the sun has also had an unexpected effect on some of the plant life. While their wandering `
+        +`nature could be an attempt to reach areas with fresh nutrients, it is unclear what led these `
+        +`trees to be so aggressive. Thankfully their control over their branches isn't very fine `
+        +`making their attacks easy to evade at close range.`,
+    magma_spewer: 
+        `These strange creatures possess a unique digestive tract. Rather than eating organic matter, `
+        +`they get most of their energy through drinking magma. In addition to acting as a thermal `
+        +`power source, it also allows them to fire rocks at high speeds through pressurized jets `
+        +`on their head. This gives them a powerful natural defense mechanism that can take out targets `
+        +`at great distances.`,
+    maw:
+        ``,
+    noxious_toad: 
+        `Capable of leaping great distances to navigate the difficcult terrain of the sewers, these `
+        +`toads have also developed a natural defense mechanism which sets them apart from their `
+        +`surface dwelling bretheren. They can release a toxic gas as they leap capable of harming `
+        +`anything near the sight of their landing. It takes them a short time to recharge it however `
+        +`leaving them open to attack immediatly after the gas has dispelled.`,
+    orb_of_insanity: 
+        `Some sort of malevolent force is encased in these spheres of glass. It does not seem to `
+        +`belong in this world. Even looking at it for too long has a terrible effect on the psyche. `
+        +`Thankfully it isn't able to survive outside the orb so simply shattering the glass is `
+        +`enough to cause it to disperse.`,
+    paper_construct: 
+        `These small magical creatures are made of folded sheets of multicolored paper. Given the `
+        +`fragile nature of their bodies, it is hard to imagine that they last very long. That lends `
+        +`credence to the theory that something in the library is creating them, though what I do not `
+        +`know.`,
+    pheonix: 
+        `This mythical bird makes a home in places of high temperature and large amounts of natural `
+        +`magic. They are difficult to kill due to their fast speed and their ability to reconstitute `
+        +`themselves from the ashes they leave behind on death. Scattering the ashes provides the most `
+        +`certain way to ensure they do not return.`,
+    porcuslime: 
+        `While sharing the distributed nervous system and mitotic reproduction method common to many `
+        +`slimes, these ones have developed spines coated with toxins they find while feeding from `
+        +`the sewer floor. While they can shrug off damage by shedding mass, the smaller they become, `
+        +`the less developed their nervous system becomes leading to less control over their movements. `
+        +` As a last ditch effort to avoid death, they can split into two smaller slimes both capable `
+        +`of regaining their former size through several weeks of feeding.`,
+    ram: 
+        `While herbivorous, these creatures are fiercely territorial. They can run at high speeds, but `
+        +`find it difficult to change directions making them easy to dodge.`,
+    rat: 
+        ``,
+    scorpion: 
+        `The species of scorpion that can be found here is capable of quickly sprinting short `
+        +`distances to hunt prey. They don't have great stamina however which gives them a need `
+        +`for frequent stops to rest. It is often best to wait for them to come to you while taking `
+        +`care not to become surrounded.`,
+    scythe: 
+        `One of the more dangerous species of giant insect encountered here, the Scythe is adorned by `
+        +`a sharp bladelike protrusion on either side of it's head. Using it's many legs to move at `
+        +`high speeds, it is even capable of slicing through steel. The position of the blades make it `
+        +`easy to stop if you are directly in front of it however.`,
+    shadow_knight: 
+        ``,
+    shadow_knight_elite: 
+        ``,
+    shadow_scout: 
+        ``,
+    specter: 
+        `It is unclear if these are actually the ghosts of the departed or simply some sort of `
+        +`magically created creature of pure shadow. Either way they are capable of phasing through `
+        +`solid objects as though they were not there and have a chilling effect on anything they move `
+        +`through.`,
+    spider_web: 
+        `Since the spiders here tend to hunt rather than lying in wait, these webs serve more as a `
+        +`place for them to rest and to protect their young. Since it's hard to tell how many may be `
+        +`waiting inside, it is recomended that these be destroyed to keep their population in check.`,
+    spider: 
+        `The spiders here reach sizes unseen anywhere else. They tend to hunt for their prey rather `
+        +`than lying in wait in a web. Thankfully their large size hasn't made them very tough so they `
+        +`are easily dispatched.`,
+    starcaller:
+        `Starcaller: Every 3 turns it will summon an object from another realm targeting `
+        +`the player's location creating a small explosion.`,
+    strider: 
+        `These long legged creatures navigate the trecherous terrain of the magmatic caves with ease.`
+        +`The strength of their barbed feet seems to mostly be used for defense as they can be seen `
+        +`feeding off the sparse vegitation that grows on some of the boulders here.`,
+    swaying_nettle: 
+        `This plant uses stinging spines to ward off both curious herbivores and other plants that `
+        +`encroach upon them. They can be seen swaying to extend their reach despite the lack of any `
+        +`breeze to move them.`,
+    thorn_bush: 
+        `These bushes grow rapidly choking out many other kinds of vegitation and occasionally `
+        +`trapping unwary creatures that end up as fertilizer. Thankfully despite the wide reach of `
+        +`their brambles, they still only have a single stem which when severed will prevent `
+        +`further growth.`,
+    turret: 
+        `Placed here when this area was abandoned, these automated turrets present a clear `
+        +`warning: Don't come any further. While they are capable of sensing you through solid `
+        +`objects, they may be an advantage as it means they will fire even if another enemy is `
+        +`in the way.`,
+    turret_m:
+        `These turrets seem to be more advanced than their earlier counterparts. They are capable of `
+        +`both levitating and moving, though they are limited in their direction of fire.`,
+    turret_r: 
+        `While it can't fire in as many directions at once, this turret can keep watch over more `
+        +`directions overall. Thankfully it rotates at a fixed speed so it's movement can be predicted.`,
+    unspeakable:
+        ``,
+    unstable_wisp: 
+        `Beings of elemental fire that naturally spawn from the extreme heat. They are very unstable `
+        +`and can explode violently if disrupted. They are not aggressive however so as long as you `
+        +`destroy them from afar and avoid the fires left in their wake they are not very dangerous.`,
+    vampire: 
+        ``,
+    vinesnare_bush: 
+        `These carnivourous weeds are not unique to this area, but provide a danger to travelers `
+        +`wherever they reside. Their vines spread out along the ground and wrap themselves around `
+        +`the feet of whoever steps on them dragging them in range of the plant's thorny whips. `
+        +`A careful traveller may be able to make use of their roots to move around faster.`,
+    walking_prism: 
+        ``,
+    wheel_of_fire:
+        ``,
+}
+Object.freeze(enemy_descriptions);
+
+const entity_types = {
+    chest: `Chest`,
+    empty: `Empty`,
+    enemy: `Enemy`,
+    exit: `Exit`,
+    final_exit: `Final Exit`,
+    player: `Player`,
+    terrain: `Terrain`,
+}
+Object.freeze(entity_types);
+const event_descriptions = {
+    black_hole:
+        `A Black Hole is beginning to form here.`,
+    darkling_rift: 
+        `If this space isn't blocked, a darkling will teleport here `
+        +`next turn damaging everything nearby.`,
+    falling_rubble: 
+        `Watch out, something is about to fall here.`,
+    nettle_root: 
+        `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
+    starfall:
+        `Something is about to be pulled into existence damaging anything standing here.`,
+    sunlight:
+        `This space is rapidly heating up.`,
+    thorn_root: 
+        `Watch out, brambles are about to sprout damaging anything standing here.`,
+}
+Object.freeze(event_descriptions);
+
+const event_names = {
+    black_hole: `Black Hole`,
+    bramble_shield: `Bramble Shield`,
+    darkling_rift: `Darkling Rift`,
+    delay: `Delay`,
+    earthquake: `Earthquake`,
+    falling_magma: `Falling Magma`,
+    falling_rubble: `Falling Rubble`,
+    nettle_shield: `Nettle Shield`,
+    spell_announcement: `Spell Announcement`,
+    starfall: `Starfall`,
+    unstun: `Unstun`,
+    wake_up: `Wake Up`,
+    warp: `Spacial Warp`
+}
+Object.freeze(event_names);
+const other_tile_descriptions = {
+    altar_of_scouring:
+        `Altar of Scouring: Activate by moving here. When activated, creates a wall of fireballs to `
+        +`wipe the screen clean.`,
+    altar_of_shadow:
+        `Altar of Shadow: Activate by moving here. When activated, the Lord of Shadow and Flame will `
+        +`become invisible until another altar is activated.`,
+    altar_of_singularity:
+        `Altar of Singularity: Activate by moving here. When activated, create a Black Hole in this space.`,
+    altar_of_space:
+        `Altar of Space: Activate by moving here. When activated, rearrange the floor.`,
+    altar_of_stars:
+        `Altar of Stars: Activate by moving here. When activated, for the next 3 turns it will `
+        +`summon an object from another realm targeting the player's location.`,
+    altar_of_stasis:
+        `Altar of Stasis: Activate by moving here. When activated, rewinds time healing the Lord `
+        +`of Shadow and Flame by 3 and all altars by 1.`,
+    altar_of_sunlight:
+        `Altar of Sunlight: Activate by moving here. When activated, create an expanding fire `
+        +`centered on the player's location.`,
+    black_hole: 
+        `Black Hole: Draws everything on screen closer to it. The `
+        +`Lord of Shadow and Flame is immune. Decays every turn.`,
+    bookshelf: 
+        `Bookshelf: When damaged, adds a random temporary card to your deck.`,
+    coffin: 
+        `Coffin: There is no telling whether whatever is inside is still `
+        +`alive or not. Touch it at your own risk.`,
+    corrosive_slime: 
+        `Corrosive Slime: Stepping into this will hurt. Clear it out `
+        +`by attacking.`,
+    fireball: 
+        `Fireball: Moves forwards until it comes into contact with `
+        +`something, then damages it. Cannot be stunned.`,
+    fruit_tree_enticing: 
+        `Enticing Fruit Tree: Moving you here will heal you, but other creatures `
+        +`may be attracted by the fruit.`,
+    fruit_tree_rotting: 
+        `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell `
+        +`could still attract creatures if it is disturbed.`,
+    lava_pool: 
+        `Lava Pool: Attempting to move here will hurt.`,
+    magmatic_boulder: 
+        `Magmatic Boulder: The light reflecting off of it gives you the `
+        +`feeling of being watched.`,
+    moon_rock:
+        `Moon Rock: A chunk of fragile rock from somewhere else.`,
+    raging_fire: 
+        `Raging Fire: The very ground here is burning. It will grow weaker `
+        +`every turn, but it's not safe to move through. Cannot be stunned.`,
+    repulsor: 
+        `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or `
+        +`if touched. Takes 3 turns to recharge afterwards.`,
+    sewer_grate: 
+        `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
+    shatter_sphere_d:
+        `Shatter Sphere: Explodes when damaged harming everything diagonal to it.`,
+    shatter_sphere_o:
+        `Shatter Sphere: Explodes when damaged harming everything orthogonal to it.`,
+    smoldering_ashes: [
+        `Smoldering Ashes: A pheonix will be reborn here in `, 
+        ` turns unless you scatter the ashes by attacking them or moving onto them.`
+    ],
+    thorn_bramble: 
+        `Thorn Bramble: Trying to move here hurts. Allows the thorn bush to `
+        +`spread further.`,
+    wall: 
+        `Wall: It seems sturdy.`,
+    wall_damaged: 
+        `Damaged Wall: Something might live inside.`,
+}
+Object.freeze(other_tile_descriptions);
+
+const other_tile_names = {
+    altar_of_scouring: `Altar of Scouring`,
+    altar_of_shadow: `Altar of Shadow`,
+    altar_of_singularity: `Altar of Singularity`,
+    altar_of_space: `Altar of Space`,
+    altar_of_stars: `Altar of Stars`,
+    altar_of_stasis: `Altar of Stasis`,
+    altar_of_sunlight: `Altar of Sunlight`,
+    black_hole: `Black Hole`,
+    bookshelf: `Bookshelf`,
+    coffin: `Coffin`,
+    corrosive_slime: `Corrosive Slime`,
+    fireball: `Fireball`,
+    fruit_tree_enticing: `Enticing Fruit Tree`,
+    fruit_tree_rotting: `Rotting Fruit Tree`,
+    lava_pool: `Lava Pool`,
+    magmatic_boulder: `Magmatic Boulder`,
+    moon_rock: `Moon Rock`,
+    raging_fire: `Raging Fire`,
+    repulsor: `Repulsor`,
+    sewer_grate: `Sewer Grate`,
+    shatter_sphere: `Shatter Sphere`,
+    smoldering_ashes: `Smoldering Ashes`,
+    thorn_bramble: `Thorn Brambles`,
+    wall: `Wall`,
+    wall_damaged: `Damaged Wall`,
+}
+Object.freeze(other_tile_names);
+const special_tile_descriptions = {
+    chest: `Chest: It might have something useful inside. Breaking it will damage `
+    +`the contents.`,
+    chest_armored: `Armored Chest: It might have something useful inside. It is larger than `
+    +`a normal chest and armored to protect it's contents.`,
+    empty: `There is nothing here.`,
+    exit: `Exit: Stairs to the next floor.`,
+    final_exit: `Return Portal: Move here to leave the dungeon and win the game.`,
+    lock: `Locked Exit: Defeat the boss to continue.`,
+    player: `You: Click a card to move.`,
+}
+Object.freeze(special_tile_descriptions);
+
+const special_tile_names = {
+    chest: `Chest`,
+    chest_armored: `Armored Chest`,
+    empty: `Empty`,
+    exit: `Exit`,
+    final_exit: `Return Portal`,
+    lock: `Locked Exit`,
+    you: `You`,
+    player: `Player`,
+}
+Object.freeze(special_tile_names);
+
+const chest_text = {
+    header: `Choose up to one reward:`,
+    take: `Take`,
+    abandon: `Abandon`,
+    add_card: `Add this card to your deck.`,
+}
+Object.freeze(chest_text);
+const achievement_text = {
+    title: `Achievements`,
+    reset: `Reset`,
+    confirm_reset: `Confirm?`,
+    unlocked: `Achievement Unlocked:`,
+    repeated: `Achievement Repeated:`,
+    unlocks_boon: `New Boon`,
+    unlocks_cards: `New Cards`,
+}
+Object.freeze(achievement_text);
+
+const achievement_names = {
+    // Boss
+    velociphile: `Only A Speedbump`,
+    spider_queen: `Arachno-Regicide`,
+    two_headed_serpent: `One Head Is Better Than Two`,
+    lich: `End To Unlife`,
+    young_dragon: `Novice Dragonslayer`,
+    forest_heart: `Expert Lumberjack`,
+    arcane_sentry: `Security Bypass`,
+    lord_of_shadow_and_flame: `Deeper and Deeper`,
+    victory: `Victory`,
+
+    // Normal
+    non_violent: `Non Violent`,
+    not_my_fault: `Not My Fault`,
+    ancient_knowledge: `Ancient Knowledge`,
+    peerless_sprinter: `Peerless Sprinter`,
+    speed_runner: `Speed Runner`,
+    triple: `Three Of A Kind`,
+    beyond_the_basics: `Beyond The Basics`,
+    one_hit_wonder: `One Hit Wonder`,
+    one_life: `One Is All You Need`,
+    without_a_scratch: `Without A Scratch`,
+    clumsy: `Clumsy`,
+    shrug_it_off: `Shrug It Off`,
+    collector: `Collector`,
+    jack_of_all_trades: `Jack Of All Trades`,
+    monster_hunter: `Monster Hunter`,
+    minimalist: `Minimalist`
+}
+Object.freeze(achievement_names);
+
+const achievement_description = {
+    // Boss
+    velociphile: `Defeat the Velociphile.`,
+    spider_queen: `Defeat the Spider Queen.`,
+    two_headed_serpent: `Defeat the Two Headed Serpent.`,
+    lich: `Defeat the Lich.`,
+    young_dragon: `Defeat the Young Dragon.`,
+    forest_heart: `Defeat the Forest Heart.`,
+    arcane_sentry: `Defeat the Arcane Sentry.`,
+    lord_of_shadow_and_flame: `Defeat the Lord of Shadow and Flame.`,
+    victory: `Escape victorious.`,
+
+    // Normal
+    non_violent: `Reach the first boss without killing anything.`,
+    not_my_fault: `Let a boss die without killing anything on the floor yourself.`,
+    ancient_knowledge: `Restore an ancient card to full power.`,
+    peerless_sprinter: `Speed through a floor in 3 turns or less.`,
+    speed_runner: `Leave floor 10 in 100 turns or less.`,
+    triple: `Have 3 or more of the same non temporary card in your deck.`,
+    beyond_the_basics: `Remove all basic cards from your deck.`,
+    one_hit_wonder: `Defeat a boss in a single turn.`,
+    one_life: `Defeat any boss with exactly 1 max health.`,
+    without_a_scratch: `Leave floor 10 without taking any damage.`,
+    clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
+    shrug_it_off: `Take 10 or more damage without dying in 1 run.`,
+    collector: `Open 6 or more treasure chests in 1 run.`,
+    jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
+    monster_hunter: `Kill 5 total unique bosses.`,
+    minimalist: `Reach floor 15 with only 5 cards in your deck.`
+}
+Object.freeze(achievement_description);
+
+const boss_achievements = [
+    achievement_names.velociphile,
+    achievement_names.spider_queen,
+    achievement_names.two_headed_serpent,
+    achievement_names.lich,
+    achievement_names.young_dragon,
+    achievement_names.forest_heart,
+    achievement_names.arcane_sentry,
+    achievement_names.lord_of_shadow_and_flame,
+]
+const control_screen_text = {
+    default: `Default`,
+    edit: `Edit`,
+    save: `Save`,
+    undo: `Undo`,
+}
+Object.freeze(control_screen_text);
+
+
+const CONTROLS_TEXT = {
+    header: `Controls`,
+    stage: {
+        header: `Stage Controls`,
+        card: `Choose card`,
+        direction: `Make move`,
+        toggle: `Preview move`,
+        info: `View card info`,
+        retry: `Retry`
+    },
+    shop: {
+        header: `Shop Controls`,
+        add: `Choose card to add`,
+        remove: `Choose card to remove`,
+        confirm: `Confirm choice`
+    },
+    chest: {
+        header: `Chest Controls`,
+        choose: `Choose item`,
+        confirm: `Confirm choice`,
+        reject: `Abandon chest`
+    }
+}
+Object.freeze(CONTROLS_TEXT);
+
+const KEYBOARD_SYMBOL_MAP = new Map();
+KEYBOARD_SYMBOL_MAP.set(` `, `space`);
+const shop_text = {
+    header: `Choose one card to add or remove:`,
+    add: `Add a card to your deck.`,
+    remove: `Remove a card from your deck.`,
+    min: `Your deck is at the minimum size.`,
+    invalid: `Please choose a card to add or remove.`,
+    confirm: `Confirm >`,
+    current: `Current Deck (minimum `,
+}
+Object.freeze(shop_text);
+const SIDEBAR_BUTTONS = {
+    text_log: `Messages`, 
+    boon_list: `Boons`, 
+    discard_pile: `Discard`, 
+    full_deck: `Full Deck`, 
+    initiative: `Initiative`, 
+    deck_order: `Deck`,
+    sidebar: `Sidebar`
+}
+Object.freeze(SIDEBAR_BUTTONS);
+
+const record_types = {
+    achievement: `achievement`,
+    repeated_achievement: `repeated achievement`,
+    normal: `normal`,
+}
+Object.freeze(record_types);
+const gameplay_labels = {
+    title: `Maneuver`,
+    hand: `Hand of Cards`,
+    move: `Moves`,
+    retry: `Retry?`,
+    floor: `Floor`,
+    turn: `Turn`,
+}
+Object.freeze(gameplay_labels);
+
+const gameplay_text = {
+    welcome: 
+        `Use cards to move (blue) and attack (red).\n` 
+        +`Click on things to learn more about them.\n`
+        +`Refer to the guidebook if you need more information.`,
+    floor: 
+        `Welcome to floor `,
+    new_area:
+        `You have entered the `,
+    game_over: 
+        `Game Over. You were killed by a `,
+    stunned:    
+        `Stunned x`,
+    divider: 
+        `\n--------------------\n`,
+    select_card: 
+        `Before choosing what move to make, you must first select a card to use.`,
+    victory:
+        `You have emerged from the dungeon victorious! Click on the board to begin again.`,
+}
+Object.freeze(gameplay_text);
+// ----------------GuideText.js----------------
+// This file contains the headers and text for the guide / tutorial section.
+
+const GUIDE_HEADERS = {
+    basics: `The Basics`,
+    cards: `Using Cards`,
+    enemies: `Handling Enemies`,
+    shop: `The Shop`,
+    bosses: `Bosses`,
+    chests: `Chests`,
+    sidebar: `Sidebar`,
+    confusion: `Confusion`,
+    about: `About`,
+}
+Object.freeze(GUIDE_HEADERS);
+
+const GUIDE_TEXT = {
+    basics: 
+        [`Welcome to Maneuver!\n\n`
+        +`The goal of the game is to progress as deep into the dungeon as possible by completing each floor. `
+        +`To finish a floor, you need to reach the stairs that lead down to the next one. Enemies will spawn `
+        +`on each floor which will try to stop you from continuing. You do not need to defeat everything on `
+        +`the current floor to continue, but may need to fight most of them to survive.\n\n`
+        +`Exit the dungeon by defeating the final boss on floor 25 to win.\n\n`
+        +`Read more about controlling your character in the next section.\n`
+        +`Good luck!\n\n`],
+
+    cards: 
+        [`To control your character's actions, you have a deck of cards. Each card gives you several `
+        +`options for a set of actions to take. The actions on the card will be performed relative to `
+        +`your current location (the black dot). Clicking on a card will bring up a grid of buttons which `
+        +`will let you decide which of the card's options to use.\n\n`
+        +`When you finish using a card, it will be discarded and replaced with another from your deck, then `
+        +`everything else on the floor will get a chance to act before you get another turn.\n\n`
+        +`When your deck runs out, your discard pile will be shuffled back into it. The amount of cards `
+        +`remaining in your deck is shown next to your health bar.\n`
+        +`\n`
+        +`Colors and symbols that make up a card:\n\n`,
+            ` Your relative starting location.\n`,
+            ` You will attack this space.\n`,
+            ` You will move to this space.\n`,
+            ` If applied to an enemy, it will stun them. If applied to the player, it will instead add a `
+            +`temporary debuff card to your deck (see these in Confusion).\n`,
+            ` You will heal the creature on this space if it's health is less than it's max health.\n`,
+            ` Each action the line goes through will be performed.\n`,
+            ` Multiple actions will be performed in a specific order.\n`,
+            ` Multiple moves will be performed until you hit something.\n`,
+            ` Multiple attacks will be performed until you hit the edge of the floor.\n`,
+            ` You will be teleported to a random unoccupied location.\n`,
+            `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
+            ` A card with a purple grid will be performed instantly.\n`,
+            ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
+            ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
+        +`\n`
+        +`You can use the (?) button next to your move options to learn exactly what a selected card does, `
+        +`or shift click to display what the card does on the map.\n\n`],
+
+    enemies: 
+        [`As you travel through the dungeon, you will encounter various other creatures, many of whom want `
+        +`to kill you. Each creature has different patterns of attack and movement. Many of them also have `
+        +`other unique abilities.\n\n`
+        +`Click on a tile to learn more about creatures and terrain there. Clicking will show you a `
+        +`description of everything on the tile, and which squares they might be able to attack next `
+        +`turn. Also pay attention to how much health they have since some enemies might take several `
+        +`hits to kill.\n\n`
+        +`Remember that you do not need to kill everything to go to the next stage. Sometimes it's better `
+        +`to run past an enemy than to fight it and risk getting surrounded or cornered. There may also be `
+        +`some creatures you encounter that are more helpful than harmful.\n\n`
+        +`Some enemies also have the ability to forcibly move you. When that happens, you will `
+        +`immediately get another turn.\n\n`
+        +`Some effects will cause an enemy to become stunned. They will be hightlighted in yellow. Stunned `
+        +`enemies will skip their next turn. Multiple instances of stun will cause multiple turns to get `
+        +`skipped.\n\n`],
+
+    shop: 
+        [`When you complete a floor, you will enter a shop where you must either add or remove a card from `
+        +`your deck. You will get ${ADD_CHOICE_COUNT} options of random cards to add, and `
+        +`${REMOVE_CHOICE_COUNT} options of random cards from your deck to remove. The current contents of `
+        +`your deck will be shown to help you choose. You cannot go below your minimum deck size.\n\n`
+        +`In addition to the shop, there are several other ways to get cards. You can find them from `
+        +`defeating certain bosses or aquiring certain boons. Some enemies or effects may also add `
+        +`temporary cards to your deck. They will go away after you play them or go to the next floor.\n\n`],
+
+    bosses: 
+        [`Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be `
+        +`locked until you defeat it's occupant. When you defeat the boss, the stairs will be `
+        +`unlocked, you will be fully healed, and it will drop a chest containing a powerful new card as a `
+        +`reward.\n\n`
+        +`When leaving the floor, you will enter a new area of the dungeon with a different set of `
+        +`inhabitants and a new boss at the end.\n\n`],
+
+    chests: 
+        [`On floor ${CHEST_LOCATION} of every area, you will find a treasure chest. Moving onto this chest `
+        +`will allow you to pick a boon. Boons are powerful abilities that can give your character a unique `
+        +`edge when it comes to surviving.\n\n`
+        +`Chests will also be dropped after a boss is defeated. Rather than boons, these ones will contain `
+        +`a card that lets you imitate one of the boss's abilities.\n\n`
+        +`Be careful. Breaking a chest will destroy it's contents.\n\n`],
+
+    sidebar: 
+        [`The sidebar contains several tabs which keep track of useful information so you don't need to `
+        +`remember it.\n\n`
+        +`- The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like `
+        +`the descriptions given by clicking on a tile will not be tracked.\n\n`
+        +`- The Discard tab will keep track of which cards in your deck have been used so far to help you `
+        +`figure out what might be left to draw. It resets after shuffling.\n\n`
+        +`- The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it `
+        +`when trying to use one enemy to block the attack of another. It will not track hidden enemies.\n\n`
+        +`More tabs might become available as you play.\n\n`],
+
+    confusion: 
+        [`Certain enemies and cards will confuse you. Confusion adds a temporary bad card to your deck which `
+        +`will go away after it goes to your discard pile, or when you go to the next floor. Cards will do `
+        +`this if they highlight your current square in yellow.\n\n`
+        +`Here is a list of the possible confusion cards:\n\n`],
+    
+    about:
+        [`Maneuver is a game created by Sean Dunbar. It began in 2023. If you would like to view the changelog or `
+        +`look at the source code, you can go to the `, `.\n\n`],
+}
+Object.freeze(GUIDE_TEXT);
+
+const CARD_SYMBOLS = [
+    {src: `${IMG_FOLDER.symbols}you.png`,               name: `you`,                x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}attack.png`,            name: `attack`,             x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}move.png`,              name: `move`,               x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}stun.png`,              name: `stun`,               x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}heal.png`,              name: `heal`,               x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}multiple.png`,          name: `multiple actions`,   x: 3, y: 1},
+    {src: `${IMG_FOLDER.symbols}multiple_ordered.png`,  name: `actions in order`,   x: 3, y: 1},
+    {src: `${IMG_FOLDER.symbols}move_until.png`,        name: `move until`,         x: 4, y: 1},
+    {src: `${IMG_FOLDER.symbols}attack_until.png`,      name: `attack until`,       x: 4, y: 1},
+    {src: `${IMG_FOLDER.symbols}teleport.png`,          name: `teleport`,           x: 3, y: 1},
+    {src: `${IMG_FOLDER.symbols}attack_move.png`,       name: `attack then move`,   x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}triple_attack.png`,     name: `triple attack`,     x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}instant.png`,           name: `instant`,            x: 2, y: 2},
+    {src: `${IMG_FOLDER.symbols}temporary.png`,         name: `temporary`,          x: 2, y: 2},
+    {src: `${IMG_FOLDER.symbols}per_floor.png`,         name: `once per floor`,     x: 2, y: 2},
+];
+
+const about_page_text = {
+    git_link: `https://github.com/seanmd8/Maneuver`,
+    git_text: `Github Page`,
+};
+Object.freeze(about_page_text);
+const journal_card_headers = {
+    basic: `Basic Cards`,
+    common: `Common Cards`,
+    achievement: `Achievement Cards`,
+    boon: `Boon Cards`,
+    confusion: `Confusion Cards`,
+    boss: `Boss Cards`,
+}
+Object.freeze(journal_card_headers);
+const journal_navbar_labels = {
+    cards: `Cards`,
+    boons: `Boons`,
+    areas: `Areas`,
+}
+Object.freeze(journal_navbar_labels);
+const screen_names = {
+    gameplay: `Gameplay`,
+    guide: `Guidebook`,
+    achievements: `Achievements`,
+    journal: `Journal`,
+    controls: `Controls`,
+}
+Object.freeze(screen_names);
+// ----------------UIID.js----------------
+// File containing a library of ids used to retrieve elements of the ui.
+
+/**
+ * Function to get a set of uiids (Identifiers that can be used to retrieve the appropriate ui element) for the appropriate language.
+ * Throws an error if an invalid language is provided.
+ * @param {string} language The language to get uiids for.
+ * @returns {uiid_library} The library of uiids for that language.
+ */
+function get_uiids(language){
+    // Factory function for the display classes (currently only html)
+    switch(language){
+        case `html`:
+            return HTML_UIIDS;
+        default:
+            throw new Error(ERRORS.invalid_value);
+    }
+}
+
+/**
+ * @typedef {Object} uiid_library
+ * @property {string} title Displays the title of the game.
+ * @property {string} game_screen Controls the visibility of the game itself.
+ *      @property {string} stats Displays the current stats.
+ *      @property {string} stage Controls the visibility of the current floor.
+ *          @property {string} map_display Displays the map of the floor.
+ *          @property {string} health_display Displays the player's health.
+ *          @property {string} remaining_deck Shows how many cards are left in the player's deck.
+ *              @property {string} deck_image Deck icon in the background.
+ *              @property {string} deck_count # of cards in the foreground.
+ *          @property {string} hand_box The box around the hand of cards.
+ *              @property {string} hand_label Labels the hand box.
+ *              @property {string} hand_display Displays the player's hand of cards.
+ *          @property {string} move_box The box around the move buttons.
+ *              @property {string} move_label Labels the move button box.
+ *              @property {string} move_info Info icon for move buttons.
+ *              @property {string} move_buttons Displays the buttons for the last card clicked on.
+ *          @property {string} display_message Displays messages.
+ *          @property {string} retry_button: A button to allow them to reset after they die.
+ *      @property {string} shop Controls the visibility of the shop.
+ *          @property {string} shop_instructions Lets the player know they can add or remove a card.
+ *          @property {string} add_card Displays which cards that could be added to their deck.
+ *          @property {string} remove_card Displays which cards that could be removed from their deck.
+ *          @property {string} shop_confirm Clicking this confirms their picks and moves to next floor.
+ *          @property {string} shop_message Gives information about the last card clicked on.
+ *          @property {string} current_deck Tells them the next element is their current deck.
+ *          @property {string} display_deck Displays their entire deck.
+ *      @property {string} chest Controls the visibility of the chest contents.
+ *          @property {string} chest_lid: Creates the lid of the chest.
+ *              @property {string} chest_instructions: A description of the contents of the chest.
+ *          @property {string} chest_body: Created the body of the chest.
+ *              @property {string} contents The images associated with the contents.
+ *              @property {string} chest_confirm_row: Buttons allowing you to confirm your pick or skip the reward.
+ *              @property {string} content_description: A description of whichever one of the contents you last clicked on.
+ * @property {string} guide Controls the visibility of the guide screen.
+ *      @property {string} guide_navbar Controls the visibility of each guidebook section.
+ * @property {string} controls Controls the visibility of the controls section.
+ *      @property {string} stage_controls Contains the controls for the stage.
+ *      @property {string} shop_control Contains the controls for the shop.
+ *      @property {string} chest_control Contains the controls for the chest.
+ */
+
+
+/** @type {uiid_library} The uiid library for HTML.*/
+const HTML_UIIDS = {
+    header_bar: `headerBar`,
+        title: `title`,
+    game_screen: `gameScreen`,
+        stats: `stats`,
+        stage: `stage`,
+            map_display: `mapDisplay`,
+            sidebar: `sidebar`,
+                sidebar_header: `sidebarHeader`,
+                initiative: `initiative`,
+                boon_list: `boonList`,
+                    boon_list_table: `boonListTable`,
+                    removed_boon_table: `removedBoonTable`,
+                discard_pile: `discardPile`,
+                    discard_pile_table: `discardPileTable`,
+                full_deck: `fullDeck`,
+                    full_deck_table: `fullDeckTable`,
+                text_log: `textLog`,
+                    text_scroll: `textScroll`,
+                deck_order: `deckOrder`,
+                    deck_order_table: `deckOrderTable`,
+            health_display: `healthDisplay`,
+            remaining_deck: `remainingDeck`,
+                deck_image: `deckImage`,
+                deck_count: `deckCount`,
+            hand_box: `handBox`,
+                hand_label: `handLabel`,
+                hand_display: `handDisplay`,
+            move_box: `moveBox`,
+                move_label: `moveLabel`,
+                move_info: `moveInfo`,
+                move_buttons: `moveButtons`,
+            display_message: `displayMessage`,
+            retry_box: `retryBox`,
+            retry_button: `retryButton`,
+        shop: `shop`,
+            shop_instructions: `shopInstructions`,
+            add_card: `addCard`,
+            remove_card: `removeCard`,
+            shop_confirm: `shopConfirm`,
+            shop_message: `shopMessage`,
+            current_deck: `currentDeck`,
+            display_deck: `displayDeck`,
+        chest: `chest`,
+            chest_lid: `chestLid`,
+                chest_instructions: `chestInstructions`,
+            chest_body: `chestBody`,
+                contents: `contents`,
+                chest_confirm_row: `chestConfirmRow`,
+                content_description: `contentDescription`,
+        deck_select: `deckSelect`,
+            deck_select_message: `deckSelectMessage`,
+            deck_select_table: `deckSelectTable`,
+            deck_select_card_info: `deckSelectCardInfo`,
+            deck_select_confirm: `deckSelectConfirm`,
+    guide: `guide`,
+        guide_box: `guide-box`,
+            guide_navbar: `guideNavbar`,
+    achievements: `achievements`,
+        achievement_list: `achievement-list`,
+    journal: `journal`,
+        journal_navbar: `journalNavbar`,
+        journal_cards: `journalCards`,
+            journal_card_info: `journalCardInfo`, // Generated
+        journal_boons: `journalBoons`,
+            journal_boon_info: `journalBoonInfo`, // Generated
+        journal_areas: `journalAreas`,
+    controls: `controls`,
+        stage_controls: `stageControls`,
+        shop_controls: `shopControls`,
+        chest_controls: `chestControls`,
+}
+Object.freeze(HTML_UIIDS);
+
+const UIIDS = get_uiids(MARKUP_LANGUAGE);
 function explain_card(card){
     var text = ``;
     text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
@@ -604,504 +2308,6 @@ function tile_description(tile){
         throw new Error(ERRORS.missing_property);
     }
     return `${hp_description(tile)}${tile.description}`;
-}
-function update_achievements(){
-    var achievements = GS.data.achievements.all();
-    display.remove_children(UIIDS.achievement_list);
-    display.show_achievements(UIIDS.achievement_list, achievements);
-}
-
-function reset_achievements(){
-    GS.data.reset_achievements();
-    update_achievements();
-}
-function controls_chest_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
-    display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
-    display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
-    display.control_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
-}
-
-function edit_chest_controls(controls){
-    display.add_edit_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, controls_chest_section, controls);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
-}
-function setup_controls_page(){
-    display.remove_children(UIIDS.stage_controls);
-    controls_stage_section();
-    display.remove_children(UIIDS.shop_controls);
-    controls_shop_section();
-    display.remove_children(UIIDS.chest_controls);
-    controls_chest_section();
-}
-function controls_shop_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
-    display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
-    display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
-    display.control_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
-}
-
-function edit_shop_controls(controls){
-    display.add_edit_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, controls_shop_section, controls);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.add, CONTROLS_TEXT.shop.add);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
-}
-function controls_stage_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
-    display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
-    display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
-    display.control_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
-    display.control_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
-    display.control_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
-}
-
-function edit_stage_controls(controls){
-    display.add_edit_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, controls_stage_section, controls);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.card, CONTROLS_TEXT.stage.card);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
-    display.control_edit_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
-}
-function display_deck_to_duplicate(){
-    display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
-    var finish = (card, deck) => {
-        deck.add(copy_card(card));
-        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
-    }
-    var selector = new DeckSelector(GS.deck, finish);
-    refresh_deck_select_screen(selector);
-}
-function refresh_deck_select_screen(selector){
-    var cards = selector.get_display_info();
-    cards.map((card) => {
-        var prev_on_click = card.on_click;
-        card.on_click = () => {
-            prev_on_click();
-            display.display_message(UIIDS.deck_select_card_info, explain_card(card.card));
-            refresh_deck_select_screen(selector);
-        }
-        return card;
-    });
-    display.remove_children(UIIDS.deck_select_table);
-    for(var i = 0; i < Math.ceil(cards.length / DECK_DISPLAY_WIDTH); ++i){
-        var slice_start = i * DECK_DISPLAY_WIDTH;
-        var slice = cards.slice(slice_start, slice_start + DECK_DISPLAY_WIDTH);
-        display.add_tb_row(UIIDS.deck_select_table, slice, CARD_SCALE);
-    }
-    display.set_button(
-        UIIDS.deck_select_confirm, 
-        shop_text.confirm, 
-        () => {selector.confirm();}, 
-        selector.check_valid()
-    );
-}
-function display_deck_to_remove(remaining){
-    var message = `${boon_messages.clean_mind[0]}${remaining}${boon_messages.clean_mind[1]}`;
-    display.display_message(UIIDS.deck_select_message, message);
-    var finish = (card, deck) => {
-        deck.remove(card.id);
-        if(remaining > 1){
-            display_deck_to_remove(remaining - 1);
-        }
-        else{
-            GS.deck.deal();
-            GS.refresh_deck_display();
-            GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
-        }
-    }
-    var selector = new DeckSelector(GS.deck, finish);
-    refresh_deck_select_screen(selector);
-}
-function display_entire_deck(deck){
-    // Display section header.
-    var min_deck_size = deck.deck_min();
-    display.display_message(UIIDS.current_deck, `${shop_text.current}${min_deck_size}):`);
-    // Display deck with limited cards per line.
-    var decklist = deck.get_deck_info();
-    var card_explanation = (card) => {
-        return () => {
-            display.display_message(UIIDS.shop_message, explain_card(card))       
-        }
-    };
-    for(var card of decklist){
-            card.on_click = card_explanation(card);
-    }
-    for(var i = 0; i < Math.ceil(decklist.length / DECK_DISPLAY_WIDTH); ++i){
-        var row = decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
-        display.add_tb_row(UIIDS.display_deck, row, CARD_SCALE);
-    }
-
-}
-function refresh_shop_display(shop){
-    var refresh = (f, card) => {
-        return () => {
-            f();
-            display.display_message(UIIDS.shop_message, explain_card(card));
-            refresh_shop_display(shop);
-        }
-    };
-    display.remove_children(UIIDS.add_card);
-    display.remove_children(UIIDS.remove_card);
-
-    var add_row = shop.get_add_row();
-    for(var a of add_row){
-        if(a.on_click !== undefined){
-            a.on_click = refresh(a.on_click, a.card);
-        }
-        else{
-            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.add)};
-        }
-    }
-    display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
-
-    var remove_row = shop.get_remove_row();
-    for(var r of remove_row){
-        if(r.on_click !== undefined){
-            r.on_click = refresh(r.on_click, r.card);
-        }
-        else if(r.name === card_names.symbol_remove_card){
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.remove)};
-        }
-        else{
-            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.min)};
-        }
-    }
-    display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
-    
-    var confirm = () => {
-        if(shop.is_valid_selection()){
-            shop.confirm();
-            GS.new_floor();
-        }
-        else{
-            display.display_message(UIIDS.shop_message, shop_text.invalid);
-        }
-    }
-    display.set_button(UIIDS.shop_confirm, shop_text.confirm, confirm, shop.is_valid_selection());
-}
-function display_boons(boon_list){
-    // Updates the list of boons they have.
-    display.remove_children(UIIDS.boon_list_table);
-    var gained = boon_list.get_gained();
-    display.add_tb_row(UIIDS.boon_list_table, gained, SMALL_CARD_SCALE);
-
-    // Updates the list of used up boons.
-    display.remove_children(UIIDS.removed_boon_table);
-    var lost = boon_list.get_lost();
-    display.add_tb_row(UIIDS.removed_boon_table, lost, SMALL_CARD_SCALE);
-}
-/**
- * Displays the library to it's proper location.
- */
-function refresh_deck_order_display(deck){
-    var library = deck.get_library_info();
-    display.remove_children(UIIDS.deck_order_table);
-    display.add_tb_row(UIIDS.deck_order_table, [future_sight(), ...library], SMALL_CARD_SCALE);
-}
-/**
- * Displays the discard pile to it's proper location.
- */
-function refresh_discard_display(deck){
-    var discard = deck.get_discard_info();
-    display.remove_children(UIIDS.discard_pile_table);
-    display.add_tb_row(UIIDS.discard_pile_table, discard, SMALL_CARD_SCALE);
-}
-/**
- * Displays the full deck to it's proper location.
- */
-function refresh_full_deck_display(deck){
-    var full = deck.get_deck_info();
-    display.remove_children(UIIDS.full_deck_table);
-    display.add_tb_row(UIIDS.full_deck_table, full, SMALL_CARD_SCALE);
-}
-/**
- * Function to create and add the buttons for the sidebar.
- */
-function create_sidebar(){
-    var location = UIIDS.sidebar_header;
-    var swap_visibility = function(id_list, id){
-        return function(){
-            id_list.swap(id);
-        }
-    }
-    display.remove_children(location);
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
-    SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
-}
-function update_initiative(map){
-    var info = map.get_initiative().map(e => {
-        let str = `${e.name}\n` + hp_description(e);
-        let on_click = function(){
-            display.click(`${UIIDS.map_display} ${e.location.y} ${e.location.x}`);
-        }
-        return {
-            pic: e.pic,
-            rotate: e.rotate,
-            flip: e.flip,
-            stun: e.stun !== undefined && e.stun > 0,
-            name: e.name,
-            str,
-            on_click,
-        }
-    });
-    display.remove_children(UIIDS.initiative);
-    display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
-}
-/**
- * Function to give a message to the user.
- * @param {string} msg message text.
- */
-function say(msg){
-    display.display_message(UIIDS.display_message, msg);
-}
-
-function say_record(msg, type = record_types.normal){
-    say(msg);
-    GS.record_message(msg, type);
-}
-function display_victory(){
-    display.toggle_visibility(UIIDS.hand_box, false);
-    display.toggle_visibility(UIIDS.move_box, false);
-    display.toggle_visibility(UIIDS.retry_box, false);
-    display.remove_children(UIIDS.map_display);
-    display.add_tb_row(UIIDS.map_display, [{
-        name: achievement_names.victory,
-        //foreground: [`${image_folder.other}border.png`],
-        pic: `${IMG_FOLDER.achievements}victory.png`,
-        on_click: () => {
-            display.toggle_visibility(UIIDS.hand_box, true);
-            display.toggle_visibility(UIIDS.move_box, true);
-            display.toggle_visibility(UIIDS.retry_box, true);
-            player_hand_greyed(false);
-            GS.setup();
-        },
-    }], VICTORY_IMG_SCALE);
-}
-/**
- * Displays the hand to it's proper location.
- */
-function refresh_hand_display(deck){
-    // Updates the hand.
-    var card_row = deck.get_hand_info();
-    display.remove_children(UIIDS.hand_display);
-    display.add_tb_row(UIIDS.hand_display, card_row, CARD_SCALE);
-
-    // Shows how many cards are left in your deck.
-    var remaining = deck.get_deck_count();
-    display.display_message(UIIDS.deck_count, `${remaining}`);
-
-    // Makes sure the card info button shows that no card is selected.
-    var explain_blank_moves = function(){
-        say(gameplay_text.select_card);
-    }
-    display.add_on_click(UIIDS.move_info, explain_blank_moves);
-}
-
-function player_hand_greyed(is_greyed){
-    var toggle = is_greyed ? display.add_class : display.remove_class;
-    toggle(UIIDS.hand_display, `greyed-out`);
-}
-function display_move_buttons(card, hand_position){
-    display.select(UIIDS.hand_display, 0, hand_position);
-    display.remove_children(UIIDS.move_buttons);
-    var button_data = card.options.show_buttons(hand_position);
-    for(let row of button_data){
-        let button_row = row.map(button => {return {
-            description: button.description,
-            on_click: function(){
-                GS.data.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
-            }
-        }});
-        display.add_button_row(UIIDS.move_buttons, button_row);
-    }
-    var explanation = move_types.alt + `\n` + explain_card(card);
-    display.add_on_click(UIIDS.move_info, function(){say(explanation)});
-}
-function telegraph_repetition_boon(repeat){
-    display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
-    display.remove_class(UIIDS.move_box, `telegraph-repetition`);
-    display.remove_class(UIIDS.hand_box, `no-repetition`);
-    display.remove_class(UIIDS.move_box, `no-repetition`);
-    var class_name = repeat ? `telegraph-repetition` : `no-repetition`;
-    display.add_class(UIIDS.hand_box, class_name);
-    display.add_class(UIIDS.move_box, class_name);
-}
-/**
- * Function to display the player's current and max health.
- * @param {Tile} player The player to get health from.
- * @param {number} scale The size of the display images.
- */
-function display_health(player, scale){
-    if(player.health === undefined){
-        throw new Error(ERRORS.missing_property);
-    }
-    var health = [];
-    for(var i = 0; i < player.health; ++i){
-        health.push({
-            pic: `${IMG_FOLDER.other}heart.png`, 
-            name: `heart`
-        });
-    }
-    if(player.max_health !== undefined){
-        for(var i = 0; i < (player.max_health - player.health); ++i){
-            health.push({
-                pic: `${IMG_FOLDER.other}heart_broken.png`, 
-                name: `broken heart`
-            });
-        }
-    }
-    display.add_tb_row(UIIDS.health_display, health, scale);
-}
-function display_map(map){
-    // Updates the GameMap display.
-    display.remove_children(UIIDS.map_display);
-    var grid = map.display();
-    for(var row of grid){
-        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE);
-    }
-    map.clear_telegraphs();
-    // Updates the health bar display.
-    display.remove_children(UIIDS.health_display);
-    display_health(map.get_player(), TILE_SCALE);
-    // Updates the initiative tracker display.
-    update_initiative(map);
-}
-/**
- * Function to create a dropdown menu capable of switching between the game and guide screens.
- * @param {string} location Where to create it.
- */
-function create_main_dropdown(location){
-    var options = [
-        {
-            label: screen_names.gameplay,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
-        }, 
-        {
-            label: screen_names.guide,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
-        },
-        {
-            label: screen_names.controls,
-            on_change: () => {
-                setup_controls_page();
-                DISPLAY_DIVISIONS.swap(UIIDS.controls);
-            }
-        },
-        {
-            label: screen_names.achievements,
-            on_change: () => {
-                update_achievements();
-                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
-            }
-        }
-    ];
-    display.create_dropdown(location, options);
-}
-/**
- * Function to get an array of buttons with the keys used for controls as the value to use when displaying the guide.
- * @returns {HTMLElement[]} The array of buttons.
- */
-function get_control_symbols(){
-    var current_controls = GS.data.controls.get();
-    var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
-    var buttons = [];
-    for(var symbol of button_symbols){
-        buttons.push(display.create_button(symbol, `${symbol} key`));
-    }
-    return buttons;
-}
-/**
- * Function to display the guide.
- */
-function display_guide(){
-    var section_location = UIIDS.guide_box;
-    var navbar_location = UIIDS.guide_navbar;
-
-    // Create the image arrays for the sections with images.
-    var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
-    var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
-        card = card();
-        return {
-            src: card.pic,
-            name: card.name,
-            x: 5,
-            y: 5
-        }
-    }));
-    var confusion_text = [
-        ...GUIDE_TEXT.confusion, ...CONFUSION_CARDS.map((card, i) => {
-        // Adds the space for confusion card images.
-        if(i % 4 !== 3){
-            return NBS;
-        }
-        return `\n`;
-    })];
-    
-    var about_links = [
-        display.make_anchor(about_page_text.git_link, about_page_text.git_text)
-    ];
-
-    // Create guidebook text sections.
-    var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
-    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_symbol_arr);
-    var enemies_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
-    var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
-    var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
-    var chests_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.chests, GUIDE_TEXT.chests, []);
-    var sidebar_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.sidebar, GUIDE_TEXT.sidebar, []);
-    var confusion_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.confusion, confusion_text, confusion_inline_arr);
-    var about_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.about, GUIDE_TEXT.about, about_links);
-
-    var section_id_list = [
-        basics_section, 
-        cards_section, 
-        enemies_section, 
-        shop_section, 
-        bosses_section, 
-        chests_section, 
-        sidebar_section,
-        confusion_section,
-        about_section
-    ];
-
-    var swap_visibility = function(id_list, id){
-        return function(){
-            display.swap_screen(id_list, id);
-        }
-    }
-
-    // Create guidebook navbar.
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap_visibility(section_id_list, basics_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap_visibility(section_id_list, cards_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap_visibility(section_id_list, enemies_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap_visibility(section_id_list, shop_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap_visibility(section_id_list, sidebar_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap_visibility(section_id_list, confusion_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.about, swap_visibility(section_id_list, about_section));
-
-    display.swap_screen(section_id_list, basics_section);
-}
-/**
- * Function to get an array of images for the card symbols to use when displaying the guide..
- * @returns {HTMLElement[]} The array of images.
- */
-function make_guidebook_images(arr){
-    var images = [];
-    for(var img of arr){
-        images.push(display.create_image(img.src, `${img.name} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE)));
-    }
-    return images;
 }
 // ----------------Display.js----------------
 // File containing the display class which interacts with wherever the game is being displayed. 
@@ -1858,6 +3064,89 @@ const DisplayHTML = {
             element.classList.remove(`hidden-section`);            
         }
     },
+    journal_card_section(destination, header, cards){
+        var place = DisplayHTML.get_element(destination);
+
+        var box = document.createElement(`fieldset`);
+        var legend = document.createElement(`legend`);
+        var table = document.createElement(`table`);
+
+        box.classList.add(`shop-section-box`);
+        box.classList.add(`journal-card-box`);
+        legend.innerText = header;
+        var table_id = `${destination} ${header} table`;
+        table.id = table_id;
+
+        place.append(box);
+        box.append(legend);
+        box.append(table);
+        
+        for(var i = 0; i < Math.ceil(cards.length / JOURNAL_DISPLAY_WIDTH); ++i){
+            var slice_start = i * JOURNAL_DISPLAY_WIDTH;
+            var slice = cards.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            display.add_tb_row(table_id, slice, CARD_SCALE);
+        }
+    },
+    create_fixed_box(destination, id){
+        var place = DisplayHTML.get_element(destination);
+        var box = document.createElement(`p`);
+        box.id = id;
+        box.classList.add(`no-margins`);
+        box.classList.add(`scrollable-text`);
+        box.classList.add(`journal-info`);
+        place.append(box);
+    },
+    journal_boon_section(destination, header, boons){
+        var place = DisplayHTML.get_element(destination);
+
+        var box = document.createElement(`fieldset`);
+        var legend = document.createElement(`legend`);
+        var table = document.createElement(`table`);
+
+        box.classList.add(`shop-section-box`);
+        box.classList.add(`journal-card-box`);
+        legend.innerText = header;
+        var table_id = `${destination} ${header} table`;
+        table.id = table_id;
+
+        place.append(box);
+        box.append(legend);
+        box.append(table);
+        
+        for(var i = 0; i < Math.ceil(boons.length / JOURNAL_DISPLAY_WIDTH); ++i){
+            var slice_start = i * JOURNAL_DISPLAY_WIDTH;
+            var slice = boons.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            display.add_tb_row(table_id, slice, CARD_SCALE);
+        }
+    },
+    journal_area_section(destination, info){
+        var place = DisplayHTML.get_element(destination);
+        var box = document.createElement(`div`);
+        box.classList.add(`journal-area-box`);
+        place.append(box);
+
+        var h = document.createElement(`h2`);
+        h.innerText = info.name;
+        box.append(h);
+        
+        var boss = document.createElement(`table`);
+        boss.classList.add(`journal-area-boss`);
+        var boss_id = `${destination} ${info.name} boss`;
+        boss.id = boss_id;
+        box.append(boss);
+        display.add_tb_row(boss_id, [info.boss], JOURNAL_BOSS_SCALE);
+
+        var tiles = document.createElement(`table`);
+        tiles.classList.add(`journal-area-tiles`);
+        var tiles_id = `${destination} ${info.name} tiles`;
+        tiles.id = tiles_id;
+        box.append(tiles);
+        for(var i = 0; i < Math.ceil(info.tiles.length / JOURNAL_AREA_WIDTH); ++i){
+            var slice_start = i * JOURNAL_AREA_WIDTH;
+            var slice = info.tiles.slice(slice_start, slice_start + JOURNAL_AREA_WIDTH);
+            display.add_tb_row(tiles_id, slice, JOURNAL_TILE_SCALE);
+        }
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -1886,1636 +3175,819 @@ const DisplayHTML = {
 const display = get_display(MARKUP_LANGUAGE);
 
 const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.
-/** @returns {MoveDeck} Returns a normal starting deck.*/
-function make_starting_deck(){
-    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
-
-    deck.add(basic_orthogonal());
-    deck.add(basic_orthogonal());
-    deck.add(basic_diagonal());
-    deck.add(basic_diagonal());
-    deck.add(basic_slice());
-    deck.add(basic_slice());
-    deck.add(short_charge_orthogonal());
-    deck.add(jump());
-
-    deck.deal();
-    return deck;
+function update_achievements(){
+    var achievements = GS.data.achievements.all();
+    display.remove_children(UIIDS.achievement_list);
+    display.show_achievements(UIIDS.achievement_list, achievements);
 }
-/** @returns {MoveDeck} Returns a custom deck for testing.*/
-function make_test_deck(test_cards){
-    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
-    for(var card of test_cards){
-        deck.add(card());
+
+function reset_achievements(){
+    GS.data.reset_achievements();
+    update_achievements();
+}
+function controls_chest_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
+    display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
+    display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+
+function edit_chest_controls(controls){
+    display.add_edit_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, controls_chest_section, controls);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+function setup_controls_page(){
+    display.remove_children(UIIDS.stage_controls);
+    controls_stage_section();
+    display.remove_children(UIIDS.shop_controls);
+    controls_shop_section();
+    display.remove_children(UIIDS.chest_controls);
+    controls_chest_section();
+}
+function controls_shop_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
+    display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
+    display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
+    display.control_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+
+function edit_shop_controls(controls){
+    display.add_edit_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, controls_shop_section, controls);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.add, CONTROLS_TEXT.shop.add);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+function controls_stage_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
+    display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
+    display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+
+function edit_stage_controls(controls){
+    display.add_edit_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, controls_stage_section, controls);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.card, CONTROLS_TEXT.stage.card);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_edit_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+function display_deck_to_duplicate(){
+    display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
+    var finish = (card, deck) => {
+        deck.add(copy_card(card));
+        GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
     }
-    var size = test_cards.length;
-    for(var i = 0; i < Math.max(4 - size, 1); ++i){
-        deck.add(basic_orthogonal());
+    var selector = new DeckSelector(GS.deck, finish);
+    refresh_deck_select_screen(selector);
+}
+function refresh_deck_select_screen(selector){
+    var cards = selector.get_display_info();
+    cards.map((card) => {
+        var prev_on_click = card.on_click;
+        card.on_click = () => {
+            prev_on_click();
+            display.display_message(UIIDS.deck_select_card_info, explain_card(card.card));
+            refresh_deck_select_screen(selector);
+        }
+        return card;
+    });
+    display.remove_children(UIIDS.deck_select_table);
+    for(var i = 0; i < Math.ceil(cards.length / DECK_DISPLAY_WIDTH); ++i){
+        var slice_start = i * DECK_DISPLAY_WIDTH;
+        var slice = cards.slice(slice_start, slice_start + DECK_DISPLAY_WIDTH);
+        display.add_tb_row(UIIDS.deck_select_table, slice, CARD_SCALE);
     }
-    deck.add(basic_slice());
-    deck.deal();
-    return deck;
+    display.set_button(
+        UIIDS.deck_select_confirm, 
+        shop_text.confirm, 
+        () => {selector.confirm();}, 
+        selector.check_valid()
+    );
 }
-// Library for the various kinds of errors that the game could throw
-const ERRORS = {
-    invalid_type: `invalid type`,
-    missing_property: `missing property`,
-    pass_turn: `pass turn to player`,
-    skip_animation: `skip animation delay`,
-    game_over: `game over`,
-    floor_complete: `floor complete`,
-    array_size: `array size mismatch`,
-    missing_id: `id not found`,
-    invalid_value: `invalid value`,
-    value_not_found: `value not found`,
-    space_full: `space not empty`,
-    already_exists: `value already set`,
-    map_full: `map full`,
-    creature_died: `creature died`,
-    out_of_bounds: `out of bounds`,
-    divide_by_0: `divide by 0`,
-    failed_to_load: `Failed to load`,
-    victory: `Victory`,
-}
-Object.freeze(ERRORS);
-// ----------------ManeuverUtil.js----------------
-// File for utility functions used throughout the program.
-
-/**
- * Initiates the game when the page is loaded.
- * @returns {void}
- */
-function initiate_game(){
-    display.detect_keys();
-    display.stop_space_scrolling();
-    DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
-    display.display_message(UIIDS.title, gameplay_labels.title);
-    create_main_dropdown(UIIDS.header_bar);
-    GS = new GameState();
-    GS.setup();
-    display_guide();
-    setup_controls_page();
-}
-
-/**
- * Function to add a random temporary debuff card to the player's deck.
- */
-function confuse_player(choices = CONFUSION_CARDS){
-    // Chance redused by 50% for each stable_mind boon.
-    if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
-        var card = rand_from(choices)();
-        GS.give_temp_card(card);
-        GS.refresh_deck_display();
-    } 
-}
-
-function floor_has_chest(floor_of_area){
-    if(floor_of_area === CHEST_LOCATION){
-        return true;
+function display_deck_to_remove(remaining){
+    var message = `${boon_messages.clean_mind[0]}${remaining}${boon_messages.clean_mind[1]}`;
+    display.display_message(UIIDS.deck_select_message, message);
+    var finish = (card, deck) => {
+        deck.remove(card.id);
+        if(remaining > 1){
+            display_deck_to_remove(remaining - 1);
+        }
+        else{
+            GS.deck.deal();
+            GS.refresh_deck_display();
+            GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
+        }
     }
-    if(GS.boons.has(boon_names.hoarder) && floor_of_area === SECOND_CHEST_LOCATION){
-        return true;
+    var selector = new DeckSelector(GS.deck, finish);
+    refresh_deck_select_screen(selector);
+}
+function display_entire_deck(deck){
+    // Display section header.
+    var min_deck_size = deck.deck_min();
+    display.display_message(UIIDS.current_deck, `${shop_text.current}${min_deck_size}):`);
+    // Display deck with limited cards per line.
+    var decklist = deck.get_deck_info();
+    var card_explanation = (card) => {
+        return () => {
+            display.display_message(UIIDS.shop_message, explain_card(card))       
+        }
+    };
+    for(var card of decklist){
+            card.on_click = card_explanation(card);
     }
-    return false;
-}
-const area_descriptions = {
-    ruins: 
-        `You have entered the ruins.`,
-    sewers: 
-        `You have entered the sewers.`,
-    basement: 
-        `You have entered the basement.`,
-    magma: 
-        `You have entered the magmatic caves.`,
-    crypt: 
-        `You have entered the crypt.`,
-    forest: 
-        `You have entered the subteranean forest.`,
-    library: 
-        `You have entered the arcane library.`,
-    court: 
-        `You have entered the candlelit court.`,
-    default: 
-        `You have reached the end of the current content. Floors will continue to generate but `
-        +`there will be no more boss fights. Good luck.`,
-}
-Object.freeze(area_descriptions);
-const boon_names = {
-    ancient_card: `Ancient Card`,
-    bitter_determination: `Bitter Determination`,
-    blood_alchemy: `Blood Alchemy`,
-    boss_slayer: `Boss Slayer`,
-    brag_and_boast: `Brag & Boast`,
-    chilly_presence: `Chilly Presence`,
-    choose_your_path: `Choose Your Path`,
-    clean_mind: `Clean Mind`,
-    creative: `Creative`,
-    dazing_blows: `Dazing Blows`,
-    duplicate: `Duplicate`,
-    empty_rooms: `Empty Rooms`,
-    escape_artist: `Escape Artist`,
-    expend_vitality: `Expend Vitality`,
-    flame_strike: `Flame Strike`,
-    flame_worship: `Flame Worship`,
-    fleeting_thoughts: `Fleeting Thoughts`,
-    fortitude: `Fortitude`,
-    frenzy: `Frenzy`,
-    frugivore: `Frugivore`,
-    future_sight: `Future Sight`,
-    gruntwork: `Gruntwork`,
-    hoarder: `Hoarder`,
-    larger_chests: `Larger Chests`,
-    limitless: `Limitless`,
-    pacifism: `Pacifism`,
-    pain_reflexes: `Pain Reflexes`,
-    perfect_the_basics: `Perfect the Basics`,
-    picky_shopper: `Picky Shopper`,
-    practice_makes_perfect: `Practice Makes Perfect`,
-    pressure_points: `Preassure Points`,
-    quick_healing: `Quick Healing`,
-    rebirth: `Rebirth`,
-    repetition: `Repetition`,
-    retaliate: `Retaliate`,
-    rift_touched: `Rift Touched`,
-    roar_of_challenge: `Roar of Challenge`,
-    safe_passage: `Safe Passage`,
-    shattered_glass: `Shattered Glass`,
-    skill_trading: `Skill Trading`,
-    slime_trail: `Slime Trail`,
-    sniper: `Sniper`,
-    spiked_shoes: `Spiked Shoes`,
-    spontaneous: `Spontaneous`,
-    stable_mind: `Stable Mind`,
-    stealthy: `Stealthy`,
-    stubborn: `Stubborn`,
-    thick_soles: `Thick Soles`,
-    vicious_cycle: `Vicious Cycle`,
-}
-Object.freeze(boon_names);
+    for(var i = 0; i < Math.ceil(decklist.length / DECK_DISPLAY_WIDTH); ++i){
+        var row = decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
+        display.add_tb_row(UIIDS.display_deck, row, CARD_SCALE);
+    }
 
-const boon_descriptions = {
-    bitter_determination: 
-        `At the start of each floor, heal 1 if your health is exactly 1.`,
-    blood_alchemy:
-        `Take 2 damage, gain 2 max hp.`,
-    boss_slayer: 
-        `Bosses start with 2 less hp.`,
-    brag_and_boast: 
-        `Add 2 random boss cards and 2 random debuff cards to your deck.`,
-    chilly_presence: 
-        `Enemies have a 1/6 chance to become stunned at the end of their `
-        +`turn. Bosses are not affected.`,
-    choose_your_path: 
-        `You get to decide which area to go to after each boss fight.`,
-    clean_mind: 
-        `Remove any 2 cards from your deck.`,
-    creative: 
-        `Increase your hand size by 1. Increases minimum deck size by 5.`,
-    dazing_blows: 
-        `Your attacks stun enemies. Bosses are unaffected.`,
-    duplicate: 
-        `Get a copy of any card in your deck.`,
-    empty_rooms: 
-        `Difficulty decreases by 3 floors`,
-    escape_artist: 
-        `Teleport away when attacked.`,
-    expend_vitality: 
-        `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
-    flame_strike: 
-        `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`,
-    flame_worship:
-        `An Altar of Scouring spawns on each non boss floor`,
-    fleeting_thoughts: 
-        `Temporary cards added to your deck will happen instantly.`,
-    fortitude: 
-        `Gain an extra max health and heal for 1.`,
-    frenzy: 
-        `Deal double damage while you only have 1 health.`,
-    frugivore: 
-        `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
-        +`for 1, but might attract enemies.`,
-    future_sight: 
-        `You may look at the order of your deck.`,
-    gruntwork: 
-        `Gain 3 extra max health. Decrease your hand size by 1.`,
-    hoarder: 
-        `Encounter two chests in each area.`,
-    larger_chests: 
-        `All treasure chests contain 2 additional choices and are invulnerable.`,
-    limitless: 
-        `Remove your max health. Heal for 2. If you would be fully healed, heal `
-        +`for 1 instead.`,
-    pacifism: 
-        `If you would attack an enemy, stun them twice instead. Fully heal at `
-        +`the start of each floor. All boss floor exits unlock.`,
-    pain_reflexes: 
-        `Take a turn whenever you are attacked.`,
-    perfect_the_basics: 
-        `Replace all your basic cards with better ones.`,
-    picky_shopper: 
-        `Recieve an extra card choice for adding and removing cards in the shop.`,
-    practice_makes_perfect: 
-        `Defeating a boss while at max health increases your max health by 1.`,
-    pressure_points: 
-        `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`,
-    quick_healing: 
-        `After being dealt damage, you have a 1/4 chance to instantly heal it.`,
-    rebirth: 
-        `When you die, you are revived at full health and this boon is removed.`,
-    repetition: 
-        `Every 3rd turn, your cards happen twice.`,
-    retaliate: 
-        `When you are dealt damage, attack a nearby non boss enemy.`,
-    rift_touched: 
-        `Two Darklings spawn on each non boss floor.`,
-    roar_of_challenge: 
-        `Gain 2 max health. Difficulty increases by 5 floors.`,
-    safe_passage: 
-        `Fully heal and travel to the next floor.`,
-    shattered_glass: 
-        `Enemies explode on death damaging everything nearby other than you. Reduce your `
-        +`max health by 2.`,
-    skill_trading: 
-        `You may both add a card and remove a card at each shop.`,
-    slime_trail: 
-        `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`,
-    sniper: 
-        `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
-    spiked_shoes: 
-        `Attempting to move onto enemies damages them. Reduces your max health by 1.`,
-    spontaneous: 
-        `After using a non instant card, discard your whole hand. Minimum deck size `
-        +`increased by 5.`,
-    stable_mind: 
-        `You gain a 50% chance to resist confusion.`,
-    stealthy: 
-        `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`,
-    stubborn: 
-        `You can skip shops.`,
-    thick_soles: 
-        `You are immune to damage on your turn.`,
-    vicious_cycle: 
-        `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`,
 }
-Object.freeze(boon_descriptions);
+function refresh_shop_display(shop){
+    var refresh = (f, card) => {
+        return () => {
+            f();
+            display.display_message(UIIDS.shop_message, explain_card(card));
+            refresh_shop_display(shop);
+        }
+    };
+    display.remove_children(UIIDS.add_card);
+    display.remove_children(UIIDS.remove_card);
 
-const boon_messages = {
-    clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
-    duplicate: `Choose a card to copy:`,
-    practice_makes_perfect: `Your maximum health has increased.`,
-    rebirth: `You died, but were brought back to life.`,
-}
-Object.freeze(boon_messages);
-const action_types = {
-    move: `Move`,
-    attack: `Attack`,
-    teleport: `Teleport`,
-    stun: `Stun`,
-    move_until: `Move Until`,
-    attack_until: `Attack Until`,
-    heal: `Heal`,
-}
-Object.freeze(action_types);
-const card_names = {
-    advance: `Advance`,
-    basic_diagonal: `Basic Diagonal`,
-    basic_orthogonal: `Basic Orthogonal`,
-    basic_slice: `Basic Slice`,
-    beam_diagonal: `Beam Diagonal`,
-    beam_ne: `Beam NE`,
-    beam_nw: `Beam NW`,
-    beam_orthogonal: `Beam Orthogonal`,
-    beam_se: `Beam SE`,
-    beam_sw: `Beam SW`,
-    bite: `Bite`,
-    bounding_retreat: `Bounding Retreat`,
-    branch_strike: `Branch Strike`,
-    breakthrough_horizontal: `Breakthrough Horizontal`,
-    breakthrough_vertical: `Breakthrough Vertical`,
-    butterfly: `Butterfly`,
-    charge_horizontal: `Charge Horizontal`,
-    charge_vertical: `Charge Vertical`,
-    chomp: `Chomp`,
-    clear_behind: `Clear Behind`,
-    clear_in_front: `Clear in Front`,
-    combat_diagonal: `Combat Diagonal`,
-    combat_orthogonal: `Combat Orthogonal`,
-    dash_ne: `Dash NE`,
-    dash_nw: `Dash NW`,
-    debilitating_confusion: `Debilitating Confusion`,
-    diamond_attack: `Diamond Attack`,
-    diamond_slice: `Diamond Slice`,
-    execution_1: `Execution 1`,
-    execution_2: `Execution 2`,
-    execution_3: `Execution 3`,
-    explosion: `Explosion`,
-    fangs: `Fangs`,
-    firebreathing_horizontal: `Firebreathing Horizontal`,
-    firebreathing_ne: `Firebreathing NE`,
-    firebreathing_nw: `Firebreathing NW`,
-    firebreathing_vertical: `Firebreathing Vertical`,
-    flanking_diagonal: `Flanking Diagonal`,
-    flanking_horizontal: `Flanking Horizontal`,
-    flanking_vertical: `flanking Vertical`,
-    force: `Force`,
-    fork: `Fork`,
-    freeze_up: `Freeze Up`,
-    glide: `Glide`,
-    hit_and_run: `Hit and Run`,
-    horsemanship: ``,
-    instant_teleport: `Instant Teleport`,
-    jab_diagonal: `Jab Diagonal`,
-    jab_orthogonal: `Jab Orthogonal`,
-    jump: `Jump`,
-    lash_out: `Lash Out`,
-    leap_left: `Leap Left`,
-    leap_right: `Leap Right`,
-    lightheaded: `Lightheaded`,
-    lost_maneuver: `Lost Maneuver`,
-    lost_technique: `Lost Technique`,
-    lunge_left: `Lunge Left`,
-    lunge_right: `Lunge_right`,
-    maneuver_1: `Maneuver 1`,
-    maneuver_2: `Maneuver 2`,
-    maneuver_3: `Maneuver 3`,
-    overcome_horizontal: `Overcome Horizontal`,
-    overcome_vertical: `Overcome Vertical`,
-    pike: `Pike`,
-    punch_diagonal: `Punch Diagonal`,
-    punch_orthogonal: `Punch Orthogonal`,
-    push_back: `Push Back`,
-    reckless_attack_left: `Reckless Attack Left`,
-    reckless_attack_right: `Reckless Attack Right`,
-    reckless_leap_forwards: `Reckless Leap Forwards`,
-    reckless_leap_left: `Reckless Leap Left`,
-    reckless_leap_right: `Reckless Leap Right`,
-    reckless_sidestep_diagonal: `Reckless Sidestep Diagonal`,
-    reckless_sidestep_orthogonal: `Reckless Sidestep Orthogonal`,
-    reckless_spin: `Reckless Spin`,
-    reckless_sprint: `Reckless Sprint`,
-    reckless_teleport: `Reckless Teleport`,
-    regenerate: `Regenerate`,
-    roll_horizontal: `Roll Horizontal`,
-    roll_ne: `Roll NE`,
-    roll_nw: `Roll NW`,
-    saw_strike: `Saw Strike`,
-    short_charge_diagonal: `Short Charge Diagonal`,
-    short_charge_orthogonal: `Short Charge Orthogonal`,
-    sidestep_e: `Sidestep E`,
-    sidestep_n: `Sidestep N`,
-    sidestep_ne: `Sidestep NE`,
-    sidestep_nw: `Sidestep NW`,
-    sidestep_s: `Sidestep S`,
-    sidestep_se: `Sidestep SE`,
-    sidestep_sw: `Sidestep SW`,
-    sidestep_w: `Sidestep W`,
-    skitter: `Skitter`,
-    slash_step_forwards: `Slash Step Forwards`,
-    slash_step_left: `Slash Step Left`,
-    slash_step_right: `Slash step Right`,
-    slice_twice: `Slice Twice`,
-    slip_through_ne: `Slip Through NE`,
-    slip_through_nw: `Slice Through NW`,
-    slither: `Slither`,
-    snack: `Snack`,
-    soar: `Soar`,
-    spearhead: `Spearhead`,
-    spin_attack: `Spin Attack`,
-    split_second_1: `Split Second 1`,
-    split_second_2: `Split Second 2`,
-    sprint_horizontal: `Sprint Horizontal`,
-    sprint_vertical: `Sprint Vertical`,
-    step_left: `Step Left`,
-    step_right: `Step Right`,
-    stumble_e: `Stumble E`,
-    stumble_n: `Stumble N`,
-    stumble_ne: `Stumble NE`,
-    stumble_nw: `Stumble NW`,
-    stumble_s: `Stumble S`,
-    stumble_se: `Stumble SE`,
-    stumble_sw: `Stumble SW`,
-    stumble_w: `Stumble W`,
-    stunning_leap_horizontal: `Stunning Leap Horizontal`,
-    stunning_leap_vertical: `Stunning Leap Vertical`,
-    stunning_punch_diagonal: `Stunning Punch Diagonal`,
-    stunning_punch_orthogonal: `Stunning Punch Orthogonal`,
-    stunning_retreat: `Stunning Retreat`,
-    stunning_slice: `Stunning Slice`,
-    stunning_tread_diagonal: `Stunning Tread Diagonal`,
-    stunning_tread_orthogonal: `Stunning Tread Orthogonal`,
-    superweapon_1: `Superweapon 1`,
-    superweapon_2: `Superweapon 2`,
-    symbol_add_card: `Add`,
-    symbol_deck_at_minimum: `Minimum`,
-    symbol_remove_card: `Remove`,
-    t_strike_horizontal: `T Strike Horizontal`,
-    t_strike_vertical: `T Strike Vertical`,
-    teleport: `Teleport`,
-    thwack: `Thwack`,
-    trample: `Trample`,
-    trident: `Trident`,
-    vine_snare: `Vine Snare`,
-    y_leap: `Y Leap`,
-    y_strike_ne: `Y Strike NE`,
-    y_strike_nw: `Y Strike NW`,
-}
-Object.freeze(card_names);
-// Button Options.
-const null_move_button = `--`;
-const NW = `NW`;
-const N = `N`;
-const NE = `NE`;
-const E = `E`;
-const SE = `SE`;
-const S = `S`;
-const SW = `SW`;
-const W = `W`;
-const C = `C`;
-const SPIN = `Spin`;
+    var add_row = shop.get_add_row();
+    for(var a of add_row){
+        if(a.on_click !== undefined){
+            a.on_click = refresh(a.on_click, a.card);
+        }
+        else{
+            a.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.add)};
+        }
+    }
+    display.add_tb_row(UIIDS.add_card, add_row, CARD_SCALE);
 
-// Directions.
-const four_directions = {
-    // Unicode arrows
-    left:   `\u2B9C`,
-    up:     `\u2B9D`,
-    right:  `\u2B9E`,
-    down:   `\u2B9F`
-}
-Object.freeze(four_directions);
-
-// Move types.
-const move_types = {
-    alt: `Shift click on a button to show actions on the map.`,
-    evolutions: `Dust and paint seems to be covering part of this card obscuring some of the options. `
-                +`Maybe you can find some way to remove it?`,
-    intro: `Move Options (actions will be performed in order):\n`,
-
-    attack: `Attack`,
-    move: `Move`,
-    teleport: `Teleport to a random space`,
-    stun: `Stun`,
-    confuse: `Confuse: you`,
-    move_until: `Move continuously`,
-    attack_until: `Attack continuously`,
-    heal: `Heal`,
-    you: `you`,
-    nothing: `Do nothing`,
+    var remove_row = shop.get_remove_row();
+    for(var r of remove_row){
+        if(r.on_click !== undefined){
+            r.on_click = refresh(r.on_click, r.card);
+        }
+        else if(r.name === card_names.symbol_remove_card){
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.remove)};
+        }
+        else{
+            r.on_click = () => {display.display_message(UIIDS.shop_message, shop_text.min)};
+        }
+    }
+    display.add_tb_row(UIIDS.remove_card, remove_row, CARD_SCALE);
     
-    per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
-    temp: `Temporary: Removed from your deck when used, or at the end of the floor.`,
-    instant: `Instant: Play another card this turn.`
-}
-Object.freeze(move_types);
-const boss_names = {
-    arcane_sentry: `Arcane Sentry`,
-    arcane_sentry_node: `Arcane Sentry Node`,
-    forest_heart: `Forest Heart`,
-    lich: `Lich`,
-    lord_of_shadow_and_flame: `Lord of Shadow and Flame`,
-    spider_queen: `Spider Queen`,
-    two_headed_serpent: `Two Headed Serpent`,
-    two_headed_serpent_body: `Two Headed Serpent Body`,
-    velociphile: `Velociphile`,
-    young_dragon: `Young Dragon`,
-}
-Object.freeze(boss_names);
-
-const boss_descriptions = {
-    arcane_sentry: 
-        `Arcane Sentry (Boss): An automated defense station. Changes modes in response to damage.`,
-    arcane_sentry_node: 
-        `Arcane Sentry Node: A transformable node controlled by the Arcane Sentry. Cannot be stunned.`,
-    forest_heart: 
-        `Forest Heart (Boss): An ancient tree warped by dark magic. Cannot take more than 1 damage `
-        +`each turn and cannot be stunned. Reacts to damage by calling for aid from the forest.`,
-    lich: 
-        `Lich (Boss): An undead wielder of dark magic. Alternates between moving `
-        +`one space away from you and casting a spell.`,
-    lich_announcement: 
-        `The Lich is currently preparing to cast:`,
-    lord_of_shadow_and_flame:
-        `Lord of Shadow and Flame (Final Boss): Ruler from beyond the veil of reality. Summons `
-        +`altars from which to cast it's spells. When next to the player it will prepare to attack `
-        +`all nearby spaces next turn. Moves at double speed while under half health.`,
-    spider_queen: 
-        `Spider Queen (Boss): Her back crawls with her young. Moves like a `
-        +`normal spider. Taking damage will stun her, but will also spawn a spider.`,
-    two_headed_serpent_awake: 
-        `Two Headed Serpent (Boss): Moves then attacks 1 square orthogonally. `
-        +`When damaged, the neck will instantly grow a new head.`,
-    two_headed_serpent_asleep: 
-        `Two Headed Serpent (Boss): This head is sleeping. When damaged, `
-        +`the neck will grow a new head, which will spend it's turn waking up. `
-        +`The other head will then fall asleep.`,
-    two_headed_serpent_body: 
-        `Two Headed Serpent (Boss): The scales on the body are too tough to pierce.`,
-    velociphile: 
-        `Velociphile (Boss): A rolling ball of mouths and hate. Moves `
-        +`in straight lines. Must build up speed to ram you.`,
-    young_dragon: [
-        `Young Dragon (Boss): Be glad it's still young. Alternates between gliding and breathing fire.\n`
-        +`The Dragon is currently `, 
-        `preparing to fly a short distance.`, 
-        `preparing to aim it's fire breath.`, 
-        `preparing to breath fire in a 3 long cone.`
-    ],
-}
-Object.freeze(boss_descriptions);
-
-const boss_floor_message = {
-    arcane_sentry: 
-        `An alarm begins to blare.\n`
-        +`INTRUDER DETECTED!`,
-    forest_heart: `In the center of the floor stands a massive tree trunk spanning from floor to ceiling.`,
-    lich: `Dust and dark magic swirl in the air.`,
-    lord_of_shadow_and_flame: `Reality swirls and unravels around a solitary figure.`,
-    lord_pacifism: `There is no escape. Despite your pacifism, you must find a way to fight.`,
-    spider_queen: `The floor is thick with webs.`,
-    two_headed_serpent: `The discarded skin of a massive creature litters the floor.`,
-    velociphile: `You hear a deafening shriek.`,
-    young_dragon: `The air burns in your lungs.`,
-}
-Object.freeze(boss_floor_message);
-
-const boss_death_message = {
-    general: 
-        `The exit opens.\n`
-        +`You feel your wounds begin to heal.`,
-    arcane_sentry: 
-        `MAIN SYSTEMS FAILING!\n`
-        +`The ringing alarm subsides.`,
-    arcane_sentry_node: `NODE OFFLINE!`,
-    forest_heart: `Branches rain from above as the ancient tree is felled.`,
-    lich: `The Lich's body crumbles to dust.`,
-    lord_of_shadow_and_flame: 
-        `As the ruler of this space fades from reality, the room begins to quake. `
-        +`Better leave quickly.`,
-    spider_queen: `As the Spider Queen falls to the floor, the last of her children emerge.`,
-    two_headed_serpent: 
-        `It's body too small to regenerate any further, all four of the serpent's `
-        +`eyes close for the final time`,
-    velociphile: `The wailing falls silent as the Velociphile is defeated.`,
-    young_dragon: `Scales so soft are easily pierced. The Young Dragon's fire goes out.`,
-}
-Object.freeze(boss_death_message);
-
-// Boss Specific Descriptions
-
-const lich_spell_descriptions = {
-    confusion: `Confusion: Pollutes your deck with 2 bad temporary cards.`,
-    earthquake: `Earthquake: Causes chunks of the ceiling to rain down.`,
-    flame_wave: `Flame Wave: Shoots 3 explosive fireballs towards the target.`,
-    lava_moat: `Lava Moat: Creates pools of molten lava to shield the user.`,
-    piercing_beam: `Piercing Beam: Fires a piercing beam in the direction closest to the target.`,
-    rest: `Nothing.`,
-    summon: `Summon: Summons a random enemy`,
-    teleport: `Teleport: The user moves to a random square on the map`,
-}
-Object.freeze(lich_spell_descriptions);
-
-const heart_spell_descriptions = {
-    rest: `Currently, the Forest Heart is resting.`,
-    growth: `Currently, the Forest Heart is preparing to grow plants.`,
-    summon: `Currently, the Forest Heart is preparing to summon forest creatures.`,
-}
-Object.freeze(heart_spell_descriptions);
-
-const sentry_mode_descriptions = {
-    core: {
-        turret: 
-            `Currently the nodes are set to act as turrets.\n`
-            +`While in this mode, the sentry will continuously create paper constructs.`,
-        saw: 
-            `Spinning saws will damage everything around it or touching it, then it will move 1 space `
-            +`orthogonally.\n`
-            +`After 3 turns, it will revert.`,
-        cannon: 
-            `Currently preparing to shoot volleys of fireballs.\n`
-            +`After 2 volleys, it will revert.`,
-    },
-    node: {
-        turret: `Fires beams orthogonally that hit the first thing in their path.`,
-        saw: `Spinning saws will damage everything around it or touching it.`,
-        cannon: `Shoots a fireball in the direction it is aimed.`,
-        double_cannon: `Shoots 2 fireballs in the direction it is aimed.`,
+    var confirm = () => {
+        if(shop.is_valid_selection()){
+            shop.confirm();
+            GS.new_floor();
+        }
+        else{
+            display.display_message(UIIDS.shop_message, shop_text.invalid);
+        }
     }
+    display.set_button(UIIDS.shop_confirm, shop_text.confirm, confirm, shop.is_valid_selection());
 }
-Object.freeze(sentry_mode_descriptions);
-const enemy_descriptions = {
-    acid_bug: 
-        `Acid bug: Moves towards the player 1 space. Has no normal attack, `
-        +`but will spray acid upon death hurting everything next to it.`,
-    animated_boulder: 
-        `Animated Boulder: Wakes up when something touches it. Each turn it will `
-        +`damage everything close to it, then move 1 space closer to the player. `
-        +`After 3 turns, it will go back to sleep.`,
-    blood_crescent:
-        `Blood Crescent: Will move 2 spaces diagonally towards the player damaging them if it `
-        +`hits them or passes next to them.`,
-    brightling: 
-        `Brightling: Is not aggressive. Will occasionally teleport the player `
-        +`close to it before teleporting away the next turn.`,
-    captive_void: 
-        `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it `
-        +`turns it off for 2 turns.`,
-    carrion_flies: 
-        `Carrion Flies: Will attack the player if they are nearby. Otherwise wanders `
-        +`aimlessly. Over time they will multiply.`,
-    claustropede:
-        `Claustropede: Will attack the player if they are nearby. Otherwise moves one space closer. `
-        +`When hit it will spend it's next turn dividing and teleporting away.`,
-    clay_golem: 
-        `Clay Golem: Will attack the player if it is next to them. Otherwise `
-        +`it will move 1 space closer. Taking damage will stun it and it cannot `
-        +`move two turns in a row.`,
-    corrosive_caterpillar: 
-        `Corrosive Caterpillar: Is not aggressive. Leaves a trail of corrosive `
-        +`slime behind it when it moves or dies.`,
-    darkling: 
-        `Darkling: Teleports around randomly hurting everything next to the location it `
-        +`arrives at. Blocking it's rift will destroy it.`,
-    gem_crawler: 
-        `Gem Crawler: Every other turn it will move 1 space closer to the player, then attack them if `
-        +`it is next to them.`,
-    igneous_crab: 
-        `Igneous Crab: Will attack the player if it is next to them. Otherwise it will `
-        +`move 1 space closer. When damaged, it will spend the next 2 turns fleeing.`,
-    living_tree: 
-        `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
-        +`Moves one square in any direction every other turn if it didn't attack.`,
-    living_tree_rooted: 
-        `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
-        +`This one has put down roots making it unable to move.`,
-    magma_spewer: 
-        `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
-        +`get close.`,
-    maw:
-        `Maw: Attacks the player 3 times if they are 1 space away orthogonally. Otherwise moves 1 `
-        +`space orthogonally towards them. Taking damage stuns it twice.`,
-    noxious_toad: 
-        `Noxious Toad: Every other turn it will hop over a space orthogonally. `
-        +`If it lands near the player, it will damage everything next to it.`,
-    orb_of_insanity: 
-        `Orb of Insanity: Does not move or attack. If the player is within `
-        +`2 spaces of it, it will confuse them, polluting their deck with a bad temporary card.`,
-    paper_construct: 
-        `Paper Construct: Can shoot the player from up to 2 spaces away orthogonally. Otherwise, `
-        +`moves up to two spaces diagonally.`,
-    pheonix: 
-        `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `
-        +`Everything it flies over will be damaged and set on fire. When it dies, `
-        +`it drops a pile of ashes from which it will eventually be reborn.`,
-    porcuslime_large: 
-        `Large Porcuslime: Moves towards the player 1 space and attacks `
-        +`in that direction. Weakens when hit.`,
-    porcuslime_medium: 
-        `Medium Porcuslime: Moves towards the player 1 space and attacks `
-        +`in that direction. Alternates between orthoganal and diagonal `
-        +`movement. Splits when hit.`,
-    porcuslime_small_d: 
-        `Small Porcuslime: Moves towards the player 1 space diagonally and `
-        +`attacks in that direction.`,
-    porcuslime_small_h: 
-        `Small Porcuslime: Moves towards the player 1 space orthogonally `
-        +`and attacks in that direction.`,
-    ram: 
-        `Ram: Moves orthogonally. When it sees the player, it will `
-        +`prepare to charge towards them and ram them.`,
-    rat: 
-        `Rat: Will attack the player if it is next to them. Otherwise it will move `
-        +`2 spaces closer. After attacking, it will flee.`,
-    scorpion: 
-        `Scorpion: Will attack the player if it is next to them. Otherwise, moves 2 spaces `
-        +`closer every other turn.`,
-    scythe: 
-        `Scythe: Will move 3 spaces diagonally towards the player `
-        +`damaging them if it passes next to them.`,
-    shadow_knight: 
-        `Shadow Knight: Moves in an L shape. If it tramples the player, `
-        +`it will move again.`,
-    shadow_knight_elite: 
-        `Shadow Knight Elite: Moves in an L shape. If it tramples the player, `
-        +`it will move again. Smarter than normal shadow knights.`,
-    shadow_scout: 
-        `Shadow Scout: Will attack the player if it is next to them. Otherwise it will `
-        +`move 1 space closer. Can go invisible every other turn.`,
-    specter: 
-        `Specter: Can travel up to 3 spaces orthogonally. While doing so, it can pass through tiles `
-        +`without costing movement. Passing through a tile damages and stuns/confuses it.`,
-    spider_web: [
-        `Spider Web: Does not move or attack. Spawns a spider every `, 
-        ` turns. Slows over time.`
-    ],
-    spider: 
-        `Spider: Will attack the player if it is next to them. `
-        +`Otherwise it will move 1 space closer.`,
-    starcaller:
-        `Starcaller: Every 3 turns it will summon an object from another realm targeting `
-        +`the player's location.`,
-    strider: 
-        `Strider: Attacks then moves 2 spaces away in one direction.`,
-    swaying_nettle: 
-        `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal `
-        +`to it. Won't hurt each other`,
-    thorn_bush: 
-        `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`,
-    turret_d: 
-        `Turret: Does not move. Fires beams diagonally that hit the `
-        +`first thing in their path.`,
-    turret_h: 
-        `Turret: Does not move. Fires beams orthogonally that hit `
-        +`the first thing in their path.`,
-    turret_m:
-        `Moving Turret: Fires beams in two directions that hit the first thing in their path. `
-        +`Moves in the same direction until it hits something.`,
-    turret_r: 
-        `Turret: Does not move. Fires beams in two directions hitting `
-        +`the first thing in their path. Rotates every turn.`,
-    unspeakable:
-        `Unspeakable: Moves towards the player 1 space. Does not attack. On death, `
-        +`confuses the player 2 times, polluting their deck with bad cards.`,
-    unstable_wisp: 
-        `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes `
-        +`into a ring of fireballs on death.`,
-    vampire: 
-        `Vampire: Moves orthogonally then will attempt to attack diagonally. `
-        +`When it hits the player, it will heal itself. Teleports away and is `
-        +`stunned when hit.`,
-    vinesnare_bush: 
-        `Vinesnare Bush: Does not move. Can drag the player towards it using it's vines from up to 3 `
-        +`spaces away. It can then lash out at the player if they are still nearby next turn.`,
-    walking_prism: [
-        `Walking Prism: Has no normal attack, but will fire beams in 4 directions when damaged `
-        +`which hit the first thing in their path. Changes firing direction aftewards.\n`, 
-        `Currently aiming orthogonally.`,
-        `Currently aiming diagonally.`
-    ],
-    wheel_of_fire:
-        `Wheel of Fire: Can shoot a jet of fire in any direction that hits the first thing in it's `
-        +`path. If no target is sighted, it will instead move 1 space randomly.`,
-}
-Object.freeze(enemy_descriptions);
+function display_boons(boon_list){
+    // Updates the list of boons they have.
+    display.remove_children(UIIDS.boon_list_table);
+    var gained = boon_list.get_gained();
+    display.add_tb_row(UIIDS.boon_list_table, gained, SMALL_CARD_SCALE);
 
-const enemy_names = {
-    acid_bug: `Acid Bug`, 
-    animated_boulder: `Animated Boulder`, 
-    blood_crescent: `Blood Crescent`,
-    brightling: `Brightling`, 
-    captive_void: `Captive Void`, 
-    carrion_flies: `Carrion Flies`, 
-    claustropede: `Claustropede`,
-    clay_golem: `Clay Golem`, 
-    corrosive_caterpillar: `Corrosive Caterpillar`, 
-    darkling: `Darkling`, 
-    gem_crawler: `Gem Crawler`, 
-    igneous_crab: `Igneous Crab`, 
-    living_tree: `Living Tree`, 
-    magma_spewer: `Magma Spewer`, 
-    maw: `Maw`,
-    noxious_toad: `Noxious Toad`, 
-    orb_of_insanity: `Orb of Insanity`, 
-    paper_construct: `Paper Construct`, 
-    pheonix: `Pheonix`, 
-    porcuslime_large: `Large Porcuslime`, 
-    porcuslime_medium: `Medium Porcuslime`, 
-    porcuslime_small: `Small Porcuslime`, 
-    ram: `Ram`, 
-    rat: `Rat`, 
-    scorpion: `Scorpion`, 
-    scythe: `Scythe`, 
-    shadow_knight: `Shadow Knight`, 
-    shadow_knight_elite: `Shadow Knight Elite`, 
-    shadow_scout: `Shadow Scout`, 
-    specter: `Specter`, 
-    spider_web: `Spider Web`, 
-    spider: `Spider`, 
-    starcaller: `Starcaller`,
-    strider: `Strider`, 
-    swaying_nettle: `Swaying Nettle`, 
-    thorn_bush: `Thorn Bush`, 
-    turret: `Turret`, 
-    turret_m: `Moving Turret`, 
-    turret_r: `Rotary Turret`, 
-    unspeakable: `Unspeakable`,
-    unstable_wisp: `Unstable Wisp`, 
-    vampire: `Vampire`, 
-    vinesnare_bush: `Vinesnare Bush`, 
-    walking_prism: `Walking Prism`,
-    wheel_of_fire: `Wheel of Fire`,
+    // Updates the list of used up boons.
+    display.remove_children(UIIDS.removed_boon_table);
+    var lost = boon_list.get_lost();
+    display.add_tb_row(UIIDS.removed_boon_table, lost, SMALL_CARD_SCALE);
 }
-Object.freeze(enemy_names);
-
-const enemy_flavor = {
-    acid_bug: 
-        `The explosive defenses these bugs have has left them without any natural predators. Their `
-        +`resulting lack of fear is probably what lead to their curious nature. These are best `
-        +`dispatched at range if possible. If they do manage to get close, be careful where you `
-        +`swing your weapon.`,
-    animated_boulder: 
-        `The magnetic fields present in these caverns have interacted with the natural magic of the `
-        +`area to create powerful elementals with a desire to be left alone. While their rocky makeup `
-        +`makes them all but invulnerable and completely indistinguishable from stationary parts of `
-        +`the terrain, they tend to tire quickly making fleeing a viable option.`,
-    blood_crescent:
-        ``,
-    brightling: 
-        `Beings from a higher plane of existance who have been attracted to the natural magic of the `
-        +`area. Both curious and cautious, they warp space to bring creatures closer to be studied `
-        +`before fleeing via the same method. They are entirely unaggressive and may help or hinder `
-        +`in equal parts through their unexpected teleportations.`,
-    captive_void: 
-        `Either the result of some strange experiment or perhaps another part of the library's expansive `
-        +`security system. Either way, these devices bend space around them to draw in everything `
-        +`nearby. Thankfully they can be temporarily disabled through the use of blunt force.`,
-    carrion_flies: 
-        `Swarms move about at random attracted by the ample food sources available down here. They `
-        +`tend to multiply quickly making it important to get rid of them as soon as possible.`,
-    claustropede:
-        ``,
-    clay_golem: 
-        `These golems are built to last with their tough skin showing countless scars. That makes it `
-        +`likely that their construction wasn't recent. Thankfully they are incredibly slow moving `
-        +`and seem to malfunction slightly when recieving damage. As long as you avoid being `
-        +`surrounded it will be possible to wear them out eventually, or just run past them.`,
-    corrosive_caterpillar: 
-        ``,
-    darkling: 
-        `It is unclear whether this relative of the brightling exibits less control over their spacial `
-        +`powers, or if they simply enjoy the whiplash of their constant relocations. Either way their `
-        +`method of transportation is far more dangerous to both them and anything nearby. Blocking `
-        +`rift often presents an easier way of dispatching them than tracking them down, but the `
-        +`chaos caused by their jumps can also be helpful for taking out large groups of foes.`,
-    gem_crawler: 
-        ``,
-    igneous_crab: 
-        `These creatures have shielded themselves in rocky shells which makes them much more difficult `
-        +`to kill than the giant spiders, however the cautious nature that led them to exhibit this `
-        +`behaviour has also led them to flee at the first sign of danger often showing less awareness `
-        +`of their surroundings as they do.`,
-    living_tree: 
-        `The magical energy permeating this forest which allows it to thrive far beneath the sight of `
-        +`the sun has also had an unexpected effect on some of the plant life. While their wandering `
-        +`nature could be an attempt to reach areas with fresh nutrients, it is unclear what led these `
-        +`trees to be so aggressive. Thankfully their control over their branches isn't very fine `
-        +`making their attacks easy to evade at close range.`,
-    magma_spewer: 
-        `These strange creatures possess a unique digestive tract. Rather than eating organic matter, `
-        +`they get most of their energy through drinking magma. In addition to acting as a thermal `
-        +`power source, it also allows them to fire rocks at high speeds through pressurized jets `
-        +`on their head. This gives them a powerful natural defense mechanism that can take out targets `
-        +`at great distances.`,
-    maw:
-        ``,
-    noxious_toad: 
-        `Capable of leaping great distances to navigate the difficcult terrain of the sewers, these `
-        +`toads have also developed a natural defense mechanism which sets them apart from their `
-        +`surface dwelling bretheren. They can release a toxic gas as they leap capable of harming `
-        +`anything near the sight of their landing. It takes them a short time to recharge it however `
-        +`leaving them open to attack immediatly after the gas has dispelled.`,
-    orb_of_insanity: 
-        `Some sort of malevolent force is encased in these spheres of glass. It does not seem to `
-        +`belong in this world. Even looking at it for too long has a terrible effect on the psyche. `
-        +`Thankfully it isn't able to survive outside the orb so simply shattering the glass is `
-        +`enough to cause it to disperse.`,
-    paper_construct: 
-        `These small magical creatures are made of folded sheets of multicolored paper. Given the `
-        +`fragile nature of their bodies, it is hard to imagine that they last very long. That lends `
-        +`credence to the theory that something in the library is creating them, though what I do not `
-        +`know.`,
-    pheonix: 
-        `This mythical bird makes a home in places of high temperature and large amounts of natural `
-        +`magic. They are difficult to kill due to their fast speed and their ability to reconstitute `
-        +`themselves from the ashes they leave behind on death. Scattering the ashes provides the most `
-        +`certain way to ensure they do not return.`,
-    porcuslime: 
-        `While sharing the distributed nervous system and mitotic reproduction method common to many `
-        +`slimes, these ones have developed spines coated with toxins they find while feeding from `
-        +`the sewer floor. While they can shrug off damage by shedding mass, the smaller they become, `
-        +`the less developed their nervous system becomes leading to less control over their movements. `
-        +` As a last ditch effort to avoid death, they can split into two smaller slimes both capable `
-        +`of regaining their former size through several weeks of feeding.`,
-    ram: 
-        `While herbivorous, these creatures are fiercely territorial. They can run at high speeds, but `
-        +`find it difficult to change directions making them easy to dodge.`,
-    rat: 
-        ``,
-    scorpion: 
-        `The species of scorpion that can be found here is capable of quickly sprinting short `
-        +`distances to hunt prey. They don't have great stamina however which gives them a need `
-        +`for frequent stops to rest. It is often best to wait for them to come to you while taking `
-        +`care not to become surrounded.`,
-    scythe: 
-        `One of the more dangerous species of giant insect encountered here, the Scythe is adorned by `
-        +`a sharp bladelike protrusion on either side of it's head. Using it's many legs to move at `
-        +`high speeds, it is even capable of slicing through steel. The position of the blades make it `
-        +`easy to stop if you are directly in front of it however.`,
-    shadow_knight: 
-        ``,
-    shadow_knight_elite: 
-        ``,
-    shadow_scout: 
-        ``,
-    specter: 
-        `It is unclear if these are actually the ghosts of the departed or simply some sort of `
-        +`magically created creature of pure shadow. Either way they are capable of phasing through `
-        +`solid objects as though they were not there and have a chilling effect on anything they move `
-        +`through.`,
-    spider_web: 
-        `Since the spiders here tend to hunt rather than lying in wait, these webs serve more as a `
-        +`place for them to rest and to protect their young. Since it's hard to tell how many may be `
-        +`waiting inside, it is recomended that these be destroyed to keep their population in check.`,
-    spider: 
-        `The spiders here reach sizes unseen anywhere else. They tend to hunt for their prey rather `
-        +`than lying in wait in a web. Thankfully their large size hasn't made them very tough so they `
-        +`are easily dispatched.`,
-    starcaller:
-        `Starcaller: Every 3 turns it will summon an object from another realm targeting `
-        +`the player's location creating a small explosion.`,
-    strider: 
-        `These long legged creatures navigate the trecherous terrain of the magmatic caves with ease.`
-        +`The strength of their barbed feet seems to mostly be used for defense as they can be seen `
-        +`feeding off the sparse vegitation that grows on some of the boulders here.`,
-    swaying_nettle: 
-        `This plant uses stinging spines to ward off both curious herbivores and other plants that `
-        +`encroach upon them. They can be seen swaying to extend their reach despite the lack of any `
-        +`breeze to move them.`,
-    thorn_bush: 
-        `These bushes grow rapidly choking out many other kinds of vegitation and occasionally `
-        +`trapping unwary creatures that end up as fertilizer. Thankfully despite the wide reach of `
-        +`their brambles, they still only have a single stem which when severed will prevent `
-        +`further growth.`,
-    turret: 
-        `Placed here when this area was abandoned, these automated turrets present a clear `
-        +`warning: Don't come any further. While they are capable of sensing you through solid `
-        +`objects, they may be an advantage as it means they will fire even if another enemy is `
-        +`in the way.`,
-    turret_m:
-        `These turrets seem to be more advanced than their earlier counterparts. They are capable of `
-        +`both levitating and moving, though they are limited in their direction of fire.`,
-    turret_r: 
-        `While it can't fire in as many directions at once, this turret can keep watch over more `
-        +`directions overall. Thankfully it rotates at a fixed speed so it's movement can be predicted.`,
-    unspeakable:
-        ``,
-    unstable_wisp: 
-        `Beings of elemental fire that naturally spawn from the extreme heat. They are very unstable `
-        +`and can explode violently if disrupted. They are not aggressive however so as long as you `
-        +`destroy them from afar and avoid the fires left in their wake they are not very dangerous.`,
-    vampire: 
-        ``,
-    vinesnare_bush: 
-        `These carnivourous weeds are not unique to this area, but provide a danger to travelers `
-        +`wherever they reside. Their vines spread out along the ground and wrap themselves around `
-        +`the feet of whoever steps on them dragging them in range of the plant's thorny whips. `
-        +`A careful traveller may be able to make use of their roots to move around faster.`,
-    walking_prism: 
-        ``,
-    wheel_of_fire:
-        ``,
+/**
+ * Displays the library to it's proper location.
+ */
+function refresh_deck_order_display(deck){
+    var library = deck.get_library_info();
+    display.remove_children(UIIDS.deck_order_table);
+    display.add_tb_row(UIIDS.deck_order_table, [future_sight(), ...library], SMALL_CARD_SCALE);
 }
-Object.freeze(enemy_descriptions);
-
-const entity_types = {
-    chest: `Chest`,
-    empty: `Empty`,
-    enemy: `Enemy`,
-    exit: `Exit`,
-    final_exit: `Final Exit`,
-    player: `Player`,
-    terrain: `Terrain`,
+/**
+ * Displays the discard pile to it's proper location.
+ */
+function refresh_discard_display(deck){
+    var discard = deck.get_discard_info();
+    display.remove_children(UIIDS.discard_pile_table);
+    display.add_tb_row(UIIDS.discard_pile_table, discard, SMALL_CARD_SCALE);
 }
-Object.freeze(entity_types);
-const event_descriptions = {
-    black_hole:
-        `A Black Hole is beginning to form here.`,
-    darkling_rift: 
-        `If this space isn't blocked, a darkling will teleport here `
-        +`next turn damaging everything nearby.`,
-    falling_rubble: 
-        `Watch out, something is about to fall here.`,
-    nettle_root: 
-        `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
-    starfall:
-        `Something is about to be pulled into existence damaging anything standing here.`,
-    sunlight:
-        `This space is rapidly heating up.`,
-    thorn_root: 
-        `Watch out, brambles are about to sprout damaging anything standing here.`,
+/**
+ * Displays the full deck to it's proper location.
+ */
+function refresh_full_deck_display(deck){
+    var full = deck.get_deck_info();
+    display.remove_children(UIIDS.full_deck_table);
+    display.add_tb_row(UIIDS.full_deck_table, full, SMALL_CARD_SCALE);
 }
-Object.freeze(event_descriptions);
-
-const event_names = {
-    black_hole: `Black Hole`,
-    bramble_shield: `Bramble Shield`,
-    darkling_rift: `Darkling Rift`,
-    delay: `Delay`,
-    earthquake: `Earthquake`,
-    falling_magma: `Falling Magma`,
-    falling_rubble: `Falling Rubble`,
-    nettle_shield: `Nettle Shield`,
-    spell_announcement: `Spell Announcement`,
-    starfall: `Starfall`,
-    unstun: `Unstun`,
-    wake_up: `Wake Up`,
-    warp: `Spacial Warp`
-}
-Object.freeze(event_names);
-const other_tile_descriptions = {
-    altar_of_scouring:
-        `Altar of Scouring: Activate by moving here. When activated, creates a wall of fireballs to `
-        +`wipe the screen clean.`,
-    altar_of_shadow:
-        `Altar of Shadow: Activate by moving here. When activated, the Lord of Shadow and Flame will `
-        +`become invisible until another altar is activated.`,
-    altar_of_singularity:
-        `Altar of Singularity: Activate by moving here. When activated, create a Black Hole in this space.`,
-    altar_of_space:
-        `Altar of Space: Activate by moving here. When activated, rearrange the floor.`,
-    altar_of_stars:
-        `Altar of Stars: Activate by moving here. When activated, for the next 3 turns it will `
-        +`summon an object from another realm targeting the player's location.`,
-    altar_of_stasis:
-        `Altar of Stasis: Activate by moving here. When activated, rewinds time healing the Lord `
-        +`of Shadow and Flame by 3 and all altars by 1.`,
-    altar_of_sunlight:
-        `Altar of Sunlight: Activate by moving here. When activated, create an expanding fire `
-        +`centered on the player's location.`,
-    black_hole: 
-        `Black Hole: Draws everything on screen closer to it. The `
-        +`Lord of Shadow and Flame is immune. Decays every turn.`,
-    bookshelf: 
-        `Bookshelf: When damaged, adds a random temporary card to your deck.`,
-    coffin: 
-        `Coffin: There is no telling whether whatever is inside is still `
-        +`alive or not. Touch it at your own risk.`,
-    corrosive_slime: 
-        `Corrosive Slime: Stepping into this will hurt. Clear it out `
-        +`by attacking.`,
-    fireball: 
-        `Fireball: Moves forwards until it comes into contact with `
-        +`something, then damages it. Cannot be stunned.`,
-    fruit_tree_enticing: 
-        `Enticing Fruit Tree: Moving you here will heal you, but other creatures `
-        +`may be attracted by the fruit.`,
-    fruit_tree_rotting: 
-        `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell `
-        +`could still attract creatures if it is disturbed.`,
-    lava_pool: 
-        `Lava Pool: Attempting to move here will hurt.`,
-    magmatic_boulder: 
-        `Magmatic Boulder: The light reflecting off of it gives you the `
-        +`feeling of being watched.`,
-    moon_rock:
-        `Moon Rock: A chunk of fragile rock from somewhere else.`,
-    raging_fire: 
-        `Raging Fire: The very ground here is burning. It will grow weaker `
-        +`every turn, but it's not safe to move through. Cannot be stunned.`,
-    repulsor: 
-        `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or `
-        +`if touched. Takes 3 turns to recharge afterwards.`,
-    sewer_grate: 
-        `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
-    shatter_sphere_d:
-        `Shatter Sphere: Explodes when damaged harming everything diagonal to it.`,
-    shatter_sphere_o:
-        `Shatter Sphere: Explodes when damaged harming everything orthogonal to it.`,
-    smoldering_ashes: [
-        `Smoldering Ashes: A pheonix will be reborn here in `, 
-        ` turns unless you scatter the ashes by attacking them or moving onto them.`
-    ],
-    thorn_bramble: 
-        `Thorn Bramble: Trying to move here hurts. Allows the thorn bush to `
-        +`spread further.`,
-    wall: 
-        `Wall: It seems sturdy.`,
-    wall_damaged: 
-        `Damaged Wall: Something might live inside.`,
-}
-Object.freeze(other_tile_descriptions);
-
-const other_tile_names = {
-    altar_of_scouring: `Altar of Scouring`,
-    altar_of_shadow: `Altar of Shadow`,
-    altar_of_singularity: `Altar of Singularity`,
-    altar_of_space: `Altar of Space`,
-    altar_of_stars: `Altar of Stars`,
-    altar_of_stasis: `Altar of Stasis`,
-    altar_of_sunlight: `Altar of Sunlight`,
-    black_hole: `Black Hole`,
-    bookshelf: `Bookshelf`,
-    coffin: `Coffin`,
-    corrosive_slime: `Corrosive Slime`,
-    fireball: `Fireball`,
-    fruit_tree_enticing: `Enticing Fruit Tree`,
-    fruit_tree_rotting: `Rotting Fruit Tree`,
-    lava_pool: `Lava Pool`,
-    magmatic_boulder: `Magmatic Boulder`,
-    moon_rock: `Moon Rock`,
-    raging_fire: `Raging Fire`,
-    repulsor: `Repulsor`,
-    sewer_grate: `Sewer Grate`,
-    shatter_sphere: `Shatter Sphere`,
-    smoldering_ashes: `Smoldering Ashes`,
-    thorn_bramble: `Thorn Brambles`,
-    wall: `Wall`,
-    wall_damaged: `Damaged Wall`,
-}
-Object.freeze(other_tile_names);
-const special_tile_descriptions = {
-    chest: `Chest: It might have something useful inside. Breaking it will damage `
-    +`the contents.`,
-    chest_armored: `Armored Chest: It might have something useful inside. It is larger than `
-    +`a normal chest and armored to protect it's contents.`,
-    empty: `There is nothing here.`,
-    exit: `Exit: Stairs to the next floor.`,
-    final_exit: `Return Portal: Move here to leave the dungeon and win the game.`,
-    lock: `Locked Exit: Defeat the boss to continue.`,
-    player: `You: Click a card to move.`,
-}
-Object.freeze(special_tile_descriptions);
-
-const special_tile_names = {
-    chest: `Chest`,
-    chest_armored: `Armored Chest`,
-    empty: `Empty`,
-    exit: `Exit`,
-    final_exit: `Return Portal`,
-    lock: `Locked Exit`,
-    you: `You`,
-    player: `Player`,
-}
-Object.freeze(special_tile_names);
-
-const chest_text = {
-    header: `Choose up to one reward:`,
-    take: `Take`,
-    abandon: `Abandon`,
-    add_card: `Add this card to your deck.`,
-}
-Object.freeze(chest_text);
-const achievement_text = {
-    title: `Achievements`,
-    reset: `Reset`,
-    confirm_reset: `Confirm?`,
-    unlocked: `Achievement Unlocked:`,
-    repeated: `Achievement Repeated:`,
-    unlocks_boon: `New Boon`,
-    unlocks_cards: `New Cards`,
-}
-Object.freeze(achievement_text);
-
-const achievement_names = {
-    // Boss
-    velociphile: `Only A Speedbump`,
-    spider_queen: `Arachno-Regicide`,
-    two_headed_serpent: `One Head Is Better Than Two`,
-    lich: `End To Unlife`,
-    young_dragon: `Novice Dragonslayer`,
-    forest_heart: `Expert Lumberjack`,
-    arcane_sentry: `Security Bypass`,
-    lord_of_shadow_and_flame: `Deeper and Deeper`,
-    victory: `Victory`,
-
-    // Normal
-    non_violent: `Non Violent`,
-    not_my_fault: `Not My Fault`,
-    ancient_knowledge: `Ancient Knowledge`,
-    peerless_sprinter: `Peerless Sprinter`,
-    speed_runner: `Speed Runner`,
-    triple: `Three Of A Kind`,
-    beyond_the_basics: `Beyond The Basics`,
-    one_hit_wonder: `One Hit Wonder`,
-    one_life: `One Is All You Need`,
-    without_a_scratch: `Without A Scratch`,
-    clumsy: `Clumsy`,
-    shrug_it_off: `Shrug It Off`,
-    collector: `Collector`,
-    jack_of_all_trades: `Jack Of All Trades`,
-    monster_hunter: `Monster Hunter`,
-    minimalist: `Minimalist`
-}
-Object.freeze(achievement_names);
-
-const achievement_description = {
-    // Boss
-    velociphile: `Defeat the Velociphile.`,
-    spider_queen: `Defeat the Spider Queen.`,
-    two_headed_serpent: `Defeat the Two Headed Serpent.`,
-    lich: `Defeat the Lich.`,
-    young_dragon: `Defeat the Young Dragon.`,
-    forest_heart: `Defeat the Forest Heart.`,
-    arcane_sentry: `Defeat the Arcane Sentry.`,
-    lord_of_shadow_and_flame: `Defeat the Lord of Shadow and Flame.`,
-    victory: `Escape victorious.`,
-
-    // Normal
-    non_violent: `Reach the first boss without killing anything.`,
-    not_my_fault: `Let a boss die without killing anything on the floor yourself.`,
-    ancient_knowledge: `Restore an ancient card to full power.`,
-    peerless_sprinter: `Speed through a floor in 3 turns or less.`,
-    speed_runner: `Leave floor 10 in 100 turns or less.`,
-    triple: `Have 3 or more of the same non temporary card in your deck.`,
-    beyond_the_basics: `Remove all basic cards from your deck.`,
-    one_hit_wonder: `Defeat a boss in a single turn.`,
-    one_life: `Defeat any boss with exactly 1 max health.`,
-    without_a_scratch: `Leave floor 10 without taking any damage.`,
-    clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
-    shrug_it_off: `Take 10 or more damage without dying in 1 run.`,
-    collector: `Open 6 or more treasure chests in 1 run.`,
-    jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
-    monster_hunter: `Kill 5 total unique bosses.`,
-    minimalist: `Reach floor 15 with only 5 cards in your deck.`
-}
-Object.freeze(achievement_description);
-
-const boss_achievements = [
-    achievement_names.velociphile,
-    achievement_names.spider_queen,
-    achievement_names.two_headed_serpent,
-    achievement_names.lich,
-    achievement_names.young_dragon,
-    achievement_names.forest_heart,
-    achievement_names.arcane_sentry,
-    achievement_names.lord_of_shadow_and_flame,
-]
-const control_screen_text = {
-    default: `Default`,
-    edit: `Edit`,
-    save: `Save`,
-    undo: `Undo`,
-}
-Object.freeze(control_screen_text);
-
-
-const CONTROLS_TEXT = {
-    header: `Controls`,
-    stage: {
-        header: `Stage Controls`,
-        card: `Choose card`,
-        direction: `Make move`,
-        toggle: `Preview move`,
-        info: `View card info`,
-        retry: `Retry`
-    },
-    shop: {
-        header: `Shop Controls`,
-        add: `Choose card to add`,
-        remove: `Choose card to remove`,
-        confirm: `Confirm choice`
-    },
-    chest: {
-        header: `Chest Controls`,
-        choose: `Choose item`,
-        confirm: `Confirm choice`,
-        reject: `Abandon chest`
+/**
+ * Function to create and add the buttons for the sidebar.
+ */
+function create_sidebar(){
+    var location = UIIDS.sidebar_header;
+    var swap_visibility = function(id_list, id){
+        return function(){
+            id_list.swap(id);
+        }
     }
+    display.remove_children(location);
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
+    SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
 }
-Object.freeze(CONTROLS_TEXT);
-
-const KEYBOARD_SYMBOL_MAP = new Map();
-KEYBOARD_SYMBOL_MAP.set(` `, `space`);
-const shop_text = {
-    header: `Choose one card to add or remove:`,
-    add: `Add a card to your deck.`,
-    remove: `Remove a card from your deck.`,
-    min: `Your deck is at the minimum size.`,
-    invalid: `Please choose a card to add or remove.`,
-    confirm: `Confirm >`,
-    current: `Current Deck (minimum `,
+function update_initiative(map){
+    var info = map.get_initiative().map(e => {
+        let str = `${e.name}\n` + hp_description(e);
+        let on_click = function(){
+            display.click(`${UIIDS.map_display} ${e.location.y} ${e.location.x}`);
+        }
+        return {
+            pic: e.pic,
+            rotate: e.rotate,
+            flip: e.flip,
+            stun: e.stun !== undefined && e.stun > 0,
+            name: e.name,
+            str,
+            on_click,
+        }
+    });
+    display.remove_children(UIIDS.initiative);
+    display.create_initiative(UIIDS.initiative, info, INITIATIVE_SCALE);
 }
-Object.freeze(shop_text);
-const SIDEBAR_BUTTONS = {
-    text_log: `Messages`, 
-    boon_list: `Boons`, 
-    discard_pile: `Discard`, 
-    full_deck: `Full Deck`, 
-    initiative: `Initiative`, 
-    deck_order: `Deck`,
-    sidebar: `Sidebar`
+/**
+ * Function to give a message to the user.
+ * @param {string} msg message text.
+ */
+function say(msg){
+    display.display_message(UIIDS.display_message, msg);
 }
-Object.freeze(SIDEBAR_BUTTONS);
 
-const record_types = {
-    achievement: `achievement`,
-    repeated_achievement: `repeated achievement`,
-    normal: `normal`,
+function say_record(msg, type = record_types.normal){
+    say(msg);
+    GS.record_message(msg, type);
 }
-Object.freeze(record_types);
-const gameplay_labels = {
-    title: `Maneuver`,
-    hand: `Hand of Cards`,
-    move: `Moves`,
-    retry: `Retry?`,
-    floor: `Floor`,
-    turn: `Turn`,
+function display_victory(){
+    display.toggle_visibility(UIIDS.hand_box, false);
+    display.toggle_visibility(UIIDS.move_box, false);
+    display.toggle_visibility(UIIDS.retry_box, false);
+    display.remove_children(UIIDS.map_display);
+    display.add_tb_row(UIIDS.map_display, [{
+        name: achievement_names.victory,
+        //foreground: [`${image_folder.other}border.png`],
+        pic: `${IMG_FOLDER.achievements}victory.png`,
+        on_click: () => {
+            display.toggle_visibility(UIIDS.hand_box, true);
+            display.toggle_visibility(UIIDS.move_box, true);
+            display.toggle_visibility(UIIDS.retry_box, true);
+            player_hand_greyed(false);
+            GS.setup();
+        },
+    }], VICTORY_IMG_SCALE);
 }
-Object.freeze(gameplay_labels);
+/**
+ * Displays the hand to it's proper location.
+ */
+function refresh_hand_display(deck){
+    // Updates the hand.
+    var card_row = deck.get_hand_info();
+    display.remove_children(UIIDS.hand_display);
+    display.add_tb_row(UIIDS.hand_display, card_row, CARD_SCALE);
 
-const gameplay_text = {
-    welcome: 
-        `Use cards to move (blue) and attack (red).\n` 
-        +`Click on things to learn more about them.\n`
-        +`Refer to the guidebook if you need more information.`,
-    floor: 
-        `Welcome to floor `,
-    game_over: 
-        `Game Over. You were killed by a `,
-    stunned:    
-        `Stunned x`,
-    divider: 
-        `\n--------------------\n`,
-    select_card: 
-        `Before choosing what move to make, you must first select a card to use.`,
-    victory:
-        `You have emerged from the dungeon victorious! Click on the board to begin again.`,
+    // Shows how many cards are left in your deck.
+    var remaining = deck.get_deck_count();
+    display.display_message(UIIDS.deck_count, `${remaining}`);
+
+    // Makes sure the card info button shows that no card is selected.
+    var explain_blank_moves = function(){
+        say(gameplay_text.select_card);
+    }
+    display.add_on_click(UIIDS.move_info, explain_blank_moves);
 }
-Object.freeze(gameplay_text);
-// ----------------GuideText.js----------------
-// This file contains the headers and text for the guide / tutorial section.
 
-const GUIDE_HEADERS = {
-    basics: `The Basics`,
-    cards: `Using Cards`,
-    enemies: `Handling Enemies`,
-    shop: `The Shop`,
-    bosses: `Bosses`,
-    chests: `Chests`,
-    sidebar: `Sidebar`,
-    confusion: `Confusion`,
-    about: `About`,
+function player_hand_greyed(is_greyed){
+    var toggle = is_greyed ? display.add_class : display.remove_class;
+    toggle(UIIDS.hand_display, `greyed-out`);
 }
-Object.freeze(GUIDE_HEADERS);
+function display_move_buttons(card, hand_position){
+    display.select(UIIDS.hand_display, 0, hand_position);
+    display.remove_children(UIIDS.move_buttons);
+    var button_data = card.options.show_buttons(hand_position);
+    for(let row of button_data){
+        let button_row = row.map(button => {return {
+            description: button.description,
+            on_click: function(){
+                GS.data.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
+            }
+        }});
+        display.add_button_row(UIIDS.move_buttons, button_row);
+    }
+    var explanation = move_types.alt + `\n` + explain_card(card);
+    display.add_on_click(UIIDS.move_info, function(){say(explanation)});
+}
+function telegraph_repetition_boon(repeat){
+    display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
+    display.remove_class(UIIDS.move_box, `telegraph-repetition`);
+    display.remove_class(UIIDS.hand_box, `no-repetition`);
+    display.remove_class(UIIDS.move_box, `no-repetition`);
+    var class_name = repeat ? `telegraph-repetition` : `no-repetition`;
+    display.add_class(UIIDS.hand_box, class_name);
+    display.add_class(UIIDS.move_box, class_name);
+}
+/**
+ * Function to display the player's current and max health.
+ * @param {Tile} player The player to get health from.
+ * @param {number} scale The size of the display images.
+ */
+function display_health(player, scale){
+    if(player.health === undefined){
+        throw new Error(ERRORS.missing_property);
+    }
+    var health = [];
+    for(var i = 0; i < player.health; ++i){
+        health.push({
+            pic: `${IMG_FOLDER.other}heart.png`, 
+            name: `heart`
+        });
+    }
+    if(player.max_health !== undefined){
+        for(var i = 0; i < (player.max_health - player.health); ++i){
+            health.push({
+                pic: `${IMG_FOLDER.other}heart_broken.png`, 
+                name: `broken heart`
+            });
+        }
+    }
+    display.add_tb_row(UIIDS.health_display, health, scale);
+}
+function display_map(map){
+    // Updates the GameMap display.
+    display.remove_children(UIIDS.map_display);
+    var grid = map.display();
+    for(var row of grid){
+        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE);
+    }
+    map.clear_telegraphs();
+    // Updates the health bar display.
+    display.remove_children(UIIDS.health_display);
+    display_health(map.get_player(), TILE_SCALE);
+    // Updates the initiative tracker display.
+    update_initiative(map);
+}
+/**
+ * Function to create a dropdown menu capable of switching between the game and guide screens.
+ * @param {string} location Where to create it.
+ */
+function create_main_dropdown(location){
+    var options = [
+        {
+            label: screen_names.gameplay,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
+        }, 
+        {
+            label: screen_names.guide,
+            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
+        },
+        {
+            label: screen_names.achievements,
+            on_change: () => {
+                update_achievements();
+                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
+            }
+        },
+        {
+            label: screen_names.journal,
+            on_change: () => {
+                update_journal();
+                DISPLAY_DIVISIONS.swap(UIIDS.journal);
+            }
+        },
+        {
+            label: screen_names.controls,
+            on_change: () => {
+                setup_controls_page();
+                DISPLAY_DIVISIONS.swap(UIIDS.controls);
+            }
+        },
 
-const GUIDE_TEXT = {
-    basics: 
-        [`Welcome to Maneuver!\n\n`
-        +`The goal of the game is to progress as deep into the dungeon as possible by completing each floor. `
-        +`To finish a floor, you need to reach the stairs that lead down to the next one. Enemies will spawn `
-        +`on each floor which will try to stop you from continuing. You do not need to defeat everything on `
-        +`the current floor to continue, but may need to fight most of them to survive.\n\n`
-        +`Read more about controlling your character in the next section.\n`
-        +`Good luck!\n\n`],
+    ];
+    display.create_dropdown(location, options);
+}
+/**
+ * Function to get an array of buttons with the keys used for controls as the value to use when displaying the guide.
+ * @returns {HTMLElement[]} The array of buttons.
+ */
+function get_control_symbols(){
+    var current_controls = GS.data.controls.get();
+    var button_symbols = [...current_controls.stage.card, ...current_controls.stage.direction];
+    var buttons = [];
+    for(var symbol of button_symbols){
+        buttons.push(display.create_button(symbol, `${symbol} key`));
+    }
+    return buttons;
+}
+/**
+ * Function to display the guide.
+ */
+function display_guide(){
+    var section_location = UIIDS.guide_box;
+    var navbar_location = UIIDS.guide_navbar;
 
-    cards: 
-        [`To control your character's actions, you have a deck of cards. Each card gives you several `
-        +`options for a set of actions to take. The actions on the card will be performed relative to `
-        +`your current location (the black dot). Clicking on a card will bring up a grid of buttons which `
-        +`will let you decide which of the card's options to use.\n\n`
-        +`When you finish using a card, it will be discarded and replaced with another from your deck, then `
-        +`everything else on the floor will get a chance to act before you get another turn.\n\n`
-        +`When your deck runs out, your discard pile will be shuffled back into it. The amount of cards `
-        +`remaining in your deck is shown next to your health bar.\n`
-        +`\n`
-        +`Colors and symbols that make up a card:\n\n`,
-            ` Your relative starting location.\n`,
-            ` You will attack this space.\n`,
-            ` You will move to this space.\n`,
-            ` If applied to an enemy, it will stun them. If applied to the player, it will instead add a `
-            +`temporary debuff card to your deck (see these in Confusion).\n`,
-            ` You will heal the creature on this space if it's health is less than it's max health.\n`,
-            ` Each action the line goes through will be performed.\n`,
-            ` Multiple actions will be performed in a specific order.\n`,
-            ` Multiple moves will be performed until you hit something.\n`,
-            ` Multiple attacks will be performed until you hit the edge of the floor.\n`,
-            ` You will be teleported to a random unoccupied location.\n`,
-            `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
-            ` A card with a purple grid will be performed instantly.\n`,
-            ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
-            ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
-        +`\n`
-        +`You can use the (?) button next to your move options to learn exactly what a selected card does, `
-        +`or shift click to display what the card does on the map.\n\n`],
-
-    enemies: 
-        [`As you travel through the dungeon, you will encounter various other creatures, many of whom want `
-        +`to kill you. Each creature has different patterns of attack and movement. Many of them also have `
-        +`other unique abilities.\n\n`
-        +`Click on a tile to learn more about creatures and terrain there. Clicking will show you a `
-        +`description of everything on the tile, and which squares they might be able to attack next `
-        +`turn. Also pay attention to how much health they have since some enemies might take several `
-        +`hits to kill.\n\n`
-        +`Remember that you do not need to kill everything to go to the next stage. Sometimes it's better `
-        +`to run past an enemy than to fight it and risk getting surrounded or cornered. There may also be `
-        +`some creatures you encounter that are more helpful than harmful.\n\n`
-        +`Some enemies also have the ability to move you during their turn. When this happens, you will `
-        +`immediately get another turn.\n\n`
-        +`Some effects will cause an enemy to become stunned. They will be hightlighted in yellow. Stunned `
-        +`enemies will skip their next turn. Multiple instances of stun will cause multiple turns to get `
-        +`skipped.\n\n`],
-
-    shop: 
-        [`When you complete a floor, you will enter a shop where you must either add or remove a card from `
-        +`your deck. You will get ${ADD_CHOICE_COUNT} options of random cards to add, and `
-        +`${REMOVE_CHOICE_COUNT} options of random cards from your deck to remove. The current contents of `
-        +`your deck will be shown to help you choose. You cannot go below your minimum deck size.\n\n`
-        +`In addition to the shop, there are several other ways to get cards. You can find them from `
-        +`defeating certain bosses or aquiring certain boons. Some enemies or effects may also add `
-        +`temporary cards to your deck. They will go away after you play them or go to the next floor.\n\n`],
-
-    bosses: 
-        [`Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be `
-        +`locked until you defeat it's powerful occupant. When you defeat the boss, the stairs will be `
-        +`unlocked, you will be fully healed, and it will drop a chest containing a powerful new card as a `
-        +`reward.\n\n`
-        +`When leaving the floor, you will enter a new area of the dungeon with a different set of `
-        +`inhabitants and a new boss at the end.\n\n`],
-
-    chests: 
-        [`On floor ${CHEST_LOCATION} of every area, you will find a treasure chest. Moving onto this chest `
-        +`will allow you to pick a boon. Boons are powerful abilities that can give your character a unique `
-        +`edge when it comes to surviving.\n\n`
-        +`Chests will also be dropped after a boss is defeated. Rather than boons, these ones will contain `
-        +`a card that lets you imitate one of the boss's abilities.\n\n`
-        +`Be careful. Breaking a chest will destroy it's contents.\n\n`],
-
-    sidebar: 
-        [`The sidebar contains several tabs which keep track of useful information so you don't need to `
-        +`remember it.\n\n`
-        +`- The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like `
-        +`the descriptions given by clicking on a tile will not be tracked.\n\n`
-        +`- The Discard tab will keep track of which cards in your deck have been used so far to help you `
-        +`figure out what might be left to draw. It resets after shuffling.\n\n`
-        +`- The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it `
-        +`when trying to use one enemy to block the attack of another. It will not track hidden enemies.\n\n`
-        +`- The Boons tab will become available when you pick up your first boon. It will keep track of each `
-        +`boon you pick up and allow you to view their descriptions again by clicking on them. It will also `
-        +`track when certain boons are lost.\n\n`
-        +`More tabs might become available as you play.\n\n`],
-
-    confusion: 
-        [`Certain enemies and cards will confuse you. Confusion adds a temporary bad card to your deck which `
-        +`will go away after it goes to your discard pile, or when you go to the next floor. Cards will do `
-        +`this if they highlight your current square in yellow.\n\n`
-        +`Here is a list of the possible confusion cards:\n\n`],
+    // Create the image arrays for the sections with images.
+    var cards_symbol_arr = make_guidebook_images(CARD_SYMBOLS);
+    var confusion_inline_arr = make_guidebook_images(CONFUSION_CARDS.map(card => {
+        card = card();
+        return {
+            src: card.pic,
+            name: card.name,
+            x: 5,
+            y: 5
+        }
+    }));
+    var confusion_text = [
+        ...GUIDE_TEXT.confusion, ...CONFUSION_CARDS.map((card, i) => {
+        // Adds the space for confusion card images.
+        if(i % 4 !== 3){
+            return NBS;
+        }
+        return `\n`;
+    })];
     
-    about:
-        [`Maneuver is a game created by Sean Dunbar in 2023. If you would like to view the changelog or `
-        +`look at the source code, you can go to the `, `.\n\n`],
+    var about_links = [
+        display.make_anchor(about_page_text.git_link, about_page_text.git_text)
+    ];
+
+    // Create guidebook text sections.
+    var basics_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.basics, GUIDE_TEXT.basics, []);
+    var cards_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.cards, GUIDE_TEXT.cards, cards_symbol_arr);
+    var enemies_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.enemies, GUIDE_TEXT.enemies, []);
+    var shop_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.shop, GUIDE_TEXT.shop, []);
+    var bosses_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.bosses, GUIDE_TEXT.bosses, []);
+    var chests_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.chests, GUIDE_TEXT.chests, []);
+    var sidebar_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.sidebar, GUIDE_TEXT.sidebar, []);
+    var confusion_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.confusion, confusion_text, confusion_inline_arr);
+    var about_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.about, GUIDE_TEXT.about, about_links);
+
+    var section_id_list = [
+        basics_section, 
+        cards_section, 
+        enemies_section, 
+        shop_section, 
+        bosses_section, 
+        chests_section, 
+        sidebar_section,
+        confusion_section,
+        about_section
+    ];
+
+    var swap_visibility = function(id_list, id){
+        return function(){
+            display.swap_screen(id_list, id);
+        }
+    }
+
+    // Create guidebook navbar.
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap_visibility(section_id_list, basics_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap_visibility(section_id_list, cards_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap_visibility(section_id_list, enemies_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap_visibility(section_id_list, shop_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap_visibility(section_id_list, sidebar_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap_visibility(section_id_list, confusion_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.about, swap_visibility(section_id_list, about_section));
+
+    display.swap_screen(section_id_list, basics_section);
 }
-Object.freeze(GUIDE_TEXT);
-
-const CARD_SYMBOLS = [
-    {src: `${IMG_FOLDER.symbols}you.png`,               name: `you`,                x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}attack.png`,            name: `attack`,             x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}move.png`,              name: `move`,               x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}stun.png`,              name: `stun`,               x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}heal.png`,              name: `heal`,               x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}multiple.png`,          name: `multiple actions`,   x: 3, y: 1},
-    {src: `${IMG_FOLDER.symbols}multiple_ordered.png`,  name: `actions in order`,   x: 3, y: 1},
-    {src: `${IMG_FOLDER.symbols}move_until.png`,        name: `move until`,         x: 4, y: 1},
-    {src: `${IMG_FOLDER.symbols}attack_until.png`,      name: `attack until`,       x: 4, y: 1},
-    {src: `${IMG_FOLDER.symbols}teleport.png`,          name: `teleport`,           x: 3, y: 1},
-    {src: `${IMG_FOLDER.symbols}attack_move.png`,       name: `attack then move`,   x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}triple_attack.png`,     name: `triple attack`,     x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}instant.png`,           name: `instant`,            x: 2, y: 2},
-    {src: `${IMG_FOLDER.symbols}temporary.png`,         name: `temporary`,          x: 2, y: 2},
-    {src: `${IMG_FOLDER.symbols}per_floor.png`,         name: `once per floor`,     x: 2, y: 2},
-];
-
-const about_page_text = {
-    git_link: `https://github.com/seanmd8/Maneuver`,
-    git_text: `Github Page`,
-};
-Object.freeze(about_page_text);
-const screen_names = {
-    gameplay: `Gameplay`,
-    guide: `Guidebook`,
-    controls: `Controls`,
-    achievements: `Achievements`,
-}
-Object.freeze(screen_names);
-// ----------------UIID.js----------------
-// File containing a library of ids used to retrieve elements of the ui.
-
 /**
- * Function to get a set of uiids (Identifiers that can be used to retrieve the appropriate ui element) for the appropriate language.
- * Throws an error if an invalid language is provided.
- * @param {string} language The language to get uiids for.
- * @returns {uiid_library} The library of uiids for that language.
+ * Function to get an array of images for the card symbols to use when displaying the guide..
+ * @returns {HTMLElement[]} The array of images.
  */
-function get_uiids(language){
-    // Factory function for the display classes (currently only html)
-    switch(language){
-        case `html`:
-            return HTML_UIIDS;
-        default:
-            throw new Error(ERRORS.invalid_value);
+function make_guidebook_images(arr){
+    var images = [];
+    for(var img of arr){
+        images.push(display.create_image(img.src, `${img.name} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE)));
+    }
+    return images;
+}
+function assorted_tiles_display_info(){
+    var area = generate_ruins_area();
+    return {
+        name: area_names.assorted,
+        background: area.background,
+        boss: player_tile,
+        tiles: [
+            armored_chest_tile,
+            chest_tile,
+            exit_tile,
+            final_exit_tile,
+            lock_tile,
+        ],
+    }
+}
+function basement_display_info(){
+    var area = generate_basement_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: spider_queen_tile,
+        tiles: [
+            ...area.enemy_list, 
+            wall_tile, 
+            damaged_wall_tile
+        ],
+    }
+}
+function court_display_info(){
+    var area = generate_court_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: lord_of_shadow_and_flame_tile,
+        tiles: [
+            ...area.enemy_list, 
+            claustropede_1_tile,
+            starcaller_tile, 
+            moon_rock_tile, 
+            shatter_sphere_d_tile, 
+            shatter_sphere_o_tile,
+            raging_fire_tile,
+        ],
+    }
+}
+function crypt_display_info(){
+    var area = generate_crypt_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: lich_tile,
+        tiles: [
+            ...area.enemy_list, 
+            coffin_tile
+        ],
+    }
+}
+function forest_display_info(){
+    var area = generate_forest_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: forest_heart_tile,
+        tiles: [
+            ...area.enemy_list, 
+            enticing_fruit_tree_tile,
+            thorn_bramble_tile,
+        ],
+    }
+}
+function library_display_info(){
+    var area = generate_library_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: arcane_sentry_tile,
+        tiles: [
+            ...area.enemy_list, 
+            bookshelf_tile,
+            fireball_tile,
+        ],
+    }
+}
+function magma_display_info(){
+    var area = generate_magma_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: young_dragon_tile,
+        tiles: [
+            ...area.enemy_list, 
+            animated_boulder_tile, 
+            repulsor_tile, 
+            lava_pool_tile, 
+            magmatic_boulder_tile,
+            smoldering_ashes_tile,
+            raging_fire_tile,
+            fireball_tile,
+        ],
     }
 }
 
-/**
- * @typedef {Object} uiid_library
- * @property {string} title Displays the title of the game.
- * @property {string} game_screen Controls the visibility of the game itself.
- *      @property {string} stats Displays the current stats.
- *      @property {string} stage Controls the visibility of the current floor.
- *          @property {string} map_display Displays the map of the floor.
- *          @property {string} health_display Displays the player's health.
- *          @property {string} remaining_deck Shows how many cards are left in the player's deck.
- *              @property {string} deck_image Deck icon in the background.
- *              @property {string} deck_count # of cards in the foreground.
- *          @property {string} hand_box The box around the hand of cards.
- *              @property {string} hand_label Labels the hand box.
- *              @property {string} hand_display Displays the player's hand of cards.
- *          @property {string} move_box The box around the move buttons.
- *              @property {string} move_label Labels the move button box.
- *              @property {string} move_info Info icon for move buttons.
- *              @property {string} move_buttons Displays the buttons for the last card clicked on.
- *          @property {string} display_message Displays messages.
- *          @property {string} retry_button: A button to allow them to reset after they die.
- *      @property {string} shop Controls the visibility of the shop.
- *          @property {string} shop_instructions Lets the player know they can add or remove a card.
- *          @property {string} add_card Displays which cards that could be added to their deck.
- *          @property {string} remove_card Displays which cards that could be removed from their deck.
- *          @property {string} shop_confirm Clicking this confirms their picks and moves to next floor.
- *          @property {string} shop_message Gives information about the last card clicked on.
- *          @property {string} current_deck Tells them the next element is their current deck.
- *          @property {string} display_deck Displays their entire deck.
- *      @property {string} chest Controls the visibility of the chest contents.
- *          @property {string} chest_lid: Creates the lid of the chest.
- *              @property {string} chest_instructions: A description of the contents of the chest.
- *          @property {string} chest_body: Created the body of the chest.
- *              @property {string} contents The images associated with the contents.
- *              @property {string} chest_confirm_row: Buttons allowing you to confirm your pick or skip the reward.
- *              @property {string} content_description: A description of whichever one of the contents you last clicked on.
- * @property {string} guide Controls the visibility of the guide screen.
- *      @property {string} guide_navbar Controls the visibility of each guidebook section.
- * @property {string} controls Controls the visibility of the controls section.
- *      @property {string} stage_controls Contains the controls for the stage.
- *      @property {string} shop_control Contains the controls for the shop.
- *      @property {string} chest_control Contains the controls for the chest.
- */
-
-
-/** @type {uiid_library} The uiid library for HTML.*/
-const HTML_UIIDS = {
-    header_bar: `headerBar`,
-        title: `title`,
-    game_screen: `gameScreen`,
-        stats: `stats`,
-        stage: `stage`,
-            map_display: `mapDisplay`,
-            sidebar: `sidebar`,
-                sidebar_header: `sidebarHeader`,
-                initiative: `initiative`,
-                boon_list: `boonList`,
-                    boon_list_table: `boonListTable`,
-                    removed_boon_table: `removedBoonTable`,
-                discard_pile: `discardPile`,
-                    discard_pile_table: `discardPileTable`,
-                full_deck: `fullDeck`,
-                    full_deck_table: `fullDeckTable`,
-                text_log: `textLog`,
-                    text_scroll: `textScroll`,
-                deck_order: `deckOrder`,
-                    deck_order_table: `deckOrderTable`,
-            health_display: `healthDisplay`,
-            remaining_deck: `remainingDeck`,
-                deck_image: `deckImage`,
-                deck_count: `deckCount`,
-            hand_box: `handBox`,
-                hand_label: `handLabel`,
-                hand_display: `handDisplay`,
-            move_box: `moveBox`,
-                move_label: `moveLabel`,
-                move_info: `moveInfo`,
-                move_buttons: `moveButtons`,
-            display_message: `displayMessage`,
-            retry_box: `retryBox`,
-            retry_button: `retryButton`,
-        shop: `shop`,
-            shop_instructions: `shopInstructions`,
-            add_card: `addCard`,
-            remove_card: `removeCard`,
-            shop_confirm: `shopConfirm`,
-            shop_message: `shopMessage`,
-            current_deck: `currentDeck`,
-            display_deck: `displayDeck`,
-        chest: `chest`,
-            chest_lid: `chestLid`,
-                chest_instructions: `chestInstructions`,
-            chest_body: `chestBody`,
-                contents: `contents`,
-                chest_confirm_row: `chestConfirmRow`,
-                content_description: `contentDescription`,
-        deck_select: `deckSelect`,
-            deck_select_message: `deckSelectMessage`,
-            deck_select_table: `deckSelectTable`,
-            deck_select_card_info: `deckSelectCardInfo`,
-            deck_select_confirm: `deckSelectConfirm`,
-    guide: `guide`,
-        guide_box: `guide-box`,
-            guide_navbar: `guideNavbar`,
-    controls: `controls`,
-        stage_controls: `stageControls`,
-        shop_controls: `shopControls`,
-        chest_controls: `chestControls`,
-    achievements: `achievements`,
-        achievement_list: `achievement-list`
+function ruins_display_info(){
+    var area = generate_ruins_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: velociphile_tile,
+        tiles: [
+            ...area.enemy_list
+        ],
+    }
 }
-Object.freeze(HTML_UIIDS);
 
-const UIIDS = get_uiids(MARKUP_LANGUAGE);
+function sewers_display_info(){
+    var area = generate_sewers_area();
+    return {
+        name: area.name,
+        background: area.background,
+        boss: two_headed_serpent_tile,
+        tiles: [
+            ...area.enemy_list, 
+            corrosive_slime_tile, 
+            sewer_grate_tile,
+            small_d_porcuslime_tile,
+            small_o_porcuslime_tile,
+        ],
+    }
+}
+
+function update_journal_areas(){
+    for(var i = 1; i < 6; ++i){
+        display.remove_children(`${UIIDS.journal_areas}${i}`);
+    }
+    show_area(assorted_tiles_display_info(), 0, true);
+    show_area(ruins_display_info(), 1);
+    show_area(basement_display_info(), 2);
+    show_area(sewers_display_info(), 2);
+    show_area(crypt_display_info(), 3);
+    show_area(magma_display_info(), 3);
+    show_area(forest_display_info(), 4);
+    show_area(library_display_info(), 4);
+    show_area(court_display_info(), 5);
+}
+
+function show_area(info, depth, force_visited = false){
+    var visited = force_visited || GS.data.areas.has(info.name);
+    if(!visited){
+        info.name = area_names.unknown;
+    }
+    var check_encountered = (t) => {
+        t = t();
+        if(!visited){
+            return {
+                name: boon_names.locked,
+                pic: `${IMG_FOLDER.other}locked.png`,
+                background: [info.background],
+                description: boon_descriptions.locked,
+            }
+        }
+        if(GS.data.tiles.has(t.name)){
+            return {
+                name: t.name,
+                pic: t.display_pic ? t.display_pic : t.pic,
+                background: [info.background],
+                description: t.description,
+            }
+        }
+        return {
+            name: boon_names.not_encountered,
+            pic: `${IMG_FOLDER.other}not_encountered.png`,
+            background: [info.background],
+            description: boon_descriptions.not_encountered,
+        }
+    };
+    info.boss = check_encountered(info.boss);
+    info.tiles = info.tiles.map(check_encountered).sort((a, b) => {
+        if(a.name < b.name){
+            return -1;
+        }
+        if(a.name > b.name){
+            return 1;
+        }
+        return 0;
+    });
+    display.journal_area_section(`${UIIDS.journal_areas}${depth}`, info);
+}
+function update_journal_boons(){
+    display.remove_children(UIIDS.journal_boons);
+    display.create_fixed_box(UIIDS.journal_boons, UIIDS.journal_boon_info);
+    var boons = boons_encountered(BOON_LIST, GS.data.boons);
+    display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons);
+
+}
+function boons_encountered(boons, encountered){
+    var locked = get_locked_boons();
+    return boons.map((b) => {
+        var boon = b();
+        if(locked.find((l) => {return l().name === boon.name;})){
+            boon = symbol_locked_boon();
+        }
+        else if(!encountered.has(boon.name)){
+            boon = symbol_not_encountered_boon();
+        }
+        boon.on_click = () => {
+            display.display_message(UIIDS.journal_boon_info, boon.description);
+        }
+        return boon;
+    });
+}
+function update_journal_cards(){
+    display.remove_children(UIIDS.journal_cards);
+    display.create_fixed_box(UIIDS.journal_cards, UIIDS.journal_card_info);
+    display_basic_cards();
+    display_common_cards();
+    display_achievement_cards();
+    display_boon_cards();
+    display_confusion_cards();
+    display_boss_cards();
+}
+
+function display_basic_cards(){
+    var cards = cards_encountered(BASIC_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards);
+}
+function display_common_cards(){
+    var cards = cards_encountered(COMMON_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards);
+}
+function display_achievement_cards(){
+    var cards = cards_locked(get_all_achievement_cards(), get_locked_achievement_cards());
+    var cards = cards_encountered(cards, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards);
+}
+function display_boon_cards(){
+    var cards = cards_encountered(BOON_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards);
+}
+function display_confusion_cards(){
+    var cards = cards_encountered(CONFUSION_CARDS, GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards);
+}
+function display_boss_cards(){
+    var cards = cards_encountered(get_boss_cards(), GS.data.cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards);
+}
+
+function cards_encountered(cards, encountered){
+    return cards.map((c) => {
+        var card = c();
+        if(card.name === card_names.symbol_locked){
+            card.on_click = () => {
+                display.display_message(UIIDS.journal_card_info, move_types.locked);
+            }
+            return card;
+        }
+        if(encountered.has(card.name)){
+            card.on_click = () => {
+                display.display_message(UIIDS.journal_card_info, explain_card(card));
+            }
+            return card;
+        }
+        var card = symbol_not_encountered_card();
+        card.on_click = () => {
+            display.display_message(UIIDS.journal_card_info, move_types.not_found);
+        }
+        return card;
+    });
+}
+function cards_locked(cards, locked){
+    return cards.map((c) => {
+        var card = c();
+        if(locked.find((l) => {
+            return l().name === card.name;
+        })){
+            return symbol_locked_card;
+        }
+        return c;
+    });
+}
+function update_journal(){
+    update_journal_cards();
+    update_journal_boons();
+    update_journal_areas();
+}
+
+function setup_journal_navbar(){
+    var id = UIIDS.journal_navbar;
+
+    var section_id_list = [
+        UIIDS.journal_cards,
+        UIIDS.journal_boons,
+        UIIDS.journal_areas,
+    ];
+
+    var swap_visibility = function(id_list, id){
+        return function(){
+            display.swap_screen(id_list, id);
+        }
+    }
+
+    display.create_visibility_toggle(id, journal_navbar_labels.cards, swap_visibility(section_id_list, UIIDS.journal_cards));
+    display.create_visibility_toggle(id, journal_navbar_labels.boons, swap_visibility(section_id_list, UIIDS.journal_boons));
+    display.create_visibility_toggle(id, journal_navbar_labels.areas, swap_visibility(section_id_list, UIIDS.journal_areas));
+
+    display.swap_screen(section_id_list, UIIDS.journal_cards);
+}
 const SENTRY_MODES = {
     saw: "Saw",
     cannon: "Cannon",
@@ -3528,17 +4000,13 @@ const SENTRY_MAX_CANNON_CYCLE = 3;
 
 /** @type {TileGenerator} */
 function arcane_sentry_tile(){
-    var health = 7;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return{
         type: entity_types.enemy,
         name: boss_names.arcane_sentry,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
         description: boss_descriptions.arcane_sentry,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry]),
-        health,
+        health: 7,
         death_message: boss_death_message.arcane_sentry,
         death_achievement: achievement_names.arcane_sentry,
         behavior: sentry_core_ai,
@@ -3551,17 +4019,13 @@ function arcane_sentry_tile(){
 }
 
 function arcane_node_tile(){
-    var health = 5;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return{
         type: entity_types.enemy,
         name: boss_names.arcane_sentry_node,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret`,
         description: boss_descriptions.arcane_sentry_node,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry, TAGS.controlled, TAGS.unstunnable]),
-        health,
+        health: 5,
         death_message: boss_death_message.arcane_sentry_node,
         on_hit: node_on_hit,
         on_death: node_on_death,
@@ -3730,9 +4194,10 @@ function forest_heart_tile(){
         type: entity_types.enemy,
         name: boss_names.forest_heart,
         pic: pic_arr[0],
+        display_pic: `${IMG_FOLDER.tiles}forest_heart.png`,
         description: boss_descriptions.forest_heart + heart_spell_descriptions.rest,
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
-        health: 12,
+        health,
         death_message: boss_death_message.forest_heart,
         death_achievement: achievement_names.forest_heart,
         behavior: forest_heart_ai,
@@ -3744,13 +4209,6 @@ function forest_heart_tile(){
         segment_list: [undefined, undefined],
         spells,
         card_drops: BOSS_CARDS.forest_heart
-    }
-    if(GS.boons.has(boon_names.boss_slayer)){
-        tile.health -= 2;
-        var next_spell = spells[tile.health - 2];
-        tile.description = boss_descriptions.forest_heart + next_spell.description;
-        tile.pic = next_spell.pic;
-        tile.telegraph_other = next_spell.telegraph_other;
     }
     return tile;
 }
@@ -3884,21 +4342,18 @@ function lich_tile(){
         pheonix_tile,
         darkling_tile,
     ];
-    var health = 4;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     var starting_cycle = 0;
     return{
         type: entity_types.enemy,
         name: boss_names.lich,
         pic: spells[starting_cycle].pic,
+        display_pic: `${IMG_FOLDER.tiles}lich_rest.png`,
         description: 
             `${boss_descriptions.lich}\n`
             +`${boss_descriptions.lich_announcement}\n`
             +`${spells[starting_cycle].description}`,
         tags: new TagList([TAGS.boss]),
-        health,
+        health: 4,
         death_message: boss_death_message.lich,
         death_achievement: achievement_names.lich,
         behavior: lich_ai,
@@ -3998,9 +4453,6 @@ function lord_of_shadow_and_flame_tile(){
     ]
 
     var health = 13;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     var summons = [
         altar_of_sunlight_tile,
         altar_of_stars_tile,
@@ -4014,10 +4466,11 @@ function lord_of_shadow_and_flame_tile(){
         type: entity_types.enemy,
         name: boss_names.lord_of_shadow_and_flame,
         pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: boss_descriptions.lord_of_shadow_and_flame,
         tags: new TagList([TAGS.boss]),
         health,
-        max_health: 13,
+        max_health: health,
         death_message: boss_death_message.lord_of_shadow_and_flame,
         death_achievement: achievement_names.lord_of_shadow_and_flame,
         behavior: lord_of_shadow_and_flame_behavior,
@@ -4160,17 +4613,13 @@ function lord_of_shadow_and_flame_on_death(self, target, map){
 }
 /** @type {TileGenerator} */
 function spider_queen_tile(){
-    var health = 3;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return{
         type: entity_types.enemy,
         name: boss_names.spider_queen,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
         description: boss_descriptions.spider_queen,
         tags: new TagList([TAGS.boss]),
-        health,
+        health: 3,
         death_message: boss_death_message.spider_queen,
         death_achievement: achievement_names.spider_queen,
         behavior: spider_ai,
@@ -4196,6 +4645,7 @@ function two_headed_serpent_tile(){
         type: entity_types.enemy,
         name: boss_names.two_headed_serpent,
         pic: pic_arr[1],
+        display_pic: pic_arr[1],
         description: boss_descriptions.two_headed_serpent_awake,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         health: 1,
@@ -4458,17 +4908,13 @@ function two_headed_serpent_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function velociphile_tile(){
-    var health = 3;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return{
         type: entity_types.enemy,
         name: boss_names.velociphile,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
         description: boss_descriptions.velociphile,
         tags: new TagList([TAGS.boss]),
-        health,
+        health: 3,
         death_message: boss_death_message.velociphile,
         death_achievement: achievement_names.velociphile,
         behavior: velociphile_ai,
@@ -4516,17 +4962,14 @@ function young_dragon_tile(){
         `${IMG_FOLDER.tiles}young_dragon_breath.png`,
         `${IMG_FOLDER.tiles}young_dragon_diagonal_breath.png`
     ];
-    var health = 5;
-    if(GS.boons.has(boon_names.boss_slayer)){
-        health -= 2;
-    }
     return {
         type: entity_types.enemy,
         name: boss_names.young_dragon,
         pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: `${boss_descriptions.young_dragon[0]}${boss_descriptions.young_dragon[1]}`,
         tags: new TagList([TAGS.boss]),
-        health,
+        health: 5,
         death_message: boss_death_message.young_dragon,
         death_achievement: achievement_names.young_dragon,
         behavior: young_dragon_behavior,
@@ -4911,6 +5354,7 @@ function captive_void_tile(){
         type: entity_types.enemy,
         name: enemy_names.captive_void,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.captive_void,
         tags: new TagList([TAGS.unmovable]),
         difficulty: 2,
@@ -5019,10 +5463,26 @@ function carrion_flies_ai(self, target, map){
     }
 }
 /** @type {TileGenerator} */
+function claustropede_1_tile(){
+    return {
+        type: entity_types.enemy,
+        name: enemy_names.claustropede_1,
+        pic: `${IMG_FOLDER.tiles}claustropede_1.png`,
+        description: enemy_descriptions.claustropede,
+        tags: new TagList(),
+        health: 1,
+        difficulty: 1,
+        behavior: claustropede_ai,
+        on_hit: claustropede_hit,
+        telegraph: claustropede_telegraph,
+        cycle: 0,
+    }
+}
+/** @type {TileGenerator} */
 function claustropede_2_tile(){
     return {
         type: entity_types.enemy,
-        name: enemy_names.claustropede,
+        name: enemy_names.claustropede_2,
         pic: `${IMG_FOLDER.tiles}claustropede_2.png`,
         description: enemy_descriptions.claustropede,
         tags: new TagList(),
@@ -5038,7 +5498,7 @@ function claustropede_2_tile(){
 function claustropede_3_tile(){
     return {
         type: entity_types.enemy,
-        name: enemy_names.claustropede,
+        name: enemy_names.claustropede_3,
         pic: `${IMG_FOLDER.tiles}claustropede_3.png`,
         description: enemy_descriptions.claustropede,
         tags: new TagList(),
@@ -5053,24 +5513,22 @@ function claustropede_3_tile(){
 /** @type {AIFunction} AI used by claustropedes.*/
 function claustropede_ai(self, target, map){
     if(self.tile.cycle === 1){
-        self.tile.cycle = 0;
-        var copy = claustropede_2_tile();
-        var health = self.tile.health;
-        copy.health = health;
-        var pic = `${IMG_FOLDER.tiles}claustropede_3.png`;
-        switch(health){
-            case 2:
-                pic = `${IMG_FOLDER.tiles}claustropede_2.png`;
-                break;
+        var copy_fun;
+        switch(self.tile.health){
             case 1:
-                pic = `${IMG_FOLDER.tiles}claustropede_1.png`;
+                copy_fun = claustropede_1_tile;
                 break;
+            case 2:
+                copy_fun = claustropede_2_tile;
+                break;
+            default:
+                throw new Error(ERRORS.invalid_value);
         }
-        self.tile.pic = pic;
-        copy.pic = pic;
-        
-        teleport_spell(self, target, map);
-        map.spawn_safely(copy, 5, true);
+        for(var i = 0; i < 2; ++i){
+            map.attack(self.location);
+            var copy = copy_fun();
+            map.spawn_safely(copy, SAFE_SPAWN_ATTEMPTS, true);
+        }
     }
     else{
         spider_ai(self, target, map);
@@ -5221,6 +5679,7 @@ function gem_crawler_tile(){
         type: entity_types.enemy,
         name: enemy_names.gem_crawler,
         pic: pic_arr[cycle],
+        display_pic: pic_arr[1],
         description: enemy_descriptions.gem_crawler,
         tags: new TagList(),
         health: 1,
@@ -5407,6 +5866,7 @@ function magma_spewer_tile(){
         type: entity_types.enemy,
         name: enemy_names.magma_spewer,
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
+        display_pic: pic_arr[1],
         description: enemy_descriptions.magma_spewer,
         tags: new TagList(),
         health: 1,
@@ -5503,6 +5963,7 @@ function noxious_toad_tile(){
         type: entity_types.enemy,
         name: enemy_names.noxious_toad,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.noxious_toad, 
         tags: new TagList(),
         health: 1,
@@ -5574,6 +6035,7 @@ function orb_of_insanity_tile(){
         type: entity_types.enemy,
         name: enemy_names.orb_of_insanity,
         pic: pic_arr[0],
+        display_pic: pic_arr[1],
         description: enemy_descriptions.orb_of_insanity,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
@@ -5801,6 +6263,7 @@ function medium_porcuslime_tile(){
         type: entity_types.enemy,
         name: enemy_names.porcuslime_medium,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.porcuslime_medium,
         tags: new TagList(),
         health: 2,
@@ -5919,6 +6382,7 @@ function ram_tile(){
         type: entity_types.enemy,
         name: enemy_names.ram,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[1],
         description: enemy_descriptions.ram,
         tags: new TagList(),
         health: 2,
@@ -6557,6 +7021,7 @@ function starcaller_tile(){
         type: entity_types.enemy,
         name: enemy_names.starcaller,
         pic: `${IMG_FOLDER.tiles}starcaller_off.png`,
+        display_pic: pic_arr[1],
         description: enemy_descriptions.starcaller,
         tags: new TagList(),
         health: 1,
@@ -6652,6 +7117,7 @@ function swaying_nettle_tile(){
         type: entity_types.enemy,
         name: enemy_names.swaying_nettle,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.swaying_nettle,
         tags: new TagList([TAGS.unmovable, TAGS.nettle_immune]),
         health: 1,
@@ -7129,6 +7595,7 @@ function vinesnare_bush_tile(){
         type: entity_types.enemy,
         name: enemy_names.vinesnare_bush,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.vinesnare_bush,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
@@ -7221,6 +7688,7 @@ function walking_prism_tile(){
         type: entity_types.enemy,
         name: enemy_names.walking_prism,
         pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[1],
         description: `${description_arr[0]}${description_arr[1 + starting_cycle]}`, 
         tags: new TagList(),
         health: 2,
@@ -7771,7 +8239,8 @@ function fireball_tile(){
     return {
         type: entity_types.enemy,
         name: other_tile_names.fireball,
-        pic: `${IMG_FOLDER.tiles}fireball.png`,
+        pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: other_tile_descriptions.fireball,
         tags: new TagList([TAGS.fireball, TAGS.unstunnable]),
         behavior: fireball_ai,
@@ -7921,6 +8390,7 @@ function raging_fire_tile(){
         type: entity_types.enemy,
         name: other_tile_names.raging_fire,
         pic: pic_arr[health - 1],
+        display_pic: pic_arr[1],
         description: other_tile_descriptions.raging_fire,
         tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
         health,
@@ -9870,7 +10340,7 @@ class AchievementList{
     }
     all(){
         // Returns all achievements.
-        return this.#list;
+        return [...this.#list];
     }
     has(name){
         // Checks if they have the achievement with the chosen name.
@@ -9911,7 +10381,7 @@ class BoonTracker{
     #lost_boons;
     total;
     constructor(initial_choices){
-        this.#choices = initial_choices.map(b => b());
+        this.#choices = [...initial_choices];
         this.#boons = [];
         this.#lost_boons = [];
         this.total = 0;
@@ -9926,7 +10396,7 @@ class BoonTracker{
         });
         var picks = [];
         while(picks.length < amount && choice_list.length > 0){
-            var boon = choice_list.pop();
+            var boon = choice_list.pop()();
             if(boon.prereq === undefined || boon.prereq()){
                 if(locked.find((b) => {return b().name === boon.name}) === undefined){
                     picks.push(boon);
@@ -9946,14 +10416,19 @@ class BoonTracker{
     }
     pick(name){
         for(var i = 0; i < this.#choices.length; ++i){
-            var boon = this.#choices[i];
+            var boon_fun = this.#choices[i];
+            var boon = boon_fun();
             if(boon.name === name){
                 this.#choices.splice(i, 1);
                 if(boon.unlocks !== undefined){
-                    this.#choices.push(...boon.unlocks.map(f => f()));
+                    this.#choices.push(...boon.unlocks);
+                }
+                if(boon.max === undefined || this.has(boon.name) < boon.max){
+                    this.#choices.push(boon_fun);
                 }
                 this.#boons.push(boon);
                 ++this.total;
+                GS.data.add_boon(boon.name);
                 if(boon.on_pick !== undefined){
                     boon.on_pick();
                 }
@@ -10677,6 +11152,7 @@ class GameMap{
                     tile = tile.look;
                 }
                 say(description);
+                GS.data.add_tile(tile.name);
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
                 var telegraph_other_spaces = [];
@@ -11092,7 +11568,8 @@ class GameMap{
             // Reached the next area.
             var next_list = this.#area.next_area_list;
             this.#area = rand_from(next_list);
-            floor_description += `\n${this.#area.description}`;
+            floor_description += `\n${gameplay_text.new_area}${this.#area.name}.`;
+            GS.data.add_area(this.#area.name);
             for(var list of this.#grid){
                 for(var point of list){
                     point.floor = this.#area.background;
@@ -11365,7 +11842,8 @@ class GameState{
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = init.make_deck();
 
-        var starting_text = `${start.description}\n${gameplay_text.welcome}`;
+        var starting_text = `${gameplay_text.new_area}${start.name}.\n${gameplay_text.welcome}`;
+        this.data.add_area(start.name);
         say_record(starting_text);
         display.display_message(UIIDS.hand_label, `${gameplay_labels.hand}`);
         display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
@@ -12024,6 +12502,7 @@ class MoveDeck{
         this.#library = randomize_arr(this.#library);
         this.#check_three_kind_achievement(new_card.name);
         this.#check_jack_of_all_trades_achievement();
+        GS.data.add_card(new_card.name);
     }
     /**
      * Adds a new card to the library after giving it a temp tag.
@@ -12036,6 +12515,7 @@ class MoveDeck{
         this.#id_count++;
         this.#library.push(new_card);
         this.#library = randomize_arr(this.#library);
+        GS.data.add_card(new_card.name);
     }
     get_hand_info(){
         var make_prep_move = function(card, hand_pos){
@@ -12205,27 +12685,40 @@ class MoveDeck{
 class SaveData{
     controls;
     achievements;
-    load_function;
-    save_function;
+    cards;
+    boons;
+    tiles;
+    areas;
+    
+    #load_function;
+    #save_function;
     constructor(load, save){
-        this.load_function = load;
-        this.save_function = save;
+        this.#load_function = load;
+        this.#save_function = save;
         this.load();
     }
     load(){
-        var data = this.load_function();
+        var data = this.#load_function();
         data = SaveData.#load_missing(data);
         this.controls = new KeyBind();
         this.controls.set(data.controls);
         this.achievements = new AchievementList();
         this.achievements.set(data.achievements)
+        this.cards = new SearchTree(data.cards);
+        this.boons = new SearchTree(data.boons);
+        this.tiles = new SearchTree(data.tiles);
+        this.areas = new SearchTree(data.areas);
     }
     save(){
         var data = {
             controls: this.controls.get(),
-            achievements: this.achievements.get()
+            achievements: this.achievements.get(),
+            cards: this.cards.to_list(),
+            boons: this.boons.to_list(),
+            tiles: this.tiles.to_list(),
+            areas: this.areas.to_list(),
         }
-        this.save_function(data);        
+        this.#save_function(data);        
     }
     set_controls(new_controls){
         this.controls.set(new_controls);
@@ -12242,7 +12735,30 @@ class SaveData{
         this.achievements = new AchievementList();
         this.save();
     }
-    
+    add_card(name){
+        var added = this.cards.add(name);
+        if(added){
+            this.save();
+        }
+    }
+    add_boon(name){
+        var added = this.boons.add(name);
+        if(added){
+            this.save();
+        }
+    }
+    add_tile(name){
+        var added = this.tiles.add(name);
+        if(added){
+            this.save();
+        }
+    }
+    add_area(name){
+        var added = this.areas.add(name);
+        if(added){
+            this.save();
+        }
+    }
 
     // Static functions
     static load_file_function(save_name){
@@ -12336,9 +12852,109 @@ class ScreenTracker{
     }
 }
 
-const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.controls, UIIDS.achievements]);
+const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.achievements, UIIDS.journal, UIIDS.controls, ]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.full_deck, UIIDS.initiative, UIIDS.deck_order]);
+class SearchTreeNode{
+    data;
+    left;
+    right;
+    constructor(data){
+        this.data = data;
+    }
+    compare(node){
+        var other = node instanceof SearchTreeNode ? node.data : node;
+        if(this.data < other){
+            return -1;
+        }
+        if(this.data > other){
+            return 1;
+        }
+        return 0;
+    }
+}
+
+class SearchTree{
+    // Singleton BST that can convert to and from a sorted list.
+    #root
+    constructor(list = []){
+        this.#root = undefined;
+        this.add_all(list);
+    }
+    add(str){
+        var to_add = new SearchTreeNode(str);
+        if(this.#root === undefined){
+            this.#root = to_add;
+            return true;
+        }
+        var current = this.#root;
+        while(current !== undefined){
+            switch(current.compare(to_add)){
+                case -1:
+                    if(current.left === undefined){
+                        current.left = to_add;
+                        current = undefined;
+                    }
+                    else{
+                        current = current.left;
+                    }
+                    break;
+                case 0:
+                    return false;
+                case 1:
+                    if(current.right === undefined){
+                        current.right = to_add;
+                        current = undefined;
+                    }
+                    else{
+                        current = current.right;
+                    }
+                    break;
+            }
+        }
+        return true;
+    }
+    has(str){
+        var current = this.#root;
+        while(current !== undefined){
+            switch(current.compare(str)){
+                case -1:
+                    current = current.left;
+                    break;
+                case 0:
+                    return true;
+                case 1:
+                    current = current.right;
+                    break;
+            }
+        }
+        return false;
+    }
+    to_list(){
+        return this.#recursive_to_list(this.#root);
+    }
+    #recursive_to_list(current){
+        if(current === undefined){
+            return [];
+        }
+        return [
+            ...this.#recursive_to_list(current.left), 
+            current.data, 
+            ...this.#recursive_to_list(current.right)
+        ];
+    }
+    remove_all(){
+        this.#root = undefined;
+    }
+    add_all(list){
+        if(list.length > 0){
+            var half = Math.floor(list.length / 2);
+            this.add(list[half]);
+            this.add_all(list.slice(0, half));
+            this.add_all(list.slice(half + 1, list.length));
+        }
+    }
+}
 class Shop{
     #deck;
     #has_skill_trading;
@@ -12587,7 +13203,7 @@ function generate_basement_area(){
                     spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
         boss_floor_list: [spider_queen_floor],
         next_area_list: area3,
-        description: area_descriptions.basement
+        name: area_names.basement,
     }
 }
 
@@ -12628,7 +13244,7 @@ function generate_court_area(){
         ],
         boss_floor_list: [lord_of_shadow_and_flame_floor],
         next_area_list: [generate_default_area],
-        description: area_descriptions.court
+        name: area_names.court,
     }
 }
 
@@ -12676,7 +13292,7 @@ function generate_crypt_area(){
                     darkling_tile, orb_of_insanity_tile],
         boss_floor_list: [lich_floor],
         next_area_list: area4,
-        description: area_descriptions.crypt
+        name: area_names.crypt,
     }
 }
 
@@ -12701,7 +13317,7 @@ function generate_forest_area(){
                     scythe_tile, scorpion_tile, thorn_bush_tile],
         boss_floor_list: [forest_heart_floor],
         next_area_list: area5,
-        description: area_descriptions.forest
+        name: area_names.forest,
     }
 }
 
@@ -12741,7 +13357,7 @@ function generate_library_area(){
         ],
         boss_floor_list: [arcane_sentry_floor],
         next_area_list: area5,
-        description: area_descriptions.library
+        name: area_names.library,
     }
 }
 
@@ -12769,7 +13385,7 @@ function generate_magma_area(){
                     pheonix_tile, unstable_wisp_tile],
         boss_floor_list: [young_dragon_floor],
         next_area_list: area4,
-        description: area_descriptions.magma
+        name: area_names.magma,
     }
 }
 /** @type {FloorGenerator}*/
@@ -12862,7 +13478,7 @@ function generate_ruins_area(){
                     ram_tile, rat_tile, shadow_knight_tile],
         boss_floor_list: [velociphile_floor],
         next_area_list: area2,
-        description: area_descriptions.ruins
+        name: area_names.ruins,
     }
 }
 
@@ -12880,7 +13496,7 @@ function generate_sewers_area(){
                     corrosive_caterpillar_tile, noxious_toad_tile, acid_bug_tile, carrion_flies_tile],
         boss_floor_list: [two_headed_serpent_floor],
         next_area_list: area3,
-        description: area_descriptions.sewers
+        name: area_names.sewers,
     }
 }
 
@@ -12965,7 +13581,7 @@ function generate_default_area(){
         enemy_list: ENEMY_LIST,
         boss_floor_list: [],
         next_area_list: [generate_default_area],
-        description: area_descriptions.default
+        name: area_names.default,
     }
 }
 /** @type {FloorGenerator} Generates the floor where the Arcane Sentry appears.*/
@@ -12982,11 +13598,18 @@ function arcane_sentry_floor(floor_num,  area, map){
     // Spawn the core.
     var core_pos = new Point(x_range[0], y_range[0]);
     var core = arcane_sentry_tile();
+    if(GS.boons.has(boon_names.boss_slayer)){
+        core.health -= 2;
+    }
     map.add_tile(core, core_pos);
 
     // Spawn the nodes.
     for(var direction of DIAGONAL_DIRECTIONS){
-        map.add_tile(arcane_node_tile(), core_pos.plus(direction));
+        var node = arcane_node_tile();
+        if(GS.boons.has(boon_names.boss_slayer)){
+            node.health -= 2;
+        }
+        map.add_tile(node, core_pos.plus(direction));
     }
     
     // Swap to turret mode for setup.
@@ -13021,6 +13644,13 @@ function forest_heart_floor(floor_num,  area, map){
     ]
     for(var i = 0; i < locations.length; ++i){
         var section = forest_heart_tile();
+        if(GS.boons.has(boon_names.boss_slayer)){
+            section.health -= 2;
+            var next_spell = section.spells[section.health - 2];
+            section.description = boss_descriptions.forest_heart + next_spell.description;
+            section.pic = next_spell.pic;
+            section.telegraph_other = next_spell.telegraph_other;
+        }
         if(i !== 0){
             section.behavior = undefined;
             section.tags.add(TAGS.hidden);
@@ -13046,7 +13676,11 @@ function lich_floor(floor_num,  area, map){
     for(var location of locations){
         map.add_tile(damaged_wall_tile(), location);
     }
-    map.spawn_safely(lich_tile(), SAFE_SPAWN_ATTEMPTS, true);
+    var boss = lich_tile();
+    if(GS.boons.has(boon_names.boss_slayer)){
+        boss.health -= 2;
+    }
+    map.spawn_safely(boss, SAFE_SPAWN_ATTEMPTS, true);
     return boss_floor_message.lich;
 }
 /** @type {FloorGenerator} Generates the floor where the Lord of Shadow and Flame appears.*/
@@ -13061,7 +13695,11 @@ function lord_of_shadow_and_flame_floor(floor_num,  area, map){
         new Point(mid_width, mid_height + 1),
     ]
     var spawnpoint = rand_from(locations);
-    map.add_tile(lord_of_shadow_and_flame_tile(), spawnpoint);
+    var boss = lord_of_shadow_and_flame_tile();
+    if(GS.boons.has(boon_names.boss_slayer)){
+        boss.health -= 2;
+    }
+    map.add_tile(boss, spawnpoint);
     var message = boss_floor_message.lord_of_shadow_and_flame;
     var pacifism_message = GS.boons.has(boon_names.pacifism) > 0
         ? `\n${boss_floor_message.lord_pacifism}`
@@ -13070,7 +13708,11 @@ function lord_of_shadow_and_flame_floor(floor_num,  area, map){
 }
 /** @type {FloorGenerator} Generates the floor where the Spider Queen appears.*/
 function spider_queen_floor(floor_num, area, map){
-    map.spawn_safely(spider_queen_tile(), SAFE_SPAWN_ATTEMPTS, true);
+    var boss = spider_queen_tile();
+    if(GS.boons.has(boon_names.boss_slayer)){
+        boss.health -= 2;
+    }
+    map.spawn_safely(boss, SAFE_SPAWN_ATTEMPTS, true);
     for(var i = 0; i < 4; ++i){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
@@ -13149,7 +13791,11 @@ function two_headed_serpent_floor(floor_num, area, map){
 }
 /** @type {FloorGenerator} Generates the floor where the Velociphile appears.*/
 function velociphile_floor(floor_num,  area, map){
-    map.spawn_safely(velociphile_tile(), SAFE_SPAWN_ATTEMPTS, true);
+    var boss = velociphile_tile();
+    if(GS.boons.has(boon_names.boss_slayer)){
+        boss.health -= 2;
+    }
+    map.spawn_safely(boss, SAFE_SPAWN_ATTEMPTS, true);
     for(var i = 0; i < 8; ++i){
         map.add_tile(wall_tile());
         map.add_tile(damaged_wall_tile());
@@ -13158,7 +13804,11 @@ function velociphile_floor(floor_num,  area, map){
 }
 /** @type {FloorGenerator} Generates the floor where the Young Dragon appears.*/
 function young_dragon_floor(floor_num,  area, map){
-    map.spawn_safely(young_dragon_tile(), SAFE_SPAWN_ATTEMPTS, true);
+    var boss = young_dragon_tile();
+    if(GS.boons.has(boon_names.boss_slayer)){
+        boss.health -= 2;
+    }
+    map.spawn_safely(boss, SAFE_SPAWN_ATTEMPTS, true);
     for(var i = 0; i < 22; ++i){
         map.add_tile(lava_pool_tile());
     }
@@ -13337,18 +13987,6 @@ function execution_3(){
     }
 }
 /** @type {CardGenerator}*/
-function lost_technique(){
-    var options = new ButtonGrid();
-    options.add_button(C, [], 5);
-    return{
-        name: card_names.lost_technique,
-        pic: `${IMG_FOLDER.cards}lost_technique.png`,
-        options,
-        evolutions: [split_second_1, execution_1, superweapon_1]
-    }
-}
-
-/** @type {CardGenerator}*/
 function lost_maneuver(){
     var options = new ButtonGrid();
     options.add_button(C, [], 5);
@@ -13356,69 +13994,7 @@ function lost_maneuver(){
         name: card_names.lost_maneuver,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         options,
-        evolutions: [maneuver_1]
-    }
-}
-/** @type {CardGenerator}*/
-function maneuver_1(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pmove(2, -2)]);
-    options.add_button(SE, [pmove(2, 2)]);
-    options.add_button(SW, [pmove(-2, 2)]);
-    options.add_button(NW, [pmove(-2, -2)]);
-    return{
-        name: card_names.maneuver_1,
-        pic: `${IMG_FOLDER.cards}maneuver_1.png`,
-        options,
-        evolutions: [maneuver_2]
-    }
-}
-
-/** @type {CardGenerator}*/
-function maneuver_2(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pmove(2, -2)]);
-    options.add_button(SE, [pmove(2, 2)]);
-    options.add_button(SW, [pmove(-2, 2)]);
-    options.add_button(NW, [pmove(-2, -2)]);
-    options.add_button(N, [pmove(0, -2)]);
-    options.add_button(E, [pmove(2, 0)]);
-    options.add_button(S, [pmove(0, 2)]);
-    options.add_button(W, [pmove(-2, 0)]);
-    return{
-        name: card_names.maneuver_2,
-        pic: `${IMG_FOLDER.cards}maneuver_2.png`,
-        options,
-        evolutions: [maneuver_3]
-    }
-}
-
-/** @type {CardGenerator}*/
-function maneuver_3(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pmove(2, -2)]);
-    options.add_button(SE, [pmove(2, 2)]);
-    options.add_button(SW, [pmove(-2, 2)]);
-    options.add_button(NW, [pmove(-2, -2)]);
-    options.add_button(N, [pmove(0, -2)]);
-    options.add_button(E, [pmove(2, 0)]);
-    options.add_button(S, [pmove(0, 2)]);
-    options.add_button(W, [pmove(-2, 0)]);
-    var spin = [
-        pstun(1, 1),
-        pstun(1, 0),
-        pstun(1, -1),
-        pstun(0, 1),
-        pstun(0, -1),
-        pstun(-1, 1),
-        pstun(-1, 0),
-        pstun(-1, -1)
-    ];
-    options.add_button(SPIN, spin);
-    return{
-        name: card_names.maneuver_3,
-        pic: `${IMG_FOLDER.cards}maneuver_3.png`,
-        options
+        evolutions: [maneuver_1, blink_1, back_stab_1]
     }
 }
 /** @type {CardGenerator}*/
@@ -13502,6 +14078,137 @@ function superweapon_2(){
     return{
         name: card_names.superweapon_2,
         pic: `${IMG_FOLDER.cards}superweapon_2.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function back_stab_1(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    return{
+        name: card_names.back_stab_1,
+        pic: `${IMG_FOLDER.cards}back_stab_1.png`,
+        options,
+        evolutions: [back_stab_2]
+    }
+}
+
+/** @type {CardGenerator}*/
+function back_stab_2(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2), pattack(-1, 1), pattack(-1, 0), pattack(0, 1)]);
+    options.add_button(SE, [pmove(2, 2), pattack(-1, -1), pattack(-1, 0), pattack(0, -1)]);
+    options.add_button(SW, [pmove(-2, 2), pattack(1, -1), pattack(1, 0), pattack(0, -1)]);
+    options.add_button(NW, [pmove(-2, -2), pattack(1, 1), pattack(1, 0), pattack(0, 1)]);
+    return{
+        name: card_names.back_stab_2,
+        pic: `${IMG_FOLDER.cards}back_stab_2.png`,
+        options,
+    }
+}
+/** @type {CardGenerator}*/
+function blink_1(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    return{
+        name: card_names.blink_1,
+        pic: `${IMG_FOLDER.cards}blink_1.png`,
+        options,
+        evolutions: [blink_2]
+    }
+}
+
+/** @type {CardGenerator}*/
+function blink_2(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    options.make_instant();
+    return{
+        name: card_names.blink_2,
+        pic: `${IMG_FOLDER.cards}blink_2.png`,
+        options,
+    }
+}
+/** @type {CardGenerator}*/
+function lost_technique(){
+    var options = new ButtonGrid();
+    options.add_button(C, [], 5);
+    return{
+        name: card_names.lost_technique,
+        pic: `${IMG_FOLDER.cards}lost_technique.png`,
+        options,
+        evolutions: [split_second_1, execution_1, superweapon_1]
+    }
+}
+
+/** @type {CardGenerator}*/
+function maneuver_1(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    return{
+        name: card_names.maneuver_1,
+        pic: `${IMG_FOLDER.cards}maneuver_1.png`,
+        options,
+        evolutions: [maneuver_2]
+    }
+}
+
+/** @type {CardGenerator}*/
+function maneuver_2(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    options.add_button(N, [pmove(0, -2)]);
+    options.add_button(E, [pmove(2, 0)]);
+    options.add_button(S, [pmove(0, 2)]);
+    options.add_button(W, [pmove(-2, 0)]);
+    return{
+        name: card_names.maneuver_2,
+        pic: `${IMG_FOLDER.cards}maneuver_2.png`,
+        options,
+        evolutions: [maneuver_3]
+    }
+}
+
+/** @type {CardGenerator}*/
+function maneuver_3(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -2)]);
+    options.add_button(SE, [pmove(2, 2)]);
+    options.add_button(SW, [pmove(-2, 2)]);
+    options.add_button(NW, [pmove(-2, -2)]);
+    options.add_button(N, [pmove(0, -2)]);
+    options.add_button(E, [pmove(2, 0)]);
+    options.add_button(S, [pmove(0, 2)]);
+    options.add_button(W, [pmove(-2, 0)]);
+    var spin = [
+        pstun(1, 1),
+        pstun(1, 0),
+        pstun(1, -1),
+        pstun(0, 1),
+        pstun(0, -1),
+        pstun(-1, 1),
+        pstun(-1, 0),
+        pstun(-1, -1)
+    ];
+    options.add_button(SPIN, spin);
+    return{
+        name: card_names.maneuver_3,
+        pic: `${IMG_FOLDER.cards}maneuver_3.png`,
         options
     }
 }
@@ -13882,11 +14589,14 @@ const BASIC_CARDS = [
 ];
 
 const BOON_CARDS = [
-    lost_technique, lost_maneuver,
+    lost_technique,
     execution_1, execution_2, execution_3,
-    maneuver_1, maneuver_2, maneuver_3,
     split_second_1, split_second_2,
-    superweapon_1, superweapon_2
+    superweapon_1, superweapon_2,
+    lost_maneuver,
+    maneuver_1, maneuver_2, maneuver_3,
+    back_stab_1, back_stab_2,
+    blink_1, blink_2,
 ];
 
 const BOSS_CARDS = {
@@ -13930,6 +14640,15 @@ function get_achievement_cards(){
     });
     return list;
 }
+function get_locked_achievement_cards(){
+    var list = [];
+    GS.data.achievements.all().map((a) => {
+        if(a.cards !== undefined && !a.has){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
 function get_all_achievement_cards(){
     var list = [];
     get_achievements().map((a) => {
@@ -13941,13 +14660,15 @@ function get_all_achievement_cards(){
 }
 
 function get_boss_cards(){
-    var all = [];
-    for (var field in BOSS_CARDS) {
-        if (Object.hasOwn(BOSS_CARDS, field)) {
-            all = [...all, ...BOSS_CARDS[field]];
-        }
-    }
-    return all;
+    return [
+        ...BOSS_CARDS.velociphile,
+        ...BOSS_CARDS.spider_queen,
+        ...BOSS_CARDS.two_headed_serpent,
+        ...BOSS_CARDS.lich,
+        ...BOSS_CARDS.young_dragon,
+        ...BOSS_CARDS.forest_heart,
+        ...BOSS_CARDS.arcane_sentry,
+    ];
 }
 
 /**
@@ -15351,6 +16072,22 @@ function symbol_deck_at_minimum(){
         options: new ButtonGrid()
     }
 }
+/** @type {CardGenerator} Shown in the journal for cards you have not yet unlocked.*/
+function symbol_locked_card(){
+    return{
+        name: card_names.symbol_locked,
+        pic: `${IMG_FOLDER.other}locked.png`,
+        options: new ButtonGrid()
+    }
+}
+/** @type {CardGenerator} Shown in the journal for cards you have not yet added to your deck.*/
+function symbol_not_encountered_card(){
+    return{
+        name: card_names.symbol_not_encountered_card,
+        pic: `${IMG_FOLDER.other}not_encountered.png`,
+        options: new ButtonGrid()
+    }
+}
 /** @type {CardGenerator} Shown in show to denote removing a card from your deck.*/
 function symbol_remove_card(){
     return{
@@ -15384,13 +16121,38 @@ function max_health_at_least(amount){
     var max_health = GS.map.get_player().max_health;
     return max_health !== undefined && max_health > amount;
 }
+
+function get_locked_boons(){
+    var list = [];
+    GS.data.achievements.all().map((a) => {
+        if(a.boons!== undefined && !a.has){
+            list.push(...a.boons);
+        }
+    });
+    return list;
+
+}
+function symbol_locked_boon(){
+    return {
+        name: boon_names.locked,
+        pic: `${IMG_FOLDER.other}locked.png`,
+        description: boon_descriptions.locked,
+    }
+}
+function symbol_not_encountered_boon(){
+    return {
+        name: boon_names.not_encountered,
+        pic: `${IMG_FOLDER.other}not_encountered.png`,
+        description: boon_descriptions.not_encountered,
+    }
+}
 function ancient_card(){
     return {
         name: boon_names.ancient_card,
         pic: `${IMG_FOLDER.cards}lost_technique.png`,
         description: chest_text.add_card,
+        prereq_description: boon_prereq_descriptions.none,
         on_pick: pick_ancient_card,
-        unlocks: [ancient_card]
     }
 }
 
@@ -15403,8 +16165,8 @@ function ancient_card_2(){
         name: boon_names.ancient_card,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         description: chest_text.add_card,
+        prereq_description: boon_prereq_descriptions.none,
         on_pick: pick_ancient_card_2,
-        unlocks: [ancient_card_2]
     }
 }
 
@@ -15416,6 +16178,8 @@ function bitter_determination(){
         name: boon_names.bitter_determination,
         pic: `${IMG_FOLDER.boons}bitter_determination.png`,
         description: boon_descriptions.bitter_determination,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function blood_alchemy(){
@@ -15423,9 +16187,9 @@ function blood_alchemy(){
         name: boon_names.blood_alchemy,
         pic: `${IMG_FOLDER.boons}blood_alchemy.png`,
         description: boon_descriptions.blood_alchemy,
+        prereq_description: boon_prereq_descriptions.blood_alchemy,
         prereq: prereq_blood_alchemy,
         on_pick: pick_blood_alchemy,
-        unlocks: [blood_alchemy]
     }
 }
 
@@ -15446,6 +16210,8 @@ function boss_slayer(){
         name: boon_names.boss_slayer,
         pic: `${IMG_FOLDER.boons}boss_slayer.png`,
         description: boon_descriptions.boss_slayer,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function brag_and_boast(){
@@ -15453,8 +16219,8 @@ function brag_and_boast(){
         name: boon_names.brag_and_boast,
         pic: `${IMG_FOLDER.boons}brag_and_boast.png`,
         description: boon_descriptions.brag_and_boast,
+        prereq_description: boon_prereq_descriptions.none,
         on_pick: pick_brag_and_boast,
-        unlocks: [brag_and_boast]
     }
 }
 
@@ -15472,13 +16238,9 @@ function chilly_presence(){
         name: boon_names.chilly_presence,
         pic: `${IMG_FOLDER.boons}chilly_presence.png`,
         description: boon_descriptions.chilly_presence,
-        prereq: prereq_chilly_presence,
-        unlocks: [chilly_presence]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 4
     }
-}
-
-function prereq_chilly_presence(){
-    return GS.boons.has(boon_names.chilly_presence) < 5;
 }
 
 function proc_chilly_presence(tile){
@@ -15493,7 +16255,9 @@ function choose_your_path(){
     return {
         name: boon_names.choose_your_path,
         pic: `${IMG_FOLDER.boons}choose_your_path.png`,
-        description: boon_descriptions.choose_your_path
+        description: boon_descriptions.choose_your_path,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function clean_mind(){
@@ -15501,9 +16265,9 @@ function clean_mind(){
         name: boon_names.clean_mind,
         pic: `${IMG_FOLDER.boons}clean_mind.png`,
         description: boon_descriptions.clean_mind,
+        prereq_description: boon_prereq_descriptions.clean_mind,
         prereq_clean_mind,
         after_pick: pick_clean_mind,
-        unlocks: [clean_mind]
     }
 }
 
@@ -15522,8 +16286,10 @@ function creative(){
         name: boon_names.creative,
         pic: `${IMG_FOLDER.boons}creative.png`,
         description: boon_descriptions.creative,
+        prereq_description: boon_prereq_descriptions.creative,
         prereq: prereq_creative,
-        on_pick: pick_creative
+        on_pick: pick_creative,
+        max: 1,
     }
 }
 
@@ -15542,6 +16308,8 @@ function dazing_blows(){
         name: boon_names.dazing_blows,
         pic: `${IMG_FOLDER.boons}dazing_blows.png`,
         description: boon_descriptions.dazing_blows,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function duplicate(){
@@ -15549,8 +16317,8 @@ function duplicate(){
         name: boon_names.duplicate,
         pic: `${IMG_FOLDER.boons}duplicate.png`,
         description: boon_descriptions.duplicate,
+        prereq_description: boon_prereq_descriptions.none,
         after_pick: pick_duplicate,
-        unlocks: [duplicate]
     }
 }
 
@@ -15563,7 +16331,7 @@ function empty_rooms(){
         name: boon_names.empty_rooms,
         pic: `${IMG_FOLDER.boons}empty_rooms.png`,
         description: boon_descriptions.empty_rooms,
-        unlocks: [empty_rooms]
+        prereq_description: boon_prereq_descriptions.none,
     }
 }
 function escape_artist(){
@@ -15571,6 +16339,8 @@ function escape_artist(){
         name: boon_names.escape_artist,
         pic: `${IMG_FOLDER.boons}escape_artist.png`,
         description: boon_descriptions.escape_artist,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 
@@ -15585,8 +16355,10 @@ function expend_vitality(){
         name: boon_names.expend_vitality,
         pic: `${IMG_FOLDER.boons}expend_vitality.png`,
         description: boon_descriptions.expend_vitality,
+        prereq_description: boon_prereq_descriptions.expend_vitality,
         prereq: prereq_expend_vitality,
-        on_pick: pick_expend_vitality
+        on_pick: pick_expend_vitality,
+        max: 1,
     }
 }
 
@@ -15602,19 +16374,17 @@ function flame_strike(){
         name: boon_names.flame_strike,
         pic: `${IMG_FOLDER.boons}flame_strike.png`,
         description: boon_descriptions.flame_strike,
-        prereq: prereq_flame_strike,
-        unlocks: [flame_strike]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 3,
     }
-}
-
-function prereq_flame_strike(){
-    return GS.boons.has(boon_names.flame_strike) < 3;
 }
 function flame_worship(){
     return {
         name: boon_names.flame_worship,
         pic: `${IMG_FOLDER.boons}flame_worship.png`,
         description: boon_descriptions.flame_worship,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function fleeting_thoughts(){
@@ -15622,6 +16392,8 @@ function fleeting_thoughts(){
         name: boon_names.fleeting_thoughts,
         pic: `${IMG_FOLDER.boons}fleeting_thoughts.png`,
         description: boon_descriptions.fleeting_thoughts,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function fortitude(){
@@ -15629,9 +16401,9 @@ function fortitude(){
         name: boon_names.fortitude,
         pic: `${IMG_FOLDER.boons}fortitude.png`,
         description: boon_descriptions.fortitude,
+        prereq_description: boon_prereq_descriptions.fortitude,
         prereq: prereq_fortitude,
         on_pick: pick_fortitude,
-        unlocks: [fortitude]
     }
 }
 
@@ -15648,6 +16420,8 @@ function frenzy(){
         name: boon_names.frenzy,
         pic: `${IMG_FOLDER.boons}frenzy.png`,
         description: boon_descriptions.frenzy,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function frugivore(){
@@ -15655,19 +16429,18 @@ function frugivore(){
         name: boon_names.frugivore,
         pic: `${IMG_FOLDER.boons}frugivore.png`,
         description: boon_descriptions.frugivore,
-        prereq: prereq_frugivore,
-        unlocks: [frugivore]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 2,
     }
-}
-function prereq_frugivore(){
-    return GS.boons.has(boon_names.frugivore) < 2;
 }
 function future_sight(){
     return {
         name: boon_names.future_sight,
         pic: `${IMG_FOLDER.boons}future_sight.png`,
         description: boon_descriptions.future_sight,
-        on_pick: pick_future_sight
+        prereq_description: boon_prereq_descriptions.none,
+        on_pick: pick_future_sight,
+        max: 1,
     }
 }
 
@@ -15682,8 +16455,10 @@ function gruntwork(){
         name: boon_names.gruntwork,
         pic: `${IMG_FOLDER.boons}gruntwork.png`,
         description: boon_descriptions.gruntwork,
+        prereq_description: boon_prereq_descriptions.gruntwork,
         prereq: prereq_gruntwork,
-        on_pick: pick_gruntwork
+        on_pick: pick_gruntwork,
+        max: 1,
     }
 }
 
@@ -15701,14 +16476,18 @@ function hoarder(){
     return {
         name: boon_names.hoarder,
         pic: `${IMG_FOLDER.boons}hoarder.png`,
-        description: boon_descriptions.hoarder
+        description: boon_descriptions.hoarder,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function larger_chests(){
     return {
         name: boon_names.larger_chests,
         pic: `${IMG_FOLDER.boons}larger_chests.png`,
-        description: boon_descriptions.larger_chests
+        description: boon_descriptions.larger_chests,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function limitless(){
@@ -15716,7 +16495,9 @@ function limitless(){
         name: boon_names.limitless,
         pic: `${IMG_FOLDER.boons}limitless.png`,
         description: boon_descriptions.limitless,
-        on_pick: on_pick_limitless
+        prereq_description: boon_prereq_descriptions.none,
+        on_pick: on_pick_limitless,
+        max: 1,
     }
 }
 
@@ -15729,6 +16510,8 @@ function pacifism(){
         name: boon_names.pacifism,
         pic: `${IMG_FOLDER.boons}pacifism.png`,
         description: boon_descriptions.pacifism,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function pain_reflexes(){
@@ -15736,6 +16519,8 @@ function pain_reflexes(){
         name: boon_names.pain_reflexes,
         pic: `${IMG_FOLDER.boons}pain_reflexes.png`,
         description: boon_descriptions.pain_reflexes,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function perfect_the_basics(){
@@ -15743,8 +16528,10 @@ function perfect_the_basics(){
         name: boon_names.perfect_the_basics,
         pic: `${IMG_FOLDER.boons}perfect_the_basics.png`,
         description: boon_descriptions.perfect_the_basics,
+        prereq_description: boon_prereq_descriptions.perfect_the_basics,
         prereq: prereq_perfect_the_basics,
-        on_pick: pick_perfect_the_basics
+        on_pick: pick_perfect_the_basics,
+        max: 1,
     }
 }
 
@@ -15789,7 +16576,7 @@ function picky_shopper(){
         name: boon_names.picky_shopper,
         pic: `${IMG_FOLDER.boons}picky_shopper.png`,
         description: boon_descriptions.picky_shopper,
-        unlocks: [picky_shopper]
+        prereq_description: boon_prereq_descriptions.none,
     }
 }
 function practice_makes_perfect(){
@@ -15797,7 +16584,9 @@ function practice_makes_perfect(){
         name: boon_names.practice_makes_perfect,
         pic: `${IMG_FOLDER.boons}practice_makes_perfect.png`,
         description: boon_descriptions.practice_makes_perfect,
-        prereq: prereq_practice_makes_perfect
+        prereq_description: boon_prereq_descriptions.practice_makes_perfect,
+        prereq: prereq_practice_makes_perfect,
+        max: 1,
     }
 }
 
@@ -15809,6 +16598,8 @@ function pressure_points(){
         name: boon_names.pressure_points,
         pic: `${IMG_FOLDER.boons}pressure_points.png`,
         description: boon_descriptions.pressure_points,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function quick_healing(){
@@ -15816,19 +16607,16 @@ function quick_healing(){
         name: boon_names.quick_healing,
         pic: `${IMG_FOLDER.boons}quick_healing.png`,
         description: boon_descriptions.quick_healing,
-        prereq: prereq_quick_healing,
-        unlocks: [quick_healing]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 3,
     }
-}
-function prereq_quick_healing(){
-    return GS.boons.has(boon_names.quick_healing) < 3;
 }
 function rebirth(){
     return {
         name: boon_names.rebirth,
         pic: `${IMG_FOLDER.boons}rebirth.png`,
         description: boon_descriptions.rebirth,
-        unlocks: [rebirth]    
+        prereq_description: boon_prereq_descriptions.none,
     }
 }
 function repetition(){
@@ -15836,19 +16624,17 @@ function repetition(){
         name: boon_names.repetition,
         pic: `${IMG_FOLDER.boons}repetition.png`,
         description: boon_descriptions.repetition,
-        prereq: prereq_repetition,
-        unlocks: [repetition]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 3,
     }
-}
-
-function prereq_repetition(){
-    return GS.boons.has(boon_names.repetition) < 3;
 }
 function retaliate(){
     return {
         name: boon_names.retaliate,
         pic: `${IMG_FOLDER.boons}retaliate.png`,
-        description: boon_descriptions.retaliate
+        description: boon_descriptions.retaliate,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 
@@ -15877,6 +16663,8 @@ function rift_touched(){
         name: boon_names.rift_touched,
         pic: `${IMG_FOLDER.boons}rift_touched.png`,
         description: boon_descriptions.rift_touched,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function roar_of_challenge(){
@@ -15884,9 +16672,9 @@ function roar_of_challenge(){
         name: boon_names.roar_of_challenge,
         pic: `${IMG_FOLDER.boons}roar_of_challenge.png`,
         description: boon_descriptions.roar_of_challenge,
+        prereq_description: boon_prereq_descriptions.roar_of_challenge,
         prereq: prereq_roar_of_challenge,
         on_pick: pick_roar_of_challenge,
-        unlocks: [roar_of_challenge]
     }
 }
 
@@ -15902,8 +16690,8 @@ function safe_passage(){
         name: boon_names.safe_passage,
         pic: `${IMG_FOLDER.boons}safe_passage.png`,
         description: boon_descriptions.safe_passage,
+        prereq_description: boon_prereq_descriptions.safe_passage,
         prereq: prereq_safe_passage,
-        unlocks: [safe_passage]
     }
 }
 
@@ -15916,8 +16704,10 @@ function shattered_glass(){
         name: boon_names.shattered_glass,
         pic: `${IMG_FOLDER.boons}shattered_glass.png`,
         description: boon_descriptions.shattered_glass,
+        prereq_description: boon_prereq_descriptions.shattered_glass,
         prereq: prereq_shattered_glass,
-        on_pick: on_pick_shattered_glass
+        on_pick: on_pick_shattered_glass,
+        max: 1,
     }
 }
 
@@ -15932,7 +16722,9 @@ function skill_trading(){
     return {
         name: boon_names.skill_trading,
         pic: `${IMG_FOLDER.boons}skill_trading.png`,
-        description: boon_descriptions.skill_trading
+        description: boon_descriptions.skill_trading,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function slime_trail(){
@@ -15940,19 +16732,17 @@ function slime_trail(){
         name: boon_names.slime_trail,
         pic: `${IMG_FOLDER.boons}slime_trail.png`,
         description: boon_descriptions.slime_trail,
-        prereq: prereq_slime_trail,
-        unlocks: [slime_trail]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 2,
     }
-}
-
-function prereq_slime_trail(){
-    return GS.boons.has(boon_names.slime_trail) < 2;
 }
 function sniper(){
     return {
         name: boon_names.sniper,
         pic: `${IMG_FOLDER.boons}sniper.png`,
         description: boon_descriptions.sniper,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function spiked_shoes(){
@@ -15960,8 +16750,10 @@ function spiked_shoes(){
         name: boon_names.spiked_shoes,
         pic: `${IMG_FOLDER.boons}spiked_shoes.png`,
         description: boon_descriptions.spiked_shoes,
+        prereq_description: boon_prereq_descriptions.spiked_shoes,
         prereq: prereq_spiked_shoes,
-        on_pick: pick_spiked_shoes
+        on_pick: pick_spiked_shoes,
+        max: 1,
     }
 }
 
@@ -15977,8 +16769,10 @@ function spontaneous(){
         name: boon_names.spontaneous,
         pic: `${IMG_FOLDER.boons}spontaneous.png`,
         description: boon_descriptions.spontaneous,
+        prereq_description: boon_prereq_descriptions.spontaneous,
         prereq: prereq_spontaneous,
-        on_pick: pick_spontaneous
+        on_pick: pick_spontaneous,
+        max: 1,
     }
 }
 
@@ -15994,19 +16788,17 @@ function stable_mind(){
         name: boon_names.stable_mind,
         pic: `${IMG_FOLDER.boons}stable_mind.png`,
         description: boon_descriptions.stable_mind,
-        prereq: prereq_stable_mind,
-        unlocks: [stable_mind]
+        prereq_description: boon_prereq_descriptions.none,
+        max: 2,
     }
-}
-
-function prereq_stable_mind(){
-    return GS.boons.has(boon_names.stable_mind) < 2;
 }
 function stealthy(){
     return {
         name: boon_names.stealthy,
         pic: `${IMG_FOLDER.boons}stealthy.png`,
         description: boon_descriptions.stealthy,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function stubborn(){
@@ -16014,6 +16806,8 @@ function stubborn(){
         name: boon_names.stubborn,
         pic: `${IMG_FOLDER.boons}stubborn.png`,
         description: boon_descriptions.stubborn,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function thick_soles(){
@@ -16021,6 +16815,8 @@ function thick_soles(){
         name: boon_names.thick_soles,
         pic: `${IMG_FOLDER.boons}thick_soles.png`,
         description: boon_descriptions.thick_soles,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 function vicious_cycle(){
@@ -16028,6 +16824,8 @@ function vicious_cycle(){
         name: boon_names.vicious_cycle,
         pic: `${IMG_FOLDER.boons}vicious_cycle.png`,
         description: boon_descriptions.vicious_cycle,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 

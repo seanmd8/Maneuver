@@ -1,0 +1,15 @@
+
+.achievements-style {
+    background-color: var(--achievements-background-color);
+    min-height: 100%;
+}
+
+.achievement-section {
+    border: solid;
+    border-radius: 20px;
+    width: fit-content;
+    padding: 20px;
+    padding-top: 0px;
+    background-color: dimgray;
+    margin: 6px;
+}
