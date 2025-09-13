@@ -648,7 +648,7 @@ const area_names = {
     basement: `Basement`,
     magma: `Magmatic Caves`,
     crypt: `Crypt`,
-    forest: `Subteranean Forest`,
+    forest: `Subterranean Forest`,
     library: `Arcane Library`,
     court: `Candlelit Court`,
     
