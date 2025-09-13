@@ -3131,14 +3131,14 @@ const DisplayHTML = {
         
         var boss = document.createElement(`table`);
         boss.classList.add(`journal-area-boss`);
-        var boss_id = `${destination} ${info.name} boss`;
+        var boss_id = `${destination} ${info.true_name} boss`;
         boss.id = boss_id;
         box.append(boss);
         display.add_tb_row(boss_id, [info.boss], JOURNAL_BOSS_SCALE);
 
         var tiles = document.createElement(`table`);
         tiles.classList.add(`journal-area-tiles`);
-        var tiles_id = `${destination} ${info.name} tiles`;
+        var tiles_id = `${destination} ${info.true_name} tiles`;
         tiles.id = tiles_id;
         box.append(tiles);
         for(var i = 0; i < Math.ceil(info.tiles.length / JOURNAL_AREA_WIDTH); ++i){
@@ -3828,6 +3828,7 @@ function update_journal_areas(){
 
 function show_area(info, depth, force_visited = false){
     var visited = force_visited || GS.data.areas.has(info.name);
+    visited.true_name = visited.name;
     if(!visited){
         info.name = area_names.unknown;
     }
