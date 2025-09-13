@@ -42,6 +42,10 @@
     border-color: black;
 }
 
+.area0 div {
+    background-color: var(--area0);
+    height: fit-content;
+}
 .area1 div {
     background-color: var(--area1);
 }

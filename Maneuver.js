@@ -653,7 +653,8 @@ const area_names = {
     court: `Candlelit Court`,
     
     default: `Post Game Area`,
-    unknown: `Unknown`
+    unknown: `Unknown`,
+    assorted: `Assorted`
 }
 Object.freeze(area_names);
 const boon_names = {
@@ -3668,6 +3669,21 @@ function make_guidebook_images(arr){
     }
     return images;
 }
+function assorted_tiles_display_info(){
+    var area = generate_ruins_area();
+    return {
+        name: area_names.assorted,
+        background: area.background,
+        boss: player_tile,
+        tiles: [
+            armored_chest_tile,
+            chest_tile,
+            exit_tile,
+            final_exit_tile,
+            lock_tile,
+        ],
+    }
+}
 function basement_display_info(){
     var area = generate_basement_area();
     return {
@@ -3783,7 +3799,7 @@ function update_journal_areas(){
     for(var i = 1; i < 6; ++i){
         display.remove_children(`${UIIDS.journal_areas}${i}`);
     }
-    show_assorted_tiles();
+    show_area(assorted_tiles_display_info(), 0, true);
     show_area(ruins_display_info(), 1);
     show_area(basement_display_info(), 2);
     show_area(sewers_display_info(), 2);
@@ -3794,12 +3810,8 @@ function update_journal_areas(){
     show_area(court_display_info(), 5);
 }
 
-function show_assorted_tiles(){
-
-}
-
-function show_area(info, depth){
-    var visited = GS.data.areas.has(info.name);
+function show_area(info, depth, force_visited = false){
+    var visited = force_visited || GS.data.areas.has(info.name);
     if(!visited){
         info.name = area_names.unknown;
     }

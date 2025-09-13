@@ -9,6 +9,7 @@ const area_names = {
     court: `Candlelit Court`,
     
     default: `Post Game Area`,
-    unknown: `Unknown`
+    unknown: `Unknown`,
+    assorted: `Assorted`
 }
 Object.freeze(area_names);
