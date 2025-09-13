@@ -857,6 +857,8 @@ Object.freeze(boon_prereq_descriptions);
 
 const boon_messages = {
     section_header: `Boons`,
+    max: `Max:`,
+    no_max: `Unlimited`,
 
     clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
     duplicate: `Choose a card to copy:`,
@@ -3886,11 +3888,22 @@ function boons_encountered(boons, encountered){
         else if(!encountered.has(boon.name)){
             boon = symbol_not_encountered_boon();
         }
+        else{
+            boon.description = get_boon_description(boon);
+        }
         boon.on_click = () => {
             display.display_message(UIIDS.journal_boon_info, boon.description);
         }
         return boon;
     });
+}
+
+function get_boon_description(boon){
+    var max = `${boon_messages.max} ${boon.max ? boon.max : boon_messages.no_max}.`;
+    var prereq = boon.prereq_description; 
+    var description = boon.description;
+    
+    return `${description}\n\n${max}\n\n${prereq}`;
 }
 function update_journal_cards(){
     display.remove_children(UIIDS.journal_cards);
@@ -16180,7 +16193,6 @@ function bitter_determination(){
         pic: `${IMG_FOLDER.boons}bitter_determination.png`,
         description: boon_descriptions.bitter_determination,
         prereq_description: boon_prereq_descriptions.none,
-        max: 1,
     }
 }
 function blood_alchemy(){

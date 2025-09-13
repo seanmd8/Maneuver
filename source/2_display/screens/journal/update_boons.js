@@ -15,9 +15,20 @@ function boons_encountered(boons, encountered){
         else if(!encountered.has(boon.name)){
             boon = symbol_not_encountered_boon();
         }
+        else{
+            boon.description = get_boon_description(boon);
+        }
         boon.on_click = () => {
             display.display_message(UIIDS.journal_boon_info, boon.description);
         }
         return boon;
     });
+}
+
+function get_boon_description(boon){
+    var max = `${boon_messages.max} ${boon.max ? boon.max : boon_messages.no_max}.`;
+    var prereq = boon.prereq_description; 
+    var description = boon.description;
+    
+    return `${description}\n\n${max}\n\n${prereq}`;
 }
