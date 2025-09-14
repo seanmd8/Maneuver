@@ -792,7 +792,7 @@ const boon_descriptions = {
     repetition: 
         `Every 3rd turn, your cards happen twice.`,
     retaliate: 
-        `When you are dealt damage, attack a nearby non boss enemy.`,
+        `When you are dealt damage, attack a nearby enemy.`,
     rift_touched: 
         `Two Darklings spawn on each non boss floor.`,
     roar_of_challenge: 
@@ -16819,7 +16819,6 @@ function retaliate_behavior(self, target, map){
     for(var i = 0; i < spaces.length && !hit; ++i){
         if( map.is_in_bounds(spaces[i]) &&                   // Space is not edge.
             !map.check_empty(spaces[i]) &&                   // Space is not empty.
-            !map.get_tile(spaces[i]).tags.has(TAGS.boss) &&  // Space is not a boss.
             (map.get_tile(spaces[i]).health !== undefined || // Space has health or
             map.get_tile(spaces[i]).on_hit !== undefined)    // Space has on_hit
         ){

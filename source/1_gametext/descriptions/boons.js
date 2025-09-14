@@ -133,7 +133,7 @@ const boon_descriptions = {
     repetition: 
         `Every 3rd turn, your cards happen twice.`,
     retaliate: 
-        `When you are dealt damage, attack a nearby non boss enemy.`,
+        `When you are dealt damage, attack a nearby enemy.`,
     rift_touched: 
         `Two Darklings spawn on each non boss floor.`,
     roar_of_challenge: 
