@@ -36,13 +36,20 @@ function blood_crescent_ai(self, target, map){
         target.difference.minus_equals(direction);
         var passed = [new Point(direction.x, 0), new Point(0, direction.y)];
         for(var p of passed){
-            if(point_equals(target.difference, p.times(-1)) || map.check_empty(self.location.minus(p))){
+            if(
+                point_equals(target.difference, p.times(-1)) || 
+                map.check_empty(self.location.minus(p)) ||
+                (GS.boons.has(boon_names.manic_presence) && chance(1, 2))
+            ){
                 map.attack(self.location.minus(p));
             }
         }
         if(i + 1 < distance){
             ahead = self.location.plus(direction);
-            if(point_equals(self.location.plus(target.difference), ahead)){
+            if(
+                point_equals(self.location.plus(target.difference), ahead) ||
+                (GS.boons.has(boon_names.manic_presence) && chance(1, 2))
+            ){
                 map.attack(ahead);
             }
         }

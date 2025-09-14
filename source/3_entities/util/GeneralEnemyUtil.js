@@ -329,6 +329,21 @@ function point_rectangle(p1, p2){
     return rectangle;
 }
 
+function get_nearest_where(map, location, f){
+    for(var i = 1; i < Math.max(FLOOR_HEIGHT, FLOOR_WIDTH); ++i){
+        var corner_1 = location.plus(new Point(1, 1).times(i));
+        var corner_2 = location.plus(new Point(-1, -1).times(i));
+        var rectangle = point_rectangle(corner_1, corner_2);
+        for(var p of rectangle){
+            if(map.is_in_bounds(p) && f(map.get_tile(p), p)){
+                return p;
+            }
+        }
+    }
+    return undefined;
+}
+
+
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */
 function generic_tile(){
     return {

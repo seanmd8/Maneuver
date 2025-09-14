@@ -36,6 +36,12 @@ function altar_of_sunlight_on_enter(self, target, map){
         }
     } 
     var target = map.get_player_location();
+    if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+        var miss = get_nearest_where(map, target, (t, p) => {
+            return t.type === entity_types.enemy && !point_equals(p, self.location);
+        });
+        target = miss ? miss : target;
+    }
     for(var i = 0; i < 3; ++i){
         var rectangle = point_rectangle(target.plus(new Point(i, i)), target.plus(new Point(-i, -i)));
         var rectangle = rectangle.filter((p) => {

@@ -63,7 +63,7 @@ function ram_ai(self, target, map){
             }
         }
 
-        if(target.difference.on_axis()){
+        if(target.difference.on_axis() || (GS.boons.has(boon_names.manic_presence) && chance(1, 2))){
             // If it sees them, prepares to charge.
             self.tile.cycle = 1;
             self.tile.pic = self.tile.pic_arr[self.tile.cycle];

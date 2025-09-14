@@ -27,6 +27,7 @@ const boon_names = {
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
     limitless: `Limitless`,
+    manic_presence: `Manic Presence`,
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
     perfect_the_basics: `Perfect the Basics`,
@@ -110,6 +111,8 @@ const boon_descriptions = {
     limitless: 
         `Remove your max health. Heal for 2. If you would be fully healed, heal `
         +`for 1 instead.`,
+    manic_presence: 
+        `Some types of enemies are prone to misfiring.`,
     pacifism: 
         `If you would attack an enemy, stun them twice instead. Fully heal at `
         +`the start of each floor. All boss floor exits unlock.`,

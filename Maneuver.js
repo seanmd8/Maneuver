@@ -686,6 +686,7 @@ const boon_names = {
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
     limitless: `Limitless`,
+    manic_presence: `Manic Presence`,
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
     perfect_the_basics: `Perfect the Basics`,
@@ -769,6 +770,8 @@ const boon_descriptions = {
     limitless: 
         `Remove your max health. Heal for 2. If you would be fully healed, heal `
         +`for 1 instead.`,
+    manic_presence: 
+        `Some types of enemies are prone to misfiring.`,
     pacifism: 
         `If you would attack an enemy, stun them twice instead. Fully heal at `
         +`the start of each floor. All boss floor exits unlock.`,
@@ -3901,9 +3904,9 @@ function boons_encountered(boons, encountered){
 }
 
 function get_boon_description(boon){
-    var max = `${boon_messages.max} ${boon.max ? boon.max : boon_messages.no_max}.`;
+    var description = `${boon.name}: ${boon.description}`;
     var prereq = boon.prereq_description; 
-    var description = boon.description;
+    var max = `${boon_messages.max} ${boon.max ? boon.max : boon_messages.no_max}.`;
     
     return `${description}\n\n${max}\n\n${prereq}`;
 }
@@ -4598,17 +4601,7 @@ function lord_of_shadow_and_flame_telegraph(location, map, self){
 }
 
 function get_nearest_altar(map, location){
-    for(var i = 1; i < Math.max(FLOOR_HEIGHT, FLOOR_WIDTH); ++i){
-        var corner_1 = location.plus(new Point(1, 1).times(i));
-        var corner_2 = location.plus(new Point(-1, -1).times(i));
-        var rectangle = point_rectangle(corner_1, corner_2);
-        for(var p of rectangle){
-            if(map.is_in_bounds(p) && map.get_tile(p).tags.has(TAGS.altar)){
-                return p;
-            }
-        }
-    }
-    return undefined;
+    return get_nearest_where(map, location, (t, p) => {return t.tags.has(TAGS.altar)});
 }
 
 function check_fireball_target(map, location){
@@ -5018,8 +5011,8 @@ function young_dragon_behavior(self, target, map){
         spaces.push(...spaces.map((p) => p.rotate(180))); // All rotations of the original are included.
         spaces = randomize_arr(spaces);
         var moved = false;
-        var preffered_distance = [4, 3, 5];
-        for(let radius of preffered_distance){
+        var prefered_distance = [4, 3, 5];
+        for(let radius of prefered_distance){
             for(let space of spaces){
                 if(moved){
                     break;
@@ -5287,13 +5280,20 @@ function blood_crescent_ai(self, target, map){
         target.difference.minus_equals(direction);
         var passed = [new Point(direction.x, 0), new Point(0, direction.y)];
         for(var p of passed){
-            if(point_equals(target.difference, p.times(-1)) || map.check_empty(self.location.minus(p))){
+            if(
+                point_equals(target.difference, p.times(-1)) || 
+                map.check_empty(self.location.minus(p)) ||
+                (GS.boons.has(boon_names.manic_presence) && chance(1, 2))
+            ){
                 map.attack(self.location.minus(p));
             }
         }
         if(i + 1 < distance){
             ahead = self.location.plus(direction);
-            if(point_equals(self.location.plus(target.difference), ahead)){
+            if(
+                point_equals(self.location.plus(target.difference), ahead) ||
+                (GS.boons.has(boon_names.manic_presence) && chance(1, 2))
+            ){
                 map.attack(ahead);
             }
         }
@@ -5917,6 +5917,12 @@ function magma_spewer_ai(self, target, map){
         // Spew Magma.
         var locations = [];
         var center = self.location.plus(target.difference);
+        if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+            var miss = get_nearest_where(map, center, (t, p) => {
+                return t.type === entity_types.enemy && !point_equals(p, self.location);
+            });
+            center = miss ? miss : center;
+        }
         for(var i = -2; i <= 2; ++i){
             for(var j = -2; j <= 2; ++j){
                 locations.push(center.plus(new Point(i, j)));
@@ -6012,7 +6018,10 @@ function noxious_toad_ai(self, target, map){
         }
         if(moved){
             self.tile.cycle = 1;
-            if(target.difference.within_radius(1)){
+            if(
+                target.difference.within_radius(1) || 
+                (GS.boons.has(boon_names.manic_presence) && chance(1, 2))
+            ){
                 // If it landed near the player, attack everything nearby.
                 attack_around(self.location, map);
             }
@@ -6063,17 +6072,28 @@ function orb_of_insanity_tile(){
     }
 }
 
-/** @type {AIFunction} AI used by shadow scouts.*/
+/** @type {AIFunction} AI used by Orbs of Insanity.*/
 function orb_of_insanity_ai(self, target, map){
     if( self.tile.range === undefined ||
         self.tile.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(target.difference.within_radius(self.tile.range)){
-        map.stun_tile(self.location.plus(target.difference));
-        self.tile.pic = self.tile.pic_arr[1];
+    var area = [
+        ...point_rectangle(self.location.plus(-2, -2), self.location.plus(2, 2)),
+        ...point_rectangle(self.location.plus(-1, -1), self.location.plus(1, 1)),
+    ];
+    var used = false;
+    self.tile.pic = self.tile.pic_arr[1];
+    for(var space of area){
+        if(point_equals(space, self.location.plus(target.difference))){
+            map.stun_tile(space);
+            used = true;
+        }
+        else if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+            used = used || map.stun_tile(space);
+        }
     }
-    else{
+    if(!used){
         self.tile.pic = self.tile.pic_arr[0];
         throw new Error(ERRORS.skip_animation);
     }
@@ -6455,7 +6475,7 @@ function ram_ai(self, target, map){
             }
         }
 
-        if(target.difference.on_axis()){
+        if(target.difference.on_axis() || (GS.boons.has(boon_names.manic_presence) && chance(1, 2))){
             // If it sees them, prepares to charge.
             self.tile.cycle = 1;
             self.tile.pic = self.tile.pic_arr[self.tile.cycle];
@@ -6645,7 +6665,10 @@ function scythe_ai(self, target, map){
         target.difference.minus_equals(direction);
         var passed = [new Point(direction.x, 0), new Point(0, direction.y)];
         for(var p of passed){
-            if(point_equals(target.difference, p.times(-1)) || map.check_empty(self.location.minus(p))){
+            if(
+                point_equals(target.difference, p.times(-1)) || map.check_empty(self.location.minus(p)) ||
+                (GS.boons.has(boon_names.manic_presence) && chance(1, 2))
+            ){
                 map.attack(self.location.minus(p));
             }
         }
@@ -7065,6 +7088,12 @@ function starcaller_ai(self, target, map){
         // Prep to shoot next turn.
         self.tile.pic = self.tile.pic_arr[1];
         self.tile.direction = self.location.plus(target.difference);
+        if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+            var miss = get_nearest_where(map, self.tile.direction, (t, p) => {
+                return t.type === entity_types.enemy && !point_equals(p, self.location);
+            });
+            self.tile.direction = miss ? miss : self.tile.direction;
+        }
         var starfall = function(map_to_use){
             if(self.tile.health === undefined || self.tile.health > 0){
                 var destination = {
@@ -7154,7 +7183,10 @@ function swaying_nettle_ai(self, target, map){
     var attacks = self.tile.cycle === 0 ? DIAGONAL_DIRECTIONS : ORTHOGONAL_DIRECTIONS;
     for(var attack of attacks){
         var target_space = self.location.plus(attack);
-        if(map.is_in_bounds(target_space) && !map.get_tile(target_space).tags.has(TAGS.nettle_immune)){
+        if(
+            (map.is_in_bounds(target_space) && !map.get_tile(target_space).tags.has(TAGS.nettle_immune)) ||
+            (GS.boons.has(boon_names.manic_presence) && chance(1, 2))
+        ){
             map.attack(target_space);
         }
     }
@@ -7242,6 +7274,18 @@ function moving_turret_d_ai(self, target, map){
     ){
         turret_fire_ai(self, target, map);
     }
+    else if(GS.boons.has(boon_names.manic_presence)){
+        var dirs = [
+            self.tile.direction.rotate(90),
+            self.tile.direction.rotate(270)
+        ]
+        for(var p of dirs){
+            if(chance(1, 2)){
+                turret_fire_ai(self, {difference: p}, map);
+            }
+        }
+    }
+
     // Try to move. Change direction if it hits something.
     if(!map.move(self.location, self.location.plus(self.tile.direction))){
         self.tile.direction.times_equals(-1);
@@ -7291,6 +7335,18 @@ function moving_turret_o_ai(self, target, map){
     ){
         turret_fire_ai(self, target, map);
     }
+    else if(GS.boons.has(boon_names.manic_presence)){
+        var dirs = [
+            self.tile.direction.rotate(90),
+            self.tile.direction.rotate(270)
+        ]
+        for(var p of dirs){
+            if(chance(1, 2)){
+                turret_fire_ai(self, {difference: p}, map);
+            }
+        }
+    }
+
     // Try to move. Change direction if it hits something.
     if(!map.move(self.location, self.location.plus(self.tile.direction))){
         self.tile.direction.times_equals(-1);
@@ -7333,6 +7389,13 @@ function turret_d_ai(self, target, map){
     if(target.difference.on_diagonal()){
         turret_fire_ai(self, target, map);
     }
+    else if(GS.boons.has(boon_names.manic_presence)){
+        for(var p of DIAGONAL_DIRECTIONS){
+            if(chance(1, 2)){
+                turret_fire_ai(self, {difference: p}, map);
+            }
+        }
+    }
     else{
         throw new Error(ERRORS.skip_animation);
     }
@@ -7366,6 +7429,13 @@ function turret_o_ai(self, target, map){
     // Turret version that shoots orthogonally.
     if(target.difference.on_axis()){
         turret_fire_ai(self, target, map);
+    }
+    else if(GS.boons.has(boon_names.manic_presence)){
+        for(var p of ORTHOGONAL_DIRECTIONS){
+            if(chance(1, 2)){
+                turret_fire_ai(self, {difference: p}, map);
+            }
+        }
     }
     else{
         throw new Error(ERRORS.skip_animation);
@@ -7414,15 +7484,27 @@ function turret_r_ai(self, target, map){
         self.tile.spin_direction === undefined){
         throw new Error(ERRORS.missing_property)
     }
+    var fired = false;
     if((target.difference.on_axis() || target.difference.on_diagonal())){
         // Shoot if player is along the line of the current direction or it's opposite.
         if(point_equals(self.tile.direction, sign(target.difference))){
             turret_fire_ai(self, target, map);
+            fired = true;
         }
         else if(point_equals(self.tile.direction.times(-1), sign(target.difference))){
-            self.tile.direction = self.tile.direction.times(-1);
-            turret_fire_ai(self, target, map);
-            self.tile.direction = self.tile.direction.times(-1);
+            turret_fire_ai(self, {difference: self.tile.direction.times(-1)}, map);
+            fired = true;
+        }
+    }
+    if(!fired && GS.boons.has(boon_names.manic_presence)){
+        var dirs = [
+            self.tile.direction,
+            self.tile.direction.times(-1)
+        ]
+        for(var p of dirs){
+            if(chance(1, 2)){
+                turret_fire_ai(self, {difference: p}, map);
+            }
         }
     }
     // Rotate 45 degrees in the correct direction.
@@ -7798,6 +7880,21 @@ function wheel_of_fire_ai(self, target, map){
             }
         }
     }
+    else if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+        var direction = sign(rand_from(ALL_DIRECTIONS));
+        var hit = false;
+        for(var space = self.location.plus(direction); !hit; space.plus_equals(direction)){
+            hit = map.attack(space);
+            if(map.check_empty(space)){
+                var fire = raging_fire_tile();
+                map.add_tile(fire, space);
+            }
+            else{
+                hit = true;
+            }
+        }
+
+    }
     else{
         var direction = get_empty_nearby(self.location, random_nearby(), map);
         if(!(direction === undefined)){
@@ -8025,6 +8122,12 @@ function altar_of_stars_on_enter(self, target, map){
     }
     var delay = (map_to_use) => {
         var destination = map_to_use.get_player_location();
+        if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+            var miss = get_nearest_where(map, destination, (t, p) => {
+                return t.type === entity_types.enemy && !point_equals(p, self.location);
+            });
+            destination = miss ? miss : destination;
+        }
         map_to_use.mark_event(destination, mark);
         map_to_use.add_event({name: event_names.starfall, behavior: fall(destination)});
     }
@@ -8095,6 +8198,12 @@ function altar_of_sunlight_on_enter(self, target, map){
         }
     } 
     var target = map.get_player_location();
+    if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+        var miss = get_nearest_where(map, target, (t, p) => {
+            return t.type === entity_types.enemy && !point_equals(p, self.location);
+        });
+        target = miss ? miss : target;
+    }
     for(var i = 0; i < 3; ++i){
         var rectangle = point_rectangle(target.plus(new Point(i, i)), target.plus(new Point(-i, -i)));
         var rectangle = rectangle.filter((p) => {
@@ -9512,6 +9621,21 @@ function point_rectangle(p1, p2){
     return rectangle;
 }
 
+function get_nearest_where(map, location, f){
+    for(var i = 1; i < Math.max(FLOOR_HEIGHT, FLOOR_WIDTH); ++i){
+        var corner_1 = location.plus(new Point(1, 1).times(i));
+        var corner_2 = location.plus(new Point(-1, -1).times(i));
+        var rectangle = point_rectangle(corner_1, corner_2);
+        for(var p of rectangle){
+            if(map.is_in_bounds(p) && f(map.get_tile(p), p)){
+                return p;
+            }
+        }
+    }
+    return undefined;
+}
+
+
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */
 function generic_tile(){
     return {
@@ -9757,6 +9881,17 @@ function node_turret_behavior(self, target, map){
     var same_y_dir = sign_dif.y === sign_dir.y;
     if(target.difference.on_axis() && (same_x_dir || same_y_dir)){
         turret_fire_ai(self, target, map);
+    }
+    else if(GS.boons.has(boon_names.manic_presence)){
+        var dirs = [
+            self.tile.direction.times(new Point(1, 0)),
+            self.tile.direction.times(new Point(0, 1))
+        ]
+        for(var p of dirs){
+            if(chance(1, 2)){
+                turret_fire_ai(self, {difference: p}, map);
+            }
+        }
     }
 }
 function node_turret_telegraph(location, map, self){
@@ -16130,11 +16265,12 @@ const BOON_LIST = [
     dazing_blows, duplicate, empty_rooms, escape_artist, expend_vitality, 
     flame_strike, flame_worship, fleeting_thoughts, fortitude, frenzy, 
     frugivore, future_sight, gruntwork, hoarder, larger_chests, 
-    limitless, pacifism, pain_reflexes, perfect_the_basics, picky_shopper, 
-    practice_makes_perfect, pressure_points, quick_healing, rebirth, repetition, 
-    retaliate, rift_touched, roar_of_challenge, safe_passage, shattered_glass, 
-    skill_trading, slime_trail, sniper, spiked_shoes, spontaneous, 
-    stable_mind, stealthy, stubborn, thick_soles, vicious_cycle
+    limitless, manic_presence, pacifism, pain_reflexes, perfect_the_basics, 
+    picky_shopper, practice_makes_perfect, pressure_points, quick_healing, rebirth, 
+    repetition, retaliate, rift_touched, roar_of_challenge, safe_passage, 
+    shattered_glass, skill_trading, slime_trail, sniper, spiked_shoes, 
+    spontaneous, stable_mind, stealthy, stubborn, thick_soles, 
+    vicious_cycle
 ];
 
 function change_max_health(amount){
@@ -16531,6 +16667,15 @@ function limitless(){
 function on_pick_limitless(){
     GS.map.get_player().max_health = undefined;
     GS.map.player_heal(new Point(0, 0), 2);
+}
+function manic_presence(){
+    return {
+        name: boon_names.manic_presence,
+        pic: `${IMG_FOLDER.boons}manic_presence.png`,
+        description: boon_descriptions.manic_presence,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
+    }
 }
 function pacifism(){
     return {
@@ -17045,7 +17190,7 @@ function manic_vandal_achievement(){
         description: achievement_description.manic_vandal,
         image: `${IMG_FOLDER.achievements}manic_vandal.png`,
         has: false,
-        boons: [],
+        boons: [manic_presence],
     }
 }
 function minimalist_achievement(){

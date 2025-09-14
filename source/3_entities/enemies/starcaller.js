@@ -42,6 +42,12 @@ function starcaller_ai(self, target, map){
         // Prep to shoot next turn.
         self.tile.pic = self.tile.pic_arr[1];
         self.tile.direction = self.location.plus(target.difference);
+        if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+            var miss = get_nearest_where(map, self.tile.direction, (t, p) => {
+                return t.type === entity_types.enemy && !point_equals(p, self.location);
+            });
+            self.tile.direction = miss ? miss : self.tile.direction;
+        }
         var starfall = function(map_to_use){
             if(self.tile.health === undefined || self.tile.health > 0){
                 var destination = {

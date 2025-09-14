@@ -4,6 +4,6 @@ function manic_vandal_achievement(){
         description: achievement_description.manic_vandal,
         image: `${IMG_FOLDER.achievements}manic_vandal.png`,
         has: false,
-        boons: [],
+        boons: [manic_presence],
     }
 }

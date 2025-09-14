@@ -34,6 +34,12 @@ function altar_of_stars_on_enter(self, target, map){
     }
     var delay = (map_to_use) => {
         var destination = map_to_use.get_player_location();
+        if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+            var miss = get_nearest_where(map, destination, (t, p) => {
+                return t.type === entity_types.enemy && !point_equals(p, self.location);
+            });
+            destination = miss ? miss : destination;
+        }
         map_to_use.mark_event(destination, mark);
         map_to_use.add_event({name: event_names.starfall, behavior: fall(destination)});
     }
