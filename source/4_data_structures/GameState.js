@@ -183,7 +183,14 @@ class GameState{
                     attack_count = 0;
                 }
                 for(var i = 0; i < attack_count; ++i){
-                    this.map.player_attack(action.change);
+                    var target = this.map.get_player_location().plus(action.change);
+                    if(
+                        i === 0 ||
+                        (this.map.is_in_bounds(target) && 
+                        this.map.get_tile(target).type !== entity_types.chest)
+                    ){
+                        this.map.player_attack(action.change);
+                    }
                 }
                 for(var i = 0; i < stun_count; ++i){
                     this.player_action(pstun(action.change.x, action.change.y));
