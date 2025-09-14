@@ -29,6 +29,21 @@ function wheel_of_fire_ai(self, target, map){
             }
         }
     }
+    else if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+        var direction = sign(rand_from(ALL_DIRECTIONS));
+        var hit = false;
+        for(var space = self.location.plus(direction); !hit; space.plus_equals(direction)){
+            hit = map.attack(space);
+            if(map.check_empty(space)){
+                var fire = raging_fire_tile();
+                map.add_tile(fire, space);
+            }
+            else{
+                hit = true;
+            }
+        }
+
+    }
     else{
         var direction = get_empty_nearby(self.location, random_nearby(), map);
         if(!(direction === undefined)){

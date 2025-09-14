@@ -17,7 +17,6 @@ function retaliate_behavior(self, target, map){
     for(var i = 0; i < spaces.length && !hit; ++i){
         if( map.is_in_bounds(spaces[i]) &&                   // Space is not edge.
             !map.check_empty(spaces[i]) &&                   // Space is not empty.
-            !map.get_tile(spaces[i]).tags.has(TAGS.boss) &&  // Space is not a boss.
             (map.get_tile(spaces[i]).health !== undefined || // Space has health or
             map.get_tile(spaces[i]).on_hit !== undefined)    // Space has on_hit
         ){
@@ -25,6 +24,6 @@ function retaliate_behavior(self, target, map){
         }
     }
     if(!hit){
-        map.attack(spaces[0]);
+        map.player_attack(spaces[0].minus(self.location));
     }
 }

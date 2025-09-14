@@ -19,6 +19,13 @@ function turret_d_ai(self, target, map){
     if(target.difference.on_diagonal()){
         turret_fire_ai(self, target, map);
     }
+    else if(GS.boons.has(boon_names.manic_presence)){
+        for(var p of DIAGONAL_DIRECTIONS){
+            if(chance(1, 2)){
+                turret_fire_ai(self, {difference: p}, map);
+            }
+        }
+    }
     else{
         throw new Error(ERRORS.skip_animation);
     }

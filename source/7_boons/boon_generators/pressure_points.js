@@ -4,6 +4,6 @@ function pressure_points(){
         pic: `${IMG_FOLDER.boons}pressure_points.png`,
         description: boon_descriptions.pressure_points,
         prereq_description: boon_prereq_descriptions.none,
-        max: 1,
+        max: 3,
     }
 }

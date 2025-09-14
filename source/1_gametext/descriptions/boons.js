@@ -27,6 +27,7 @@ const boon_names = {
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
     limitless: `Limitless`,
+    manic_presence: `Manic Presence`,
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
     perfect_the_basics: `Perfect the Basics`,
@@ -110,6 +111,8 @@ const boon_descriptions = {
     limitless: 
         `Remove your max health. Heal for 2. If you would be fully healed, heal `
         +`for 1 instead.`,
+    manic_presence: 
+        `Some types of enemies are prone to misfiring.`,
     pacifism: 
         `If you would attack an enemy, stun them twice instead. Fully heal at `
         +`the start of each floor. All boss floor exits unlock.`,
@@ -130,7 +133,7 @@ const boon_descriptions = {
     repetition: 
         `Every 3rd turn, your cards happen twice.`,
     retaliate: 
-        `When you are dealt damage, attack a nearby non boss enemy.`,
+        `When you are dealt damage, attack a nearby enemy.`,
     rift_touched: 
         `Two Darklings spawn on each non boss floor.`,
     roar_of_challenge: 
@@ -198,6 +201,8 @@ Object.freeze(boon_prereq_descriptions);
 
 const boon_messages = {
     section_header: `Boons`,
+    max: `Max:`,
+    no_max: `Unlimited`,
 
     clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
     duplicate: `Choose a card to copy:`,

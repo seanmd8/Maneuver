@@ -32,15 +32,27 @@ function turret_r_ai(self, target, map){
         self.tile.spin_direction === undefined){
         throw new Error(ERRORS.missing_property)
     }
+    var fired = false;
     if((target.difference.on_axis() || target.difference.on_diagonal())){
         // Shoot if player is along the line of the current direction or it's opposite.
         if(point_equals(self.tile.direction, sign(target.difference))){
             turret_fire_ai(self, target, map);
+            fired = true;
         }
         else if(point_equals(self.tile.direction.times(-1), sign(target.difference))){
-            self.tile.direction = self.tile.direction.times(-1);
-            turret_fire_ai(self, target, map);
-            self.tile.direction = self.tile.direction.times(-1);
+            turret_fire_ai(self, {difference: self.tile.direction.times(-1)}, map);
+            fired = true;
+        }
+    }
+    if(!fired && GS.boons.has(boon_names.manic_presence)){
+        var dirs = [
+            self.tile.direction,
+            self.tile.direction.times(-1)
+        ]
+        for(var p of dirs){
+            if(chance(1, 2)){
+                turret_fire_ai(self, {difference: p}, map);
+            }
         }
     }
     // Rotate 45 degrees in the correct direction.

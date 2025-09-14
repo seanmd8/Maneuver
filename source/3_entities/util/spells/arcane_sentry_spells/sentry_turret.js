@@ -6,6 +6,17 @@ function node_turret_behavior(self, target, map){
     if(target.difference.on_axis() && (same_x_dir || same_y_dir)){
         turret_fire_ai(self, target, map);
     }
+    else if(GS.boons.has(boon_names.manic_presence)){
+        var dirs = [
+            self.tile.direction.times(new Point(1, 0)),
+            self.tile.direction.times(new Point(0, 1))
+        ]
+        for(var p of dirs){
+            if(chance(1, 2)){
+                turret_fire_ai(self, {difference: p}, map);
+            }
+        }
+    }
 }
 function node_turret_telegraph(location, map, self){
     var x_points = get_points_in_direction(location, new Point(self.direction.x, 0), map);

@@ -9,6 +9,15 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+9/14/25
+- Added 1 new achievement.
+- Added 1 new boon.
+- Rebalanced Bitter Determination Boon: Maximum up to any number from 1.
+- Rebalanced Pressure Points Boon: Maximum up to 3 from 1.
+- Rebalanced Retaliate Boon: Can now hit bosses.
+- The journal now shows you prerequisites and maximums for boons.
+- Chests will no longer be destroyed by extra damage added by boons.
+
 9/13/25
 - Added new Journal screen to keep track of cards, boons, and tiles you encounter.
 - Ancient Card Boon has 2 more card options.

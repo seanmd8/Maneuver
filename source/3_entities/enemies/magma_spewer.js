@@ -41,6 +41,12 @@ function magma_spewer_ai(self, target, map){
         // Spew Magma.
         var locations = [];
         var center = self.location.plus(target.difference);
+        if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+            var miss = get_nearest_where(map, center, (t, p) => {
+                return t.type === entity_types.enemy && !point_equals(p, self.location);
+            });
+            center = miss ? miss : center;
+        }
         for(var i = -2; i <= 2; ++i){
             for(var j = -2; j <= 2; ++j){
                 locations.push(center.plus(new Point(i, j)));

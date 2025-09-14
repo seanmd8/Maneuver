@@ -32,6 +32,18 @@ function moving_turret_d_ai(self, target, map){
     ){
         turret_fire_ai(self, target, map);
     }
+    else if(GS.boons.has(boon_names.manic_presence)){
+        var dirs = [
+            self.tile.direction.rotate(90),
+            self.tile.direction.rotate(270)
+        ]
+        for(var p of dirs){
+            if(chance(1, 2)){
+                turret_fire_ai(self, {difference: p}, map);
+            }
+        }
+    }
+
     // Try to move. Change direction if it hits something.
     if(!map.move(self.location, self.location.plus(self.tile.direction))){
         self.tile.direction.times_equals(-1);

@@ -39,7 +39,10 @@ function noxious_toad_ai(self, target, map){
         }
         if(moved){
             self.tile.cycle = 1;
-            if(target.difference.within_radius(1)){
+            if(
+                target.difference.within_radius(1) || 
+                (GS.boons.has(boon_names.manic_presence) && chance(1, 2))
+            ){
                 // If it landed near the player, attack everything nearby.
                 attack_around(self.location, map);
             }

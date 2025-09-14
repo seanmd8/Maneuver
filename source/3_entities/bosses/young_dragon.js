@@ -48,8 +48,8 @@ function young_dragon_behavior(self, target, map){
         spaces.push(...spaces.map((p) => p.rotate(180))); // All rotations of the original are included.
         spaces = randomize_arr(spaces);
         var moved = false;
-        var preffered_distance = [4, 3, 5];
-        for(let radius of preffered_distance){
+        var prefered_distance = [4, 3, 5];
+        for(let radius of prefered_distance){
             for(let space of spaces){
                 if(moved){
                     break;

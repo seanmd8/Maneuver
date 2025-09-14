@@ -27,7 +27,10 @@ function swaying_nettle_ai(self, target, map){
     var attacks = self.tile.cycle === 0 ? DIAGONAL_DIRECTIONS : ORTHOGONAL_DIRECTIONS;
     for(var attack of attacks){
         var target_space = self.location.plus(attack);
-        if(map.is_in_bounds(target_space) && !map.get_tile(target_space).tags.has(TAGS.nettle_immune)){
+        if(
+            (map.is_in_bounds(target_space) && !map.get_tile(target_space).tags.has(TAGS.nettle_immune)) ||
+            (GS.boons.has(boon_names.manic_presence) && chance(1, 2))
+        ){
             map.attack(target_space);
         }
     }

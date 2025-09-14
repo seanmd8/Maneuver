@@ -136,17 +136,7 @@ function lord_of_shadow_and_flame_telegraph(location, map, self){
 }
 
 function get_nearest_altar(map, location){
-    for(var i = 1; i < Math.max(FLOOR_HEIGHT, FLOOR_WIDTH); ++i){
-        var corner_1 = location.plus(new Point(1, 1).times(i));
-        var corner_2 = location.plus(new Point(-1, -1).times(i));
-        var rectangle = point_rectangle(corner_1, corner_2);
-        for(var p of rectangle){
-            if(map.is_in_bounds(p) && map.get_tile(p).tags.has(TAGS.altar)){
-                return p;
-            }
-        }
-    }
-    return undefined;
+    return get_nearest_where(map, location, (t, p) => {return t.tags.has(TAGS.altar)});
 }
 
 function check_fireball_target(map, location){

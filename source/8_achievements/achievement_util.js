@@ -17,6 +17,7 @@ function get_achievements(){
         clumsy_achievement(),
         collector_achievement(),
         jack_of_all_trades_achievement(),
+        manic_vandal_achievement(),
         minimalist_achievement(),
         monster_hunter_achievement(),
         non_violent_achievement(),
