@@ -16826,7 +16826,7 @@ function retaliate_behavior(self, target, map){
         }
     }
     if(!hit){
-        map.attack(spaces[0]);
+        map.player_attack(spaces[0].minus(self.location));
     }
 }
 function rift_touched(){
