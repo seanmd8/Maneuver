@@ -67,7 +67,7 @@ class SaveData{
     }
     add_boon(name){
         this.boons.add(name);
-        this.boons.get(name).pick();
+        this.boons.get_node(name).pick();
         this.save();
     }
     add_tile(name){

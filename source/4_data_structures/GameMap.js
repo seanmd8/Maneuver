@@ -608,7 +608,7 @@ class GameMap{
             return hit;
         }
         catch (error){
-            if(error.message !== `game over`){
+            if(error.message !== ERRORS.game_over){
                 throw error;
             }
             throw new Error(ERRORS.game_over, {cause: new Error(special_tile_names.player)});

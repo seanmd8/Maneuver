@@ -8890,7 +8890,7 @@ function chest_on_enter(self, target, map){
                 leave_chest(go_back);
             }
             catch(error){
-                if(error.message = ERRORS.game_over){
+                if(error.message === ERRORS.game_over){
                     GS.refresh_boon_display();
                     leave_chest(true);
                     error = new Error(ERRORS.game_over, {cause: new Error(name)});
@@ -11611,7 +11611,7 @@ class GameMap{
             return hit;
         }
         catch (error){
-            if(error.message !== `game over`){
+            if(error.message !== ERRORS.game_over){
                 throw error;
             }
             throw new Error(ERRORS.game_over, {cause: new Error(special_tile_names.player)});
@@ -12913,7 +12913,7 @@ class SaveData{
     }
     add_boon(name){
         this.boons.add(name);
-        this.boons.get(name).pick();
+        this.boons.get_node(name).pick();
         this.save();
     }
     add_tile(name){
