@@ -13019,34 +13019,98 @@ class ScreenTracker{
 const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.achievements, UIIDS.journal, UIIDS.controls, ]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.full_deck, UIIDS.initiative, UIIDS.deck_order]);
-class SearchTreeNode{
+class BoonTreeNode{
     data;
     left;
     right;
     constructor(data){
-        this.data = data;
+        switch(typeof data){
+            case `string`:
+                this.data = {
+                    name: data,
+                    picked: 0
+                }
+                break;
+            case `object`:
+                if(data.name === undefined){
+                    throw Error(ERRORS.missing_property);
+                }
+                data.picked = data.picked ? data.picked : 0;
+                this.data = data;
+                break;
+            default:
+                throw Error(ERRORS.invalid_type);
+        }
     }
     compare(node){
         var other = node instanceof SearchTreeNode ? node.data : node;
-        if(this.data < other){
+        other = typeof other === `object` ? other.name : other;
+        if(this.data.name < other){
             return -1;
         }
-        if(this.data > other){
+        if(this.data.name > other){
             return 1;
         }
         return 0;
     }
+    pick(){
+        ++this.data.picked;
+    }
 }
-
+class CardTreeNode{
+    data;
+    left;
+    right;
+    constructor(data){
+        switch(typeof data){
+            case `string`:
+                this.data = {
+                    name: data,
+                    added: 0,
+                    killed_by: 0,
+                }
+                break;
+            case `object`:
+                if(data.name === undefined){
+                    throw Error(ERRORS.missing_property);
+                }
+                data.added = data.added ? data.added : 0;
+                data.killed_by = data.killed_by ? data.killed_by : 0;
+                this.data = data;
+                break;
+            default:
+                throw Error(ERRORS.invalid_type);
+        }
+    }
+    compare(node){
+        var other = node instanceof SearchTreeNode ? node.data : node;
+        other = typeof other === `object` ? other.name : other;
+        if(this.data.name < other){
+            return -1;
+        }
+        if(this.data.name > other){
+            return 1;
+        }
+        return 0;
+    }
+    add(){
+        ++this.data.added;
+    }
+    remove(){
+        ++this.data.killed_by;
+    }
+}
 class SearchTree{
     // Singleton BST that can convert to and from a sorted list.
     #root
-    constructor(list = []){
+    #node
+    constructor(list = [], node = SearchTreeNode){
         this.#root = undefined;
+        this.#node = node;
         this.add_all(list);
     }
     add(str){
-        var to_add = new SearchTreeNode(str);
+        var to_add = new this.#node(str);
         if(this.#root === undefined){
             this.#root = to_add;
             return true;
@@ -13117,6 +13181,84 @@ class SearchTree{
             this.add_all(list.slice(0, half));
             this.add_all(list.slice(half + 1, list.length));
         }
+    }
+    get_node(str){
+        var current = this.#root;
+        while(current !== undefined){
+            switch(current.compare(str)){
+                case -1:
+                    current = current.left;
+                    break;
+                case 0:
+                    return current;
+                case 1:
+                    current = current.right;
+                    break;
+            }
+        }
+        return undefined;
+    }
+}
+
+class SearchTreeNode{
+    data;
+    left;
+    right;
+    constructor(data){
+        this.data = data;
+    }
+    compare(node){
+        var other = node instanceof SearchTreeNode ? node.data : node;
+        if(this.data < other){
+            return -1;
+        }
+        if(this.data > other){
+            return 1;
+        }
+        return 0;
+    }
+}
+class TileTreeNode{
+    data;
+    left;
+    right;
+    constructor(data){
+        switch(typeof data){
+            case `string`:
+                this.data = {
+                    name: data,
+                    killed: 0,
+                    killed_by: 0,
+                }
+                break;
+            case `object`:
+                if(data.name === undefined){
+                    throw Error(ERRORS.missing_property);
+                }
+                data.killed = data.killed ? data.killed : 0;
+                data.killed_by = data.killed_by ? data.killed_by : 0;
+                this.data = data;
+                break;
+            default:
+                throw Error(ERRORS.invalid_type);
+        }
+    }
+    compare(node){
+        var other = node instanceof SearchTreeNode ? node.data : node;
+        other = typeof other === `object` ? other.name : other;
+        if(this.data.name < other){
+            return -1;
+        }
+        if(this.data.name > other){
+            return 1;
+        }
+        return 0;
+    }
+    kill(){
+        ++this.data.killed;
+    }
+    die_to(){
+        ++this.data.killed_by;
     }
 }
 class Shop{
