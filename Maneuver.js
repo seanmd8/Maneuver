@@ -431,7 +431,7 @@ function point_equals(p1, p2){
 // Initialization settings used for testing.
 function init_settings(){
     const init = {
-        enemies: undefined,
+        enemies: [turret_r_tile],
         spawnpoints: undefined,
         chests: undefined,
         cards: undefined,
@@ -7470,27 +7470,29 @@ function turret_o_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function turret_r_tile(){
+    var pic_arr = [
+        `${IMG_FOLDER.tiles}turret_r_N_S_counterclockwise.png`,
+        `${IMG_FOLDER.tiles}turret_r_NW_SE_counterclockwise.png`,
+        `${IMG_FOLDER.tiles}turret_r_N_S.png`, 
+        `${IMG_FOLDER.tiles}turret_r_NW_SE.png`
+    ];
     var tile = {
         type: entity_types.enemy,
         name: enemy_names.turret_r,
-        pic: ``,
+        pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.turret_r,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: turret_r_ai,
         telegraph: turret_r_telegraph,
-        pic_arr: [
-            `${IMG_FOLDER.tiles}turret_r_N_S_counterclockwise.png`,
-            `${IMG_FOLDER.tiles}turret_r_NW_SE_counterclockwise.png`,
-            `${IMG_FOLDER.tiles}turret_r_N_S.png`, 
-            `${IMG_FOLDER.tiles}turret_r_NW_SE.png`
-        ],
+        pic_arr,
         rotate: 0,
         direction: random_nearby()[0],
         spin_direction: random_sign()
     }
-    tile.pic = tile.pic_arr[1 + tile.spin_direction + set_rotation(tile)];
+    tile.pic = pic_arr[1 + tile.spin_direction + set_rotation(tile)];
     return tile;
 }
 
