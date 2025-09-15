@@ -203,6 +203,7 @@ const boon_messages = {
     section_header: `Boons`,
     max: `Max:`,
     no_max: `Unlimited`,
+    number_picked: `Times Picked:`,
 
     clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
     duplicate: `Choose a card to copy:`,

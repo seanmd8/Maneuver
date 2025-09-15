@@ -897,6 +897,7 @@ body>div{
     border-width: 4px;
     white-space: normal;
     width: 450px;
+    height: 180px;
     overflow-x: auto;
     font-weight: 400;
 }

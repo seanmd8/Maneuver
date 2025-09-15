@@ -28,10 +28,10 @@ class SaveData{
         this.controls.set(data.controls);
         this.achievements = new AchievementList();
         this.achievements.set(data.achievements)
-        this.cards = new SearchTree(data.cards);
-        this.boons = new SearchTree(data.boons);
-        this.tiles = new SearchTree(data.tiles);
-        this.areas = new SearchTree(data.areas);
+        this.cards = new SearchTree(data.cards, CardTreeNode);
+        this.boons = new SearchTree(data.boons, BoonTreeNode);
+        this.tiles = new SearchTree(data.tiles, TileTreeNode);
+        this.areas = new SearchTree(data.areas, AreaTreeNode);
     }
     save(){
         var data = {
@@ -66,10 +66,9 @@ class SaveData{
         }
     }
     add_boon(name){
-        var added = this.boons.add(name);
-        if(added){
-            this.save();
-        }
+        this.boons.add(name);
+        this.boons.get(name).pick();
+        this.save();
     }
     add_tile(name){
         var added = this.tiles.add(name);

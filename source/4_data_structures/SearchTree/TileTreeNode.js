@@ -24,7 +24,7 @@ class TileTreeNode{
         }
     }
     compare(node){
-        var other = node instanceof SearchTreeNode ? node.data : node;
+        var other = node instanceof TileTreeNode ? node.data : node;
         other = typeof other === `object` ? other.name : other;
         if(this.data.name < other){
             return -1;

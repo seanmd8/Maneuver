@@ -862,6 +862,7 @@ const boon_messages = {
     section_header: `Boons`,
     max: `Max:`,
     no_max: `Unlimited`,
+    number_picked: `Times Picked:`,
 
     clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
     duplicate: `Choose a card to copy:`,
@@ -3909,8 +3910,13 @@ function get_boon_description(boon){
     var description = `${boon.name}: ${boon.description}`;
     var prereq = boon.prereq_description; 
     var max = `${boon_messages.max} ${boon.max ? boon.max : boon_messages.no_max}.`;
+    var picked = ``;
+    var node = GS.data.boons.get_node(boon.name);
+    if(node !== undefined){
+        picked = `${boon_messages.number_picked}: ${node.data.picked}.`
+    }
     
-    return `${description}\n\n${max}\n\n${prereq}`;
+    return `${description}\n\n${max}\n\n${prereq}\n\n${picked}`;
 }
 function update_journal_cards(){
     display.remove_children(UIIDS.journal_cards);
@@ -12868,10 +12874,10 @@ class SaveData{
         this.controls.set(data.controls);
         this.achievements = new AchievementList();
         this.achievements.set(data.achievements)
-        this.cards = new SearchTree(data.cards);
-        this.boons = new SearchTree(data.boons);
-        this.tiles = new SearchTree(data.tiles);
-        this.areas = new SearchTree(data.areas);
+        this.cards = new SearchTree(data.cards, CardTreeNode);
+        this.boons = new SearchTree(data.boons, BoonTreeNode);
+        this.tiles = new SearchTree(data.tiles, TileTreeNode);
+        this.areas = new SearchTree(data.areas, AreaTreeNode);
     }
     save(){
         var data = {
@@ -12906,10 +12912,9 @@ class SaveData{
         }
     }
     add_boon(name){
-        var added = this.boons.add(name);
-        if(added){
-            this.save();
-        }
+        this.boons.add(name);
+        this.boons.get(name).pick();
+        this.save();
     }
     add_tile(name){
         var added = this.tiles.add(name);
@@ -13043,7 +13048,7 @@ class AreaTreeNode{
         }
     }
     compare(node){
-        var other = node instanceof SearchTreeNode ? node.data : node;
+        var other = node instanceof AreaTreeNode ? node.data : node;
         other = typeof other === `object` ? other.name : other;
         if(this.data.name < other){
             return -1;
@@ -13081,7 +13086,7 @@ class BoonTreeNode{
         }
     }
     compare(node){
-        var other = node instanceof SearchTreeNode ? node.data : node;
+        var other = node instanceof BoonTreeNode ? node.data : node;
         other = typeof other === `object` ? other.name : other;
         if(this.data.name < other){
             return -1;
@@ -13121,7 +13126,7 @@ class CardTreeNode{
         }
     }
     compare(node){
-        var other = node instanceof SearchTreeNode ? node.data : node;
+        var other = node instanceof CardTreeNode ? node.data : node;
         other = typeof other === `object` ? other.name : other;
         if(this.data.name < other){
             return -1;
@@ -13282,7 +13287,7 @@ class TileTreeNode{
         }
     }
     compare(node){
-        var other = node instanceof SearchTreeNode ? node.data : node;
+        var other = node instanceof TileTreeNode ? node.data : node;
         other = typeof other === `object` ? other.name : other;
         if(this.data.name < other){
             return -1;
