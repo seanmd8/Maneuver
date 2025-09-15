@@ -5545,6 +5545,7 @@ function claustropede_ai(self, target, map){
         for(var i = 0; i < 2; ++i){
             map.attack(self.location);
             var copy = copy_fun();
+            stun(copy);
             map.spawn_safely(copy, SAFE_SPAWN_ATTEMPTS, true);
         }
     }
