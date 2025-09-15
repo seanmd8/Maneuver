@@ -551,31 +551,29 @@ const TAGS = {
 Object.freeze(TAGS);
 /** @returns {MoveDeck} Returns a normal starting deck.*/
 function make_starting_deck(){
-    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
-
-    deck.add(basic_orthogonal());
-    deck.add(basic_orthogonal());
-    deck.add(basic_diagonal());
-    deck.add(basic_diagonal());
-    deck.add(basic_slice());
-    deck.add(basic_slice());
-    deck.add(short_charge_orthogonal());
-    deck.add(jump());
-
+    var cards = [
+        basic_orthogonal,
+        basic_orthogonal,
+        basic_diagonal,
+        basic_diagonal,
+        basic_slice,
+        basic_slice,
+        short_charge_orthogonal,
+        jump,
+    ]
+    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE, cards);
+    
     deck.deal();
     return deck;
 }
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(test_cards){
-    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
-    for(var card of test_cards){
-        deck.add(card());
-    }
     var size = test_cards.length;
     for(var i = 0; i < Math.max(4 - size, 1); ++i){
-        deck.add(basic_orthogonal());
+        test_cards.push(basic_orthogonal);
     }
-    deck.add(basic_slice());
+    test_cards.push(basic_slice);
+    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE, test_cards);
     deck.deal();
     return deck;
 }
@@ -860,9 +858,9 @@ Object.freeze(boon_prereq_descriptions);
 
 const boon_messages = {
     section_header: `Boons`,
-    max: `Max:`,
+    max: `Max`,
     no_max: `Unlimited`,
-    number_picked: `Times Picked:`,
+    number_picked: `Times Picked`,
 
     clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
     duplicate: `Choose a card to copy:`,
@@ -1078,6 +1076,8 @@ const move_types = {
     
     locked: `This card has not been unlocked yet.`,
     not_found: `This card has never been added to your deck.`,
+    number_picked: `Times Added`,
+    number_removed: `Times Removed`,
 }
 Object.freeze(move_types);
 const boss_names = {
@@ -3909,7 +3909,7 @@ function boons_encountered(boons, encountered){
 function get_boon_description(boon){
     var description = `${boon.name}: ${boon.description}`;
     var prereq = boon.prereq_description; 
-    var max = `${boon_messages.max} ${boon.max ? boon.max : boon_messages.no_max}.`;
+    var max = `${boon_messages.max}: ${boon.max ? boon.max : boon_messages.no_max}.`;
     var picked = ``;
     var node = GS.data.boons.get_node(boon.name);
     if(node !== undefined){
@@ -3966,7 +3966,16 @@ function cards_encountered(cards, encountered){
         }
         if(encountered.has(card.name)){
             card.on_click = () => {
-                display.display_message(UIIDS.journal_card_info, explain_card(card));
+                var explanation = explain_card(card);
+                var picked = ``;
+                var removed = ``;
+                var node = GS.data.cards.get_node(card.name);
+                if(node !== undefined){
+                    picked = `${move_types.number_picked}: ${node.data.picked}.`
+                    removed = `${move_types.number_removed}: ${node.data.removed}.`
+                }
+                var message = `${explanation}\n\n${picked}\n${removed}`
+                display.display_message(UIIDS.journal_card_info, message);
             }
             return card;
         }
@@ -12566,7 +12575,7 @@ class MoveDeck{
     #id_count;
     #hand_size;
     #min_deck_size;
-    constructor(hand_size, minimum){
+    constructor(hand_size, minimum, cards = []){
         this.#decklist = [];
         this.#library = [];
         this.#hand = [];
@@ -12574,6 +12583,9 @@ class MoveDeck{
         this.#id_count = 0;
         this.#hand_size = hand_size;
         this.#min_deck_size = minimum;
+        for(var card of cards){
+            this.#add_card(card());
+        }
     }
     /**
      * Resets the deck to the decklist then deals a new hand.
@@ -12658,6 +12670,12 @@ class MoveDeck{
      * @param {Card} new_card Card to add.
      */
     add(new_card){
+        this.#add_card(new_card);
+        this.#check_three_kind_achievement(new_card.name);
+        this.#check_jack_of_all_trades_achievement();
+        GS.data.pick_card(new_card.name);
+    }
+    #add_card(new_card){
         new_card.id = this.#id_count;
         this.#id_count++;
         this.#decklist.push(new_card);
@@ -12680,9 +12698,8 @@ class MoveDeck{
      * @param {Card} new_card Card to add.
      */
     add_temp(new_card){
-        new_card.id = this.#id_count;
+        new_card.id = this.#id_count++;
         new_card.temp = true;
-        this.#id_count++;
         this.#library.push(new_card);
         this.#library = randomize_arr(this.#library);
         GS.data.add_card(new_card.name);
@@ -12778,6 +12795,7 @@ class MoveDeck{
                 if(card.basic === true){
                     this.#check_remaining_basics_achievement();
                 }
+                GS.data.remove_card(card.name);
                 return true;
             }
         }
@@ -12910,6 +12928,14 @@ class SaveData{
         if(added){
             this.save();
         }
+    }
+    pick_card(name){
+        this.cards.get_node(name).pick();
+        this.save();
+    }
+    remove_card(name){
+        this.cards.get_node(name).remove();
+        this.save();
     }
     add_boon(name){
         this.boons.add(name);
@@ -13109,16 +13135,16 @@ class CardTreeNode{
             case `string`:
                 this.data = {
                     name: data,
-                    added: 0,
-                    killed_by: 0,
+                    picked: 0,
+                    removed: 0,
                 }
                 break;
             case `object`:
                 if(data.name === undefined){
                     throw Error(ERRORS.missing_property);
                 }
-                data.added = data.added ? data.added : 0;
-                data.killed_by = data.killed_by ? data.killed_by : 0;
+                data.picked = data.picked ? data.picked : 0;
+                data.removed = data.removed ? data.removed : 0;
                 this.data = data;
                 break;
             default:
@@ -13136,11 +13162,11 @@ class CardTreeNode{
         }
         return 0;
     }
-    add(){
-        ++this.data.added;
+    pick(){
+        ++this.data.picked;
     }
     remove(){
-        ++this.data.killed_by;
+        ++this.data.removed;
     }
 }
 class SearchTree{

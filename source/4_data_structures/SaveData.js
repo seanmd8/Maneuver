@@ -65,6 +65,14 @@ class SaveData{
             this.save();
         }
     }
+    pick_card(name){
+        this.cards.get_node(name).pick();
+        this.save();
+    }
+    remove_card(name){
+        this.cards.get_node(name).remove();
+        this.save();
+    }
     add_boon(name){
         this.boons.add(name);
         this.boons.get_node(name).pick();

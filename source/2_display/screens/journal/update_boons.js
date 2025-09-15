@@ -28,7 +28,7 @@ function boons_encountered(boons, encountered){
 function get_boon_description(boon){
     var description = `${boon.name}: ${boon.description}`;
     var prereq = boon.prereq_description; 
-    var max = `${boon_messages.max} ${boon.max ? boon.max : boon_messages.no_max}.`;
+    var max = `${boon_messages.max}: ${boon.max ? boon.max : boon_messages.no_max}.`;
     var picked = ``;
     var node = GS.data.boons.get_node(boon.name);
     if(node !== undefined){

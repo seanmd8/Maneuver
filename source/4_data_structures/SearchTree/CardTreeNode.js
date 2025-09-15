@@ -7,16 +7,16 @@ class CardTreeNode{
             case `string`:
                 this.data = {
                     name: data,
-                    added: 0,
-                    killed_by: 0,
+                    picked: 0,
+                    removed: 0,
                 }
                 break;
             case `object`:
                 if(data.name === undefined){
                     throw Error(ERRORS.missing_property);
                 }
-                data.added = data.added ? data.added : 0;
-                data.killed_by = data.killed_by ? data.killed_by : 0;
+                data.picked = data.picked ? data.picked : 0;
+                data.removed = data.removed ? data.removed : 0;
                 this.data = data;
                 break;
             default:
@@ -34,10 +34,10 @@ class CardTreeNode{
         }
         return 0;
     }
-    add(){
-        ++this.data.added;
+    pick(){
+        ++this.data.picked;
     }
     remove(){
-        ++this.data.killed_by;
+        ++this.data.removed;
     }
 }

@@ -14,7 +14,7 @@ class MoveDeck{
     #id_count;
     #hand_size;
     #min_deck_size;
-    constructor(hand_size, minimum){
+    constructor(hand_size, minimum, cards = []){
         this.#decklist = [];
         this.#library = [];
         this.#hand = [];
@@ -22,6 +22,9 @@ class MoveDeck{
         this.#id_count = 0;
         this.#hand_size = hand_size;
         this.#min_deck_size = minimum;
+        for(var card of cards){
+            this.#add_card(card());
+        }
     }
     /**
      * Resets the deck to the decklist then deals a new hand.
@@ -106,6 +109,12 @@ class MoveDeck{
      * @param {Card} new_card Card to add.
      */
     add(new_card){
+        this.#add_card(new_card);
+        this.#check_three_kind_achievement(new_card.name);
+        this.#check_jack_of_all_trades_achievement();
+        GS.data.pick_card(new_card.name);
+    }
+    #add_card(new_card){
         new_card.id = this.#id_count;
         this.#id_count++;
         this.#decklist.push(new_card);
@@ -128,9 +137,8 @@ class MoveDeck{
      * @param {Card} new_card Card to add.
      */
     add_temp(new_card){
-        new_card.id = this.#id_count;
+        new_card.id = this.#id_count++;
         new_card.temp = true;
-        this.#id_count++;
         this.#library.push(new_card);
         this.#library = randomize_arr(this.#library);
         GS.data.add_card(new_card.name);
@@ -226,6 +234,7 @@ class MoveDeck{
                 if(card.basic === true){
                     this.#check_remaining_basics_achievement();
                 }
+                GS.data.remove_card(card.name);
                 return true;
             }
         }
