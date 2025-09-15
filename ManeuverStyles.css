@@ -97,6 +97,7 @@
 .achievements-style {
     background-color: var(--achievements-background-color);
     min-height: 100%;
+    min-width: 100%;
 }
 
 .achievement-section {
@@ -138,11 +139,14 @@
 }
 
 html {
-    height: 100%
+    min-height: 100%;
+    min-width: 100%;
 }
 body{
     margin: 0px;
-    height: 100%;
+    min-height: 100%;
+    min-width: 100%;
+    width: fit-content;
     font-family: ArrowFont;
 }
 body>div{
@@ -253,6 +257,7 @@ body>div{
 .control-style{
     background-color: var(--controls-background-color);
     min-height: 100%;
+    min-width: 100%;
 }
 
 .control-section {
@@ -356,6 +361,7 @@ body>div{
 .game-style{
     background-color: var(--game-background-color);
     min-height: 100%;
+    min-width: 100%;
 }
 
 .shop-confirm {
@@ -765,6 +771,7 @@ body>div{
 .guide-style {
     background-color: var(--guidebook-background-color);
     min-height: 100%;
+    min-width: 100%;
 }
 
 .guide-box-style{
@@ -789,6 +796,7 @@ body>div{
     margin-left: 0px;
     border-color: chocolate;
     border-bottom-style: solid;
+    min-width: 100%;
 }
 .main-header>*{
     display: inline-block;
@@ -814,6 +822,7 @@ body>div{
     width: 840px;
     background-image: linear-gradient(white, black);
     min-height: 100%;
+    min-width: 100%;
     padding-bottom: 0px;
 }
 
@@ -904,6 +913,7 @@ body>div{
 .journal-style{
     background-color: var(--journal-background-color);
     min-height: 100%;
+    min-width: 100%;
     padding-bottom: 0px;
 }
 

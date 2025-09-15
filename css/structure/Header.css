@@ -6,6 +6,7 @@
     margin-left: 0px;
     border-color: chocolate;
     border-bottom-style: solid;
+    min-width: 100%;
 }
 .main-header>*{
     display: inline-block;

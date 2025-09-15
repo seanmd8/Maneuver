@@ -36,7 +36,7 @@ const move_types = {
     move_until: `Move continuously`,
     attack_until: `Attack continuously`,
     heal: `Heal`,
-    you: `you`,
+    you: `You`,
     nothing: `Do nothing`,
     
     per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
