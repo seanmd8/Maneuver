@@ -7,7 +7,8 @@ class AreaTreeNode{
             case `string`:
                 this.data = {
                     name: data,
-                    visited: 0
+                    visited: 0,
+                    cleared: 0,
                 }
                 break;
             case `object`:
@@ -15,6 +16,7 @@ class AreaTreeNode{
                     throw Error(ERRORS.missing_property);
                 }
                 data.visited = data.visited ? data.visited : 0;
+                data.cleared = data.cleared ? data.cleared : 0;
                 this.data = data;
                 break;
             default:
@@ -34,5 +36,8 @@ class AreaTreeNode{
     }
     visit(){
         ++this.data.visited;
+    }
+    clear(){
+        ++this.data.cleared;
     }
 }
