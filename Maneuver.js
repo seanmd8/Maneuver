@@ -13019,6 +13019,44 @@ class ScreenTracker{
 const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.achievements, UIIDS.journal, UIIDS.controls, ]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.full_deck, UIIDS.initiative, UIIDS.deck_order]);
+class AreaTreeNode{
+    data;
+    left;
+    right;
+    constructor(data){
+        switch(typeof data){
+            case `string`:
+                this.data = {
+                    name: data,
+                    visited: 0
+                }
+                break;
+            case `object`:
+                if(data.name === undefined){
+                    throw Error(ERRORS.missing_property);
+                }
+                data.visited = data.visited ? data.visited : 0;
+                this.data = data;
+                break;
+            default:
+                throw Error(ERRORS.invalid_type);
+        }
+    }
+    compare(node){
+        var other = node instanceof SearchTreeNode ? node.data : node;
+        other = typeof other === `object` ? other.name : other;
+        if(this.data.name < other){
+            return -1;
+        }
+        if(this.data.name > other){
+            return 1;
+        }
+        return 0;
+    }
+    visit(){
+        ++this.data.visited;
+    }
+}
 class BoonTreeNode{
     data;
     left;
