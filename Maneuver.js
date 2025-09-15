@@ -3730,6 +3730,7 @@ function court_display_info(){
             shatter_sphere_d_tile, 
             shatter_sphere_o_tile,
             raging_fire_tile,
+            carrion_flies_tile
         ],
     }
 }
@@ -3852,6 +3853,7 @@ function show_area(info, depth, force_visited = false){
         if(GS.data.tiles.has(t.name)){
             return {
                 name: t.name,
+                true_name: t.name,
                 pic: t.display_pic ? t.display_pic : t.pic,
                 background: [info.background],
                 description: t.description,
@@ -3866,10 +3868,10 @@ function show_area(info, depth, force_visited = false){
     };
     info.boss = check_encountered(info.boss);
     info.tiles = info.tiles.map(check_encountered).sort((a, b) => {
-        if(a.name < b.name){
+        if(a.true_name < b.true_name){
             return -1;
         }
-        if(a.name > b.name){
+        if(a.true_name > b.true_name){
             return 1;
         }
         return 0;
