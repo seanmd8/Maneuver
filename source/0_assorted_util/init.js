@@ -1,7 +1,7 @@
 // Initialization settings used for testing.
 function init_settings(){
     const init = {
-        enemies: [turret_r_tile],
+        enemies: undefined,
         spawnpoints: undefined,
         chests: undefined,
         cards: undefined,
