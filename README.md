@@ -9,6 +9,16 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+9/17/25
+- Cards in journal keep track of times picked and removed.
+- Boons in journal keep track of times picked.
+- Areas in journal keep track of times visited and cleared.
+- Rebalanced Claustropede: Is stunned when dividing.
+- Rebalanced Fruit Trees: changed spawn rates.
+- Rebalanced Flame Strike: Upped chance from 1/3 to 1/2.
+- Rebalanced Lich: Updated summon list.
+- Fixed bug with Bitter Determination boon not working in multiples.
+
 9/14/25
 - Added 1 new achievement.
 - Added 1 new boon.
