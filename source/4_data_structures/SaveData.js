@@ -90,6 +90,14 @@ class SaveData{
             this.save();
         }
     }
+    visit_area(name){
+        var area = this.areas.get_node(name);
+        if(area !== undefined){
+            area.visit();
+            console.log(`${area.data.name}: ${area.data.visited}`);
+            this.save();
+        }
+    }
 
     // Static functions
     static load_file_function(save_name){

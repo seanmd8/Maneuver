@@ -731,11 +731,18 @@ class GameMap{
             this.#area = rand_from(next_list);
             floor_description += `\n${gameplay_text.new_area}${this.#area.name}.`;
             GS.data.add_area(this.#area.name);
+            if(this.#floor_num > 1){
+                GS.data.visit_area(this.#area.name);
+            }
             for(var list of this.#grid){
                 for(var point of list){
                     point.floor = this.#area.background;
                 }
             }
+        }
+        if(this.#floor_num === 2){
+            // Visit area 1.
+            GS.data.visit_area(this.#area.name);
         }
         if(this.#floor_num % area_size === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
