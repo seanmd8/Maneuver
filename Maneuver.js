@@ -745,7 +745,7 @@ const boon_descriptions = {
     expend_vitality: 
         `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
     flame_strike: 
-        `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`,
+        `Attacking an adjacent empty space has a 1/2 chance of shooting a fireball`,
     flame_worship:
         `An Altar of Scouring spawns on each non boss floor`,
     fleeting_thoughts: 
@@ -11599,7 +11599,7 @@ class GameMap{
         var current_kills = this.stats.get_stats().kills;
         try{
             if(
-                chance(GS.boons.has(boon_names.flame_strike), 3) && 
+                chance(GS.boons.has(boon_names.flame_strike), 2) && 
                 direction.within_radius(1) && !direction.is_origin() &&
                 this.check_empty(pos)
             ){
@@ -16787,7 +16787,7 @@ function flame_strike(){
         pic: `${IMG_FOLDER.boons}flame_strike.png`,
         description: boon_descriptions.flame_strike,
         prereq_description: boon_prereq_descriptions.none,
-        max: 3,
+        max: 2,
     }
 }
 function flame_worship(){

@@ -585,7 +585,7 @@ class GameMap{
         var current_kills = this.stats.get_stats().kills;
         try{
             if(
-                chance(GS.boons.has(boon_names.flame_strike), 3) && 
+                chance(GS.boons.has(boon_names.flame_strike), 2) && 
                 direction.within_radius(1) && !direction.is_origin() &&
                 this.check_empty(pos)
             ){
