@@ -828,6 +828,9 @@ const DisplayHTML = {
         }
         var header = document.createElement(`div`);
         header.classList.add(`journal-area-box-header`);
+        if(info.visit_count === undefined && info.clear_count === undefined){
+            header.classList.add(`centered`);
+        }
         if(info.visit_count !== undefined){
             header.append(count_fun(
                 `${IMG_FOLDER.tiles}stairs.png`, 
