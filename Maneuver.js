@@ -4369,12 +4369,12 @@ function lich_tile(){
     ];
     var summons = [
         shadow_scout_tile,
-        scythe_tile,
         shadow_knight_tile,
         ram_tile,
+        rat_tile,
         clay_golem_tile,
         vampire_tile,
-        medium_porcuslime_tile,
+        maw_tile,
         pheonix_tile,
         darkling_tile,
     ];
