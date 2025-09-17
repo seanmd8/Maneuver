@@ -36,7 +36,7 @@ const move_types = {
     move_until: `Move continuously`,
     attack_until: `Attack continuously`,
     heal: `Heal`,
-    you: `you`,
+    you: `You`,
     nothing: `Do nothing`,
     
     per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
@@ -45,5 +45,7 @@ const move_types = {
     
     locked: `This card has not been unlocked yet.`,
     not_found: `This card has never been added to your deck.`,
+    number_picked: `Times Added`,
+    number_removed: `Times Removed`,
 }
 Object.freeze(move_types);

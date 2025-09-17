@@ -88,7 +88,7 @@ const boon_descriptions = {
     expend_vitality: 
         `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
     flame_strike: 
-        `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`,
+        `Attacking an adjacent empty space has a 1/2 chance of shooting a fireball`,
     flame_worship:
         `An Altar of Scouring spawns on each non boss floor`,
     fleeting_thoughts: 
@@ -201,8 +201,9 @@ Object.freeze(boon_prereq_descriptions);
 
 const boon_messages = {
     section_header: `Boons`,
-    max: `Max:`,
+    max: `Max`,
     no_max: `Unlimited`,
+    number_picked: `Times Picked`,
 
     clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
     duplicate: `Choose a card to copy:`,

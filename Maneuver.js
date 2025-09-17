@@ -551,31 +551,29 @@ const TAGS = {
 Object.freeze(TAGS);
 /** @returns {MoveDeck} Returns a normal starting deck.*/
 function make_starting_deck(){
-    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
-
-    deck.add(basic_orthogonal());
-    deck.add(basic_orthogonal());
-    deck.add(basic_diagonal());
-    deck.add(basic_diagonal());
-    deck.add(basic_slice());
-    deck.add(basic_slice());
-    deck.add(short_charge_orthogonal());
-    deck.add(jump());
-
+    var cards = [
+        basic_orthogonal,
+        basic_orthogonal,
+        basic_diagonal,
+        basic_diagonal,
+        basic_slice,
+        basic_slice,
+        short_charge_orthogonal,
+        jump,
+    ]
+    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE, cards);
+    
     deck.deal();
     return deck;
 }
 /** @returns {MoveDeck} Returns a custom deck for testing.*/
 function make_test_deck(test_cards){
-    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE);
-    for(var card of test_cards){
-        deck.add(card());
-    }
     var size = test_cards.length;
     for(var i = 0; i < Math.max(4 - size, 1); ++i){
-        deck.add(basic_orthogonal());
+        test_cards.push(basic_orthogonal);
     }
-    deck.add(basic_slice());
+    test_cards.push(basic_slice);
+    var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE, test_cards);
     deck.deal();
     return deck;
 }
@@ -747,7 +745,7 @@ const boon_descriptions = {
     expend_vitality: 
         `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
     flame_strike: 
-        `Attacking an adjacent empty space has a 1/3 chance of shooting a fireball`,
+        `Attacking an adjacent empty space has a 1/2 chance of shooting a fireball`,
     flame_worship:
         `An Altar of Scouring spawns on each non boss floor`,
     fleeting_thoughts: 
@@ -860,8 +858,9 @@ Object.freeze(boon_prereq_descriptions);
 
 const boon_messages = {
     section_header: `Boons`,
-    max: `Max:`,
+    max: `Max`,
     no_max: `Unlimited`,
+    number_picked: `Times Picked`,
 
     clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
     duplicate: `Choose a card to copy:`,
@@ -1068,7 +1067,7 @@ const move_types = {
     move_until: `Move continuously`,
     attack_until: `Attack continuously`,
     heal: `Heal`,
-    you: `you`,
+    you: `You`,
     nothing: `Do nothing`,
     
     per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
@@ -1077,6 +1076,8 @@ const move_types = {
     
     locked: `This card has not been unlocked yet.`,
     not_found: `This card has never been added to your deck.`,
+    number_picked: `Times Added`,
+    number_removed: `Times Removed`,
 }
 Object.freeze(move_types);
 const boss_names = {
@@ -2094,6 +2095,11 @@ const about_page_text = {
     git_text: `Github Page`,
 };
 Object.freeze(about_page_text);
+const journal_area_messages = {
+    visited: `Times Visited`,
+    cleared: `Times Cleared`
+}
+Object.freeze(journal_area_messages);
 const journal_card_headers = {
     basic: `Basic Cards`,
     common: `Common Cards`,
@@ -3131,10 +3137,42 @@ const DisplayHTML = {
         var box = document.createElement(`div`);
         box.classList.add(`journal-area-box`);
         place.append(box);
-
+        var count_fun = (pic, alt, count) => {
+            var div = document.createElement(`div`);
+            div.classList.add(`journal-area-counter`);
+            var img = document.createElement(`img`);
+            img.src = `${IMG_FOLDER.src}${pic}`;
+            img.alt = alt;
+            img.title = alt;
+            var text = document.createElement(`p`);
+            text.innerText = count;
+            div.append(img);
+            div.append(text);
+            return div;
+        }
+        var header = document.createElement(`div`);
+        header.classList.add(`journal-area-box-header`);
+        if(info.visit_count === undefined && info.clear_count === undefined){
+            header.classList.add(`centered`);
+        }
+        if(info.visit_count !== undefined){
+            header.append(count_fun(
+                `${IMG_FOLDER.tiles}stairs.png`, 
+                journal_area_messages.visited, 
+                info.visit_count
+            ));
+        }
         var h = document.createElement(`h2`);
         h.innerText = info.name;
-        box.append(h);
+        header.append(h);
+        if(info.clear_count !== undefined){
+            header.append(count_fun(
+                `${IMG_FOLDER.tiles}lock.png`, 
+                journal_area_messages.cleared, 
+                info.clear_count
+            ));
+        }
+        box.append(header);
         
         var boss = document.createElement(`table`);
         boss.classList.add(`journal-area-boss`);
@@ -3730,6 +3768,7 @@ function court_display_info(){
             shatter_sphere_d_tile, 
             shatter_sphere_o_tile,
             raging_fire_tile,
+            carrion_flies_tile
         ],
     }
 }
@@ -3835,6 +3874,11 @@ function update_journal_areas(){
 
 function show_area(info, depth, force_visited = false){
     var visited = force_visited || GS.data.areas.has(info.name);
+    if(visited && !force_visited){
+        var node = GS.data.areas.get_node(info.name);
+        info.visit_count = node.data.visited;
+        info.clear_count = node.data.cleared;
+    }
     info.true_name = info.name;
     if(!visited){
         info.name = area_names.unknown;
@@ -3852,6 +3896,7 @@ function show_area(info, depth, force_visited = false){
         if(GS.data.tiles.has(t.name)){
             return {
                 name: t.name,
+                true_name: t.name,
                 pic: t.display_pic ? t.display_pic : t.pic,
                 background: [info.background],
                 description: t.description,
@@ -3866,10 +3911,10 @@ function show_area(info, depth, force_visited = false){
     };
     info.boss = check_encountered(info.boss);
     info.tiles = info.tiles.map(check_encountered).sort((a, b) => {
-        if(a.name < b.name){
+        if(a.true_name < b.true_name){
             return -1;
         }
-        if(a.name > b.name){
+        if(a.true_name > b.true_name){
             return 1;
         }
         return 0;
@@ -3906,9 +3951,14 @@ function boons_encountered(boons, encountered){
 function get_boon_description(boon){
     var description = `${boon.name}: ${boon.description}`;
     var prereq = boon.prereq_description; 
-    var max = `${boon_messages.max} ${boon.max ? boon.max : boon_messages.no_max}.`;
+    var max = `${boon_messages.max}: ${boon.max ? boon.max : boon_messages.no_max}.`;
+    var picked = ``;
+    var node = GS.data.boons.get_node(boon.name);
+    if(node !== undefined){
+        picked = `${boon_messages.number_picked}: ${node.data.picked}.`
+    }
     
-    return `${description}\n\n${max}\n\n${prereq}`;
+    return `${description}\n\n${max}\n\n${prereq}\n\n${picked}`;
 }
 function update_journal_cards(){
     display.remove_children(UIIDS.journal_cards);
@@ -3958,7 +4008,16 @@ function cards_encountered(cards, encountered){
         }
         if(encountered.has(card.name)){
             card.on_click = () => {
-                display.display_message(UIIDS.journal_card_info, explain_card(card));
+                var explanation = explain_card(card);
+                var picked = ``;
+                var removed = ``;
+                var node = GS.data.cards.get_node(card.name);
+                if(node !== undefined){
+                    picked = `${move_types.number_picked}: ${node.data.picked}.`
+                    removed = `${move_types.number_removed}: ${node.data.removed}.`
+                }
+                var message = `${explanation}\n\n${picked}\n${removed}`
+                display.display_message(UIIDS.journal_card_info, message);
             }
             return card;
         }
@@ -4352,12 +4411,12 @@ function lich_tile(){
     ];
     var summons = [
         shadow_scout_tile,
-        scythe_tile,
         shadow_knight_tile,
         ram_tile,
+        rat_tile,
         clay_golem_tile,
         vampire_tile,
-        medium_porcuslime_tile,
+        maw_tile,
         pheonix_tile,
         darkling_tile,
     ];
@@ -5543,6 +5602,7 @@ function claustropede_ai(self, target, map){
         for(var i = 0; i < 2; ++i){
             map.attack(self.location);
             var copy = copy_fun();
+            stun(copy);
             map.spawn_safely(copy, SAFE_SPAWN_ATTEMPTS, true);
         }
     }
@@ -7452,27 +7512,29 @@ function turret_o_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function turret_r_tile(){
+    var pic_arr = [
+        `${IMG_FOLDER.tiles}turret_r_N_S_counterclockwise.png`,
+        `${IMG_FOLDER.tiles}turret_r_NW_SE_counterclockwise.png`,
+        `${IMG_FOLDER.tiles}turret_r_N_S.png`, 
+        `${IMG_FOLDER.tiles}turret_r_NW_SE.png`
+    ];
     var tile = {
         type: entity_types.enemy,
         name: enemy_names.turret_r,
-        pic: ``,
+        pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: enemy_descriptions.turret_r,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
         behavior: turret_r_ai,
         telegraph: turret_r_telegraph,
-        pic_arr: [
-            `${IMG_FOLDER.tiles}turret_r_N_S_counterclockwise.png`,
-            `${IMG_FOLDER.tiles}turret_r_NW_SE_counterclockwise.png`,
-            `${IMG_FOLDER.tiles}turret_r_N_S.png`, 
-            `${IMG_FOLDER.tiles}turret_r_NW_SE.png`
-        ],
+        pic_arr,
         rotate: 0,
         direction: random_nearby()[0],
         spin_direction: random_sign()
     }
-    tile.pic = tile.pic_arr[1 + tile.spin_direction + set_rotation(tile)];
+    tile.pic = pic_arr[1 + tile.spin_direction + set_rotation(tile)];
     return tile;
 }
 
@@ -8438,7 +8500,7 @@ function enticing_fruit_tree_on_enter(self, target, map){
         return;
     }
     map.heal(self.location.plus(target.difference), 1);
-    var spawns = random_num(3);
+    var spawns = random_num(2) + random_num(2);
     for(var i = 0; i < spawns; ++i){
         var new_spawn = rand_from(self.tile.summons)();
         stun(new_spawn);
@@ -8468,7 +8530,7 @@ function rotting_fruit_tree_on_death(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(chance(1, 3)){
+    if(chance(2, 5)){
         var new_spawn = rand_from(self.tile.summons)();
         stun(new_spawn);
         spawn_nearby(map, new_spawn, self.location);
@@ -8881,7 +8943,7 @@ function chest_on_enter(self, target, map){
                 leave_chest(go_back);
             }
             catch(error){
-                if(error.message = ERRORS.game_over){
+                if(error.message === ERRORS.game_over){
                     GS.refresh_boon_display();
                     leave_chest(true);
                     error = new Error(ERRORS.game_over, {cause: new Error(name)});
@@ -11384,6 +11446,7 @@ class GameMap{
         }
         if(start.type === entity_types.player && end.type === entity_types.final_exit){
             this.stats.increment_turn();
+            GS.data.clear_area(this.#area.name);
             throw new Error(ERRORS.victory);
         }
         if(end.on_enter !== undefined){
@@ -11579,7 +11642,7 @@ class GameMap{
         var current_kills = this.stats.get_stats().kills;
         try{
             if(
-                chance(GS.boons.has(boon_names.flame_strike), 3) && 
+                chance(GS.boons.has(boon_names.flame_strike), 2) && 
                 direction.within_radius(1) && !direction.is_origin() &&
                 this.check_empty(pos)
             ){
@@ -11602,7 +11665,7 @@ class GameMap{
             return hit;
         }
         catch (error){
-            if(error.message !== `game over`){
+            if(error.message !== ERRORS.game_over){
                 throw error;
             }
             throw new Error(ERRORS.game_over, {cause: new Error(special_tile_names.player)});
@@ -11701,9 +11764,10 @@ class GameMap{
         if(this.#floor_num === 15 && GS.deck.deck_size() === 5){
             GS.achieve(achievement_names.minimalist);
         }
-        if(player.health === 1 && GS.boons.has(boon_names.bitter_determination) > 0){
+        var bitter_determination_amount = GS.boons.has(boon_names.bitter_determination);
+        if(player.health === 1 && bitter_determination_amount > 0){
             // Bitter determination heals you if you are at exactly 1.
-            this.player_heal(new Point(0, 0), 1);
+            this.player_heal(new Point(0, 0), bitter_determination_amount);
         }
         if(GS.boons.has(boon_names.expend_vitality) > 0){
             // Expend Vitality always heals you.
@@ -11721,14 +11785,20 @@ class GameMap{
         if(this.#floor_num % area_size === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
+            GS.data.clear_area(this.#area.name);
             this.#area = rand_from(next_list);
             floor_description += `\n${gameplay_text.new_area}${this.#area.name}.`;
             GS.data.add_area(this.#area.name);
+            GS.data.visit_area(this.#area.name);
             for(var list of this.#grid){
                 for(var point of list){
                     point.floor = this.#area.background;
                 }
             }
+        }
+        if(this.#floor_num === 2){
+            // Visit area 1.
+            GS.data.visit_area(this.#area.name);
         }
         if(this.#floor_num % area_size === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
@@ -12557,7 +12627,7 @@ class MoveDeck{
     #id_count;
     #hand_size;
     #min_deck_size;
-    constructor(hand_size, minimum){
+    constructor(hand_size, minimum, cards = []){
         this.#decklist = [];
         this.#library = [];
         this.#hand = [];
@@ -12565,6 +12635,9 @@ class MoveDeck{
         this.#id_count = 0;
         this.#hand_size = hand_size;
         this.#min_deck_size = minimum;
+        for(var card of cards){
+            this.#add_card(card());
+        }
     }
     /**
      * Resets the deck to the decklist then deals a new hand.
@@ -12649,6 +12722,12 @@ class MoveDeck{
      * @param {Card} new_card Card to add.
      */
     add(new_card){
+        this.#add_card(new_card);
+        this.#check_three_kind_achievement(new_card.name);
+        this.#check_jack_of_all_trades_achievement();
+        GS.data.pick_card(new_card.name);
+    }
+    #add_card(new_card){
         new_card.id = this.#id_count;
         this.#id_count++;
         this.#decklist.push(new_card);
@@ -12671,9 +12750,8 @@ class MoveDeck{
      * @param {Card} new_card Card to add.
      */
     add_temp(new_card){
-        new_card.id = this.#id_count;
+        new_card.id = this.#id_count++;
         new_card.temp = true;
-        this.#id_count++;
         this.#library.push(new_card);
         this.#library = randomize_arr(this.#library);
         GS.data.add_card(new_card.name);
@@ -12769,6 +12847,7 @@ class MoveDeck{
                 if(card.basic === true){
                     this.#check_remaining_basics_achievement();
                 }
+                GS.data.remove_card(card.name);
                 return true;
             }
         }
@@ -12865,10 +12944,10 @@ class SaveData{
         this.controls.set(data.controls);
         this.achievements = new AchievementList();
         this.achievements.set(data.achievements)
-        this.cards = new SearchTree(data.cards);
-        this.boons = new SearchTree(data.boons);
-        this.tiles = new SearchTree(data.tiles);
-        this.areas = new SearchTree(data.areas);
+        this.cards = new SearchTree(data.cards, CardTreeNode);
+        this.boons = new SearchTree(data.boons, BoonTreeNode);
+        this.tiles = new SearchTree(data.tiles, TileTreeNode);
+        this.areas = new SearchTree(data.areas, AreaTreeNode);
     }
     save(){
         var data = {
@@ -12902,11 +12981,18 @@ class SaveData{
             this.save();
         }
     }
+    pick_card(name){
+        this.cards.get_node(name).pick();
+        this.save();
+    }
+    remove_card(name){
+        this.cards.get_node(name).remove();
+        this.save();
+    }
     add_boon(name){
-        var added = this.boons.add(name);
-        if(added){
-            this.save();
-        }
+        this.boons.add(name);
+        this.boons.get_node(name).pick();
+        this.save();
     }
     add_tile(name){
         var added = this.tiles.add(name);
@@ -12920,6 +13006,20 @@ class SaveData{
             this.save();
         }
     }
+    visit_area(name){
+        var area = this.areas.get_node(name);
+        if(area !== undefined){
+            area.visit();
+            this.save();
+        }
+    }
+    clear_area(name){
+        var area = this.areas.get_node(name);
+        area.clear();
+        console.log(`${area.data.name}: ${area.data.cleared}`);
+        this.save();
+    }
+
 
     // Static functions
     static load_file_function(save_name){
@@ -13016,34 +13116,141 @@ class ScreenTracker{
 const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.achievements, UIIDS.journal, UIIDS.controls, ]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.full_deck, UIIDS.initiative, UIIDS.deck_order]);
-class SearchTreeNode{
+class AreaTreeNode{
     data;
     left;
     right;
     constructor(data){
-        this.data = data;
+        switch(typeof data){
+            case `string`:
+                this.data = {
+                    name: data,
+                    visited: 0,
+                    cleared: 0,
+                }
+                break;
+            case `object`:
+                if(data.name === undefined){
+                    throw Error(ERRORS.missing_property);
+                }
+                data.visited = data.visited ? data.visited : 0;
+                data.cleared = data.cleared ? data.cleared : 0;
+                this.data = data;
+                break;
+            default:
+                throw Error(ERRORS.invalid_type);
+        }
     }
     compare(node){
-        var other = node instanceof SearchTreeNode ? node.data : node;
-        if(this.data < other){
+        var other = node instanceof AreaTreeNode ? node.data : node;
+        other = typeof other === `object` ? other.name : other;
+        if(this.data.name < other){
             return -1;
         }
-        if(this.data > other){
+        if(this.data.name > other){
             return 1;
         }
         return 0;
     }
+    visit(){
+        ++this.data.visited;
+    }
+    clear(){
+        ++this.data.cleared;
+    }
 }
-
+class BoonTreeNode{
+    data;
+    left;
+    right;
+    constructor(data){
+        switch(typeof data){
+            case `string`:
+                this.data = {
+                    name: data,
+                    picked: 0
+                }
+                break;
+            case `object`:
+                if(data.name === undefined){
+                    throw Error(ERRORS.missing_property);
+                }
+                data.picked = data.picked ? data.picked : 0;
+                this.data = data;
+                break;
+            default:
+                throw Error(ERRORS.invalid_type);
+        }
+    }
+    compare(node){
+        var other = node instanceof BoonTreeNode ? node.data : node;
+        other = typeof other === `object` ? other.name : other;
+        if(this.data.name < other){
+            return -1;
+        }
+        if(this.data.name > other){
+            return 1;
+        }
+        return 0;
+    }
+    pick(){
+        ++this.data.picked;
+    }
+}
+class CardTreeNode{
+    data;
+    left;
+    right;
+    constructor(data){
+        switch(typeof data){
+            case `string`:
+                this.data = {
+                    name: data,
+                    picked: 0,
+                    removed: 0,
+                }
+                break;
+            case `object`:
+                if(data.name === undefined){
+                    throw Error(ERRORS.missing_property);
+                }
+                data.picked = data.picked ? data.picked : 0;
+                data.removed = data.removed ? data.removed : 0;
+                this.data = data;
+                break;
+            default:
+                throw Error(ERRORS.invalid_type);
+        }
+    }
+    compare(node){
+        var other = node instanceof CardTreeNode ? node.data : node;
+        other = typeof other === `object` ? other.name : other;
+        if(this.data.name < other){
+            return -1;
+        }
+        if(this.data.name > other){
+            return 1;
+        }
+        return 0;
+    }
+    pick(){
+        ++this.data.picked;
+    }
+    remove(){
+        ++this.data.removed;
+    }
+}
 class SearchTree{
     // Singleton BST that can convert to and from a sorted list.
     #root
-    constructor(list = []){
+    #node
+    constructor(list = [], node = SearchTreeNode){
         this.#root = undefined;
+        this.#node = node;
         this.add_all(list);
     }
     add(str){
-        var to_add = new SearchTreeNode(str);
+        var to_add = new this.#node(str);
         if(this.#root === undefined){
             this.#root = to_add;
             return true;
@@ -13114,6 +13321,84 @@ class SearchTree{
             this.add_all(list.slice(0, half));
             this.add_all(list.slice(half + 1, list.length));
         }
+    }
+    get_node(str){
+        var current = this.#root;
+        while(current !== undefined){
+            switch(current.compare(str)){
+                case -1:
+                    current = current.left;
+                    break;
+                case 0:
+                    return current;
+                case 1:
+                    current = current.right;
+                    break;
+            }
+        }
+        return undefined;
+    }
+}
+
+class SearchTreeNode{
+    data;
+    left;
+    right;
+    constructor(data){
+        this.data = data;
+    }
+    compare(node){
+        var other = node instanceof SearchTreeNode ? node.data : node;
+        if(this.data < other){
+            return -1;
+        }
+        if(this.data > other){
+            return 1;
+        }
+        return 0;
+    }
+}
+class TileTreeNode{
+    data;
+    left;
+    right;
+    constructor(data){
+        switch(typeof data){
+            case `string`:
+                this.data = {
+                    name: data,
+                    killed: 0,
+                    killed_by: 0,
+                }
+                break;
+            case `object`:
+                if(data.name === undefined){
+                    throw Error(ERRORS.missing_property);
+                }
+                data.killed = data.killed ? data.killed : 0;
+                data.killed_by = data.killed_by ? data.killed_by : 0;
+                this.data = data;
+                break;
+            default:
+                throw Error(ERRORS.invalid_type);
+        }
+    }
+    compare(node){
+        var other = node instanceof TileTreeNode ? node.data : node;
+        other = typeof other === `object` ? other.name : other;
+        if(this.data.name < other){
+            return -1;
+        }
+        if(this.data.name > other){
+            return 1;
+        }
+        return 0;
+    }
+    kill(){
+        ++this.data.killed;
+    }
+    die_to(){
+        ++this.data.killed_by;
     }
 }
 class Shop{
@@ -16545,7 +16830,7 @@ function flame_strike(){
         pic: `${IMG_FOLDER.boons}flame_strike.png`,
         description: boon_descriptions.flame_strike,
         prereq_description: boon_prereq_descriptions.none,
-        max: 3,
+        max: 2,
     }
 }
 function flame_worship(){

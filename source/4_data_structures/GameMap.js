@@ -390,6 +390,7 @@ class GameMap{
         }
         if(start.type === entity_types.player && end.type === entity_types.final_exit){
             this.stats.increment_turn();
+            GS.data.clear_area(this.#area.name);
             throw new Error(ERRORS.victory);
         }
         if(end.on_enter !== undefined){
@@ -585,7 +586,7 @@ class GameMap{
         var current_kills = this.stats.get_stats().kills;
         try{
             if(
-                chance(GS.boons.has(boon_names.flame_strike), 3) && 
+                chance(GS.boons.has(boon_names.flame_strike), 2) && 
                 direction.within_radius(1) && !direction.is_origin() &&
                 this.check_empty(pos)
             ){
@@ -608,7 +609,7 @@ class GameMap{
             return hit;
         }
         catch (error){
-            if(error.message !== `game over`){
+            if(error.message !== ERRORS.game_over){
                 throw error;
             }
             throw new Error(ERRORS.game_over, {cause: new Error(special_tile_names.player)});
@@ -707,9 +708,10 @@ class GameMap{
         if(this.#floor_num === 15 && GS.deck.deck_size() === 5){
             GS.achieve(achievement_names.minimalist);
         }
-        if(player.health === 1 && GS.boons.has(boon_names.bitter_determination) > 0){
+        var bitter_determination_amount = GS.boons.has(boon_names.bitter_determination);
+        if(player.health === 1 && bitter_determination_amount > 0){
             // Bitter determination heals you if you are at exactly 1.
-            this.player_heal(new Point(0, 0), 1);
+            this.player_heal(new Point(0, 0), bitter_determination_amount);
         }
         if(GS.boons.has(boon_names.expend_vitality) > 0){
             // Expend Vitality always heals you.
@@ -727,14 +729,20 @@ class GameMap{
         if(this.#floor_num % area_size === 1){
             // Reached the next area.
             var next_list = this.#area.next_area_list;
+            GS.data.clear_area(this.#area.name);
             this.#area = rand_from(next_list);
             floor_description += `\n${gameplay_text.new_area}${this.#area.name}.`;
             GS.data.add_area(this.#area.name);
+            GS.data.visit_area(this.#area.name);
             for(var list of this.#grid){
                 for(var point of list){
                     point.floor = this.#area.background;
                 }
             }
+        }
+        if(this.#floor_num === 2){
+            // Visit area 1.
+            GS.data.visit_area(this.#area.name);
         }
         if(this.#floor_num % area_size === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.

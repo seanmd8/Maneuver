@@ -15,6 +15,11 @@ function update_journal_areas(){
 
 function show_area(info, depth, force_visited = false){
     var visited = force_visited || GS.data.areas.has(info.name);
+    if(visited && !force_visited){
+        var node = GS.data.areas.get_node(info.name);
+        info.visit_count = node.data.visited;
+        info.clear_count = node.data.cleared;
+    }
     info.true_name = info.name;
     if(!visited){
         info.name = area_names.unknown;
@@ -32,6 +37,7 @@ function show_area(info, depth, force_visited = false){
         if(GS.data.tiles.has(t.name)){
             return {
                 name: t.name,
+                true_name: t.name,
                 pic: t.display_pic ? t.display_pic : t.pic,
                 background: [info.background],
                 description: t.description,
@@ -46,10 +52,10 @@ function show_area(info, depth, force_visited = false){
     };
     info.boss = check_encountered(info.boss);
     info.tiles = info.tiles.map(check_encountered).sort((a, b) => {
-        if(a.name < b.name){
+        if(a.true_name < b.true_name){
             return -1;
         }
-        if(a.name > b.name){
+        if(a.true_name > b.true_name){
             return 1;
         }
         return 0;

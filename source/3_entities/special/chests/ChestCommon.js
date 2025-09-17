@@ -49,7 +49,7 @@ function chest_on_enter(self, target, map){
                 leave_chest(go_back);
             }
             catch(error){
-                if(error.message = ERRORS.game_over){
+                if(error.message === ERRORS.game_over){
                     GS.refresh_boon_display();
                     leave_chest(true);
                     error = new Error(ERRORS.game_over, {cause: new Error(name)});

@@ -18,7 +18,7 @@ function rotting_fruit_tree_on_death(self, target, map){
     if(self.tile.summons === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(chance(1, 3)){
+    if(chance(2, 5)){
         var new_spawn = rand_from(self.tile.summons)();
         stun(new_spawn);
         spawn_nearby(map, new_spawn, self.location);

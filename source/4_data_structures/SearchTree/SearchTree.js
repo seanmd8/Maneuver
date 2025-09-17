@@ -1,31 +1,14 @@
-class SearchTreeNode{
-    data;
-    left;
-    right;
-    constructor(data){
-        this.data = data;
-    }
-    compare(node){
-        var other = node instanceof SearchTreeNode ? node.data : node;
-        if(this.data < other){
-            return -1;
-        }
-        if(this.data > other){
-            return 1;
-        }
-        return 0;
-    }
-}
-
 class SearchTree{
     // Singleton BST that can convert to and from a sorted list.
     #root
-    constructor(list = []){
+    #node
+    constructor(list = [], node = SearchTreeNode){
         this.#root = undefined;
+        this.#node = node;
         this.add_all(list);
     }
     add(str){
-        var to_add = new SearchTreeNode(str);
+        var to_add = new this.#node(str);
         if(this.#root === undefined){
             this.#root = to_add;
             return true;
@@ -96,5 +79,21 @@ class SearchTree{
             this.add_all(list.slice(0, half));
             this.add_all(list.slice(half + 1, list.length));
         }
+    }
+    get_node(str){
+        var current = this.#root;
+        while(current !== undefined){
+            switch(current.compare(str)){
+                case -1:
+                    current = current.left;
+                    break;
+                case 0:
+                    return current;
+                case 1:
+                    current = current.right;
+                    break;
+            }
+        }
+        return undefined;
     }
 }

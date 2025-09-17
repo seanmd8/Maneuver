@@ -12,6 +12,7 @@ function court_display_info(){
             shatter_sphere_d_tile, 
             shatter_sphere_o_tile,
             raging_fire_tile,
+            carrion_flies_tile
         ],
     }
 }
