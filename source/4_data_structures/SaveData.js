@@ -94,10 +94,16 @@ class SaveData{
         var area = this.areas.get_node(name);
         if(area !== undefined){
             area.visit();
-            console.log(`${area.data.name}: ${area.data.visited}`);
             this.save();
         }
     }
+    clear_area(name){
+        var area = this.areas.get_node(name);
+        area.clear();
+        console.log(`${area.data.name}: ${area.data.cleared}`);
+        this.save();
+    }
+
 
     // Static functions
     static load_file_function(save_name){
