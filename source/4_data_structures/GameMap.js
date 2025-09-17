@@ -707,9 +707,10 @@ class GameMap{
         if(this.#floor_num === 15 && GS.deck.deck_size() === 5){
             GS.achieve(achievement_names.minimalist);
         }
-        if(player.health === 1 && GS.boons.has(boon_names.bitter_determination) > 0){
+        var bitter_determination_amount = GS.boons.has(boon_names.bitter_determination);
+        if(player.health === 1 && bitter_determination_amount > 0){
             // Bitter determination heals you if you are at exactly 1.
-            this.player_heal(new Point(0, 0), 1);
+            this.player_heal(new Point(0, 0), bitter_determination_amount);
         }
         if(GS.boons.has(boon_names.expend_vitality) > 0){
             // Expend Vitality always heals you.
