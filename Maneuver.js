@@ -2095,6 +2095,11 @@ const about_page_text = {
     git_text: `Github Page`,
 };
 Object.freeze(about_page_text);
+const journal_area_messages = {
+    visited: `Times Visited`,
+    cleared: `Times Cleared`
+}
+Object.freeze(journal_area_messages);
 const journal_card_headers = {
     basic: `Basic Cards`,
     common: `Common Cards`,
@@ -3132,10 +3137,39 @@ const DisplayHTML = {
         var box = document.createElement(`div`);
         box.classList.add(`journal-area-box`);
         place.append(box);
-
+        var count_fun = (pic, alt, count) => {
+            var div = document.createElement(`div`);
+            div.classList.add(`journal-area-counter`);
+            var img = document.createElement(`img`);
+            img.src = `${IMG_FOLDER.src}${pic}`;
+            img.alt = alt;
+            img.title = alt;
+            var text = document.createElement(`p`);
+            text.innerText = count;
+            div.append(img);
+            div.append(text);
+            return div;
+        }
+        var header = document.createElement(`div`);
+        header.classList.add(`journal-area-box-header`);
+        if(info.visit_count !== undefined){
+            header.append(count_fun(
+                `${IMG_FOLDER.tiles}stairs.png`, 
+                journal_area_messages.visited, 
+                info.visit_count
+            ));
+        }
         var h = document.createElement(`h2`);
         h.innerText = info.name;
-        box.append(h);
+        header.append(h);
+        if(info.clear_count !== undefined){
+            header.append(count_fun(
+                `${IMG_FOLDER.tiles}lock.png`, 
+                journal_area_messages.cleared, 
+                info.clear_count
+            ));
+        }
+        box.append(header);
         
         var boss = document.createElement(`table`);
         boss.classList.add(`journal-area-boss`);
@@ -3837,6 +3871,11 @@ function update_journal_areas(){
 
 function show_area(info, depth, force_visited = false){
     var visited = force_visited || GS.data.areas.has(info.name);
+    if(visited && !force_visited){
+        var node = GS.data.areas.get_node(info.name);
+        info.visit_count = node.data.visited;
+        info.clear_count = node.data.cleared;
+    }
     info.true_name = info.name;
     if(!visited){
         info.name = area_names.unknown;

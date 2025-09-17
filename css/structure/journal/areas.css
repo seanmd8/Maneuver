@@ -26,6 +26,43 @@
     height: 384px;
     margin: 10px;
 }
+.journal-area-box-header {
+    display: inline-flex;
+    flex-direction: row;
+    vertical-align: middle;
+    justify-content: space-between;
+    min-width: 95%;
+    width: fit-content;
+}
+.area0 .journal-area-box-header {
+    justify-content: center;
+}
+.journal-area-counter {
+    width: fit-content;
+    height: 30px;
+    padding-left: 3px;
+    padding-right: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-color: black;
+    border-width: 3px;
+    border-radius: 7px;
+    border-style: solid;
+    background-color: lightgoldenrodyellow;
+}
+.journal-area-counter img {
+    width: 26px;
+    height: 26px;
+    margin: 2px 2px 2px 0px;
+}
+.journal-area-counter p {
+    display: inline-block;
+    font-weight: bold;
+    font-size: 22px;
+    margin: 0px;
+    line-height: 30px;
+    vertical-align: top;
+}
 
 .journal-area-box h2 {
     margin-top: 5px;
@@ -58,22 +95,22 @@
     border-color: black;
 }
 
-.area0 div {
+.area0>div {
     background-color: var(--area0);
     height: fit-content;
 }
-.area1 div {
+.area1>div {
     background-color: var(--area1);
 }
-.area2 div {
+.area2>div {
     background-color: var(--area2);
 }
-.area3 div{
+.area3>div{
     background-color: var(--area3);
 }
-.area4 div {
+.area4>div {
     background-color: var(--area4);
 }
-.area5 div {
+.area5>div {
     background-color: var(--area5);
 }

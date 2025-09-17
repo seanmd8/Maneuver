@@ -15,6 +15,11 @@ function update_journal_areas(){
 
 function show_area(info, depth, force_visited = false){
     var visited = force_visited || GS.data.areas.has(info.name);
+    if(visited && !force_visited){
+        var node = GS.data.areas.get_node(info.name);
+        info.visit_count = node.data.visited;
+        info.clear_count = node.data.cleared;
+    }
     info.true_name = info.name;
     if(!visited){
         info.name = area_names.unknown;
