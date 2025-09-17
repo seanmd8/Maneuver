@@ -390,6 +390,7 @@ class GameMap{
         }
         if(start.type === entity_types.player && end.type === entity_types.final_exit){
             this.stats.increment_turn();
+            GS.data.clear_area(this.#area.name);
             throw new Error(ERRORS.victory);
         }
         if(end.on_enter !== undefined){
