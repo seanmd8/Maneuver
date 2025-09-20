@@ -13016,7 +13016,6 @@ class SaveData{
     clear_area(name){
         var area = this.areas.get_node(name);
         area.clear();
-        console.log(`${area.data.name}: ${area.data.cleared}`);
         this.save();
     }
 
