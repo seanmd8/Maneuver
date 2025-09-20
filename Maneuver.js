@@ -4273,7 +4273,7 @@ function forest_heart_tile(){
         name: boss_names.forest_heart,
         pic: pic_arr[0],
         display_pic: `${IMG_FOLDER.tiles}forest_heart.png`,
-        description: boss_descriptions.forest_heart + heart_spell_descriptions.rest,
+        description: `${boss_descriptions.forest_heart} ${heart_spell_descriptions.rest}`,
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
         health,
         death_message: boss_death_message.forest_heart,
@@ -4315,7 +4315,7 @@ function forest_heart_ai(self, target, map){
             tile.health = health;
             tile.pic = tile.pic_arr[0];
             if(tile.health > 1){
-                tile.description = boss_descriptions.forest_heart + next_spell.description;
+                tile.description = `${boss_descriptions.forest_heart} ${next_spell.description}`;
                 tile.pic = next_spell.pic;
                 tile.telegraph_other = next_spell.telegraph_other;
             }
