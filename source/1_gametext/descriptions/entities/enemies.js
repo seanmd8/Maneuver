@@ -7,8 +7,8 @@ const enemy_descriptions = {
         +`damage everything close to it, then move 1 space closer to the player. `
         +`After 3 turns, it will go back to sleep.`,
     blood_crescent:
-        `Blood Crescent: Will move 2 spaces diagonally towards the player damaging them if it `
-        +`hits them or passes next to them.`,
+        `Blood Crescent: Will move 3 spaces diagonally towards the player damaging them if it `
+        +`hits them or passes next to them. Moves every other turn.`,
     brightling: 
         `Brightling: Is not aggressive. Will occasionally teleport the player `
         +`close to it before teleporting away the next turn.`,
