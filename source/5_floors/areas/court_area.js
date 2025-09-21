@@ -19,13 +19,18 @@ function generate_court_floor(floor_num, area, map){
         starcaller_terrain,
         shatter_sphere_terrain
     ]
-    if(chance(2, 3)){
-        rand_from(terrains)(floor_num, area, map);
-        generate_normal_floor(floor_num - 3, area, map);
+    var reduction = 0;
+    if(chance(1, 2)){
+        starcaller_terrain(floor_num, area, map);
+        reduction += 3;
     }
-    else{
-        generate_normal_floor(floor_num, area, map);
+    for(var i = 0; i < 4; ++i){
+        if(chance(1, 4)){
+            shatter_sphere_terrain(floor_num, area, map);
+            reduction += 1;
+        }
     }
+    generate_normal_floor(floor_num - reduction, area, map);
 }
 
 function starcaller_terrain(floor_num, area, map){
@@ -39,7 +44,7 @@ function starcaller_terrain(floor_num, area, map){
 }
 
 function shatter_sphere_terrain(floor_num, area, map){
-    var amount = random_num(6) + random_num(6);
+    var amount = random_num(4) + random_num(4);
     var summons = [
         shatter_sphere_tile,
         moon_rock_tile
