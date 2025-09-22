@@ -11,22 +11,23 @@ function lich_tile(){
         piercing_beam_spell_generator(),
     ];
     var summons = [
-        shadow_scout_tile,
-        shadow_knight_tile,
-        ram_tile,
-        rat_tile,
         clay_golem_tile,
-        vampire_tile,
+        darkling_tile,
         maw_tile,
         pheonix_tile,
-        darkling_tile,
+        ram_tile,
+        rat_tile,
+        shadow_knight_tile,
+        shadow_scout_tile,
+        specter_tile,
+        vampire_tile,
     ];
     var tile = {
         type: entity_types.enemy,
         name: boss_names.lich,
         display_pic: `${IMG_FOLDER.tiles}lich_rest.png`,
         tags: new TagList([TAGS.boss]),
-        health: 4,
+        health: 5,
         death_message: boss_death_message.lich,
         death_achievement: achievement_names.lich,
         behavior: lich_ai,
@@ -50,18 +51,12 @@ function lich_ai(self, target, map){
     }
     if(self.tile.cycle === 0){
         // Move away and prepare the next spell.
-        var player_close = (target.difference.within_radius(1));
         var moves = reverse_arr(order_nearby(target.difference));
         for(var i = 0; i < moves.length && !map.check_empty(self.location.plus(moves[i])); ++i){}
         if(i < moves.length){
             map.move(self.location, self.location.plus(moves[i]));
         }
-        if(self.tile.cycle === 0){
-            lich_prep(self.tile, random_num(self.tile.spells.length - 2) + 2);
-        }
-        if(player_close || i >= moves.length){
-            lich_prep(self.tile, 1);
-        }
+        lich_prep(self.tile, random_num(self.tile.spells.length - 2) + 2);
     }
     else{
         // Cast the current spell.
@@ -106,11 +101,13 @@ function lich_hit(self, target, map){
         self.tile.spells === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    lich_prep(self.tile, 1);
-    var announcement = 
-        `${boss_descriptions.lich_change_announcement}\n`
-        +`${self.tile.spells[self.tile.cycle].description}`;
-    say_record(announcement);
+    if(self.tile.cycle !== 1){
+        lich_prep(self.tile, 1);
+        var announcement = 
+            `${boss_descriptions.lich_change_announcement}\n`
+            +`${self.tile.spells[self.tile.cycle].description}`;
+        say_record(announcement);
+    }
 }
 
 function lich_prep(tile, cycle){
