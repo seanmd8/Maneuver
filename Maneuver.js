@@ -434,7 +434,7 @@ function init_settings(){
         enemies: undefined,
         spawnpoints: undefined,
         chests: undefined,
-        cards: undefined,
+        cards: [debilitating_confusion],
         area: undefined,
         area_size: undefined,
         achievements: undefined,
@@ -14953,7 +14953,7 @@ function debilitating_confusion(){
                 pstun(-1, 1),
                 pstun(-1, 0),
                 pstun(-1, -1)];
-    options.add_button(SPIN, [...spin, ...spin]);
+    options.add_button(SPIN, [...spin, ...spin, ...spin]);
     return{
         name: card_names.debilitating_confusion,
         pic: `${IMG_FOLDER.cards}debilitating_confusion.png`,
