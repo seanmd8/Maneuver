@@ -10370,6 +10370,8 @@ function earthquake_spell_generator(){
 function earthquake_spell(self, target, map){
     var amount = random_num(9) + random_num(9) + random_num(9) + random_num(9);
     map.add_event({name: event_names.earthquake, behavior: earthquake_event(amount)});
+    var player = map.get_player_location();
+    map.add_event({name: event_names.earthquake, behavior: targeted_earthquake_event([player])});
 }
 /** @type {SpellGenerator} */
 function flame_wave_spell_generator(){
