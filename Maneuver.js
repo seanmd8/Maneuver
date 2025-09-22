@@ -1106,7 +1106,9 @@ const boss_descriptions = {
         `Lich (Boss): An undead wielder of dark magic. Alternates between moving `
         +`one space away from you and casting a spell.`,
     lich_announcement: 
-        `The Lich is currently preparing to cast:`,
+        `The Lich is preparing to cast:`,
+    lich_change_announcement: 
+        `The Lich changed it's spell to:`,
     lord_of_shadow_and_flame:
         `Lord of Shadow and Flame (Final Boss): Ruler from beyond the veil of reality. Summons `
         +`altars from which to cast it's spells. When next to the player it will prepare to attack `
@@ -1176,14 +1178,14 @@ Object.freeze(boss_death_message);
 // Boss Specific Descriptions
 
 const lich_spell_descriptions = {
-    confusion: `Confusion: Pollutes your deck with 2 bad temporary cards.`,
-    earthquake: `Earthquake: Causes chunks of the ceiling to rain down.`,
-    flame_wave: `Flame Wave: Shoots 3 explosive fireballs towards the target.`,
-    lava_moat: `Lava Moat: Creates pools of molten lava to shield the user.`,
-    piercing_beam: `Piercing Beam: Fires a piercing beam in the direction closest to the target.`,
+    confusion: `Confusion - Pollutes your deck with 2 bad temporary cards.`,
+    earthquake: `Earthquake - Causes chunks of the ceiling to rain down.`,
+    flame_wave: `Flame Wave - Shoots 3 explosive fireballs towards the target.`,
+    lava_moat: `Lava Moat - Creates pools of molten lava to shield the user.`,
+    piercing_beam: `Piercing Beam - Fires a piercing beam in the direction closest to the target.`,
     rest: `Nothing.`,
-    summon: `Summon: Summons a random enemy`,
-    teleport: `Teleport: The user moves to a random square on the map`,
+    summon: `Summon - Summons 2 random enemies`,
+    teleport: `Teleport - The user moves to a random square on the map`,
 }
 Object.freeze(lich_spell_descriptions);
 
@@ -4421,16 +4423,10 @@ function lich_tile(){
         pheonix_tile,
         darkling_tile,
     ];
-    var starting_cycle = 0;
-    return{
+    var tile = {
         type: entity_types.enemy,
         name: boss_names.lich,
-        pic: spells[starting_cycle].pic,
         display_pic: `${IMG_FOLDER.tiles}lich_rest.png`,
-        description: 
-            `${boss_descriptions.lich}\n`
-            +`${boss_descriptions.lich_announcement}\n`
-            +`${spells[starting_cycle].description}`,
         tags: new TagList([TAGS.boss]),
         health: 4,
         death_message: boss_death_message.lich,
@@ -4440,11 +4436,12 @@ function lich_tile(){
         telegraph_other: lich_telegraph_other,
         on_hit: lich_hit,
         on_death: boss_death,
-        cycle: starting_cycle,
         spells,
         summons,
         card_drops: BOSS_CARDS.lich
     }
+    lich_prep(tile, 0);
+    return tile;
 }
 
 /** @type {AIFunction} AI used by the Lich.*/
@@ -4462,26 +4459,21 @@ function lich_ai(self, target, map){
             map.move(self.location, self.location.plus(moves[i]));
         }
         if(self.tile.cycle === 0){
-            self.tile.cycle = random_num(self.tile.spells.length - 2) + 2;
+            lich_prep(self.tile, random_num(self.tile.spells.length - 2) + 2);
         }
         if(player_close || i >= moves.length){
-            self.tile.cycle = 1;
+            lich_prep(self.tile, 1);
         }
     }
     else{
         // Cast the current spell.
         self.tile.spells[self.tile.cycle].behavior(self, target, map);
-        self.tile.cycle = 0;
+        lich_prep(self.tile, 0);
     }
-    self.tile.description = 
-        `${boss_descriptions.lich}\n`
-        +`${boss_descriptions.lich_announcement}\n`
-        +`${self.tile.spells[self.tile.cycle].description}`;
-    self.tile.pic = self.tile.spells[self.tile.cycle].pic;
     var announcement = 
         `${boss_descriptions.lich_announcement}\n`
         +`${self.tile.spells[self.tile.cycle].description}`;
-    map.add_event({name: event_names.spell_announcement, behavior: () => {say_record(announcement)}});
+    say_record(announcement);
 }
 
 /** @type {TelegraphFunction} */
@@ -4516,12 +4508,20 @@ function lich_hit(self, target, map){
         self.tile.spells === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    self.tile.cycle = 1;
-    self.tile.description = 
+    lich_prep(self.tile, 1);
+    var announcement = 
+        `${boss_descriptions.lich_change_announcement}\n`
+        +`${self.tile.spells[self.tile.cycle].description}`;
+    say_record(announcement);
+}
+
+function lich_prep(tile, cycle){
+    tile.cycle = cycle;
+    tile.description = 
         `${boss_descriptions.lich}\n`
         +`${boss_descriptions.lich_announcement}\n`
-        +`${self.tile.spells[self.tile.cycle].description}`;
-    self.tile.pic = self.tile.spells[self.tile.cycle].pic;
+        +`${tile.spells[cycle].description}`;
+    tile.pic = tile.spells[cycle].pic;
 }
 /** @type {TileGenerator} */
 function lord_of_shadow_and_flame_tile(){

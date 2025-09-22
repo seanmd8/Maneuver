@@ -21,16 +21,10 @@ function lich_tile(){
         pheonix_tile,
         darkling_tile,
     ];
-    var starting_cycle = 0;
-    return{
+    var tile = {
         type: entity_types.enemy,
         name: boss_names.lich,
-        pic: spells[starting_cycle].pic,
         display_pic: `${IMG_FOLDER.tiles}lich_rest.png`,
-        description: 
-            `${boss_descriptions.lich}\n`
-            +`${boss_descriptions.lich_announcement}\n`
-            +`${spells[starting_cycle].description}`,
         tags: new TagList([TAGS.boss]),
         health: 4,
         death_message: boss_death_message.lich,
@@ -40,11 +34,12 @@ function lich_tile(){
         telegraph_other: lich_telegraph_other,
         on_hit: lich_hit,
         on_death: boss_death,
-        cycle: starting_cycle,
         spells,
         summons,
         card_drops: BOSS_CARDS.lich
     }
+    lich_prep(tile, 0);
+    return tile;
 }
 
 /** @type {AIFunction} AI used by the Lich.*/
@@ -62,26 +57,21 @@ function lich_ai(self, target, map){
             map.move(self.location, self.location.plus(moves[i]));
         }
         if(self.tile.cycle === 0){
-            self.tile.cycle = random_num(self.tile.spells.length - 2) + 2;
+            lich_prep(self.tile, random_num(self.tile.spells.length - 2) + 2);
         }
         if(player_close || i >= moves.length){
-            self.tile.cycle = 1;
+            lich_prep(self.tile, 1);
         }
     }
     else{
         // Cast the current spell.
         self.tile.spells[self.tile.cycle].behavior(self, target, map);
-        self.tile.cycle = 0;
+        lich_prep(self.tile, 0);
     }
-    self.tile.description = 
-        `${boss_descriptions.lich}\n`
-        +`${boss_descriptions.lich_announcement}\n`
-        +`${self.tile.spells[self.tile.cycle].description}`;
-    self.tile.pic = self.tile.spells[self.tile.cycle].pic;
     var announcement = 
         `${boss_descriptions.lich_announcement}\n`
         +`${self.tile.spells[self.tile.cycle].description}`;
-    map.add_event({name: event_names.spell_announcement, behavior: () => {say_record(announcement)}});
+    say_record(announcement);
 }
 
 /** @type {TelegraphFunction} */
@@ -116,10 +106,18 @@ function lich_hit(self, target, map){
         self.tile.spells === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    self.tile.cycle = 1;
-    self.tile.description = 
+    lich_prep(self.tile, 1);
+    var announcement = 
+        `${boss_descriptions.lich_change_announcement}\n`
+        +`${self.tile.spells[self.tile.cycle].description}`;
+    say_record(announcement);
+}
+
+function lich_prep(tile, cycle){
+    tile.cycle = cycle;
+    tile.description = 
         `${boss_descriptions.lich}\n`
         +`${boss_descriptions.lich_announcement}\n`
-        +`${self.tile.spells[self.tile.cycle].description}`;
-    self.tile.pic = self.tile.spells[self.tile.cycle].pic;
+        +`${tile.spells[cycle].description}`;
+    tile.pic = tile.spells[cycle].pic;
 }
