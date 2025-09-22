@@ -44,7 +44,7 @@ function altar_of_sunlight_on_enter(self, target, map){
     }
     for(var i = 0; i < 3; ++i){
         var rectangle = point_rectangle(target.plus(new Point(i, i)), target.plus(new Point(-i, -i)));
-        var rectangle = rectangle.filter((p) => {
+        rectangle = rectangle.filter((p) => {
             return map.is_in_bounds(p);
         })
         map.add_event({name: event_names.delay, behavior: delay_event(i + 1, delay(rectangle))});

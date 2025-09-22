@@ -1178,13 +1178,13 @@ Object.freeze(boss_death_message);
 // Boss Specific Descriptions
 
 const lich_spell_descriptions = {
-    confusion: `Confusion - Pollutes your deck with 2 bad temporary cards.`,
+    confusion: `Confusion - Creates a cloud of confusion gas to pollute your deck.`,
     earthquake: `Earthquake - Causes chunks of the ceiling to rain down.`,
     flame_wave: `Flame Wave - Shoots 3 explosive fireballs towards the target.`,
     lava_moat: `Lava Moat - Creates pools of molten lava to shield the user.`,
     piercing_beam: `Piercing Beam - Fires a piercing beam in the direction closest to the target.`,
     rest: `Nothing.`,
-    summon: `Summon - Summons up to 2 random enemies`,
+    summon: `Summon - Summons 2 random enemies`,
     teleport: `Teleport - The user moves to a random square on the map`,
 }
 Object.freeze(lich_spell_descriptions);
@@ -1607,6 +1607,8 @@ Object.freeze(entity_types);
 const event_descriptions = {
     black_hole:
         `A Black Hole is beginning to form here.`,
+    confusion_cloud:
+        `A cloud of mind melting magic will confuse or stun everything inside. Lasts 3 turns.`,
     darkling_rift: 
         `If this space isn't blocked, a darkling will teleport here `
         +`next turn damaging everything nearby.`,
@@ -1626,6 +1628,7 @@ Object.freeze(event_descriptions);
 const event_names = {
     black_hole: `Black Hole`,
     bramble_shield: `Bramble Shield`,
+    confusion_cloud: `Confusion Cloud`,
     darkling_rift: `Darkling Rift`,
     delay: `Delay`,
     earthquake: `Earthquake`,
@@ -4400,18 +4403,20 @@ function forest_heart_death(self, target, map){
     }
     boss_death(self, target, map);
 }
+const LICH_SPELLS = [
+    summon_spell_generator(), 
+    earthquake_spell_generator(), 
+    flame_wave_spell_generator(),
+    confusion_spell_generator(),
+    lava_moat_spell_generator(),
+    piercing_beam_spell_generator(),
+]
+const LICH_UTIL_SPELLS = [
+    rest_spell_generator(),
+    teleport_spell_generator(), 
+]
 /** @type {TileGenerator} */
 function lich_tile(){
-    var spells = [
-        rest_spell_generator(),
-        teleport_spell_generator(), 
-        summon_spell_generator(), 
-        earthquake_spell_generator(), 
-        flame_wave_spell_generator(),
-        confusion_spell_generator(),
-        lava_moat_spell_generator(),
-        piercing_beam_spell_generator(),
-    ];
     var summons = [
         clay_golem_tile,
         darkling_tile,
@@ -4437,11 +4442,11 @@ function lich_tile(){
         telegraph_other: lich_telegraph_other,
         on_hit: lich_hit,
         on_death: boss_death,
-        spells,
+        spells: [...LICH_SPELLS],
         summons,
         card_drops: BOSS_CARDS.lich
     }
-    lich_prep(tile, 0);
+    lich_prep(tile, -2);
     return tile;
 }
 
@@ -4451,24 +4456,33 @@ function lich_ai(self, target, map){
         self.tile.spells === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(self.tile.cycle === 0){
+    if(self.tile.cycle === -2){
         // Move away and prepare the next spell.
         var moves = reverse_arr(order_nearby(target.difference));
         for(var i = 0; i < moves.length && !map.check_empty(self.location.plus(moves[i])); ++i){}
-        if(i < moves.length){
-            map.move(self.location, self.location.plus(moves[i]));
+        if(i >= moves.length){
+            // If stuck, prep teleport.
+            lich_prep(self.tile, -1);
         }
-        lich_prep(self.tile, random_num(self.tile.spells.length - 2) + 2);
+        else{
+            map.move(self.location, self.location.plus(moves[i]));
+            lich_prep(self.tile, random_num(self.tile.spells.length));
+        }
+    }
+    else if(self.tile.cycle === -1){
+        // Cast teleport.
+        LICH_UTIL_SPELLS[1].behavior(self, target, map);
+        lich_prep(self.tile, -2);
     }
     else{
         // Cast the current spell.
         self.tile.spells[self.tile.cycle].behavior(self, target, map);
-        lich_prep(self.tile, 0);
+        self.tile.spells.splice(self.tile.cycle, 1);
+        if(self.tile.spells.length === 0){
+            self.tile.spells = [...LICH_SPELLS];
+        }
+        lich_prep(self.tile, -2);
     }
-    var announcement = 
-        `${boss_descriptions.lich_announcement}\n`
-        +`${self.tile.spells[self.tile.cycle].description}`;
-    say_record(announcement);
 }
 
 /** @type {TelegraphFunction} */
@@ -4477,7 +4491,7 @@ function lich_telegraph(location, map, self){
         self.spells === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var spell = self.spells[self.cycle]
+    var spell = self.cycle < 0 ? LICH_UTIL_SPELLS[self.cycle + 2] : self.spells[self.cycle];
     if(spell.telegraph !== undefined){
         return spell.telegraph(location, map, self);
     }
@@ -4490,7 +4504,7 @@ function lich_telegraph_other(location, map, self){
         self.spells === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var spell = self.spells[self.cycle]
+    var spell = self.cycle < 0 ? LICH_UTIL_SPELLS[self.cycle + 2] : self.spells[self.cycle];
     if(spell.telegraph_other !== undefined){
         return spell.telegraph_other(location, map, self);
     }
@@ -4503,22 +4517,32 @@ function lich_hit(self, target, map){
         self.tile.spells === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(self.tile.cycle !== 1){
-        lich_prep(self.tile, 1);
-        var announcement = 
-            `${boss_descriptions.lich_change_announcement}\n`
-            +`${self.tile.spells[self.tile.cycle].description}`;
-        say_record(announcement);
+    if(self.tile.cycle !== -1){
+        if(self.tile.cycle >= 0){
+            self.tile.spells.splice(self.tile.cycle, 1);
+            if(self.tile.spells.length === 0){
+                self.tile.spells = [...LICH_SPELLS];
+            }
+        }
+        lich_prep(self.tile, -1, true);
     }
 }
 
-function lich_prep(tile, cycle){
+// Function to prep a new spell.
+function lich_prep(tile, cycle, change = false){
+    var spell = cycle < 0 ? LICH_UTIL_SPELLS[cycle + 2] : tile.spells[cycle];
     tile.cycle = cycle;
     tile.description = 
         `${boss_descriptions.lich}\n`
         +`${boss_descriptions.lich_announcement}\n`
-        +`${tile.spells[cycle].description}`;
-    tile.pic = tile.spells[cycle].pic;
+        +`${spell.description}`;
+    tile.pic = spell.pic;
+    var announcement = 
+        (change ? 
+            `${boss_descriptions.lich_change_announcement}\n` : 
+            `${boss_descriptions.lich_announcement}\n`)
+        +`${spell.description}`;
+    say_record(announcement);
 }
 /** @type {TileGenerator} */
 function lord_of_shadow_and_flame_tile(){
@@ -8301,7 +8325,7 @@ function altar_of_sunlight_on_enter(self, target, map){
     }
     for(var i = 0; i < 3; ++i){
         var rectangle = point_rectangle(target.plus(new Point(i, i)), target.plus(new Point(-i, -i)));
-        var rectangle = rectangle.filter((p) => {
+        rectangle = rectangle.filter((p) => {
             return map.is_in_bounds(p);
         })
         map.add_event({name: event_names.delay, behavior: delay_event(i + 1, delay(rectangle))});
@@ -10345,14 +10369,52 @@ function confusion_spell_generator(){
 
 /** @type {AIFunction} Spell which adds 2 random temporary debuff cards to the player's deck.*/
 function confusion_spell(self, target, map){
-    for(var i = 0; i < 2; ++i){
-        map.stun_tile(self.location.plus(target.difference));
+    var mark = {
+        pic: `${IMG_FOLDER.tiles}confusion_cloud.png`,
+        description: event_descriptions.confusion_cloud,
+        telegraph_other: hazard_telegraph
+    }
+    var cloud = function(locations){
+        return function(map_to_use){
+            for(var location of locations){
+                map_to_use.stun_tile(location);
+            }
+        }
+    }
+    var delay = (points) => {
+        return (map_to_use) => {
+            for(var point of points){
+                map_to_use.mark_event(point, mark);
+            }
+            map_to_use.add_event({name: event_names.confusion_cloud, behavior: cloud(points)});
+        }
+    } 
+    var target = map.get_player_location();
+    if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+        var miss = get_nearest_where(map, target, (t, p) => {
+            return t.type === entity_types.enemy && !point_equals(p, self.location);
+        });
+        target = miss ? miss : target;
+    }
+    for(var i = 0; i < 3; ++i){
+        var rectangle = point_rectangle(target.plus(new Point(1, 1)), target.plus(new Point(-1, -1)));
+        rectangle = [...rectangle, target.copy()];
+        rectangle = rectangle.filter((p) => {
+            return map.is_in_bounds(p);
+        })
+        map.add_event({name: event_names.delay, behavior: delay_event(i + 1, delay(rectangle))});
     }
 }
 
 /** @type {TelegraphFunction} Shows that the player will be confused.*/
 function confusion_spell_telegraph(location, map, self){
-    return [map.get_player_location()];
+    var target = map.get_player_location();
+    var rectangle = point_rectangle(target.plus(new Point(1, 1)), target.plus(new Point(-1, -1)));
+    rectangle = [...rectangle, target.copy()];
+    rectangle = rectangle.filter((p) => {
+        return map.is_in_bounds(p);
+    })
+    return rectangle;
 }
 /** @type {SpellGenerator} */
 function earthquake_spell_generator(){

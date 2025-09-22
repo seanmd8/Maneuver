@@ -96,7 +96,7 @@ Object.freeze(boss_death_message);
 // Boss Specific Descriptions
 
 const lich_spell_descriptions = {
-    confusion: `Confusion - Pollutes your deck with 2 bad temporary cards.`,
+    confusion: `Confusion - Creates a cloud of confusion gas to pollute your deck.`,
     earthquake: `Earthquake - Causes chunks of the ceiling to rain down.`,
     flame_wave: `Flame Wave - Shoots 3 explosive fireballs towards the target.`,
     lava_moat: `Lava Moat - Creates pools of molten lava to shield the user.`,
