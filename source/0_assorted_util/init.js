@@ -4,7 +4,7 @@ function init_settings(){
         enemies: undefined,
         spawnpoints: undefined,
         chests: undefined,
-        cards: [debilitating_confusion],
+        cards: undefined,
         area: undefined,
         area_size: undefined,
         achievements: undefined,
