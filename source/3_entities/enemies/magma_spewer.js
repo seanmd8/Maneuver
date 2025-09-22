@@ -52,7 +52,13 @@ function magma_spewer_ai(self, target, map){
                 locations.push(center.plus(new Point(i, j)));
             }
         }
-        map.add_event({name: event_names.falling_magma, behavior: earthquake_event(random_num(4) + 4, locations)})
+        map.add_event({
+            name: event_names.falling_magma, 
+            behavior: earthquake_event(random_num(4) + random_num(4) + 4, locations)
+        })
+        if(chance(1, 4)){
+            map.add_event({name: event_names.falling_magma, behavior: targeted_earthquake_event([center])});
+        }
     }
     self.tile.cycle = 1 - self.tile.cycle;
     self.tile.pic = self.tile.pic_arr[self.tile.cycle];
