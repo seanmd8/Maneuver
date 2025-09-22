@@ -149,7 +149,8 @@ const enemy_descriptions = {
     ],
     wheel_of_fire:
         `Wheel of Fire: Can shoot a jet of fire in any direction that hits the first thing in it's `
-        +`path. If no target is sighted, it will instead move 1 space randomly.`,
+        +`path. Retreats if the player is next to it. If no target is sighted, it will instead move `
+        +`1 space randomly.`,
 }
 Object.freeze(enemy_descriptions);
 
