@@ -1239,7 +1239,8 @@ const enemy_descriptions = {
         +`aimlessly. Over time they will multiply.`,
     claustropede:
         `Claustropede: Will attack the player if they are nearby. Otherwise moves one space closer. `
-        +`When hit it will spend it's next turn dividing and teleporting away.`,
+        +`When hit it will spend it's next turn dividing and teleporting away with both halves being `
+        +`stunned twice.`,
     clay_golem: 
         `Clay Golem: Will attack the player if it is next to them. Otherwise `
         +`it will move 1 space closer. Taking damage will stun it and it cannot `
@@ -5593,7 +5594,7 @@ function claustropede_2_tile(){
         description: enemy_descriptions.claustropede,
         tags: new TagList(),
         health: 2,
-        difficulty: 6,
+        difficulty: 7,
         behavior: claustropede_ai,
         on_hit: claustropede_hit,
         telegraph: claustropede_telegraph,
@@ -5609,7 +5610,7 @@ function claustropede_3_tile(){
         description: enemy_descriptions.claustropede,
         tags: new TagList(),
         health: 3,
-        difficulty: 10,
+        difficulty: 12,
         behavior: claustropede_ai,
         on_hit: claustropede_hit,
         telegraph: claustropede_telegraph,
@@ -5633,6 +5634,7 @@ function claustropede_ai(self, target, map){
         for(var i = 0; i < 2; ++i){
             map.attack(self.location);
             var copy = copy_fun();
+            stun(copy);
             stun(copy);
             map.spawn_safely(copy, SAFE_SPAWN_ATTEMPTS, true);
         }
@@ -15659,7 +15661,7 @@ function dash_nw(){
     options.add_button(S, [pmove(0, 1), pmove(0, 1)]);
     options.add_button(E, [pmove(1, 0), pmove(1, -0)]);
     return{
-        name: card_names.da,
+        name: card_names.dash_nw,
         pic: `${IMG_FOLDER.cards}dash_nw.png`,
         options
     }

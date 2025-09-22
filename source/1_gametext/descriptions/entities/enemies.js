@@ -20,7 +20,8 @@ const enemy_descriptions = {
         +`aimlessly. Over time they will multiply.`,
     claustropede:
         `Claustropede: Will attack the player if they are nearby. Otherwise moves one space closer. `
-        +`When hit it will spend it's next turn dividing and teleporting away.`,
+        +`When hit it will spend it's next turn dividing and teleporting away with both halves being `
+        +`stunned twice.`,
     clay_golem: 
         `Clay Golem: Will attack the player if it is next to them. Otherwise `
         +`it will move 1 space closer. Taking damage will stun it and it cannot `

@@ -7,7 +7,7 @@ function claustropede_3_tile(){
         description: enemy_descriptions.claustropede,
         tags: new TagList(),
         health: 3,
-        difficulty: 10,
+        difficulty: 12,
         behavior: claustropede_ai,
         on_hit: claustropede_hit,
         telegraph: claustropede_telegraph,
