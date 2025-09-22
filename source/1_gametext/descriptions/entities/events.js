@@ -1,6 +1,8 @@
 const event_descriptions = {
     black_hole:
         `A Black Hole is beginning to form here.`,
+    confusion_cloud:
+        `A cloud of mind melting magic will confuse or stun everything inside. Lasts 3 turns.`,
     darkling_rift: 
         `If this space isn't blocked, a darkling will teleport here `
         +`next turn damaging everything nearby.`,
@@ -20,6 +22,7 @@ Object.freeze(event_descriptions);
 const event_names = {
     black_hole: `Black Hole`,
     bramble_shield: `Bramble Shield`,
+    confusion_cloud: `Confusion Cloud`,
     darkling_rift: `Darkling Rift`,
     delay: `Delay`,
     earthquake: `Earthquake`,

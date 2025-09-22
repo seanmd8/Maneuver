@@ -9,6 +9,22 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+9/22/25
+- Rebalanced Wheel of Fire: Now flees when approached.
+- Rebalanced Blood Crescent: Now moves 3 spaces, but only moves every other turn.
+- Rebalanced Claustropede: Divided halves are now stunned twice.
+- Rebalanced Magma Spewer: Now has a chance to target player.
+- Tweaked Lich Boss Fight:
+    - No longer teleports when approached.
+    - Announces when changing spell to teleport after being hit.
+    - Earthquake spell is guaranteed to target player and will avoid targeting spaces near the lich.
+    - Confusion spell now creates a cloud that stuns/confuses players or enemies and lasts 3 turns.
+    - Summon spell list has been changed.
+    - Now cycles through spells before repeating any to avoid spamming the same one.
+    - Debilitating Confusion Boss card buffed to stun 3 times.
+- Added new rare floor generator to Magma Area.
+- Fixed Bug with Dash NW causing crash when picked.
+
 9/17/25
 - Cards in journal keep track of times picked and removed.
 - Boons in journal keep track of times picked.

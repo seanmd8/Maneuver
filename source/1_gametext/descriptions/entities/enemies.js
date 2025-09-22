@@ -7,8 +7,8 @@ const enemy_descriptions = {
         +`damage everything close to it, then move 1 space closer to the player. `
         +`After 3 turns, it will go back to sleep.`,
     blood_crescent:
-        `Blood Crescent: Will move 2 spaces diagonally towards the player damaging them if it `
-        +`hits them or passes next to them.`,
+        `Blood Crescent: Will move 3 spaces diagonally towards the player damaging them if it `
+        +`hits them or passes next to them. Moves every other turn.`,
     brightling: 
         `Brightling: Is not aggressive. Will occasionally teleport the player `
         +`close to it before teleporting away the next turn.`,
@@ -20,7 +20,8 @@ const enemy_descriptions = {
         +`aimlessly. Over time they will multiply.`,
     claustropede:
         `Claustropede: Will attack the player if they are nearby. Otherwise moves one space closer. `
-        +`When hit it will spend it's next turn dividing and teleporting away.`,
+        +`When hit it will spend it's next turn dividing and teleporting away with both halves being `
+        +`stunned twice.`,
     clay_golem: 
         `Clay Golem: Will attack the player if it is next to them. Otherwise `
         +`it will move 1 space closer. Taking damage will stun it and it cannot `
@@ -149,7 +150,8 @@ const enemy_descriptions = {
     ],
     wheel_of_fire:
         `Wheel of Fire: Can shoot a jet of fire in any direction that hits the first thing in it's `
-        +`path. If no target is sighted, it will instead move 1 space randomly.`,
+        +`path. Retreats if the player is next to it. If no target is sighted, it will instead move `
+        +`1 space randomly.`,
 }
 Object.freeze(enemy_descriptions);
 

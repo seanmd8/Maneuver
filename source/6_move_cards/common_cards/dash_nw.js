@@ -5,7 +5,7 @@ function dash_nw(){
     options.add_button(S, [pmove(0, 1), pmove(0, 1)]);
     options.add_button(E, [pmove(1, 0), pmove(1, -0)]);
     return{
-        name: card_names.da,
+        name: card_names.dash_nw,
         pic: `${IMG_FOLDER.cards}dash_nw.png`,
         options
     }

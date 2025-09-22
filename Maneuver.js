@@ -1106,7 +1106,9 @@ const boss_descriptions = {
         `Lich (Boss): An undead wielder of dark magic. Alternates between moving `
         +`one space away from you and casting a spell.`,
     lich_announcement: 
-        `The Lich is currently preparing to cast:`,
+        `The Lich is preparing to cast:`,
+    lich_change_announcement: 
+        `The Lich changed it's spell to:`,
     lord_of_shadow_and_flame:
         `Lord of Shadow and Flame (Final Boss): Ruler from beyond the veil of reality. Summons `
         +`altars from which to cast it's spells. When next to the player it will prepare to attack `
@@ -1176,14 +1178,14 @@ Object.freeze(boss_death_message);
 // Boss Specific Descriptions
 
 const lich_spell_descriptions = {
-    confusion: `Confusion: Pollutes your deck with 2 bad temporary cards.`,
-    earthquake: `Earthquake: Causes chunks of the ceiling to rain down.`,
-    flame_wave: `Flame Wave: Shoots 3 explosive fireballs towards the target.`,
-    lava_moat: `Lava Moat: Creates pools of molten lava to shield the user.`,
-    piercing_beam: `Piercing Beam: Fires a piercing beam in the direction closest to the target.`,
+    confusion: `Confusion - Creates a cloud of confusion gas to pollute your deck.`,
+    earthquake: `Earthquake - Causes chunks of the ceiling to rain down.`,
+    flame_wave: `Flame Wave - Shoots 3 explosive fireballs towards the target.`,
+    lava_moat: `Lava Moat - Creates pools of molten lava to shield the user.`,
+    piercing_beam: `Piercing Beam - Fires a piercing beam in the direction closest to the target.`,
     rest: `Nothing.`,
-    summon: `Summon: Summons a random enemy`,
-    teleport: `Teleport: The user moves to a random square on the map`,
+    summon: `Summon - Summons 2 random enemies`,
+    teleport: `Teleport - The user moves to a random square on the map`,
 }
 Object.freeze(lich_spell_descriptions);
 
@@ -1224,8 +1226,8 @@ const enemy_descriptions = {
         +`damage everything close to it, then move 1 space closer to the player. `
         +`After 3 turns, it will go back to sleep.`,
     blood_crescent:
-        `Blood Crescent: Will move 2 spaces diagonally towards the player damaging them if it `
-        +`hits them or passes next to them.`,
+        `Blood Crescent: Will move 3 spaces diagonally towards the player damaging them if it `
+        +`hits them or passes next to them. Moves every other turn.`,
     brightling: 
         `Brightling: Is not aggressive. Will occasionally teleport the player `
         +`close to it before teleporting away the next turn.`,
@@ -1237,7 +1239,8 @@ const enemy_descriptions = {
         +`aimlessly. Over time they will multiply.`,
     claustropede:
         `Claustropede: Will attack the player if they are nearby. Otherwise moves one space closer. `
-        +`When hit it will spend it's next turn dividing and teleporting away.`,
+        +`When hit it will spend it's next turn dividing and teleporting away with both halves being `
+        +`stunned twice.`,
     clay_golem: 
         `Clay Golem: Will attack the player if it is next to them. Otherwise `
         +`it will move 1 space closer. Taking damage will stun it and it cannot `
@@ -1366,7 +1369,8 @@ const enemy_descriptions = {
     ],
     wheel_of_fire:
         `Wheel of Fire: Can shoot a jet of fire in any direction that hits the first thing in it's `
-        +`path. If no target is sighted, it will instead move 1 space randomly.`,
+        +`path. Retreats if the player is next to it. If no target is sighted, it will instead move `
+        +`1 space randomly.`,
 }
 Object.freeze(enemy_descriptions);
 
@@ -1604,6 +1608,8 @@ Object.freeze(entity_types);
 const event_descriptions = {
     black_hole:
         `A Black Hole is beginning to form here.`,
+    confusion_cloud:
+        `A cloud of mind melting magic will confuse or stun everything inside. Lasts 3 turns.`,
     darkling_rift: 
         `If this space isn't blocked, a darkling will teleport here `
         +`next turn damaging everything nearby.`,
@@ -1623,6 +1629,7 @@ Object.freeze(event_descriptions);
 const event_names = {
     black_hole: `Black Hole`,
     bramble_shield: `Bramble Shield`,
+    confusion_cloud: `Confusion Cloud`,
     darkling_rift: `Darkling Rift`,
     delay: `Delay`,
     earthquake: `Earthquake`,
@@ -4273,7 +4280,7 @@ function forest_heart_tile(){
         name: boss_names.forest_heart,
         pic: pic_arr[0],
         display_pic: `${IMG_FOLDER.tiles}forest_heart.png`,
-        description: boss_descriptions.forest_heart + heart_spell_descriptions.rest,
+        description: `${boss_descriptions.forest_heart} ${heart_spell_descriptions.rest}`,
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
         health,
         death_message: boss_death_message.forest_heart,
@@ -4315,7 +4322,7 @@ function forest_heart_ai(self, target, map){
             tile.health = health;
             tile.pic = tile.pic_arr[0];
             if(tile.health > 1){
-                tile.description = boss_descriptions.forest_heart + next_spell.description;
+                tile.description = `${boss_descriptions.forest_heart} ${next_spell.description}`;
                 tile.pic = next_spell.pic;
                 tile.telegraph_other = next_spell.telegraph_other;
             }
@@ -4397,39 +4404,33 @@ function forest_heart_death(self, target, map){
     }
     boss_death(self, target, map);
 }
+const LICH_SPELLS = [
+    summon_spell_generator(), 
+    earthquake_spell_generator(), 
+    flame_wave_spell_generator(),
+    confusion_spell_generator(),
+    lava_moat_spell_generator(),
+    piercing_beam_spell_generator(),
+]
+const LICH_UTIL_SPELLS = [
+    rest_spell_generator(),
+    teleport_spell_generator(), 
+]
 /** @type {TileGenerator} */
 function lich_tile(){
-    var spells = [
-        rest_spell_generator(),
-        teleport_spell_generator(), 
-        summon_spell_generator(), 
-        earthquake_spell_generator(), 
-        flame_wave_spell_generator(),
-        confusion_spell_generator(),
-        lava_moat_spell_generator(),
-        piercing_beam_spell_generator(),
-    ];
     var summons = [
-        shadow_scout_tile,
-        shadow_knight_tile,
-        ram_tile,
-        rat_tile,
         clay_golem_tile,
-        vampire_tile,
-        maw_tile,
-        pheonix_tile,
         darkling_tile,
+        maw_tile,
+        shadow_knight_tile,
+        shadow_scout_tile,
+        specter_tile,
+        vampire_tile,
     ];
-    var starting_cycle = 0;
-    return{
+    var tile = {
         type: entity_types.enemy,
         name: boss_names.lich,
-        pic: spells[starting_cycle].pic,
         display_pic: `${IMG_FOLDER.tiles}lich_rest.png`,
-        description: 
-            `${boss_descriptions.lich}\n`
-            +`${boss_descriptions.lich_announcement}\n`
-            +`${spells[starting_cycle].description}`,
         tags: new TagList([TAGS.boss]),
         health: 4,
         death_message: boss_death_message.lich,
@@ -4439,11 +4440,12 @@ function lich_tile(){
         telegraph_other: lich_telegraph_other,
         on_hit: lich_hit,
         on_death: boss_death,
-        cycle: starting_cycle,
-        spells,
+        spells: [...LICH_SPELLS],
         summons,
         card_drops: BOSS_CARDS.lich
     }
+    lich_prep(tile, -2);
+    return tile;
 }
 
 /** @type {AIFunction} AI used by the Lich.*/
@@ -4452,35 +4454,33 @@ function lich_ai(self, target, map){
         self.tile.spells === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(self.tile.cycle === 0){
+    if(self.tile.cycle === -2){
         // Move away and prepare the next spell.
-        var player_close = (target.difference.within_radius(1));
         var moves = reverse_arr(order_nearby(target.difference));
         for(var i = 0; i < moves.length && !map.check_empty(self.location.plus(moves[i])); ++i){}
-        if(i < moves.length){
+        if(i >= moves.length){
+            // If stuck, prep teleport.
+            lich_prep(self.tile, -1);
+        }
+        else{
             map.move(self.location, self.location.plus(moves[i]));
+            lich_prep(self.tile, random_num(self.tile.spells.length));
         }
-        if(self.tile.cycle === 0){
-            self.tile.cycle = random_num(self.tile.spells.length - 2) + 2;
-        }
-        if(player_close || i >= moves.length){
-            self.tile.cycle = 1;
-        }
+    }
+    else if(self.tile.cycle === -1){
+        // Cast teleport.
+        LICH_UTIL_SPELLS[1].behavior(self, target, map);
+        lich_prep(self.tile, -2);
     }
     else{
         // Cast the current spell.
         self.tile.spells[self.tile.cycle].behavior(self, target, map);
-        self.tile.cycle = 0;
+        self.tile.spells.splice(self.tile.cycle, 1);
+        if(self.tile.spells.length === 0){
+            self.tile.spells = [...LICH_SPELLS];
+        }
+        lich_prep(self.tile, -2);
     }
-    self.tile.description = 
-        `${boss_descriptions.lich}\n`
-        +`${boss_descriptions.lich_announcement}\n`
-        +`${self.tile.spells[self.tile.cycle].description}`;
-    self.tile.pic = self.tile.spells[self.tile.cycle].pic;
-    var announcement = 
-        `${boss_descriptions.lich_announcement}\n`
-        +`${self.tile.spells[self.tile.cycle].description}`;
-    map.add_event({name: event_names.spell_announcement, behavior: () => {say_record(announcement)}});
 }
 
 /** @type {TelegraphFunction} */
@@ -4489,7 +4489,7 @@ function lich_telegraph(location, map, self){
         self.spells === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var spell = self.spells[self.cycle]
+    var spell = self.cycle < 0 ? LICH_UTIL_SPELLS[self.cycle + 2] : self.spells[self.cycle];
     if(spell.telegraph !== undefined){
         return spell.telegraph(location, map, self);
     }
@@ -4502,7 +4502,7 @@ function lich_telegraph_other(location, map, self){
         self.spells === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var spell = self.spells[self.cycle]
+    var spell = self.cycle < 0 ? LICH_UTIL_SPELLS[self.cycle + 2] : self.spells[self.cycle];
     if(spell.telegraph_other !== undefined){
         return spell.telegraph_other(location, map, self);
     }
@@ -4515,12 +4515,32 @@ function lich_hit(self, target, map){
         self.tile.spells === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    self.tile.cycle = 1;
-    self.tile.description = 
+    if(self.tile.cycle !== -1){
+        if(self.tile.cycle >= 0){
+            self.tile.spells.splice(self.tile.cycle, 1);
+            if(self.tile.spells.length === 0){
+                self.tile.spells = [...LICH_SPELLS];
+            }
+        }
+        lich_prep(self.tile, -1, true);
+    }
+}
+
+// Function to prep a new spell.
+function lich_prep(tile, cycle, change = false){
+    var spell = cycle < 0 ? LICH_UTIL_SPELLS[cycle + 2] : tile.spells[cycle];
+    tile.cycle = cycle;
+    tile.description = 
         `${boss_descriptions.lich}\n`
         +`${boss_descriptions.lich_announcement}\n`
-        +`${self.tile.spells[self.tile.cycle].description}`;
-    self.tile.pic = self.tile.spells[self.tile.cycle].pic;
+        +`${spell.description}`;
+    tile.pic = spell.pic;
+    var announcement = 
+        (change ? 
+            `${boss_descriptions.lich_change_announcement}\n` : 
+            `${boss_descriptions.lich_announcement}\n`)
+        +`${spell.description}`;
+    say_record(announcement);
 }
 /** @type {TileGenerator} */
 function lord_of_shadow_and_flame_tile(){
@@ -5303,16 +5323,21 @@ function animated_boulder_wake_up(self, target, map){
 }
 /** @type {TileGenerator} */
 function blood_crescent_tile(){
+    var pic_arr = [`${IMG_FOLDER.tiles}blood_crescent_wait.png`, `${IMG_FOLDER.tiles}blood_crescent.png`];
+    var starting_cycle = random_num(pic_arr.length);
     return{
         type: entity_types.enemy,
         name: enemy_names.blood_crescent,
-        pic: `${IMG_FOLDER.tiles}blood_crescent.png`,
+        pic: pic_arr[starting_cycle],
+        display_pic: pic_arr[1],
         description: enemy_descriptions.blood_crescent,
         tags: new TagList(),
         health: 1,
-        difficulty: 6,
+        difficulty: 5,
         behavior: blood_crescent_ai,
         telegraph: blood_crescent_telegraph,
+        pic_arr,
+        cycle: starting_cycle,
         rotate: 90 * random_num(4)
     }
 }
@@ -5322,46 +5347,53 @@ function blood_crescent_ai(self, target, map){
     if(self.tile.rotate === undefined){
         throw new Error(ERRORS.missing_property)
     }
-    var distance = 2;
-    self.tile.direction = order_nearby(target.difference).filter((p) => {
-        return p.on_diagonal();
-    })[0];
-    // Rotate image based on direction.
-    var direction = self.tile.direction;
-    set_rotation(self.tile);
-    var ahead = self.location.plus(direction);
-    if(point_equals(self.location.plus(target.difference), ahead)){
-        map.attack(ahead);
-    }
-    for(var i = 0; i < distance && map.move(self.location, self.location.plus(direction)) ; ++i){
-        // moves <distance> spaces attacking each space it passes next to. Stops when blocked.
-        self.location.plus_equals(direction);
-        target.difference.minus_equals(direction);
-        var passed = [new Point(direction.x, 0), new Point(0, direction.y)];
-        for(var p of passed){
-            if(
-                point_equals(target.difference, p.times(-1)) || 
-                map.check_empty(self.location.minus(p)) ||
-                (GS.boons.has(boon_names.manic_presence) && chance(1, 2))
-            ){
-                map.attack(self.location.minus(p));
+    if(self.tile.cycle === 1){
+        var distance = 3;
+        self.tile.direction = order_nearby(target.difference).filter((p) => {
+            return p.on_diagonal();
+        })[0];
+        // Rotate image based on direction.
+        var direction = self.tile.direction;
+        set_rotation(self.tile);
+        var ahead = self.location.plus(direction);
+        if(point_equals(self.location.plus(target.difference), ahead)){
+            map.attack(ahead);
+        }
+        for(var i = 0; i < distance && map.move(self.location, self.location.plus(direction)) ; ++i){
+            // moves <distance> spaces attacking each space it passes next to. Stops when blocked.
+            self.location.plus_equals(direction);
+            target.difference.minus_equals(direction);
+            var passed = [new Point(direction.x, 0), new Point(0, direction.y)];
+            for(var p of passed){
+                if(
+                    point_equals(target.difference, p.times(-1)) || 
+                    map.check_empty(self.location.minus(p)) ||
+                    (GS.boons.has(boon_names.manic_presence) && chance(1, 2))
+                ){
+                    map.attack(self.location.minus(p));
+                }
+            }
+            if(i + 1 < distance){
+                ahead = self.location.plus(direction);
+                if(
+                    point_equals(self.location.plus(target.difference), ahead) ||
+                    (GS.boons.has(boon_names.manic_presence) && chance(1, 2))
+                ){
+                    map.attack(ahead);
+                }
             }
         }
-        if(i + 1 < distance){
-            ahead = self.location.plus(direction);
-            if(
-                point_equals(self.location.plus(target.difference), ahead) ||
-                (GS.boons.has(boon_names.manic_presence) && chance(1, 2))
-            ){
-                map.attack(ahead);
-            }
-        }
     }
+    self.tile.cycle = 1 - self.tile.cycle;
+    self.tile.pic = self.tile.pic_arr[self.tile.cycle];
 }
 
 /** @type {TelegraphFunction} */
 function blood_crescent_telegraph(location, map, self){
     var attacks = [];
+    if(self.cycle === 0){
+        return attacks;
+    }
     for(var direction of DIAGONAL_DIRECTIONS){
         var current = location.copy();
         for(var i = 0; i < 2 && map.check_empty(current.plus_equals(direction)); ++i){
@@ -5562,7 +5594,7 @@ function claustropede_2_tile(){
         description: enemy_descriptions.claustropede,
         tags: new TagList(),
         health: 2,
-        difficulty: 6,
+        difficulty: 7,
         behavior: claustropede_ai,
         on_hit: claustropede_hit,
         telegraph: claustropede_telegraph,
@@ -5578,7 +5610,7 @@ function claustropede_3_tile(){
         description: enemy_descriptions.claustropede,
         tags: new TagList(),
         health: 3,
-        difficulty: 10,
+        difficulty: 12,
         behavior: claustropede_ai,
         on_hit: claustropede_hit,
         telegraph: claustropede_telegraph,
@@ -5602,6 +5634,7 @@ function claustropede_ai(self, target, map){
         for(var i = 0; i < 2; ++i){
             map.attack(self.location);
             var copy = copy_fun();
+            stun(copy);
             stun(copy);
             map.spawn_safely(copy, SAFE_SPAWN_ATTEMPTS, true);
         }
@@ -5988,7 +6021,13 @@ function magma_spewer_ai(self, target, map){
                 locations.push(center.plus(new Point(i, j)));
             }
         }
-        map.add_event({name: event_names.falling_magma, behavior: earthquake_event(random_num(4) + 4, locations)})
+        map.add_event({
+            name: event_names.falling_magma, 
+            behavior: earthquake_event(random_num(4) + random_num(4) + 4, locations)
+        })
+        if(chance(1, 4)){
+            map.add_event({name: event_names.falling_magma, behavior: targeted_earthquake_event([center])});
+        }
     }
     self.tile.cycle = 1 - self.tile.cycle;
     self.tile.pic = self.tile.pic_arr[self.tile.cycle];
@@ -7928,7 +7967,17 @@ function wheel_of_fire_tile(){
 
 /** @type {AIFunction} AI used by Wheels of Fire.*/
 function wheel_of_fire_ai(self, target, map){
-    if((target.difference.on_axis() || target.difference.on_diagonal())){
+    if(target.difference.within_radius(1)){
+        // Player is nearby.
+        var moves = reverse_arr(order_nearby(target.difference));
+        for(var i = 0; i < moves.length && !map.check_empty(self.location.plus(moves[i])); ++i){}
+        if(i < moves.length){
+            map.move(self.location, self.location.plus(moves[i]));
+        }
+
+    }
+    else if((target.difference.on_axis() || target.difference.on_diagonal())){
+        // Aiming at player.
         var direction = sign(target.difference);
         var hit = false;
         for(var space = self.location.plus(direction); !hit; space.plus_equals(direction)){
@@ -7943,6 +7992,7 @@ function wheel_of_fire_ai(self, target, map){
         }
     }
     else if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+        // Misfire.
         var direction = sign(rand_from(ALL_DIRECTIONS));
         var hit = false;
         for(var space = self.location.plus(direction); !hit; space.plus_equals(direction)){
@@ -7955,9 +8005,9 @@ function wheel_of_fire_ai(self, target, map){
                 hit = true;
             }
         }
-
     }
     else{
+        // Move randomly.
         var direction = get_empty_nearby(self.location, random_nearby(), map);
         if(!(direction === undefined)){
             map.move(self.location, self.location.plus(direction));
@@ -7974,6 +8024,12 @@ function wheel_of_fire_telegraph(location, map, self){
     for(var arr of dir_arrs){
         attacks.push(...arr);
     }
+    attacks = attacks.filter((p) => {
+        var nearby = p.minus(location).within_radius(1);
+        var full = !map.check_empty(p);
+        var player = point_equals(p, map.get_player_location());
+        return !nearby || (full && !player);
+    });
     return attacks;
 }
 function altar_on_enter(f){
@@ -8268,7 +8324,7 @@ function altar_of_sunlight_on_enter(self, target, map){
     }
     for(var i = 0; i < 3; ++i){
         var rectangle = point_rectangle(target.plus(new Point(i, i)), target.plus(new Point(-i, -i)));
-        var rectangle = rectangle.filter((p) => {
+        rectangle = rectangle.filter((p) => {
             return map.is_in_bounds(p);
         })
         map.add_event({name: event_names.delay, behavior: delay_event(i + 1, delay(rectangle))});
@@ -9352,6 +9408,35 @@ function growth_event(points, root, grown){
     }
     return plant(points);
 }
+/**
+ * @param {Point[]} locations A grid of locations to use.
+ * @returns {MapEventFunction} The event.
+ */
+function targeted_earthquake_event(locations){
+    var falling_rubble = function(locations){
+        return function(map_to_use){
+            for(var location of locations){
+                map_to_use.attack(location);
+            }
+        }
+    }
+    var earthquake = function(){
+        var falling_rubble_layer = {
+            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
+            description: event_descriptions.falling_rubble,
+            telegraph: hazard_telegraph
+        }
+        return function(map_to_use){
+            var rubble = [];
+            for(var space of locations){
+                map_to_use.mark_event(space, falling_rubble_layer);
+                rubble.push(space);
+            }
+            map_to_use.add_event({name: event_names.falling_rubble, behavior: falling_rubble(rubble)});
+        }
+    }
+    return earthquake();
+}
 // ----------------GeneralEnemyUtil.js----------------
 // File for utility functions and jsdoc typedefs used by ai functions.
 
@@ -10283,14 +10368,52 @@ function confusion_spell_generator(){
 
 /** @type {AIFunction} Spell which adds 2 random temporary debuff cards to the player's deck.*/
 function confusion_spell(self, target, map){
-    for(var i = 0; i < 2; ++i){
-        map.stun_tile(self.location.plus(target.difference));
+    var mark = {
+        pic: `${IMG_FOLDER.tiles}confusion_cloud.png`,
+        description: event_descriptions.confusion_cloud,
+        telegraph_other: hazard_telegraph
+    }
+    var cloud = function(locations){
+        return function(map_to_use){
+            for(var location of locations){
+                map_to_use.stun_tile(location);
+            }
+        }
+    }
+    var delay = (points) => {
+        return (map_to_use) => {
+            for(var point of points){
+                map_to_use.mark_event(point, mark);
+            }
+            map_to_use.add_event({name: event_names.confusion_cloud, behavior: cloud(points)});
+        }
+    } 
+    var target = map.get_player_location();
+    if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
+        var miss = get_nearest_where(map, target, (t, p) => {
+            return t.type === entity_types.enemy && !point_equals(p, self.location);
+        });
+        target = miss ? miss : target;
+    }
+    for(var i = 0; i < 3; ++i){
+        var rectangle = point_rectangle(target.plus(new Point(1, 1)), target.plus(new Point(-1, -1)));
+        rectangle = [...rectangle, target.copy()];
+        rectangle = rectangle.filter((p) => {
+            return map.is_in_bounds(p);
+        })
+        map.add_event({name: event_names.delay, behavior: delay_event(i + 1, delay(rectangle))});
     }
 }
 
 /** @type {TelegraphFunction} Shows that the player will be confused.*/
 function confusion_spell_telegraph(location, map, self){
-    return [map.get_player_location()];
+    var target = map.get_player_location();
+    var rectangle = point_rectangle(target.plus(new Point(1, 1)), target.plus(new Point(-1, -1)));
+    rectangle = [...rectangle, target.copy()];
+    rectangle = rectangle.filter((p) => {
+        return map.is_in_bounds(p);
+    })
+    return rectangle;
 }
 /** @type {SpellGenerator} */
 function earthquake_spell_generator(){
@@ -10304,7 +10427,18 @@ function earthquake_spell_generator(){
 /** @type {AIFunction} Spell which causes an earthquake causing debris to rain from the ceiling.*/
 function earthquake_spell(self, target, map){
     var amount = random_num(9) + random_num(9) + random_num(9) + random_num(9);
-    map.add_event({name: event_names.earthquake, behavior: earthquake_event(amount)});
+    var points = [];
+    for(var i = 0; i < FLOOR_WIDTH; ++i){
+        for(var j = 0; j < FLOOR_HEIGHT; ++j){
+            var p = new Point(i, j);
+            if(map.check_empty(p) && !p.minus(self.location).within_radius(1)){
+                points.push(p);
+            }
+        }
+    }
+    map.add_event({name: event_names.earthquake, behavior: earthquake_event(amount, points)});
+    var player = map.get_player_location();
+    map.add_event({name: event_names.earthquake, behavior: targeted_earthquake_event([player])});
 }
 /** @type {SpellGenerator} */
 function flame_wave_spell_generator(){
@@ -13016,7 +13150,6 @@ class SaveData{
     clear_area(name){
         var area = this.areas.get_node(name);
         area.clear();
-        console.log(`${area.data.name}: ${area.data.cleared}`);
         this.save();
     }
 
@@ -13709,13 +13842,18 @@ function generate_court_floor(floor_num, area, map){
         starcaller_terrain,
         shatter_sphere_terrain
     ]
-    if(chance(2, 3)){
-        rand_from(terrains)(floor_num, area, map);
-        generate_normal_floor(floor_num - 3, area, map);
+    var reduction = 0;
+    if(chance(1, 2)){
+        starcaller_terrain(floor_num, area, map);
+        reduction += 3;
     }
-    else{
-        generate_normal_floor(floor_num, area, map);
+    for(var i = 0; i < 4; ++i){
+        if(chance(1, 4)){
+            shatter_sphere_terrain(floor_num, area, map);
+            reduction += 1;
+        }
     }
+    generate_normal_floor(floor_num - reduction, area, map);
 }
 
 function starcaller_terrain(floor_num, area, map){
@@ -13729,7 +13867,7 @@ function starcaller_terrain(floor_num, area, map){
 }
 
 function shatter_sphere_terrain(floor_num, area, map){
-    var amount = random_num(6) + random_num(6);
+    var amount = random_num(4) + random_num(4);
     var summons = [
         shatter_sphere_tile,
         moon_rock_tile
@@ -13852,6 +13990,12 @@ function generate_magma_floor(floor_num, area, map){
         generate_normal_floor(floor_num, area, map);
         return;
     }
+    else if (chance(1, 12)){
+        boulder_field_terrain(floor_num, area, map);
+        repulsor_terrain(floor_num, area, map);
+        generate_normal_floor(floor_num - 5, area, map);
+        return;
+    }
     else if(chance(1, 4)){
         magma_border_terrain(floor_num, area, map);
     }
@@ -13923,6 +14067,18 @@ function magma_lake_terrain(floor_num, area, map){
             }
         }
     )
+}
+
+function boulder_field_terrain(floor_num, area, map){
+    var boulder_amount = random_num(6) + 4;
+    for(var i = 0; i < boulder_amount; ++i){
+        map.spawn_safely(magmatic_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+    boulder_amount = random_num(7) + random_num(7) + 8;
+    for(var i = 0; i < boulder_amount; ++i){
+        map.spawn_safely(animated_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+
 }
 /** @type {AreaGenerator}*/
 function generate_ruins_area(){
@@ -14799,7 +14955,7 @@ function debilitating_confusion(){
                 pstun(-1, 1),
                 pstun(-1, 0),
                 pstun(-1, -1)];
-    options.add_button(SPIN, [...spin, ...spin]);
+    options.add_button(SPIN, [...spin, ...spin, ...spin]);
     return{
         name: card_names.debilitating_confusion,
         pic: `${IMG_FOLDER.cards}debilitating_confusion.png`,
@@ -15505,7 +15661,7 @@ function dash_nw(){
     options.add_button(S, [pmove(0, 1), pmove(0, 1)]);
     options.add_button(E, [pmove(1, 0), pmove(1, -0)]);
     return{
-        name: card_names.da,
+        name: card_names.dash_nw,
         pic: `${IMG_FOLDER.cards}dash_nw.png`,
         options
     }

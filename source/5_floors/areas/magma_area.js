@@ -19,6 +19,12 @@ function generate_magma_floor(floor_num, area, map){
         generate_normal_floor(floor_num, area, map);
         return;
     }
+    else if (chance(1, 12)){
+        boulder_field_terrain(floor_num, area, map);
+        repulsor_terrain(floor_num, area, map);
+        generate_normal_floor(floor_num - 5, area, map);
+        return;
+    }
     else if(chance(1, 4)){
         magma_border_terrain(floor_num, area, map);
     }
@@ -90,4 +96,16 @@ function magma_lake_terrain(floor_num, area, map){
             }
         }
     )
+}
+
+function boulder_field_terrain(floor_num, area, map){
+    var boulder_amount = random_num(6) + 4;
+    for(var i = 0; i < boulder_amount; ++i){
+        map.spawn_safely(magmatic_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+    boulder_amount = random_num(7) + random_num(7) + 8;
+    for(var i = 0; i < boulder_amount; ++i){
+        map.spawn_safely(animated_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+
 }

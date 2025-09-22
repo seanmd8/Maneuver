@@ -24,7 +24,9 @@ const boss_descriptions = {
         `Lich (Boss): An undead wielder of dark magic. Alternates between moving `
         +`one space away from you and casting a spell.`,
     lich_announcement: 
-        `The Lich is currently preparing to cast:`,
+        `The Lich is preparing to cast:`,
+    lich_change_announcement: 
+        `The Lich changed it's spell to:`,
     lord_of_shadow_and_flame:
         `Lord of Shadow and Flame (Final Boss): Ruler from beyond the veil of reality. Summons `
         +`altars from which to cast it's spells. When next to the player it will prepare to attack `
@@ -94,14 +96,14 @@ Object.freeze(boss_death_message);
 // Boss Specific Descriptions
 
 const lich_spell_descriptions = {
-    confusion: `Confusion: Pollutes your deck with 2 bad temporary cards.`,
-    earthquake: `Earthquake: Causes chunks of the ceiling to rain down.`,
-    flame_wave: `Flame Wave: Shoots 3 explosive fireballs towards the target.`,
-    lava_moat: `Lava Moat: Creates pools of molten lava to shield the user.`,
-    piercing_beam: `Piercing Beam: Fires a piercing beam in the direction closest to the target.`,
+    confusion: `Confusion - Creates a cloud of confusion gas to pollute your deck.`,
+    earthquake: `Earthquake - Causes chunks of the ceiling to rain down.`,
+    flame_wave: `Flame Wave - Shoots 3 explosive fireballs towards the target.`,
+    lava_moat: `Lava Moat - Creates pools of molten lava to shield the user.`,
+    piercing_beam: `Piercing Beam - Fires a piercing beam in the direction closest to the target.`,
     rest: `Nothing.`,
-    summon: `Summon: Summons a random enemy`,
-    teleport: `Teleport: The user moves to a random square on the map`,
+    summon: `Summon - Summons 2 random enemies`,
+    teleport: `Teleport - The user moves to a random square on the map`,
 }
 Object.freeze(lich_spell_descriptions);
 

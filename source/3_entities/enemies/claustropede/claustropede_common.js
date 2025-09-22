@@ -16,6 +16,7 @@ function claustropede_ai(self, target, map){
             map.attack(self.location);
             var copy = copy_fun();
             stun(copy);
+            stun(copy);
             map.spawn_safely(copy, SAFE_SPAWN_ATTEMPTS, true);
         }
     }
