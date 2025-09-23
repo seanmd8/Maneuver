@@ -2678,7 +2678,7 @@ const DisplayHTML = {
         var select_id = `${location} select`
         select_button.id = select_id;
         var select_func = function(options, select_id){
-            var option_func_map = new Map()
+            var option_func_map = new Map();
             for(var option of options){
                 option_func_map.set(option.label, option.on_change);
             }
@@ -2692,7 +2692,11 @@ const DisplayHTML = {
                 chosen_option();
             }
         }
-        select_button.onchange = select_func(options_arr, select_id);
+        var f = select_func(options_arr, select_id);
+        select_button.onchange = () => {
+            f();
+            select_button.blur();
+        };
         for(var option_data of options_arr){
             var option = document.createElement(`option`);
             option.value = option_data.label;
@@ -10767,15 +10771,15 @@ class BoonTracker{
             var boon = boon_fun();
             if(boon.name === name){
                 this.#choices.splice(i, 1);
+                this.#boons.push(boon);
+                ++this.total;
+                GS.data.add_boon(boon.name);
                 if(boon.unlocks !== undefined){
                     this.#choices.push(...boon.unlocks);
                 }
                 if(boon.max === undefined || this.has(boon.name) < boon.max){
                     this.#choices.push(boon_fun);
                 }
-                this.#boons.push(boon);
-                ++this.total;
-                GS.data.add_boon(boon.name);
                 if(boon.on_pick !== undefined){
                     boon.on_pick();
                 }

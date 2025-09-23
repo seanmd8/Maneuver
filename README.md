@@ -24,6 +24,8 @@ Gameplay Changelog:
     - Debilitating Confusion Boss card buffed to stun 3 times.
 - Added new rare floor generator to Magma Area.
 - Fixed Bug with Dash NW causing crash when picked.
+- Fixed Bug with Boon maximum values not working.
+- Dropdown menu no longer retains focus after switching screens.
 
 9/17/25
 - Cards in journal keep track of times picked and removed.
