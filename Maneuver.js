@@ -10771,15 +10771,15 @@ class BoonTracker{
             var boon = boon_fun();
             if(boon.name === name){
                 this.#choices.splice(i, 1);
+                this.#boons.push(boon);
+                ++this.total;
+                GS.data.add_boon(boon.name);
                 if(boon.unlocks !== undefined){
                     this.#choices.push(...boon.unlocks);
                 }
                 if(boon.max === undefined || this.has(boon.name) < boon.max){
                     this.#choices.push(boon_fun);
                 }
-                this.#boons.push(boon);
-                ++this.total;
-                GS.data.add_boon(boon.name);
                 if(boon.on_pick !== undefined){
                     boon.on_pick();
                 }
