@@ -2678,7 +2678,7 @@ const DisplayHTML = {
         var select_id = `${location} select`
         select_button.id = select_id;
         var select_func = function(options, select_id){
-            var option_func_map = new Map()
+            var option_func_map = new Map();
             for(var option of options){
                 option_func_map.set(option.label, option.on_change);
             }
@@ -2692,7 +2692,11 @@ const DisplayHTML = {
                 chosen_option();
             }
         }
-        select_button.onchange = select_func(options_arr, select_id);
+        var f = select_func(options_arr, select_id);
+        select_button.onchange = () => {
+            f();
+            select_button.blur();
+        };
         for(var option_data of options_arr){
             var option = document.createElement(`option`);
             option.value = option_data.label;
