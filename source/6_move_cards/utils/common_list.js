@@ -2,7 +2,7 @@ const COMMON_CARDS = [
     advance, bounding_retreat, breakthrough_horizontal, breakthrough_vertical, butterfly, 
     charge_horizontal, charge_vertical, clear_behind, clear_in_front, combat_diagonal, 
     combat_orthogonal, dash_ne, dash_nw, diamond_attack, diamond_slice, 
-    explosion, force, fork, flanking_diagonal, flanking_horizontal, 
+    explosion, force_horizontal, force_vertical, fork, flanking_diagonal, flanking_horizontal, 
     flanking_vertical, hit_and_run, horsemanship, jab_diagonal, jab_orthogonal, 
     jump, leap_left, leap_right, lunge_left, lunge_right, 
     overcome_horizontal, overcome_vertical, pike, push_back, short_charge_orthogonal, 

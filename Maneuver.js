@@ -928,8 +928,9 @@ const card_names = {
     firebreathing_vertical: `Firebreathing Vertical`,
     flanking_diagonal: `Flanking Diagonal`,
     flanking_horizontal: `Flanking Horizontal`,
-    flanking_vertical: `flanking Vertical`,
-    force: `Force`,
+    flanking_vertical: `Flanking Vertical`,
+    force_horizontal: `Force Horizontal`,
+    force_vertical: `Force Vertical`,
     fork: `Fork`,
     freeze_up: `Freeze Up`,
     glide: `Glide`,
@@ -15434,13 +15435,24 @@ function flanking_vertical(){
     }
 }
 /** @type {CardGenerator}*/
-function force(){
+function force_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pattack(1, 0), pmove(1, 0), pattack(1, 0), pmove(1, 0)]);
+    options.add_button(W, [pattack(-1, 0), pmove(-1, 0), pattack(-1, 0), pmove(-1, 0)]);
+    return{
+        name: card_names.force_horizontal,
+        pic: `${IMG_FOLDER.cards}force_horizontal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function force_vertical(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(0, -1), pmove(0, -1), pattack(0, -1), pmove(0, -1)]);
     options.add_button(S, [pattack(0, 1), pmove(0, 1), pattack(0, 1), pmove(0, 1)]);
     return{
-        name: card_names.force,
-        pic: `${IMG_FOLDER.cards}force.png`,
+        name: card_names.force_vertical,
+        pic: `${IMG_FOLDER.cards}force_vertical.png`,
         options
     }
 }
@@ -16545,7 +16557,7 @@ const COMMON_CARDS = [
     advance, bounding_retreat, breakthrough_horizontal, breakthrough_vertical, butterfly, 
     charge_horizontal, charge_vertical, clear_behind, clear_in_front, combat_diagonal, 
     combat_orthogonal, dash_ne, dash_nw, diamond_attack, diamond_slice, 
-    explosion, force, fork, flanking_diagonal, flanking_horizontal, 
+    explosion, force_horizontal, force_vertical, fork, flanking_diagonal, flanking_horizontal, 
     flanking_vertical, hit_and_run, horsemanship, jab_diagonal, jab_orthogonal, 
     jump, leap_left, leap_right, lunge_left, lunge_right, 
     overcome_horizontal, overcome_vertical, pike, push_back, short_charge_orthogonal, 
