@@ -15200,18 +15200,18 @@ function soar(){
 // File containing utility functions used by cards.
 
 const BASIC_CARDS = [
-    basic_orthogonal, basic_diagonal, basic_slice
+    basic_diagonal, basic_orthogonal, basic_slice
 ];
 
 const BOON_CARDS = [
+    lost_maneuver,
+    back_stab_1, back_stab_2,
+    blink_1, blink_2,
+    maneuver_1, maneuver_2, maneuver_3,
     lost_technique,
     execution_1, execution_2, execution_3,
     split_second_1, split_second_2,
     superweapon_1, superweapon_2,
-    lost_maneuver,
-    maneuver_1, maneuver_2, maneuver_3,
-    back_stab_1, back_stab_2,
-    blink_1, blink_2,
 ];
 
 const BOSS_CARDS = {
