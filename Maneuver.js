@@ -15215,14 +15215,14 @@ const BOON_CARDS = [
 ];
 
 const BOSS_CARDS = {
-    arcane_sentry: [beam_ne, beam_se, beam_sw, beam_nw, saw_strike],
-    forest_heart: [snack, branch_strike, vine_snare],
-    lich: [instant_teleport, debilitating_confusion, beam_orthogonal, beam_diagonal],
-    spider_queen: [skitter, bite, chomp],
-    two_headed_serpent: [regenerate, fangs, slither],
-    velociphile: [roll_ne, roll_nw, roll_horizontal],
-    young_dragon: [firebreathing_horizontal, firebreathing_vertical, firebreathing_ne, 
-        firebreathing_nw, glide, soar],
+    arcane_sentry: [beam_ne, beam_nw, beam_se, beam_sw, saw_strike],
+    forest_heart: [branch_strike, snack, vine_snare],
+    lich: [beam_diagonal, beam_orthogonal, debilitating_confusion, instant_teleport],
+    spider_queen: [bite, chomp, skitter],
+    two_headed_serpent: [fangs, regenerate, slither],
+    velociphile: [roll_horizontal, roll_ne, roll_nw],
+    young_dragon: [firebreathing_horizontal, firebreathing_ne, firebreathing_nw, 
+        firebreathing_vertical, glide, soar],
 }
 
 const COMMON_CARDS = [
