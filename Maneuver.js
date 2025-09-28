@@ -14526,7 +14526,7 @@ function basic_slice(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1)]);
     options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(1, -1)]);
-    options.add_button(S, [pattack(1, 1), pattack(0, 1), pattack(-1, 1)]);
+    options.add_button(S,[pattack(1, 1), pattack(0, 1), pattack(-1, 1)]);
     options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-1, -1)]);
     return{
         name: card_names.basic_slice,
@@ -14831,7 +14831,7 @@ function maneuver_3(){
 function beam_ne(){
     var options = new ButtonGrid();
     options.add_button(NE, [pattack_until(0, -1), pattack_until(1, 0)]);
-    options.add_button(SW, [pmove(-1, 1)]);
+    options.add_button(SW, [pmove(-1, 1), pattack(-1, -1), pattack(1, 1), pattack(-1, 1)]);
     return{
         name: card_names.beam_ne,
         pic: `${IMG_FOLDER.cards}beam_ne.png`,
@@ -14842,7 +14842,7 @@ function beam_ne(){
 function beam_nw(){
     var options = new ButtonGrid();
     options.add_button(NW, [pattack_until(0, -1), pattack_until(-1, 0)]);
-    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(SE, [pmove(1, 1), pattack(-1, 1), pattack(1, -1), pattack(1, 1)]);
     return{
         name: card_names.beam_nw,
         pic: `${IMG_FOLDER.cards}beam_nw.png`,
@@ -14853,7 +14853,7 @@ function beam_nw(){
 function beam_se(){
     var options = new ButtonGrid();
     options.add_button(SE, [pattack_until(0, 1), pattack_until(1, 0)]);
-    options.add_button(NW, [pmove(-1, -1)]);
+    options.add_button(NW, [pmove(-1, -1), pattack(1, -1), pattack(-1, 1), pattack(-1, -1)]);
     return{
         name: card_names.beam_se,
         pic: `${IMG_FOLDER.cards}beam_se.png`,
@@ -14864,7 +14864,7 @@ function beam_se(){
 function beam_sw(){
     var options = new ButtonGrid();
     options.add_button(SW, [pattack_until(0, 1), pattack_until(-1, 0)]);
-    options.add_button(NE, [pmove(1, -1)]);
+    options.add_button(NE, [pmove(1, -1), pattack(-1, -1), pattack(1, 1), pattack(1, -1)]);
     return{
         name: card_names.beam_sw,
         pic: `${IMG_FOLDER.cards}beam_sw.png`,
@@ -15280,6 +15280,7 @@ function charge_vertical(){
 /** @type {CardGenerator}*/
 function clear_behind(){
     var options = new ButtonGrid();
+    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1)]);
     options.add_button(S, [pattack(2, 1), pattack(1, 1), pattack(0, 1), pattack(-1, 1), pattack(-2, 1), 
                            pattack(2, 2), pattack(1, 2), pattack(0, 2), pattack(-1, 2), pattack(-2, 2)]);
     return{
@@ -15293,6 +15294,7 @@ function clear_in_front(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1), 
                            pattack(1, -2), pattack(0, -2), pattack(-1, -2)]);
+    options.add_button(S,[pattack(1, 1), pattack(0, 1), pattack(-1, 1)]);
     return{
         name: card_names.clear_in_front,
         pic: `${IMG_FOLDER.cards}clear_in_front.png`,
@@ -15605,6 +15607,7 @@ function pike(){
 /** @type {CardGenerator}*/
 function push_back(){
     var options = new ButtonGrid();
+    options.add_button(C, [pattack(1, 0), pattack(-1, 0)]);
     options.add_button(SE, [pattack(-1, -1), pmove(1, 1)]);
     options.add_button(S, [pattack(0, -1), pmove(0, 1)]);
     options.add_button(SW, [pattack(1, -1), pmove(-1, 1)]);
@@ -15677,6 +15680,8 @@ function slash_step_right(){
 function slice_twice(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(1, -1), pattack(1, -1), pattack(0, -1), pattack(0, -1), pattack(-1, -1), pattack(-1, -1)]);
+    options.add_button(SE, [pattack(1, 1), pattack(1, 1)]);
+    options.add_button(SW, [pattack(-1, 1), pattack(-1, 1)]);
     return{
         name: card_names.slice_twice,
         pic: `${IMG_FOLDER.cards}slice_twice.png`,
@@ -15714,6 +15719,7 @@ function spearhead(){
     var options = new ButtonGrid();
     options.add_button(NE, [pmove(1, -1), pattack(1, -1), pattack(1, 0), pattack(0, -1)]);
     options.add_button(NW, [pmove(-1, -1), pattack(-1, -1), pattack(-1, 0), pattack(0, -1)]);
+    options.add_button(S, [pmove(0, 1)]);
     return{
         name: card_names.spearhead,
         pic: `${IMG_FOLDER.cards}spearhead.png`,
