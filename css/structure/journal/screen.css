@@ -1,6 +1,7 @@
 .journal-style{
     background-color: var(--journal-background-color);
     min-height: 100%;
-    min-width: 100%;
+    width: 100%;
+    min-width: 1456px;
     padding-bottom: 0px;
 }

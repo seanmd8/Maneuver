@@ -151,6 +151,7 @@ body{
 }
 body>div{
     padding: 8px;
+    box-sizing: border-box;
 }
 .control-box {
     display: flex;
@@ -946,10 +947,18 @@ body>div{
     overflow-x: auto;
     font-weight: 400;
 }
+
+@media (max-width: 1465px) {
+    .journal-info {
+        position: absolute;
+        left: 980px;
+    }
+}
 .journal-style{
     background-color: var(--journal-background-color);
     min-height: 100%;
-    min-width: 100%;
+    width: 100%;
+    min-width: 1456px;
     padding-bottom: 0px;
 }
 
