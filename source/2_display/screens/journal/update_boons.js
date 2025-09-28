@@ -16,24 +16,11 @@ function boons_encountered(boons, encountered){
             boon = symbol_not_encountered_boon();
         }
         else{
-            boon.description = get_boon_description(boon);
+            boon.description = explain_boon_with_stats(boon);
         }
         boon.on_click = () => {
             display.display_message(UIIDS.journal_boon_info, boon.description);
         }
         return boon;
     });
-}
-
-function get_boon_description(boon){
-    var description = `${boon.name}: ${boon.description}`;
-    var prereq = boon.prereq_description; 
-    var max = `${boon_messages.max}: ${boon.max ? boon.max : boon_messages.no_max}.`;
-    var picked = ``;
-    var node = GS.data.boons.get_node(boon.name);
-    if(node !== undefined){
-        picked = `${boon_messages.number_picked}: ${node.data.picked}.`
-    }
-    
-    return `${description}\n\n${max}\n\n${prereq}\n\n${picked}`;
 }

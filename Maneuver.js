@@ -2272,6 +2272,29 @@ const HTML_UIIDS = {
 Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
+function explain_boon(boon){
+    return `${boon.name}: ${boon.description}`;
+}
+function explain_boon_with_picked(boon){
+    var description = explain_boon(boon);
+    var picked = ``;
+    var node = GS.data.boons.get_node(boon.name);
+    if(node !== undefined){
+        picked = `${boon_messages.number_picked}: ${node.data.picked}.`
+    }
+    return `${description}\n\n${picked}`;
+}
+function explain_boon_with_stats(boon){
+    var description = explain_boon(boon);
+    var prereq = boon.prereq_description; 
+    var max = `${boon_messages.max}: ${boon.max ? boon.max : boon_messages.no_max}.`;
+    var picked = ``;
+    var node = GS.data.boons.get_node(boon.name);
+    if(node !== undefined){
+        picked = `${boon_messages.number_picked}: ${node.data.picked}.`
+    }
+    return `${description}\n\n${max}\n\n${prereq}\n\n${picked}`;
+}
 function explain_card(card){
     var text = ``;
     text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
@@ -3964,26 +3987,13 @@ function boons_encountered(boons, encountered){
             boon = symbol_not_encountered_boon();
         }
         else{
-            boon.description = get_boon_description(boon);
+            boon.description = explain_boon_with_stats(boon);
         }
         boon.on_click = () => {
             display.display_message(UIIDS.journal_boon_info, boon.description);
         }
         return boon;
     });
-}
-
-function get_boon_description(boon){
-    var description = `${boon.name}: ${boon.description}`;
-    var prereq = boon.prereq_description; 
-    var max = `${boon_messages.max}: ${boon.max ? boon.max : boon_messages.no_max}.`;
-    var picked = ``;
-    var node = GS.data.boons.get_node(boon.name);
-    if(node !== undefined){
-        picked = `${boon_messages.number_picked}: ${node.data.picked}.`
-    }
-    
-    return `${description}\n\n${max}\n\n${prereq}\n\n${picked}`;
 }
 function update_journal_cards(){
     display.remove_children(UIIDS.journal_cards);
@@ -9096,7 +9106,7 @@ function add_boon_to_chest(chest, boon){
             GS.refresh_boon_display();
             return go_back
         },
-        description: `${boon.name}: ${boon.description}`
+        description: explain_boon_with_picked(boon)
     }
     chest.contents.push(content);
 }

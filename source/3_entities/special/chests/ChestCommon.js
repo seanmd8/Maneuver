@@ -137,7 +137,7 @@ function add_boon_to_chest(chest, boon){
             GS.refresh_boon_display();
             return go_back
         },
-        description: `${boon.name}: ${boon.description}`
+        description: explain_boon_with_picked(boon)
     }
     chest.contents.push(content);
 }
