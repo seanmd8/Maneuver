@@ -68,6 +68,15 @@ class SaveData{
     pick_card(name){
         this.cards.get_node(name).pick();
         this.save();
+        if(!GS.data.achievements.has(achievement_names.common_sense)){
+            var has_all = true;
+            for(var i = 0; i < COMMON_CARDS.length && has_all; ++i){
+                has_all = this.cards.has(COMMON_CARDS[i]().name);
+            }
+            if(has_all){
+                GS.achieve(achievement_names.common_sense);
+            }
+        }
     }
     remove_card(name){
         this.cards.get_node(name).remove();

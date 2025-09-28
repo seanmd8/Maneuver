@@ -1805,6 +1805,7 @@ const achievement_names = {
     beyond_the_basics: `Beyond The Basics`,
     clumsy: `Clumsy`,
     collector: `Collector`,
+    common_sense: `Common Sense`,
     jack_of_all_trades: `Jack Of All Trades`,
     manic_vandal: `Manic Vandal`,
     minimalist: `Minimalist`,
@@ -1838,6 +1839,7 @@ const achievement_description = {
     beyond_the_basics: `Remove all basic cards from your deck.`,
     clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
     collector: `Open 6 or more treasure chests in 1 run.`,
+    common_sense: `Obtain every common card at least once.`,
     jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
     manic_vandal: `Destroy 7 or more treasure chests yourself in 1 run.`,
     minimalist: `Reach floor 15 with only 5 cards in your deck.`,
@@ -13125,6 +13127,15 @@ class SaveData{
     pick_card(name){
         this.cards.get_node(name).pick();
         this.save();
+        if(!GS.data.achievements.has(achievement_names.common_sense)){
+            var has_all = true;
+            for(var i = 0; i < COMMON_CARDS.length && has_all; ++i){
+                has_all = this.cards.has(COMMON_CARDS[i]().name);
+            }
+            if(has_all){
+                GS.achieve(achievement_names.common_sense);
+            }
+        }
     }
     remove_card(name){
         this.cards.get_node(name).remove();
@@ -17575,6 +17586,7 @@ function get_achievements(){
         beyond_the_basics_achievement(),
         clumsy_achievement(),
         collector_achievement(),
+        common_sense_achievement(),
         jack_of_all_trades_achievement(),
         manic_vandal_achievement(),
         minimalist_achievement(),
@@ -17714,6 +17726,15 @@ function collector_achievement(){
         image: `${IMG_FOLDER.achievements}collector.png`,
         has: false,
         boons: [hoarder],
+    }
+}
+function common_sense_achievement(){
+    return {
+        name: achievement_names.common_sense,
+        description: achievement_description.common_sense,
+        image: `${IMG_FOLDER.achievements}common_sense.png`,
+        has: false,
+        boons: [picky_shopper],
     }
 }
 function jack_of_all_trades_achievement(){
