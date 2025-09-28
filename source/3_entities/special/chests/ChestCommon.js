@@ -106,7 +106,7 @@ function add_card_to_chest(chest, card){
     if(chest.contents === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var description = chest_text.add_card + `\n` + explain_card(card);
+    var description = chest_text.add_card + `\n` + explain_card_w_stats(card);
     var content = {
         pic: card.pic,
         name: card.name,

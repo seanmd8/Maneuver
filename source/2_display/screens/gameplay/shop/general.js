@@ -2,7 +2,7 @@ function refresh_shop_display(shop){
     var refresh = (f, card) => {
         return () => {
             f();
-            display.display_message(UIIDS.shop_message, explain_card(card));
+            display.display_message(UIIDS.shop_message, explain_card_w_stats(card));
             refresh_shop_display(shop);
         }
     };

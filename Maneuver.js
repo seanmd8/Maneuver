@@ -2285,6 +2285,17 @@ function explain_card(card){
     }
     return text.trimEnd();
 }
+function explain_card_w_stats(card){
+    var explanation = explain_card(card);
+    var picked = ``;
+    var removed = ``;
+    var node = GS.data.cards.get_node(card.name);
+    if(node !== undefined){
+        picked = `${move_types.number_picked}: ${node.data.picked}.`
+        removed = `${move_types.number_removed}: ${node.data.removed}.`
+    }
+    return `${explanation}\n\n${picked}\n${removed}`;
+}
 /**
  * Function to create the combined description of everything happening on a space of the game map.
  * @param {GridSpace} space The space to get a description of.
@@ -3310,7 +3321,7 @@ function refresh_deck_select_screen(selector){
         var prev_on_click = card.on_click;
         card.on_click = () => {
             prev_on_click();
-            display.display_message(UIIDS.deck_select_card_info, explain_card(card.card));
+            display.display_message(UIIDS.deck_select_card_info, explain_card_w_stats(card.card));
             refresh_deck_select_screen(selector);
         }
         return card;
@@ -3369,7 +3380,7 @@ function refresh_shop_display(shop){
     var refresh = (f, card) => {
         return () => {
             f();
-            display.display_message(UIIDS.shop_message, explain_card(card));
+            display.display_message(UIIDS.shop_message, explain_card_w_stats(card));
             refresh_shop_display(shop);
         }
     };
@@ -4019,16 +4030,7 @@ function cards_encountered(cards, encountered){
         }
         if(encountered.has(card.name)){
             card.on_click = () => {
-                var explanation = explain_card(card);
-                var picked = ``;
-                var removed = ``;
-                var node = GS.data.cards.get_node(card.name);
-                if(node !== undefined){
-                    picked = `${move_types.number_picked}: ${node.data.picked}.`
-                    removed = `${move_types.number_removed}: ${node.data.removed}.`
-                }
-                var message = `${explanation}\n\n${picked}\n${removed}`
-                display.display_message(UIIDS.journal_card_info, message);
+                display.display_message(UIIDS.journal_card_info, explain_card_w_stats(card));
             }
             return card;
         }
@@ -9060,7 +9062,7 @@ function add_card_to_chest(chest, card){
     if(chest.contents === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var description = chest_text.add_card + `\n` + explain_card(card);
+    var description = chest_text.add_card + `\n` + explain_card_w_stats(card);
     var content = {
         pic: card.pic,
         name: card.name,
