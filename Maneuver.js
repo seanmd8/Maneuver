@@ -15196,327 +15196,6 @@ function soar(){
         options
     }
 }
-// ----------------CardUtils.js----------------
-// File containing utility functions used by cards.
-
-const BASIC_CARDS = [
-    basic_diagonal, basic_orthogonal, basic_slice
-];
-
-const BOON_CARDS = [
-    lost_maneuver,
-    back_stab_1, back_stab_2,
-    blink_1, blink_2,
-    maneuver_1, maneuver_2, maneuver_3,
-    lost_technique,
-    execution_1, execution_2, execution_3,
-    split_second_1, split_second_2,
-    superweapon_1, superweapon_2,
-];
-
-const BOSS_CARDS = {
-    arcane_sentry: [beam_ne, beam_nw, beam_se, beam_sw, saw_strike],
-    forest_heart: [branch_strike, snack, vine_snare],
-    lich: [beam_diagonal, beam_orthogonal, debilitating_confusion, instant_teleport],
-    spider_queen: [bite, chomp, skitter],
-    two_headed_serpent: [fangs, regenerate, slither],
-    velociphile: [roll_horizontal, roll_ne, roll_nw],
-    young_dragon: [firebreathing_horizontal, firebreathing_ne, firebreathing_nw, 
-        firebreathing_vertical, glide, soar],
-}
-
-const COMMON_CARDS = [
-    advance, bounding_retreat, breakthrough_horizontal, breakthrough_vertical, butterfly, 
-    charge_horizontal, charge_vertical, clear_behind, clear_in_front, combat_diagonal, 
-    combat_orthogonal, dash_ne, dash_nw, diamond_attack, diamond_slice, 
-    explosion, force, fork, flanking_diagonal, flanking_horizontal, 
-    flanking_vertical, hit_and_run, horsemanship, jab_diagonal, jab_orthogonal, 
-    jump, leap_left, leap_right, lunge_left, lunge_right, 
-    overcome_horizontal, overcome_vertical, pike, push_back, short_charge_orthogonal, 
-    short_charge_diagonal, slash_step_forwards, slash_step_left, slash_step_right, slice_twice, 
-    slip_through_ne, slip_through_nw, spearhead, spin_attack, sprint_horizontal, 
-    sprint_vertical, step_left, step_right, t_strike_horizontal, t_strike_vertical, 
-    thwack, trample, trident, y_leap, y_strike_ne, y_strike_nw,
-];
-
-const CONFUSION_CARDS = [
-    freeze_up, lash_out, lightheaded, stumble_n, stumble_e, 
-    stumble_s, stumble_w, stumble_nw, stumble_ne, stumble_se, 
-    stumble_sw, 
-]
-
-
-function get_achievement_cards(){
-    var list = [];
-    GS.data.achievements.completed().map((a) => {
-        if(a.cards !== undefined){
-            list.push(...a.cards);
-        }
-    });
-    return list;
-}
-function get_locked_achievement_cards(){
-    var list = [];
-    GS.data.achievements.all().map((a) => {
-        if(a.cards !== undefined && !a.has){
-            list.push(...a.cards);
-        }
-    });
-    return list;
-}
-function get_all_achievement_cards(){
-    var list = [];
-    get_achievements().map((a) => {
-        if(a.cards !== undefined){
-            list.push(...a.cards);
-        }
-    });
-    return list;
-}
-
-function get_boss_cards(){
-    return [
-        ...BOSS_CARDS.velociphile,
-        ...BOSS_CARDS.spider_queen,
-        ...BOSS_CARDS.two_headed_serpent,
-        ...BOSS_CARDS.lich,
-        ...BOSS_CARDS.young_dragon,
-        ...BOSS_CARDS.forest_heart,
-        ...BOSS_CARDS.arcane_sentry,
-    ];
-}
-
-/**
- * @typedef {Object} PlayerCommand A object used to give a command for a single action the player should do.
- * @property {string} type What type of action it is (move, attack, etc.).
- * @property {Point} change The location the action should be performed at relative to the current one.
- */
-
-/**
- * @callback PlayerCommandGenerator Creates a PlayerCommand Object.
- * @param {number} x The relative x location
- * @param {number} y The relative y location
- * @returns {PlayerCommand} The resulting command.
- */
-
-/** @type {PlayerCommandGenerator} Function to create a move command.*/
-function pmove(x, y){
-    return {
-        type: action_types.move,
-        change: new Point(x, y)
-    }
-}
-/** @type {PlayerCommandGenerator} Function to create a attack command.*/
-function pattack(x, y){
-    return {
-        type: action_types.attack,
-        change: new Point(x, y)
-    }
-}
-/** @type {PlayerCommandGenerator} Function to create a teleport command.*/
-function pteleport(x, y){
-    return {
-        type: action_types.teleport,
-        change: new Point(x, y)
-    }
-}
-/** @type {PlayerCommandGenerator} Function to stun any enemies at the given location.*/
-function pstun(x, y){
-    return {
-        type: action_types.stun,
-        change: new Point(x, y)
-    }
-}
-/** @type {PlayerCommandGenerator} Function to move in a direction until you hit something.*/
-function pmove_until(x, y){
-    return {
-        type: action_types.move_until,
-        change: new Point(x, y)
-    }
-}
-/** @type {PlayerCommandGenerator} Function to attack in a direction until you hit the edge of the board.*/
-function pattack_until(x, y){
-    return {
-        type: action_types.attack_until,
-        change: new Point(x, y)
-    }
-}
-/** @type {PlayerCommandGenerator} Function to heal the thing at the specified spot by 1.*/
-function pheal(x, y){
-    return {
-        type: action_types.heal,
-        change: new Point(x, y)
-    }
-}
-
-// Cards
-/**
- * @typedef {Object} Card A card used by the player to perform actions on their turn.
- * @property {string} name The name of the card which will be displayed as mouseover text.
- * @property {string} pic The card's image.
- * @property {ButtonGrid} options A button grid object which determines what actions the player can use the card to perform.
- * @property {CardGenerator[]=} evolutions A list of cards to be added once this is removed.
- * @property {boolean} basic If it is a basic card.
- * 
- * @property {number=} id A unique id that will be added to the card when it is added to the deck.
- * @property {boolean=} temp Given true when the card is temporary and will be removed on use or on end of floor.
- * @property {CardGenerator=} per_floor Provided to make temporary copies of a card if it can only be used once per floor.
- */
-/**
- * @callback CardGenerator A function that creates a card.
- * @returns {Card} The resulting card.
- */
-
-
-
-/**
- * Function to explain an individual player action.
- * @param {PlayerCommand} action The command to explain.
- * @returns {String} An explanation for the player of what the action does.
- */
-function explain_action(action){
-    var target = explain_point(action.change);
-    switch(action.type){
-        case action_types.attack:
-            return `${move_types.attack}: ${target}`;
-        case action_types.move:
-            return `${move_types.move}: ${target}`;
-        case action_types.teleport:
-            return move_types.teleport;
-        case action_types.stun:
-            if(action.change.is_origin()){
-                return move_types.confuse;
-            }
-            return `${move_types.stun}: ${target}`;
-        case action_types.move_until:
-            return `${move_types.move_until}: ${target}`;
-        case action_types.attack_until:
-            return `${move_types.attack_until}: ${target}`;
-        case action_types.heal:
-            return `${move_types.heal}: ${target}`;
-        default:
-            throw new Error(ERRORS.invalid_value);
-    }
-}
-
-/**
- * Converts a point to an explanation of where it is relative to the player.
- * @param {Point} p The point to explain.
- * @returns {String} The location of the point explained in relation to the player.
- */
-function explain_point(p){
-    var direction = sign(p);
-    var vertical = [four_directions.up, undefined, four_directions.down][direction.y + 1];
-    var horizontal = [four_directions.left, undefined, four_directions.right][direction.x + 1];
-    if(vertical === undefined && horizontal === undefined){
-        return move_types.you;
-    }
-    else if(vertical === undefined){
-        return `${horizontal}${Math.abs(p.x)}`;
-    }
-    else if(horizontal === undefined){
-        return `${vertical}${Math.abs(p.y)}`;
-    }
-    else{
-        return `${horizontal}${Math.abs(p.x)}, ${vertical}${Math.abs(p.y)}`;
-    }
-}
-
-/**
- * 
- */
-function telegraph_card(behavior, map, start_position){
-    var telegraphs = {
-        moves: [],
-        attacks: [],
-        stun: [],
-        healing: [],
-        teleport: []
-    }
-    if(behavior === undefined){
-        return telegraphs;
-    }
-    for(var action of behavior){
-        var next_position = start_position.plus(action.change);
-        switch(action.type){
-            case action_types.attack:
-                telegraphs.attacks.push(next_position);
-                break;
-            case action_types.move:
-                if(map.looks_movable(next_position)){
-                    telegraphs.moves.push(next_position);
-                }
-                if(map.looks_empty(next_position)){
-                    start_position = next_position;
-                }
-                break;
-            case action_types.teleport:
-                for(var p of get_all_points()){
-                    if(map.looks_empty(p)){
-                        telegraphs.teleport.push(p);
-                    }
-                }
-                break;
-            case action_types.stun:
-                telegraphs.stun.push(next_position);
-                break;
-            case action_types.move_until:
-                while(map.looks_empty(next_position)){
-                    telegraphs.moves.push(next_position);
-                    start_position = next_position;
-                    next_position = start_position.plus(action.change);
-                }
-                if(map.looks_movable(next_position)){
-                    telegraphs.moves.push(next_position);
-                }
-                break;
-            case action_types.attack_until:
-                var temp_next = next_position;
-                var temp_start = start_position;
-                while(map.is_in_bounds(temp_next)){
-                    telegraphs.attacks.push(temp_next);
-                    temp_start = temp_next;
-                    temp_next = temp_start.plus(action.change);
-                }
-                break;
-            case action_types.heal:
-                telegraphs.healing.push(next_position);
-                break;
-            default:
-                throw new Error(ERRORS.invalid_value);
-        }
-    }
-    if([ 
-        ...telegraphs.moves, 
-        ...telegraphs.attacks, 
-        ...telegraphs.stun, 
-        ...telegraphs.healing, 
-        ...telegraphs.teleport
-    ].length === 0){
-        // If they aren't doing anything, show that.
-        telegraphs.moves.push(start_position);
-    }
-    return telegraphs;
-}
-function get_all_points(){
-    var points = [];
-    for(var x = 0; x < FLOOR_WIDTH; ++x){
-        for(var y = 0; y < FLOOR_HEIGHT; ++y){
-            points.push(new Point(x, y));
-        }
-    }
-    return points;
-}
-
-function copy_card(source){
-    return {
-        name: source.name,
-        pic: source.pic,
-        options: source.options,
-        evolutions: source.evolutions !== undefined ? [...source.evolutions] : undefined,
-        per_floor: source.per_floor,
-    }
-}
 /** @type {CardGenerator}*/
 function advance(){
     var options = new ButtonGrid();
@@ -16711,6 +16390,407 @@ function symbol_remove_card(){
         options: new ButtonGrid()
     }
 }
+const ACHIEVEMENT_CARDS = {
+    velociphile: [
+        punch_orthogonal, 
+        punch_diagonal, 
+        sidestep_e, 
+        sidestep_n, 
+        sidestep_ne, 
+        sidestep_nw, 
+        sidestep_s, 
+        sidestep_se, 
+        sidestep_sw, 
+        sidestep_w, 
+        teleport,
+    ],
+    spider_queen: [
+        stunning_leap_vertical, 
+        stunning_leap_horizontal, 
+        stunning_punch_diagonal, 
+        stunning_punch_orthogonal, 
+        stunning_retreat, 
+        stunning_slice, 
+        stunning_tread_diagonal, 
+        stunning_tread_orthogonal, 
+    ],
+    two_headed_serpent: [
+        reckless_attack_left, 
+        reckless_attack_right, 
+        reckless_leap_forwards, 
+        reckless_leap_left, 
+        reckless_leap_right, 
+        reckless_sidestep_diagonal, 
+        reckless_sidestep_orthogonal, 
+        reckless_spin,
+        reckless_sprint, 
+        reckless_teleport, 
+    ],
+}
+Object.freeze(ACHIEVEMENT_CARDS);
+
+function get_achievement_cards(){
+    var list = [];
+    GS.data.achievements.completed().map((a) => {
+        if(a.cards !== undefined){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
+function get_locked_achievement_cards(){
+    var list = [];
+    GS.data.achievements.all().map((a) => {
+        if(a.cards !== undefined && !a.has){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
+function get_all_achievement_cards(){
+    var list = [];
+    get_achievements().map((a) => {
+        if(a.cards !== undefined){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
+
+const BASIC_CARDS = [
+    basic_diagonal, 
+    basic_orthogonal, 
+    basic_slice
+];
+const BOON_CARDS = [
+    // Movements
+    lost_maneuver,
+    back_stab_1, back_stab_2,
+    blink_1, blink_2,
+    maneuver_1, maneuver_2, maneuver_3,
+    // Attacks
+    lost_technique,
+    execution_1, execution_2, execution_3,
+    split_second_1, split_second_2,
+    superweapon_1, superweapon_2,
+];
+
+const BOSS_CARDS = {
+    arcane_sentry: [
+        beam_ne, 
+        beam_nw, 
+        beam_se, 
+        beam_sw, 
+        saw_strike
+    ],
+    forest_heart: [
+        branch_strike, 
+        snack, 
+        vine_snare
+    ],
+    lich: [
+        beam_diagonal, 
+        beam_orthogonal, 
+        debilitating_confusion, 
+        instant_teleport
+    ],
+    spider_queen: [
+        bite, 
+        chomp, 
+        skitter
+    ],
+    two_headed_serpent: [
+        fangs, 
+        regenerate, 
+        slither
+    ],
+    velociphile: [
+        roll_horizontal, 
+        roll_ne, 
+        roll_nw
+    ],
+    young_dragon: [
+        firebreathing_horizontal, 
+        firebreathing_ne, 
+        firebreathing_nw, 
+        firebreathing_vertical, 
+        glide, 
+        soar
+    ],
+}
+Object.freeze(BOSS_CARDS);
+
+function get_boss_cards(){
+    // List of all boss cards in order encountered.
+    return [
+        ...BOSS_CARDS.velociphile,
+        ...BOSS_CARDS.spider_queen,
+        ...BOSS_CARDS.two_headed_serpent,
+        ...BOSS_CARDS.lich,
+        ...BOSS_CARDS.young_dragon,
+        ...BOSS_CARDS.forest_heart,
+        ...BOSS_CARDS.arcane_sentry,
+    ];
+}
+
+const COMMON_CARDS = [
+    advance, bounding_retreat, breakthrough_horizontal, breakthrough_vertical, butterfly, 
+    charge_horizontal, charge_vertical, clear_behind, clear_in_front, combat_diagonal, 
+    combat_orthogonal, dash_ne, dash_nw, diamond_attack, diamond_slice, 
+    explosion, force, fork, flanking_diagonal, flanking_horizontal, 
+    flanking_vertical, hit_and_run, horsemanship, jab_diagonal, jab_orthogonal, 
+    jump, leap_left, leap_right, lunge_left, lunge_right, 
+    overcome_horizontal, overcome_vertical, pike, push_back, short_charge_orthogonal, 
+    short_charge_diagonal, slash_step_forwards, slash_step_left, slash_step_right, slice_twice, 
+    slip_through_ne, slip_through_nw, spearhead, spin_attack, sprint_horizontal, 
+    sprint_vertical, step_left, step_right, t_strike_horizontal, t_strike_vertical, 
+    thwack, trample, trident, y_leap, y_strike_ne, y_strike_nw,
+];
+
+const CONFUSION_CARDS = [
+    freeze_up, 
+    lash_out, 
+    lightheaded, 
+    stumble_e, 
+    stumble_n, 
+    stumble_ne, 
+    stumble_nw, 
+    stumble_s, 
+    stumble_se, 
+    stumble_sw, 
+    stumble_w, 
+];
+/**
+ * @typedef {Object} PlayerCommand A object used to give a command for a single action the player should do.
+ * @property {string} type What type of action it is (move, attack, etc.).
+ * @property {Point} change The location the action should be performed at relative to the current one.
+ */
+
+/**
+ * @callback PlayerCommandGenerator Creates a PlayerCommand Object.
+ * @param {number} x The relative x location
+ * @param {number} y The relative y location
+ * @returns {PlayerCommand} The resulting command.
+ */
+
+/** @type {PlayerCommandGenerator} Function to create a move command.*/
+function pmove(x, y){
+    return {
+        type: action_types.move,
+        change: new Point(x, y)
+    }
+}
+/** @type {PlayerCommandGenerator} Function to create a attack command.*/
+function pattack(x, y){
+    return {
+        type: action_types.attack,
+        change: new Point(x, y)
+    }
+}
+/** @type {PlayerCommandGenerator} Function to create a teleport command.*/
+function pteleport(x, y){
+    return {
+        type: action_types.teleport,
+        change: new Point(x, y)
+    }
+}
+/** @type {PlayerCommandGenerator} Function to stun any enemies at the given location.*/
+function pstun(x, y){
+    return {
+        type: action_types.stun,
+        change: new Point(x, y)
+    }
+}
+/** @type {PlayerCommandGenerator} Function to move in a direction until you hit something.*/
+function pmove_until(x, y){
+    return {
+        type: action_types.move_until,
+        change: new Point(x, y)
+    }
+}
+/** @type {PlayerCommandGenerator} Function to attack in a direction until you hit the edge of the board.*/
+function pattack_until(x, y){
+    return {
+        type: action_types.attack_until,
+        change: new Point(x, y)
+    }
+}
+/** @type {PlayerCommandGenerator} Function to heal the thing at the specified spot by 1.*/
+function pheal(x, y){
+    return {
+        type: action_types.heal,
+        change: new Point(x, y)
+    }
+}
+
+// Cards
+/**
+ * @typedef {Object} Card A card used by the player to perform actions on their turn.
+ * @property {string} name The name of the card which will be displayed as mouseover text.
+ * @property {string} pic The card's image.
+ * @property {ButtonGrid} options A button grid object which determines what actions the player can use the card to perform.
+ * @property {CardGenerator[]=} evolutions A list of cards to be added once this is removed.
+ * @property {boolean} basic If it is a basic card.
+ * 
+ * @property {number=} id A unique id that will be added to the card when it is added to the deck.
+ * @property {boolean=} temp Given true when the card is temporary and will be removed on use or on end of floor.
+ * @property {CardGenerator=} per_floor Provided to make temporary copies of a card if it can only be used once per floor.
+ */
+/**
+ * @callback CardGenerator A function that creates a card.
+ * @returns {Card} The resulting card.
+ */
+
+
+
+/**
+ * Function to explain an individual player action.
+ * @param {PlayerCommand} action The command to explain.
+ * @returns {String} An explanation for the player of what the action does.
+ */
+function explain_action(action){
+    var target = explain_point(action.change);
+    switch(action.type){
+        case action_types.attack:
+            return `${move_types.attack}: ${target}`;
+        case action_types.move:
+            return `${move_types.move}: ${target}`;
+        case action_types.teleport:
+            return move_types.teleport;
+        case action_types.stun:
+            if(action.change.is_origin()){
+                return move_types.confuse;
+            }
+            return `${move_types.stun}: ${target}`;
+        case action_types.move_until:
+            return `${move_types.move_until}: ${target}`;
+        case action_types.attack_until:
+            return `${move_types.attack_until}: ${target}`;
+        case action_types.heal:
+            return `${move_types.heal}: ${target}`;
+        default:
+            throw new Error(ERRORS.invalid_value);
+    }
+}
+
+/**
+ * Converts a point to an explanation of where it is relative to the player.
+ * @param {Point} p The point to explain.
+ * @returns {String} The location of the point explained in relation to the player.
+ */
+function explain_point(p){
+    var direction = sign(p);
+    var vertical = [four_directions.up, undefined, four_directions.down][direction.y + 1];
+    var horizontal = [four_directions.left, undefined, four_directions.right][direction.x + 1];
+    if(vertical === undefined && horizontal === undefined){
+        return move_types.you;
+    }
+    else if(vertical === undefined){
+        return `${horizontal}${Math.abs(p.x)}`;
+    }
+    else if(horizontal === undefined){
+        return `${vertical}${Math.abs(p.y)}`;
+    }
+    else{
+        return `${horizontal}${Math.abs(p.x)}, ${vertical}${Math.abs(p.y)}`;
+    }
+}
+
+/**
+ * 
+ */
+function telegraph_card(behavior, map, start_position){
+    var telegraphs = {
+        moves: [],
+        attacks: [],
+        stun: [],
+        healing: [],
+        teleport: []
+    }
+    if(behavior === undefined){
+        return telegraphs;
+    }
+    for(var action of behavior){
+        var next_position = start_position.plus(action.change);
+        switch(action.type){
+            case action_types.attack:
+                telegraphs.attacks.push(next_position);
+                break;
+            case action_types.move:
+                if(map.looks_movable(next_position)){
+                    telegraphs.moves.push(next_position);
+                }
+                if(map.looks_empty(next_position)){
+                    start_position = next_position;
+                }
+                break;
+            case action_types.teleport:
+                for(var p of get_all_points()){
+                    if(map.looks_empty(p)){
+                        telegraphs.teleport.push(p);
+                    }
+                }
+                break;
+            case action_types.stun:
+                telegraphs.stun.push(next_position);
+                break;
+            case action_types.move_until:
+                while(map.looks_empty(next_position)){
+                    telegraphs.moves.push(next_position);
+                    start_position = next_position;
+                    next_position = start_position.plus(action.change);
+                }
+                if(map.looks_movable(next_position)){
+                    telegraphs.moves.push(next_position);
+                }
+                break;
+            case action_types.attack_until:
+                var temp_next = next_position;
+                var temp_start = start_position;
+                while(map.is_in_bounds(temp_next)){
+                    telegraphs.attacks.push(temp_next);
+                    temp_start = temp_next;
+                    temp_next = temp_start.plus(action.change);
+                }
+                break;
+            case action_types.heal:
+                telegraphs.healing.push(next_position);
+                break;
+            default:
+                throw new Error(ERRORS.invalid_value);
+        }
+    }
+    if([ 
+        ...telegraphs.moves, 
+        ...telegraphs.attacks, 
+        ...telegraphs.stun, 
+        ...telegraphs.healing, 
+        ...telegraphs.teleport
+    ].length === 0){
+        // If they aren't doing anything, show that.
+        telegraphs.moves.push(start_position);
+    }
+    return telegraphs;
+}
+function get_all_points(){
+    var points = [];
+    for(var x = 0; x < FLOOR_WIDTH; ++x){
+        for(var y = 0; y < FLOOR_HEIGHT; ++y){
+            points.push(new Point(x, y));
+        }
+    }
+    return points;
+}
+
+function copy_card(source){
+    return {
+        name: source.name,
+        pic: source.pic,
+        options: source.options,
+        evolutions: source.evolutions !== undefined ? [...source.evolutions] : undefined,
+        per_floor: source.per_floor,
+    }
+}
 const BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, blood_alchemy, boss_slayer, 
     brag_and_boast, chilly_presence, choose_your_path, clean_mind, creative, 
@@ -17537,16 +17617,7 @@ function spider_queen_achievement(){
         image: `${IMG_FOLDER.tiles}spider_queen.png`,
         has: false,
         boons: [retaliate],
-        cards: [
-            stunning_leap_vertical, 
-            stunning_leap_horizontal, 
-            stunning_punch_diagonal, 
-            stunning_punch_orthogonal, 
-            stunning_retreat, 
-            stunning_slice, 
-            stunning_tread_diagonal, 
-            stunning_tread_orthogonal, 
-        ]
+        cards: ACHIEVEMENT_CARDS.spider_queen,
     }
 }
 function two_headed_serpent_achievement(){
@@ -17556,18 +17627,7 @@ function two_headed_serpent_achievement(){
         image: `${IMG_FOLDER.tiles}serpent_head.png`,
         has: false,
         boons: [slime_trail],
-        cards: [
-            reckless_attack_left, 
-            reckless_attack_right, 
-            reckless_leap_forwards, 
-            reckless_leap_left, 
-            reckless_leap_right, 
-            reckless_sidestep_diagonal, 
-            reckless_sidestep_orthogonal, 
-            reckless_spin,
-            reckless_sprint, 
-            reckless_teleport, 
-        ]
+        cards: ACHIEVEMENT_CARDS.two_headed_serpent,
     }
 }
 function velociphile_achievement(){
@@ -17577,19 +17637,7 @@ function velociphile_achievement(){
         image: `${IMG_FOLDER.tiles}velociphile.png`,
         has: false,
         boons: [roar_of_challenge],
-        cards: [
-            punch_orthogonal, 
-            punch_diagonal, 
-            sidestep_e, 
-            sidestep_n, 
-            sidestep_ne, 
-            sidestep_nw, 
-            sidestep_s, 
-            sidestep_se, 
-            sidestep_sw, 
-            sidestep_w, 
-            teleport,
-        ]
+        cards: ACHIEVEMENT_CARDS.velociphile,
     }
 }
 function victory_achievement(){

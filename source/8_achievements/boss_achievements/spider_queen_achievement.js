@@ -5,15 +5,6 @@ function spider_queen_achievement(){
         image: `${IMG_FOLDER.tiles}spider_queen.png`,
         has: false,
         boons: [retaliate],
-        cards: [
-            stunning_leap_vertical, 
-            stunning_leap_horizontal, 
-            stunning_punch_diagonal, 
-            stunning_punch_orthogonal, 
-            stunning_retreat, 
-            stunning_slice, 
-            stunning_tread_diagonal, 
-            stunning_tread_orthogonal, 
-        ]
+        cards: ACHIEVEMENT_CARDS.spider_queen,
     }
 }
