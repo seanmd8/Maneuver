@@ -17538,8 +17538,14 @@ function spider_queen_achievement(){
         has: false,
         boons: [retaliate],
         cards: [
-            stunning_leap_vertical, stunning_leap_horizontal, stunning_punch_diagonal, stunning_punch_orthogonal, stunning_slice,
-            stunning_tread_diagonal, stunning_tread_orthogonal, stunning_retreat
+            stunning_leap_vertical, 
+            stunning_leap_horizontal, 
+            stunning_punch_diagonal, 
+            stunning_punch_orthogonal, 
+            stunning_retreat, 
+            stunning_slice, 
+            stunning_tread_diagonal, 
+            stunning_tread_orthogonal, 
         ]
     }
 }
@@ -17551,8 +17557,16 @@ function two_headed_serpent_achievement(){
         has: false,
         boons: [slime_trail],
         cards: [
-            reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_sidestep_diagonal, reckless_sidestep_orthogonal, 
-            reckless_teleport, reckless_leap_forwards, reckless_leap_left, reckless_leap_right, reckless_spin
+            reckless_attack_left, 
+            reckless_attack_right, 
+            reckless_leap_forwards, 
+            reckless_leap_left, 
+            reckless_leap_right, 
+            reckless_sidestep_diagonal, 
+            reckless_sidestep_orthogonal, 
+            reckless_spin,
+            reckless_sprint, 
+            reckless_teleport, 
         ]
     }
 }
@@ -17564,9 +17578,17 @@ function velociphile_achievement(){
         has: false,
         boons: [roar_of_challenge],
         cards: [
-            teleport, sidestep_e, sidestep_n, sidestep_ne, sidestep_nw, 
-            sidestep_s, sidestep_se, sidestep_sw, sidestep_w, punch_orthogonal, 
-            punch_diagonal
+            punch_orthogonal, 
+            punch_diagonal, 
+            sidestep_e, 
+            sidestep_n, 
+            sidestep_ne, 
+            sidestep_nw, 
+            sidestep_s, 
+            sidestep_se, 
+            sidestep_sw, 
+            sidestep_w, 
+            teleport,
         ]
     }
 }

@@ -6,9 +6,17 @@ function velociphile_achievement(){
         has: false,
         boons: [roar_of_challenge],
         cards: [
-            teleport, sidestep_e, sidestep_n, sidestep_ne, sidestep_nw, 
-            sidestep_s, sidestep_se, sidestep_sw, sidestep_w, punch_orthogonal, 
-            punch_diagonal
+            punch_orthogonal, 
+            punch_diagonal, 
+            sidestep_e, 
+            sidestep_n, 
+            sidestep_ne, 
+            sidestep_nw, 
+            sidestep_s, 
+            sidestep_se, 
+            sidestep_sw, 
+            sidestep_w, 
+            teleport,
         ]
     }
 }

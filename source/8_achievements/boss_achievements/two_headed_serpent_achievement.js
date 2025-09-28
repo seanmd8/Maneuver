@@ -6,8 +6,16 @@ function two_headed_serpent_achievement(){
         has: false,
         boons: [slime_trail],
         cards: [
-            reckless_attack_left, reckless_attack_right, reckless_sprint, reckless_sidestep_diagonal, reckless_sidestep_orthogonal, 
-            reckless_teleport, reckless_leap_forwards, reckless_leap_left, reckless_leap_right, reckless_spin
+            reckless_attack_left, 
+            reckless_attack_right, 
+            reckless_leap_forwards, 
+            reckless_leap_left, 
+            reckless_leap_right, 
+            reckless_sidestep_diagonal, 
+            reckless_sidestep_orthogonal, 
+            reckless_spin,
+            reckless_sprint, 
+            reckless_teleport, 
         ]
     }
 }
