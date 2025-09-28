@@ -15765,7 +15765,7 @@ function step_left(){
     options.add_button(SW, [pmove(-1, 1)]);
     options.add_button(W, [pmove(-1, 0), pmove(-1, 0)]);
     options.add_button(NW, [pmove(-1, -1)]);
-    options.add_button(E, [pmove(2, 0)]);
+    options.add_button(E, [pattack(2, 0), pmove(2, 0)]);
     return{
         name: card_names.step_left,
         pic: `${IMG_FOLDER.cards}step_left.png`,
@@ -15778,7 +15778,7 @@ function step_right(){
     options.add_button(SE, [pmove(1, 1)]);
     options.add_button(E, [pmove(1, 0), pmove(1, 0)]);
     options.add_button(NE, [pmove(1, -1)]);
-    options.add_button(W, [pmove(-2, 0)]);
+    options.add_button(W, [pattack(-2, 0), pmove(-2, 0)]);
     return{
         name: card_names.step_right,
         pic: `${IMG_FOLDER.cards}step_right.png`,
