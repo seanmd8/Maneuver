@@ -49,7 +49,6 @@ function vampire_ai(self, target, map){
             if(direction.on_axis()){
                 moved = map.move(self.location, self.location.plus(direction));
             }
-            
         }
     }
 }

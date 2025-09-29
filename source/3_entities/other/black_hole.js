@@ -46,7 +46,7 @@ function black_hole_telegraph_other(location, map, self){
         spaces.push(...point_rectangle(
             location.plus(new Point(i, i)), 
             location.plus(new Point(-i, -i))
-        ));            
+        ));
     }
     return spaces;
 }

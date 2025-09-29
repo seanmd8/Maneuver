@@ -19,7 +19,7 @@ const gameplay_text = {
         `You have entered the `,
     game_over: 
         `Game Over. You were killed by a `,
-    stunned:    
+    stunned:
         `Stunned x`,
     divider: 
         `\n--------------------\n`,

@@ -1,7 +1,5 @@
 // ----------------GameState.js----------------
 // File containing a class to control the general flow of the game.
-
-
 class GameState{
     map;
     deck;

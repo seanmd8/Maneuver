@@ -45,8 +45,8 @@ function river_terrain(floor_num, area, map){
     var y = random_num(FLOOR_HEIGHT - 4) + 2;
     for(var x of x_vals){
         map.add_tile(sewer_grate_tile(), new Point(x, y));
-        map.add_tile(corrosive_slime_tile(), new Point(x, y + 1));        
-        map.add_tile(corrosive_slime_tile(), new Point(x, y - 1));        
+        map.add_tile(corrosive_slime_tile(), new Point(x, y + 1));
+        map.add_tile(corrosive_slime_tile(), new Point(x, y - 1));
     }
     cross(
         [left, FLOOR_WIDTH - (right + 1)], 

@@ -15,7 +15,6 @@ function animated_boulder_tile(){
     }
 }
 
-
 /** @type {AIFunction} AI used by animated boulders.*/
 function animated_boulder_ai(self, target, map){
     if( self.tile.cycle === undefined){

@@ -9,7 +9,7 @@ class AchievementList{
             return e.name === name;
         });
         if(match === undefined){
-            throw new Error(ERRORS.value_not_found);            
+            throw new Error(ERRORS.value_not_found);
         }
         var achieved = !match.has;
         match.has = true;

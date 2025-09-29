@@ -18,4 +18,3 @@ function altar_of_shadow_on_enter(self, target, map){
         boss_tile.look = empty_tile();
     }
 }
-

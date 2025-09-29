@@ -69,7 +69,6 @@ function noxious_toad_telegraph(location, map, self){
         if(map.check_empty(move)){
             attacks.push(...spider_telegraph(move, map, self));
         }
-        
     }
     return attacks;
 }

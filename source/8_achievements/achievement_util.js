@@ -16,6 +16,7 @@ function get_achievements(){
         beyond_the_basics_achievement(),
         clumsy_achievement(),
         collector_achievement(),
+        common_sense_achievement(),
         jack_of_all_trades_achievement(),
         manic_vandal_achievement(),
         minimalist_achievement(),

@@ -81,7 +81,7 @@ function sentry_core_ai(self, target, map){
             ++self.tile.cycle;
             if(self.tile.cycle >= self.tile.spawn_timer){
                 spawn_nearby(map, paper_construct_tile(), self.location);
-                self.tile.cycle = 0;                                
+                self.tile.cycle = 0;
             }
             break;
         default:
@@ -177,5 +177,5 @@ function sentry_get_core(location, map){
                 return tile;
             }
         }
-    }    
+    }
 }

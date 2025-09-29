@@ -60,7 +60,6 @@ function get_uiids(language){
  *      @property {string} chest_control Contains the controls for the chest.
  */
 
-
 /** @type {uiid_library} The uiid library for HTML.*/
 const HTML_UIIDS = {
     header_bar: `headerBar`,

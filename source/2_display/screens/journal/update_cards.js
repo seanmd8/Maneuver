@@ -46,16 +46,7 @@ function cards_encountered(cards, encountered){
         }
         if(encountered.has(card.name)){
             card.on_click = () => {
-                var explanation = explain_card(card);
-                var picked = ``;
-                var removed = ``;
-                var node = GS.data.cards.get_node(card.name);
-                if(node !== undefined){
-                    picked = `${move_types.number_picked}: ${node.data.picked}.`
-                    removed = `${move_types.number_removed}: ${node.data.removed}.`
-                }
-                var message = `${explanation}\n\n${picked}\n${removed}`
-                display.display_message(UIIDS.journal_card_info, message);
+                display.display_message(UIIDS.journal_card_info, explain_card_w_stats(card));
             }
             return card;
         }

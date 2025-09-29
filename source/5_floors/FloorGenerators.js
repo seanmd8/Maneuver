@@ -60,4 +60,3 @@ function boss_floor_common(floor_num,  area, map){
         map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
-

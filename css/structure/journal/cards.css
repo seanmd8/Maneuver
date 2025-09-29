@@ -13,3 +13,10 @@
     overflow-x: auto;
     font-weight: 400;
 }
+
+@media (max-width: 1465px) {
+    .journal-info {
+        position: absolute;
+        left: 980px;
+    }
+}

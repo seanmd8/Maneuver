@@ -24,7 +24,6 @@
  * @param {Point} position The row and column of the element.
  */
 
-
 /**
  * @callback NormalCallback A function with no args or returns.
  * @returns {void}
@@ -140,7 +139,6 @@
  * @property {add_on_click} add_on_click
  */
 
-
 /**
  * A function to get the display library for a given language.
  * @param {string} language The language to get the library for.
@@ -186,7 +184,6 @@ function get_display(language){
  * @property {get_transformation} get_transformation
  * @property {get_element} get_element
  */
-
 
 /**
  * Library containing functions used to diplay things in HTML.
@@ -382,7 +379,6 @@ const DisplayHTML = {
         var body_div_id = `${header} section`;
         body_div.id = body_div_id;
         body_div.classList.add(`guidebook-section`)
-
 
         var body_header = document.createElement(`h2`);
         body_header.id = `${body_div_id} header`;
@@ -754,7 +750,7 @@ const DisplayHTML = {
             element.classList.add(`hidden-section`);
         }
         else{
-            element.classList.remove(`hidden-section`);            
+            element.classList.remove(`hidden-section`);
         }
     },
     journal_card_section(destination, header, cards){
@@ -882,7 +878,7 @@ const DisplayHTML = {
         if(to_display.flip){
             transformation += `scaleX(-1) `;
         }
-        return transformation;   
+        return transformation;
     },
     get_element: function(location, type = undefined){
         var element = document.getElementById(location);

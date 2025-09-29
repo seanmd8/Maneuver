@@ -56,7 +56,6 @@
  * @returns {Tile}
  */
 
-
 // This is a array of all the enemies that can be spawned on a normal floor.
 const ENEMY_LIST = [
     spider_tile, turret_d_tile, turret_o_tile, turret_r_tile, shadow_knight_tile, 
@@ -136,7 +135,7 @@ function order_nearby(direction){
         pair = randomize_arr([new Point(-1 * sign_dir.x, 1), new Point(-1 * sign_dir.x, -1)]);
         ordering.push(...pair);
     }
-    else if(Math.abs(direction.x) > Math.abs(direction.y)){  
+    else if(Math.abs(direction.x) > Math.abs(direction.y)){
         // Target is closer to the horizontal line than the vertical one.
         ordering.push(new Point(sign_dir.x, 0));
         ordering.push(new Point(0, sign_dir.y));
@@ -246,7 +245,7 @@ function shapeshift(tile, tile_generator){
  * @returns {number} Returns 1 if the direction is diagonal, 0 if it's orthogonal.
  */
 function set_rotation(tile){
-    /*  
+    /*
         NW = (-1, -1) -> 0
         N  = ( 0, -1) -> 0
         NE = ( 1, -1) -> 90
@@ -342,7 +341,6 @@ function get_nearest_where(map, location, f){
     }
     return undefined;
 }
-
 
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */
 function generic_tile(){

@@ -4,7 +4,7 @@ function refresh_deck_select_screen(selector){
         var prev_on_click = card.on_click;
         card.on_click = () => {
             prev_on_click();
-            display.display_message(UIIDS.deck_select_card_info, explain_card(card.card));
+            display.display_message(UIIDS.deck_select_card_info, explain_card_w_stats(card.card));
             refresh_deck_select_screen(selector);
         }
         return card;

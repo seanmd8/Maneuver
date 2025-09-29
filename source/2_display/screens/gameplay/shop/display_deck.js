@@ -6,7 +6,7 @@ function display_entire_deck(deck){
     var decklist = deck.get_deck_info();
     var card_explanation = (card) => {
         return () => {
-            display.display_message(UIIDS.shop_message, explain_card(card))       
+            display.display_message(UIIDS.shop_message, explain_card(card));
         }
     };
     for(var card of decklist){

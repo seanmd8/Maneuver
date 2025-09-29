@@ -50,14 +50,14 @@ function rand_from(source){
  * Wraps a string so each line has a maximum number of characters before automatically inserting a newline character.
  * @param {string} message The string to be wrapped.
  * @param {number} wrap_length How many characters maximum.
- * @param {string} [delimiter = undefined] Optional parameter for the delimiter. 
+ * @param {string} [delimiter = undefined] Optional parameter for the delimiter.
  *                                      If provided, then blocks of text in between delimiters will not be broken up.
  * @returns {string} The wrapped string.
  */
 function wrap_str(message, wrap_length, delimiter = undefined){
     var new_message = ``;
     var str_arr = [];
-    if(message.indexOf(`\n`) > -1){ // If it already has new line characters, 
+    if(message.indexOf(`\n`) > -1){ // If it already has new line characters
         str_arr = message.split(`\n`);
         for(var i = 0; i < str_arr.length; ++i){
             new_message += `${wrap_str(str_arr[i], wrap_length, delimiter)}\n`
@@ -82,11 +82,11 @@ function wrap_str(message, wrap_length, delimiter = undefined){
             if(line.length > wrap_length){
                 new_message += `${line.slice(0, -1 * delimiter.length)}\n`
                 line = ``;
-            } 
+            }
         }
         if(line.length > 0){
             new_message += `${line.slice(0, -1 * delimiter.length)}\n`
-        } 
+        }
     }
     return new_message.slice(0, -1);
 }
@@ -165,7 +165,7 @@ function random_num(x){
 /**
  * Function to return true n/d of the time.
  * @param {number} numerator
- * @param {number} denominator 
+ * @param {number} denominator
  * @returns {boolean} If the chance succeeded.
  */
 function chance(numerator, denominator){
@@ -191,7 +191,7 @@ function array_equals(a1, a2){
 /**
  * Function to make sure a value is not undefined.
  * @template A
- * @param {A | undefined} exists 
+ * @param {A | undefined} exists
  * @returns {A}
  */
 function ifexists(exists){

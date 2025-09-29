@@ -113,7 +113,7 @@ const GUIDE_TEXT = {
         +`will go away after it goes to your discard pile, or when you go to the next floor. Cards will do `
         +`this if they highlight your current square in yellow.\n\n`
         +`Here is a list of the possible confusion cards:\n\n`],
-    
+
     about:
         [`Maneuver is a game created by Sean Dunbar. It began in 2023. If you would like to view the changelog or `
         +`look at the source code, you can go to the `, `.\n\n`],

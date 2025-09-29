@@ -9,6 +9,12 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+9/28/25
+- Buffed 8 common cards and 4 boss cards.
+- Added 1 new card.
+- You can now view the number of times you have picked a boon or card when in the shop or chests.
+- Journal info box works better on small screens.
+
 9/22/25
 - Rebalanced Wheel of Fire: Now flees when approached.
 - Rebalanced Blood Crescent: Now moves 3 spaces, but only moves every other turn.

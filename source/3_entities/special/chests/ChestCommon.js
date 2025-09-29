@@ -76,7 +76,6 @@ function chest_on_enter(self, target, map){
                 display.select(UIIDS.contents, 0, position);
             };
         }
-        
         content_row.push({
             pic: item.pic,
             name: item.name,
@@ -106,7 +105,7 @@ function add_card_to_chest(chest, card){
     if(chest.contents === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var description = chest_text.add_card + `\n` + explain_card(card);
+    var description = chest_text.add_card + `\n` + explain_card_w_stats(card);
     var content = {
         pic: card.pic,
         name: card.name,
@@ -137,7 +136,7 @@ function add_boon_to_chest(chest, boon){
             GS.refresh_boon_display();
             return go_back
         },
-        description: `${boon.name}: ${boon.description}`
+        description: explain_boon_with_picked(boon)
     }
     chest.contents.push(content);
 }
