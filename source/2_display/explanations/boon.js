@@ -12,7 +12,7 @@ function explain_boon_with_picked(boon){
 }
 function explain_boon_with_stats(boon){
     var description = explain_boon(boon);
-    var prereq = boon.prereq_description; 
+    var prereq = boon.prereq_description;
     var max = `${boon_messages.max}: ${boon.max ? boon.max : boon_messages.no_max}.`;
     var picked = ``;
     var node = GS.data.boons.get_node(boon.name);

@@ -22,5 +22,4 @@ function get_boss(map){
         return map.get_tile(p).tags.has(TAGS.boss);
     });
     return locations.length > 0 ? map.get_tile(locations[0]) : undefined;
-   
 }

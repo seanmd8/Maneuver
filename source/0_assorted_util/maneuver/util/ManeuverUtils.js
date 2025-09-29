@@ -27,7 +27,7 @@ function confuse_player(choices = CONFUSION_CARDS){
         var card = rand_from(choices)();
         GS.give_temp_card(card);
         GS.refresh_deck_display();
-    } 
+    }
 }
 
 function floor_has_chest(floor_of_area){

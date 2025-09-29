@@ -19,7 +19,7 @@ function init_settings(){
     init.make_deck = init.cards ? () => {return make_test_deck(init.cards)} : () => {return make_starting_deck()};
     // Determines the area to start in.
     init.area = init.area? [init.area] : area1;
-    // Determines the size of each area. 
+    // Determines the size of each area.
     // Set to a minimum of 2 since bosses cannot generate on the first floor.
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
     // Determines achievements that should be automatically gained upon starting the game.

@@ -14,7 +14,6 @@ function pheonix_tile(){
     }
 }
 
-
 /** @type {AIFunction} AI used by pheonixes.*/
 function pheonix_ai(self, target, map){
     var direction = new Point(0, 0);
@@ -28,7 +27,6 @@ function pheonix_ai(self, target, map){
         else if(map.check_empty(self.location.plus(direction.times(2)))){
             distance = 2;
         }
-        
     }
     var directions = order_nearby(target.difference);
     for(var i = 0; i < directions.length && distance === 0; ++i){

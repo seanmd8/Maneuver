@@ -90,7 +90,7 @@ function specter_move(current, passing, map){
         map.stun_tile(location);
         map.attack(location);
     }
-    return true;                
+    return true;
 }
 
 /** @type {TelegraphFunction} */

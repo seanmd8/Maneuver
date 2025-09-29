@@ -5,7 +5,7 @@ class KeyBind{
         if(!KeyBind.is_valid(DEFAULT_CONTROLS)){
             throw new Error(ERRORS.invalid_value);
         }
-        this.#controls = DEFAULT_CONTROLS;   
+        this.#controls = DEFAULT_CONTROLS;
         this.alternate_is_pressed = false;
     }
     stage(key){

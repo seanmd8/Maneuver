@@ -11,7 +11,7 @@ function make_starting_deck(){
         jump,
     ]
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE, cards);
-    
+
     deck.deal();
     return deck;
 }

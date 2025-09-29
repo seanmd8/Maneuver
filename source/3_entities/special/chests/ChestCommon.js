@@ -76,7 +76,6 @@ function chest_on_enter(self, target, map){
                 display.select(UIIDS.contents, 0, position);
             };
         }
-        
         content_row.push({
             pic: item.pic,
             name: item.name,

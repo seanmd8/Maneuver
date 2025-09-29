@@ -1,4 +1,3 @@
-
 class SearchTreeNode{
     data;
     left;

@@ -51,14 +51,14 @@ function rand_from(source){
  * Wraps a string so each line has a maximum number of characters before automatically inserting a newline character.
  * @param {string} message The string to be wrapped.
  * @param {number} wrap_length How many characters maximum.
- * @param {string} [delimiter = undefined] Optional parameter for the delimiter. 
+ * @param {string} [delimiter = undefined] Optional parameter for the delimiter.
  *                                      If provided, then blocks of text in between delimiters will not be broken up.
  * @returns {string} The wrapped string.
  */
 function wrap_str(message, wrap_length, delimiter = undefined){
     var new_message = ``;
     var str_arr = [];
-    if(message.indexOf(`\n`) > -1){ // If it already has new line characters, 
+    if(message.indexOf(`\n`) > -1){ // If it already has new line characters
         str_arr = message.split(`\n`);
         for(var i = 0; i < str_arr.length; ++i){
             new_message += `${wrap_str(str_arr[i], wrap_length, delimiter)}\n`
@@ -83,11 +83,11 @@ function wrap_str(message, wrap_length, delimiter = undefined){
             if(line.length > wrap_length){
                 new_message += `${line.slice(0, -1 * delimiter.length)}\n`
                 line = ``;
-            } 
+            }
         }
         if(line.length > 0){
             new_message += `${line.slice(0, -1 * delimiter.length)}\n`
-        } 
+        }
     }
     return new_message.slice(0, -1);
 }
@@ -166,7 +166,7 @@ function random_num(x){
 /**
  * Function to return true n/d of the time.
  * @param {number} numerator
- * @param {number} denominator 
+ * @param {number} denominator
  * @returns {boolean} If the chance succeeded.
  */
 function chance(numerator, denominator){
@@ -192,7 +192,7 @@ function array_equals(a1, a2){
 /**
  * Function to make sure a value is not undefined.
  * @template A
- * @param {A | undefined} exists 
+ * @param {A | undefined} exists
  * @returns {A}
  */
 function ifexists(exists){
@@ -449,7 +449,7 @@ function init_settings(){
     init.make_deck = init.cards ? () => {return make_test_deck(init.cards)} : () => {return make_starting_deck()};
     // Determines the area to start in.
     init.area = init.area? [init.area] : area1;
-    // Determines the size of each area. 
+    // Determines the size of each area.
     // Set to a minimum of 2 since bosses cannot generate on the first floor.
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
     // Determines achievements that should be automatically gained upon starting the game.
@@ -482,7 +482,6 @@ const DEFAULT_CONTROLS = {
     }
 }
 Object.freeze(DEFAULT_CONTROLS);
-
 
 // GameState global.
 var GS;
@@ -519,7 +518,6 @@ const DECK_DISPLAY_WIDTH = 5;
 const JOURNAL_DISPLAY_WIDTH = 10;
 const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
-
 
 // Image folder file structure.
 const IMG_FOLDER = {
@@ -562,7 +560,7 @@ function make_starting_deck(){
         jump,
     ]
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE, cards);
-    
+
     deck.deal();
     return deck;
 }
@@ -628,7 +626,7 @@ function confuse_player(choices = CONFUSION_CARDS){
         var card = rand_from(choices)();
         GS.give_temp_card(card);
         GS.refresh_deck_display();
-    } 
+    }
 }
 
 function floor_has_chest(floor_of_area){
@@ -1595,7 +1593,6 @@ const enemy_flavor = {
         ``,
 }
 Object.freeze(enemy_descriptions);
-
 const entity_types = {
     chest: `Chest`,
     empty: `Empty`,
@@ -1874,7 +1871,6 @@ const control_screen_text = {
 }
 Object.freeze(control_screen_text);
 
-
 const CONTROLS_TEXT = {
     header: `Controls`,
     stage: {
@@ -1950,7 +1946,7 @@ const gameplay_text = {
         `You have entered the `,
     game_over: 
         `Game Over. You were killed by a `,
-    stunned:    
+    stunned:
         `Stunned x`,
     divider: 
         `\n--------------------\n`,
@@ -2075,7 +2071,7 @@ const GUIDE_TEXT = {
         +`will go away after it goes to your discard pile, or when you go to the next floor. Cards will do `
         +`this if they highlight your current square in yellow.\n\n`
         +`Here is a list of the possible confusion cards:\n\n`],
-    
+
     about:
         [`Maneuver is a game created by Sean Dunbar. It began in 2023. If you would like to view the changelog or `
         +`look at the source code, you can go to the `, `.\n\n`],
@@ -2195,7 +2191,6 @@ function get_uiids(language){
  *      @property {string} chest_control Contains the controls for the chest.
  */
 
-
 /** @type {uiid_library} The uiid library for HTML.*/
 const HTML_UIIDS = {
     header_bar: `headerBar`,
@@ -2286,7 +2281,7 @@ function explain_boon_with_picked(boon){
 }
 function explain_boon_with_stats(boon){
     var description = explain_boon(boon);
-    var prereq = boon.prereq_description; 
+    var prereq = boon.prereq_description;
     var max = `${boon_messages.max}: ${boon.max ? boon.max : boon_messages.no_max}.`;
     var picked = ``;
     var node = GS.data.boons.get_node(boon.name);
@@ -2391,7 +2386,6 @@ function tile_description(tile){
  * @param {CellInfo} tile The object used to create this element.
  * @param {Point} position The row and column of the element.
  */
-
 
 /**
  * @callback NormalCallback A function with no args or returns.
@@ -2508,7 +2502,6 @@ function tile_description(tile){
  * @property {add_on_click} add_on_click
  */
 
-
 /**
  * A function to get the display library for a given language.
  * @param {string} language The language to get the library for.
@@ -2554,7 +2547,6 @@ function get_display(language){
  * @property {get_transformation} get_transformation
  * @property {get_element} get_element
  */
-
 
 /**
  * Library containing functions used to diplay things in HTML.
@@ -2750,7 +2742,6 @@ const DisplayHTML = {
         var body_div_id = `${header} section`;
         body_div.id = body_div_id;
         body_div.classList.add(`guidebook-section`)
-
 
         var body_header = document.createElement(`h2`);
         body_header.id = `${body_div_id} header`;
@@ -3122,7 +3113,7 @@ const DisplayHTML = {
             element.classList.add(`hidden-section`);
         }
         else{
-            element.classList.remove(`hidden-section`);            
+            element.classList.remove(`hidden-section`);
         }
     },
     journal_card_section(destination, header, cards){
@@ -3250,7 +3241,7 @@ const DisplayHTML = {
         if(to_display.flip){
             transformation += `scaleX(-1) `;
         }
-        return transformation;   
+        return transformation;
     },
     get_element: function(location, type = undefined){
         var element = document.getElementById(location);
@@ -3390,7 +3381,7 @@ function display_entire_deck(deck){
     var decklist = deck.get_deck_info();
     var card_explanation = (card) => {
         return () => {
-            display.display_message(UIIDS.shop_message, explain_card(card))       
+            display.display_message(UIIDS.shop_message, explain_card(card));
         }
     };
     for(var card of decklist){
@@ -3876,7 +3867,6 @@ function magma_display_info(){
         ],
     }
 }
-
 function ruins_display_info(){
     var area = generate_ruins_area();
     return {
@@ -3888,7 +3878,6 @@ function ruins_display_info(){
         ],
     }
 }
-
 function sewers_display_info(){
     var area = generate_sewers_area();
     return {
@@ -3904,7 +3893,6 @@ function sewers_display_info(){
         ],
     }
 }
-
 function update_journal_areas(){
     for(var i = 0; i < 6; ++i){
         display.remove_children(`${UIIDS.journal_areas}${i}`);
@@ -4175,7 +4163,7 @@ function sentry_core_ai(self, target, map){
             ++self.tile.cycle;
             if(self.tile.cycle >= self.tile.spawn_timer){
                 spawn_nearby(map, paper_construct_tile(), self.location);
-                self.tile.cycle = 0;                                
+                self.tile.cycle = 0;
             }
             break;
         default:
@@ -4271,7 +4259,7 @@ function sentry_get_core(location, map){
                 return tile;
             }
         }
-    }    
+    }
 }
 /** @type {TileGenerator} */
 function forest_heart_tile(){
@@ -4660,7 +4648,6 @@ function lord_of_shadow_and_flame_behavior(self, target, map){
         default:
             throw new Error(ERRORS.invalid_value);
     }
-    
     if(target.difference.within_radius(1)){
         // Prep attack
         self.tile.pic = self.tile.pic_arr[1];
@@ -5289,7 +5276,6 @@ function animated_boulder_tile(){
         look: magmatic_boulder_tile()
     }
 }
-
 
 /** @type {AIFunction} AI used by animated boulders.*/
 function animated_boulder_ai(self, target, map){
@@ -6166,7 +6152,6 @@ function noxious_toad_telegraph(location, map, self){
         if(map.check_empty(move)){
             attacks.push(...spider_telegraph(move, map, self));
         }
-        
     }
     return attacks;
 }
@@ -6306,7 +6291,6 @@ function pheonix_tile(){
     }
 }
 
-
 /** @type {AIFunction} AI used by pheonixes.*/
 function pheonix_ai(self, target, map){
     var direction = new Point(0, 0);
@@ -6320,7 +6304,6 @@ function pheonix_ai(self, target, map){
         else if(map.check_empty(self.location.plus(direction.times(2)))){
             distance = 2;
         }
-        
     }
     var directions = order_nearby(target.difference);
     for(var i = 0; i < directions.length && distance === 0; ++i){
@@ -6923,7 +6906,6 @@ function shadow_knight_elite_ai(self, target, map){
         }
         return;
     }
-    
     // If it can move to a square that can attack the player next turn, do so.
     var setup_attack = possible_moves.filter((p) => {
         if(p.minus(player_location).taxicab_distance() === 3){
@@ -6940,7 +6922,6 @@ function shadow_knight_elite_ai(self, target, map){
         map.move(self.location, setup_attack[0]);
         return;
     }
-    
     // Order moves based off of proximity to player.
     var ordered_moves = possible_moves.filter((p) => {
         return map.check_empty(p);
@@ -6958,11 +6939,9 @@ function shadow_knight_elite_ai(self, target, map){
         map.move(self.location, ordered_moves[ordered_moves.length - 1]);
         return;
     }
-    
     // Oterwise, move closer
     map.move(self.location, ordered_moves[0]);
 }
-
 /** @type {TileGenerator} */
 function shadow_scout_tile(){
     var starting_cycle = random_num(2);
@@ -7083,7 +7062,7 @@ function specter_move(current, passing, map){
         map.stun_tile(location);
         map.attack(location);
     }
-    return true;                
+    return true;
 }
 
 /** @type {TelegraphFunction} */
@@ -7779,7 +7758,6 @@ function vampire_ai(self, target, map){
             if(direction.on_axis()){
                 moved = map.move(self.location, self.location.plus(direction));
             }
-            
         }
     }
 }
@@ -7849,12 +7827,13 @@ function vinesnare_bush_ai(self, target, map){
         var direction = sign(target.difference);
         if(target.difference.on_axis() || target.difference.on_diagonal()){
             // If the player is orthogonal or diagonal and within range, drag them closer.
-            for(var i = Math.max(Math.abs(target.difference.x), Math.abs(target.difference.y));
+            for(
+                var i = Math.max(Math.abs(target.difference.x), Math.abs(target.difference.y));
                 i > 1 && map.move(self.location.plus(direction.times(i)), self.location.plus(direction.times(i - 1)));
-                --i){
-                    moved = true;
-                }
-            
+                --i
+            ){
+                moved = true;
+            }
         }
     }
     if(moved){
@@ -8075,7 +8054,6 @@ function get_boss(map){
         return map.get_tile(p).tags.has(TAGS.boss);
     });
     return locations.length > 0 ? map.get_tile(locations[0]) : undefined;
-   
 }
 /** @type {TileGenerator}*/
 function altar_of_scouring_tile(){
@@ -8155,7 +8133,6 @@ function altar_of_shadow_on_enter(self, target, map){
         boss_tile.look = empty_tile();
     }
 }
-
 
 /** @type {TileGenerator}*/
 function altar_of_singularity_tile(){
@@ -8397,7 +8374,7 @@ function black_hole_telegraph_other(location, map, self){
         spaces.push(...point_rectangle(
             location.plus(new Point(i, i)), 
             location.plus(new Point(-i, -i))
-        ));            
+        ));
     }
     return spaces;
 }
@@ -9045,7 +9022,6 @@ function chest_on_enter(self, target, map){
                 display.select(UIIDS.contents, 0, position);
             };
         }
-        
         content_row.push({
             pic: item.pic,
             name: item.name,
@@ -9514,7 +9490,6 @@ function targeted_earthquake_event(locations){
  * @returns {Tile}
  */
 
-
 // This is a array of all the enemies that can be spawned on a normal floor.
 const ENEMY_LIST = [
     spider_tile, turret_d_tile, turret_o_tile, turret_r_tile, shadow_knight_tile, 
@@ -9594,7 +9569,7 @@ function order_nearby(direction){
         pair = randomize_arr([new Point(-1 * sign_dir.x, 1), new Point(-1 * sign_dir.x, -1)]);
         ordering.push(...pair);
     }
-    else if(Math.abs(direction.x) > Math.abs(direction.y)){  
+    else if(Math.abs(direction.x) > Math.abs(direction.y)){
         // Target is closer to the horizontal line than the vertical one.
         ordering.push(new Point(sign_dir.x, 0));
         ordering.push(new Point(0, sign_dir.y));
@@ -9704,7 +9679,7 @@ function shapeshift(tile, tile_generator){
  * @returns {number} Returns 1 if the direction is diagonal, 0 if it's orthogonal.
  */
 function set_rotation(tile){
-    /*  
+    /*
         NW = (-1, -1) -> 0
         N  = ( 0, -1) -> 0
         NE = ( 1, -1) -> 90
@@ -9800,7 +9775,6 @@ function get_nearest_where(map, location, f){
     }
     return undefined;
 }
-
 
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */
 function generic_tile(){
@@ -9954,7 +9928,7 @@ function node_double_cannon_behavior(self, target, map){
     }
 }
 function node_o_double_cannon_ai(self, target, map){
-    var dir = self.tile.direction;    
+    var dir = self.tile.direction;
     var spawnpoints = [
         self.location.plus(dir.plus(dir.rotate(90))), 
         self.location.plus(dir.plus(dir.rotate(-90)))
@@ -9969,7 +9943,7 @@ function node_o_double_cannon_ai(self, target, map){
 
 }
 function node_d_double_cannon_ai(self, target, map){
-    var dir = self.tile.direction;    
+    var dir = self.tile.direction;
     var spawnpoints = [
         self.location.plus(dir.times(new Point(1, 0))), 
         self.location.plus(dir.times(new Point(0, 1)))
@@ -10686,7 +10660,7 @@ class AchievementList{
             return e.name === name;
         });
         if(match === undefined){
-            throw new Error(ERRORS.value_not_found);            
+            throw new Error(ERRORS.value_not_found);
         }
         var achieved = !match.has;
         match.has = true;
@@ -12192,8 +12166,6 @@ function grid_space(area){
 }
 // ----------------GameState.js----------------
 // File containing a class to control the general flow of the game.
-
-
 class GameState{
     map;
     deck;
@@ -12623,7 +12595,7 @@ class KeyBind{
         if(!KeyBind.is_valid(DEFAULT_CONTROLS)){
             throw new Error(ERRORS.invalid_value);
         }
-        this.#controls = DEFAULT_CONTROLS;   
+        this.#controls = DEFAULT_CONTROLS;
         this.alternate_is_pressed = false;
     }
     stage(key){
@@ -13111,7 +13083,7 @@ class SaveData{
             tiles: this.tiles.to_list(),
             areas: this.areas.to_list(),
         }
-        this.#save_function(data);        
+        this.#save_function(data);
     }
     set_controls(new_controls){
         this.controls.set(new_controls);
@@ -13180,7 +13152,6 @@ class SaveData{
         area.clear();
         this.save();
     }
-
 
     // Static functions
     static load_file_function(save_name){
@@ -13500,7 +13471,6 @@ class SearchTree{
         return undefined;
     }
 }
-
 class SearchTreeNode{
     data;
     left;
@@ -13610,7 +13580,7 @@ class Shop{
         }
         if(this.#remove_index === index){
             this.#remove_index = undefined;
-        }           
+        }
         else{
             this.#remove_index = index;
         }
@@ -13773,12 +13743,9 @@ class StatTracker{
             total_kills_per_floor: this.#total_kills_per_floor
         }
     }
-    
 }
 // ----------------TagList.js----------------
 // Class to contain a list of tags for true or false questions about a tile.
-
-
 class TagList{
     #tags;
     constructor(list=[]){
@@ -14173,8 +14140,8 @@ function river_terrain(floor_num, area, map){
     var y = random_num(FLOOR_HEIGHT - 4) + 2;
     for(var x of x_vals){
         map.add_tile(sewer_grate_tile(), new Point(x, y));
-        map.add_tile(corrosive_slime_tile(), new Point(x, y + 1));        
-        map.add_tile(corrosive_slime_tile(), new Point(x, y - 1));        
+        map.add_tile(corrosive_slime_tile(), new Point(x, y + 1));
+        map.add_tile(corrosive_slime_tile(), new Point(x, y - 1));
     }
     cross(
         [left, FLOOR_WIDTH - (right + 1)], 
@@ -14516,7 +14483,6 @@ function boss_floor_common(floor_num,  area, map){
     }
 }
 
-
 /** @type {CardGenerator}*/
 function basic_diagonal(){
     var options = new ButtonGrid();
@@ -14788,7 +14754,6 @@ function lost_technique(){
         evolutions: [split_second_1, execution_1, superweapon_1]
     }
 }
-
 /** @type {CardGenerator}*/
 function maneuver_1(){
     var options = new ButtonGrid();
@@ -16497,7 +16462,6 @@ function get_all_achievement_cards(){
     });
     return list;
 }
-
 const BASIC_CARDS = [
     basic_diagonal, 
     basic_orthogonal, 
@@ -16515,7 +16479,6 @@ const BOON_CARDS = [
     split_second_1, split_second_2,
     superweapon_1, superweapon_2,
 ];
-
 const BOSS_CARDS = {
     arcane_sentry: [
         beam_ne, 
@@ -16573,7 +16536,6 @@ function get_boss_cards(){
         ...BOSS_CARDS.arcane_sentry,
     ];
 }
-
 const COMMON_CARDS = [
     advance, bounding_retreat, breakthrough_horizontal, breakthrough_vertical, butterfly, 
     charge_horizontal, charge_vertical, clear_behind, clear_in_front, combat_diagonal, 
@@ -16587,7 +16549,6 @@ const COMMON_CARDS = [
     sprint_vertical, step_left, step_right, t_strike_horizontal, t_strike_vertical, 
     thwack, trample, trident, y_leap, y_strike_ne, y_strike_nw,
 ];
-
 const CONFUSION_CARDS = [
     freeze_up, 
     lash_out, 
@@ -16681,8 +16642,6 @@ function pheal(x, y){
  * @callback CardGenerator A function that creates a card.
  * @returns {Card} The resulting card.
  */
-
-
 
 /**
  * Function to explain an individual player action.

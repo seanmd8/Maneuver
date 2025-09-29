@@ -99,5 +99,4 @@ class StatTracker{
             total_kills_per_floor: this.#total_kills_per_floor
         }
     }
-    
 }

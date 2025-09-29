@@ -42,7 +42,7 @@ class SaveData{
             tiles: this.tiles.to_list(),
             areas: this.areas.to_list(),
         }
-        this.#save_function(data);        
+        this.#save_function(data);
     }
     set_controls(new_controls){
         this.controls.set(new_controls);
@@ -111,7 +111,6 @@ class SaveData{
         area.clear();
         this.save();
     }
-
 
     // Static functions
     static load_file_function(save_name){

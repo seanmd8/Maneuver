@@ -6,7 +6,6 @@ const control_screen_text = {
 }
 Object.freeze(control_screen_text);
 
-
 const CONTROLS_TEXT = {
     header: `Controls`,
     stage: {

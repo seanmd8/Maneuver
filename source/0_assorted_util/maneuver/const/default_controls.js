@@ -21,4 +21,3 @@ const DEFAULT_CONTROLS = {
     }
 }
 Object.freeze(DEFAULT_CONTROLS);
-

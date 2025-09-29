@@ -33,4 +33,3 @@ const DECK_DISPLAY_WIDTH = 5;
 const JOURNAL_DISPLAY_WIDTH = 10;
 const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
-

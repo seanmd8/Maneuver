@@ -7,7 +7,7 @@ function node_double_cannon_behavior(self, target, map){
     }
 }
 function node_o_double_cannon_ai(self, target, map){
-    var dir = self.tile.direction;    
+    var dir = self.tile.direction;
     var spawnpoints = [
         self.location.plus(dir.plus(dir.rotate(90))), 
         self.location.plus(dir.plus(dir.rotate(-90)))
@@ -22,7 +22,7 @@ function node_o_double_cannon_ai(self, target, map){
 
 }
 function node_d_double_cannon_ai(self, target, map){
-    var dir = self.tile.direction;    
+    var dir = self.tile.direction;
     var spawnpoints = [
         self.location.plus(dir.times(new Point(1, 0))), 
         self.location.plus(dir.times(new Point(0, 1)))

@@ -46,7 +46,7 @@ class Shop{
         }
         if(this.#remove_index === index){
             this.#remove_index = undefined;
-        }           
+        }
         else{
             this.#remove_index = index;
         }

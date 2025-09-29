@@ -97,7 +97,6 @@ function lord_of_shadow_and_flame_behavior(self, target, map){
         default:
             throw new Error(ERRORS.invalid_value);
     }
-    
     if(target.difference.within_radius(1)){
         // Prep attack
         self.tile.pic = self.tile.pic_arr[1];

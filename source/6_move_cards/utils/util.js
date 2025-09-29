@@ -79,8 +79,6 @@ function pheal(x, y){
  * @returns {Card} The resulting card.
  */
 
-
-
 /**
  * Function to explain an individual player action.
  * @param {PlayerCommand} action The command to explain.

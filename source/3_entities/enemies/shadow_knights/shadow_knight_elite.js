@@ -36,7 +36,6 @@ function shadow_knight_elite_ai(self, target, map){
         }
         return;
     }
-    
     // If it can move to a square that can attack the player next turn, do so.
     var setup_attack = possible_moves.filter((p) => {
         if(p.minus(player_location).taxicab_distance() === 3){
@@ -53,7 +52,6 @@ function shadow_knight_elite_ai(self, target, map){
         map.move(self.location, setup_attack[0]);
         return;
     }
-    
     // Order moves based off of proximity to player.
     var ordered_moves = possible_moves.filter((p) => {
         return map.check_empty(p);
@@ -71,7 +69,6 @@ function shadow_knight_elite_ai(self, target, map){
         map.move(self.location, ordered_moves[ordered_moves.length - 1]);
         return;
     }
-    
     // Oterwise, move closer
     map.move(self.location, ordered_moves[0]);
 }
