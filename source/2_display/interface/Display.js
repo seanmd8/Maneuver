@@ -290,9 +290,9 @@ const DisplayHTML = {
         var row = DisplayHTML.get_element(`${location} row ${row_num}`, HTMLTableRowElement);
         var column_count = row.cells.length;
         for(var i = 0; i < column_count; ++i){
-            DisplayHTML.get_element(`${location} ${row_num} ${i}`, HTMLTableCellElement).classList.remove("selected-element");
+            DisplayHTML.get_element(`${location} ${row_num} ${i}`, HTMLTableCellElement).classList.remove(`selected-element`);
         }
-        DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add("selected-element");
+        DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add(`selected-element`);
     },
     press: function(key_press){
         var key = key_press.key.toLowerCase();
@@ -353,7 +353,7 @@ const DisplayHTML = {
                 var label = select_element.value;
                 var chosen_option = option_func_map.get(label);
                 if(chosen_option === undefined){
-                    throw new Error("unrecognized value in select element");
+                    throw new Error(`unrecognized value in select element`);
                 }
                 chosen_option();
             }
@@ -649,7 +649,7 @@ const DisplayHTML = {
             var div = document.createElement(`div`);
             div.classList.add(`achievement-box`);
             if(a.has){
-                div.classList.add('achievement-box-unlocked');
+                div.classList.add(`achievement-box-unlocked`);
             }
 
             // Achievement image
@@ -726,7 +726,7 @@ const DisplayHTML = {
         }
     },
     stop_space_scrolling: function(){
-        window.addEventListener('keydown', (e) => {
+        window.addEventListener(`keydown`, (e) => {
             if (e.key === ` ` && e.target === document.body) {
               e.preventDefault();
             }

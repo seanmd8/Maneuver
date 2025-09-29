@@ -115,7 +115,7 @@ class SaveData{
     // Static functions
     static load_file_function(save_name){
         return () => {
-            const fs = require('fs');
+            const fs = require(`fs`);
             try{
                 var data = fs.readFileSync(`./saves/${save_name}.txt`, `utf8`);
                 data = JSON.parse(data);
@@ -165,7 +165,7 @@ class SaveData{
     }
     static #load_missing_recursive(data, default_data){
         if( // Base case: current field is not an object.
-            typeof default_data !== 'object' || 
+            typeof default_data !== `object` || 
             Array.isArray(default_data) || 
             default_data === null
         ){

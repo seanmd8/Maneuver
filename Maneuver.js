@@ -2653,9 +2653,9 @@ const DisplayHTML = {
         var row = DisplayHTML.get_element(`${location} row ${row_num}`, HTMLTableRowElement);
         var column_count = row.cells.length;
         for(var i = 0; i < column_count; ++i){
-            DisplayHTML.get_element(`${location} ${row_num} ${i}`, HTMLTableCellElement).classList.remove("selected-element");
+            DisplayHTML.get_element(`${location} ${row_num} ${i}`, HTMLTableCellElement).classList.remove(`selected-element`);
         }
-        DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add("selected-element");
+        DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add(`selected-element`);
     },
     press: function(key_press){
         var key = key_press.key.toLowerCase();
@@ -2716,7 +2716,7 @@ const DisplayHTML = {
                 var label = select_element.value;
                 var chosen_option = option_func_map.get(label);
                 if(chosen_option === undefined){
-                    throw new Error("unrecognized value in select element");
+                    throw new Error(`unrecognized value in select element`);
                 }
                 chosen_option();
             }
@@ -3012,7 +3012,7 @@ const DisplayHTML = {
             var div = document.createElement(`div`);
             div.classList.add(`achievement-box`);
             if(a.has){
-                div.classList.add('achievement-box-unlocked');
+                div.classList.add(`achievement-box-unlocked`);
             }
 
             // Achievement image
@@ -3089,7 +3089,7 @@ const DisplayHTML = {
         }
     },
     stop_space_scrolling: function(){
-        window.addEventListener('keydown', (e) => {
+        window.addEventListener(`keydown`, (e) => {
             if (e.key === ` ` && e.target === document.body) {
               e.preventDefault();
             }
@@ -4081,9 +4081,9 @@ function setup_journal_navbar(){
     display.swap_screen(section_id_list, UIIDS.journal_cards);
 }
 const SENTRY_MODES = {
-    saw: "Saw",
-    cannon: "Cannon",
-    turret: "Turret"
+    saw: `Saw`,
+    cannon: `Cannon`,
+    turret: `Turret`
 };
 Object.freeze(SENTRY_MODES);
 
@@ -13156,7 +13156,7 @@ class SaveData{
     // Static functions
     static load_file_function(save_name){
         return () => {
-            const fs = require('fs');
+            const fs = require(`fs`);
             try{
                 var data = fs.readFileSync(`./saves/${save_name}.txt`, `utf8`);
                 data = JSON.parse(data);
@@ -13206,7 +13206,7 @@ class SaveData{
     }
     static #load_missing_recursive(data, default_data){
         if( // Base case: current field is not an object.
-            typeof default_data !== 'object' || 
+            typeof default_data !== `object` || 
             Array.isArray(default_data) || 
             default_data === null
         ){

@@ -1,7 +1,7 @@
 const SENTRY_MODES = {
-    saw: "Saw",
-    cannon: "Cannon",
-    turret: "Turret"
+    saw: `Saw`,
+    cannon: `Cannon`,
+    turret: `Turret`
 };
 Object.freeze(SENTRY_MODES);
 
