@@ -13558,6 +13558,18 @@ class Shop{
             add_list_generators[index_of_rare] = rare[0];
         }
         this.#add_row = add_list_generators.map((g) => {return g()});
+        if(chance(1, 2) && filter_new_cards(this.#add_row).length === 0){
+            // Chance to force the appearance of a card in the shop that has never been picked.
+            var to_replace = 0;
+            var replace_list = filter_new_cards(COMMON_CARDS.map((c) => {return c()}));
+            if(chance(1, 2) && index_of_rare < this.#add_row.length && rares.length > 0){
+                to_replace = index_of_rare;
+                replace_list = filter_new_cards(rares.map((c) => {return c()}));
+            }
+            if(replace_list.length > 0){
+                this.#add_row[to_replace] = rand_from(replace_list);
+            }
+        }
     }
     #generate_remove_row(){
         var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
@@ -16790,6 +16802,12 @@ function copy_card(source){
         evolutions: source.evolutions !== undefined ? [...source.evolutions] : undefined,
         per_floor: source.per_floor,
     }
+}
+
+function filter_new_cards(cards){
+    return cards.filter((c) => {
+        return !GS.data.cards.has(c.name);
+    });
 }
 const BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, blood_alchemy, boss_slayer, 

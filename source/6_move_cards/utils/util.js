@@ -227,3 +227,9 @@ function copy_card(source){
         per_floor: source.per_floor,
     }
 }
+
+function filter_new_cards(cards){
+    return cards.filter((c) => {
+        return !GS.data.cards.has(c.name);
+    });
+}
