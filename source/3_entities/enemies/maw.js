@@ -40,5 +40,5 @@ function maw_hit(self, target, map){
 function maw_telegraph(location, map, self){
     return ORTHOGONAL_DIRECTIONS.map((p) => {
         return location.plus(p);
-    })
+    });
 }

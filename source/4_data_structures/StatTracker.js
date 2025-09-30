@@ -22,7 +22,7 @@ class StatTracker{
         this.#total_damage_per_floor = [0];
         this.#kills = 0;
         this.#chest_kills = 0;
-        this.#total_kills_per_floor = [0]
+        this.#total_kills_per_floor = [0];
     }
     increment_turn(){
         ++this.#turn_number;

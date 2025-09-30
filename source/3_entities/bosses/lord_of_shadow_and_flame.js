@@ -3,8 +3,8 @@ function lord_of_shadow_and_flame_tile(){
     var pic_arr = [
     `${IMG_FOLDER.tiles}lord_move.png`,
     `${IMG_FOLDER.tiles}lord_attack.png`,
-    `${IMG_FOLDER.tiles}lord_summon.png`
-    ]
+    `${IMG_FOLDER.tiles}lord_summon.png`,
+    ];
 
     var health = 13;
     var summons = [
@@ -15,7 +15,7 @@ function lord_of_shadow_and_flame_tile(){
         altar_of_space_tile,
         altar_of_stasis_tile,
         altar_of_singularity_tile,
-    ]
+    ];
     return {
         type: entity_types.enemy,
         name: boss_names.lord_of_shadow_and_flame,
@@ -60,7 +60,7 @@ function lord_of_shadow_and_flame_behavior(self, target, map){
                 return self.location.plus(p);
             }).filter((p) => {
                 return map.is_in_bounds(p);
-            })
+            });
             for(var attack of attacks){
                 var tile = map.get_tile(attack);
                 if(!tile.tags.has(TAGS.altar)){
@@ -119,7 +119,7 @@ function lord_of_shadow_and_flame_behavior(self, target, map){
             if(!point_equals(destination, self.location)){
                 map.add_event({
                     name: event_names.altarfall, 
-                    behavior: altar_event(destination, make[i])
+                    behavior: altar_event(destination, make[i]),
                 });
             }
         }

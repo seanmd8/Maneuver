@@ -3,7 +3,7 @@ function forest_heart_tile(){
     var pic_arr = [
         `${IMG_FOLDER.tiles}forest_heart.png`,
         `${IMG_FOLDER.tiles}forest_heart_invincible.png`
-    ]
+    ];
     var spells = [
         // Index + 1 corresponds with the health it's triggered at.
         /*1*/greater_thorn_bush_spell_generator(),
@@ -117,7 +117,7 @@ function get_forest_heart_sections(self, map){
             tile: next_tile,
             location: next_location
         });
-        current = next_tile.segment_list[0]
+        current = next_tile.segment_list[0];
     }
     // Goes the other
     current = self.tile.segment_list[1];
@@ -132,7 +132,7 @@ function get_forest_heart_sections(self, map){
             tile: next_tile,
             location: next_location
         });
-        current = next_tile.segment_list[1]
+        current = next_tile.segment_list[1];
     }
     return tiles;
 }

@@ -37,8 +37,8 @@ function rat_ai(self, target, map){
         for(var j = 0; j < directions.length && !moved; ++j){
             moved = map.move(self.location, self.location.plus(directions[j]));
             if(moved){
-                self.location.plus_equals(directions[j])
-                target.difference.minus_equals(directions[j])
+                self.location.plus_equals(directions[j]);
+                target.difference.minus_equals(directions[j]);
                 if(directions[j].x < 0){
                     self.tile.flip = false;
                 }

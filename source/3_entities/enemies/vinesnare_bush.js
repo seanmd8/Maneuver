@@ -81,7 +81,7 @@ function vinesnare_bush_telegraph_other(location, map, self){
         self.range === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var vines = []
+    var vines = [];
     if(self.cycle === 0){
         return vines;
     }

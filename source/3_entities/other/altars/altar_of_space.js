@@ -7,7 +7,7 @@ function altar_of_space_tile(){
         description: other_tile_descriptions.altar_of_space,
         tags: new TagList([TAGS.altar]),
         health: 1,
-        on_enter: altar_on_enter(altar_of_space_on_enter)
+        on_enter: altar_on_enter(altar_of_space_on_enter),
     }
 }
 
@@ -16,7 +16,7 @@ function altar_of_space_on_enter(self, target, map){
         var to_move = [];
         cross(range(0, FLOOR_WIDTH), range(0, FLOOR_HEIGHT), (x, y) => {
             to_move.push(new Point(x, y));
-        })
+        });
         to_move = to_move.filter((p) => {
             return !map_to_use.get_tile(p).tags.has(TAGS.unmovable);
         });
@@ -25,5 +25,4 @@ function altar_of_space_on_enter(self, target, map){
         }
     }
     map.add_event({name: event_names.warp , behavior: warp});
-
 }

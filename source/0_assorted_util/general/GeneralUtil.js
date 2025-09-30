@@ -10,7 +10,7 @@ function delay(milliseconds){
     // Function to wait the given number of milliseconds.
     return new Promise(resolve =>{
         setTimeout(resolve, milliseconds);
-    })
+    });
 }
 /**
  * Creates an array by drawing random elements from another with no repeats.
@@ -196,7 +196,7 @@ function array_equals(a1, a2){
  */
 function ifexists(exists){
     if(exists === undefined){
-        throw new Error(`value is undefined.`)
+        throw new Error(`value is undefined.`);
     }
     return exists;
 }

@@ -11,14 +11,14 @@ function animated_boulder_tile(){
         on_enter: animated_boulder_wake_up,
         on_hit: animated_boulder_wake_up,
         cycle: 0,
-        look: magmatic_boulder_tile()
+        look: magmatic_boulder_tile(),
     }
 }
 
 /** @type {AIFunction} AI used by animated boulders.*/
 function animated_boulder_ai(self, target, map){
     if( self.tile.cycle === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
         // Asleep.
@@ -33,7 +33,7 @@ function animated_boulder_ai(self, target, map){
     var hit = false;
     for(let space of nearby){
         // Attacks everything nearby that's not another elemental.
-        var target_space = self.location.plus(space)
+        var target_space = self.location.plus(space);
         if(map.is_in_bounds(target_space) && !map.get_tile(target_space).tags.has(TAGS.hidden)){
             hit = map.attack(target_space) || hit;
         }
@@ -55,7 +55,7 @@ function animated_boulder_ai(self, target, map){
 /** @type {AIFunction} animated boulder wakes up when touched.*/
 function animated_boulder_wake_up(self, target, map){
     if( self.tile.cycle === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
         stun(self.tile);

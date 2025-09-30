@@ -7,7 +7,7 @@ function altar_of_sunlight_tile(){
         description: other_tile_descriptions.altar_of_sunlight,
         tags: new TagList([TAGS.altar]),
         health: 1,
-        on_enter: altar_on_enter(altar_of_sunlight_on_enter)
+        on_enter: altar_on_enter(altar_of_sunlight_on_enter),
     }
 }
 
@@ -46,7 +46,7 @@ function altar_of_sunlight_on_enter(self, target, map){
         var rectangle = point_rectangle(target.plus(new Point(i, i)), target.plus(new Point(-i, -i)));
         rectangle = rectangle.filter((p) => {
             return map.is_in_bounds(p);
-        })
+        });
         map.add_event({name: event_names.delay, behavior: delay_event(i + 1, delay(rectangle))});
     }
 }

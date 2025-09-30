@@ -9,7 +9,7 @@ function superweapon_1(){
         pattack(0, -1),
         pattack(-1, 1),
         pattack(-1, 0),
-        pattack(-1, -1)
+        pattack(-1, -1),
     ];
     options.add_button(SPIN, spin);
     return{

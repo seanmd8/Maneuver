@@ -13,7 +13,7 @@ function retaliate_behavior(self, target, map){
     var hit = false;
     var spaces = random_nearby().map(p => {
         return p.plus(self.location);
-    })
+    });
     for(var i = 0; i < spaces.length && !hit; ++i){
         if( map.is_in_bounds(spaces[i]) &&                   // Space is not edge.
             !map.check_empty(spaces[i]) &&                   // Space is not empty.

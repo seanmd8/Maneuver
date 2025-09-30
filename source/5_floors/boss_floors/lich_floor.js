@@ -4,8 +4,8 @@ function lich_floor(floor_num,  area, map){
         new Point(FLOOR_WIDTH - 2, FLOOR_HEIGHT - 2),
         new Point(1, FLOOR_HEIGHT - 2),
         new Point(FLOOR_WIDTH - 2, 1),
-        new Point(1, 1)
-    ]
+        new Point(1, 1),
+    ];
     for(var location of locations){
         map.add_tile(damaged_wall_tile(), location);
     }

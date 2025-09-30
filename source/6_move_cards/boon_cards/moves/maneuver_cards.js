@@ -51,7 +51,7 @@ function maneuver_3(){
         pstun(0, -1),
         pstun(-1, 1),
         pstun(-1, 0),
-        pstun(-1, -1)
+        pstun(-1, -1),
     ];
     options.add_button(SPIN, spin);
     return{

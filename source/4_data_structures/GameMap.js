@@ -63,7 +63,7 @@ class GameMap{
         this.#area = starting_area;
         this.#is_player_turn = true;
         this.#exit_pos = [];
-        this.erase()
+        this.erase();
     }
     /**
      * Function to reset the floor so the next one can be generated,
@@ -125,7 +125,7 @@ class GameMap{
         }
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
-                var pos = new Point(x, y)
+                var pos = new Point(x, y);
                 if(this.get_tile(pos).type === entity_types.empty){
                     if(rand === 0){
                         return pos;
@@ -192,17 +192,17 @@ class GameMap{
         if(location === undefined){
             var top_row = range(this.#y_max);
             var points = top_row.map((y) => {
-                return new Point(y, 0)
+                return new Point(y, 0);
             }).filter((p) => {
                 return this.check_empty(p);
-            })
+            });
             location = rand_from(points);
         }
         this.check_bounds(location);
         if(!this.check_empty(location)){
             throw new Error(ERRORS.space_full);
         }
-        var exit = exit_tile()
+        var exit = exit_tile();
         if(next_area !== undefined){
             exit.next_area = next_area;
             this.get_grid(location).floor = next_area.background;
@@ -218,7 +218,7 @@ class GameMap{
      */
     set_player(player_location, player){
         if(player.type !== entity_types.player){
-            throw new Error(ERRORS.invalid_value)
+            throw new Error(ERRORS.invalid_value);
         }
         this.check_bounds(player_location);
         if(!this.check_empty(player_location)){
@@ -227,7 +227,7 @@ class GameMap{
         try{
             // If player isn't undefined, throws error.
             this.#entity_list.get_player_pos();
-            throw new Error(ERRORS.already_exists)
+            throw new Error(ERRORS.already_exists);
         }
         catch(error) {
             if(error.message !== ERRORS.value_not_found){
@@ -356,7 +356,7 @@ class GameMap{
                     rotate: tile.rotate,
                     flip: tile.flip,
                     background: [...background_pics, space.action, ...stunned, space.floor],
-                    on_click: make_on_click(space, new Point(x, y), this)
+                    on_click: make_on_click(space, new Point(x, y), this),
                 });
             };
             grid.push(table_row);
@@ -402,7 +402,7 @@ class GameMap{
                 }
                 var mover_info = {
                     tile: start,
-                    difference: start_point.minus(end_point)
+                    difference: start_point.minus(end_point),
                 }
                 end.on_enter(entity_entered, mover_info, this);
             }
@@ -510,7 +510,7 @@ class GameMap{
                 }
                 var aggressor_info = { // TODO: when damage source is implemented, use that instead.
                     tile: this.get_player(),
-                    difference: player_pos.minus(location)
+                    difference: player_pos.minus(location),
                 }
                 target.on_hit(hit_entity, aggressor_info, this);
             }
@@ -552,7 +552,7 @@ class GameMap{
                     }
                     var player_info = {
                         tile: this.get_player(),
-                        difference: player_pos.minus(location)
+                        difference: player_pos.minus(location),
                     }
                     target.on_death(dying_entity, player_info, this);
                 }
@@ -564,11 +564,11 @@ class GameMap{
             var player_pos = this.#entity_list.get_player_pos();
             var hit_entity = {
                 tile: target,
-                location: location
+                location: location,
             }
             var aggressor_info = { // TODO: when damage source is implemented, use that instead.
                 tile: this.get_player(),
-                difference: player_pos.minus(location)
+                difference: player_pos.minus(location),
             }
             target.on_hit(hit_entity, aggressor_info, this);
             return true;
@@ -930,7 +930,7 @@ class GameMap{
         }
         if(amount > 0){
             ++tile.health;
-            this.heal(location, amount - 1)
+            this.heal(location, amount - 1);
             return true;
         }
         return false;

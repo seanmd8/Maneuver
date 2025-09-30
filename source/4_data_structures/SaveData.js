@@ -27,7 +27,7 @@ class SaveData{
         this.controls = new KeyBind();
         this.controls.set(data.controls);
         this.achievements = new AchievementList();
-        this.achievements.set(data.achievements)
+        this.achievements.set(data.achievements);
         this.cards = new SearchTree(data.cards, CardTreeNode);
         this.boons = new SearchTree(data.boons, BoonTreeNode);
         this.tiles = new SearchTree(data.tiles, TileTreeNode);

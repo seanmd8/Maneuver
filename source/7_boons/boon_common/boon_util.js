@@ -17,7 +17,7 @@ function change_max_health(amount){
         throw new Error(ERRORS.missing_property);
     }
     GS.map.get_player().max_health += amount;
-    GS.map.get_player().health = Math.min(GS.map.get_player().max_health, GS.map.get_player().health)
+    GS.map.get_player().health = Math.min(GS.map.get_player().max_health, GS.map.get_player().health);
 }
 
 function max_health_at_least(amount){

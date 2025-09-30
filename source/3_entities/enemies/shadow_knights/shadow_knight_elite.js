@@ -41,7 +41,7 @@ function shadow_knight_elite_ai(self, target, map){
         if(p.minus(player_location).taxicab_distance() === 3){
             var hits = L_SHAPES.filter((p2) => {
                 return point_equals(p2.plus(p), player_location);
-            })
+            });
             if(hits.length > 0 && map.check_empty(p)){
                 return true;
             }

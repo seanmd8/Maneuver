@@ -8,6 +8,6 @@ function chest_tile(){
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: chest_on_enter,
-        contents: []
+        contents: [],
     }
 }

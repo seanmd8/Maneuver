@@ -62,11 +62,12 @@ class ButtonGrid{
             }
         }
         for(var row of this.#buttons){
-            grid.push(row.map(button => {return {
-                description: button.description,
-                alt_click: telegraph(button.behavior),
-                on_click: click(button.behavior)
-            }
+            grid.push(row.map(button => {
+                return {
+                    description: button.description,
+                    alt_click: telegraph(button.behavior),
+                    on_click: click(button.behavior),
+                }
             }));
         }
         return grid;

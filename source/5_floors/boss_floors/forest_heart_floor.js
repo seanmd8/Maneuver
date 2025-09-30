@@ -8,13 +8,13 @@ function forest_heart_floor(floor_num,  area, map){
         new Point(mid_width + 1, mid_height),
         new Point(mid_width + 1, mid_height + 1),
         new Point(mid_width, mid_height + 1),
-    ]
+    ];
     var sections = [
         [undefined, new Point(1, 0)],
         [new Point(-1, 0), new Point(0, 1)],
         [new Point(0, -1), new Point(-1, 0)],
-        [new Point(1, 0), undefined]
-    ]
+        [new Point(1, 0), undefined],
+    ];
     for(var i = 0; i < locations.length; ++i){
         var section = forest_heart_tile();
         if(GS.boons.has(boon_names.boss_slayer)){

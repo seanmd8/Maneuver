@@ -11,7 +11,7 @@ function scorpion_tile(){
         behavior: scorpion_ai,
         telegraph: spider_telegraph,
         flip: chance(1, 2),
-        cycle: random_num(2)
+        cycle: random_num(2),
     }
 }
 

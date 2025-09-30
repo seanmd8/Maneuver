@@ -21,7 +21,7 @@ function boss_death(self, target, map){
     if(player_tile.max_health === 1){
         GS.achieve(achievement_names.one_life);
     }
-    var stats = map.stats.get_stats()
+    var stats = map.stats.get_stats();
     if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
         GS.achieve(achievement_names.not_my_fault);
     }

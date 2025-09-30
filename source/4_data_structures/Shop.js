@@ -76,9 +76,9 @@ class Shop{
                 pic: card.pic,
                 card,
                 on_click: make_add_card(i),
-                selected: s.#add_index === i
+                selected: s.#add_index === i,
             }
-        })
+        });
         row.unshift(symbol_add_card());
         return row;
     }

@@ -21,7 +21,7 @@ function spider_web_tile(){
 function spider_web_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.spawn_timer === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle < self.tile.spawn_timer){
         // If the cycle hasn't reached the spawn timer, increments it.

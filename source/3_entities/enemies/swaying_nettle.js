@@ -47,5 +47,5 @@ function swaying_nettle_telegraph(location, map, self){
     var targets = self.cycle === 0 ? DIAGONAL_DIRECTIONS : ORTHOGONAL_DIRECTIONS;
     return targets.map(target => {
         return target.plus(location);
-    })
+    });
 }

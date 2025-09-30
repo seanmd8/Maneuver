@@ -156,7 +156,7 @@ class Point{
      * (0, 0) returns false.
      */
     on_diagonal(){
-        return Math.abs(this.x) === Math.abs(this.y) && !this.is_origin()
+        return Math.abs(this.x) === Math.abs(this.y) && !this.is_origin();
     }
     /**
      * @returns true if the point is the origin (0, 0).

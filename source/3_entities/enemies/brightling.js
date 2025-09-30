@@ -11,7 +11,6 @@ function brightling_tile(){
         difficulty: 4,
         behavior: brightling_ai,
         cycle: starting_cycle
-
     }
 }
 
@@ -42,7 +41,7 @@ function brightling_ai(self, target, map){
     for(var i = 0; i < 2; ++i){
         var moved = map.move(self.location, self.location.plus(near_points[i]));
         if(moved){
-            self.location.plus_equals(near_points[i])
+            self.location.plus_equals(near_points[i]);
         }
     }
     ++self.tile.cycle;

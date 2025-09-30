@@ -56,7 +56,7 @@ function sentry_core_ai(self, target, map){
                 node_saw_behavior(self, target, map);
                 sentry_move(self, target, map);
             }
-            decrement_sentry_cycle(self, target, map)
+            decrement_sentry_cycle(self, target, map);
             break;
         case SENTRY_MODES.cannon:
             switch(self.tile.cycle){
@@ -127,7 +127,7 @@ function sentry_move(self, target, map){
         for(var location of locations){
             map.move(location, location.plus(self.tile.direction));
         }
-        self.location.plus_equals(self.tile.direction)
+        self.location.plus_equals(self.tile.direction);
     }
 }
 function move_check(locations, direction, map){
@@ -166,7 +166,7 @@ function get_sentry_nodes(self, target, map){
             },
             map: map
         }
-    })
+    });
 }
 function sentry_get_core(location, map){
     for(var direction of DIAGONAL_DIRECTIONS){

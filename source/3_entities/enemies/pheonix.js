@@ -41,7 +41,7 @@ function pheonix_ai(self, target, map){
     if(distance > 0){
         map.move(self.location, self.location.plus(direction.times(distance)));
         for(var i = 0; i < distance; ++i){
-            var space = self.location.plus(direction.times(i))
+            var space = self.location.plus(direction.times(i));
             map.attack(space);
             if(map.check_empty(space)){
                 map.add_tile(raging_fire_tile(), space);

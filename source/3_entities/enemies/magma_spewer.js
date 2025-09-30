@@ -21,7 +21,7 @@ function magma_spewer_tile(){
 function magma_spewer_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
         // Move away if the player gets close.
@@ -54,8 +54,8 @@ function magma_spewer_ai(self, target, map){
         }
         map.add_event({
             name: event_names.falling_magma, 
-            behavior: earthquake_event(random_num(4) + random_num(4) + 4, locations)
-        })
+            behavior: earthquake_event(random_num(4) + random_num(4) + 4, locations),
+        });
         if(chance(1, 4)){
             map.add_event({name: event_names.falling_magma, behavior: targeted_earthquake_event([center])});
         }

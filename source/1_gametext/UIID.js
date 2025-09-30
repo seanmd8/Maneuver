@@ -8,7 +8,7 @@
  * @returns {uiid_library} The library of uiids for that language.
  */
 function get_uiids(language){
-    // Factory function for the display classes (currently only html)
+    // Factory function for the display classes (currently only html).
     switch(language){
         case `html`:
             return HTML_UIIDS;

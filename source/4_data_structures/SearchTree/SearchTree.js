@@ -66,7 +66,7 @@ class SearchTree{
         return [
             ...this.#recursive_to_list(current.left), 
             current.data, 
-            ...this.#recursive_to_list(current.right)
+            ...this.#recursive_to_list(current.right),
         ];
     }
     remove_all(){

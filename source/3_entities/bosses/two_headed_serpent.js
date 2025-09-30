@@ -56,7 +56,7 @@ function two_headed_serpent_ai(self, target, map){
                         throw new Error(ERRORS.missing_property);
                     }
                     neck.segment_list[1 - index] = dir[i];
-                    neck.segment_list[index] = self.tile.segment_list[index]
+                    neck.segment_list[index] = self.tile.segment_list[index];
                     serpent_rotate(neck);
                     map.add_tile(neck, self.location);
                     // Update head
@@ -114,7 +114,7 @@ function serpent_other_end(self, index, map){
     var next_location = self.location.plus(p);
     var next = {
         location: next_location,
-        tile: map.get_tile(next_location)
+        tile: map.get_tile(next_location),
     }
     return serpent_other_end(next, index, map);
 }

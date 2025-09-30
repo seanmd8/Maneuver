@@ -22,7 +22,7 @@ function ram_tile(){
 function ram_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     var direction = sign(target.difference);
     var other_direction = sign(target.difference);

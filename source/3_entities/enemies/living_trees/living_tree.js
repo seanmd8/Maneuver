@@ -10,7 +10,7 @@ function living_tree_tile(){
         difficulty: 7,
         behavior: living_tree_ai,
         telegraph: living_tree_telegraph,
-        cycle: random_num(2)
+        cycle: random_num(2),
     }
 }
 

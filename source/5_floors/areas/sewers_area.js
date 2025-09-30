@@ -54,5 +54,5 @@ function river_terrain(floor_num, area, map){
         (e1, e2) => {
             map.add_tile(corrosive_slime_tile(), new Point(e1, y + e2));
         }
-    )
+    );
 }

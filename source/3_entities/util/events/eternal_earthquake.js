@@ -12,7 +12,7 @@ function eternal_earthquake_event(amount){
         }
     }
     var earthquake = function(amount){
-        amount = Math.min(amount, FLOOR_HEIGHT * FLOOR_WIDTH * 4/5)
+        amount = Math.min(amount, FLOOR_HEIGHT * FLOOR_WIDTH * 4/5);
         var falling_rubble_layer = {
             pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
             description: event_descriptions.falling_rubble,

@@ -91,15 +91,15 @@ class KeyBind{
         var toggle = KeyBind.#join_all(controls.toggle);
         var stage = [
             ...toggle,
-            this.#join_all(controls.stage)
+            this.#join_all(controls.stage),
         ];
         var shop = [
             ...toggle,
-            this.#join_all(controls.shop)
+            this.#join_all(controls.shop),
         ];
         var chest = [
             ...toggle,
-            this.#join_all(controls.chest)
+            this.#join_all(controls.chest),
         ];
         for(var list of [toggle, stage, shop, chest]){
             var unique = new Set(list);
@@ -119,7 +119,7 @@ class KeyBind{
                 direction: [...this.#controls.stage.direction],
                 card: [...this.#controls.stage.card],
                 info: [...this.#controls.stage.info],
-                retry: [...this.#controls.stage.retry]
+                retry: [...this.#controls.stage.retry],
             },
             shop: {
                 add: [...this.#controls.shop.add],
@@ -129,10 +129,10 @@ class KeyBind{
             chest: {
                 choose: [...this.#controls.chest.choose],
                 confirm: [...this.#controls.chest.confirm],
-                reject: [...this.#controls.chest.reject]
+                reject: [...this.#controls.chest.reject],
             },
             toggle: {
-                alt: [...this.#controls.toggle.alt]
+                alt: [...this.#controls.toggle.alt],
             }
         }
     }

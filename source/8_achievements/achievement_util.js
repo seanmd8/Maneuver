@@ -30,5 +30,5 @@ function get_achievements(){
         speed_runner_achievement(),
         triple_achievement(),
         without_a_scratch_achievement(),
-    ]
+    ];
 }

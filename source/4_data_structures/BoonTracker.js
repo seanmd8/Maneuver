@@ -90,5 +90,4 @@ class BoonTracker{
             on_click: function(){say(b.description)}
         }});
     }
-
 }

@@ -44,7 +44,7 @@ function move_closer_ai(self, target, map){
 /** @type {AIFunction} AI used when a entity should move and attack in a direction (the target's difference field).*/
 function move_attack_ai(self, target, map){
     if(target.difference.is_origin()){
-        throw new Error(ERRORS.invalid_value)
+        throw new Error(ERRORS.invalid_value);
     }
     if(map.move(self.location, self.location.plus(target.difference))){
         self.location.plus_equals(target.difference);

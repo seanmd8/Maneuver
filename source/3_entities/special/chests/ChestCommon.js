@@ -68,7 +68,7 @@ function chest_on_enter(self, target, map){
             return function(){
                 let confirm_button = {
                     description: chest_text.take,
-                    on_click: pick(item.on_choose, item.name)
+                    on_click: pick(item.on_choose, item.name),
                 };
                 display.display_message(UIIDS.content_description, item.description);
                 display.remove_children(UIIDS.chest_confirm_row);
@@ -79,7 +79,7 @@ function chest_on_enter(self, target, map){
         content_row.push({
             pic: item.pic,
             name: item.name,
-            on_click: make_on_click(i)
+            on_click: make_on_click(i),
         });
     }
 
@@ -136,7 +136,7 @@ function add_boon_to_chest(chest, boon){
             GS.refresh_boon_display();
             return go_back
         },
-        description: explain_boon_with_picked(boon)
+        description: explain_boon_with_picked(boon),
     }
     chest.contents.push(content);
 }

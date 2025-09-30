@@ -15,10 +15,6 @@ function generate_court_area(){
 
 /** @type {FloorGenerator}*/
 function generate_court_floor(floor_num, area, map){
-    var terrains = [
-        starcaller_terrain,
-        shatter_sphere_terrain
-    ]
     var reduction = 0;
     if(chance(1, 2)){
         starcaller_terrain(floor_num, area, map);
@@ -48,7 +44,7 @@ function shatter_sphere_terrain(floor_num, area, map){
     var summons = [
         shatter_sphere_tile,
         moon_rock_tile
-    ]
+    ];
     for(var i = 0; i < amount; ++i){
         map.spawn_safely(rand_from(summons)(), SAFE_SPAWN_ATTEMPTS, true);
     }

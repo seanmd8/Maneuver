@@ -7,7 +7,7 @@ function altar_of_shadow_tile(){
         description: other_tile_descriptions.altar_of_shadow,
         tags: new TagList([TAGS.altar]),
         health: 1,
-        on_enter: altar_on_enter(altar_of_shadow_on_enter)
+        on_enter: altar_on_enter(altar_of_shadow_on_enter),
     }
 }
 

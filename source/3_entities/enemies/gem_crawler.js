@@ -1,7 +1,7 @@
 /** @type {TileGenerator}*/
 function gem_crawler_tile(){
     var cycle = random_num(2);
-    var pic_arr = [`${IMG_FOLDER.tiles}gem_crawler_recharging.png`, `${IMG_FOLDER.tiles}gem_crawler.png`]
+    var pic_arr = [`${IMG_FOLDER.tiles}gem_crawler_recharging.png`, `${IMG_FOLDER.tiles}gem_crawler.png`];
     return {
         type: entity_types.enemy,
         name: enemy_names.gem_crawler,
@@ -39,9 +39,11 @@ function gem_crawler_telegraph(location, map, self){
             if(map.is_in_bounds(space) && map.check_empty(space)){
                 // Shows all the spaces it can attack by moving other than the one it's in.
                 attacks.push(
-                    ...ALL_DIRECTIONS
-                        .map((p) => {return p.plus(space)})
-                        .filter((p) => {return !point_equals(p, location)})
+                    ...ALL_DIRECTIONS.map((p) => {
+                        return p.plus(space);
+                    }).filter((p) => {
+                        return !point_equals(p, location);
+                    })
                 );
             }
         }

@@ -31,7 +31,7 @@ function captive_void_ai(self, target, map){
             var start = self.location.plus(space);
             var end = self.location.plus(sign(space));
             if(map.is_in_bounds(start) && !map.check_empty(start) && !map.get_tile(start).tags.has(TAGS.unmovable)){
-                var moved = map.move(start, end)
+                var moved = map.move(start, end);
                 if(moved && map.get_tile(end).type === entity_types.player){
                     moved_player = true;
                 }

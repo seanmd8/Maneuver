@@ -141,7 +141,7 @@ function telegraph_card(behavior, map, start_position){
         attacks: [],
         stun: [],
         healing: [],
-        teleport: []
+        teleport: [],
     }
     if(behavior === undefined){
         return telegraphs;

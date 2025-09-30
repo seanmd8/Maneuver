@@ -22,7 +22,6 @@ function wheel_of_fire_ai(self, target, map){
         if(i < moves.length){
             map.move(self.location, self.location.plus(moves[i]));
         }
-
     }
     else if((target.difference.on_axis() || target.difference.on_diagonal())){
         // Aiming at player.
@@ -67,7 +66,7 @@ function wheel_of_fire_ai(self, target, map){
 function wheel_of_fire_telegraph(location, map, self){
     var dir_arrs = ALL_DIRECTIONS.map((p) => {
         return get_points_in_direction(location, p, map);
-    })
+    });
     var attacks = [];
     for(var arr of dir_arrs){
         attacks.push(...arr);

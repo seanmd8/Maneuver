@@ -9,7 +9,7 @@ function make_starting_deck(){
         basic_slice,
         short_charge_orthogonal,
         jump,
-    ]
+    ];
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE, cards);
 
     deck.deal();

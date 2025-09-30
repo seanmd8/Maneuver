@@ -10,14 +10,14 @@ function scythe_tile(){
         difficulty: 4,
         behavior: scythe_ai,
         telegraph: scythe_telegraph,
-        rotate: 90 * random_num(4)
+        rotate: 90 * random_num(4),
     }
 }
 
 /** @type {AIFunction} AI used by scythes.*/
 function scythe_ai(self, target, map){
     if(self.tile.rotate === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     var distance = 3;
     self.tile.direction = sign(target.difference);

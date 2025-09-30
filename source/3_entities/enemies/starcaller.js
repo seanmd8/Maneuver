@@ -9,7 +9,7 @@ function starcaller_tile(){
         shatter_sphere_d_tile,
         shatter_sphere_o_tile,
         moon_rock_tile,
-    ]
+    ];
     return {
         type: entity_types.enemy,
         name: enemy_names.starcaller,

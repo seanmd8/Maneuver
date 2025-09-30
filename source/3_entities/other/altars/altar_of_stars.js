@@ -5,7 +5,7 @@ function altar_of_stars_tile(){
         shatter_sphere_d_tile,
         shatter_sphere_o_tile,
         moon_rock_tile,
-    ]
+    ];
     return {
         type: entity_types.terrain,
         name: other_tile_names.altar_of_stars,

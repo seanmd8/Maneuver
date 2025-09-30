@@ -145,7 +145,7 @@
  * @returns {DisplayLibrary}
  */
 function get_display(language){
-    // Factory function for the display classes (currently only html)
+    // Factory function for the display classes (currently only html).
     switch(language){
         case `html`:
             return DisplayHTML;
@@ -378,7 +378,7 @@ const DisplayHTML = {
         var body_div = document.createElement(`div`);
         var body_div_id = `${header} section`;
         body_div.id = body_div_id;
-        body_div.classList.add(`guidebook-section`)
+        body_div.classList.add(`guidebook-section`);
 
         var body_header = document.createElement(`h2`);
         body_header.id = `${body_div_id} header`;
@@ -674,7 +674,7 @@ const DisplayHTML = {
                 text_box.classList.add(`achievement-unlocked-text`);
             }
             else{
-                text_box.classList.add(`achievement-locked-text`)
+                text_box.classList.add(`achievement-locked-text`);
             }
 
             var h3 = document.createElement(`h3`);

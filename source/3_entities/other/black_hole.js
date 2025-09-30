@@ -21,13 +21,13 @@ function black_hole_ai(self, target, map){
             return self.location.plus(p);
         }).filter((p) => {
             return map.is_in_bounds(p);
-        })
+        });
         spaces.push(...rectangle);
     }
     for(var start of spaces){
         var end = start.plus(sign(self.location.minus(start)));
         if(!map.get_tile(start).tags.has(TAGS.unmovable) && !map.get_tile(start).tags.has(TAGS.boss)){
-            var moved = map.move(start, end)
+            var moved = map.move(start, end);
             if(moved && map.get_tile(end).type === entity_types.player){
                 moved_player = true;
             }

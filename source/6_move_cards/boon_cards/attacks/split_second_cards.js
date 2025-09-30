@@ -9,14 +9,14 @@ function split_second_1(){
         pattack(0, -1),
         pattack(-1, 1),
         pattack(-1, 0),
-        pattack(-1, -1)
+        pattack(-1, -1),
     ];
     options.add_button(SPIN, spin);
     return{
         name: card_names.split_second_1,
         pic: `${IMG_FOLDER.cards}split_second_1.png`,
         options,
-        evolutions: [split_second_2]
+        evolutions: [split_second_2],
     }
 }
 
@@ -31,7 +31,7 @@ function split_second_2(){
         pattack(0, -1),
         pattack(-1, 1),
         pattack(-1, 0),
-        pattack(-1, -1)
+        pattack(-1, -1),
     ];
     options.add_button(SPIN, spin);
     options.make_instant();

@@ -141,7 +141,6 @@ class GameState{
                 break;
             default:
                 throw e;
-
         }
     }
     /**
@@ -301,8 +300,8 @@ class GameState{
         }
         var restart_message = [{
             description: gameplay_labels.retry,
-            on_click: restart(this)
-        }]
+            on_click: restart(this),
+        }];
         display.add_button_row(UIIDS.retry_button, restart_message);
         refresh_full_deck_display(this.deck);
         var swap_visibility = function(id_list, id){
@@ -314,7 +313,7 @@ class GameState{
     }
     victory(){
         display_map(this.map);
-        display_victory()
+        display_victory();
         this.achieve(achievement_names.victory);
         say_record(gameplay_text.victory);
         refresh_full_deck_display(this.deck);

@@ -5,11 +5,11 @@ const LICH_SPELLS = [
     confusion_spell_generator(),
     lava_moat_spell_generator(),
     piercing_beam_spell_generator(),
-]
+];
 const LICH_UTIL_SPELLS = [
     rest_spell_generator(),
     teleport_spell_generator(), 
-]
+];
 /** @type {TileGenerator} */
 function lich_tile(){
     var summons = [
@@ -87,7 +87,7 @@ function lich_telegraph(location, map, self){
     if(spell.telegraph !== undefined){
         return spell.telegraph(location, map, self);
     }
-    return rest_spell_telegraph(location, map, self)
+    return rest_spell_telegraph(location, map, self);
 }
 
 /** @type {TelegraphFunction} */
@@ -100,7 +100,7 @@ function lich_telegraph_other(location, map, self){
     if(spell.telegraph_other !== undefined){
         return spell.telegraph_other(location, map, self);
     }
-    return rest_spell_telegraph(location, map, self)
+    return rest_spell_telegraph(location, map, self);
 }
 
 /** @type {AIFunction} Function used when the lich is hit to have it prep teleport.*/

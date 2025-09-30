@@ -33,7 +33,7 @@ function noxious_toad_ai(self, target, map){
                 moved = map.move(self.location, self.location.plus(directions[i].times(2)));
                 if(moved){
                     self.location.plus_equals(directions[i].times(2));
-                    target.difference.minus_equals(directions[i].times(2))
+                    target.difference.minus_equals(directions[i].times(2));
                 }
             }
         }
@@ -52,7 +52,7 @@ function noxious_toad_ai(self, target, map){
         // Prepare to leap.
         self.tile.cycle = 0;
     }
-    self.tile.pic = self.tile.pic_arr[self.tile.cycle]
+    self.tile.pic = self.tile.pic_arr[self.tile.cycle];
 }
 
 /** @type {TelegraphFunction} */

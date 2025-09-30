@@ -8,7 +8,7 @@ function lord_of_shadow_and_flame_floor(floor_num,  area, map){
         new Point(mid_width + 1, mid_height),
         new Point(mid_width + 1, mid_height + 1),
         new Point(mid_width, mid_height + 1),
-    ]
+    ];
     var spawnpoint = rand_from(locations);
     var boss = lord_of_shadow_and_flame_tile();
     if(GS.boons.has(boon_names.boss_slayer)){

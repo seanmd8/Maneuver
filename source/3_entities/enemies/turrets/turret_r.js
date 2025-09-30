@@ -20,7 +20,7 @@ function turret_r_tile(){
         pic_arr,
         rotate: 0,
         direction: random_nearby()[0],
-        spin_direction: random_sign()
+        spin_direction: random_sign(),
     }
     tile.pic = pic_arr[1 + tile.spin_direction + set_rotation(tile)];
     return tile;
@@ -32,7 +32,7 @@ function turret_r_ai(self, target, map){
         self.tile.pic_arr === undefined || 
         self.tile.direction === undefined || 
         self.tile.spin_direction === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     var fired = false;
     if((target.difference.on_axis() || target.difference.on_diagonal())){
@@ -49,8 +49,8 @@ function turret_r_ai(self, target, map){
     if(!fired && GS.boons.has(boon_names.manic_presence)){
         var dirs = [
             self.tile.direction,
-            self.tile.direction.times(-1)
-        ]
+            self.tile.direction.times(-1),
+        ];
         for(var p of dirs){
             if(chance(1, 2)){
                 turret_fire_ai(self, {difference: p}, map);
@@ -60,7 +60,6 @@ function turret_r_ai(self, target, map){
     // Rotate 45 degrees in the correct direction.
     self.tile.direction = sign(self.tile.direction.plus(self.tile.direction.rotate(90 * self.tile.spin_direction)));
     self.tile.pic = self.tile.pic_arr[1 + self.tile.spin_direction + set_rotation(self.tile)];
-
 }
 
 /** @type {TelegraphFunction} */
@@ -70,6 +69,6 @@ function turret_r_telegraph(location, map, self){
     }
     return [
         ...get_points_in_direction(location, self.direction, map),
-        ...get_points_in_direction(location, self.direction.times(-1), map)
+        ...get_points_in_direction(location, self.direction.times(-1), map),
     ];
 }

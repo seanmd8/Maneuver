@@ -39,6 +39,6 @@ function large_porcuslime_ai(self, target, map){
 function large_porcuslime_telegraph(location, map, self){
     return [
         ...porcuslime_diagonal_telegraph(location, map, self),
-        ...porcuslime_orthogonal_telegraph(location, map, self)
-    ]
+        ...porcuslime_orthogonal_telegraph(location, map, self),
+    ];
 }
