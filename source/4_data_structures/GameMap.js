@@ -758,9 +758,14 @@ class GameMap{
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
         if(floor_has_chest(this.#floor_num % area_size)){
-            var chest_count = 1 + GS.boons.has(boon_names.hoarder);
             var chest = appropriate_chest_tile();
             var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));
+            if(chance(1, 2) && filter_new_boons(choices).length === 0){
+                var replacement_list = filter_new_boons(GS.boons.get_choices());
+                if(replacement_list.length > 0){
+                    choices[0] = rand_from(replacement_list);
+                }
+            }
             for(var boon of choices){
                 add_boon_to_chest(chest, boon);
             }

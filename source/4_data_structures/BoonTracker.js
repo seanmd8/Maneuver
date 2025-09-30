@@ -9,7 +9,7 @@ class BoonTracker{
         this.#lost_boons = [];
         this.total = 0;
     }
-    get_choices(amount){
+    get_choices(amount = this.#choices.length){
         var choice_list = randomize_arr(this.#choices);
         var locked = [];
         GS.data.achievements.unfinished().map((a) => {

@@ -33,5 +33,10 @@ function get_locked_boons(){
         }
     });
     return list;
+}
 
+function filter_new_boons(boons){
+    return boons.filter((b) => {
+        return !GS.data.boons.has(b.name);
+    });
 }
