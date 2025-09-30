@@ -5,7 +5,7 @@ function corrosive_slime_tile(){
         name: other_tile_names.corrosive_slime,
         pic: `${IMG_FOLDER.tiles}corrosive_slime.png`,
         description: other_tile_descriptions.corrosive_slime,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health: 1,
         telegraph: hazard_telegraph,
         on_enter: corrosive_slime_on_enter

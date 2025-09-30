@@ -114,8 +114,8 @@ const boon_descriptions = {
     manic_presence: 
         `Some types of enemies are prone to misfiring.`,
     pacifism: 
-        `If you would attack an enemy, stun them twice instead. Fully heal at `
-        +`the start of each floor. All boss floor exits unlock.`,
+        `If you would attack an enemy, stun them twice instead (some terrain elements can still `
+        +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,
     pain_reflexes: 
         `Take a turn whenever you are attacked.`,
     perfect_the_basics: 
@@ -141,7 +141,7 @@ const boon_descriptions = {
     safe_passage: 
         `Fully heal and travel to the next floor.`,
     shattered_glass: 
-        `Enemies explode on death damaging everything nearby other than you. Reduce your `
+        `Enemies and Terrain explode on death damaging everything nearby other than you. Reduce your `
         +`max health by 2.`,
     skill_trading: 
         `You may both add a card and remove a card at each shop.`,

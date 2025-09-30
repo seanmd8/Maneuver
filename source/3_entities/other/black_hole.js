@@ -6,7 +6,7 @@ function black_hole_tile(){
         pic: `${IMG_FOLDER.tiles}black_hole.png`,
         description: other_tile_descriptions.black_hole,
         health: 6,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         behavior: black_hole_ai,
         telegraph_other: black_hole_telegraph_other,
     }

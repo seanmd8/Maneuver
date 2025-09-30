@@ -7,7 +7,7 @@ function repulsor_tile(){
         name: other_tile_names.repulsor,
         pic: pic_arr[starting_cycle],
         description: other_tile_descriptions.repulsor,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
         on_enter: repulsor_push_ai,

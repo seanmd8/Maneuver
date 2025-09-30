@@ -7,7 +7,7 @@ function damaged_wall_tile(){
         name: other_tile_names.wall_damaged,
         pic: pic_arr[health - 1],
         description: other_tile_descriptions.wall_damaged,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health,
         on_hit: damaged_wall_on_hit,
         on_death: damaged_wall_death,

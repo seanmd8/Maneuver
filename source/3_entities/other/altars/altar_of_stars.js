@@ -11,7 +11,7 @@ function altar_of_stars_tile(){
         name: other_tile_names.altar_of_stars,
         pic: `${IMG_FOLDER.tiles}altar_of_stars.png`,
         description: other_tile_descriptions.altar_of_stars,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_stars_on_enter),
         summons

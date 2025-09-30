@@ -533,15 +533,18 @@ class GameMap{
                         throw new Error(ERRORS.missing_id);
                     }
                     this.#entity_list.remove_enemy(target.id);
-                    if(source !== undefined && source.tile.type === entity_types.player){
-                        this.stats.increment_kills();
-                    }
                 }
                 else{
                     --this.#entity_list.count_non_empty;
                     if(target.type === entity_types.chest && source !== undefined && source.tile.type === entity_types.player){
                         this.stats.increment_chest_kills();
                     }
+                }
+                if(source !== undefined && source.tile.type === entity_types.player){
+                    if(!target.tags.has(TAGS.obstruction)){
+                        this.stats.increment_kills();
+                    }
+                    this.stats.increment_destroyed();
                 }
                 if(target.on_death !== undefined){
                     // Trigger on_death
@@ -583,7 +586,7 @@ class GameMap{
     player_attack(direction){
         var player_pos = this.#entity_list.get_player_pos();
         var pos = player_pos.plus(direction);
-        var current_kills = this.stats.get_stats().kills;
+        var current_kills = this.stats.get_stats().destroyed;
         try{
             if(
                 chance(GS.boons.has(boon_names.flame_strike), 2) && 
@@ -594,7 +597,7 @@ class GameMap{
                 this.add_tile(fireball, pos);
             }
             var hit = this.attack(pos, {tile: this.get_player(), location: player_pos});
-            if(current_kills < this.stats.get_stats().kills && GS.boons.has(boon_names.shattered_glass)){
+            if(current_kills < this.stats.get_stats().destroyed && GS.boons.has(boon_names.shattered_glass)){
                 for(var offset of ALL_DIRECTIONS){
                     var p_offset = pos.plus(offset);
                     if(

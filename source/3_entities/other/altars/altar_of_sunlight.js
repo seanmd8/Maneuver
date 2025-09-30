@@ -5,7 +5,7 @@ function altar_of_sunlight_tile(){
         name: other_tile_names.altar_of_sunlight,
         pic: `${IMG_FOLDER.tiles}altar_of_sunlight.png`,
         description: other_tile_descriptions.altar_of_sunlight,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_sunlight_on_enter),
     }

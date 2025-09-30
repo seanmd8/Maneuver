@@ -8,6 +8,7 @@ class StatTracker{
     #boss_kill_start;
     #total_damage_per_floor;
     #kills;
+    #destroyed;
     #chest_kills;
     #total_kills_per_floor;
 
@@ -21,6 +22,7 @@ class StatTracker{
         this.#boss_kill_start = 0;
         this.#total_damage_per_floor = [0];
         this.#kills = 0;
+        this.#destroyed = 0;
         this.#chest_kills = 0;
         this.#total_kills_per_floor = [0];
     }
@@ -78,6 +80,9 @@ class StatTracker{
     increment_kills(){
         ++this.#kills;
     }
+    increment_destroyed(){
+        ++this.#destroyed;
+    }
     increment_chest_kills(){
         ++this.#chest_kills;
         if(this.#chest_kills === 7){
@@ -95,6 +100,7 @@ class StatTracker{
             boss_kill_start: this.#boss_kill_start,
             total_damage_per_floor: this.#total_damage_per_floor,
             kills: this.#kills,
+            destroyed: this.#destroyed,
             chest_kills: this.#chest_kills,
             total_kills_per_floor: this.#total_kills_per_floor
         }

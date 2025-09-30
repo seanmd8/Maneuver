@@ -5,7 +5,7 @@ function altar_of_shadow_tile(){
         name: other_tile_names.altar_of_shadow,
         pic: `${IMG_FOLDER.tiles}altar_of_shadow.png`,
         description: other_tile_descriptions.altar_of_shadow,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_shadow_on_enter),
     }

@@ -544,7 +544,8 @@ const TAGS = {
     thorn_bush_roots: `Thorn Bush Roots`,
     nettle_immune: `Nettle Immune`,
     arcane_sentry: `Arcane Sentry`,
-    fireball: `Fireball`
+    fireball: `Fireball`,
+    obstruction: `Obstruction`,
 }
 Object.freeze(TAGS);
 /** @returns {MoveDeck} Returns a normal starting deck.*/
@@ -769,8 +770,8 @@ const boon_descriptions = {
     manic_presence: 
         `Some types of enemies are prone to misfiring.`,
     pacifism: 
-        `If you would attack an enemy, stun them twice instead. Fully heal at `
-        +`the start of each floor. All boss floor exits unlock.`,
+        `If you would attack an enemy, stun them twice instead (some terrain elements can still `
+        +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,
     pain_reflexes: 
         `Take a turn whenever you are attacked.`,
     perfect_the_basics: 
@@ -796,7 +797,7 @@ const boon_descriptions = {
     safe_passage: 
         `Fully heal and travel to the next floor.`,
     shattered_glass: 
-        `Enemies explode on death damaging everything nearby other than you. Reduce your `
+        `Enemies and Terrain explode on death damaging everything nearby other than you. Reduce your `
         +`max health by 2.`,
     skill_trading: 
         `You may both add a card and remove a card at each shop.`,
@@ -1842,7 +1843,7 @@ const achievement_description = {
     minimalist: `Reach floor 15 with only 5 cards in your deck.`,
     monster_hunter: `Kill 5 total unique bosses.`,
     non_violent: `Reach the first boss without killing anything.`,
-    not_my_fault: `Let a boss die without killing anything on the floor yourself.`,
+    not_my_fault: `Let a boss die without killing any enemies on the floor yourself.`,
     one_hit_wonder: `Defeat a boss in a single turn.`,
     one_life: `Defeat any boss with exactly 1 max health.`,
     peerless_sprinter: `Speed through a floor in 3 turns or less.`,
@@ -5465,7 +5466,7 @@ function captive_void_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.captive_void,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         difficulty: 2,
         behavior: captive_void_ai,
         on_hit: captive_void_on_hit,
@@ -8059,7 +8060,7 @@ function altar_of_scouring_tile(){
         name: other_tile_names.altar_of_scouring,
         pic: `${IMG_FOLDER.tiles}altar_of_scouring.png`,
         description: other_tile_descriptions.altar_of_scouring,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_scouring_on_enter),
     }
@@ -8117,7 +8118,7 @@ function altar_of_shadow_tile(){
         name: other_tile_names.altar_of_shadow,
         pic: `${IMG_FOLDER.tiles}altar_of_shadow.png`,
         description: other_tile_descriptions.altar_of_shadow,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_shadow_on_enter),
     }
@@ -8138,7 +8139,7 @@ function altar_of_singularity_tile(){
         name: other_tile_names.altar_of_singularity,
         pic: `${IMG_FOLDER.tiles}altar_of_singularity.png`,
         description: other_tile_descriptions.altar_of_singularity,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_singularity_on_enter),
     }
@@ -8174,7 +8175,7 @@ function altar_of_space_tile(){
         name: other_tile_names.altar_of_space,
         pic: `${IMG_FOLDER.tiles}altar_of_space.png`,
         description: other_tile_descriptions.altar_of_space,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_space_on_enter),
     }
@@ -8208,7 +8209,7 @@ function altar_of_stars_tile(){
         name: other_tile_names.altar_of_stars,
         pic: `${IMG_FOLDER.tiles}altar_of_stars.png`,
         description: other_tile_descriptions.altar_of_stars,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_stars_on_enter),
         summons
@@ -8251,7 +8252,7 @@ function altar_of_stasis_tile(){
         name: other_tile_names.altar_of_stasis,
         pic: `${IMG_FOLDER.tiles}altar_of_stasis.png`,
         description: other_tile_descriptions.altar_of_stasis,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_stasis_on_enter),
     }
@@ -8276,7 +8277,7 @@ function altar_of_sunlight_tile(){
         name: other_tile_names.altar_of_sunlight,
         pic: `${IMG_FOLDER.tiles}altar_of_sunlight.png`,
         description: other_tile_descriptions.altar_of_sunlight,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_sunlight_on_enter),
     }
@@ -8329,7 +8330,7 @@ function black_hole_tile(){
         pic: `${IMG_FOLDER.tiles}black_hole.png`,
         description: other_tile_descriptions.black_hole,
         health: 6,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         behavior: black_hole_ai,
         telegraph_other: black_hole_telegraph_other,
     }
@@ -8386,7 +8387,7 @@ function bookshelf_tile(){
         name: other_tile_names.bookshelf,
         pic: pic_arr[health - 1],
         description: other_tile_descriptions.bookshelf,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health,
         on_hit: bookshelf_on_hit,
         pic_arr
@@ -8421,7 +8422,7 @@ function coffin_tile(){
         name: other_tile_names.coffin,
         pic: `${IMG_FOLDER.tiles}coffin.png`,
         description: other_tile_descriptions.coffin,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health: 1,
         on_enter: decay_ai,
         on_death: coffin_tile_death,
@@ -8455,7 +8456,7 @@ function corrosive_slime_tile(){
         name: other_tile_names.corrosive_slime,
         pic: `${IMG_FOLDER.tiles}corrosive_slime.png`,
         description: other_tile_descriptions.corrosive_slime,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health: 1,
         telegraph: hazard_telegraph,
         on_enter: corrosive_slime_on_enter
@@ -8612,7 +8613,7 @@ function moon_rock_tile(){
         name: other_tile_names.moon_rock,
         pic: `${IMG_FOLDER.tiles}moon_rock.png`,
         description: other_tile_descriptions.moon_rock,
-        tags: new TagList(),
+        tags: new TagList([TAGS.obstruction]),
         health: 1,
     }
 }
@@ -8626,7 +8627,7 @@ function raging_fire_tile(){
         pic: pic_arr[health - 1],
         display_pic: pic_arr[1],
         description: other_tile_descriptions.raging_fire,
-        tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
+        tags: new TagList([TAGS.unmovable, TAGS.unstunnable, TAGS.obstruction]),
         health,
         behavior: decay_ai,
         telegraph: hazard_telegraph,
@@ -8657,7 +8658,7 @@ function repulsor_tile(){
         name: other_tile_names.repulsor,
         pic: pic_arr[starting_cycle],
         description: other_tile_descriptions.repulsor,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
         on_enter: repulsor_push_ai,
@@ -8745,7 +8746,7 @@ function sewer_grate_tile(){
         name: other_tile_names.sewer_grate,
         pic: `${IMG_FOLDER.tiles}sewer_grate.png`,
         description: other_tile_descriptions.sewer_grate,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
         behavior: sewer_grate_ai,
     }
 }
@@ -8768,7 +8769,7 @@ function shatter_sphere_d_tile(){
         name: other_tile_names.shatter_sphere,
         pic: `${IMG_FOLDER.tiles}shatter_sphere_d.png`,
         description: other_tile_descriptions.shatter_sphere_d,
-        tags: new TagList(),
+        tags: new TagList([TAGS.obstruction]),
         health: 1,
         telegraph_other: shatter_sphere_d_telegraph,
         on_death: shatter_sphere_d_death,
@@ -8794,7 +8795,7 @@ function shatter_sphere_o_tile(){
         name: other_tile_names.shatter_sphere,
         pic: `${IMG_FOLDER.tiles}shatter_sphere_o.png`,
         description: other_tile_descriptions.shatter_sphere_o,
-        tags: new TagList(),
+        tags: new TagList([TAGS.obstruction]),
         health: 1,
         telegraph_other: shatter_sphere_o_telegraph,
         on_death: shatter_sphere_o_death,
@@ -8822,7 +8823,7 @@ function smoldering_ashes_tile(){
         name: other_tile_names.smoldering_ashes,
         pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
         description: `${desc[0]}${spawn_timer}${desc[1]}`,
-        tags: new TagList(),
+        tags: new TagList([TAGS.obstruction]),
         health: 1,
         behavior: smoldering_ashes_ai,
         on_enter: decay_ai,
@@ -8858,7 +8859,7 @@ function thorn_bramble_tile(){
         name: other_tile_names.thorn_bramble,
         pic: `${IMG_FOLDER.tiles}thorn_bramble.png`,
         description: other_tile_descriptions.thorn_bramble,
-        tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
+        tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots, TAGS.obstruction]),
         health: 1,
         telegraph: hazard_telegraph,
         on_enter: hazard
@@ -8873,7 +8874,7 @@ function damaged_wall_tile(){
         name: other_tile_names.wall_damaged,
         pic: pic_arr[health - 1],
         description: other_tile_descriptions.wall_damaged,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health,
         on_hit: damaged_wall_on_hit,
         on_death: damaged_wall_death,
@@ -8933,7 +8934,7 @@ function chest_tile(){
         name: special_tile_names.chest,
         pic: `${IMG_FOLDER.tiles}chest.png`,
         description: special_tile_descriptions.chest,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health: 1,
         on_enter: chest_on_enter,
         contents: [],
@@ -11709,15 +11710,18 @@ class GameMap{
                         throw new Error(ERRORS.missing_id);
                     }
                     this.#entity_list.remove_enemy(target.id);
-                    if(source !== undefined && source.tile.type === entity_types.player){
-                        this.stats.increment_kills();
-                    }
                 }
                 else{
                     --this.#entity_list.count_non_empty;
                     if(target.type === entity_types.chest && source !== undefined && source.tile.type === entity_types.player){
                         this.stats.increment_chest_kills();
                     }
+                }
+                if(source !== undefined && source.tile.type === entity_types.player){
+                    if(!target.tags.has(TAGS.obstruction)){
+                        this.stats.increment_kills();
+                    }
+                    this.stats.increment_destroyed();
                 }
                 if(target.on_death !== undefined){
                     // Trigger on_death
@@ -11759,7 +11763,7 @@ class GameMap{
     player_attack(direction){
         var player_pos = this.#entity_list.get_player_pos();
         var pos = player_pos.plus(direction);
-        var current_kills = this.stats.get_stats().kills;
+        var current_kills = this.stats.get_stats().destroyed;
         try{
             if(
                 chance(GS.boons.has(boon_names.flame_strike), 2) && 
@@ -11770,7 +11774,7 @@ class GameMap{
                 this.add_tile(fireball, pos);
             }
             var hit = this.attack(pos, {tile: this.get_player(), location: player_pos});
-            if(current_kills < this.stats.get_stats().kills && GS.boons.has(boon_names.shattered_glass)){
+            if(current_kills < this.stats.get_stats().destroyed && GS.boons.has(boon_names.shattered_glass)){
                 for(var offset of ALL_DIRECTIONS){
                     var p_offset = pos.plus(offset);
                     if(
@@ -12338,7 +12342,7 @@ class GameState{
                     this.boons.has(boon_names.pacifism) > 0 && 
                     !action.change.is_origin() &&
                     this.map.is_in_bounds(target) &&
-                    !this.map.get_tile(target).tags.has(TAGS.altar)
+                    !this.map.get_tile(target).tags.has(TAGS.obstruction)
                 ){
                     stun_count += 2 * attack_count;
                     attack_count = 0;
@@ -13661,6 +13665,7 @@ class StatTracker{
     #boss_kill_start;
     #total_damage_per_floor;
     #kills;
+    #destroyed;
     #chest_kills;
     #total_kills_per_floor;
 
@@ -13674,6 +13679,7 @@ class StatTracker{
         this.#boss_kill_start = 0;
         this.#total_damage_per_floor = [0];
         this.#kills = 0;
+        this.#destroyed = 0;
         this.#chest_kills = 0;
         this.#total_kills_per_floor = [0];
     }
@@ -13731,6 +13737,9 @@ class StatTracker{
     increment_kills(){
         ++this.#kills;
     }
+    increment_destroyed(){
+        ++this.#destroyed;
+    }
     increment_chest_kills(){
         ++this.#chest_kills;
         if(this.#chest_kills === 7){
@@ -13748,6 +13757,7 @@ class StatTracker{
             boss_kill_start: this.#boss_kill_start,
             total_damage_per_floor: this.#total_damage_per_floor,
             kills: this.#kills,
+            destroyed: this.#destroyed,
             chest_kills: this.#chest_kills,
             total_kills_per_floor: this.#total_kills_per_floor
         }

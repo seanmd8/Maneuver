@@ -10,6 +10,7 @@ const TAGS = {
     thorn_bush_roots: `Thorn Bush Roots`,
     nettle_immune: `Nettle Immune`,
     arcane_sentry: `Arcane Sentry`,
-    fireball: `Fireball`
+    fireball: `Fireball`,
+    obstruction: `Obstruction`,
 }
 Object.freeze(TAGS);
