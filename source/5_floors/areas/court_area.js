@@ -46,6 +46,6 @@ function shatter_sphere_terrain(floor_num, area, map){
         moon_rock_tile
     ];
     for(var i = 0; i < amount; ++i){
-        map.spawn_safely(rand_from(summons)(), SAFE_SPAWN_ATTEMPTS, true);
+        map.spawn_safely(random_from(summons)(), SAFE_SPAWN_ATTEMPTS, true);
     }
 }

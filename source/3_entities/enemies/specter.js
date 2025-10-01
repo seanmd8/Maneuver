@@ -25,7 +25,7 @@ function specter_ai(self, target, map){
     }
     var dir1 = sign(new Point(target.difference.x, 0));
     var dir2 = sign(new Point(0, target.difference.y));
-    var direction = rand_from([dir1, dir2]);
+    var direction = random_from([dir1, dir2]);
     var target_location = self.location.plus(target.difference);
     var locations = get_specter_moves(self.location, direction, map);
     for(var i = 0; i < locations.length; ++i){

@@ -14,7 +14,7 @@ function boss_death(self, target, map){
         if(chance(1, 2) && filter_new_cards(contents).length === 0){
             var replace_list = filter_new_cards(drops);
             if(replace_list.length > 0){
-                contents[0] = rand_from(replace_list);
+                contents[0] = random_from(replace_list);
             }
         }
         for(var card of contents){

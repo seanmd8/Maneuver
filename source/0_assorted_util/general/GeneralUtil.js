@@ -40,7 +40,7 @@ function rand_no_repeats(source, draws){
  * @param {T[]} source Array to draw from.
  * @returns {T} Random element.
  */
-function rand_from(source){
+function random_from(source){
     if(source.length === 0){
         throw new Error(ERRORS.array_size);
     }

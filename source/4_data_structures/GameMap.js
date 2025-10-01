@@ -196,7 +196,7 @@ class GameMap{
             }).filter((p) => {
                 return this.check_empty(p);
             });
-            location = rand_from(points);
+            location = random_from(points);
         }
         this.check_bounds(location);
         if(!this.check_empty(location)){
@@ -736,7 +736,7 @@ class GameMap{
             // Reached the next area.
             var next_list = this.#area.next_area_list;
             GS.data.clear_area(this.#area.name);
-            this.#area = rand_from(next_list);
+            this.#area = random_from(next_list);
             floor_description += `\n${gameplay_text.new_area}${this.#area.name}.`;
             GS.data.add_area(this.#area.name);
             GS.data.visit_area(this.#area.name);
@@ -752,7 +752,7 @@ class GameMap{
         }
         if(this.#floor_num % area_size === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
-            var boss_floor = rand_from(this.#area.boss_floor_list);
+            var boss_floor = random_from(this.#area.boss_floor_list);
             boss_floor_common(this.#floor_num, this.#area, this); 
             var boss_message = boss_floor(this.#floor_num, this.#area, this);
             floor_description += `\n${boss_message}`;
@@ -769,7 +769,7 @@ class GameMap{
             if(chance(1, 2) && filter_new_boons(choices).length === 0){
                 var replacement_list = filter_new_boons(GS.boons.get_choices());
                 if(replacement_list.length > 0){
-                    choices[0] = rand_from(replacement_list);
+                    choices[0] = random_from(replacement_list);
                 }
             }
             for(var boon of choices){

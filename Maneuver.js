@@ -41,7 +41,7 @@ function rand_no_repeats(source, draws){
  * @param {T[]} source Array to draw from.
  * @returns {T} Random element.
  */
-function rand_from(source){
+function random_from(source){
     if(source.length === 0){
         throw new Error(ERRORS.array_size);
     }
@@ -624,7 +624,7 @@ function initiate_game(){
 function confuse_player(choices = CONFUSION_CARDS){
     // Chance redused by 50% for each stable_mind boon.
     if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
-        var card = rand_from(choices)();
+        var card = random_from(choices)();
         GS.give_temp_card(card);
         GS.refresh_deck_display();
     }
@@ -6954,7 +6954,7 @@ function specter_ai(self, target, map){
     }
     var dir1 = sign(new Point(target.difference.x, 0));
     var dir2 = sign(new Point(0, target.difference.y));
-    var direction = rand_from([dir1, dir2]);
+    var direction = random_from([dir1, dir2]);
     var target_location = self.location.plus(target.difference);
     var locations = get_specter_moves(self.location, direction, map);
     for(var i = 0; i < locations.length; ++i){
@@ -7132,7 +7132,7 @@ function starcaller_ai(self, target, map){
         // Shoot
         map.attack(self.tile.direction);
         if(map.check_empty(self.tile.direction)){
-            var spawn = rand_from(self.tile.summons)();
+            var spawn = random_from(self.tile.summons)();
             map.add_tile(spawn, self.tile.direction);
         }
         self.tile.cycle = STARCALLER_TIMER;
@@ -7290,7 +7290,7 @@ function thorn_bush_ai(self, target, map){
 }
 /** @type {TileGenerator} */
 function moving_turret_d_tile(){
-    var direction = rand_from(DIAGONAL_DIRECTIONS).copy();
+    var direction = random_from(DIAGONAL_DIRECTIONS).copy();
     var tile = {
         type: entity_types.enemy,
         name: enemy_names.turret_m,
@@ -7351,7 +7351,7 @@ function moving_turret_d_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function moving_turret_o_tile(){
-    var direction = rand_from(ORTHOGONAL_DIRECTIONS).copy();
+    var direction = random_from(ORTHOGONAL_DIRECTIONS).copy();
     var tile = {
         type: entity_types.enemy,
         name: enemy_names.turret_m,
@@ -7929,7 +7929,7 @@ function wheel_of_fire_ai(self, target, map){
     }
     else if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
         // Misfire.
-        var direction = sign(rand_from(ALL_DIRECTIONS));
+        var direction = sign(random_from(ALL_DIRECTIONS));
         var hit = false;
         for(var space = self.location.plus(direction); !hit; space.plus_equals(direction)){
             hit = map.attack(space);
@@ -8162,7 +8162,7 @@ function altar_of_stars_on_enter(self, target, map){
         return function(map_to_use){
             map_to_use.attack(location);
             if(map_to_use.check_empty(location)){
-                map_to_use.add_tile(rand_from(self.tile.summons)(), location);
+                map_to_use.add_tile(random_from(self.tile.summons)(), location);
             }
         }
     }
@@ -8373,7 +8373,7 @@ function coffin_tile_death(self, target, map){
         self.tile.card_drops === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var new_enemy = rand_from(self.tile.summons)();
+    var new_enemy = random_from(self.tile.summons)();
     if(new_enemy.type === entity_types.chest){
         var cards = rand_no_repeats(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(let card of cards){
@@ -8486,7 +8486,7 @@ function enticing_fruit_tree_on_enter(self, target, map){
     map.heal(self.location.plus(target.difference), 1);
     var spawns = random_num(2) + random_num(2);
     for(var i = 0; i < spawns; ++i){
-        var new_spawn = rand_from(self.tile.summons)();
+        var new_spawn = random_from(self.tile.summons)();
         stun(new_spawn);
         spawn_nearby(map, new_spawn, self.location);
     }
@@ -8515,7 +8515,7 @@ function rotting_fruit_tree_on_death(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     if(chance(2, 5)){
-        var new_spawn = rand_from(self.tile.summons)();
+        var new_spawn = random_from(self.tile.summons)();
         stun(new_spawn);
         spawn_nearby(map, new_spawn, self.location);
     }
@@ -8696,7 +8696,7 @@ function sewer_grate_ai(self, target, map){
 }
 /** @type {TileGenerator} */
 function shatter_sphere_tile(){
-    return rand_from([shatter_sphere_d_tile, shatter_sphere_o_tile])();
+    return random_from([shatter_sphere_d_tile, shatter_sphere_o_tile])();
 }
 /** @type {TileGenerator} */
 function shatter_sphere_d_tile(){
@@ -9143,7 +9143,7 @@ function boss_death(self, target, map){
         if(chance(1, 2) && filter_new_cards(contents).length === 0){
             var replace_list = filter_new_cards(drops);
             if(replace_list.length > 0){
-                contents[0] = rand_from(replace_list);
+                contents[0] = random_from(replace_list);
             }
         }
         for(var card of contents){
@@ -10519,7 +10519,7 @@ function summon_spell(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     for(var i = 0; i < 2; ++i){
-        var tile = rand_from(self.tile.summons)();
+        var tile = random_from(self.tile.summons)();
         spawn_nearby(map, tile, self.location);
     }
 }
@@ -11338,7 +11338,7 @@ class GameMap{
             }).filter((p) => {
                 return this.check_empty(p);
             });
-            location = rand_from(points);
+            location = random_from(points);
         }
         this.check_bounds(location);
         if(!this.check_empty(location)){
@@ -11878,7 +11878,7 @@ class GameMap{
             // Reached the next area.
             var next_list = this.#area.next_area_list;
             GS.data.clear_area(this.#area.name);
-            this.#area = rand_from(next_list);
+            this.#area = random_from(next_list);
             floor_description += `\n${gameplay_text.new_area}${this.#area.name}.`;
             GS.data.add_area(this.#area.name);
             GS.data.visit_area(this.#area.name);
@@ -11894,7 +11894,7 @@ class GameMap{
         }
         if(this.#floor_num % area_size === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
-            var boss_floor = rand_from(this.#area.boss_floor_list);
+            var boss_floor = random_from(this.#area.boss_floor_list);
             boss_floor_common(this.#floor_num, this.#area, this); 
             var boss_message = boss_floor(this.#floor_num, this.#area, this);
             floor_description += `\n${boss_message}`;
@@ -11911,7 +11911,7 @@ class GameMap{
             if(chance(1, 2) && filter_new_boons(choices).length === 0){
                 var replacement_list = filter_new_boons(GS.boons.get_choices());
                 if(replacement_list.length > 0){
-                    choices[0] = rand_from(replacement_list);
+                    choices[0] = random_from(replacement_list);
                 }
             }
             for(var boon of choices){
@@ -12936,7 +12936,7 @@ class MoveDeck{
                     if(chance(1, 2) && filter_new_cards([next]).length === 0){
                         var replace_list = filter_new_cards(card.evolutions.map((c) => {return c()}));
                         if(replace_list.length > 0){
-                            next = rand_from(replace_list);
+                            next = random_from(replace_list);
                         }
                     }
                     this.add(next);
@@ -13542,7 +13542,7 @@ class Shop{
                 replace_list = filter_new_cards(rares.map((c) => {return c()}));
             }
             if(replace_list.length > 0){
-                this.#add_row[to_replace] = rand_from(replace_list);
+                this.#add_row[to_replace] = random_from(replace_list);
             }
         }
     }
@@ -13863,7 +13863,7 @@ function shatter_sphere_terrain(floor_num, area, map){
         moon_rock_tile
     ];
     for(var i = 0; i < amount; ++i){
-        map.spawn_safely(rand_from(summons)(), SAFE_SPAWN_ATTEMPTS, true);
+        map.spawn_safely(random_from(summons)(), SAFE_SPAWN_ATTEMPTS, true);
     }
 }
 /** @type {AreaGenerator}*/
@@ -14106,7 +14106,7 @@ function generate_sewers_floor(floor_num, area, map){
     }
     else{
         var terrains = [slime_terrain, grate_terrain];
-        rand_from(terrains)(floor_num, area, map);
+        random_from(terrains)(floor_num, area, map);
     }
     generate_normal_floor(floor_num, area, map);
 }
@@ -14293,7 +14293,7 @@ function lord_of_shadow_and_flame_floor(floor_num,  area, map){
         new Point(mid_width + 1, mid_height + 1),
         new Point(mid_width, mid_height + 1),
     ];
-    var spawnpoint = rand_from(locations);
+    var spawnpoint = random_from(locations);
     var boss = lord_of_shadow_and_flame_tile();
     if(GS.boons.has(boon_names.boss_slayer)){
         boss.health -= 2;
@@ -14339,7 +14339,7 @@ function two_headed_serpent_floor(floor_num, area, map){
         var position = current.copy();
         var dirs = [new Point(random_sign(), 0), new Point(0, random_sign())];
         for(var i = 1; i < serpent_length; ++i){
-            var next = rand_from(dirs);
+            var next = random_from(dirs);
             position.plus_equals(next);
             if(map.check_empty(position)){
                 locations.push(next);
@@ -14384,7 +14384,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     for(var i = 0; i < 8; ++i){
         var position = map.random_empty();
         map.add_tile(wall_tile(), position);
-        map.add_tile(damaged_wall_tile(), position.plus(rand_from(ALL_DIRECTIONS)));
+        map.add_tile(damaged_wall_tile(), position.plus(random_from(ALL_DIRECTIONS)));
     }
     return boss_floor_message.two_headed_serpent;
 }
@@ -16929,10 +16929,10 @@ function brag_and_boast(){
 
 function pick_brag_and_boast(){
     for(var i = 0; i < 2; ++i){
-        var boss = rand_from(BOSS_LIST)();
-        var card = rand_from(boss.card_drops)();
+        var boss = random_from(BOSS_LIST)();
+        var card = random_from(boss.card_drops)();
         GS.deck.add(card);
-        card = rand_from(CONFUSION_CARDS)();
+        card = random_from(CONFUSION_CARDS)();
         GS.deck.add(card);
     }
 }

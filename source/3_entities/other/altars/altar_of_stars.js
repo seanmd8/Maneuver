@@ -28,7 +28,7 @@ function altar_of_stars_on_enter(self, target, map){
         return function(map_to_use){
             map_to_use.attack(location);
             if(map_to_use.check_empty(location)){
-                map_to_use.add_tile(rand_from(self.tile.summons)(), location);
+                map_to_use.add_tile(random_from(self.tile.summons)(), location);
             }
         }
     }

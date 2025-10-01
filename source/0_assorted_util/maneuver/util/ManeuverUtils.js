@@ -24,7 +24,7 @@ function initiate_game(){
 function confuse_player(choices = CONFUSION_CARDS){
     // Chance redused by 50% for each stable_mind boon.
     if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
-        var card = rand_from(choices)();
+        var card = random_from(choices)();
         GS.give_temp_card(card);
         GS.refresh_deck_display();
     }

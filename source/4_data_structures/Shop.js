@@ -33,7 +33,7 @@ class Shop{
                 replace_list = filter_new_cards(rares.map((c) => {return c()}));
             }
             if(replace_list.length > 0){
-                this.#add_row[to_replace] = rand_from(replace_list);
+                this.#add_row[to_replace] = random_from(replace_list);
             }
         }
     }

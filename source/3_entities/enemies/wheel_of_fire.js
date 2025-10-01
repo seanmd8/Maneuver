@@ -37,7 +37,7 @@ function wheel_of_fire_ai(self, target, map){
     }
     else if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
         // Misfire.
-        var direction = sign(rand_from(ALL_DIRECTIONS));
+        var direction = sign(random_from(ALL_DIRECTIONS));
         var hit = false;
         for(var space = self.location.plus(direction); !hit; space.plus_equals(direction)){
             hit = map.attack(space);

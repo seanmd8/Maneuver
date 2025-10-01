@@ -229,7 +229,7 @@ class MoveDeck{
                     if(chance(1, 2) && filter_new_cards([next]).length === 0){
                         var replace_list = filter_new_cards(card.evolutions.map((c) => {return c()}));
                         if(replace_list.length > 0){
-                            next = rand_from(replace_list);
+                            next = random_from(replace_list);
                         }
                     }
                     this.add(next);
