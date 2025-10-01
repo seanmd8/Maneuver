@@ -868,6 +868,11 @@ const DisplayHTML = {
             display.add_tb_row(tiles_id, slice, JOURNAL_TILE_SCALE);
         }
     },
+    label_image(destination, label){
+        var place = DisplayHTML.get_element(destination);
+        place.title = label;
+        place.alt = label;
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){

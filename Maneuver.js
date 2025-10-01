@@ -611,6 +611,7 @@ function initiate_game(){
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
     display.display_message(UIIDS.title, gameplay_labels.title);
     create_main_dropdown(UIIDS.header_box);
+    label_images();
     GS = new GameState();
     GS.setup();
     display_guide();
@@ -1901,6 +1902,12 @@ Object.freeze(CONTROLS_TEXT);
 
 const KEYBOARD_SYMBOL_MAP = new Map();
 KEYBOARD_SYMBOL_MAP.set(` `, `space`);
+const stat_image_labels = {
+    deck: `Cards in deck`,
+    floor: `Floor number`,
+    turns: `Turn count`,
+}
+Object.freeze(stat_image_labels);
 const shop_text = {
     header: `Choose one card to add or remove:`,
     add: `Add a card to your deck.`,
@@ -2201,6 +2208,10 @@ const HTML_UIIDS = {
             title: `title`,
     game_screen: `gameScreen`,
         stats: `stats`,
+            floor_image: `floorImage`,
+            stats_floor: `statsFloor`,
+            turn_image: `turnImage`,
+            stats_turn: `statsTurn`,
         stage: `stage`,
             map_display: `mapDisplay`,
             sidebar: `sidebar`,
@@ -3235,6 +3246,11 @@ const DisplayHTML = {
             display.add_tb_row(tiles_id, slice, JOURNAL_TILE_SCALE);
         }
     },
+    label_image(destination, label){
+        var place = DisplayHTML.get_element(destination);
+        place.title = label;
+        place.alt = label;
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -3376,6 +3392,12 @@ function display_deck_to_remove(remaining){
     }
     var selector = new DeckSelector(GS.deck, finish);
     refresh_deck_select_screen(selector);
+}
+function label_images(){
+    display.label_image(UIIDS.floor_image, stat_image_labels.floor);
+    display.label_image(UIIDS.turn_image, stat_image_labels.turns);
+    display.label_image(UIIDS.deck_image, stat_image_labels.deck);
+    display.label_image(UIIDS.remaining_deck, stat_image_labels.deck);
 }
 function display_entire_deck(deck){
     // Display section header.
@@ -8912,7 +8934,7 @@ function chest_on_enter(self, target, map){
             GS.boons.lose(boon_names.safe_passage);
             GS.refresh_boon_display();
             GS.map.heal(GS.map.get_player_location());
-            GS.map.display_stats(UIIDS.stats);
+            GS.map.display_stats();
             GS.enter_shop();
         }
     }
@@ -11782,12 +11804,10 @@ class GameMap{
      * Displays the current floor number and turn count.
      * @param {string} location Where they should be displayed.
      */
-    display_stats(location){
+    display_stats(){
         var stats = this.stats.get_stats();
-        var stat_message = 
-            `${gameplay_labels.floor} ${this.#floor_num} `
-            +`${gameplay_labels.turn} ${stats.turn_number}`;
-        display.display_message(location, stat_message);
+        display.display_message(UIIDS.stats_floor, this.#floor_num);
+        display.display_message(UIIDS.stats_turn, stats.turn_number);
     }
     /**
      * Replaces the exit tile with a lock tile.
@@ -12192,7 +12212,7 @@ class GameState{
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
         display_map(this.map);
-        this.map.display_stats(UIIDS.stats);
+        this.map.display_stats();
 
         this.refresh_deck_display();
         display.display_message(UIIDS.shop_instructions, shop_text.header);
@@ -12245,7 +12265,7 @@ class GameState{
             if(is_instant){
                 this.refresh_deck_display();
                 this.unlock_player_turn();
-                this.map.display_stats(UIIDS.stats);
+                this.map.display_stats();
                 display_map(this.map);
                 this.unlock_player_turn();
                 return;
@@ -12261,7 +12281,7 @@ class GameState{
         var m = e.message
         switch(m){
             case ERRORS.floor_complete:
-                this.map.display_stats(UIIDS.stats);
+                this.map.display_stats();
                 this.enter_shop();
                 break;
             case ERRORS.game_over:
@@ -12391,7 +12411,7 @@ class GameState{
     async new_floor(){
         // Creates the next floor.
         this.map.next_floor();
-        this.map.display_stats(UIIDS.stats);
+        this.map.display_stats();
         display_map(this.map);
         this.deck.deal();
             if(GS.boons.has(boon_names.vicious_cycle) > 0){
@@ -12483,7 +12503,7 @@ class GameState{
         await delay(ANIMATION_DELAY);
         display_map(this.map);
         this.refresh_deck_display();
-        this.map.display_stats(UIIDS.stats);
+        this.map.display_stats();
         this.unlock_player_turn();
     }
     /** 

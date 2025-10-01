@@ -11,6 +11,7 @@ function initiate_game(){
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
     display.display_message(UIIDS.title, gameplay_labels.title);
     create_main_dropdown(UIIDS.header_box);
+    label_images();
     GS = new GameState();
     GS.setup();
     display_guide();

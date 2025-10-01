@@ -15,7 +15,16 @@
     </div>
 
     <div id= "gameScreen" class="game-style hidden-section">
-        <h2 id= "stats" class="no-margins"></h2>
+        <div id= "stats" class="stats">
+            <div class="stat-pair">
+                <img id="floorImage" src="./images/other/stairs.png">
+                <h2 id="statsFloor" class="no-margins"></h2>
+            </div>
+            <div class="stat-pair">
+                <img id="turnImage"  src="./images/other/stopwatch.png">
+                <h2 id="statsTurn" class="no-margins"></h2>
+            </div>
+        </div>
 
         <div id= "stage">
             <table id="mapDisplay" class="gamemap-box"></table> 
@@ -43,8 +52,8 @@
                 </div>
             </div>
             <div>
-                <div id="remainingDeck" class="deck-box relative" title="Cards in deck">
-                    <img id="deckImage" src="images/other/deck.png" alt="Cards in deck">
+                <div id="remainingDeck" class="deck-box relative">
+                    <img id="deckImage" src="images/other/deck.png">
                     <p id="deckCount"></p>
                 </div>
                 <table id="healthDisplay" class="health-box"></table>

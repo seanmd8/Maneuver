@@ -637,12 +637,10 @@ class GameMap{
      * Displays the current floor number and turn count.
      * @param {string} location Where they should be displayed.
      */
-    display_stats(location){
+    display_stats(){
         var stats = this.stats.get_stats();
-        var stat_message = 
-            `${gameplay_labels.floor} ${this.#floor_num} `
-            +`${gameplay_labels.turn} ${stats.turn_number}`;
-        display.display_message(location, stat_message);
+        display.display_message(UIIDS.stats_floor, this.#floor_num);
+        display.display_message(UIIDS.stats_turn, stats.turn_number);
     }
     /**
      * Replaces the exit tile with a lock tile.

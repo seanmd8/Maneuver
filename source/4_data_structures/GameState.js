@@ -53,7 +53,7 @@ class GameState{
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
         display_map(this.map);
-        this.map.display_stats(UIIDS.stats);
+        this.map.display_stats();
 
         this.refresh_deck_display();
         display.display_message(UIIDS.shop_instructions, shop_text.header);
@@ -106,7 +106,7 @@ class GameState{
             if(is_instant){
                 this.refresh_deck_display();
                 this.unlock_player_turn();
-                this.map.display_stats(UIIDS.stats);
+                this.map.display_stats();
                 display_map(this.map);
                 this.unlock_player_turn();
                 return;
@@ -122,7 +122,7 @@ class GameState{
         var m = e.message
         switch(m){
             case ERRORS.floor_complete:
-                this.map.display_stats(UIIDS.stats);
+                this.map.display_stats();
                 this.enter_shop();
                 break;
             case ERRORS.game_over:
@@ -252,7 +252,7 @@ class GameState{
     async new_floor(){
         // Creates the next floor.
         this.map.next_floor();
-        this.map.display_stats(UIIDS.stats);
+        this.map.display_stats();
         display_map(this.map);
         this.deck.deal();
             if(GS.boons.has(boon_names.vicious_cycle) > 0){
@@ -344,7 +344,7 @@ class GameState{
         await delay(ANIMATION_DELAY);
         display_map(this.map);
         this.refresh_deck_display();
-        this.map.display_stats(UIIDS.stats);
+        this.map.display_stats();
         this.unlock_player_turn();
     }
     /** 
