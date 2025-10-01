@@ -18,7 +18,7 @@ function young_dragon_tile(){
         health: 5,
         death_message: boss_death_message.young_dragon,
         death_achievement: achievement_names.young_dragon,
-        behavior: young_dragon_behavior,
+        behavior: yound_dragon_ai,
         telegraph: young_dragon_telegraph,
         on_death: boss_death,
         pic_arr,
@@ -32,7 +32,7 @@ function young_dragon_tile(){
 }
 
 /** @type {AIFunction} AI used by the Young Dragon.*/
-function young_dragon_behavior(self, target, map){
+function yound_dragon_ai(self, target, map){
     if( self.tile.pic_arr === undefined ||
         self.tile.description_arr === undefined ||
         self.tile.rotate === undefined ||

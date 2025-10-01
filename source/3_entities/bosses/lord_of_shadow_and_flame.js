@@ -27,7 +27,7 @@ function lord_of_shadow_and_flame_tile(){
         max_health: health,
         death_message: boss_death_message.lord_of_shadow_and_flame,
         death_achievement: achievement_names.lord_of_shadow_and_flame,
-        behavior: lord_of_shadow_and_flame_behavior,
+        behavior: lord_of_shadow_and_flame_ai,
         telegraph: lord_of_shadow_and_flame_telegraph,
         on_death: lord_of_shadow_and_flame_on_death,
         pic_arr,
@@ -38,7 +38,7 @@ function lord_of_shadow_and_flame_tile(){
 }
 
 /** @type {AIFunction} AI used by the Lord of Shadow and Flame.*/
-function lord_of_shadow_and_flame_behavior(self, target, map){
+function lord_of_shadow_and_flame_ai(self, target, map){
     var lord_slow_pics = [
         `${IMG_FOLDER.tiles}lord_move.png`,
         `${IMG_FOLDER.tiles}lord_attack.png`,
