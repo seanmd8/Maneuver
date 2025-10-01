@@ -22,7 +22,7 @@ function boss_death(self, target, map){
         GS.achieve(achievement_names.one_life);
     }
     var stats = map.stats.get_stats();
-    if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
+    if(stats.player_boss_damage === 0){
         GS.achieve(achievement_names.not_my_fault);
     }
     if(stats.boss_kill_start === stats.turn_number){

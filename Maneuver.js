@@ -1843,7 +1843,7 @@ const achievement_description = {
     minimalist: `Reach floor 15 with only 5 cards in your deck.`,
     monster_hunter: `Kill 5 total unique bosses.`,
     non_violent: `Reach the first boss without killing anything.`,
-    not_my_fault: `Let a boss die without killing any enemies on the floor yourself.`,
+    not_my_fault: `Let a boss die without dealing any damage to it yourself.`,
     one_hit_wonder: `Defeat a boss in a single turn.`,
     one_life: `Defeat any boss with exactly 1 max health.`,
     peerless_sprinter: `Speed through a floor in 3 turns or less.`,
@@ -6772,7 +6772,7 @@ function shadow_knight_ai(self, target, map){
         }
     }
     if(target.difference.taxicab_distance() === 3 && !target.difference.on_axis()){
-        // If the player is a L away, attack them then try to move past them.
+        // If the player is a L away, attack them then move from their location.
         map.attack(self.location.plus(target.difference));
         var possible_moves = randomize_arr(L_SHAPES.map((p) => {
             return target.difference.plus(p);
@@ -6851,20 +6851,16 @@ function shadow_knight_elite_ai(self, target, map){
         return self.location.plus(p);
     });
 
-    // If player can be attacked, attack twice then move to a random space an L away from them.
+    // If player can be attacked, attack then move to a random space an L away from them.
     var attack = possible_moves.filter((p) => {
         return point_equals(p, player_location);
     });
     if(attack.length > 0){
         map.attack(player_location);
-        var possible_ends = L_SHAPES.map((p) => {
-            return p.plus(player_location);
-        });
-        possible_ends = randomize_arr(possible_ends);
-        for(var i = 0; i < possible_ends.length && !map.check_empty(possible_ends[i]); ++i){}
-        if(i < possible_ends.length){
-            map.move(self.location, possible_ends[i]);
-        }
+        var possible_moves = randomize_arr(L_SHAPES.map((p) => {
+            return target.difference.plus(p);
+        }));
+        move_careful(self, target, map, possible_moves);
         return;
     }
     // If it can move to a square that can attack the player next turn, do so.
@@ -9155,7 +9151,7 @@ function boss_death(self, target, map){
         GS.achieve(achievement_names.one_life);
     }
     var stats = map.stats.get_stats();
-    if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
+    if(stats.player_boss_damage === 0){
         GS.achieve(achievement_names.not_my_fault);
     }
     if(stats.boss_kill_start === stats.turn_number){
@@ -11627,6 +11623,9 @@ class GameMap{
             }
             if(target.tags.has(TAGS.boss)){
                 this.stats.damage_boss();
+                if(source !== undefined && source.tile.type === entity_types.player){
+                    this.stats.player_damage_boss();
+                }
             }
             if(target.type === entity_types.player){
                 if(this.#is_player_turn){
@@ -13626,6 +13625,7 @@ class StatTracker{
     #damage_dealt;
     #boss_kill_start;
     #total_damage_per_floor;
+    #player_boss_damage;
     #kills;
     #destroyed;
     #chest_kills;
@@ -13640,6 +13640,7 @@ class StatTracker{
         this.#damage_dealt = 0;
         this.#boss_kill_start = 0;
         this.#total_damage_per_floor = [0];
+        this.#player_boss_damage = 0;
         this.#kills = 0;
         this.#destroyed = 0;
         this.#chest_kills = 0;
@@ -13693,8 +13694,12 @@ class StatTracker{
         }
         this.#boss_kill_start = Math.min(this.#boss_kill_start, this.#turn_number);
     }
+    player_damage_boss(){
+        ++this.#player_boss_damage;
+    }
     reset_boss_damage(){
         this.#boss_kill_start = undefined;
+        this.#player_boss_damage = 0;
     }
     increment_kills(){
         ++this.#kills;
@@ -13718,6 +13723,7 @@ class StatTracker{
             damage_dealt: this.#damage_dealt,
             boss_kill_start: this.#boss_kill_start,
             total_damage_per_floor: this.#total_damage_per_floor,
+            player_boss_damage: this.#player_boss_damage,
             kills: this.#kills,
             destroyed: this.#destroyed,
             chest_kills: this.#chest_kills,

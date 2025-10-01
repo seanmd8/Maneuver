@@ -20,20 +20,16 @@ function shadow_knight_elite_ai(self, target, map){
         return self.location.plus(p);
     });
 
-    // If player can be attacked, attack twice then move to a random space an L away from them.
+    // If player can be attacked, attack then move to a random space an L away from them.
     var attack = possible_moves.filter((p) => {
         return point_equals(p, player_location);
     });
     if(attack.length > 0){
         map.attack(player_location);
-        var possible_ends = L_SHAPES.map((p) => {
-            return p.plus(player_location);
-        });
-        possible_ends = randomize_arr(possible_ends);
-        for(var i = 0; i < possible_ends.length && !map.check_empty(possible_ends[i]); ++i){}
-        if(i < possible_ends.length){
-            map.move(self.location, possible_ends[i]);
-        }
+        var possible_moves = randomize_arr(L_SHAPES.map((p) => {
+            return target.difference.plus(p);
+        }));
+        move_careful(self, target, map, possible_moves);
         return;
     }
     // If it can move to a square that can attack the player next turn, do so.

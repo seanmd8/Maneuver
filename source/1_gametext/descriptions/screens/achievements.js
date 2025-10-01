@@ -66,7 +66,7 @@ const achievement_description = {
     minimalist: `Reach floor 15 with only 5 cards in your deck.`,
     monster_hunter: `Kill 5 total unique bosses.`,
     non_violent: `Reach the first boss without killing anything.`,
-    not_my_fault: `Let a boss die without killing any enemies on the floor yourself.`,
+    not_my_fault: `Let a boss die without dealing any damage to it yourself.`,
     one_hit_wonder: `Defeat a boss in a single turn.`,
     one_life: `Defeat any boss with exactly 1 max health.`,
     peerless_sprinter: `Speed through a floor in 3 turns or less.`,

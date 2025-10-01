@@ -488,6 +488,9 @@ class GameMap{
             }
             if(target.tags.has(TAGS.boss)){
                 this.stats.damage_boss();
+                if(source !== undefined && source.tile.type === entity_types.player){
+                    this.stats.player_damage_boss();
+                }
             }
             if(target.type === entity_types.player){
                 if(this.#is_player_turn){
