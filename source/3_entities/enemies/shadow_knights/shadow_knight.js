@@ -26,7 +26,10 @@ function shadow_knight_ai(self, target, map){
     if(target.difference.taxicab_distance() === 3 && !target.difference.on_axis()){
         // If the player is a L away, attack them then try to move past them.
         map.attack(self.location.plus(target.difference));
-        map.move(self.location, self.location.plus(target.difference.times(new Point(2, 2))));
+        var possible_moves = randomize_arr(L_SHAPES.map((p) => {
+            return target.difference.plus(p);
+        }));
+        move_careful(self, target, map, possible_moves);
         return;
     }
     // Otherwise, attempt to move closer
