@@ -641,6 +641,9 @@ class GameMap{
         var stats = this.stats.get_stats();
         display.display_message(UIIDS.stats_floor, this.#floor_num);
         display.display_message(UIIDS.stats_turn, stats.turn_number);
+        display.display_message(UIIDS.stats_kills, stats.kills);
+        display.display_message(UIIDS.stats_dealt, stats.damage_dealt);
+        display.display_message(UIIDS.stats_taken, stats.damage);
     }
     /**
      * Replaces the exit tile with a lock tile.

@@ -1908,6 +1908,9 @@ const stat_image_labels = {
     deck: `Cards in deck`,
     floor: `Floor number`,
     turns: `Turn count`,
+    kills: `Enemies killed`,
+    dealt: `Damage dealt`,
+    taken: `Damage taken`,
 }
 Object.freeze(stat_image_labels);
 const shop_text = {
@@ -2214,6 +2217,12 @@ const HTML_UIIDS = {
             stats_floor: `statsFloor`,
             turn_image: `turnImage`,
             stats_turn: `statsTurn`,
+            kills_image: `killsImage`,
+            stats_kills: `statsKills`,
+            dealt_image: `dealtImage`,
+            stats_dealt: `statsDealt`,
+            taken_image: `takenImage`,
+            stats_taken: `statsTaken`,
         stage: `stage`,
             map_display: `mapDisplay`,
             sidebar: `sidebar`,
@@ -3398,6 +3407,9 @@ function display_deck_to_remove(remaining){
 function label_images(){
     display.label_image(UIIDS.floor_image, stat_image_labels.floor);
     display.label_image(UIIDS.turn_image, stat_image_labels.turns);
+    display.label_image(UIIDS.kills_image, stat_image_labels.kills);
+    display.label_image(UIIDS.dealt_image, stat_image_labels.dealt);
+    display.label_image(UIIDS.taken_image, stat_image_labels.taken);
     display.label_image(UIIDS.deck_image, stat_image_labels.deck);
     display.label_image(UIIDS.remaining_deck, stat_image_labels.deck);
 }
@@ -11810,6 +11822,9 @@ class GameMap{
         var stats = this.stats.get_stats();
         display.display_message(UIIDS.stats_floor, this.#floor_num);
         display.display_message(UIIDS.stats_turn, stats.turn_number);
+        display.display_message(UIIDS.stats_kills, stats.kills);
+        display.display_message(UIIDS.stats_dealt, stats.damage_dealt);
+        display.display_message(UIIDS.stats_taken, stats.damage);
     }
     /**
      * Replaces the exit tile with a lock tile.
