@@ -63,7 +63,8 @@ function get_uiids(language){
 /** @type {uiid_library} The uiid library for HTML.*/
 const HTML_UIIDS = {
     header_bar: `headerBar`,
-        title: `title`,
+        header_box: `headerBox`,
+            title: `title`,
     game_screen: `gameScreen`,
         stats: `stats`,
         stage: `stage`,

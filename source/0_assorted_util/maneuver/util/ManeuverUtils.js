@@ -10,7 +10,7 @@ function initiate_game(){
     display.stop_space_scrolling();
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
     display.display_message(UIIDS.title, gameplay_labels.title);
-    create_main_dropdown(UIIDS.header_bar);
+    create_main_dropdown(UIIDS.header_box);
     GS = new GameState();
     GS.setup();
     display_guide();

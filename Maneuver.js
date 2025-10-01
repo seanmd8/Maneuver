@@ -610,7 +610,7 @@ function initiate_game(){
     display.stop_space_scrolling();
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
     display.display_message(UIIDS.title, gameplay_labels.title);
-    create_main_dropdown(UIIDS.header_bar);
+    create_main_dropdown(UIIDS.header_box);
     GS = new GameState();
     GS.setup();
     display_guide();
@@ -2195,7 +2195,8 @@ function get_uiids(language){
 /** @type {uiid_library} The uiid library for HTML.*/
 const HTML_UIIDS = {
     header_bar: `headerBar`,
-        title: `title`,
+        header_box: `headerBox`,
+            title: `title`,
     game_screen: `gameScreen`,
         stats: `stats`,
         stage: `stage`,

@@ -705,15 +705,12 @@ body>div{
     border-bottom-style: solid;
     min-width: 100%;
 }
-.main-header>*{
-    display: inline-block;
-    vertical-align: baseline;
-}
-.main-header h1{
-    width: 485px;
+.header-box{
+    display: inline-flex;
+    justify-content: space-between;
+    width: 620px;
 }
 .main-header select{
-    margin: auto;
     width: 132px;
     height: 32px;
     background-color: wheat;
@@ -721,6 +718,13 @@ body>div{
     border-width: 3px;
     border-radius: 0px;
     appearance: base-select;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.header-pic {
+    height: 40px;
+    width: 300px;
 }
 .journal-area-screen {
     border-width: 0px 5px 5px 5px;
