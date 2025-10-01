@@ -1,0 +1,24 @@
+.stats{
+    display: inline-flex;
+    min-width: 200px;
+    width: fit-content;
+    justify-content: space-between;
+}
+.stat-pair{
+    display: inline-flex;
+    justify-content: space-between;
+    min-width: 70px;
+    width: fit-content;
+    background-color: palegoldenrod;
+    border-radius: 10px;
+    border-style: solid;
+    border-color: saddlebrown;
+    border-width: 3px;
+    padding: 2px 6px 2px 3px;
+    margin-bottom: 4px;
+    align-items: center;
+}
+.stat-pair img{
+    width: 32px;
+    height: 32px;
+}
