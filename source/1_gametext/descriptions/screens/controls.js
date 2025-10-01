@@ -12,7 +12,7 @@ const CONTROLS_TEXT = {
         header: `Stage Controls`,
         card: `Choose card`,
         direction: `Make move`,
-        toggle: `Preview move`,
+        toggle: `Preview move (hold key down)`,
         info: `View card info`,
         retry: `Retry`
     },
