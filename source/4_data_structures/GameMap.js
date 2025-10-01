@@ -979,6 +979,9 @@ class GameMap{
     get_initiative(){
         return this.#entity_list.get_initiative();
     }
+    get_floor_num(){
+        return this.#floor_num;
+    }
 }
 
 function grid_space(area){

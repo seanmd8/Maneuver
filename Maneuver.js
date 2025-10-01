@@ -839,10 +839,12 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must not have Limitless.`,
     gruntwork:
         `Prerequisites: You must not have Limitless.`,
+    hoarder:
+        `Prerequisites: You must be less than 15 floors deep.`,
     perfect_the_basics:
         `Prerequisites: You must have at least 2 basic cards in your deck.`,
     practice_makes_perfect:
-        `Prerequisites: You must not have Limitless.`,
+        `Prerequisites: You must be less than 15 floors deep and not have Limitless.`,
     roar_of_challenge:
         `Prerequisites: You must not have Limitless.`,
     safe_passage:
@@ -12146,6 +12148,9 @@ class GameMap{
     get_initiative(){
         return this.#entity_list.get_initiative();
     }
+    get_floor_num(){
+        return this.#floor_num;
+    }
 }
 
 function grid_space(area){
@@ -17202,9 +17207,14 @@ function hoarder(){
         name: boon_names.hoarder,
         pic: `${IMG_FOLDER.boons}hoarder.png`,
         description: boon_descriptions.hoarder,
-        prereq_description: boon_prereq_descriptions.none,
+        prereq_description: boon_prereq_descriptions.hoarder,
+        prereq: prereq_hoarder,
         max: 1,
     }
+}
+
+function prereq_hoarder(){
+    return GS.map.get_floor_num() < 15;
 }
 function larger_chests(){
     return {
@@ -17325,7 +17335,9 @@ function practice_makes_perfect(){
 }
 
 function prereq_practice_makes_perfect(){
-    return GS.map.get_player().max_health !== undefined;
+    var has_health = GS.map.get_player().max_health !== undefined;
+    var not_deep = GS.map.get_floor_num() < 15;
+    return has_health && not_deep;
 }
 function pressure_points(){
     return {

@@ -182,10 +182,12 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must not have Limitless.`,
     gruntwork:
         `Prerequisites: You must not have Limitless.`,
+    hoarder:
+        `Prerequisites: You must be less than 15 floors deep.`,
     perfect_the_basics:
         `Prerequisites: You must have at least 2 basic cards in your deck.`,
     practice_makes_perfect:
-        `Prerequisites: You must not have Limitless.`,
+        `Prerequisites: You must be less than 15 floors deep and not have Limitless.`,
     roar_of_challenge:
         `Prerequisites: You must not have Limitless.`,
     safe_passage:
