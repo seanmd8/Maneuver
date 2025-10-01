@@ -33,13 +33,7 @@ function decay_ai(self, target, map){
 /** @type {AIFunction} Attempts to move 1 space closer to the user until it succesfully moves or it dies.*/
 function move_closer_ai(self, target, map){
     var directions = order_nearby(target.difference);
-    for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health > 0); ++i){
-        if(map.move(self.location, self.location.plus(directions[i]))){
-            self.location.plus_equals(directions[i]);
-            target.difference.minus_equals(directions[i]);
-            return;
-        }
-    }
+    return move_reckless(self, target, map, directions);
 }
 /** @type {AIFunction} AI used when a entity should move and attack in a direction (the target's difference field).*/
 function move_attack_ai(self, target, map){

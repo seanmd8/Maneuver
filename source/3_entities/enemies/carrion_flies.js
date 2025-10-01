@@ -37,6 +37,6 @@ function carrion_flies_ai(self, target, map){
     else{
         // Move randomly.
         var near_points = random_nearby();
-        for(var i = 0; i < near_points.length && !map.move(self.location, self.location.plus(near_points[i])); ++i){}
+        move_reckless(self, target, map, near_points);
     }
 }

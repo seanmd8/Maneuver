@@ -50,14 +50,13 @@ function lich_ai(self, target, map){
     }
     if(self.tile.cycle === -2){
         // Move away and prepare the next spell.
-        var moves = reverse_arr(order_nearby(target.difference));
-        for(var i = 0; i < moves.length && !map.check_empty(self.location.plus(moves[i])); ++i){}
-        if(i >= moves.length){
+        var directions = reverse_arr(order_nearby(target.difference));
+        var moved = move_careful(self, target, map, directions);
+        if(moved === undefined){
             // If stuck, prep teleport.
             lich_prep(self.tile, -1);
         }
         else{
-            map.move(self.location, self.location.plus(moves[i]));
             lich_prep(self.tile, random_num(self.tile.spells.length));
         }
     }

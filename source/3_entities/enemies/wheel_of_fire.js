@@ -18,10 +18,7 @@ function wheel_of_fire_ai(self, target, map){
     if(target.difference.within_radius(1)){
         // Player is nearby.
         var moves = reverse_arr(order_nearby(target.difference));
-        for(var i = 0; i < moves.length && !map.check_empty(self.location.plus(moves[i])); ++i){}
-        if(i < moves.length){
-            map.move(self.location, self.location.plus(moves[i]));
-        }
+        move_careful(self, target, map, moves);
     }
     else if((target.difference.on_axis() || target.difference.on_diagonal())){
         // Aiming at player.
@@ -54,11 +51,7 @@ function wheel_of_fire_ai(self, target, map){
         }
     }
     else{
-        // Move randomly.
-        var direction = get_empty_nearby(self.location, random_nearby(), map);
-        if(!(direction === undefined)){
-            map.move(self.location, self.location.plus(direction));
-        }
+        move_careful(self, target, map, random_nearby());
     }
 }
 

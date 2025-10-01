@@ -22,7 +22,7 @@ function igneous_crab_ai(self, target, map){
     }
     if(self.tile.cycle > 0){
         var directions = reverse_arr(order_nearby(target.difference));
-        for(var i = 0; i < directions.length && !map.move(self.location, self.location.plus(directions[i])); ++i){}
+        move_reckless(self, target, map, directions);
         --self.tile.cycle;
     }
     else{
@@ -31,10 +31,7 @@ function igneous_crab_ai(self, target, map){
         }
         else{
             var directions = order_nearby(target.difference);
-            for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
-            if(i < directions.length){
-                map.move(self.location, self.location.plus(directions[i]));
-            }
+            move_careful(self, target, map, directions);
         }
     }
 }

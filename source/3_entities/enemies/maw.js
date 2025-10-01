@@ -25,10 +25,7 @@ function maw_ai(self, target, map){
         var moves = order_nearby(target.difference).filter((p) => {
             return p.on_axis();
         });
-        var has_moved = false;
-        for(var i = 0; i < moves.length && !has_moved; ++i){
-            has_moved = map.move(self.location, self.location.plus(moves[i]));
-        }
+        move_reckless(self, target, map, moves);
     }
 }
 /** @type {AIFunction}.*/

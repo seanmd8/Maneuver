@@ -341,6 +341,34 @@ function get_nearest_where(map, location, f){
     return undefined;
 }
 
+function move_careful(self, target, map, directions){
+    // Looks ahead in each direction until it finds one that is safe to move in.
+    // Returns the direction it moved or undefined.
+    for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
+    if(i < directions.length){
+        if(map.move(self.location, self.location.plus(directions[i]))){
+            self.location.plus_equals(directions[i]);
+            target.difference.minus_equals(directions[i]);
+            return directions[i];
+        }
+    }
+    return undefined;
+}
+
+function move_reckless(self, target, map, directions){
+    // Tries to move in each direction until it does so or takes damage.
+    // Returns the direction it moved or undefined.
+    var start = self.tile.health;
+    for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health >= start); ++i){
+        if(map.move(self.location, self.location.plus(directions[i]))){
+            self.location.plus_equals(directions[i]);
+            target.difference.minus_equals(directions[i]);
+            return directions[i];
+        }
+    }
+    return undefined;
+}
+
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */
 function generic_tile(){
     return {

@@ -33,18 +33,13 @@ function rat_ai(self, target, map){
             // If they bit the player within 2 turns, move away. Otherwise move closer.
             directions = reverse_arr(directions);
         }
-        var moved = false;
-        for(var j = 0; j < directions.length && !moved; ++j){
-            moved = map.move(self.location, self.location.plus(directions[j]));
-            if(moved){
-                self.location.plus_equals(directions[j]);
-                target.difference.minus_equals(directions[j]);
-                if(directions[j].x < 0){
-                    self.tile.flip = false;
-                }
-                if(directions[j].x > 0){
-                    self.tile.flip = true;
-                }
+        var moved = move_reckless(self, target, map, directions);
+        if(moved !== undefined){
+            if(moved.x < 0){
+                self.tile.flip = false;
+            }
+            if(moved.x > 0){
+                self.tile.flip = true;
             }
         }
     }

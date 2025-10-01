@@ -27,13 +27,7 @@ function strider_ai(self, target, map){
             map.attack(self.location.plus(target.difference));
         }
     }
-    var moved = false;
-    for(var i = 0; i < moves.length && !moved; ++i){
-        var destination = self.location.plus(moves[i]);
-        if(map.check_empty(destination)){
-            moved = map.move(self.location, destination);
-        }
-    }
+    move_careful(self, target, map, moves);
 }
 
 /** @type {TelegraphFunction} */

@@ -31,20 +31,13 @@ function scorpion_ai(self, target, map){
     if(self.tile.cycle === 1){
         for(var i = 0; i < 2; ++i){
             var directions = order_nearby(target.difference);
-            var moved = false;
-            for(var j = 0; j < directions.length && !moved; ++j){
-                var destination = self.location.plus(directions[j]);
-                moved = map.check_empty(destination);
-                if(moved){
-                    map.move(self.location, destination);
-                    self.location.plus_equals(directions[j]);
-                    target.difference.minus_equals(directions[j]);
-                    if(directions[j].x < 0){
-                        self.tile.flip = false;
-                    }
-                    if(directions[j].x > 0){
-                        self.tile.flip = true;
-                    }
+            var moved = move_careful(self, target, map, directions);
+            if(moved !== undefined){
+                if(moved.x < 0){
+                    self.tile.flip = false;
+                }
+                if(moved.x > 0){
+                    self.tile.flip = true;
                 }
             }
         }

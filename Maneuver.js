@@ -4462,14 +4462,13 @@ function lich_ai(self, target, map){
     }
     if(self.tile.cycle === -2){
         // Move away and prepare the next spell.
-        var moves = reverse_arr(order_nearby(target.difference));
-        for(var i = 0; i < moves.length && !map.check_empty(self.location.plus(moves[i])); ++i){}
-        if(i >= moves.length){
+        var directions = reverse_arr(order_nearby(target.difference));
+        var moved = move_careful(self, target, map, directions);
+        if(moved === undefined){
             // If stuck, prep teleport.
             lich_prep(self.tile, -1);
         }
         else{
-            map.move(self.location, self.location.plus(moves[i]));
             lich_prep(self.tile, random_num(self.tile.spells.length));
         }
     }
@@ -5449,10 +5448,7 @@ function brightling_ai(self, target, map){
     }
     // Moves 2 spaces randomly and increments cycle.
     for(var i = 0; i < 2; ++i){
-        var moved = map.move(self.location, self.location.plus(near_points[i]));
-        if(moved){
-            self.location.plus_equals(near_points[i]);
-        }
+        move_careful(self, target, map, random_nearby());
     }
     ++self.tile.cycle;
 }
@@ -5569,7 +5565,7 @@ function carrion_flies_ai(self, target, map){
     else{
         // Move randomly.
         var near_points = random_nearby();
-        for(var i = 0; i < near_points.length && !map.move(self.location, self.location.plus(near_points[i])); ++i){}
+        move_reckless(self, target, map, near_points);
     }
 }
 /** @type {TileGenerator} */
@@ -5718,12 +5714,10 @@ function corrosive_caterpillar_tile(){
 /** @type {AIFunction} AI used by corrosive catterpillars.*/
 function corrosive_caterpillar_ai(self, target, map){
     for(var i = 0; i < 2; ++i){
-        var direction = get_empty_nearby(self.location, random_nearby(), map);
-        if(!(direction === undefined)){
-            if(map.move(self.location, self.location.plus(direction))){
-                map.add_tile(corrosive_slime_tile(), self.location);
-            }
-            self.location.plus_equals(direction);
+        var old_location = self.location.copy();
+        var moved = move_careful(self, target, map, random_nearby());
+        if(moved !== undefined){
+            map.add_tile(corrosive_slime_tile(), old_location);
         }
     }
 }
@@ -5859,7 +5853,7 @@ function igneous_crab_ai(self, target, map){
     }
     if(self.tile.cycle > 0){
         var directions = reverse_arr(order_nearby(target.difference));
-        for(var i = 0; i < directions.length && !map.move(self.location, self.location.plus(directions[i])); ++i){}
+        move_reckless(self, target, map, directions);
         --self.tile.cycle;
     }
     else{
@@ -5868,10 +5862,7 @@ function igneous_crab_ai(self, target, map){
         }
         else{
             var directions = order_nearby(target.difference);
-            for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
-            if(i < directions.length){
-                map.move(self.location, self.location.plus(directions[i]));
-            }
+            move_careful(self, target, map, directions);
         }
     }
 }
@@ -5930,12 +5921,7 @@ function living_tree_ai(self, target, map){
     if(target.difference.within_radius(1)){
         directions = reverse_arr(directions);
     }
-    // Carefully tries to move.
-    for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
-    if(i < directions.length){
-        var move = directions[i];
-        map.move(self.location, self.location.plus(move));
-    }
+    move_careful(self, target, map, directions);
     self.tile.cycle = 1 - self.tile.cycle;
 }
 /** @type {TelegraphFunction} Function to telegraph living tree attacks.*/
@@ -6001,14 +5987,7 @@ function magma_spewer_ai(self, target, map){
         // Move away if the player gets close.
         if(target.difference.within_radius(2)){
             var directions = order_nearby(target.difference.times(-1));
-            var moved = false;
-            for(var i = 0; i < directions.length && !moved; ++i){
-                if(map.check_empty(self.location.plus(directions[i]))){
-                    map.move(self.location, self.location.plus(directions[i]));
-                    self.location.plus_equals(directions[i]);
-                    moved = true;
-                }
-            }
+            move_careful(self, target, map, directions);
         }
     }
     else{
@@ -6064,10 +6043,7 @@ function maw_ai(self, target, map){
         var moves = order_nearby(target.difference).filter((p) => {
             return p.on_axis();
         });
-        var has_moved = false;
-        for(var i = 0; i < moves.length && !has_moved; ++i){
-            has_moved = map.move(self.location, self.location.plus(moves[i]));
-        }
+        move_reckless(self, target, map, moves);
     }
 }
 /** @type {AIFunction}.*/
@@ -6108,19 +6084,13 @@ function noxious_toad_ai(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
-        var directions = order_nearby(target.difference);
-        var moved = false;
-        for(var i = 0; i < directions.length && !moved; ++i){
-            // Leap orthogonally closer.
-            if(directions[i].on_axis()){
-                moved = map.move(self.location, self.location.plus(directions[i].times(2)));
-                if(moved){
-                    self.location.plus_equals(directions[i].times(2));
-                    target.difference.minus_equals(directions[i].times(2));
-                }
-            }
-        }
-        if(moved){
+        var moves = order_nearby(target.difference).filter((p) => {
+            return p.on_axis();
+        }).map((p) => {
+            return p.times(2);
+        });
+        var moved = move_reckless(self, target, map, moves);
+        if(moved !== undefined){
             self.tile.cycle = 1;
             if(
                 target.difference.within_radius(1) || 
@@ -6646,18 +6616,13 @@ function rat_ai(self, target, map){
             // If they bit the player within 2 turns, move away. Otherwise move closer.
             directions = reverse_arr(directions);
         }
-        var moved = false;
-        for(var j = 0; j < directions.length && !moved; ++j){
-            moved = map.move(self.location, self.location.plus(directions[j]));
-            if(moved){
-                self.location.plus_equals(directions[j]);
-                target.difference.minus_equals(directions[j]);
-                if(directions[j].x < 0){
-                    self.tile.flip = false;
-                }
-                if(directions[j].x > 0){
-                    self.tile.flip = true;
-                }
+        var moved = move_reckless(self, target, map, directions);
+        if(moved !== undefined){
+            if(moved.x < 0){
+                self.tile.flip = false;
+            }
+            if(moved.x > 0){
+                self.tile.flip = true;
             }
         }
     }
@@ -6707,20 +6672,13 @@ function scorpion_ai(self, target, map){
     if(self.tile.cycle === 1){
         for(var i = 0; i < 2; ++i){
             var directions = order_nearby(target.difference);
-            var moved = false;
-            for(var j = 0; j < directions.length && !moved; ++j){
-                var destination = self.location.plus(directions[j]);
-                moved = map.check_empty(destination);
-                if(moved){
-                    map.move(self.location, destination);
-                    self.location.plus_equals(directions[j]);
-                    target.difference.minus_equals(directions[j]);
-                    if(directions[j].x < 0){
-                        self.tile.flip = false;
-                    }
-                    if(directions[j].x > 0){
-                        self.tile.flip = true;
-                    }
+            var moved = move_careful(self, target, map, directions);
+            if(moved !== undefined){
+                if(moved.x < 0){
+                    self.tile.flip = false;
+                }
+                if(moved.x > 0){
+                    self.tile.flip = true;
                 }
             }
         }
@@ -7237,13 +7195,7 @@ function strider_ai(self, target, map){
             map.attack(self.location.plus(target.difference));
         }
     }
-    var moved = false;
-    for(var i = 0; i < moves.length && !moved; ++i){
-        var destination = self.location.plus(moves[i]);
-        if(map.check_empty(destination)){
-            moved = map.move(self.location, destination);
-        }
-    }
+    move_careful(self, target, map, moves);
 }
 
 /** @type {TelegraphFunction} */
@@ -7667,17 +7619,9 @@ function unstable_wisp_tile(){
 /** @type {AIFunction}*/
 function unstable_wisp_ai(self, target, map){
     var start = self.location.copy();
-    var moved = undefined;
     var directions = random_nearby();
-    for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health > 0) && !moved; ++i){
-        // Moves a space randomly.
-        for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
-        if(i < directions.length && map.move(self.location, self.location.plus(directions[i]))){
-            self.location.plus_equals(directions[i]);
-            moved = directions[i];
-        }
-    }
-    if(moved && chance(1, 3)){
+    var moved = move_careful(self, target, map, directions);
+    if(moved !== undefined && chance(1, 3)){
         // Chance to shoot a fireball after moving.
         moved.times_equals(-1);
         var fireball = shoot_fireball(moved);
@@ -7967,10 +7911,7 @@ function wheel_of_fire_ai(self, target, map){
     if(target.difference.within_radius(1)){
         // Player is nearby.
         var moves = reverse_arr(order_nearby(target.difference));
-        for(var i = 0; i < moves.length && !map.check_empty(self.location.plus(moves[i])); ++i){}
-        if(i < moves.length){
-            map.move(self.location, self.location.plus(moves[i]));
-        }
+        move_careful(self, target, map, moves);
     }
     else if((target.difference.on_axis() || target.difference.on_diagonal())){
         // Aiming at player.
@@ -8003,11 +7944,7 @@ function wheel_of_fire_ai(self, target, map){
         }
     }
     else{
-        // Move randomly.
-        var direction = get_empty_nearby(self.location, random_nearby(), map);
-        if(!(direction === undefined)){
-            map.move(self.location, self.location.plus(direction));
-        }
+        move_careful(self, target, map, random_nearby());
     }
 }
 
@@ -9179,13 +9116,7 @@ function decay_ai(self, target, map){
 /** @type {AIFunction} Attempts to move 1 space closer to the user until it succesfully moves or it dies.*/
 function move_closer_ai(self, target, map){
     var directions = order_nearby(target.difference);
-    for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health > 0); ++i){
-        if(map.move(self.location, self.location.plus(directions[i]))){
-            self.location.plus_equals(directions[i]);
-            target.difference.minus_equals(directions[i]);
-            return;
-        }
-    }
+    return move_reckless(self, target, map, directions);
 }
 /** @type {AIFunction} AI used when a entity should move and attack in a direction (the target's difference field).*/
 function move_attack_ai(self, target, map){
@@ -9766,6 +9697,34 @@ function get_nearest_where(map, location, f){
             if(map.is_in_bounds(p) && f(map.get_tile(p), p)){
                 return p;
             }
+        }
+    }
+    return undefined;
+}
+
+function move_careful(self, target, map, directions){
+    // Looks ahead in each direction until it finds one that is safe to move in.
+    // Returns the direction it moved or undefined.
+    for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
+    if(i < directions.length){
+        if(map.move(self.location, self.location.plus(directions[i]))){
+            self.location.plus_equals(directions[i]);
+            target.difference.minus_equals(directions[i]);
+            return directions[i];
+        }
+    }
+    return undefined;
+}
+
+function move_reckless(self, target, map, directions){
+    // Tries to move in each direction until it does so or takes damage.
+    // Returns the direction it moved or undefined.
+    var start = self.tile.health;
+    for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health >= start); ++i){
+        if(map.move(self.location, self.location.plus(directions[i]))){
+            self.location.plus_equals(directions[i]);
+            target.difference.minus_equals(directions[i]);
+            return directions[i];
         }
     }
     return undefined;
