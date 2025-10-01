@@ -1042,15 +1042,17 @@ const W = `W`;
 const C = `C`;
 const SPIN = `Spin`;
 
-// Directions.
-const four_directions = {
+// Unicode symbols.
+const usymbol = {
     // Unicode arrows
     left:   `\u2B9C`,
     up:     `\u2B9D`,
     right:  `\u2B9E`,
-    down:   `\u2B9F`
+    down:   `\u2B9F`,
+    // Bullet point
+    bullet: `\u2022`,
 }
-Object.freeze(four_directions);
+Object.freeze(usymbol);
 
 // Move types.
 const move_types = {
@@ -2059,11 +2061,11 @@ const GUIDE_TEXT = {
     sidebar: 
         [`The sidebar contains several tabs which keep track of useful information so you don't need to `
         +`remember it.\n\n`
-        +`- The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like `
+        +`${usymbol.bullet} The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like `
         +`the descriptions given by clicking on a tile will not be tracked.\n\n`
-        +`- The Discard tab will keep track of which cards in your deck have been used so far to help you `
+        +`${usymbol.bullet} The Discard tab will keep track of which cards in your deck have been used so far to help you `
         +`figure out what might be left to draw. It resets after shuffling.\n\n`
-        +`- The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it `
+        +`${usymbol.bullet} The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it `
         +`when trying to use one enemy to block the attack of another. It will not track hidden enemies.\n\n`
         +`More tabs might become available as you play.\n\n`],
 
@@ -10856,7 +10858,7 @@ class ButtonGrid{
                         commands = [`(${move_types.nothing})`];
                     }
                     var command_str = commands.join(`, ${NBS}`); // Non breaking spaces used so they won't be collapsed.
-                    explanation = explanation.concat(`${NBS}${NBS}${NBS}${NBS}-${button.description}: ${command_str}\n`);
+                    explanation = explanation.concat(`${NBS}${NBS}${NBS}${NBS}${usymbol.bullet} ${button.description}: ${command_str}\n`);
                 }
             }
         }
@@ -16678,8 +16680,8 @@ function explain_action(action){
  */
 function explain_point(p){
     var direction = sign(p);
-    var vertical = [four_directions.up, undefined, four_directions.down][direction.y + 1];
-    var horizontal = [four_directions.left, undefined, four_directions.right][direction.x + 1];
+    var vertical = [usymbol.up, undefined, usymbol.down][direction.y + 1];
+    var horizontal = [usymbol.left, undefined, usymbol.right][direction.x + 1];
     if(vertical === undefined && horizontal === undefined){
         return move_types.you;
     }

@@ -116,8 +116,8 @@ function explain_action(action){
  */
 function explain_point(p){
     var direction = sign(p);
-    var vertical = [four_directions.up, undefined, four_directions.down][direction.y + 1];
-    var horizontal = [four_directions.left, undefined, four_directions.right][direction.x + 1];
+    var vertical = [usymbol.up, undefined, usymbol.down][direction.y + 1];
+    var horizontal = [usymbol.left, undefined, usymbol.right][direction.x + 1];
     if(vertical === undefined && horizontal === undefined){
         return move_types.you;
     }

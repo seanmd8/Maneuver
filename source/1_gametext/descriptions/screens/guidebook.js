@@ -100,11 +100,11 @@ const GUIDE_TEXT = {
     sidebar: 
         [`The sidebar contains several tabs which keep track of useful information so you don't need to `
         +`remember it.\n\n`
-        +`- The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like `
+        +`${usymbol.bullet} The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like `
         +`the descriptions given by clicking on a tile will not be tracked.\n\n`
-        +`- The Discard tab will keep track of which cards in your deck have been used so far to help you `
+        +`${usymbol.bullet} The Discard tab will keep track of which cards in your deck have been used so far to help you `
         +`figure out what might be left to draw. It resets after shuffling.\n\n`
-        +`- The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it `
+        +`${usymbol.bullet} The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it `
         +`when trying to use one enemy to block the attack of another. It will not track hidden enemies.\n\n`
         +`More tabs might become available as you play.\n\n`],
 

@@ -86,7 +86,7 @@ class ButtonGrid{
                         commands = [`(${move_types.nothing})`];
                     }
                     var command_str = commands.join(`, ${NBS}`); // Non breaking spaces used so they won't be collapsed.
-                    explanation = explanation.concat(`${NBS}${NBS}${NBS}${NBS}-${button.description}: ${command_str}\n`);
+                    explanation = explanation.concat(`${NBS}${NBS}${NBS}${NBS}${usymbol.bullet} ${button.description}: ${command_str}\n`);
                 }
             }
         }

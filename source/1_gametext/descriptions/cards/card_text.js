@@ -11,15 +11,17 @@ const W = `W`;
 const C = `C`;
 const SPIN = `Spin`;
 
-// Directions.
-const four_directions = {
+// Unicode symbols.
+const usymbol = {
     // Unicode arrows
     left:   `\u2B9C`,
     up:     `\u2B9D`,
     right:  `\u2B9E`,
-    down:   `\u2B9F`
+    down:   `\u2B9F`,
+    // Bullet point
+    bullet: `\u2022`,
 }
-Object.freeze(four_directions);
+Object.freeze(usymbol);
 
 // Move types.
 const move_types = {
