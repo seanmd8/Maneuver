@@ -547,6 +547,8 @@ body>div{
     vertical-align: top;
     width: 260px;
     height: 350px;
+    margin-left: 4px;
+    margin-right: 8px;
 }
 .sidebar-header {
     width: 100%;
@@ -660,6 +662,7 @@ body>div{
     display: inline-flex;
     justify-content: space-between;
     width: 60px;
+    height: 36px;
     background-color: palegoldenrod;
     border-radius: 10px;
     border-style: solid;
