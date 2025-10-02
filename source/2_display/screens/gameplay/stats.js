@@ -1,4 +1,4 @@
-function refresh_stats(stats, location){
+function refresh_stage_stats(stats, location){
     display.remove_children(location);
     display.make_stat_pair(
         location,
@@ -29,5 +29,38 @@ function refresh_stats(stats, location){
         `${IMG_FOLDER.src}${IMG_FOLDER.other}half_heart.png`, 
         stats.taken, 
         stat_image_labels.taken
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}mini_chest.png`, 
+        stats.chests, 
+        stat_image_labels.chests
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}mini_broken_chest.png`, 
+        stats.destroyed, 
+        stat_image_labels.destroyed
+    );
+}
+function refresh_other_stats(stats, location){
+    display.remove_children(location);
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}stairs.png`, 
+        stats.floor, 
+        stat_image_labels.floor
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}stopwatch.png`, 
+        stats.turn, 
+        stat_image_labels.turns
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}mini_heart.png`, 
+        stats.health, 
+        stat_image_labels.health
     );
 }

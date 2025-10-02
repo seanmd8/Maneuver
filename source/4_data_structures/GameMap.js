@@ -633,10 +633,6 @@ class GameMap{
         await this.#entity_list.enemy_turn(this);
         this.#is_player_turn = true;
     }
-    /**
-     * Displays the current floor number and turn count.
-     * @param {string} location Where they should be displayed.
-     */
     display_stats(){
         var stats = this.stats.get_stats();
         var to_display = {
@@ -644,12 +640,15 @@ class GameMap{
             turn: stats.turn_number,
             kills: stats.kills,
             dealt: stats.damage_dealt,
-            taken: stats.damage
+            taken: stats.damage,
+            chests: stats.chests,
+            destroyed: stats.chest_kills,
+            health: hp_ratio(this.get_player())
         }
-        refresh_stats(to_display, UIIDS.stage_stats);
-        refresh_stats(to_display, UIIDS.shop_stats);
-        refresh_stats(to_display, UIIDS.chest_stats);
-        refresh_stats(to_display, UIIDS.deck_select_stats);
+        refresh_stage_stats(to_display, UIIDS.stage_stats);
+        refresh_other_stats(to_display, UIIDS.shop_stats);
+        refresh_other_stats(to_display, UIIDS.chest_stats);
+        refresh_other_stats(to_display, UIIDS.deck_select_stats);
     }
     /**
      * Replaces the exit tile with a lock tile.

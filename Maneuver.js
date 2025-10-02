@@ -1911,6 +1911,9 @@ const stat_image_labels = {
     kills: `Enemies killed`,
     dealt: `Damage dealt`,
     taken: `Damage taken`,
+    chests: `Chests opened`,
+    destroyed: `Chests destroyed`,
+    health: `Health`,
 }
 Object.freeze(stat_image_labels);
 const shop_text = {
@@ -1945,8 +1948,7 @@ const gameplay_labels = {
     hand: `Hand of Cards`,
     move: `Moves`,
     retry: `Retry?`,
-    floor: `Floor`,
-    turn: `Turn`,
+    hp: `hp`,
 }
 Object.freeze(gameplay_labels);
 
@@ -2352,18 +2354,24 @@ function grid_space_description(space){
     return descriptions.reduce((res, str) => `${res}${str}`);
 }
 function hp_description(tile){
-    var hp = ``
+    var hp = hp_ratio(tile);
+    if(hp === ``){
+        hp = `(${hp} ${gameplay_labels.hp}) `;
+    }
     var stunned = ``;
-    if(tile.max_health !== undefined && tile.health !== undefined){
-        hp = `(${tile.health}/${tile.max_health} hp) `;
-    }
-    else if(tile.health !== undefined){
-        hp = `(${tile.health} hp) `;
-    }
     if(tile.stun !== undefined && tile.stun > 0){
         stunned = `*${gameplay_text.stunned}${tile.stun}* `;
     }
     return `${hp}${stunned}`;
+}
+function hp_ratio(tile){
+    if(tile.max_health !== undefined && tile.health !== undefined){
+        return `${tile.health}/${tile.max_health}`;
+    }
+    if(tile.health !== undefined){
+        return `${tile.health}`;
+    }
+    return ``;
 }
 /**
  * Function to create the full description including
@@ -3674,7 +3682,7 @@ function display_map(map){
     // Updates the initiative tracker display.
     update_initiative(map);
 }
-function refresh_stats(stats, location){
+function refresh_stage_stats(stats, location){
     display.remove_children(location);
     display.make_stat_pair(
         location,
@@ -3705,6 +3713,39 @@ function refresh_stats(stats, location){
         `${IMG_FOLDER.src}${IMG_FOLDER.other}half_heart.png`, 
         stats.taken, 
         stat_image_labels.taken
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}mini_chest.png`, 
+        stats.chests, 
+        stat_image_labels.chests
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}mini_broken_chest.png`, 
+        stats.destroyed, 
+        stat_image_labels.destroyed
+    );
+}
+function refresh_other_stats(stats, location){
+    display.remove_children(location);
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}stairs.png`, 
+        stats.floor, 
+        stat_image_labels.floor
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}stopwatch.png`, 
+        stats.turn, 
+        stat_image_labels.turns
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}mini_heart.png`, 
+        stats.health, 
+        stat_image_labels.health
     );
 }
 /**
@@ -11853,10 +11894,6 @@ class GameMap{
         await this.#entity_list.enemy_turn(this);
         this.#is_player_turn = true;
     }
-    /**
-     * Displays the current floor number and turn count.
-     * @param {string} location Where they should be displayed.
-     */
     display_stats(){
         var stats = this.stats.get_stats();
         var to_display = {
@@ -11864,12 +11901,15 @@ class GameMap{
             turn: stats.turn_number,
             kills: stats.kills,
             dealt: stats.damage_dealt,
-            taken: stats.damage
+            taken: stats.damage,
+            chests: stats.chests,
+            destroyed: stats.chest_kills,
+            health: hp_ratio(this.get_player())
         }
-        refresh_stats(to_display, UIIDS.stage_stats);
-        refresh_stats(to_display, UIIDS.shop_stats);
-        refresh_stats(to_display, UIIDS.chest_stats);
-        refresh_stats(to_display, UIIDS.deck_select_stats);
+        refresh_stage_stats(to_display, UIIDS.stage_stats);
+        refresh_other_stats(to_display, UIIDS.shop_stats);
+        refresh_other_stats(to_display, UIIDS.chest_stats);
+        refresh_other_stats(to_display, UIIDS.deck_select_stats);
     }
     /**
      * Replaces the exit tile with a lock tile.

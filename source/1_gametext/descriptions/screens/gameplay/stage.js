@@ -3,8 +3,7 @@ const gameplay_labels = {
     hand: `Hand of Cards`,
     move: `Moves`,
     retry: `Retry?`,
-    floor: `Floor`,
-    turn: `Turn`,
+    hp: `hp`,
 }
 Object.freeze(gameplay_labels);
 

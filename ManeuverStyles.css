@@ -340,7 +340,7 @@ body>div{
     display: inline-block;
     vertical-align: top;
 }
-.shop-width{
+.shop-screen{
     width: fit-content;
 }
 .shop-section-box {
@@ -672,6 +672,9 @@ body>div{
 .stat-pair img{
     width: 32px;
     height: 32px;
+}
+.push-down-stats{
+    margin-top: 15px;
 }
 .guidebook-section h2 {
     margin-bottom: 5px;
