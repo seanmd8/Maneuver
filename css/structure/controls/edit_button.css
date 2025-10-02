@@ -3,6 +3,9 @@
     height: 27px;
     font-size: 17px;
 }
+.control-edit-box div input:hover {
+    cursor: pointer;
+}
 .control-edit-box div input:focus-visible{
     outline: none;
 }

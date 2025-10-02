@@ -10,5 +10,6 @@
 }
 .control-header input:hover {
     background-color: blueviolet;
-    color: aliceblue
+    color: aliceblue;
+    cursor: pointer;
 }

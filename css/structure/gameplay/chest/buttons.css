@@ -13,4 +13,5 @@
 .chest-buttons tr input:hover {
     background-color: brown;
     color: burlywood;
+    cursor: pointer;
 }

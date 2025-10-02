@@ -22,6 +22,7 @@
 .achievement-reset:hover{
     background-color: maroon;
     color: lightcoral;
+    cursor: pointer;
 }
 .achievement-confirm-reset {
     background-color: red;
@@ -29,6 +30,7 @@
 .achievement-confirm-reset:hover{
     background-color: black;
     color: red;
+    cursor: pointer;
 }
 .achievement-dropdown{
     display: none;
@@ -192,6 +194,9 @@ body>div{
     height: 27px;
     font-size: 17px;
 }
+.control-edit-box div input:hover {
+    cursor: pointer;
+}
 .control-edit-box div input:focus-visible{
     outline: none;
 }
@@ -228,7 +233,8 @@ body>div{
 }
 .control-header input:hover {
     background-color: blueviolet;
-    color: aliceblue
+    color: aliceblue;
+    cursor: pointer;
 }
 .control-style{
     background-color: var(--controls-background-color);
@@ -271,6 +277,7 @@ body>div{
 .chest-buttons tr input:hover {
     background-color: brown;
     color: burlywood;
+    cursor: pointer;
 }
 
 .chest-contents {
@@ -333,6 +340,10 @@ body>div{
     border-color: darkblue;
     background-color: cadetblue;
     font-weight: bolder;
+}
+.shop-confirm:hover:not(.greyed-out) {
+    background-color: lightblue;
+    cursor: pointer;
 }
 .shop-button-container{
     height: 120px;
@@ -444,6 +455,7 @@ body>div{
 }
 .card-info:hover {
     background-color: lightgray;
+    cursor: pointer;
 }
 .gamemap-box {
     background-color: white;

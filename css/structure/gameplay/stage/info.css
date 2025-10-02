@@ -13,4 +13,5 @@
 }
 .card-info:hover {
     background-color: lightgray;
+    cursor: pointer;
 }

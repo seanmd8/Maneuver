@@ -7,6 +7,10 @@
     background-color: cadetblue;
     font-weight: bolder;
 }
+.shop-confirm:hover:not(.greyed-out) {
+    background-color: lightblue;
+    cursor: pointer;
+}
 .shop-button-container{
     height: 120px;
     width: fit-content;
