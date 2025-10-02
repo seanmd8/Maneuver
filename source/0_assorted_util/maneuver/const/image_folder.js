@@ -8,6 +8,7 @@ const IMG_FOLDER = {
     other: `other/`,
     symbols: `symbols/`,
     tiles: `tiles/`,
-    boons: `boons/`
+    boons: `boons/`,
+    stats: `stats/`,
 }
 Object.freeze(IMG_FOLDER);

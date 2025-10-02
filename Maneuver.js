@@ -529,7 +529,8 @@ const IMG_FOLDER = {
     other: `other/`,
     symbols: `symbols/`,
     tiles: `tiles/`,
-    boons: `boons/`
+    boons: `boons/`,
+    stats: `stats/`,
 }
 Object.freeze(IMG_FOLDER);
 // Tags that entities can have.
@@ -3686,43 +3687,43 @@ function refresh_stage_stats(stats, location){
     display.remove_children(location);
     display.make_stat_pair(
         location,
-        `${IMG_FOLDER.src}${IMG_FOLDER.other}stairs.png`, 
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}stairs.png`, 
         stats.floor, 
         stat_image_labels.floor
     );
     display.make_stat_pair(
         location,
-        `${IMG_FOLDER.src}${IMG_FOLDER.other}stopwatch.png`, 
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}stopwatch.png`, 
         stats.turn, 
         stat_image_labels.turns
     );
     display.make_stat_pair(
         location,
-        `${IMG_FOLDER.src}${IMG_FOLDER.other}kills.png`, 
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}kills.png`, 
         stats.kills, 
         stat_image_labels.kills
     );
     display.make_stat_pair(
         location,
-        `${IMG_FOLDER.src}${IMG_FOLDER.other}damage_dealt.png`, 
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}damage_dealt.png`, 
         stats.dealt, 
         stat_image_labels.dealt
     );
     display.make_stat_pair(
         location,
-        `${IMG_FOLDER.src}${IMG_FOLDER.other}half_heart.png`, 
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}half_heart.png`, 
         stats.taken, 
         stat_image_labels.taken
     );
     display.make_stat_pair(
         location,
-        `${IMG_FOLDER.src}${IMG_FOLDER.other}mini_chest.png`, 
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}mini_chest.png`, 
         stats.chests, 
         stat_image_labels.chests
     );
     display.make_stat_pair(
         location,
-        `${IMG_FOLDER.src}${IMG_FOLDER.other}mini_broken_chest.png`, 
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}mini_broken_chest.png`, 
         stats.destroyed, 
         stat_image_labels.destroyed
     );
@@ -3731,19 +3732,19 @@ function refresh_other_stats(stats, location){
     display.remove_children(location);
     display.make_stat_pair(
         location,
-        `${IMG_FOLDER.src}${IMG_FOLDER.other}stairs.png`, 
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}stairs.png`, 
         stats.floor, 
         stat_image_labels.floor
     );
     display.make_stat_pair(
         location,
-        `${IMG_FOLDER.src}${IMG_FOLDER.other}stopwatch.png`, 
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}stopwatch.png`, 
         stats.turn, 
         stat_image_labels.turns
     );
     display.make_stat_pair(
         location,
-        `${IMG_FOLDER.src}${IMG_FOLDER.other}mini_heart.png`, 
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}mini_heart.png`, 
         stats.health, 
         stat_image_labels.health
     );
