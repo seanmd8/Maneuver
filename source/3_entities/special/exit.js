@@ -5,6 +5,6 @@ function exit_tile(){
         name: special_tile_names.exit,
         pic: `${IMG_FOLDER.tiles}stairs.png`,
         description: special_tile_descriptions.exit,
-        tags: new TagList([TAGS.unmovable])
+        tags: new TagList([TAGS.unmovable]),
     }
 }

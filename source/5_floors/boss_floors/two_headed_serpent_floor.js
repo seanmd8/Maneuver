@@ -16,7 +16,7 @@ function two_headed_serpent_floor(floor_num, area, map){
         var position = current.copy();
         var dirs = [new Point(random_sign(), 0), new Point(0, random_sign())];
         for(var i = 1; i < serpent_length; ++i){
-            var next = rand_from(dirs);
+            var next = random_from(dirs);
             position.plus_equals(next);
             if(map.check_empty(position)){
                 locations.push(next);
@@ -61,7 +61,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     for(var i = 0; i < 8; ++i){
         var position = map.random_empty();
         map.add_tile(wall_tile(), position);
-        map.add_tile(damaged_wall_tile(), position.plus(rand_from(ALL_DIRECTIONS)));
+        map.add_tile(damaged_wall_tile(), position.plus(random_from(ALL_DIRECTIONS)));
     }
     return boss_floor_message.two_headed_serpent;
 }

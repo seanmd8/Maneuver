@@ -15,10 +15,35 @@ function generate_library_area(){
 
 /** @type {FloorGenerator}*/
 function generate_library_floor(floor_num, area, map){
+    if(chance(1, 7)){
+        book_row_terrain(floor_num, area, map);
+        generate_normal_floor(floor_num - 4, area, map);
+        return;
+    }
     if(chance(2, 3)){
         bookshelf_terrain(floor_num, area, map);
     }
     generate_normal_floor(floor_num, area, map);
+}
+/** @type {FloorGenerator}*/
+function book_row_terrain(floor_num, area, map){
+    var rotate = chance(1, 2);
+    var x_max = rotate ? FLOOR_HEIGHT : FLOOR_WIDTH;
+    var y_max = rotate ? FLOOR_WIDTH : FLOOR_HEIGHT;
+    var xs = [];
+    for(var i = 0; i < x_max; i += 2){
+        xs.push(i + random_num(2));
+    }
+    var ys = rotate ? range(0, y_max) : range(1, y_max - 1);
+    for(var x of xs){
+        var less_ys = rand_no_repeats(ys, y_max - 3);
+        for(var y of less_ys){
+            var p = rotate ? new Point(y, x) : new Point(x, y);
+            if(map.check_empty(p)){
+                map.add_tile(bookshelf_tile(), p);
+            }
+        }
+    }
 }
 
 /** @type {FloorGenerator}*/

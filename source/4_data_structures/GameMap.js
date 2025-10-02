@@ -63,7 +63,7 @@ class GameMap{
         this.#area = starting_area;
         this.#is_player_turn = true;
         this.#exit_pos = [];
-        this.erase()
+        this.erase();
     }
     /**
      * Function to reset the floor so the next one can be generated,
@@ -125,7 +125,7 @@ class GameMap{
         }
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
-                var pos = new Point(x, y)
+                var pos = new Point(x, y);
                 if(this.get_tile(pos).type === entity_types.empty){
                     if(rand === 0){
                         return pos;
@@ -192,17 +192,17 @@ class GameMap{
         if(location === undefined){
             var top_row = range(this.#y_max);
             var points = top_row.map((y) => {
-                return new Point(y, 0)
+                return new Point(y, 0);
             }).filter((p) => {
                 return this.check_empty(p);
-            })
-            location = rand_from(points);
+            });
+            location = random_from(points);
         }
         this.check_bounds(location);
         if(!this.check_empty(location)){
             throw new Error(ERRORS.space_full);
         }
-        var exit = exit_tile()
+        var exit = exit_tile();
         if(next_area !== undefined){
             exit.next_area = next_area;
             this.get_grid(location).floor = next_area.background;
@@ -218,7 +218,7 @@ class GameMap{
      */
     set_player(player_location, player){
         if(player.type !== entity_types.player){
-            throw new Error(ERRORS.invalid_value)
+            throw new Error(ERRORS.invalid_value);
         }
         this.check_bounds(player_location);
         if(!this.check_empty(player_location)){
@@ -227,7 +227,7 @@ class GameMap{
         try{
             // If player isn't undefined, throws error.
             this.#entity_list.get_player_pos();
-            throw new Error(ERRORS.already_exists)
+            throw new Error(ERRORS.already_exists);
         }
         catch(error) {
             if(error.message !== ERRORS.value_not_found){
@@ -356,7 +356,7 @@ class GameMap{
                     rotate: tile.rotate,
                     flip: tile.flip,
                     background: [...background_pics, space.action, ...stunned, space.floor],
-                    on_click: make_on_click(space, new Point(x, y), this)
+                    on_click: make_on_click(space, new Point(x, y), this),
                 });
             };
             grid.push(table_row);
@@ -402,7 +402,7 @@ class GameMap{
                 }
                 var mover_info = {
                     tile: start,
-                    difference: start_point.minus(end_point)
+                    difference: start_point.minus(end_point),
                 }
                 end.on_enter(entity_entered, mover_info, this);
             }
@@ -488,6 +488,9 @@ class GameMap{
             }
             if(target.tags.has(TAGS.boss)){
                 this.stats.damage_boss();
+                if(source !== undefined && source.tile.type === entity_types.player){
+                    this.stats.player_damage_boss();
+                }
             }
             if(target.type === entity_types.player){
                 if(this.#is_player_turn){
@@ -510,7 +513,7 @@ class GameMap{
                 }
                 var aggressor_info = { // TODO: when damage source is implemented, use that instead.
                     tile: this.get_player(),
-                    difference: player_pos.minus(location)
+                    difference: player_pos.minus(location),
                 }
                 target.on_hit(hit_entity, aggressor_info, this);
             }
@@ -533,15 +536,18 @@ class GameMap{
                         throw new Error(ERRORS.missing_id);
                     }
                     this.#entity_list.remove_enemy(target.id);
-                    if(source !== undefined && source.tile.type === entity_types.player){
-                        this.stats.increment_kills();
-                    }
                 }
                 else{
                     --this.#entity_list.count_non_empty;
                     if(target.type === entity_types.chest && source !== undefined && source.tile.type === entity_types.player){
                         this.stats.increment_chest_kills();
                     }
+                }
+                if(source !== undefined && source.tile.type === entity_types.player){
+                    if(!target.tags.has(TAGS.obstruction)){
+                        this.stats.increment_kills();
+                    }
+                    this.stats.increment_destroyed();
                 }
                 if(target.on_death !== undefined){
                     // Trigger on_death
@@ -552,7 +558,7 @@ class GameMap{
                     }
                     var player_info = {
                         tile: this.get_player(),
-                        difference: player_pos.minus(location)
+                        difference: player_pos.minus(location),
                     }
                     target.on_death(dying_entity, player_info, this);
                 }
@@ -564,11 +570,11 @@ class GameMap{
             var player_pos = this.#entity_list.get_player_pos();
             var hit_entity = {
                 tile: target,
-                location: location
+                location: location,
             }
             var aggressor_info = { // TODO: when damage source is implemented, use that instead.
                 tile: this.get_player(),
-                difference: player_pos.minus(location)
+                difference: player_pos.minus(location),
             }
             target.on_hit(hit_entity, aggressor_info, this);
             return true;
@@ -583,7 +589,7 @@ class GameMap{
     player_attack(direction){
         var player_pos = this.#entity_list.get_player_pos();
         var pos = player_pos.plus(direction);
-        var current_kills = this.stats.get_stats().kills;
+        var current_kills = this.stats.get_stats().destroyed;
         try{
             if(
                 chance(GS.boons.has(boon_names.flame_strike), 2) && 
@@ -594,7 +600,7 @@ class GameMap{
                 this.add_tile(fireball, pos);
             }
             var hit = this.attack(pos, {tile: this.get_player(), location: player_pos});
-            if(current_kills < this.stats.get_stats().kills && GS.boons.has(boon_names.shattered_glass)){
+            if(current_kills < this.stats.get_stats().destroyed && GS.boons.has(boon_names.shattered_glass)){
                 for(var offset of ALL_DIRECTIONS){
                     var p_offset = pos.plus(offset);
                     if(
@@ -627,16 +633,22 @@ class GameMap{
         await this.#entity_list.enemy_turn(this);
         this.#is_player_turn = true;
     }
-    /**
-     * Displays the current floor number and turn count.
-     * @param {string} location Where they should be displayed.
-     */
-    display_stats(location){
+    display_stats(){
         var stats = this.stats.get_stats();
-        var stat_message = 
-            `${gameplay_labels.floor} ${this.#floor_num} `
-            +`${gameplay_labels.turn} ${stats.turn_number}`;
-        display.display_message(location, stat_message);
+        var to_display = {
+            floor: this.#floor_num,
+            turn: stats.turn_number,
+            kills: stats.kills,
+            dealt: stats.damage_dealt,
+            taken: stats.damage,
+            chests: stats.chests,
+            destroyed: stats.chest_kills,
+            health: hp_ratio(this.get_player())
+        }
+        refresh_stage_stats(to_display, UIIDS.stage_stats);
+        refresh_other_stats(to_display, UIIDS.shop_stats);
+        refresh_other_stats(to_display, UIIDS.chest_stats);
+        refresh_other_stats(to_display, UIIDS.deck_select_stats);
     }
     /**
      * Replaces the exit tile with a lock tile.
@@ -730,7 +742,7 @@ class GameMap{
             // Reached the next area.
             var next_list = this.#area.next_area_list;
             GS.data.clear_area(this.#area.name);
-            this.#area = rand_from(next_list);
+            this.#area = random_from(next_list);
             floor_description += `\n${gameplay_text.new_area}${this.#area.name}.`;
             GS.data.add_area(this.#area.name);
             GS.data.visit_area(this.#area.name);
@@ -746,7 +758,7 @@ class GameMap{
         }
         if(this.#floor_num % area_size === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
-            var boss_floor = rand_from(this.#area.boss_floor_list);
+            var boss_floor = random_from(this.#area.boss_floor_list);
             boss_floor_common(this.#floor_num, this.#area, this); 
             var boss_message = boss_floor(this.#floor_num, this.#area, this);
             floor_description += `\n${boss_message}`;
@@ -758,9 +770,14 @@ class GameMap{
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
         if(floor_has_chest(this.#floor_num % area_size)){
-            var chest_count = 1 + GS.boons.has(boon_names.hoarder);
             var chest = appropriate_chest_tile();
             var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));
+            if(chance(1, 2) && filter_new_boons(choices).length === 0){
+                var replacement_list = filter_new_boons(GS.boons.get_choices());
+                if(replacement_list.length > 0){
+                    choices[0] = random_from(replacement_list);
+                }
+            }
             for(var boon of choices){
                 add_boon_to_chest(chest, boon);
             }
@@ -925,7 +942,7 @@ class GameMap{
         }
         if(amount > 0){
             ++tile.health;
-            this.heal(location, amount - 1)
+            this.heal(location, amount - 1);
             return true;
         }
         return false;
@@ -969,6 +986,9 @@ class GameMap{
     }
     get_initiative(){
         return this.#entity_list.get_initiative();
+    }
+    get_floor_num(){
+        return this.#floor_num;
     }
 }
 

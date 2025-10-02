@@ -11,6 +11,8 @@ def main(mode):
         source_folders = get_folders_in("source")
         staple(source_folders, "Maneuver.js", True)
         staple("css", "ManeuverStyles.css")
+    else:
+        raise Exception("Invalid argument for mode. Please run with either 'test, or 'build'.")
 
 def staple(folders, destination, jsd_enabled = False):
     # Concatonates each file in the given folder into one document which is saved as the destination. 

@@ -9,9 +9,23 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+10/2/25
+- You are now more likely to come across cards and boons that you haven't yet discovered.
+- Pacifism boon now allows you to damage certain terrain elements.
+- Shattered Glass boon now triggers off of terrain as well as enemies.
+- Hoarder and Practive Makes Perfect boons can no longer be found past floor 15.
+- Added 1 new achievement.
+- Changed Not My Fault achievment to care about not damaging the boss rather than not killing anything.
+- Improved Shadow Knight ai so they move after attacking more often.
+- Added new rare floor generator to the Arcane Library.
+- Updated several UI elements.
+- Added images for floor and turn numbers, moved them, and added a few more stats.
+- You can now see your health in chests and shops.
+
 9/28/25
 - Buffed 8 common cards and 4 boss cards.
 - Added 1 new card.
+- Added 1 new achievement.
 - You can now view the number of times you have picked a boon or card when in the shop or chests.
 - Journal info box works better on small screens.
 

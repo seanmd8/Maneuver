@@ -19,7 +19,7 @@ function vampire_tile(){
 function vampire_ai(self, target, map){
     if( self.tile.health === undefined || 
         self.tile.max_health === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     var player_pos = self.location.plus(target.difference);
     var target_spaces = [new Point(player_pos.x + 1, player_pos.y + 1), 
@@ -45,7 +45,7 @@ function vampire_ai(self, target, map){
         // If it hasn't moved yet, just moves closer to the player.
         var directions = order_nearby(target.difference);
         for(var i = 0; i < directions.length && !moved  && health === self.tile.health; ++i){
-            var direction = directions[i]
+            var direction = directions[i];
             if(direction.on_axis()){
                 moved = map.move(self.location, self.location.plus(direction));
             }

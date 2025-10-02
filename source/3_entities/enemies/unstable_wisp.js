@@ -17,17 +17,9 @@ function unstable_wisp_tile(){
 /** @type {AIFunction}*/
 function unstable_wisp_ai(self, target, map){
     var start = self.location.copy();
-    var moved = undefined;
     var directions = random_nearby();
-    for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health > 0) && !moved; ++i){
-        // Moves a space randomly.
-        for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
-        if(i < directions.length && map.move(self.location, self.location.plus(directions[i]))){
-            self.location.plus_equals(directions[i]);
-            moved = directions[i];
-        }
-    }
-    if(moved && chance(1, 3)){
+    var moved = move_careful(self, target, map, directions);
+    if(moved !== undefined && chance(1, 3)){
         // Chance to shoot a fireball after moving.
         moved.times_equals(-1);
         var fireball = shoot_fireball(moved);
@@ -40,7 +32,7 @@ function unstable_wisp_death(self, target, map){
     var attacks = random_nearby();
     var fireballs = [];
     for(var dir of attacks){
-        var spawnpoint = self.location.plus(dir)
+        var spawnpoint = self.location.plus(dir);
         if(!map.attack(spawnpoint)){
             var fireball = shoot_fireball(dir);
             fireball.stun = 1; // Gets around unstunnable.

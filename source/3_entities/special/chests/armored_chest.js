@@ -7,6 +7,6 @@ function armored_chest_tile(){
         description: special_tile_descriptions.chest_armored,
         tags: new TagList([TAGS.unmovable]),
         on_enter: chest_on_enter,
-        contents: []
+        contents: [],
     }
 }

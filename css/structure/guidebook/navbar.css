@@ -1,4 +1,3 @@
-
 .navbar {
     background-color: blue;
     padding: 8px;
@@ -10,10 +9,8 @@
     margin-left: 5px;
     margin-right: 5px;
 }
-
 .navbar input:hover{
     background-color: darkgreen;
     color: white;
     cursor: pointer;
 }
-

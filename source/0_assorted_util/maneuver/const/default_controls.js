@@ -4,7 +4,7 @@ const DEFAULT_CONTROLS = {
         direction: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
         card: [`h`, `j`, `k`, `l`],
         info: [`i`],
-        retry: [`r`]
+        retry: [`r`],
     },
     shop: {
         add: [`q`, `w`, `e`, `r`, `t`, `y`],
@@ -14,10 +14,10 @@ const DEFAULT_CONTROLS = {
     chest: {
         choose: [`h`, `j`, `k`, `l`, `;`],
         confirm: [` `],
-        reject: [`escape`]
+        reject: [`escape`],
     },
     toggle: {
-        alt: [`shift`]
+        alt: [`shift`],
     }
 }
 Object.freeze(DEFAULT_CONTROLS);

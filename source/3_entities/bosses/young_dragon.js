@@ -18,7 +18,7 @@ function young_dragon_tile(){
         health: 5,
         death_message: boss_death_message.young_dragon,
         death_achievement: achievement_names.young_dragon,
-        behavior: young_dragon_behavior,
+        behavior: yound_dragon_ai,
         telegraph: young_dragon_telegraph,
         on_death: boss_death,
         pic_arr,
@@ -32,7 +32,7 @@ function young_dragon_tile(){
 }
 
 /** @type {AIFunction} AI used by the Young Dragon.*/
-function young_dragon_behavior(self, target, map){
+function yound_dragon_ai(self, target, map){
     if( self.tile.pic_arr === undefined ||
         self.tile.description_arr === undefined ||
         self.tile.rotate === undefined ||
@@ -56,7 +56,7 @@ function young_dragon_behavior(self, target, map){
                 }
                 // Tries to move to a space the appropriate taxicab distance away from the player.
                 var taxi = target.difference.minus(space).taxicab_distance();
-                var destination = self.location.plus(space)
+                var destination = self.location.plus(space);
                 if(!moved && taxi === radius && map.check_empty(destination)){
                     moved = map.move(self.location, destination);
                     self.tile.direction = sign(space);
@@ -69,7 +69,7 @@ function young_dragon_behavior(self, target, map){
             }
             // Instead tries to move to a space that isn't next to the player.
             var next_to = target.difference.minus(space).within_radius(1);
-            var destination = self.location.plus(space)
+            var destination = self.location.plus(space);
             if(!moved && !(next_to) && map.check_empty(destination)){
                 moved = map.move(self.location, destination);
                 self.tile.direction = sign(space);
@@ -116,7 +116,7 @@ function young_dragon_behavior(self, target, map){
         }
         // Breath attack.
         for(let space of cone){
-            var target_space = self.location.plus(space)
+            var target_space = self.location.plus(space);
             map.attack(target_space);
             if(map.check_empty(target_space)){
                 var fire = raging_fire_tile();
@@ -126,7 +126,7 @@ function young_dragon_behavior(self, target, map){
     }
     // Prep Flight.
     // Happens when it fails to aim fire breath or after it uses it. 
-    var nearby = order_nearby(target.difference)
+    var nearby = order_nearby(target.difference);
     if(target.difference.within_radius(2)){
         nearby = nearby.reverse();
     }

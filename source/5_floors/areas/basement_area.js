@@ -13,11 +13,11 @@ function generate_basement_area(){
 
 /** @type {FloorGenerator}*/
 function generate_basement_floor(floor_num, area, map){
-    if(chance(1, 7)){
-        many_walls_terrain(floor_num, area, map)
+    if(chance(1, 6)){
+        many_walls_terrain(floor_num, area, map);
     }
     else{
-        wall_terrain(floor_num, area, map)
+        wall_terrain(floor_num, area, map);
     }
     generate_normal_floor(floor_num, area, map);
 }

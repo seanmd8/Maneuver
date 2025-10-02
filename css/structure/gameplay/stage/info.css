@@ -1,4 +1,3 @@
-
 .card-info {
     border: solid;
     border-radius: 100%;
@@ -14,4 +13,5 @@
 }
 .card-info:hover {
     background-color: lightgray;
+    cursor: pointer;
 }

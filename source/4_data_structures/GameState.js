@@ -53,7 +53,7 @@ class GameState{
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
         display_map(this.map);
-        this.map.display_stats(UIIDS.stats);
+        this.map.display_stats();
 
         this.refresh_deck_display();
         display.display_message(UIIDS.shop_instructions, shop_text.header);
@@ -106,7 +106,7 @@ class GameState{
             if(is_instant){
                 this.refresh_deck_display();
                 this.unlock_player_turn();
-                this.map.display_stats(UIIDS.stats);
+                this.map.display_stats();
                 display_map(this.map);
                 this.unlock_player_turn();
                 return;
@@ -122,7 +122,7 @@ class GameState{
         var m = e.message
         switch(m){
             case ERRORS.floor_complete:
-                this.map.display_stats(UIIDS.stats);
+                this.map.display_stats();
                 this.enter_shop();
                 break;
             case ERRORS.game_over:
@@ -141,7 +141,6 @@ class GameState{
                 break;
             default:
                 throw e;
-
         }
     }
     /**
@@ -175,7 +174,7 @@ class GameState{
                     this.boons.has(boon_names.pacifism) > 0 && 
                     !action.change.is_origin() &&
                     this.map.is_in_bounds(target) &&
-                    !this.map.get_tile(target).tags.has(TAGS.altar)
+                    !this.map.get_tile(target).tags.has(TAGS.obstruction)
                 ){
                     stun_count += 2 * attack_count;
                     attack_count = 0;
@@ -253,7 +252,7 @@ class GameState{
     async new_floor(){
         // Creates the next floor.
         this.map.next_floor();
-        this.map.display_stats(UIIDS.stats);
+        this.map.display_stats();
         display_map(this.map);
         this.deck.deal();
             if(GS.boons.has(boon_names.vicious_cycle) > 0){
@@ -301,8 +300,8 @@ class GameState{
         }
         var restart_message = [{
             description: gameplay_labels.retry,
-            on_click: restart(this)
-        }]
+            on_click: restart(this),
+        }];
         display.add_button_row(UIIDS.retry_button, restart_message);
         refresh_full_deck_display(this.deck);
         var swap_visibility = function(id_list, id){
@@ -314,7 +313,7 @@ class GameState{
     }
     victory(){
         display_map(this.map);
-        display_victory()
+        display_victory();
         this.achieve(achievement_names.victory);
         say_record(gameplay_text.victory);
         refresh_full_deck_display(this.deck);
@@ -345,7 +344,7 @@ class GameState{
         await delay(ANIMATION_DELAY);
         display_map(this.map);
         this.refresh_deck_display();
-        this.map.display_stats(UIIDS.stats);
+        this.map.display_stats();
         this.unlock_player_turn();
     }
     /** 

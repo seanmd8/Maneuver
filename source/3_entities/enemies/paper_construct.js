@@ -10,19 +10,19 @@ function paper_construct_tile(){
         difficulty: 2,
         behavior: paper_construct_ai,
         telegraph: porcuslime_orthogonal_telegraph,
-        rotate: 90 * random_num(4)
+        rotate: 90 * random_num(4),
     }
 }
 
 /** @type {AIFunction} AI used by scythes.*/
 function paper_construct_ai(self, target, map){
     if(self.tile.rotate === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(target.difference.within_radius(2) && target.difference.on_axis()){
         // If the player is within range, attacks.
         var direction = sign(target.difference);
-        var space = self.location.plus(direction)
+        var space = self.location.plus(direction);
         for(var i = 0; i < 2 && !map.attack(space) && map.check_empty(space); ++i){
             space.plus_equals(direction);
         }

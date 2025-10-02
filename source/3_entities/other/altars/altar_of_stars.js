@@ -5,13 +5,13 @@ function altar_of_stars_tile(){
         shatter_sphere_d_tile,
         shatter_sphere_o_tile,
         moon_rock_tile,
-    ]
+    ];
     return {
         type: entity_types.terrain,
         name: other_tile_names.altar_of_stars,
         pic: `${IMG_FOLDER.tiles}altar_of_stars.png`,
         description: other_tile_descriptions.altar_of_stars,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_stars_on_enter),
         summons
@@ -28,7 +28,7 @@ function altar_of_stars_on_enter(self, target, map){
         return function(map_to_use){
             map_to_use.attack(location);
             if(map_to_use.check_empty(location)){
-                map_to_use.add_tile(rand_from(self.tile.summons)(), location);
+                map_to_use.add_tile(random_from(self.tile.summons)(), location);
             }
         }
     }

@@ -24,6 +24,7 @@ const achievement_names = {
     // Normal
     ancient_knowledge: `Ancient Knowledge`,
     beyond_the_basics: `Beyond The Basics`,
+    blessed: `Blessed`,
     clumsy: `Clumsy`,
     collector: `Collector`,
     common_sense: `Common Sense`,
@@ -58,6 +59,7 @@ const achievement_description = {
     // Normal
     ancient_knowledge: `Restore an ancient card to full power.`,
     beyond_the_basics: `Remove all basic cards from your deck.`,
+    blessed: `Obtain 35 different boons at least once.`,
     clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
     collector: `Open 6 or more treasure chests in 1 run.`,
     common_sense: `Obtain every common card at least once.`,
@@ -66,7 +68,7 @@ const achievement_description = {
     minimalist: `Reach floor 15 with only 5 cards in your deck.`,
     monster_hunter: `Kill 5 total unique bosses.`,
     non_violent: `Reach the first boss without killing anything.`,
-    not_my_fault: `Let a boss die without killing anything on the floor yourself.`,
+    not_my_fault: `Let a boss die without dealing any damage to it yourself.`,
     one_hit_wonder: `Defeat a boss in a single turn.`,
     one_life: `Defeat any boss with exactly 1 max health.`,
     peerless_sprinter: `Speed through a floor in 3 turns or less.`,

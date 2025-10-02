@@ -73,7 +73,7 @@ const ENEMY_LIST = [
 const BOSS_LIST = [
     lich_tile, spider_queen_tile, two_headed_serpent_tile, velociphile_tile, young_dragon_tile, 
     forest_heart_tile, arcane_sentry_tile
-]
+];
 
 /**
  * Stuns a stunnable tile by incrementing it's stun property. Adds the property first if necessary.
@@ -121,7 +121,7 @@ function order_nearby(direction){
         // Target is along the vertical line.
         var pair = randomize_arr([new Point(1, sign_dir.y), new Point(-1, sign_dir.y)]);
         ordering.push(...pair);
-        pair = randomize_arr([new Point(1, 0), new Point(-1, 0)])
+        pair = randomize_arr([new Point(1, 0), new Point(-1, 0)]);
         ordering.push(...pair);
         pair = randomize_arr([new Point(1, -1 * sign_dir.y), new Point(-1, -1 * sign_dir.y)]);
         ordering.push(...pair);
@@ -130,7 +130,7 @@ function order_nearby(direction){
         // Target is along the horizontal line.
         var pair = randomize_arr([new Point(sign_dir.x, 1), new Point(sign_dir.x, -1)]);
         ordering.push(...pair);
-        pair = randomize_arr([new Point(0, 1), new Point(0, -1)])
+        pair = randomize_arr([new Point(0, 1), new Point(0, -1)]);
         ordering.push(...pair);
         pair = randomize_arr([new Point(-1 * sign_dir.x, 1), new Point(-1 * sign_dir.x, -1)]);
         ordering.push(...pair);
@@ -164,7 +164,6 @@ function order_nearby(direction){
     }
     ordering.push(new Point(-1 * sign_dir.x, -1 * sign_dir.y));
     return ordering;
-
 }
 /**
  * Function to get the first non empty location near a given location.
@@ -296,7 +295,7 @@ function point_rectangle(p1, p2){
         var y_max = Math.max(p1.y, p2.y);
         return range(y_min, y_max).map((y) => {
             return new Point(p1.x, y);
-        })
+        });
     }
     if(p1.y === p2.y){
         // nx1
@@ -304,14 +303,14 @@ function point_rectangle(p1, p2){
         var x_max = Math.max(p1.x, p2.x);
         return range(x_min, x_max).map((x) => {
             return new Point(x, p1.y);
-        })
+        });
     }
 
     var rectangle = [
         p1.copy(),
         p2.copy(),
         new Point(p1.x, p2.y),
-        new Point(p2.x, p1.y)
+        new Point(p2.x, p1.y),
     ];
     var x_min = Math.min(p1.x, p2.x);
     var x_max = Math.max(p1.x, p2.x);
@@ -337,6 +336,34 @@ function get_nearest_where(map, location, f){
             if(map.is_in_bounds(p) && f(map.get_tile(p), p)){
                 return p;
             }
+        }
+    }
+    return undefined;
+}
+
+function move_careful(self, target, map, directions){
+    // Looks ahead in each direction until it finds one that is safe to move in.
+    // Returns the direction it moved or undefined.
+    for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
+    if(i < directions.length){
+        if(map.move(self.location, self.location.plus(directions[i]))){
+            self.location.plus_equals(directions[i]);
+            target.difference.minus_equals(directions[i]);
+            return directions[i];
+        }
+    }
+    return undefined;
+}
+
+function move_reckless(self, target, map, directions){
+    // Tries to move in each direction until it does so or takes damage.
+    // Returns the direction it moved or undefined.
+    var start = self.tile.health;
+    for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health >= start); ++i){
+        if(map.move(self.location, self.location.plus(directions[i]))){
+            self.location.plus_equals(directions[i]);
+            target.difference.minus_equals(directions[i]);
+            return directions[i];
         }
     }
     return undefined;

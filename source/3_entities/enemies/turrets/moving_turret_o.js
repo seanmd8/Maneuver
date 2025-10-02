@@ -1,6 +1,6 @@
 /** @type {TileGenerator} */
 function moving_turret_o_tile(){
-    var direction = rand_from(ORTHOGONAL_DIRECTIONS).copy();
+    var direction = random_from(ORTHOGONAL_DIRECTIONS).copy();
     var tile = {
         type: entity_types.enemy,
         name: enemy_names.turret_m,
@@ -22,7 +22,7 @@ function moving_turret_o_tile(){
 function moving_turret_o_ai(self, target, map){
     if( self.tile.rotate === undefined || 
         self.tile.direction === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     // If the player is on the axis and not in the direction of travel, fire.
     if( 
@@ -35,8 +35,8 @@ function moving_turret_o_ai(self, target, map){
     else if(GS.boons.has(boon_names.manic_presence)){
         var dirs = [
             self.tile.direction.rotate(90),
-            self.tile.direction.rotate(270)
-        ]
+            self.tile.direction.rotate(270),
+        ];
         for(var p of dirs){
             if(chance(1, 2)){
                 turret_fire_ai(self, {difference: p}, map);

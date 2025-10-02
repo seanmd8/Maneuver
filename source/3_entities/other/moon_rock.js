@@ -5,7 +5,7 @@ function moon_rock_tile(){
         name: other_tile_names.moon_rock,
         pic: `${IMG_FOLDER.tiles}moon_rock.png`,
         description: other_tile_descriptions.moon_rock,
-        tags: new TagList(),
+        tags: new TagList([TAGS.obstruction]),
         health: 1,
     }
 }

@@ -1,4 +1,3 @@
-
 .achievement-box {
     width: 600px;
     height: fit-content;
@@ -6,9 +5,6 @@
     flex-wrap: wrap;
     margin: 2px;
 }
-
-
-
 .achievement-button {
     margin-top: auto;
     margin-bottom: auto;
@@ -26,6 +22,7 @@
 .achievement-reset:hover{
     background-color: maroon;
     color: lightcoral;
+    cursor: pointer;
 }
 .achievement-confirm-reset {
     background-color: red;
@@ -33,8 +30,8 @@
 .achievement-confirm-reset:hover{
     background-color: black;
     color: red;
+    cursor: pointer;
 }
-
 .achievement-dropdown{
     display: none;
     width: 600px;
@@ -48,22 +45,16 @@
 .achievement-box-unlocked:hover .achievement-dropdown{
     display: block;
 }
-
-
 .achievement-dropdown h3{
     margin: 4px;
     text-align: center;
 }
-
-
 .achievement-dropdown img{
     background-color: white;
     width: 100px;
     height: 100px;
     margin: 5px;
 }
-
-
 .achievement-header {
     border: solid;
     border-radius: 20px;
@@ -79,7 +70,6 @@
     padding: 15px;
     margin: 0px;
 }
-
 .achievement-img-box{
     width: 100px;
     height: 100px;
@@ -88,18 +78,14 @@
     width: 100%;
     height: 100%;
 }
-
 .achievement-locked-text {
     background-color: lightgrey;
 }
-
-
 .achievements-style {
     background-color: var(--achievements-background-color);
     min-height: 100%;
     min-width: 100%;
 }
-
 .achievement-section {
     border: solid;
     border-radius: 20px;
@@ -109,8 +95,6 @@
     background-color: dimgray;
     margin: 6px;
 }
-
-
 .achievement-text-box {
     width: 500px;
     height: 100px;
@@ -127,7 +111,6 @@
     margin: 0px;
     margin-bottom: 6px;
 }
-
 .achievement-unlocked-image {
     border-color: black;
     border-style: solid;
@@ -137,7 +120,6 @@
 .achievement-unlocked-text {
     background-color: lightblue;
 }
-
 html {
     height: 100%;
     min-width: 100%;
@@ -184,7 +166,6 @@ body>div{
     font-size: 17px;
 }
 
-
 .control-edit-box {
     display: flex;
     align-items: center;
@@ -208,11 +189,13 @@ body>div{
 .control-edit-box p {
     margin-left: 10px;
 }
-
 .control-edit-box div input {
     min-width: 27px;
     height: 27px;
     font-size: 17px;
+}
+.control-edit-box div input:hover {
+    cursor: pointer;
 }
 .control-edit-box div input:focus-visible{
     outline: none;
@@ -238,7 +221,6 @@ body>div{
     border-radius: 7px;
     border-style: solid;
 }
-
 .control-header input {
     display: inline-flex;
     margin-right: 20px;
@@ -248,19 +230,17 @@ body>div{
     border-style: groove;
     border-color: blue;
     background-color: aliceblue;
-
 }
 .control-header input:hover {
     background-color: blueviolet;
-    color: aliceblue
+    color: aliceblue;
+    cursor: pointer;
 }
-
 .control-style{
     background-color: var(--controls-background-color);
     min-height: 100%;
     min-width: 100%;
 }
-
 .control-section {
     border: solid;
     border-radius: 20px;
@@ -270,22 +250,18 @@ body>div{
     background-color: #2c7d2c;
     margin: 6px;
 }
-
-
 .chest-body-box {
     border-style: solid;
     border-width: 5px;
     border-color: saddlebrown;
     background-color: chocolate;
-    width: 600px;
+    width: 616px;
     height: fit-content
 }
 .chest-body-box hr {
     width: 95%;
     color: gray;
 }
-
-
 .chest-buttons {
     width: 100%;
     text-align: center;
@@ -301,9 +277,8 @@ body>div{
 .chest-buttons tr input:hover {
     background-color: brown;
     color: burlywood;
+    cursor: pointer;
 }
-
-
 
 .chest-contents {
     text-align: center;
@@ -318,8 +293,6 @@ body>div{
     background-color: white;
 }
 
-
-
 .chest-discription-text {
     margin: 20px 40px;
     padding: 10px;
@@ -331,7 +304,6 @@ body>div{
     height: fit-content;
     min-height: 23px;
 }
-
 .chest-instruction-text {
     width: fit-content;
     text-align: center;
@@ -343,18 +315,14 @@ body>div{
     background-color:burlywood;
 }
 
-
-
 .chest-lid-box {
     border-style: solid;
     border-width: 5px;
     border-radius: 850px 850px 0% 0% / 700px;
     border-color: saddlebrown;
     background-color: chocolate;
-    width: 600px;
+    width: 616px;
 }
-
-
 
 .deck-select-confirm {
     margin-left: 7px;
@@ -364,7 +332,6 @@ body>div{
     min-height: 100%;
     min-width: 100%;
 }
-
 .shop-confirm {
     height: 35px;
     width: 80px;
@@ -374,18 +341,19 @@ body>div{
     background-color: cadetblue;
     font-weight: bolder;
 }
+.shop-confirm:hover:not(.greyed-out) {
+    background-color: lightblue;
+    cursor: pointer;
+}
 .shop-button-container{
     height: 120px;
     width: fit-content;
     display: inline-block;
     vertical-align: top;
 }
-
-
-.shop-width{
+.shop-screen{
     width: fit-content;
 }
-
 .shop-section-box {
     height: fit-content;
     width: fit-content;
@@ -394,6 +362,7 @@ body>div{
     background-color: var(--card-box-color);
     padding: 5px;
     margin: 5px 0px 5px 0px;
+    display: inline;
 }
 .shop-section-box legend {
     font-weight: bold;
@@ -402,8 +371,6 @@ body>div{
     border-style: solid;
     border-width: 2px;
 }
-
-
 .scrollable-text {
     overflow-y: scroll;
     overflow-x: scroll;
@@ -418,7 +385,6 @@ body>div{
     text-wrap: nowrap;
     display: inline-block;
 }
-
 .deck-box {
     display: inline-block;
     height: 50px;
@@ -444,8 +410,6 @@ body>div{
     line-height: 45px;
     position: relative;
 }
-
-
 .hand-box {
     height: 120px;
     background-color: var(--card-box-color);
@@ -465,8 +429,6 @@ body>div{
 .hand-box table tr td {
     cursor: pointer;
 }
-
-
 .health-box {
     border-width: 3px;
     border-color:saddlebrown;
@@ -478,8 +440,6 @@ body>div{
     display: inline-block;
     height: 52px;
 }
-
-
 .card-info {
     border: solid;
     border-radius: 100%;
@@ -495,9 +455,8 @@ body>div{
 }
 .card-info:hover {
     background-color: lightgray;
+    cursor: pointer;
 }
-
-
 .gamemap-box {
     background-color: white;
     border-width: 4px;
@@ -510,13 +469,9 @@ body>div{
     padding: 0px;
     cursor: pointer;
 }
-
-
 .selected-tile {
     box-shadow: 0 0 0 1px darkslategray;
 }
-
-
 .message-box {
     overflow-y: scroll;
     height: 100px;
@@ -529,8 +484,6 @@ body>div{
     font-size: 18px;
     margin-left: 2px;
 }
-
-
 .move-button-box {
     width: 140px;
 }
@@ -551,8 +504,6 @@ body>div{
     padding-right: 0;
     cursor: pointer;
 }
-
-
 .center-retry-box {
     width: 140px;
     height: 140px;
@@ -579,8 +530,6 @@ body>div{
     cursor: pointer;
 }
 
-
-
 .boon-box {
     flex-flow: column;
 }
@@ -590,8 +539,6 @@ body>div{
 .boon-box hr{
     display: inline-flex;
 }
-
-
 .card-container{
     padding-top: 5px;
     width: 100%;
@@ -604,21 +551,17 @@ body>div{
     margin: 0px 0px 5px 5px;
     padding: 0px;
 }
-
-
 .select-second tr td:nth-child(2) img{
     box-shadow: 0 0 0 3px cyan;
 }
-
 .sidebar {
     display: inline-block;
     vertical-align: top;
     width: 260px;
     height: 350px;
-    margin-left: 10px;
+    margin-left: 4px;
+    margin-right: 8px;
 }
-
-
 .sidebar-header {
     width: 100%;
     height: 60px;
@@ -641,14 +584,10 @@ body>div{
     color: tan;
     cursor: pointer;
 }
-
-
 .initiative-box {
     overflow-y: scroll;
     overflow-x: clip;
 }
-
-
 .initiative-element {
     height: 70px;
     background-color: lightgray;
@@ -681,13 +620,9 @@ body>div{
 .initiative-element p::first-line{
     font-weight: bolder;
 }
-
-
 .stun-background{
     background-color: yellow;
 }
-
-
 .sidebar-section {
     height: 274px;
     width: 100%;
@@ -697,8 +632,6 @@ body>div{
 .sidebar-section hr{
     width: 100%;
 }
-
-
 .normal-log-text {
     background-color: rgb(223, 222, 222);
 }
@@ -708,7 +641,6 @@ body>div{
 .repeated-achievement-log-text {
     background-color: violet;
 }
-
 .scroll-down {
     vertical-align: top;
     display: inline-flex;
@@ -730,8 +662,35 @@ body>div{
     margin: 0px;
 }
 
-
-
+.stats{
+    display: inline-flex;
+    flex-direction: column;
+    width: fit-content;
+    margin-right: 4px;
+    margin-left: 4px;
+    vertical-align: top;
+}
+.stat-pair{
+    display: inline-flex;
+    justify-content: space-between;
+    width: 60px;
+    height: 36px;
+    background-color: palegoldenrod;
+    border-radius: 10px;
+    border-style: solid;
+    border-color: saddlebrown;
+    border-width: 3px;
+    padding: 2px 6px 2px 3px;
+    margin-bottom: 4px;
+    align-items: center;
+}
+.stat-pair img{
+    width: 32px;
+    height: 32px;
+}
+.push-down-stats{
+    margin-top: 15px;
+}
 .guidebook-section h2 {
     margin-bottom: 5px;
     margin-top: 0px;
@@ -739,17 +698,12 @@ body>div{
     font-size: 30px;
     text-decoration: underline;
 }
-
-
 .guidebook-section img {
     background-color: white;
 }
-
 .guidebook-section p {
     font-size: 20px;
 }
-
-
 .navbar {
     background-color: blue;
     padding: 8px;
@@ -761,20 +715,17 @@ body>div{
     margin-left: 5px;
     margin-right: 5px;
 }
-
 .navbar input:hover{
     background-color: darkgreen;
     color: white;
     cursor: pointer;
 }
 
-
 .guide-style {
     background-color: var(--guidebook-background-color);
     min-height: 100%;
     min-width: 100%;
 }
-
 .guide-box-style{
     background-color: beige;
     margin: 8px;
@@ -788,8 +739,6 @@ body>div{
     border-top: none;
     border-color: burlywood;
 }
-
-
 .main-header{
     background-color: sandybrown;
     padding: 5px;
@@ -799,15 +748,12 @@ body>div{
     border-bottom-style: solid;
     min-width: 100%;
 }
-.main-header>*{
-    display: inline-block;
-    vertical-align: baseline;
-}
-.main-header h1{
-    width: 485px;
+.header-box{
+    display: inline-flex;
+    justify-content: space-between;
+    width: 700px;
 }
 .main-header select{
-    margin: auto;
     width: 132px;
     height: 32px;
     background-color: wheat;
@@ -815,6 +761,13 @@ body>div{
     border-width: 3px;
     border-radius: 0px;
     appearance: base-select;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.header-pic {
+    height: 40px;
+    width: 300px;
 }
 .journal-area-screen {
     border-width: 0px 5px 5px 5px;
@@ -901,14 +854,14 @@ body>div{
 }
 
 .journal-area-boss img {
-    border-width: 4px;    
+    border-width: 4px;
     border-style: solid;
     border-color: black;
 }
 
 .journal-area-tiles img {
     box-sizing: border-box;
-    border-width: 2px;    
+    border-width: 2px;
     border-style: solid;
     border-color: black;
 }
@@ -961,7 +914,6 @@ body>div{
     min-width: 1456px;
     padding-bottom: 0px;
 }
-
 :root{
     --card-box-color: white;
     --card-box-legend-color: lightblue;
@@ -980,7 +932,6 @@ body>div{
     --area4: rgb(143, 111, 74);
     --area5: rgb(112, 86, 56);
 }
-
 /*https://www.1001fonts.com/quivira-font.html*/
 /*Font used only for unicode arrows to ensure they display in all browsers*/
 @font-face {
@@ -991,7 +942,6 @@ body>div{
 .greyed-out {
     opacity: 0.7;
 }
-
 /* File containing styles used to layer images. */
 
 /* Pair of classes used to layer images on top of each other. */
@@ -1009,7 +959,6 @@ body>div{
     margin-top: 0px;
     margin-bottom: 0px;
 }
-
 .opposite-sides {
     display: flex;
     width: 100%;
@@ -1027,8 +976,6 @@ body>div{
 .no-repetition legend {
     border-color: slategrey;
 }
-
-
 .scroll-box {
     vertical-align: top;
     display: inline-flex;
@@ -1038,8 +985,6 @@ body>div{
     height: 100%;
     width: 100%;
 }
-
-
 .selected-element {
     box-shadow: 0 0 0 2px black;
 }
@@ -1051,11 +996,9 @@ body>div{
     border-spacing: 3px;
     padding: 0px;
 }
-
 .visible-section {
     display: block;
 }
 .hidden-section {
     display: none;
 }
-

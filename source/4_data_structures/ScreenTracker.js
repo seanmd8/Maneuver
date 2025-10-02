@@ -6,7 +6,7 @@ class ScreenTracker{
     }
     swap(division){
         if(division !== undefined && this.div.find((d) => {d === division}) === -1){
-            throw new Error(ERRORS.value_not_found)
+            throw new Error(ERRORS.value_not_found);
         }
         display.swap_screen(this.div, division);
         this.current = division;

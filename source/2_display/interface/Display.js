@@ -145,7 +145,7 @@
  * @returns {DisplayLibrary}
  */
 function get_display(language){
-    // Factory function for the display classes (currently only html)
+    // Factory function for the display classes (currently only html).
     switch(language){
         case `html`:
             return DisplayHTML;
@@ -290,9 +290,9 @@ const DisplayHTML = {
         var row = DisplayHTML.get_element(`${location} row ${row_num}`, HTMLTableRowElement);
         var column_count = row.cells.length;
         for(var i = 0; i < column_count; ++i){
-            DisplayHTML.get_element(`${location} ${row_num} ${i}`, HTMLTableCellElement).classList.remove("selected-element");
+            DisplayHTML.get_element(`${location} ${row_num} ${i}`, HTMLTableCellElement).classList.remove(`selected-element`);
         }
-        DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add("selected-element");
+        DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add(`selected-element`);
     },
     press: function(key_press){
         var key = key_press.key.toLowerCase();
@@ -353,7 +353,7 @@ const DisplayHTML = {
                 var label = select_element.value;
                 var chosen_option = option_func_map.get(label);
                 if(chosen_option === undefined){
-                    throw new Error("unrecognized value in select element");
+                    throw new Error(`unrecognized value in select element`);
                 }
                 chosen_option();
             }
@@ -378,7 +378,7 @@ const DisplayHTML = {
         var body_div = document.createElement(`div`);
         var body_div_id = `${header} section`;
         body_div.id = body_div_id;
-        body_div.classList.add(`guidebook-section`)
+        body_div.classList.add(`guidebook-section`);
 
         var body_header = document.createElement(`h2`);
         body_header.id = `${body_div_id} header`;
@@ -649,7 +649,7 @@ const DisplayHTML = {
             var div = document.createElement(`div`);
             div.classList.add(`achievement-box`);
             if(a.has){
-                div.classList.add('achievement-box-unlocked');
+                div.classList.add(`achievement-box-unlocked`);
             }
 
             // Achievement image
@@ -674,7 +674,7 @@ const DisplayHTML = {
                 text_box.classList.add(`achievement-unlocked-text`);
             }
             else{
-                text_box.classList.add(`achievement-locked-text`)
+                text_box.classList.add(`achievement-locked-text`);
             }
 
             var h3 = document.createElement(`h3`);
@@ -726,7 +726,7 @@ const DisplayHTML = {
         }
     },
     stop_space_scrolling: function(){
-        window.addEventListener('keydown', (e) => {
+        window.addEventListener(`keydown`, (e) => {
             if (e.key === ` ` && e.target === document.body) {
               e.preventDefault();
             }
@@ -867,6 +867,30 @@ const DisplayHTML = {
             var slice = info.tiles.slice(slice_start, slice_start + JOURNAL_AREA_WIDTH);
             display.add_tb_row(tiles_id, slice, JOURNAL_TILE_SCALE);
         }
+    },
+    label_image(destination, label){
+        var place = DisplayHTML.get_element(destination);
+        place.title = label;
+        place.alt = label;
+    },
+    make_stat_pair(destination, pic, stat, label){
+        var place = DisplayHTML.get_element(destination);
+
+        var div = document.createElement(`div`);
+        div.classList.add(`stat-pair`);
+        div.title = label;
+
+        var img = document.createElement(`img`);
+        img.src = pic;
+        img.alt = label;
+
+        var p = document.createElement(`p`);
+        p.classList.add(`no-margins`);
+        p.innerText = stat;
+
+        div.append(img);
+        div.append(p);
+        place.append(div);
     },
 
     // Non Required helper functions.

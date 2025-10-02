@@ -9,14 +9,14 @@ function execution_1(){
         pattack(0, -1),
         pattack(-1, 1),
         pattack(-1, 0),
-        pattack(-1, -1)
+        pattack(-1, -1),
     ];
     options.add_button(SPIN, spin);
     return{
         name: card_names.execution_1,
         pic: `${IMG_FOLDER.cards}execution_1.png`,
         options,
-        evolutions: [execution_2]
+        evolutions: [execution_2],
     }
 }
 
@@ -31,7 +31,7 @@ function execution_2(){
         pattack(0, -1),
         pattack(-1, 1),
         pattack(-1, 0),
-        pattack(-1, -1)
+        pattack(-1, -1),
     ];
     spin = [...spin, ...spin];
     options.add_button(SPIN, spin);
@@ -39,7 +39,7 @@ function execution_2(){
         name: card_names.execution_2,
         pic: `${IMG_FOLDER.cards}execution_2.png`,
         options,
-        evolutions: [execution_3]
+        evolutions: [execution_3],
     }
 }
 
@@ -54,7 +54,7 @@ function execution_3(){
         pattack(0, -1),
         pattack(-1, 1),
         pattack(-1, 0),
-        pattack(-1, -1)
+        pattack(-1, -1),
     ];
     spin = [...spin, ...spin, ...spin];
     options.add_button(SPIN, spin);

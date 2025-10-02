@@ -10,7 +10,8 @@ function initiate_game(){
     display.stop_space_scrolling();
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
     display.display_message(UIIDS.title, gameplay_labels.title);
-    create_main_dropdown(UIIDS.header_bar);
+    create_main_dropdown(UIIDS.header_box);
+    label_images();
     GS = new GameState();
     GS.setup();
     display_guide();
@@ -24,7 +25,7 @@ function initiate_game(){
 function confuse_player(choices = CONFUSION_CARDS){
     // Chance redused by 50% for each stable_mind boon.
     if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
-        var card = rand_from(choices)();
+        var card = random_from(choices)();
         GS.give_temp_card(card);
         GS.refresh_deck_display();
     }

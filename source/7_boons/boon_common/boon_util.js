@@ -17,7 +17,7 @@ function change_max_health(amount){
         throw new Error(ERRORS.missing_property);
     }
     GS.map.get_player().max_health += amount;
-    GS.map.get_player().health = Math.min(GS.map.get_player().max_health, GS.map.get_player().health)
+    GS.map.get_player().health = Math.min(GS.map.get_player().max_health, GS.map.get_player().health);
 }
 
 function max_health_at_least(amount){
@@ -33,5 +33,10 @@ function get_locked_boons(){
         }
     });
     return list;
+}
 
+function filter_new_boons(boons){
+    return boons.filter((b) => {
+        return !GS.data.boons.has(b.name);
+    });
 }

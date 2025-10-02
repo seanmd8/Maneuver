@@ -19,13 +19,13 @@ class AchievementList{
         // Returns a list of the achievements that they have achieved.
         return this.#list.filter((e) => {
             return e.has;
-        })
+        });
     }
     unfinished(){
         // Returns a list of the unfinished achievements.
         return this.#list.filter((e) => {
             return !e.has;
-        })
+        });
     }
     all(){
         // Returns all achievements.

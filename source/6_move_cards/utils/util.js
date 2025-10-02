@@ -116,8 +116,8 @@ function explain_action(action){
  */
 function explain_point(p){
     var direction = sign(p);
-    var vertical = [four_directions.up, undefined, four_directions.down][direction.y + 1];
-    var horizontal = [four_directions.left, undefined, four_directions.right][direction.x + 1];
+    var vertical = [usymbol.up, undefined, usymbol.down][direction.y + 1];
+    var horizontal = [usymbol.left, undefined, usymbol.right][direction.x + 1];
     if(vertical === undefined && horizontal === undefined){
         return move_types.you;
     }
@@ -141,7 +141,7 @@ function telegraph_card(behavior, map, start_position){
         attacks: [],
         stun: [],
         healing: [],
-        teleport: []
+        teleport: [],
     }
     if(behavior === undefined){
         return telegraphs;
@@ -226,4 +226,10 @@ function copy_card(source){
         evolutions: source.evolutions !== undefined ? [...source.evolutions] : undefined,
         per_floor: source.per_floor,
     }
+}
+
+function filter_new_cards(cards){
+    return cards.filter((c) => {
+        return !GS.data.cards.has(c.name);
+    });
 }

@@ -6,7 +6,7 @@ function black_hole_tile(){
         pic: `${IMG_FOLDER.tiles}black_hole.png`,
         description: other_tile_descriptions.black_hole,
         health: 6,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         behavior: black_hole_ai,
         telegraph_other: black_hole_telegraph_other,
     }
@@ -21,13 +21,13 @@ function black_hole_ai(self, target, map){
             return self.location.plus(p);
         }).filter((p) => {
             return map.is_in_bounds(p);
-        })
+        });
         spaces.push(...rectangle);
     }
     for(var start of spaces){
         var end = start.plus(sign(self.location.minus(start)));
         if(!map.get_tile(start).tags.has(TAGS.unmovable) && !map.get_tile(start).tags.has(TAGS.boss)){
-            var moved = map.move(start, end)
+            var moved = map.move(start, end);
             if(moved && map.get_tile(end).type === entity_types.player){
                 moved_player = true;
             }

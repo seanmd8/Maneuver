@@ -11,7 +11,7 @@ function delay(milliseconds){
     // Function to wait the given number of milliseconds.
     return new Promise(resolve =>{
         setTimeout(resolve, milliseconds);
-    })
+    });
 }
 /**
  * Creates an array by drawing random elements from another with no repeats.
@@ -41,7 +41,7 @@ function rand_no_repeats(source, draws){
  * @param {T[]} source Array to draw from.
  * @returns {T} Random element.
  */
-function rand_from(source){
+function random_from(source){
     if(source.length === 0){
         throw new Error(ERRORS.array_size);
     }
@@ -197,7 +197,7 @@ function array_equals(a1, a2){
  */
 function ifexists(exists){
     if(exists === undefined){
-        throw new Error(`value is undefined.`)
+        throw new Error(`value is undefined.`);
     }
     return exists;
 }
@@ -393,7 +393,7 @@ class Point{
      * (0, 0) returns false.
      */
     on_diagonal(){
-        return Math.abs(this.x) === Math.abs(this.y) && !this.is_origin()
+        return Math.abs(this.x) === Math.abs(this.y) && !this.is_origin();
     }
     /**
      * @returns true if the point is the origin (0, 0).
@@ -465,7 +465,7 @@ const DEFAULT_CONTROLS = {
         direction: [`q`, `w`, `e`, `a`, `s`, `d`, `z`, `x`, `c`],
         card: [`h`, `j`, `k`, `l`],
         info: [`i`],
-        retry: [`r`]
+        retry: [`r`],
     },
     shop: {
         add: [`q`, `w`, `e`, `r`, `t`, `y`],
@@ -475,10 +475,10 @@ const DEFAULT_CONTROLS = {
     chest: {
         choose: [`h`, `j`, `k`, `l`, `;`],
         confirm: [` `],
-        reject: [`escape`]
+        reject: [`escape`],
     },
     toggle: {
-        alt: [`shift`]
+        alt: [`shift`],
     }
 }
 Object.freeze(DEFAULT_CONTROLS);
@@ -529,7 +529,8 @@ const IMG_FOLDER = {
     other: `other/`,
     symbols: `symbols/`,
     tiles: `tiles/`,
-    boons: `boons/`
+    boons: `boons/`,
+    stats: `stats/`,
 }
 Object.freeze(IMG_FOLDER);
 // Tags that entities can have.
@@ -544,7 +545,8 @@ const TAGS = {
     thorn_bush_roots: `Thorn Bush Roots`,
     nettle_immune: `Nettle Immune`,
     arcane_sentry: `Arcane Sentry`,
-    fireball: `Fireball`
+    fireball: `Fireball`,
+    obstruction: `Obstruction`,
 }
 Object.freeze(TAGS);
 /** @returns {MoveDeck} Returns a normal starting deck.*/
@@ -558,7 +560,7 @@ function make_starting_deck(){
         basic_slice,
         short_charge_orthogonal,
         jump,
-    ]
+    ];
     var deck = new MoveDeck(HAND_SIZE, MIN_DECK_SIZE, cards);
 
     deck.deal();
@@ -609,7 +611,8 @@ function initiate_game(){
     display.stop_space_scrolling();
     DISPLAY_DIVISIONS.swap(UIIDS.game_screen);
     display.display_message(UIIDS.title, gameplay_labels.title);
-    create_main_dropdown(UIIDS.header_bar);
+    create_main_dropdown(UIIDS.header_box);
+    label_images();
     GS = new GameState();
     GS.setup();
     display_guide();
@@ -623,7 +626,7 @@ function initiate_game(){
 function confuse_player(choices = CONFUSION_CARDS){
     // Chance redused by 50% for each stable_mind boon.
     if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
-        var card = rand_from(choices)();
+        var card = random_from(choices)();
         GS.give_temp_card(card);
         GS.refresh_deck_display();
     }
@@ -769,8 +772,8 @@ const boon_descriptions = {
     manic_presence: 
         `Some types of enemies are prone to misfiring.`,
     pacifism: 
-        `If you would attack an enemy, stun them twice instead. Fully heal at `
-        +`the start of each floor. All boss floor exits unlock.`,
+        `If you would attack an enemy, stun them twice instead (some terrain elements can still `
+        +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,
     pain_reflexes: 
         `Take a turn whenever you are attacked.`,
     perfect_the_basics: 
@@ -796,7 +799,7 @@ const boon_descriptions = {
     safe_passage: 
         `Fully heal and travel to the next floor.`,
     shattered_glass: 
-        `Enemies explode on death damaging everything nearby other than you. Reduce your `
+        `Enemies and Terrain explode on death damaging everything nearby other than you. Reduce your `
         +`max health by 2.`,
     skill_trading: 
         `You may both add a card and remove a card at each shop.`,
@@ -837,10 +840,12 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must not have Limitless.`,
     gruntwork:
         `Prerequisites: You must not have Limitless.`,
+    hoarder:
+        `Prerequisites: You must be less than 15 floors deep.`,
     perfect_the_basics:
         `Prerequisites: You must have at least 2 basic cards in your deck.`,
     practice_makes_perfect:
-        `Prerequisites: You must not have Limitless.`,
+        `Prerequisites: You must be less than 15 floors deep and not have Limitless.`,
     roar_of_challenge:
         `Prerequisites: You must not have Limitless.`,
     safe_passage:
@@ -1041,15 +1046,17 @@ const W = `W`;
 const C = `C`;
 const SPIN = `Spin`;
 
-// Directions.
-const four_directions = {
+// Unicode symbols.
+const usymbol = {
     // Unicode arrows
     left:   `\u2B9C`,
     up:     `\u2B9D`,
     right:  `\u2B9E`,
-    down:   `\u2B9F`
+    down:   `\u2B9F`,
+    // Bullet point
+    bullet: `\u2022`,
 }
-Object.freeze(four_directions);
+Object.freeze(usymbol);
 
 // Move types.
 const move_types = {
@@ -1800,6 +1807,7 @@ const achievement_names = {
     // Normal
     ancient_knowledge: `Ancient Knowledge`,
     beyond_the_basics: `Beyond The Basics`,
+    blessed: `Blessed`,
     clumsy: `Clumsy`,
     collector: `Collector`,
     common_sense: `Common Sense`,
@@ -1834,6 +1842,7 @@ const achievement_description = {
     // Normal
     ancient_knowledge: `Restore an ancient card to full power.`,
     beyond_the_basics: `Remove all basic cards from your deck.`,
+    blessed: `Obtain 35 different boons at least once.`,
     clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
     collector: `Open 6 or more treasure chests in 1 run.`,
     common_sense: `Obtain every common card at least once.`,
@@ -1842,7 +1851,7 @@ const achievement_description = {
     minimalist: `Reach floor 15 with only 5 cards in your deck.`,
     monster_hunter: `Kill 5 total unique bosses.`,
     non_violent: `Reach the first boss without killing anything.`,
-    not_my_fault: `Let a boss die without killing anything on the floor yourself.`,
+    not_my_fault: `Let a boss die without dealing any damage to it yourself.`,
     one_hit_wonder: `Defeat a boss in a single turn.`,
     one_life: `Defeat any boss with exactly 1 max health.`,
     peerless_sprinter: `Speed through a floor in 3 turns or less.`,
@@ -1877,7 +1886,7 @@ const CONTROLS_TEXT = {
         header: `Stage Controls`,
         card: `Choose card`,
         direction: `Make move`,
-        toggle: `Preview move`,
+        toggle: `Preview move (hold key down)`,
         info: `View card info`,
         retry: `Retry`
     },
@@ -1898,6 +1907,18 @@ Object.freeze(CONTROLS_TEXT);
 
 const KEYBOARD_SYMBOL_MAP = new Map();
 KEYBOARD_SYMBOL_MAP.set(` `, `space`);
+const stat_image_labels = {
+    deck: `Cards in deck`,
+    floor: `Floor number`,
+    turns: `Turn count`,
+    kills: `Enemies killed`,
+    dealt: `Damage dealt`,
+    taken: `Damage taken`,
+    chests: `Chests opened`,
+    destroyed: `Chests destroyed`,
+    health: `Health`,
+}
+Object.freeze(stat_image_labels);
 const shop_text = {
     header: `Choose one card to add or remove:`,
     add: `Add a card to your deck.`,
@@ -1930,8 +1951,7 @@ const gameplay_labels = {
     hand: `Hand of Cards`,
     move: `Moves`,
     retry: `Retry?`,
-    floor: `Floor`,
-    turn: `Turn`,
+    hp: `hp`,
 }
 Object.freeze(gameplay_labels);
 
@@ -2058,11 +2078,11 @@ const GUIDE_TEXT = {
     sidebar: 
         [`The sidebar contains several tabs which keep track of useful information so you don't need to `
         +`remember it.\n\n`
-        +`- The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like `
+        +`${usymbol.bullet} The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like `
         +`the descriptions given by clicking on a tile will not be tracked.\n\n`
-        +`- The Discard tab will keep track of which cards in your deck have been used so far to help you `
+        +`${usymbol.bullet} The Discard tab will keep track of which cards in your deck have been used so far to help you `
         +`figure out what might be left to draw. It resets after shuffling.\n\n`
-        +`- The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it `
+        +`${usymbol.bullet} The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it `
         +`when trying to use one enemy to block the attack of another. It will not track hidden enemies.\n\n`
         +`More tabs might become available as you play.\n\n`],
 
@@ -2139,7 +2159,7 @@ Object.freeze(screen_names);
  * @returns {uiid_library} The library of uiids for that language.
  */
 function get_uiids(language){
-    // Factory function for the display classes (currently only html)
+    // Factory function for the display classes (currently only html).
     switch(language){
         case `html`:
             return HTML_UIIDS;
@@ -2194,10 +2214,11 @@ function get_uiids(language){
 /** @type {uiid_library} The uiid library for HTML.*/
 const HTML_UIIDS = {
     header_bar: `headerBar`,
-        title: `title`,
+        header_box: `headerBox`,
+            title: `title`,
     game_screen: `gameScreen`,
-        stats: `stats`,
         stage: `stage`,
+            stage_stats: `stageStats`,
             map_display: `mapDisplay`,
             sidebar: `sidebar`,
                 sidebar_header: `sidebarHeader`,
@@ -2228,6 +2249,7 @@ const HTML_UIIDS = {
             retry_box: `retryBox`,
             retry_button: `retryButton`,
         shop: `shop`,
+            shop_stats: `shopStats`,
             shop_instructions: `shopInstructions`,
             add_card: `addCard`,
             remove_card: `removeCard`,
@@ -2236,6 +2258,7 @@ const HTML_UIIDS = {
             current_deck: `currentDeck`,
             display_deck: `displayDeck`,
         chest: `chest`,
+            chest_stats: `chestStats`,
             chest_lid: `chestLid`,
                 chest_instructions: `chestInstructions`,
             chest_body: `chestBody`,
@@ -2243,6 +2266,7 @@ const HTML_UIIDS = {
                 chest_confirm_row: `chestConfirmRow`,
                 content_description: `contentDescription`,
         deck_select: `deckSelect`,
+            deck_select_stats: `deckSelectStats`,
             deck_select_message: `deckSelectMessage`,
             deck_select_table: `deckSelectTable`,
             deck_select_card_info: `deckSelectCardInfo`,
@@ -2333,18 +2357,24 @@ function grid_space_description(space){
     return descriptions.reduce((res, str) => `${res}${str}`);
 }
 function hp_description(tile){
-    var hp = ``
+    var hp = hp_ratio(tile);
+    if(hp !== ``){
+        hp = `(${hp} ${gameplay_labels.hp}) `;
+    }
     var stunned = ``;
-    if(tile.max_health !== undefined && tile.health !== undefined){
-        hp = `(${tile.health}/${tile.max_health} hp) `;
-    }
-    else if(tile.health !== undefined){
-        hp = `(${tile.health} hp) `;
-    }
     if(tile.stun !== undefined && tile.stun > 0){
         stunned = `*${gameplay_text.stunned}${tile.stun}* `;
     }
     return `${hp}${stunned}`;
+}
+function hp_ratio(tile){
+    if(tile.max_health !== undefined && tile.health !== undefined){
+        return `${tile.health}/${tile.max_health}`;
+    }
+    if(tile.health !== undefined){
+        return `${tile.health}`;
+    }
+    return ``;
 }
 /**
  * Function to create the full description including
@@ -2508,7 +2538,7 @@ function tile_description(tile){
  * @returns {DisplayLibrary}
  */
 function get_display(language){
-    // Factory function for the display classes (currently only html)
+    // Factory function for the display classes (currently only html).
     switch(language){
         case `html`:
             return DisplayHTML;
@@ -2653,9 +2683,9 @@ const DisplayHTML = {
         var row = DisplayHTML.get_element(`${location} row ${row_num}`, HTMLTableRowElement);
         var column_count = row.cells.length;
         for(var i = 0; i < column_count; ++i){
-            DisplayHTML.get_element(`${location} ${row_num} ${i}`, HTMLTableCellElement).classList.remove("selected-element");
+            DisplayHTML.get_element(`${location} ${row_num} ${i}`, HTMLTableCellElement).classList.remove(`selected-element`);
         }
-        DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add("selected-element");
+        DisplayHTML.get_element(`${location} ${row_num} ${column_num}`, HTMLTableCellElement).classList.add(`selected-element`);
     },
     press: function(key_press){
         var key = key_press.key.toLowerCase();
@@ -2716,7 +2746,7 @@ const DisplayHTML = {
                 var label = select_element.value;
                 var chosen_option = option_func_map.get(label);
                 if(chosen_option === undefined){
-                    throw new Error("unrecognized value in select element");
+                    throw new Error(`unrecognized value in select element`);
                 }
                 chosen_option();
             }
@@ -2741,7 +2771,7 @@ const DisplayHTML = {
         var body_div = document.createElement(`div`);
         var body_div_id = `${header} section`;
         body_div.id = body_div_id;
-        body_div.classList.add(`guidebook-section`)
+        body_div.classList.add(`guidebook-section`);
 
         var body_header = document.createElement(`h2`);
         body_header.id = `${body_div_id} header`;
@@ -3012,7 +3042,7 @@ const DisplayHTML = {
             var div = document.createElement(`div`);
             div.classList.add(`achievement-box`);
             if(a.has){
-                div.classList.add('achievement-box-unlocked');
+                div.classList.add(`achievement-box-unlocked`);
             }
 
             // Achievement image
@@ -3037,7 +3067,7 @@ const DisplayHTML = {
                 text_box.classList.add(`achievement-unlocked-text`);
             }
             else{
-                text_box.classList.add(`achievement-locked-text`)
+                text_box.classList.add(`achievement-locked-text`);
             }
 
             var h3 = document.createElement(`h3`);
@@ -3089,7 +3119,7 @@ const DisplayHTML = {
         }
     },
     stop_space_scrolling: function(){
-        window.addEventListener('keydown', (e) => {
+        window.addEventListener(`keydown`, (e) => {
             if (e.key === ` ` && e.target === document.body) {
               e.preventDefault();
             }
@@ -3230,6 +3260,30 @@ const DisplayHTML = {
             var slice = info.tiles.slice(slice_start, slice_start + JOURNAL_AREA_WIDTH);
             display.add_tb_row(tiles_id, slice, JOURNAL_TILE_SCALE);
         }
+    },
+    label_image(destination, label){
+        var place = DisplayHTML.get_element(destination);
+        place.title = label;
+        place.alt = label;
+    },
+    make_stat_pair(destination, pic, stat, label){
+        var place = DisplayHTML.get_element(destination);
+
+        var div = document.createElement(`div`);
+        div.classList.add(`stat-pair`);
+        div.title = label;
+
+        var img = document.createElement(`img`);
+        img.src = pic;
+        img.alt = label;
+
+        var p = document.createElement(`p`);
+        p.classList.add(`no-margins`);
+        p.innerText = stat;
+
+        div.append(img);
+        div.append(p);
+        place.append(div);
     },
 
     // Non Required helper functions.
@@ -3373,6 +3427,9 @@ function display_deck_to_remove(remaining){
     var selector = new DeckSelector(GS.deck, finish);
     refresh_deck_select_screen(selector);
 }
+function label_images(){
+    display.label_image(UIIDS.remaining_deck, stat_image_labels.deck);
+}
 function display_entire_deck(deck){
     // Display section header.
     var min_deck_size = deck.deck_min();
@@ -3391,7 +3448,6 @@ function display_entire_deck(deck){
         var row = decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
         display.add_tb_row(UIIDS.display_deck, row, CARD_SCALE);
     }
-
 }
 function refresh_shop_display(shop){
     var refresh = (f, card) => {
@@ -3628,6 +3684,72 @@ function display_map(map){
     display_health(map.get_player(), TILE_SCALE);
     // Updates the initiative tracker display.
     update_initiative(map);
+}
+function refresh_stage_stats(stats, location){
+    display.remove_children(location);
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}stairs.png`, 
+        stats.floor, 
+        stat_image_labels.floor
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}stopwatch.png`, 
+        stats.turn, 
+        stat_image_labels.turns
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}kills.png`, 
+        stats.kills, 
+        stat_image_labels.kills
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}damage_dealt.png`, 
+        stats.dealt, 
+        stat_image_labels.dealt
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}half_heart.png`, 
+        stats.taken, 
+        stat_image_labels.taken
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}mini_chest.png`, 
+        stats.chests, 
+        stat_image_labels.chests
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}mini_broken_chest.png`, 
+        stats.destroyed, 
+        stat_image_labels.destroyed
+    );
+}
+function refresh_other_stats(stats, location){
+    display.remove_children(location);
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}stairs.png`, 
+        stats.floor, 
+        stat_image_labels.floor
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}stopwatch.png`, 
+        stats.turn, 
+        stat_image_labels.turns
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}mini_heart.png`, 
+        stats.health, 
+        stat_image_labels.health
+    );
 }
 /**
  * Function to create a dropdown menu capable of switching between the game and guide screens.
@@ -3962,7 +4084,6 @@ function update_journal_boons(){
     display.create_fixed_box(UIIDS.journal_boons, UIIDS.journal_boon_info);
     var boons = boons_encountered(BOON_LIST, GS.data.boons);
     display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons);
-
 }
 function boons_encountered(boons, encountered){
     var locked = get_locked_boons();
@@ -4081,9 +4202,9 @@ function setup_journal_navbar(){
     display.swap_screen(section_id_list, UIIDS.journal_cards);
 }
 const SENTRY_MODES = {
-    saw: "Saw",
-    cannon: "Cannon",
-    turret: "Turret"
+    saw: `Saw`,
+    cannon: `Cannon`,
+    turret: `Turret`
 };
 Object.freeze(SENTRY_MODES);
 
@@ -4138,7 +4259,7 @@ function sentry_core_ai(self, target, map){
                 node_saw_behavior(self, target, map);
                 sentry_move(self, target, map);
             }
-            decrement_sentry_cycle(self, target, map)
+            decrement_sentry_cycle(self, target, map);
             break;
         case SENTRY_MODES.cannon:
             switch(self.tile.cycle){
@@ -4209,7 +4330,7 @@ function sentry_move(self, target, map){
         for(var location of locations){
             map.move(location, location.plus(self.tile.direction));
         }
-        self.location.plus_equals(self.tile.direction)
+        self.location.plus_equals(self.tile.direction);
     }
 }
 function move_check(locations, direction, map){
@@ -4248,7 +4369,7 @@ function get_sentry_nodes(self, target, map){
             },
             map: map
         }
-    })
+    });
 }
 function sentry_get_core(location, map){
     for(var direction of DIAGONAL_DIRECTIONS){
@@ -4266,7 +4387,7 @@ function forest_heart_tile(){
     var pic_arr = [
         `${IMG_FOLDER.tiles}forest_heart.png`,
         `${IMG_FOLDER.tiles}forest_heart_invincible.png`
-    ]
+    ];
     var spells = [
         // Index + 1 corresponds with the health it's triggered at.
         /*1*/greater_thorn_bush_spell_generator(),
@@ -4380,7 +4501,7 @@ function get_forest_heart_sections(self, map){
             tile: next_tile,
             location: next_location
         });
-        current = next_tile.segment_list[0]
+        current = next_tile.segment_list[0];
     }
     // Goes the other
     current = self.tile.segment_list[1];
@@ -4395,7 +4516,7 @@ function get_forest_heart_sections(self, map){
             tile: next_tile,
             location: next_location
         });
-        current = next_tile.segment_list[1]
+        current = next_tile.segment_list[1];
     }
     return tiles;
 }
@@ -4418,11 +4539,11 @@ const LICH_SPELLS = [
     confusion_spell_generator(),
     lava_moat_spell_generator(),
     piercing_beam_spell_generator(),
-]
+];
 const LICH_UTIL_SPELLS = [
     rest_spell_generator(),
     teleport_spell_generator(), 
-]
+];
 /** @type {TileGenerator} */
 function lich_tile(){
     var summons = [
@@ -4463,14 +4584,13 @@ function lich_ai(self, target, map){
     }
     if(self.tile.cycle === -2){
         // Move away and prepare the next spell.
-        var moves = reverse_arr(order_nearby(target.difference));
-        for(var i = 0; i < moves.length && !map.check_empty(self.location.plus(moves[i])); ++i){}
-        if(i >= moves.length){
+        var directions = reverse_arr(order_nearby(target.difference));
+        var moved = move_careful(self, target, map, directions);
+        if(moved === undefined){
             // If stuck, prep teleport.
             lich_prep(self.tile, -1);
         }
         else{
-            map.move(self.location, self.location.plus(moves[i]));
             lich_prep(self.tile, random_num(self.tile.spells.length));
         }
     }
@@ -4500,7 +4620,7 @@ function lich_telegraph(location, map, self){
     if(spell.telegraph !== undefined){
         return spell.telegraph(location, map, self);
     }
-    return rest_spell_telegraph(location, map, self)
+    return rest_spell_telegraph(location, map, self);
 }
 
 /** @type {TelegraphFunction} */
@@ -4513,7 +4633,7 @@ function lich_telegraph_other(location, map, self){
     if(spell.telegraph_other !== undefined){
         return spell.telegraph_other(location, map, self);
     }
-    return rest_spell_telegraph(location, map, self)
+    return rest_spell_telegraph(location, map, self);
 }
 
 /** @type {AIFunction} Function used when the lich is hit to have it prep teleport.*/
@@ -4554,8 +4674,8 @@ function lord_of_shadow_and_flame_tile(){
     var pic_arr = [
     `${IMG_FOLDER.tiles}lord_move.png`,
     `${IMG_FOLDER.tiles}lord_attack.png`,
-    `${IMG_FOLDER.tiles}lord_summon.png`
-    ]
+    `${IMG_FOLDER.tiles}lord_summon.png`,
+    ];
 
     var health = 13;
     var summons = [
@@ -4566,7 +4686,7 @@ function lord_of_shadow_and_flame_tile(){
         altar_of_space_tile,
         altar_of_stasis_tile,
         altar_of_singularity_tile,
-    ]
+    ];
     return {
         type: entity_types.enemy,
         name: boss_names.lord_of_shadow_and_flame,
@@ -4578,7 +4698,7 @@ function lord_of_shadow_and_flame_tile(){
         max_health: health,
         death_message: boss_death_message.lord_of_shadow_and_flame,
         death_achievement: achievement_names.lord_of_shadow_and_flame,
-        behavior: lord_of_shadow_and_flame_behavior,
+        behavior: lord_of_shadow_and_flame_ai,
         telegraph: lord_of_shadow_and_flame_telegraph,
         on_death: lord_of_shadow_and_flame_on_death,
         pic_arr,
@@ -4589,7 +4709,7 @@ function lord_of_shadow_and_flame_tile(){
 }
 
 /** @type {AIFunction} AI used by the Lord of Shadow and Flame.*/
-function lord_of_shadow_and_flame_behavior(self, target, map){
+function lord_of_shadow_and_flame_ai(self, target, map){
     var lord_slow_pics = [
         `${IMG_FOLDER.tiles}lord_move.png`,
         `${IMG_FOLDER.tiles}lord_attack.png`,
@@ -4611,7 +4731,7 @@ function lord_of_shadow_and_flame_behavior(self, target, map){
                 return self.location.plus(p);
             }).filter((p) => {
                 return map.is_in_bounds(p);
-            })
+            });
             for(var attack of attacks){
                 var tile = map.get_tile(attack);
                 if(!tile.tags.has(TAGS.altar)){
@@ -4670,7 +4790,7 @@ function lord_of_shadow_and_flame_behavior(self, target, map){
             if(!point_equals(destination, self.location)){
                 map.add_event({
                     name: event_names.altarfall, 
-                    behavior: altar_event(destination, make[i])
+                    behavior: altar_event(destination, make[i]),
                 });
             }
         }
@@ -4790,7 +4910,7 @@ function two_headed_serpent_ai(self, target, map){
                         throw new Error(ERRORS.missing_property);
                     }
                     neck.segment_list[1 - index] = dir[i];
-                    neck.segment_list[index] = self.tile.segment_list[index]
+                    neck.segment_list[index] = self.tile.segment_list[index];
                     serpent_rotate(neck);
                     map.add_tile(neck, self.location);
                     // Update head
@@ -4848,7 +4968,7 @@ function serpent_other_end(self, index, map){
     var next_location = self.location.plus(p);
     var next = {
         location: next_location,
-        tile: map.get_tile(next_location)
+        tile: map.get_tile(next_location),
     }
     return serpent_other_end(next, index, map);
 }
@@ -5066,7 +5186,7 @@ function young_dragon_tile(){
         health: 5,
         death_message: boss_death_message.young_dragon,
         death_achievement: achievement_names.young_dragon,
-        behavior: young_dragon_behavior,
+        behavior: yound_dragon_ai,
         telegraph: young_dragon_telegraph,
         on_death: boss_death,
         pic_arr,
@@ -5080,7 +5200,7 @@ function young_dragon_tile(){
 }
 
 /** @type {AIFunction} AI used by the Young Dragon.*/
-function young_dragon_behavior(self, target, map){
+function yound_dragon_ai(self, target, map){
     if( self.tile.pic_arr === undefined ||
         self.tile.description_arr === undefined ||
         self.tile.rotate === undefined ||
@@ -5104,7 +5224,7 @@ function young_dragon_behavior(self, target, map){
                 }
                 // Tries to move to a space the appropriate taxicab distance away from the player.
                 var taxi = target.difference.minus(space).taxicab_distance();
-                var destination = self.location.plus(space)
+                var destination = self.location.plus(space);
                 if(!moved && taxi === radius && map.check_empty(destination)){
                     moved = map.move(self.location, destination);
                     self.tile.direction = sign(space);
@@ -5117,7 +5237,7 @@ function young_dragon_behavior(self, target, map){
             }
             // Instead tries to move to a space that isn't next to the player.
             var next_to = target.difference.minus(space).within_radius(1);
-            var destination = self.location.plus(space)
+            var destination = self.location.plus(space);
             if(!moved && !(next_to) && map.check_empty(destination)){
                 moved = map.move(self.location, destination);
                 self.tile.direction = sign(space);
@@ -5164,7 +5284,7 @@ function young_dragon_behavior(self, target, map){
         }
         // Breath attack.
         for(let space of cone){
-            var target_space = self.location.plus(space)
+            var target_space = self.location.plus(space);
             map.attack(target_space);
             if(map.check_empty(target_space)){
                 var fire = raging_fire_tile();
@@ -5174,7 +5294,7 @@ function young_dragon_behavior(self, target, map){
     }
     // Prep Flight.
     // Happens when it fails to aim fire breath or after it uses it. 
-    var nearby = order_nearby(target.difference)
+    var nearby = order_nearby(target.difference);
     if(target.difference.within_radius(2)){
         nearby = nearby.reverse();
     }
@@ -5273,14 +5393,14 @@ function animated_boulder_tile(){
         on_enter: animated_boulder_wake_up,
         on_hit: animated_boulder_wake_up,
         cycle: 0,
-        look: magmatic_boulder_tile()
+        look: magmatic_boulder_tile(),
     }
 }
 
 /** @type {AIFunction} AI used by animated boulders.*/
 function animated_boulder_ai(self, target, map){
     if( self.tile.cycle === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
         // Asleep.
@@ -5295,7 +5415,7 @@ function animated_boulder_ai(self, target, map){
     var hit = false;
     for(let space of nearby){
         // Attacks everything nearby that's not another elemental.
-        var target_space = self.location.plus(space)
+        var target_space = self.location.plus(space);
         if(map.is_in_bounds(target_space) && !map.get_tile(target_space).tags.has(TAGS.hidden)){
             hit = map.attack(target_space) || hit;
         }
@@ -5317,7 +5437,7 @@ function animated_boulder_ai(self, target, map){
 /** @type {AIFunction} animated boulder wakes up when touched.*/
 function animated_boulder_wake_up(self, target, map){
     if( self.tile.cycle === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
         stun(self.tile);
@@ -5343,14 +5463,14 @@ function blood_crescent_tile(){
         telegraph: blood_crescent_telegraph,
         pic_arr,
         cycle: starting_cycle,
-        rotate: 90 * random_num(4)
+        rotate: 90 * random_num(4),
     }
 }
 
 /** @type {AIFunction} AI used by Blood Crescents.*/
 function blood_crescent_ai(self, target, map){
     if(self.tile.rotate === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 1){
         var distance = 3;
@@ -5422,7 +5542,6 @@ function brightling_tile(){
         difficulty: 4,
         behavior: brightling_ai,
         cycle: starting_cycle
-
     }
 }
 
@@ -5451,10 +5570,7 @@ function brightling_ai(self, target, map){
     }
     // Moves 2 spaces randomly and increments cycle.
     for(var i = 0; i < 2; ++i){
-        var moved = map.move(self.location, self.location.plus(near_points[i]));
-        if(moved){
-            self.location.plus_equals(near_points[i])
-        }
+        move_careful(self, target, map, random_nearby());
     }
     ++self.tile.cycle;
 }
@@ -5468,7 +5584,7 @@ function captive_void_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.captive_void,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         difficulty: 2,
         behavior: captive_void_ai,
         on_hit: captive_void_on_hit,
@@ -5491,7 +5607,7 @@ function captive_void_ai(self, target, map){
             var start = self.location.plus(space);
             var end = self.location.plus(sign(space));
             if(map.is_in_bounds(start) && !map.check_empty(start) && !map.get_tile(start).tags.has(TAGS.unmovable)){
-                var moved = map.move(start, end)
+                var moved = map.move(start, end);
                 if(moved && map.get_tile(end).type === entity_types.player){
                     moved_player = true;
                 }
@@ -5560,7 +5676,7 @@ function carrion_flies_ai(self, target, map){
         // When the cycle reaches the spawn timer, spawn and reset it while increasing the time until the next one.
         self.tile.spawn_timer += 2;
         self.tile.cycle = 0;
-        var new_tile = carrion_flies_tile()
+        var new_tile = carrion_flies_tile();
         new_tile.spawn_timer = self.tile.spawn_timer;
         spawn_nearby(map, new_tile, self.location);
     }
@@ -5571,7 +5687,7 @@ function carrion_flies_ai(self, target, map){
     else{
         // Move randomly.
         var near_points = random_nearby();
-        for(var i = 0; i < near_points.length && !map.move(self.location, self.location.plus(near_points[i])); ++i){}
+        move_reckless(self, target, map, near_points);
     }
 }
 /** @type {TileGenerator} */
@@ -5720,12 +5836,10 @@ function corrosive_caterpillar_tile(){
 /** @type {AIFunction} AI used by corrosive catterpillars.*/
 function corrosive_caterpillar_ai(self, target, map){
     for(var i = 0; i < 2; ++i){
-        var direction = get_empty_nearby(self.location, random_nearby(), map);
-        if(!(direction === undefined)){
-            if(map.move(self.location, self.location.plus(direction))){
-                map.add_tile(corrosive_slime_tile(), self.location);
-            }
-            self.location.plus_equals(direction);
+        var old_location = self.location.copy();
+        var moved = move_careful(self, target, map, random_nearby());
+        if(moved !== undefined){
+            map.add_tile(corrosive_slime_tile(), old_location);
         }
     }
 }
@@ -5788,7 +5902,7 @@ function darkling_telegraph(location, map, self){
 /** @type {TileGenerator}*/
 function gem_crawler_tile(){
     var cycle = random_num(2);
-    var pic_arr = [`${IMG_FOLDER.tiles}gem_crawler_recharging.png`, `${IMG_FOLDER.tiles}gem_crawler.png`]
+    var pic_arr = [`${IMG_FOLDER.tiles}gem_crawler_recharging.png`, `${IMG_FOLDER.tiles}gem_crawler.png`];
     return {
         type: entity_types.enemy,
         name: enemy_names.gem_crawler,
@@ -5826,9 +5940,11 @@ function gem_crawler_telegraph(location, map, self){
             if(map.is_in_bounds(space) && map.check_empty(space)){
                 // Shows all the spaces it can attack by moving other than the one it's in.
                 attacks.push(
-                    ...ALL_DIRECTIONS
-                        .map((p) => {return p.plus(space)})
-                        .filter((p) => {return !point_equals(p, location)})
+                    ...ALL_DIRECTIONS.map((p) => {
+                        return p.plus(space);
+                    }).filter((p) => {
+                        return !point_equals(p, location);
+                    })
                 );
             }
         }
@@ -5855,11 +5971,11 @@ function igneous_crab_tile(){
 /** @type {AIFunction} AI used by igneous crabs.*/
 function igneous_crab_ai(self, target, map){
     if(self.tile.cycle === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle > 0){
         var directions = reverse_arr(order_nearby(target.difference));
-        for(var i = 0; i < directions.length && !map.move(self.location, self.location.plus(directions[i])); ++i){}
+        move_reckless(self, target, map, directions);
         --self.tile.cycle;
     }
     else{
@@ -5868,17 +5984,14 @@ function igneous_crab_ai(self, target, map){
         }
         else{
             var directions = order_nearby(target.difference);
-            for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
-            if(i < directions.length){
-                map.move(self.location, self.location.plus(directions[i]));
-            }
+            move_careful(self, target, map, directions);
         }
     }
 }
 /** @type {AIFunction} Used to cause igneous crabs to flee when damaged.*/
 function igneous_crab_hit(self, target, map){
     if(self.tile.cycle === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     self.tile.cycle += 2;
 }
@@ -5904,7 +6017,7 @@ function living_tree_tile(){
         difficulty: 7,
         behavior: living_tree_ai,
         telegraph: living_tree_telegraph,
-        cycle: random_num(2)
+        cycle: random_num(2),
     }
 }
 
@@ -5930,12 +6043,7 @@ function living_tree_ai(self, target, map){
     if(target.difference.within_radius(1)){
         directions = reverse_arr(directions);
     }
-    // Carefully tries to move.
-    for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
-    if(i < directions.length){
-        var move = directions[i];
-        map.move(self.location, self.location.plus(move));
-    }
+    move_careful(self, target, map, directions);
     self.tile.cycle = 1 - self.tile.cycle;
 }
 /** @type {TelegraphFunction} Function to telegraph living tree attacks.*/
@@ -5943,7 +6051,7 @@ function living_tree_telegraph(location, map, self){
     var spaces = point_rectangle(new Point(-2, -2), new Point(2, 2));
     return spaces.map(p => {
         return p.plus(location);
-    })
+    });
 }
 /** @type {TileGenerator} */
 function living_tree_rooted_tile(){
@@ -5995,20 +6103,13 @@ function magma_spewer_tile(){
 function magma_spewer_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
         // Move away if the player gets close.
         if(target.difference.within_radius(2)){
             var directions = order_nearby(target.difference.times(-1));
-            var moved = false;
-            for(var i = 0; i < directions.length && !moved; ++i){
-                if(map.check_empty(self.location.plus(directions[i]))){
-                    map.move(self.location, self.location.plus(directions[i]));
-                    self.location.plus_equals(directions[i]);
-                    moved = true;
-                }
-            }
+            move_careful(self, target, map, directions);
         }
     }
     else{
@@ -6028,8 +6129,8 @@ function magma_spewer_ai(self, target, map){
         }
         map.add_event({
             name: event_names.falling_magma, 
-            behavior: earthquake_event(random_num(4) + random_num(4) + 4, locations)
-        })
+            behavior: earthquake_event(random_num(4) + random_num(4) + 4, locations),
+        });
         if(chance(1, 4)){
             map.add_event({name: event_names.falling_magma, behavior: targeted_earthquake_event([center])});
         }
@@ -6064,10 +6165,7 @@ function maw_ai(self, target, map){
         var moves = order_nearby(target.difference).filter((p) => {
             return p.on_axis();
         });
-        var has_moved = false;
-        for(var i = 0; i < moves.length && !has_moved; ++i){
-            has_moved = map.move(self.location, self.location.plus(moves[i]));
-        }
+        move_reckless(self, target, map, moves);
     }
 }
 /** @type {AIFunction}.*/
@@ -6079,7 +6177,7 @@ function maw_hit(self, target, map){
 function maw_telegraph(location, map, self){
     return ORTHOGONAL_DIRECTIONS.map((p) => {
         return location.plus(p);
-    })
+    });
 }
 /** @type {TileGenerator} */
 function noxious_toad_tile(){
@@ -6108,19 +6206,13 @@ function noxious_toad_ai(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
-        var directions = order_nearby(target.difference);
-        var moved = false;
-        for(var i = 0; i < directions.length && !moved; ++i){
-            // Leap orthogonally closer.
-            if(directions[i].on_axis()){
-                moved = map.move(self.location, self.location.plus(directions[i].times(2)));
-                if(moved){
-                    self.location.plus_equals(directions[i].times(2));
-                    target.difference.minus_equals(directions[i].times(2))
-                }
-            }
-        }
-        if(moved){
+        var moves = order_nearby(target.difference).filter((p) => {
+            return p.on_axis();
+        }).map((p) => {
+            return p.times(2);
+        });
+        var moved = move_reckless(self, target, map, moves);
+        if(moved !== undefined){
             self.tile.cycle = 1;
             if(
                 target.difference.within_radius(1) || 
@@ -6135,7 +6227,7 @@ function noxious_toad_ai(self, target, map){
         // Prepare to leap.
         self.tile.cycle = 0;
     }
-    self.tile.pic = self.tile.pic_arr[self.tile.cycle]
+    self.tile.pic = self.tile.pic_arr[self.tile.cycle];
 }
 
 /** @type {TelegraphFunction} */
@@ -6229,19 +6321,19 @@ function paper_construct_tile(){
         difficulty: 2,
         behavior: paper_construct_ai,
         telegraph: porcuslime_orthogonal_telegraph,
-        rotate: 90 * random_num(4)
+        rotate: 90 * random_num(4),
     }
 }
 
 /** @type {AIFunction} AI used by scythes.*/
 function paper_construct_ai(self, target, map){
     if(self.tile.rotate === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(target.difference.within_radius(2) && target.difference.on_axis()){
         // If the player is within range, attacks.
         var direction = sign(target.difference);
-        var space = self.location.plus(direction)
+        var space = self.location.plus(direction);
         for(var i = 0; i < 2 && !map.attack(space) && map.check_empty(space); ++i){
             space.plus_equals(direction);
         }
@@ -6318,7 +6410,7 @@ function pheonix_ai(self, target, map){
     if(distance > 0){
         map.move(self.location, self.location.plus(direction.times(distance)));
         for(var i = 0; i < distance; ++i){
-            var space = self.location.plus(direction.times(i))
+            var space = self.location.plus(direction.times(i));
             map.attack(space);
             if(map.check_empty(space)){
                 map.add_tile(raging_fire_tile(), space);
@@ -6389,8 +6481,8 @@ function large_porcuslime_ai(self, target, map){
 function large_porcuslime_telegraph(location, map, self){
     return [
         ...porcuslime_diagonal_telegraph(location, map, self),
-        ...porcuslime_orthogonal_telegraph(location, map, self)
-    ]
+        ...porcuslime_orthogonal_telegraph(location, map, self),
+    ];
 }
 /** @type {TileGenerator} */
 function medium_porcuslime_tile(){
@@ -6416,7 +6508,7 @@ function medium_porcuslime_tile(){
 function medium_porcuslime_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.health !== undefined && self.tile.health === 1){
         // If health is 1, splits into one of each small version which spawn next to it.
@@ -6535,7 +6627,7 @@ function ram_tile(){
 function ram_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     var direction = sign(target.difference);
     var other_direction = sign(target.difference);
@@ -6646,18 +6738,13 @@ function rat_ai(self, target, map){
             // If they bit the player within 2 turns, move away. Otherwise move closer.
             directions = reverse_arr(directions);
         }
-        var moved = false;
-        for(var j = 0; j < directions.length && !moved; ++j){
-            moved = map.move(self.location, self.location.plus(directions[j]));
-            if(moved){
-                self.location.plus_equals(directions[j])
-                target.difference.minus_equals(directions[j])
-                if(directions[j].x < 0){
-                    self.tile.flip = false;
-                }
-                if(directions[j].x > 0){
-                    self.tile.flip = true;
-                }
+        var moved = move_reckless(self, target, map, directions);
+        if(moved !== undefined){
+            if(moved.x < 0){
+                self.tile.flip = false;
+            }
+            if(moved.x > 0){
+                self.tile.flip = true;
             }
         }
     }
@@ -6687,7 +6774,7 @@ function scorpion_tile(){
         behavior: scorpion_ai,
         telegraph: spider_telegraph,
         flip: chance(1, 2),
-        cycle: random_num(2)
+        cycle: random_num(2),
     }
 }
 
@@ -6707,20 +6794,13 @@ function scorpion_ai(self, target, map){
     if(self.tile.cycle === 1){
         for(var i = 0; i < 2; ++i){
             var directions = order_nearby(target.difference);
-            var moved = false;
-            for(var j = 0; j < directions.length && !moved; ++j){
-                var destination = self.location.plus(directions[j]);
-                moved = map.check_empty(destination);
-                if(moved){
-                    map.move(self.location, destination);
-                    self.location.plus_equals(directions[j]);
-                    target.difference.minus_equals(directions[j]);
-                    if(directions[j].x < 0){
-                        self.tile.flip = false;
-                    }
-                    if(directions[j].x > 0){
-                        self.tile.flip = true;
-                    }
+            var moved = move_careful(self, target, map, directions);
+            if(moved !== undefined){
+                if(moved.x < 0){
+                    self.tile.flip = false;
+                }
+                if(moved.x > 0){
+                    self.tile.flip = true;
                 }
             }
         }
@@ -6742,14 +6822,14 @@ function scythe_tile(){
         difficulty: 4,
         behavior: scythe_ai,
         telegraph: scythe_telegraph,
-        rotate: 90 * random_num(4)
+        rotate: 90 * random_num(4),
     }
 }
 
 /** @type {AIFunction} AI used by scythes.*/
 function scythe_ai(self, target, map){
     if(self.tile.rotate === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     var distance = 3;
     self.tile.direction = sign(target.difference);
@@ -6814,9 +6894,12 @@ function shadow_knight_ai(self, target, map){
         }
     }
     if(target.difference.taxicab_distance() === 3 && !target.difference.on_axis()){
-        // If the player is a L away, attack them then try to move past them.
+        // If the player is a L away, attack them then move from their location.
         map.attack(self.location.plus(target.difference));
-        map.move(self.location, self.location.plus(target.difference.times(new Point(2, 2))));
+        var possible_moves = randomize_arr(L_SHAPES.map((p) => {
+            return target.difference.plus(p);
+        }));
+        move_careful(self, target, map, possible_moves);
         return;
     }
     // Otherwise, attempt to move closer
@@ -6890,20 +6973,16 @@ function shadow_knight_elite_ai(self, target, map){
         return self.location.plus(p);
     });
 
-    // If player can be attacked, attack twice then move to a random space an L away from them.
+    // If player can be attacked, attack then move to a random space an L away from them.
     var attack = possible_moves.filter((p) => {
         return point_equals(p, player_location);
     });
     if(attack.length > 0){
         map.attack(player_location);
-        var possible_ends = L_SHAPES.map((p) => {
-            return p.plus(player_location);
-        });
-        possible_ends = randomize_arr(possible_ends);
-        for(var i = 0; i < possible_ends.length && !map.check_empty(possible_ends[i]); ++i){}
-        if(i < possible_ends.length){
-            map.move(self.location, possible_ends[i]);
-        }
+        var possible_moves = randomize_arr(L_SHAPES.map((p) => {
+            return target.difference.plus(p);
+        }));
+        move_careful(self, target, map, possible_moves);
         return;
     }
     // If it can move to a square that can attack the player next turn, do so.
@@ -6911,7 +6990,7 @@ function shadow_knight_elite_ai(self, target, map){
         if(p.minus(player_location).taxicab_distance() === 3){
             var hits = L_SHAPES.filter((p2) => {
                 return point_equals(p2.plus(p), player_location);
-            })
+            });
             if(hits.length > 0 && map.check_empty(p)){
                 return true;
             }
@@ -6997,7 +7076,7 @@ function specter_ai(self, target, map){
     }
     var dir1 = sign(new Point(target.difference.x, 0));
     var dir2 = sign(new Point(0, target.difference.y));
-    var direction = rand_from([dir1, dir2]);
+    var direction = random_from([dir1, dir2]);
     var target_location = self.location.plus(target.difference);
     var locations = get_specter_moves(self.location, direction, map);
     for(var i = 0; i < locations.length; ++i){
@@ -7127,7 +7206,7 @@ function spider_web_tile(){
 function spider_web_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.spawn_timer === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle < self.tile.spawn_timer){
         // If the cycle hasn't reached the spawn timer, increments it.
@@ -7152,7 +7231,7 @@ function starcaller_tile(){
         shatter_sphere_d_tile,
         shatter_sphere_o_tile,
         moon_rock_tile,
-    ]
+    ];
     return {
         type: entity_types.enemy,
         name: enemy_names.starcaller,
@@ -7175,7 +7254,7 @@ function starcaller_ai(self, target, map){
         // Shoot
         map.attack(self.tile.direction);
         if(map.check_empty(self.tile.direction)){
-            var spawn = rand_from(self.tile.summons)();
+            var spawn = random_from(self.tile.summons)();
             map.add_tile(spawn, self.tile.direction);
         }
         self.tile.cycle = STARCALLER_TIMER;
@@ -7237,13 +7316,7 @@ function strider_ai(self, target, map){
             map.attack(self.location.plus(target.difference));
         }
     }
-    var moved = false;
-    for(var i = 0; i < moves.length && !moved; ++i){
-        var destination = self.location.plus(moves[i]);
-        if(map.check_empty(destination)){
-            moved = map.move(self.location, destination);
-        }
-    }
+    move_careful(self, target, map, moves);
 }
 
 /** @type {TelegraphFunction} */
@@ -7300,7 +7373,7 @@ function swaying_nettle_telegraph(location, map, self){
     var targets = self.cycle === 0 ? DIAGONAL_DIRECTIONS : ORTHOGONAL_DIRECTIONS;
     return targets.map(target => {
         return target.plus(location);
-    })
+    });
 }
 /** @type {TileGenerator} */
 function thorn_bush_tile(){
@@ -7339,7 +7412,7 @@ function thorn_bush_ai(self, target, map){
 }
 /** @type {TileGenerator} */
 function moving_turret_d_tile(){
-    var direction = rand_from(DIAGONAL_DIRECTIONS).copy();
+    var direction = random_from(DIAGONAL_DIRECTIONS).copy();
     var tile = {
         type: entity_types.enemy,
         name: enemy_names.turret_m,
@@ -7361,7 +7434,7 @@ function moving_turret_d_tile(){
 function moving_turret_d_ai(self, target, map){
     if( self.tile.rotate === undefined || 
         self.tile.direction === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     // If the player is on the diagonal and not in the direction of travel, fire.
     if( 
@@ -7374,8 +7447,8 @@ function moving_turret_d_ai(self, target, map){
     else if(GS.boons.has(boon_names.manic_presence)){
         var dirs = [
             self.tile.direction.rotate(90),
-            self.tile.direction.rotate(270)
-        ]
+            self.tile.direction.rotate(270),
+        ];
         for(var p of dirs){
             if(chance(1, 2)){
                 turret_fire_ai(self, {difference: p}, map);
@@ -7400,7 +7473,7 @@ function moving_turret_d_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function moving_turret_o_tile(){
-    var direction = rand_from(ORTHOGONAL_DIRECTIONS).copy();
+    var direction = random_from(ORTHOGONAL_DIRECTIONS).copy();
     var tile = {
         type: entity_types.enemy,
         name: enemy_names.turret_m,
@@ -7422,7 +7495,7 @@ function moving_turret_o_tile(){
 function moving_turret_o_ai(self, target, map){
     if( self.tile.rotate === undefined || 
         self.tile.direction === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     // If the player is on the axis and not in the direction of travel, fire.
     if( 
@@ -7435,8 +7508,8 @@ function moving_turret_o_ai(self, target, map){
     else if(GS.boons.has(boon_names.manic_presence)){
         var dirs = [
             self.tile.direction.rotate(90),
-            self.tile.direction.rotate(270)
-        ]
+            self.tile.direction.rotate(270),
+        ];
         for(var p of dirs){
             if(chance(1, 2)){
                 turret_fire_ai(self, {difference: p}, map);
@@ -7569,7 +7642,7 @@ function turret_r_tile(){
         pic_arr,
         rotate: 0,
         direction: random_nearby()[0],
-        spin_direction: random_sign()
+        spin_direction: random_sign(),
     }
     tile.pic = pic_arr[1 + tile.spin_direction + set_rotation(tile)];
     return tile;
@@ -7581,7 +7654,7 @@ function turret_r_ai(self, target, map){
         self.tile.pic_arr === undefined || 
         self.tile.direction === undefined || 
         self.tile.spin_direction === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     var fired = false;
     if((target.difference.on_axis() || target.difference.on_diagonal())){
@@ -7598,8 +7671,8 @@ function turret_r_ai(self, target, map){
     if(!fired && GS.boons.has(boon_names.manic_presence)){
         var dirs = [
             self.tile.direction,
-            self.tile.direction.times(-1)
-        ]
+            self.tile.direction.times(-1),
+        ];
         for(var p of dirs){
             if(chance(1, 2)){
                 turret_fire_ai(self, {difference: p}, map);
@@ -7609,7 +7682,6 @@ function turret_r_ai(self, target, map){
     // Rotate 45 degrees in the correct direction.
     self.tile.direction = sign(self.tile.direction.plus(self.tile.direction.rotate(90 * self.tile.spin_direction)));
     self.tile.pic = self.tile.pic_arr[1 + self.tile.spin_direction + set_rotation(self.tile)];
-
 }
 
 /** @type {TelegraphFunction} */
@@ -7619,7 +7691,7 @@ function turret_r_telegraph(location, map, self){
     }
     return [
         ...get_points_in_direction(location, self.direction, map),
-        ...get_points_in_direction(location, self.direction.times(-1), map)
+        ...get_points_in_direction(location, self.direction.times(-1), map),
     ];
 }
 /** @type {TileGenerator} */
@@ -7668,17 +7740,9 @@ function unstable_wisp_tile(){
 /** @type {AIFunction}*/
 function unstable_wisp_ai(self, target, map){
     var start = self.location.copy();
-    var moved = undefined;
     var directions = random_nearby();
-    for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health > 0) && !moved; ++i){
-        // Moves a space randomly.
-        for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
-        if(i < directions.length && map.move(self.location, self.location.plus(directions[i]))){
-            self.location.plus_equals(directions[i]);
-            moved = directions[i];
-        }
-    }
-    if(moved && chance(1, 3)){
+    var moved = move_careful(self, target, map, directions);
+    if(moved !== undefined && chance(1, 3)){
         // Chance to shoot a fireball after moving.
         moved.times_equals(-1);
         var fireball = shoot_fireball(moved);
@@ -7691,7 +7755,7 @@ function unstable_wisp_death(self, target, map){
     var attacks = random_nearby();
     var fireballs = [];
     for(var dir of attacks){
-        var spawnpoint = self.location.plus(dir)
+        var spawnpoint = self.location.plus(dir);
         if(!map.attack(spawnpoint)){
             var fireball = shoot_fireball(dir);
             fireball.stun = 1; // Gets around unstunnable.
@@ -7728,7 +7792,7 @@ function vampire_tile(){
 function vampire_ai(self, target, map){
     if( self.tile.health === undefined || 
         self.tile.max_health === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     var player_pos = self.location.plus(target.difference);
     var target_spaces = [new Point(player_pos.x + 1, player_pos.y + 1), 
@@ -7754,7 +7818,7 @@ function vampire_ai(self, target, map){
         // If it hasn't moved yet, just moves closer to the player.
         var directions = order_nearby(target.difference);
         for(var i = 0; i < directions.length && !moved  && health === self.tile.health; ++i){
-            var direction = directions[i]
+            var direction = directions[i];
             if(direction.on_axis()){
                 moved = map.move(self.location, self.location.plus(direction));
             }
@@ -7865,7 +7929,7 @@ function vinesnare_bush_telegraph_other(location, map, self){
         self.range === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var vines = []
+    var vines = [];
     if(self.cycle === 0){
         return vines;
     }
@@ -7968,11 +8032,7 @@ function wheel_of_fire_ai(self, target, map){
     if(target.difference.within_radius(1)){
         // Player is nearby.
         var moves = reverse_arr(order_nearby(target.difference));
-        for(var i = 0; i < moves.length && !map.check_empty(self.location.plus(moves[i])); ++i){}
-        if(i < moves.length){
-            map.move(self.location, self.location.plus(moves[i]));
-        }
-
+        move_careful(self, target, map, moves);
     }
     else if((target.difference.on_axis() || target.difference.on_diagonal())){
         // Aiming at player.
@@ -7991,7 +8051,7 @@ function wheel_of_fire_ai(self, target, map){
     }
     else if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
         // Misfire.
-        var direction = sign(rand_from(ALL_DIRECTIONS));
+        var direction = sign(random_from(ALL_DIRECTIONS));
         var hit = false;
         for(var space = self.location.plus(direction); !hit; space.plus_equals(direction)){
             hit = map.attack(space);
@@ -8005,11 +8065,7 @@ function wheel_of_fire_ai(self, target, map){
         }
     }
     else{
-        // Move randomly.
-        var direction = get_empty_nearby(self.location, random_nearby(), map);
-        if(!(direction === undefined)){
-            map.move(self.location, self.location.plus(direction));
-        }
+        move_careful(self, target, map, random_nearby());
     }
 }
 
@@ -8017,7 +8073,7 @@ function wheel_of_fire_ai(self, target, map){
 function wheel_of_fire_telegraph(location, map, self){
     var dir_arrs = ALL_DIRECTIONS.map((p) => {
         return get_points_in_direction(location, p, map);
-    })
+    });
     var attacks = [];
     for(var arr of dir_arrs){
         attacks.push(...arr);
@@ -8062,9 +8118,9 @@ function altar_of_scouring_tile(){
         name: other_tile_names.altar_of_scouring,
         pic: `${IMG_FOLDER.tiles}altar_of_scouring.png`,
         description: other_tile_descriptions.altar_of_scouring,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
-        on_enter: altar_on_enter(altar_of_scouring_on_enter)
+        on_enter: altar_on_enter(altar_of_scouring_on_enter),
     }
 }
 
@@ -8120,9 +8176,9 @@ function altar_of_shadow_tile(){
         name: other_tile_names.altar_of_shadow,
         pic: `${IMG_FOLDER.tiles}altar_of_shadow.png`,
         description: other_tile_descriptions.altar_of_shadow,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
-        on_enter: altar_on_enter(altar_of_shadow_on_enter)
+        on_enter: altar_on_enter(altar_of_shadow_on_enter),
     }
 }
 
@@ -8141,9 +8197,9 @@ function altar_of_singularity_tile(){
         name: other_tile_names.altar_of_singularity,
         pic: `${IMG_FOLDER.tiles}altar_of_singularity.png`,
         description: other_tile_descriptions.altar_of_singularity,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
-        on_enter: altar_on_enter(altar_of_singularity_on_enter)
+        on_enter: altar_on_enter(altar_of_singularity_on_enter),
     }
 }
 
@@ -8169,7 +8225,6 @@ function altar_of_singularity_on_enter(self, target, map){
     // If this is the last altar, wait an extra turn so the lord can summon then move.
     var wait = get_nearest_altar(map, self.location) === undefined ? 2 : 1;
     map.add_event({name: event_names.black_hole, behavior: delay_event(wait, delay)});
-
 }
 /** @type {TileGenerator}*/
 function altar_of_space_tile(){
@@ -8178,9 +8233,9 @@ function altar_of_space_tile(){
         name: other_tile_names.altar_of_space,
         pic: `${IMG_FOLDER.tiles}altar_of_space.png`,
         description: other_tile_descriptions.altar_of_space,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
-        on_enter: altar_on_enter(altar_of_space_on_enter)
+        on_enter: altar_on_enter(altar_of_space_on_enter),
     }
 }
 
@@ -8189,7 +8244,7 @@ function altar_of_space_on_enter(self, target, map){
         var to_move = [];
         cross(range(0, FLOOR_WIDTH), range(0, FLOOR_HEIGHT), (x, y) => {
             to_move.push(new Point(x, y));
-        })
+        });
         to_move = to_move.filter((p) => {
             return !map_to_use.get_tile(p).tags.has(TAGS.unmovable);
         });
@@ -8198,7 +8253,6 @@ function altar_of_space_on_enter(self, target, map){
         }
     }
     map.add_event({name: event_names.warp , behavior: warp});
-
 }
 /** @type {TileGenerator}*/
 function altar_of_stars_tile(){
@@ -8207,13 +8261,13 @@ function altar_of_stars_tile(){
         shatter_sphere_d_tile,
         shatter_sphere_o_tile,
         moon_rock_tile,
-    ]
+    ];
     return {
         type: entity_types.terrain,
         name: other_tile_names.altar_of_stars,
         pic: `${IMG_FOLDER.tiles}altar_of_stars.png`,
         description: other_tile_descriptions.altar_of_stars,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_stars_on_enter),
         summons
@@ -8230,7 +8284,7 @@ function altar_of_stars_on_enter(self, target, map){
         return function(map_to_use){
             map_to_use.attack(location);
             if(map_to_use.check_empty(location)){
-                map_to_use.add_tile(rand_from(self.tile.summons)(), location);
+                map_to_use.add_tile(random_from(self.tile.summons)(), location);
             }
         }
     }
@@ -8256,9 +8310,9 @@ function altar_of_stasis_tile(){
         name: other_tile_names.altar_of_stasis,
         pic: `${IMG_FOLDER.tiles}altar_of_stasis.png`,
         description: other_tile_descriptions.altar_of_stasis,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
-        on_enter: altar_on_enter(altar_of_stasis_on_enter)
+        on_enter: altar_on_enter(altar_of_stasis_on_enter),
     }
 }
 
@@ -8267,12 +8321,12 @@ function altar_of_stasis_on_enter(self, target, map){
         var space = new Point(x, y);
         var tile = map.get_tile(space);
         if(tile.tags.has(TAGS.boss)){
-            map.heal(space, 3)
+            map.heal(space, 3);
         }
         if(tile.tags.has(TAGS.altar)){
             map.heal(space, 1);
         }
-    })
+    });
 }
 /** @type {TileGenerator}*/
 function altar_of_sunlight_tile(){
@@ -8281,9 +8335,9 @@ function altar_of_sunlight_tile(){
         name: other_tile_names.altar_of_sunlight,
         pic: `${IMG_FOLDER.tiles}altar_of_sunlight.png`,
         description: other_tile_descriptions.altar_of_sunlight,
-        tags: new TagList([TAGS.altar]),
+        tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
-        on_enter: altar_on_enter(altar_of_sunlight_on_enter)
+        on_enter: altar_on_enter(altar_of_sunlight_on_enter),
     }
 }
 
@@ -8322,7 +8376,7 @@ function altar_of_sunlight_on_enter(self, target, map){
         var rectangle = point_rectangle(target.plus(new Point(i, i)), target.plus(new Point(-i, -i)));
         rectangle = rectangle.filter((p) => {
             return map.is_in_bounds(p);
-        })
+        });
         map.add_event({name: event_names.delay, behavior: delay_event(i + 1, delay(rectangle))});
     }
 }
@@ -8334,7 +8388,7 @@ function black_hole_tile(){
         pic: `${IMG_FOLDER.tiles}black_hole.png`,
         description: other_tile_descriptions.black_hole,
         health: 6,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         behavior: black_hole_ai,
         telegraph_other: black_hole_telegraph_other,
     }
@@ -8349,13 +8403,13 @@ function black_hole_ai(self, target, map){
             return self.location.plus(p);
         }).filter((p) => {
             return map.is_in_bounds(p);
-        })
+        });
         spaces.push(...rectangle);
     }
     for(var start of spaces){
         var end = start.plus(sign(self.location.minus(start)));
         if(!map.get_tile(start).tags.has(TAGS.unmovable) && !map.get_tile(start).tags.has(TAGS.boss)){
-            var moved = map.move(start, end)
+            var moved = map.move(start, end);
             if(moved && map.get_tile(end).type === entity_types.player){
                 moved_player = true;
             }
@@ -8391,7 +8445,7 @@ function bookshelf_tile(){
         name: other_tile_names.bookshelf,
         pic: pic_arr[health - 1],
         description: other_tile_descriptions.bookshelf,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health,
         on_hit: bookshelf_on_hit,
         pic_arr
@@ -8426,12 +8480,12 @@ function coffin_tile(){
         name: other_tile_names.coffin,
         pic: `${IMG_FOLDER.tiles}coffin.png`,
         description: other_tile_descriptions.coffin,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health: 1,
         on_enter: decay_ai,
         on_death: coffin_tile_death,
         summons: [rat_tile, carrion_flies_tile, vampire_tile, appropriate_chest_tile],
-        card_drops: get_all_achievement_cards()
+        card_drops: get_all_achievement_cards(),
     }
 }
 
@@ -8441,7 +8495,7 @@ function coffin_tile_death(self, target, map){
         self.tile.card_drops === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    var new_enemy = rand_from(self.tile.summons)();
+    var new_enemy = random_from(self.tile.summons)();
     if(new_enemy.type === entity_types.chest){
         var cards = rand_no_repeats(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
         for(let card of cards){
@@ -8460,7 +8514,7 @@ function corrosive_slime_tile(){
         name: other_tile_names.corrosive_slime,
         pic: `${IMG_FOLDER.tiles}corrosive_slime.png`,
         description: other_tile_descriptions.corrosive_slime,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health: 1,
         telegraph: hazard_telegraph,
         on_enter: corrosive_slime_on_enter
@@ -8554,7 +8608,7 @@ function enticing_fruit_tree_on_enter(self, target, map){
     map.heal(self.location.plus(target.difference), 1);
     var spawns = random_num(2) + random_num(2);
     for(var i = 0; i < spawns; ++i){
-        var new_spawn = rand_from(self.tile.summons)();
+        var new_spawn = random_from(self.tile.summons)();
         stun(new_spawn);
         spawn_nearby(map, new_spawn, self.location);
     }
@@ -8583,7 +8637,7 @@ function rotting_fruit_tree_on_death(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     if(chance(2, 5)){
-        var new_spawn = rand_from(self.tile.summons)();
+        var new_spawn = random_from(self.tile.summons)();
         stun(new_spawn);
         spawn_nearby(map, new_spawn, self.location);
     }
@@ -8617,7 +8671,7 @@ function moon_rock_tile(){
         name: other_tile_names.moon_rock,
         pic: `${IMG_FOLDER.tiles}moon_rock.png`,
         description: other_tile_descriptions.moon_rock,
-        tags: new TagList(),
+        tags: new TagList([TAGS.obstruction]),
         health: 1,
     }
 }
@@ -8631,7 +8685,7 @@ function raging_fire_tile(){
         pic: pic_arr[health - 1],
         display_pic: pic_arr[1],
         description: other_tile_descriptions.raging_fire,
-        tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
+        tags: new TagList([TAGS.unmovable, TAGS.unstunnable, TAGS.obstruction]),
         health,
         behavior: decay_ai,
         telegraph: hazard_telegraph,
@@ -8662,7 +8716,7 @@ function repulsor_tile(){
         name: other_tile_names.repulsor,
         pic: pic_arr[starting_cycle],
         description: other_tile_descriptions.repulsor,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
         on_enter: repulsor_push_ai,
@@ -8750,7 +8804,7 @@ function sewer_grate_tile(){
         name: other_tile_names.sewer_grate,
         pic: `${IMG_FOLDER.tiles}sewer_grate.png`,
         description: other_tile_descriptions.sewer_grate,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
         behavior: sewer_grate_ai,
     }
 }
@@ -8764,7 +8818,7 @@ function sewer_grate_ai(self, target, map){
 }
 /** @type {TileGenerator} */
 function shatter_sphere_tile(){
-    return rand_from([shatter_sphere_d_tile, shatter_sphere_o_tile])();
+    return random_from([shatter_sphere_d_tile, shatter_sphere_o_tile])();
 }
 /** @type {TileGenerator} */
 function shatter_sphere_d_tile(){
@@ -8773,7 +8827,7 @@ function shatter_sphere_d_tile(){
         name: other_tile_names.shatter_sphere,
         pic: `${IMG_FOLDER.tiles}shatter_sphere_d.png`,
         description: other_tile_descriptions.shatter_sphere_d,
-        tags: new TagList(),
+        tags: new TagList([TAGS.obstruction]),
         health: 1,
         telegraph_other: shatter_sphere_d_telegraph,
         on_death: shatter_sphere_d_death,
@@ -8799,7 +8853,7 @@ function shatter_sphere_o_tile(){
         name: other_tile_names.shatter_sphere,
         pic: `${IMG_FOLDER.tiles}shatter_sphere_o.png`,
         description: other_tile_descriptions.shatter_sphere_o,
-        tags: new TagList(),
+        tags: new TagList([TAGS.obstruction]),
         health: 1,
         telegraph_other: shatter_sphere_o_telegraph,
         on_death: shatter_sphere_o_death,
@@ -8827,7 +8881,7 @@ function smoldering_ashes_tile(){
         name: other_tile_names.smoldering_ashes,
         pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
         description: `${desc[0]}${spawn_timer}${desc[1]}`,
-        tags: new TagList(),
+        tags: new TagList([TAGS.obstruction]),
         health: 1,
         behavior: smoldering_ashes_ai,
         on_enter: decay_ai,
@@ -8863,7 +8917,7 @@ function thorn_bramble_tile(){
         name: other_tile_names.thorn_bramble,
         pic: `${IMG_FOLDER.tiles}thorn_bramble.png`,
         description: other_tile_descriptions.thorn_bramble,
-        tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
+        tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots, TAGS.obstruction]),
         health: 1,
         telegraph: hazard_telegraph,
         on_enter: hazard
@@ -8878,12 +8932,12 @@ function damaged_wall_tile(){
         name: other_tile_names.wall_damaged,
         pic: pic_arr[health - 1],
         description: other_tile_descriptions.wall_damaged,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health,
         on_hit: damaged_wall_on_hit,
         on_death: damaged_wall_death,
         pic_arr,
-        summons: [spider_tile, acid_bug_tile, spider_web_tile, rat_tile, scythe_tile]
+        summons: [spider_tile, acid_bug_tile, spider_web_tile, rat_tile, scythe_tile],
     }
 }
 
@@ -8928,7 +8982,7 @@ function armored_chest_tile(){
         description: special_tile_descriptions.chest_armored,
         tags: new TagList([TAGS.unmovable]),
         on_enter: chest_on_enter,
-        contents: []
+        contents: [],
     }
 }
 /** @type {TileGenerator} A chest letting the user choose a reward. Currently empty.*/
@@ -8938,10 +8992,10 @@ function chest_tile(){
         name: special_tile_names.chest,
         pic: `${IMG_FOLDER.tiles}chest.png`,
         description: special_tile_descriptions.chest,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health: 1,
         on_enter: chest_on_enter,
-        contents: []
+        contents: [],
     }
 }
 /** @type {TileGenerator} Makes the correct type of chest*/
@@ -8977,7 +9031,7 @@ function chest_on_enter(self, target, map){
             GS.boons.lose(boon_names.safe_passage);
             GS.refresh_boon_display();
             GS.map.heal(GS.map.get_player_location());
-            GS.map.display_stats(UIIDS.stats);
+            GS.map.display_stats();
             GS.enter_shop();
         }
     }
@@ -9014,7 +9068,7 @@ function chest_on_enter(self, target, map){
             return function(){
                 let confirm_button = {
                     description: chest_text.take,
-                    on_click: pick(item.on_choose, item.name)
+                    on_click: pick(item.on_choose, item.name),
                 };
                 display.display_message(UIIDS.content_description, item.description);
                 display.remove_children(UIIDS.chest_confirm_row);
@@ -9025,7 +9079,7 @@ function chest_on_enter(self, target, map){
         content_row.push({
             pic: item.pic,
             name: item.name,
-            on_click: make_on_click(i)
+            on_click: make_on_click(i),
         });
     }
 
@@ -9082,7 +9136,7 @@ function add_boon_to_chest(chest, boon){
             GS.refresh_boon_display();
             return go_back
         },
-        description: explain_boon_with_picked(boon)
+        description: explain_boon_with_picked(boon),
     }
     chest.contents.push(content);
 }
@@ -9093,7 +9147,7 @@ function empty_tile(){
         name: special_tile_names.empty,
         pic: `${IMG_FOLDER.tiles}empty.png`,
         description: special_tile_descriptions.empty,
-        tags: new TagList([TAGS.unmovable])
+        tags: new TagList([TAGS.unmovable]),
     }
 }
 /** @type {TileGenerator} The player must move here to complete the floor.*/
@@ -9103,7 +9157,7 @@ function exit_tile(){
         name: special_tile_names.exit,
         pic: `${IMG_FOLDER.tiles}stairs.png`,
         description: special_tile_descriptions.exit,
-        tags: new TagList([TAGS.unmovable])
+        tags: new TagList([TAGS.unmovable]),
     }
 }
 /** @type {TileGenerator} The player must move here to complete the game.*/
@@ -9113,7 +9167,7 @@ function final_exit_tile(){
         name: special_tile_names.final_exit,
         pic: `${IMG_FOLDER.tiles}final_exit.png`,
         description: special_tile_descriptions.final_exit,
-        tags: new TagList([TAGS.unmovable])
+        tags: new TagList([TAGS.unmovable]),
     }
 }
 /** @type {TileGenerator} Must be unlocked to reveal the exit.*/
@@ -9123,7 +9177,7 @@ function lock_tile(){
         name: special_tile_names.lock,
         pic: `${IMG_FOLDER.tiles}lock.png`,
         description: special_tile_descriptions.lock,
-        tags: new TagList([TAGS.unmovable])
+        tags: new TagList([TAGS.unmovable]),
     }
 }
 /** @type {TileGenerator} The starting player.*/
@@ -9183,18 +9237,12 @@ function decay_ai(self, target, map){
 /** @type {AIFunction} Attempts to move 1 space closer to the user until it succesfully moves or it dies.*/
 function move_closer_ai(self, target, map){
     var directions = order_nearby(target.difference);
-    for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health > 0); ++i){
-        if(map.move(self.location, self.location.plus(directions[i]))){
-            self.location.plus_equals(directions[i]);
-            target.difference.minus_equals(directions[i]);
-            return;
-        }
-    }
+    return move_reckless(self, target, map, directions);
 }
 /** @type {AIFunction} AI used when a entity should move and attack in a direction (the target's difference field).*/
 function move_attack_ai(self, target, map){
     if(target.difference.is_origin()){
-        throw new Error(ERRORS.invalid_value)
+        throw new Error(ERRORS.invalid_value);
     }
     if(map.move(self.location, self.location.plus(target.difference))){
         self.location.plus_equals(target.difference);
@@ -9212,9 +9260,16 @@ function boss_death(self, target, map){
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
         // Create a chest containing a random card from it's loot table.
         var chest = appropriate_chest_tile();
-        var cards = rand_no_repeats(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
-        for(var card of cards){
-            add_card_to_chest(chest, card());
+        var drops = self.tile.card_drops.map((c) => {return c()});
+        var contents = rand_no_repeats(drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
+        if(chance(1, 2) && filter_new_cards(contents).length === 0){
+            var replace_list = filter_new_cards(drops);
+            if(replace_list.length > 0){
+                contents[0] = random_from(replace_list);
+            }
+        }
+        for(var card of contents){
+            add_card_to_chest(chest, card);
         }
         map.add_tile(chest, self.location);
     }
@@ -9224,8 +9279,8 @@ function boss_death(self, target, map){
     if(player_tile.max_health === 1){
         GS.achieve(achievement_names.one_life);
     }
-    var stats = map.stats.get_stats()
-    if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
+    var stats = map.stats.get_stats();
+    if(stats.player_boss_damage === 0){
         GS.achieve(achievement_names.not_my_fault);
     }
     if(stats.boss_kill_start === stats.turn_number){
@@ -9353,7 +9408,7 @@ function eternal_earthquake_event(amount){
         }
     }
     var earthquake = function(amount){
-        amount = Math.min(amount, FLOOR_HEIGHT * FLOOR_WIDTH * 4/5)
+        amount = Math.min(amount, FLOOR_HEIGHT * FLOOR_WIDTH * 4/5);
         var falling_rubble_layer = {
             pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
             description: event_descriptions.falling_rubble,
@@ -9507,7 +9562,7 @@ const ENEMY_LIST = [
 const BOSS_LIST = [
     lich_tile, spider_queen_tile, two_headed_serpent_tile, velociphile_tile, young_dragon_tile, 
     forest_heart_tile, arcane_sentry_tile
-]
+];
 
 /**
  * Stuns a stunnable tile by incrementing it's stun property. Adds the property first if necessary.
@@ -9555,7 +9610,7 @@ function order_nearby(direction){
         // Target is along the vertical line.
         var pair = randomize_arr([new Point(1, sign_dir.y), new Point(-1, sign_dir.y)]);
         ordering.push(...pair);
-        pair = randomize_arr([new Point(1, 0), new Point(-1, 0)])
+        pair = randomize_arr([new Point(1, 0), new Point(-1, 0)]);
         ordering.push(...pair);
         pair = randomize_arr([new Point(1, -1 * sign_dir.y), new Point(-1, -1 * sign_dir.y)]);
         ordering.push(...pair);
@@ -9564,7 +9619,7 @@ function order_nearby(direction){
         // Target is along the horizontal line.
         var pair = randomize_arr([new Point(sign_dir.x, 1), new Point(sign_dir.x, -1)]);
         ordering.push(...pair);
-        pair = randomize_arr([new Point(0, 1), new Point(0, -1)])
+        pair = randomize_arr([new Point(0, 1), new Point(0, -1)]);
         ordering.push(...pair);
         pair = randomize_arr([new Point(-1 * sign_dir.x, 1), new Point(-1 * sign_dir.x, -1)]);
         ordering.push(...pair);
@@ -9598,7 +9653,6 @@ function order_nearby(direction){
     }
     ordering.push(new Point(-1 * sign_dir.x, -1 * sign_dir.y));
     return ordering;
-
 }
 /**
  * Function to get the first non empty location near a given location.
@@ -9730,7 +9784,7 @@ function point_rectangle(p1, p2){
         var y_max = Math.max(p1.y, p2.y);
         return range(y_min, y_max).map((y) => {
             return new Point(p1.x, y);
-        })
+        });
     }
     if(p1.y === p2.y){
         // nx1
@@ -9738,14 +9792,14 @@ function point_rectangle(p1, p2){
         var x_max = Math.max(p1.x, p2.x);
         return range(x_min, x_max).map((x) => {
             return new Point(x, p1.y);
-        })
+        });
     }
 
     var rectangle = [
         p1.copy(),
         p2.copy(),
         new Point(p1.x, p2.y),
-        new Point(p2.x, p1.y)
+        new Point(p2.x, p1.y),
     ];
     var x_min = Math.min(p1.x, p2.x);
     var x_max = Math.max(p1.x, p2.x);
@@ -9771,6 +9825,34 @@ function get_nearest_where(map, location, f){
             if(map.is_in_bounds(p) && f(map.get_tile(p), p)){
                 return p;
             }
+        }
+    }
+    return undefined;
+}
+
+function move_careful(self, target, map, directions){
+    // Looks ahead in each direction until it finds one that is safe to move in.
+    // Returns the direction it moved or undefined.
+    for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
+    if(i < directions.length){
+        if(map.move(self.location, self.location.plus(directions[i]))){
+            self.location.plus_equals(directions[i]);
+            target.difference.minus_equals(directions[i]);
+            return directions[i];
+        }
+    }
+    return undefined;
+}
+
+function move_reckless(self, target, map, directions){
+    // Tries to move in each direction until it does so or takes damage.
+    // Returns the direction it moved or undefined.
+    var start = self.tile.health;
+    for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health >= start); ++i){
+        if(map.move(self.location, self.location.plus(directions[i]))){
+            self.location.plus_equals(directions[i]);
+            target.difference.minus_equals(directions[i]);
+            return directions[i];
         }
     }
     return undefined;
@@ -9931,7 +10013,7 @@ function node_o_double_cannon_ai(self, target, map){
     var dir = self.tile.direction;
     var spawnpoints = [
         self.location.plus(dir.plus(dir.rotate(90))), 
-        self.location.plus(dir.plus(dir.rotate(-90)))
+        self.location.plus(dir.plus(dir.rotate(-90))),
     ];
     for(var spawnpoint of spawnpoints){
         var fireball = shoot_fireball(self.tile.direction);
@@ -9940,13 +10022,12 @@ function node_o_double_cannon_ai(self, target, map){
             map.add_tile(fireball, spawnpoint);
         }
     }
-
 }
 function node_d_double_cannon_ai(self, target, map){
     var dir = self.tile.direction;
     var spawnpoints = [
         self.location.plus(dir.times(new Point(1, 0))), 
-        self.location.plus(dir.times(new Point(0, 1)))
+        self.location.plus(dir.times(new Point(0, 1))),
     ];
     for(var spawnpoint of spawnpoints){
         var fireball = shoot_fireball(self.tile.direction);
@@ -9962,13 +10043,13 @@ function node_double_cannon_telegraph(location, map, self){
     if(dir.on_axis()){
         var locations = [
             location.plus(dir.plus(dir.rotate(90))), 
-            location.plus(dir.plus(dir.rotate(-90)))
+            location.plus(dir.plus(dir.rotate(-90))),
         ];
     }
     else{
         var locations = [
             location.plus(dir.times(new Point(1, 0))), 
-            location.plus(dir.times(new Point(0, 1)))
+            location.plus(dir.times(new Point(0, 1))),
         ];
     }
     return locations.filter((p) => {
@@ -9984,7 +10065,7 @@ function node_saw_behavior(self, target, map){
 function node_saw_telegraph(location, map, self){
     return [
         ...ORTHOGONAL_DIRECTIONS.map((p) => {return p.plus(location)}), 
-        ...hazard_telegraph(location, map, self)
+        ...hazard_telegraph(location, map, self),
     ];
 }
 
@@ -10025,8 +10106,8 @@ function node_turret_behavior(self, target, map){
     else if(GS.boons.has(boon_names.manic_presence)){
         var dirs = [
             self.tile.direction.times(new Point(1, 0)),
-            self.tile.direction.times(new Point(0, 1))
-        ]
+            self.tile.direction.times(new Point(0, 1)),
+        ];
         for(var p of dirs){
             if(chance(1, 2)){
                 turret_fire_ai(self, {difference: p}, map);
@@ -10393,7 +10474,7 @@ function confusion_spell(self, target, map){
         rectangle = [...rectangle, target.copy()];
         rectangle = rectangle.filter((p) => {
             return map.is_in_bounds(p);
-        })
+        });
         map.add_event({name: event_names.delay, behavior: delay_event(i + 1, delay(rectangle))});
     }
 }
@@ -10405,7 +10486,7 @@ function confusion_spell_telegraph(location, map, self){
     rectangle = [...rectangle, target.copy()];
     rectangle = rectangle.filter((p) => {
         return map.is_in_bounds(p);
-    })
+    });
     return rectangle;
 }
 /** @type {SpellGenerator} */
@@ -10560,7 +10641,7 @@ function summon_spell(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     for(var i = 0; i < 2; ++i){
-        var tile = rand_from(self.tile.summons)();
+        var tile = random_from(self.tile.summons)();
         spawn_nearby(map, tile, self.location);
     }
 }
@@ -10670,13 +10751,13 @@ class AchievementList{
         // Returns a list of the achievements that they have achieved.
         return this.#list.filter((e) => {
             return e.has;
-        })
+        });
     }
     unfinished(){
         // Returns a list of the unfinished achievements.
         return this.#list.filter((e) => {
             return !e.has;
-        })
+        });
     }
     all(){
         // Returns all achievements.
@@ -10726,7 +10807,7 @@ class BoonTracker{
         this.#lost_boons = [];
         this.total = 0;
     }
-    get_choices(amount){
+    get_choices(amount = this.#choices.length){
         var choice_list = randomize_arr(this.#choices);
         var locked = [];
         GS.data.achievements.unfinished().map((a) => {
@@ -10807,7 +10888,6 @@ class BoonTracker{
             on_click: function(){say(b.description)}
         }});
     }
-
 }
 // ----------------ButtonGrid.js----------------
 // The ButtonGrid class is used to keep track of the possible moves a card has.
@@ -10873,11 +10953,12 @@ class ButtonGrid{
             }
         }
         for(var row of this.#buttons){
-            grid.push(row.map(button => {return {
-                description: button.description,
-                alt_click: telegraph(button.behavior),
-                on_click: click(button.behavior)
-            }
+            grid.push(row.map(button => {
+                return {
+                    description: button.description,
+                    alt_click: telegraph(button.behavior),
+                    on_click: click(button.behavior),
+                }
             }));
         }
         return grid;
@@ -10896,7 +10977,7 @@ class ButtonGrid{
                         commands = [`(${move_types.nothing})`];
                     }
                     var command_str = commands.join(`, ${NBS}`); // Non breaking spaces used so they won't be collapsed.
-                    explanation = explanation.concat(`${NBS}${NBS}${NBS}${NBS}-${button.description}: ${command_str}\n`);
+                    explanation = explanation.concat(`${NBS}${NBS}${NBS}${NBS}${usymbol.bullet} ${button.description}: ${command_str}\n`);
                 }
             }
         }
@@ -11128,11 +11209,11 @@ class EntityList{
                             if(e.enemy.behavior !== undefined){
                                 var self = {
                                     tile: e.enemy,
-                                    location: e.location.copy()
+                                    location: e.location.copy(),
                                 }
                                 var target = {
                                     tile: map.get_player(),
-                                    difference: this.get_player_pos().minus(e.location)
+                                    difference: this.get_player_pos().minus(e.location),
                                 }
                                 await e.enemy.behavior(self, target, map);
                                 proc_chilly_presence(e.enemy);
@@ -11246,7 +11327,7 @@ class GameMap{
         this.#area = starting_area;
         this.#is_player_turn = true;
         this.#exit_pos = [];
-        this.erase()
+        this.erase();
     }
     /**
      * Function to reset the floor so the next one can be generated,
@@ -11308,7 +11389,7 @@ class GameMap{
         }
         for(var x = 0; x < this.#x_max; ++x){
             for(var y = 0; y < this.#y_max; ++y){
-                var pos = new Point(x, y)
+                var pos = new Point(x, y);
                 if(this.get_tile(pos).type === entity_types.empty){
                     if(rand === 0){
                         return pos;
@@ -11375,17 +11456,17 @@ class GameMap{
         if(location === undefined){
             var top_row = range(this.#y_max);
             var points = top_row.map((y) => {
-                return new Point(y, 0)
+                return new Point(y, 0);
             }).filter((p) => {
                 return this.check_empty(p);
-            })
-            location = rand_from(points);
+            });
+            location = random_from(points);
         }
         this.check_bounds(location);
         if(!this.check_empty(location)){
             throw new Error(ERRORS.space_full);
         }
-        var exit = exit_tile()
+        var exit = exit_tile();
         if(next_area !== undefined){
             exit.next_area = next_area;
             this.get_grid(location).floor = next_area.background;
@@ -11401,7 +11482,7 @@ class GameMap{
      */
     set_player(player_location, player){
         if(player.type !== entity_types.player){
-            throw new Error(ERRORS.invalid_value)
+            throw new Error(ERRORS.invalid_value);
         }
         this.check_bounds(player_location);
         if(!this.check_empty(player_location)){
@@ -11410,7 +11491,7 @@ class GameMap{
         try{
             // If player isn't undefined, throws error.
             this.#entity_list.get_player_pos();
-            throw new Error(ERRORS.already_exists)
+            throw new Error(ERRORS.already_exists);
         }
         catch(error) {
             if(error.message !== ERRORS.value_not_found){
@@ -11539,7 +11620,7 @@ class GameMap{
                     rotate: tile.rotate,
                     flip: tile.flip,
                     background: [...background_pics, space.action, ...stunned, space.floor],
-                    on_click: make_on_click(space, new Point(x, y), this)
+                    on_click: make_on_click(space, new Point(x, y), this),
                 });
             };
             grid.push(table_row);
@@ -11585,7 +11666,7 @@ class GameMap{
                 }
                 var mover_info = {
                     tile: start,
-                    difference: start_point.minus(end_point)
+                    difference: start_point.minus(end_point),
                 }
                 end.on_enter(entity_entered, mover_info, this);
             }
@@ -11671,6 +11752,9 @@ class GameMap{
             }
             if(target.tags.has(TAGS.boss)){
                 this.stats.damage_boss();
+                if(source !== undefined && source.tile.type === entity_types.player){
+                    this.stats.player_damage_boss();
+                }
             }
             if(target.type === entity_types.player){
                 if(this.#is_player_turn){
@@ -11693,7 +11777,7 @@ class GameMap{
                 }
                 var aggressor_info = { // TODO: when damage source is implemented, use that instead.
                     tile: this.get_player(),
-                    difference: player_pos.minus(location)
+                    difference: player_pos.minus(location),
                 }
                 target.on_hit(hit_entity, aggressor_info, this);
             }
@@ -11716,15 +11800,18 @@ class GameMap{
                         throw new Error(ERRORS.missing_id);
                     }
                     this.#entity_list.remove_enemy(target.id);
-                    if(source !== undefined && source.tile.type === entity_types.player){
-                        this.stats.increment_kills();
-                    }
                 }
                 else{
                     --this.#entity_list.count_non_empty;
                     if(target.type === entity_types.chest && source !== undefined && source.tile.type === entity_types.player){
                         this.stats.increment_chest_kills();
                     }
+                }
+                if(source !== undefined && source.tile.type === entity_types.player){
+                    if(!target.tags.has(TAGS.obstruction)){
+                        this.stats.increment_kills();
+                    }
+                    this.stats.increment_destroyed();
                 }
                 if(target.on_death !== undefined){
                     // Trigger on_death
@@ -11735,7 +11822,7 @@ class GameMap{
                     }
                     var player_info = {
                         tile: this.get_player(),
-                        difference: player_pos.minus(location)
+                        difference: player_pos.minus(location),
                     }
                     target.on_death(dying_entity, player_info, this);
                 }
@@ -11747,11 +11834,11 @@ class GameMap{
             var player_pos = this.#entity_list.get_player_pos();
             var hit_entity = {
                 tile: target,
-                location: location
+                location: location,
             }
             var aggressor_info = { // TODO: when damage source is implemented, use that instead.
                 tile: this.get_player(),
-                difference: player_pos.minus(location)
+                difference: player_pos.minus(location),
             }
             target.on_hit(hit_entity, aggressor_info, this);
             return true;
@@ -11766,7 +11853,7 @@ class GameMap{
     player_attack(direction){
         var player_pos = this.#entity_list.get_player_pos();
         var pos = player_pos.plus(direction);
-        var current_kills = this.stats.get_stats().kills;
+        var current_kills = this.stats.get_stats().destroyed;
         try{
             if(
                 chance(GS.boons.has(boon_names.flame_strike), 2) && 
@@ -11777,7 +11864,7 @@ class GameMap{
                 this.add_tile(fireball, pos);
             }
             var hit = this.attack(pos, {tile: this.get_player(), location: player_pos});
-            if(current_kills < this.stats.get_stats().kills && GS.boons.has(boon_names.shattered_glass)){
+            if(current_kills < this.stats.get_stats().destroyed && GS.boons.has(boon_names.shattered_glass)){
                 for(var offset of ALL_DIRECTIONS){
                     var p_offset = pos.plus(offset);
                     if(
@@ -11810,16 +11897,22 @@ class GameMap{
         await this.#entity_list.enemy_turn(this);
         this.#is_player_turn = true;
     }
-    /**
-     * Displays the current floor number and turn count.
-     * @param {string} location Where they should be displayed.
-     */
-    display_stats(location){
+    display_stats(){
         var stats = this.stats.get_stats();
-        var stat_message = 
-            `${gameplay_labels.floor} ${this.#floor_num} `
-            +`${gameplay_labels.turn} ${stats.turn_number}`;
-        display.display_message(location, stat_message);
+        var to_display = {
+            floor: this.#floor_num,
+            turn: stats.turn_number,
+            kills: stats.kills,
+            dealt: stats.damage_dealt,
+            taken: stats.damage,
+            chests: stats.chests,
+            destroyed: stats.chest_kills,
+            health: hp_ratio(this.get_player())
+        }
+        refresh_stage_stats(to_display, UIIDS.stage_stats);
+        refresh_other_stats(to_display, UIIDS.shop_stats);
+        refresh_other_stats(to_display, UIIDS.chest_stats);
+        refresh_other_stats(to_display, UIIDS.deck_select_stats);
     }
     /**
      * Replaces the exit tile with a lock tile.
@@ -11913,7 +12006,7 @@ class GameMap{
             // Reached the next area.
             var next_list = this.#area.next_area_list;
             GS.data.clear_area(this.#area.name);
-            this.#area = rand_from(next_list);
+            this.#area = random_from(next_list);
             floor_description += `\n${gameplay_text.new_area}${this.#area.name}.`;
             GS.data.add_area(this.#area.name);
             GS.data.visit_area(this.#area.name);
@@ -11929,7 +12022,7 @@ class GameMap{
         }
         if(this.#floor_num % area_size === 0 && this.#area.boss_floor_list.length > 0){
             // Reached the boss.
-            var boss_floor = rand_from(this.#area.boss_floor_list);
+            var boss_floor = random_from(this.#area.boss_floor_list);
             boss_floor_common(this.#floor_num, this.#area, this); 
             var boss_message = boss_floor(this.#floor_num, this.#area, this);
             floor_description += `\n${boss_message}`;
@@ -11941,9 +12034,14 @@ class GameMap{
             this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
         }
         if(floor_has_chest(this.#floor_num % area_size)){
-            var chest_count = 1 + GS.boons.has(boon_names.hoarder);
             var chest = appropriate_chest_tile();
             var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));
+            if(chance(1, 2) && filter_new_boons(choices).length === 0){
+                var replacement_list = filter_new_boons(GS.boons.get_choices());
+                if(replacement_list.length > 0){
+                    choices[0] = random_from(replacement_list);
+                }
+            }
             for(var boon of choices){
                 add_boon_to_chest(chest, boon);
             }
@@ -12108,7 +12206,7 @@ class GameMap{
         }
         if(amount > 0){
             ++tile.health;
-            this.heal(location, amount - 1)
+            this.heal(location, amount - 1);
             return true;
         }
         return false;
@@ -12152,6 +12250,9 @@ class GameMap{
     }
     get_initiative(){
         return this.#entity_list.get_initiative();
+    }
+    get_floor_num(){
+        return this.#floor_num;
     }
 }
 
@@ -12219,7 +12320,7 @@ class GameState{
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
         display_map(this.map);
-        this.map.display_stats(UIIDS.stats);
+        this.map.display_stats();
 
         this.refresh_deck_display();
         display.display_message(UIIDS.shop_instructions, shop_text.header);
@@ -12272,7 +12373,7 @@ class GameState{
             if(is_instant){
                 this.refresh_deck_display();
                 this.unlock_player_turn();
-                this.map.display_stats(UIIDS.stats);
+                this.map.display_stats();
                 display_map(this.map);
                 this.unlock_player_turn();
                 return;
@@ -12288,7 +12389,7 @@ class GameState{
         var m = e.message
         switch(m){
             case ERRORS.floor_complete:
-                this.map.display_stats(UIIDS.stats);
+                this.map.display_stats();
                 this.enter_shop();
                 break;
             case ERRORS.game_over:
@@ -12307,7 +12408,6 @@ class GameState{
                 break;
             default:
                 throw e;
-
         }
     }
     /**
@@ -12341,7 +12441,7 @@ class GameState{
                     this.boons.has(boon_names.pacifism) > 0 && 
                     !action.change.is_origin() &&
                     this.map.is_in_bounds(target) &&
-                    !this.map.get_tile(target).tags.has(TAGS.altar)
+                    !this.map.get_tile(target).tags.has(TAGS.obstruction)
                 ){
                     stun_count += 2 * attack_count;
                     attack_count = 0;
@@ -12419,7 +12519,7 @@ class GameState{
     async new_floor(){
         // Creates the next floor.
         this.map.next_floor();
-        this.map.display_stats(UIIDS.stats);
+        this.map.display_stats();
         display_map(this.map);
         this.deck.deal();
             if(GS.boons.has(boon_names.vicious_cycle) > 0){
@@ -12467,8 +12567,8 @@ class GameState{
         }
         var restart_message = [{
             description: gameplay_labels.retry,
-            on_click: restart(this)
-        }]
+            on_click: restart(this),
+        }];
         display.add_button_row(UIIDS.retry_button, restart_message);
         refresh_full_deck_display(this.deck);
         var swap_visibility = function(id_list, id){
@@ -12480,7 +12580,7 @@ class GameState{
     }
     victory(){
         display_map(this.map);
-        display_victory()
+        display_victory();
         this.achieve(achievement_names.victory);
         say_record(gameplay_text.victory);
         refresh_full_deck_display(this.deck);
@@ -12511,7 +12611,7 @@ class GameState{
         await delay(ANIMATION_DELAY);
         display_map(this.map);
         this.refresh_deck_display();
-        this.map.display_stats(UIIDS.stats);
+        this.map.display_stats();
         this.unlock_player_turn();
     }
     /** 
@@ -12681,15 +12781,15 @@ class KeyBind{
         var toggle = KeyBind.#join_all(controls.toggle);
         var stage = [
             ...toggle,
-            this.#join_all(controls.stage)
+            this.#join_all(controls.stage),
         ];
         var shop = [
             ...toggle,
-            this.#join_all(controls.shop)
+            this.#join_all(controls.shop),
         ];
         var chest = [
             ...toggle,
-            this.#join_all(controls.chest)
+            this.#join_all(controls.chest),
         ];
         for(var list of [toggle, stage, shop, chest]){
             var unique = new Set(list);
@@ -12709,7 +12809,7 @@ class KeyBind{
                 direction: [...this.#controls.stage.direction],
                 card: [...this.#controls.stage.card],
                 info: [...this.#controls.stage.info],
-                retry: [...this.#controls.stage.retry]
+                retry: [...this.#controls.stage.retry],
             },
             shop: {
                 add: [...this.#controls.shop.add],
@@ -12719,10 +12819,10 @@ class KeyBind{
             chest: {
                 choose: [...this.#controls.chest.choose],
                 confirm: [...this.#controls.chest.confirm],
-                reject: [...this.#controls.chest.reject]
+                reject: [...this.#controls.chest.reject],
             },
             toggle: {
-                alt: [...this.#controls.toggle.alt]
+                alt: [...this.#controls.toggle.alt],
             }
         }
     }
@@ -12896,17 +12996,17 @@ class MoveDeck{
             let card = this.#hand[i];
             let background = [];
             if(card.temp){
-                background.push(`${IMG_FOLDER.other}temporary_background.png`)
+                background.push(`${IMG_FOLDER.other}temporary_background.png`);
             }
             else{
-                background.push(`${IMG_FOLDER.other}default_card_background.png`)
+                background.push(`${IMG_FOLDER.other}default_card_background.png`);
             }
             card_row.push({
                 pic: card.pic,
                 name: card.name,
                 background,
                 card: card,
-                on_click: make_prep_move(card, i)
+                on_click: make_prep_move(card, i),
             });
         }
         return card_row;
@@ -12964,6 +13064,12 @@ class MoveDeck{
                 this.#decklist.splice(i, 1);
                 if(card.evolutions !== undefined){
                     var next = randomize_arr(card.evolutions)[0]() ;
+                    if(chance(1, 2) && filter_new_cards([next]).length === 0){
+                        var replace_list = filter_new_cards(card.evolutions.map((c) => {return c()}));
+                        if(replace_list.length > 0){
+                            next = random_from(replace_list);
+                        }
+                    }
                     this.add(next);
                     if(next.evolutions === undefined){
                         GS.achieve(achievement_names.ancient_knowledge);
@@ -13068,7 +13174,7 @@ class SaveData{
         this.controls = new KeyBind();
         this.controls.set(data.controls);
         this.achievements = new AchievementList();
-        this.achievements.set(data.achievements)
+        this.achievements.set(data.achievements);
         this.cards = new SearchTree(data.cards, CardTreeNode);
         this.boons = new SearchTree(data.boons, BoonTreeNode);
         this.tiles = new SearchTree(data.tiles, TileTreeNode);
@@ -13127,6 +13233,14 @@ class SaveData{
         this.boons.add(name);
         this.boons.get_node(name).pick();
         this.save();
+        if(!GS.data.achievements.has(achievement_names.blessed)){
+            var has = BOON_LIST.filter((b) => {
+                return this.boons.has(b().name);
+            });
+            if(has.length >= 35){
+                GS.achieve(achievement_names.blessed);
+            }
+        }
     }
     add_tile(name){
         var added = this.tiles.add(name);
@@ -13156,7 +13270,7 @@ class SaveData{
     // Static functions
     static load_file_function(save_name){
         return () => {
-            const fs = require('fs');
+            const fs = require(`fs`);
             try{
                 var data = fs.readFileSync(`./saves/${save_name}.txt`, `utf8`);
                 data = JSON.parse(data);
@@ -13206,7 +13320,7 @@ class SaveData{
     }
     static #load_missing_recursive(data, default_data){
         if( // Base case: current field is not an object.
-            typeof default_data !== 'object' || 
+            typeof default_data !== `object` || 
             Array.isArray(default_data) || 
             default_data === null
         ){
@@ -13235,7 +13349,7 @@ class ScreenTracker{
     }
     swap(division){
         if(division !== undefined && this.div.find((d) => {d === division}) === -1){
-            throw new Error(ERRORS.value_not_found)
+            throw new Error(ERRORS.value_not_found);
         }
         display.swap_screen(this.div, division);
         this.current = division;
@@ -13440,7 +13554,7 @@ class SearchTree{
         return [
             ...this.#recursive_to_list(current.left), 
             current.data, 
-            ...this.#recursive_to_list(current.right)
+            ...this.#recursive_to_list(current.right),
         ];
     }
     remove_all(){
@@ -13558,6 +13672,18 @@ class Shop{
             add_list_generators[index_of_rare] = rare[0];
         }
         this.#add_row = add_list_generators.map((g) => {return g()});
+        if(chance(1, 2) && filter_new_cards(this.#add_row).length === 0){
+            // Chance to force the appearance of a card in the shop that has never been picked.
+            var to_replace = 0;
+            var replace_list = filter_new_cards(COMMON_CARDS.map((c) => {return c()}));
+            if(chance(1, 2) && index_of_rare < this.#add_row.length && rares.length > 0){
+                to_replace = index_of_rare;
+                replace_list = filter_new_cards(rares.map((c) => {return c()}));
+            }
+            if(replace_list.length > 0){
+                this.#add_row[to_replace] = random_from(replace_list);
+            }
+        }
     }
     #generate_remove_row(){
         var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
@@ -13598,9 +13724,9 @@ class Shop{
                 pic: card.pic,
                 card,
                 on_click: make_add_card(i),
-                selected: s.#add_index === i
+                selected: s.#add_index === i,
             }
-        })
+        });
         row.unshift(symbol_add_card());
         return row;
     }
@@ -13651,7 +13777,9 @@ class StatTracker{
     #damage_dealt;
     #boss_kill_start;
     #total_damage_per_floor;
+    #player_boss_damage;
     #kills;
+    #destroyed;
     #chest_kills;
     #total_kills_per_floor;
 
@@ -13664,9 +13792,11 @@ class StatTracker{
         this.#damage_dealt = 0;
         this.#boss_kill_start = 0;
         this.#total_damage_per_floor = [0];
+        this.#player_boss_damage = 0;
         this.#kills = 0;
+        this.#destroyed = 0;
         this.#chest_kills = 0;
-        this.#total_kills_per_floor = [0]
+        this.#total_kills_per_floor = [0];
     }
     increment_turn(){
         ++this.#turn_number;
@@ -13716,11 +13846,18 @@ class StatTracker{
         }
         this.#boss_kill_start = Math.min(this.#boss_kill_start, this.#turn_number);
     }
+    player_damage_boss(){
+        ++this.#player_boss_damage;
+    }
     reset_boss_damage(){
         this.#boss_kill_start = undefined;
+        this.#player_boss_damage = 0;
     }
     increment_kills(){
         ++this.#kills;
+    }
+    increment_destroyed(){
+        ++this.#destroyed;
     }
     increment_chest_kills(){
         ++this.#chest_kills;
@@ -13738,7 +13875,9 @@ class StatTracker{
             damage_dealt: this.#damage_dealt,
             boss_kill_start: this.#boss_kill_start,
             total_damage_per_floor: this.#total_damage_per_floor,
+            player_boss_damage: this.#player_boss_damage,
             kills: this.#kills,
+            destroyed: this.#destroyed,
             chest_kills: this.#chest_kills,
             total_kills_per_floor: this.#total_kills_per_floor
         }
@@ -13754,11 +13893,11 @@ class TagList{
                 throw new Error(ERRORS.invalid_type);
             }
         }
-        this.#tags = [...list]
+        this.#tags = [...list];
     }
     add(tag){
         if(!this.has(tag)){
-            this.#tags.push(tag)
+            this.#tags.push(tag);
         }
     }
     remove(tag){
@@ -13775,7 +13914,6 @@ class TagList{
         }
         return this.#tags.indexOf(tag) !== -1;
     }
-
 }
 /** @type {AreaGenerator}*/
 function generate_basement_area(){
@@ -13792,11 +13930,11 @@ function generate_basement_area(){
 
 /** @type {FloorGenerator}*/
 function generate_basement_floor(floor_num, area, map){
-    if(chance(1, 7)){
-        many_walls_terrain(floor_num, area, map)
+    if(chance(1, 6)){
+        many_walls_terrain(floor_num, area, map);
     }
     else{
-        wall_terrain(floor_num, area, map)
+        wall_terrain(floor_num, area, map);
     }
     generate_normal_floor(floor_num, area, map);
 }
@@ -13833,10 +13971,6 @@ function generate_court_area(){
 
 /** @type {FloorGenerator}*/
 function generate_court_floor(floor_num, area, map){
-    var terrains = [
-        starcaller_terrain,
-        shatter_sphere_terrain
-    ]
     var reduction = 0;
     if(chance(1, 2)){
         starcaller_terrain(floor_num, area, map);
@@ -13866,9 +14000,9 @@ function shatter_sphere_terrain(floor_num, area, map){
     var summons = [
         shatter_sphere_tile,
         moon_rock_tile
-    ]
+    ];
     for(var i = 0; i < amount; ++i){
-        map.spawn_safely(rand_from(summons)(), SAFE_SPAWN_ATTEMPTS, true);
+        map.spawn_safely(random_from(summons)(), SAFE_SPAWN_ATTEMPTS, true);
     }
 }
 /** @type {AreaGenerator}*/
@@ -13893,7 +14027,7 @@ function generate_crypt_floor(floor_num, area, map){
 function coffin_terrain(floor_num, area, map){
     var coffin_amount = Math.min(random_num(4), random_num(4));
     for(var i = 0; i < coffin_amount; ++i){
-        map.spawn_safely(coffin_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(coffin_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }
 /** @type {AreaGenerator}*/
@@ -13911,7 +14045,7 @@ function generate_forest_area(){
 
 /** @type {FloorGenerator}*/
 function generate_forest_floor(floor_num, area, map){
-    if(chance(1, 12) && !floor_has_chest(floor_num % init_settings().area_size)){
+    if(chance(1, 9) && !floor_has_chest(floor_num % init_settings().area_size)){
         swaying_nettle_terrain(floor_num, area, map);
         generate_normal_floor(floor_num / 2, area, map);
     }
@@ -13951,10 +14085,35 @@ function generate_library_area(){
 
 /** @type {FloorGenerator}*/
 function generate_library_floor(floor_num, area, map){
+    if(chance(1, 7)){
+        book_row_terrain(floor_num, area, map);
+        generate_normal_floor(floor_num - 4, area, map);
+        return;
+    }
     if(chance(2, 3)){
         bookshelf_terrain(floor_num, area, map);
     }
     generate_normal_floor(floor_num, area, map);
+}
+/** @type {FloorGenerator}*/
+function book_row_terrain(floor_num, area, map){
+    var rotate = chance(1, 2);
+    var x_max = rotate ? FLOOR_HEIGHT : FLOOR_WIDTH;
+    var y_max = rotate ? FLOOR_WIDTH : FLOOR_HEIGHT;
+    var xs = [];
+    for(var i = 0; i < x_max; i += 2){
+        xs.push(i + random_num(2));
+    }
+    var ys = rotate ? range(0, y_max) : range(1, y_max - 1);
+    for(var x of xs){
+        var less_ys = rand_no_repeats(ys, y_max - 3);
+        for(var y of less_ys){
+            var p = rotate ? new Point(y, x) : new Point(x, y);
+            if(map.check_empty(p)){
+                map.add_tile(bookshelf_tile(), p);
+            }
+        }
+    }
 }
 
 /** @type {FloorGenerator}*/
@@ -13998,7 +14157,7 @@ function generate_magma_floor(floor_num, area, map){
         magma_terrain(floor_num, area, map);
     }
     repulsor_terrain(floor_num, area, map);
-    boulder_terrain(floor_num, area, map)
+    boulder_terrain(floor_num, area, map);
     generate_normal_floor(floor_num - 3, area, map);
 }
 /** @type {FloorGenerator}*/
@@ -14043,7 +14202,6 @@ function boulder_terrain(floor_num, area, map){
     for(var i = 0; i < boulder_amount; ++i){
         map.spawn_safely(animated_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
-
 }
 
 /** @type {FloorGenerator}*/
@@ -14061,7 +14219,7 @@ function magma_lake_terrain(floor_num, area, map){
                 catch{}
             }
         }
-    )
+    );
 }
 
 function boulder_field_terrain(floor_num, area, map){
@@ -14073,7 +14231,6 @@ function boulder_field_terrain(floor_num, area, map){
     for(var i = 0; i < boulder_amount; ++i){
         map.spawn_safely(animated_boulder_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
-
 }
 /** @type {AreaGenerator}*/
 function generate_ruins_area(){
@@ -14113,7 +14270,7 @@ function generate_sewers_floor(floor_num, area, map){
     }
     else{
         var terrains = [slime_terrain, grate_terrain];
-        rand_from(terrains)(floor_num, area, map);
+        random_from(terrains)(floor_num, area, map);
     }
     generate_normal_floor(floor_num, area, map);
 }
@@ -14149,7 +14306,7 @@ function river_terrain(floor_num, area, map){
         (e1, e2) => {
             map.add_tile(corrosive_slime_tile(), new Point(e1, y + e2));
         }
-    )
+    );
 }
 // ----------------Areas.js----------------
 // File containing functions used by areas.
@@ -14241,13 +14398,13 @@ function forest_heart_floor(floor_num,  area, map){
         new Point(mid_width + 1, mid_height),
         new Point(mid_width + 1, mid_height + 1),
         new Point(mid_width, mid_height + 1),
-    ]
+    ];
     var sections = [
         [undefined, new Point(1, 0)],
         [new Point(-1, 0), new Point(0, 1)],
         [new Point(0, -1), new Point(-1, 0)],
-        [new Point(1, 0), undefined]
-    ]
+        [new Point(1, 0), undefined],
+    ];
     for(var i = 0; i < locations.length; ++i){
         var section = forest_heart_tile();
         if(GS.boons.has(boon_names.boss_slayer)){
@@ -14277,8 +14434,8 @@ function lich_floor(floor_num,  area, map){
         new Point(FLOOR_WIDTH - 2, FLOOR_HEIGHT - 2),
         new Point(1, FLOOR_HEIGHT - 2),
         new Point(FLOOR_WIDTH - 2, 1),
-        new Point(1, 1)
-    ]
+        new Point(1, 1),
+    ];
     for(var location of locations){
         map.add_tile(damaged_wall_tile(), location);
     }
@@ -14299,8 +14456,8 @@ function lord_of_shadow_and_flame_floor(floor_num,  area, map){
         new Point(mid_width + 1, mid_height),
         new Point(mid_width + 1, mid_height + 1),
         new Point(mid_width, mid_height + 1),
-    ]
-    var spawnpoint = rand_from(locations);
+    ];
+    var spawnpoint = random_from(locations);
     var boss = lord_of_shadow_and_flame_tile();
     if(GS.boons.has(boon_names.boss_slayer)){
         boss.health -= 2;
@@ -14346,7 +14503,7 @@ function two_headed_serpent_floor(floor_num, area, map){
         var position = current.copy();
         var dirs = [new Point(random_sign(), 0), new Point(0, random_sign())];
         for(var i = 1; i < serpent_length; ++i){
-            var next = rand_from(dirs);
+            var next = random_from(dirs);
             position.plus_equals(next);
             if(map.check_empty(position)){
                 locations.push(next);
@@ -14391,7 +14548,7 @@ function two_headed_serpent_floor(floor_num, area, map){
     for(var i = 0; i < 8; ++i){
         var position = map.random_empty();
         map.add_tile(wall_tile(), position);
-        map.add_tile(damaged_wall_tile(), position.plus(rand_from(ALL_DIRECTIONS)));
+        map.add_tile(damaged_wall_tile(), position.plus(random_from(ALL_DIRECTIONS)));
     }
     return boss_floor_message.two_headed_serpent;
 }
@@ -14536,14 +14693,14 @@ function execution_1(){
         pattack(0, -1),
         pattack(-1, 1),
         pattack(-1, 0),
-        pattack(-1, -1)
+        pattack(-1, -1),
     ];
     options.add_button(SPIN, spin);
     return{
         name: card_names.execution_1,
         pic: `${IMG_FOLDER.cards}execution_1.png`,
         options,
-        evolutions: [execution_2]
+        evolutions: [execution_2],
     }
 }
 
@@ -14558,7 +14715,7 @@ function execution_2(){
         pattack(0, -1),
         pattack(-1, 1),
         pattack(-1, 0),
-        pattack(-1, -1)
+        pattack(-1, -1),
     ];
     spin = [...spin, ...spin];
     options.add_button(SPIN, spin);
@@ -14566,7 +14723,7 @@ function execution_2(){
         name: card_names.execution_2,
         pic: `${IMG_FOLDER.cards}execution_2.png`,
         options,
-        evolutions: [execution_3]
+        evolutions: [execution_3],
     }
 }
 
@@ -14581,7 +14738,7 @@ function execution_3(){
         pattack(0, -1),
         pattack(-1, 1),
         pattack(-1, 0),
-        pattack(-1, -1)
+        pattack(-1, -1),
     ];
     spin = [...spin, ...spin, ...spin];
     options.add_button(SPIN, spin);
@@ -14599,7 +14756,7 @@ function lost_maneuver(){
         name: card_names.lost_maneuver,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         options,
-        evolutions: [maneuver_1, blink_1, back_stab_1]
+        evolutions: [maneuver_1, blink_1, back_stab_1],
     }
 }
 /** @type {CardGenerator}*/
@@ -14613,14 +14770,14 @@ function split_second_1(){
         pattack(0, -1),
         pattack(-1, 1),
         pattack(-1, 0),
-        pattack(-1, -1)
+        pattack(-1, -1),
     ];
     options.add_button(SPIN, spin);
     return{
         name: card_names.split_second_1,
         pic: `${IMG_FOLDER.cards}split_second_1.png`,
         options,
-        evolutions: [split_second_2]
+        evolutions: [split_second_2],
     }
 }
 
@@ -14635,7 +14792,7 @@ function split_second_2(){
         pattack(0, -1),
         pattack(-1, 1),
         pattack(-1, 0),
-        pattack(-1, -1)
+        pattack(-1, -1),
     ];
     options.add_button(SPIN, spin);
     options.make_instant();
@@ -14656,7 +14813,7 @@ function superweapon_1(){
         pattack(0, -1),
         pattack(-1, 1),
         pattack(-1, 0),
-        pattack(-1, -1)
+        pattack(-1, -1),
     ];
     options.add_button(SPIN, spin);
     return{
@@ -14807,7 +14964,7 @@ function maneuver_3(){
         pstun(0, -1),
         pstun(-1, 1),
         pstun(-1, 0),
-        pstun(-1, -1)
+        pstun(-1, -1),
     ];
     options.add_button(SPIN, spin);
     return{
@@ -15355,14 +15512,16 @@ function diamond_attack(){
 /** @type {CardGenerator}*/
 function diamond_slice(){
     var options = new ButtonGrid();
-    var spin = [pattack(1, 1),
-                pattack(2, 0),
-                pattack(1, -1),
-                pattack(0, 2),
-                pattack(0, -2),
-                pattack(-1, 1),
-                pattack(-2, 0),
-                pattack(-1, -1)]
+    var spin = [
+        pattack(1, 1),
+        pattack(2, 0),
+        pattack(1, -1),
+        pattack(0, 2),
+        pattack(0, -2),
+        pattack(-1, 1),
+        pattack(-2, 0),
+        pattack(-1, -1)
+    ];
     options.add_button(SPIN, spin);
     return{
         name: card_names.diamond_slice,
@@ -15948,15 +16107,17 @@ function freeze_up(){
 /** @type {CardGenerator}*/
 function lash_out(){
     var options = new ButtonGrid();
-    var spin = [pattack(1, 1),
-                pattack(1, 0),
-                pattack(1, -1),
-                pattack(0, 1),
-                pattack(0, 0),
-                pattack(0, -1),
-                pattack(-1, 1),
-                pattack(-1, 0),
-                pattack(-1, -1)]
+    var spin = [
+        pattack(1, 1),
+        pattack(1, 0),
+        pattack(1, -1),
+        pattack(0, 1),
+        pattack(0, 0),
+        pattack(0, -1),
+        pattack(-1, 1),
+        pattack(-1, 0),
+        pattack(-1, -1)
+    ];
     options.add_button(SPIN, spin, 5);
     return{
         name: card_names.lash_out,
@@ -16361,7 +16522,7 @@ function symbol_add_card(){
     return{
         name: card_names.symbol_add_card,
         pic: `${IMG_FOLDER.other}plus.png`,
-        options: new ButtonGrid()
+        options: new ButtonGrid(),
     }
 }
 /** @type {CardGenerator} Shown in shop ind=stead of the remove symbol when your deck is at the minimum size.*/
@@ -16369,7 +16530,7 @@ function symbol_deck_at_minimum(){
     return{
         name: card_names.symbol_deck_at_minimum,
         pic: `${IMG_FOLDER.other}x.png`,
-        options: new ButtonGrid()
+        options: new ButtonGrid(),
     }
 }
 /** @type {CardGenerator} Shown in the journal for cards you have not yet unlocked.*/
@@ -16377,7 +16538,7 @@ function symbol_locked_card(){
     return{
         name: card_names.symbol_locked,
         pic: `${IMG_FOLDER.other}locked.png`,
-        options: new ButtonGrid()
+        options: new ButtonGrid(),
     }
 }
 /** @type {CardGenerator} Shown in the journal for cards you have not yet added to your deck.*/
@@ -16385,7 +16546,7 @@ function symbol_not_encountered_card(){
     return{
         name: card_names.symbol_not_encountered_card,
         pic: `${IMG_FOLDER.other}not_encountered.png`,
-        options: new ButtonGrid()
+        options: new ButtonGrid(),
     }
 }
 /** @type {CardGenerator} Shown in show to denote removing a card from your deck.*/
@@ -16393,7 +16554,7 @@ function symbol_remove_card(){
     return{
         name: card_names.symbol_remove_card,
         pic: `${IMG_FOLDER.other}minus.png`,
-        options: new ButtonGrid()
+        options: new ButtonGrid(),
     }
 }
 const ACHIEVEMENT_CARDS = {
@@ -16680,8 +16841,8 @@ function explain_action(action){
  */
 function explain_point(p){
     var direction = sign(p);
-    var vertical = [four_directions.up, undefined, four_directions.down][direction.y + 1];
-    var horizontal = [four_directions.left, undefined, four_directions.right][direction.x + 1];
+    var vertical = [usymbol.up, undefined, usymbol.down][direction.y + 1];
+    var horizontal = [usymbol.left, undefined, usymbol.right][direction.x + 1];
     if(vertical === undefined && horizontal === undefined){
         return move_types.you;
     }
@@ -16705,7 +16866,7 @@ function telegraph_card(behavior, map, start_position){
         attacks: [],
         stun: [],
         healing: [],
-        teleport: []
+        teleport: [],
     }
     if(behavior === undefined){
         return telegraphs;
@@ -16791,6 +16952,12 @@ function copy_card(source){
         per_floor: source.per_floor,
     }
 }
+
+function filter_new_cards(cards){
+    return cards.filter((c) => {
+        return !GS.data.cards.has(c.name);
+    });
+}
 const BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, blood_alchemy, boss_slayer, 
     brag_and_boast, chilly_presence, choose_your_path, clean_mind, creative, 
@@ -16810,7 +16977,7 @@ function change_max_health(amount){
         throw new Error(ERRORS.missing_property);
     }
     GS.map.get_player().max_health += amount;
-    GS.map.get_player().health = Math.min(GS.map.get_player().max_health, GS.map.get_player().health)
+    GS.map.get_player().health = Math.min(GS.map.get_player().max_health, GS.map.get_player().health);
 }
 
 function max_health_at_least(amount){
@@ -16826,7 +16993,12 @@ function get_locked_boons(){
         }
     });
     return list;
+}
 
+function filter_new_boons(boons){
+    return boons.filter((b) => {
+        return !GS.data.boons.has(b.name);
+    });
 }
 function symbol_locked_boon(){
     return {
@@ -16921,10 +17093,10 @@ function brag_and_boast(){
 
 function pick_brag_and_boast(){
     for(var i = 0; i < 2; ++i){
-        var boss = rand_from(BOSS_LIST)();
-        var card = rand_from(boss.card_drops)();
+        var boss = random_from(BOSS_LIST)();
+        var card = random_from(boss.card_drops)();
         GS.deck.add(card);
-        card = rand_from(CONFUSION_CARDS)();
+        card = random_from(CONFUSION_CARDS)();
         GS.deck.add(card);
     }
 }
@@ -16974,7 +17146,6 @@ function prereq_clean_mind(){
 function pick_clean_mind(){
     display_deck_to_remove(2);
     GAME_SCREEN_DIVISIONS.swap(UIIDS.deck_select);
-
 }
 function creative(){
     return {
@@ -17172,9 +17343,14 @@ function hoarder(){
         name: boon_names.hoarder,
         pic: `${IMG_FOLDER.boons}hoarder.png`,
         description: boon_descriptions.hoarder,
-        prereq_description: boon_prereq_descriptions.none,
+        prereq_description: boon_prereq_descriptions.hoarder,
+        prereq: prereq_hoarder,
         max: 1,
     }
+}
+
+function prereq_hoarder(){
+    return GS.map.get_floor_num() < 15;
 }
 function larger_chests(){
     return {
@@ -17295,7 +17471,9 @@ function practice_makes_perfect(){
 }
 
 function prereq_practice_makes_perfect(){
-    return GS.map.get_player().max_health !== undefined;
+    var has_health = GS.map.get_player().max_health !== undefined;
+    var not_deep = GS.map.get_floor_num() < 15;
+    return has_health && not_deep;
 }
 function pressure_points(){
     return {
@@ -17347,7 +17525,7 @@ function retaliate_behavior(self, target, map){
     var hit = false;
     var spaces = random_nearby().map(p => {
         return p.plus(self.location);
-    })
+    });
     for(var i = 0; i < spaces.length && !hit; ++i){
         if( map.is_in_bounds(spaces[i]) &&                   // Space is not edge.
             !map.check_empty(spaces[i]) &&                   // Space is not empty.
@@ -17553,6 +17731,7 @@ function get_achievements(){
         // Other 
         ancient_knowledge_achievement(),
         beyond_the_basics_achievement(),
+        blessed_achievement(),
         clumsy_achievement(),
         collector_achievement(),
         common_sense_achievement(),
@@ -17569,7 +17748,7 @@ function get_achievements(){
         speed_runner_achievement(),
         triple_achievement(),
         without_a_scratch_achievement(),
-    ]
+    ];
 }
 function arcane_sentry_achievement(){
     return {
@@ -17677,6 +17856,15 @@ function beyond_the_basics_achievement(){
         image: `${IMG_FOLDER.achievements}beyond_the_basics.png`,
         has: false,
         boons: [perfect_the_basics],
+    }
+}
+function blessed_achievement(){
+    return {
+        name: achievement_names.blessed,
+        description: achievement_description.blessed,
+        image: `${IMG_FOLDER.achievements}blessed.png`,
+        has: false,
+        boons: [larger_chests],
     }
 }
 function clumsy_achievement(){

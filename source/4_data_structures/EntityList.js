@@ -149,11 +149,11 @@ class EntityList{
                             if(e.enemy.behavior !== undefined){
                                 var self = {
                                     tile: e.enemy,
-                                    location: e.location.copy()
+                                    location: e.location.copy(),
                                 }
                                 var target = {
                                     tile: map.get_player(),
-                                    difference: this.get_player_pos().minus(e.location)
+                                    difference: this.get_player_pos().minus(e.location),
                                 }
                                 await e.enemy.behavior(self, target, map);
                                 proc_chilly_presence(e.enemy);

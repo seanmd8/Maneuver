@@ -9,8 +9,8 @@ function node_turret_behavior(self, target, map){
     else if(GS.boons.has(boon_names.manic_presence)){
         var dirs = [
             self.tile.direction.times(new Point(1, 0)),
-            self.tile.direction.times(new Point(0, 1))
-        ]
+            self.tile.direction.times(new Point(0, 1)),
+        ];
         for(var p of dirs){
             if(chance(1, 2)){
                 turret_fire_ai(self, {difference: p}, map);

@@ -7,7 +7,9 @@ class StatTracker{
     #damage_dealt;
     #boss_kill_start;
     #total_damage_per_floor;
+    #player_boss_damage;
     #kills;
+    #destroyed;
     #chest_kills;
     #total_kills_per_floor;
 
@@ -20,9 +22,11 @@ class StatTracker{
         this.#damage_dealt = 0;
         this.#boss_kill_start = 0;
         this.#total_damage_per_floor = [0];
+        this.#player_boss_damage = 0;
         this.#kills = 0;
+        this.#destroyed = 0;
         this.#chest_kills = 0;
-        this.#total_kills_per_floor = [0]
+        this.#total_kills_per_floor = [0];
     }
     increment_turn(){
         ++this.#turn_number;
@@ -72,11 +76,18 @@ class StatTracker{
         }
         this.#boss_kill_start = Math.min(this.#boss_kill_start, this.#turn_number);
     }
+    player_damage_boss(){
+        ++this.#player_boss_damage;
+    }
     reset_boss_damage(){
         this.#boss_kill_start = undefined;
+        this.#player_boss_damage = 0;
     }
     increment_kills(){
         ++this.#kills;
+    }
+    increment_destroyed(){
+        ++this.#destroyed;
     }
     increment_chest_kills(){
         ++this.#chest_kills;
@@ -94,7 +105,9 @@ class StatTracker{
             damage_dealt: this.#damage_dealt,
             boss_kill_start: this.#boss_kill_start,
             total_damage_per_floor: this.#total_damage_per_floor,
+            player_boss_damage: this.#player_boss_damage,
             kills: this.#kills,
+            destroyed: this.#destroyed,
             chest_kills: this.#chest_kills,
             total_kills_per_floor: this.#total_kills_per_floor
         }

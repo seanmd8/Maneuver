@@ -27,7 +27,7 @@ class SaveData{
         this.controls = new KeyBind();
         this.controls.set(data.controls);
         this.achievements = new AchievementList();
-        this.achievements.set(data.achievements)
+        this.achievements.set(data.achievements);
         this.cards = new SearchTree(data.cards, CardTreeNode);
         this.boons = new SearchTree(data.boons, BoonTreeNode);
         this.tiles = new SearchTree(data.tiles, TileTreeNode);
@@ -86,6 +86,14 @@ class SaveData{
         this.boons.add(name);
         this.boons.get_node(name).pick();
         this.save();
+        if(!GS.data.achievements.has(achievement_names.blessed)){
+            var has = BOON_LIST.filter((b) => {
+                return this.boons.has(b().name);
+            });
+            if(has.length >= 35){
+                GS.achieve(achievement_names.blessed);
+            }
+        }
     }
     add_tile(name){
         var added = this.tiles.add(name);
@@ -115,7 +123,7 @@ class SaveData{
     // Static functions
     static load_file_function(save_name){
         return () => {
-            const fs = require('fs');
+            const fs = require(`fs`);
             try{
                 var data = fs.readFileSync(`./saves/${save_name}.txt`, `utf8`);
                 data = JSON.parse(data);
@@ -165,7 +173,7 @@ class SaveData{
     }
     static #load_missing_recursive(data, default_data){
         if( // Base case: current field is not an object.
-            typeof default_data !== 'object' || 
+            typeof default_data !== `object` || 
             Array.isArray(default_data) || 
             default_data === null
         ){

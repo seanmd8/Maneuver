@@ -10,10 +10,10 @@ function brag_and_boast(){
 
 function pick_brag_and_boast(){
     for(var i = 0; i < 2; ++i){
-        var boss = rand_from(BOSS_LIST)();
-        var card = rand_from(boss.card_drops)();
+        var boss = random_from(BOSS_LIST)();
+        var card = random_from(boss.card_drops)();
         GS.deck.add(card);
-        card = rand_from(CONFUSION_CARDS)();
+        card = random_from(CONFUSION_CARDS)();
         GS.deck.add(card);
     }
 }

@@ -26,7 +26,7 @@ function carrion_flies_ai(self, target, map){
         // When the cycle reaches the spawn timer, spawn and reset it while increasing the time until the next one.
         self.tile.spawn_timer += 2;
         self.tile.cycle = 0;
-        var new_tile = carrion_flies_tile()
+        var new_tile = carrion_flies_tile();
         new_tile.spawn_timer = self.tile.spawn_timer;
         spawn_nearby(map, new_tile, self.location);
     }
@@ -37,6 +37,6 @@ function carrion_flies_ai(self, target, map){
     else{
         // Move randomly.
         var near_points = random_nearby();
-        for(var i = 0; i < near_points.length && !map.move(self.location, self.location.plus(near_points[i])); ++i){}
+        move_reckless(self, target, map, near_points);
     }
 }

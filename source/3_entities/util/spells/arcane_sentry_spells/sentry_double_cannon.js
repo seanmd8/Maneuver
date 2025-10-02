@@ -10,7 +10,7 @@ function node_o_double_cannon_ai(self, target, map){
     var dir = self.tile.direction;
     var spawnpoints = [
         self.location.plus(dir.plus(dir.rotate(90))), 
-        self.location.plus(dir.plus(dir.rotate(-90)))
+        self.location.plus(dir.plus(dir.rotate(-90))),
     ];
     for(var spawnpoint of spawnpoints){
         var fireball = shoot_fireball(self.tile.direction);
@@ -19,13 +19,12 @@ function node_o_double_cannon_ai(self, target, map){
             map.add_tile(fireball, spawnpoint);
         }
     }
-
 }
 function node_d_double_cannon_ai(self, target, map){
     var dir = self.tile.direction;
     var spawnpoints = [
         self.location.plus(dir.times(new Point(1, 0))), 
-        self.location.plus(dir.times(new Point(0, 1)))
+        self.location.plus(dir.times(new Point(0, 1))),
     ];
     for(var spawnpoint of spawnpoints){
         var fireball = shoot_fireball(self.tile.direction);
@@ -41,13 +40,13 @@ function node_double_cannon_telegraph(location, map, self){
     if(dir.on_axis()){
         var locations = [
             location.plus(dir.plus(dir.rotate(90))), 
-            location.plus(dir.plus(dir.rotate(-90)))
+            location.plus(dir.plus(dir.rotate(-90))),
         ];
     }
     else{
         var locations = [
             location.plus(dir.times(new Point(1, 0))), 
-            location.plus(dir.times(new Point(0, 1)))
+            location.plus(dir.times(new Point(0, 1))),
         ];
     }
     return locations.filter((p) => {

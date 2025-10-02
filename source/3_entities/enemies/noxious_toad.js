@@ -25,19 +25,13 @@ function noxious_toad_ai(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 0){
-        var directions = order_nearby(target.difference);
-        var moved = false;
-        for(var i = 0; i < directions.length && !moved; ++i){
-            // Leap orthogonally closer.
-            if(directions[i].on_axis()){
-                moved = map.move(self.location, self.location.plus(directions[i].times(2)));
-                if(moved){
-                    self.location.plus_equals(directions[i].times(2));
-                    target.difference.minus_equals(directions[i].times(2))
-                }
-            }
-        }
-        if(moved){
+        var moves = order_nearby(target.difference).filter((p) => {
+            return p.on_axis();
+        }).map((p) => {
+            return p.times(2);
+        });
+        var moved = move_reckless(self, target, map, moves);
+        if(moved !== undefined){
             self.tile.cycle = 1;
             if(
                 target.difference.within_radius(1) || 
@@ -52,7 +46,7 @@ function noxious_toad_ai(self, target, map){
         // Prepare to leap.
         self.tile.cycle = 0;
     }
-    self.tile.pic = self.tile.pic_arr[self.tile.cycle]
+    self.tile.pic = self.tile.pic_arr[self.tile.cycle];
 }
 
 /** @type {TelegraphFunction} */

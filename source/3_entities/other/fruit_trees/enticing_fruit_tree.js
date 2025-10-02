@@ -23,7 +23,7 @@ function enticing_fruit_tree_on_enter(self, target, map){
     map.heal(self.location.plus(target.difference), 1);
     var spawns = random_num(2) + random_num(2);
     for(var i = 0; i < spawns; ++i){
-        var new_spawn = rand_from(self.tile.summons)();
+        var new_spawn = random_from(self.tile.summons)();
         stun(new_spawn);
         spawn_nearby(map, new_spawn, self.location);
     }

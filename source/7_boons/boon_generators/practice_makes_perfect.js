@@ -10,5 +10,7 @@ function practice_makes_perfect(){
 }
 
 function prereq_practice_makes_perfect(){
-    return GS.map.get_player().max_health !== undefined;
+    var has_health = GS.map.get_player().max_health !== undefined;
+    var not_deep = GS.map.get_floor_num() < 15;
+    return has_health && not_deep;
 }

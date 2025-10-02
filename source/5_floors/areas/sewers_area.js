@@ -18,7 +18,7 @@ function generate_sewers_floor(floor_num, area, map){
     }
     else{
         var terrains = [slime_terrain, grate_terrain];
-        rand_from(terrains)(floor_num, area, map);
+        random_from(terrains)(floor_num, area, map);
     }
     generate_normal_floor(floor_num, area, map);
 }
@@ -54,5 +54,5 @@ function river_terrain(floor_num, area, map){
         (e1, e2) => {
             map.add_tile(corrosive_slime_tile(), new Point(e1, y + e2));
         }
-    )
+    );
 }

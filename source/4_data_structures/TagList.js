@@ -8,11 +8,11 @@ class TagList{
                 throw new Error(ERRORS.invalid_type);
             }
         }
-        this.#tags = [...list]
+        this.#tags = [...list];
     }
     add(tag){
         if(!this.has(tag)){
-            this.#tags.push(tag)
+            this.#tags.push(tag);
         }
     }
     remove(tag){
@@ -29,5 +29,4 @@ class TagList{
         }
         return this.#tags.indexOf(tag) !== -1;
     }
-
 }

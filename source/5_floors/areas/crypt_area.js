@@ -20,6 +20,6 @@ function generate_crypt_floor(floor_num, area, map){
 function coffin_terrain(floor_num, area, map){
     var coffin_amount = Math.min(random_num(4), random_num(4));
     for(var i = 0; i < coffin_amount; ++i){
-        map.spawn_safely(coffin_tile(), SAFE_SPAWN_ATTEMPTS, false)
+        map.spawn_safely(coffin_tile(), SAFE_SPAWN_ATTEMPTS, false);
     }
 }

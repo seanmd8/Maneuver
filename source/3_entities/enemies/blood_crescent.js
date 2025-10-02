@@ -15,14 +15,14 @@ function blood_crescent_tile(){
         telegraph: blood_crescent_telegraph,
         pic_arr,
         cycle: starting_cycle,
-        rotate: 90 * random_num(4)
+        rotate: 90 * random_num(4),
     }
 }
 
 /** @type {AIFunction} AI used by Blood Crescents.*/
 function blood_crescent_ai(self, target, map){
     if(self.tile.rotate === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle === 1){
         var distance = 3;

@@ -7,7 +7,7 @@ function node_saw_behavior(self, target, map){
 function node_saw_telegraph(location, map, self){
     return [
         ...ORTHOGONAL_DIRECTIONS.map((p) => {return p.plus(location)}), 
-        ...hazard_telegraph(location, map, self)
+        ...hazard_telegraph(location, map, self),
     ];
 }
 

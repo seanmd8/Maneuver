@@ -17,5 +17,4 @@ function prereq_clean_mind(){
 function pick_clean_mind(){
     display_deck_to_remove(2);
     GAME_SCREEN_DIVISIONS.swap(UIIDS.deck_select);
-
 }

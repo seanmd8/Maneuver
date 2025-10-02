@@ -16,5 +16,4 @@ function display_entire_deck(deck){
         var row = decklist.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
         display.add_tb_row(UIIDS.display_deck, row, CARD_SCALE);
     }
-
 }

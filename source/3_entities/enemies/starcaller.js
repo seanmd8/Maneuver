@@ -9,7 +9,7 @@ function starcaller_tile(){
         shatter_sphere_d_tile,
         shatter_sphere_o_tile,
         moon_rock_tile,
-    ]
+    ];
     return {
         type: entity_types.enemy,
         name: enemy_names.starcaller,
@@ -32,7 +32,7 @@ function starcaller_ai(self, target, map){
         // Shoot
         map.attack(self.tile.direction);
         if(map.check_empty(self.tile.direction)){
-            var spawn = rand_from(self.tile.summons)();
+            var spawn = random_from(self.tile.summons)();
             map.add_tile(spawn, self.tile.direction);
         }
         self.tile.cycle = STARCALLER_TIMER;

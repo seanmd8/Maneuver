@@ -13,7 +13,7 @@ function summon_spell(self, target, map){
         throw new Error(ERRORS.missing_property);
     }
     for(var i = 0; i < 2; ++i){
-        var tile = rand_from(self.tile.summons)();
+        var tile = random_from(self.tile.summons)();
         spawn_nearby(map, tile, self.location);
     }
 }

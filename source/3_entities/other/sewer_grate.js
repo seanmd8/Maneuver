@@ -5,7 +5,7 @@ function sewer_grate_tile(){
         name: other_tile_names.sewer_grate,
         pic: `${IMG_FOLDER.tiles}sewer_grate.png`,
         description: other_tile_descriptions.sewer_grate,
-        tags: new TagList([TAGS.unmovable]),
+        tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
         behavior: sewer_grate_ai,
     }
 }

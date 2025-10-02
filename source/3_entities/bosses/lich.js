@@ -5,11 +5,11 @@ const LICH_SPELLS = [
     confusion_spell_generator(),
     lava_moat_spell_generator(),
     piercing_beam_spell_generator(),
-]
+];
 const LICH_UTIL_SPELLS = [
     rest_spell_generator(),
     teleport_spell_generator(), 
-]
+];
 /** @type {TileGenerator} */
 function lich_tile(){
     var summons = [
@@ -50,14 +50,13 @@ function lich_ai(self, target, map){
     }
     if(self.tile.cycle === -2){
         // Move away and prepare the next spell.
-        var moves = reverse_arr(order_nearby(target.difference));
-        for(var i = 0; i < moves.length && !map.check_empty(self.location.plus(moves[i])); ++i){}
-        if(i >= moves.length){
+        var directions = reverse_arr(order_nearby(target.difference));
+        var moved = move_careful(self, target, map, directions);
+        if(moved === undefined){
             // If stuck, prep teleport.
             lich_prep(self.tile, -1);
         }
         else{
-            map.move(self.location, self.location.plus(moves[i]));
             lich_prep(self.tile, random_num(self.tile.spells.length));
         }
     }
@@ -87,7 +86,7 @@ function lich_telegraph(location, map, self){
     if(spell.telegraph !== undefined){
         return spell.telegraph(location, map, self);
     }
-    return rest_spell_telegraph(location, map, self)
+    return rest_spell_telegraph(location, map, self);
 }
 
 /** @type {TelegraphFunction} */
@@ -100,7 +99,7 @@ function lich_telegraph_other(location, map, self){
     if(spell.telegraph_other !== undefined){
         return spell.telegraph_other(location, map, self);
     }
-    return rest_spell_telegraph(location, map, self)
+    return rest_spell_telegraph(location, map, self);
 }
 
 /** @type {AIFunction} Function used when the lich is hit to have it prep teleport.*/

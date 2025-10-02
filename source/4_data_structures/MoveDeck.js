@@ -158,17 +158,17 @@ class MoveDeck{
             let card = this.#hand[i];
             let background = [];
             if(card.temp){
-                background.push(`${IMG_FOLDER.other}temporary_background.png`)
+                background.push(`${IMG_FOLDER.other}temporary_background.png`);
             }
             else{
-                background.push(`${IMG_FOLDER.other}default_card_background.png`)
+                background.push(`${IMG_FOLDER.other}default_card_background.png`);
             }
             card_row.push({
                 pic: card.pic,
                 name: card.name,
                 background,
                 card: card,
-                on_click: make_prep_move(card, i)
+                on_click: make_prep_move(card, i),
             });
         }
         return card_row;
@@ -226,6 +226,12 @@ class MoveDeck{
                 this.#decklist.splice(i, 1);
                 if(card.evolutions !== undefined){
                     var next = randomize_arr(card.evolutions)[0]() ;
+                    if(chance(1, 2) && filter_new_cards([next]).length === 0){
+                        var replace_list = filter_new_cards(card.evolutions.map((c) => {return c()}));
+                        if(replace_list.length > 0){
+                            next = random_from(replace_list);
+                        }
+                    }
                     this.add(next);
                     if(next.evolutions === undefined){
                         GS.achieve(achievement_names.ancient_knowledge);

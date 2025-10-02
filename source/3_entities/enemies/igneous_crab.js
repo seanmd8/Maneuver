@@ -18,11 +18,11 @@ function igneous_crab_tile(){
 /** @type {AIFunction} AI used by igneous crabs.*/
 function igneous_crab_ai(self, target, map){
     if(self.tile.cycle === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle > 0){
         var directions = reverse_arr(order_nearby(target.difference));
-        for(var i = 0; i < directions.length && !map.move(self.location, self.location.plus(directions[i])); ++i){}
+        move_reckless(self, target, map, directions);
         --self.tile.cycle;
     }
     else{
@@ -31,17 +31,14 @@ function igneous_crab_ai(self, target, map){
         }
         else{
             var directions = order_nearby(target.difference);
-            for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
-            if(i < directions.length){
-                map.move(self.location, self.location.plus(directions[i]));
-            }
+            move_careful(self, target, map, directions);
         }
     }
 }
 /** @type {AIFunction} Used to cause igneous crabs to flee when damaged.*/
 function igneous_crab_hit(self, target, map){
     if(self.tile.cycle === undefined){
-        throw new Error(ERRORS.missing_property)
+        throw new Error(ERRORS.missing_property);
     }
     self.tile.cycle += 2;
 }

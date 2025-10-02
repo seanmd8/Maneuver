@@ -42,7 +42,7 @@ function confusion_spell(self, target, map){
         rectangle = [...rectangle, target.copy()];
         rectangle = rectangle.filter((p) => {
             return map.is_in_bounds(p);
-        })
+        });
         map.add_event({name: event_names.delay, behavior: delay_event(i + 1, delay(rectangle))});
     }
 }
@@ -54,6 +54,6 @@ function confusion_spell_telegraph(location, map, self){
     rectangle = [...rectangle, target.copy()];
     rectangle = rectangle.filter((p) => {
         return map.is_in_bounds(p);
-    })
+    });
     return rectangle;
 }

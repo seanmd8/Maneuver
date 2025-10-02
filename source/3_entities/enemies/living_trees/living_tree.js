@@ -10,7 +10,7 @@ function living_tree_tile(){
         difficulty: 7,
         behavior: living_tree_ai,
         telegraph: living_tree_telegraph,
-        cycle: random_num(2)
+        cycle: random_num(2),
     }
 }
 
@@ -36,11 +36,6 @@ function living_tree_ai(self, target, map){
     if(target.difference.within_radius(1)){
         directions = reverse_arr(directions);
     }
-    // Carefully tries to move.
-    for(var i = 0; i < directions.length && !map.check_empty(self.location.plus(directions[i])); ++i){}
-    if(i < directions.length){
-        var move = directions[i];
-        map.move(self.location, self.location.plus(move));
-    }
+    move_careful(self, target, map, directions);
     self.tile.cycle = 1 - self.tile.cycle;
 }

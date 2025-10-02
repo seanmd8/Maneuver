@@ -8,7 +8,7 @@
  * @returns {uiid_library} The library of uiids for that language.
  */
 function get_uiids(language){
-    // Factory function for the display classes (currently only html)
+    // Factory function for the display classes (currently only html).
     switch(language){
         case `html`:
             return HTML_UIIDS;
@@ -63,10 +63,11 @@ function get_uiids(language){
 /** @type {uiid_library} The uiid library for HTML.*/
 const HTML_UIIDS = {
     header_bar: `headerBar`,
-        title: `title`,
+        header_box: `headerBox`,
+            title: `title`,
     game_screen: `gameScreen`,
-        stats: `stats`,
         stage: `stage`,
+            stage_stats: `stageStats`,
             map_display: `mapDisplay`,
             sidebar: `sidebar`,
                 sidebar_header: `sidebarHeader`,
@@ -97,6 +98,7 @@ const HTML_UIIDS = {
             retry_box: `retryBox`,
             retry_button: `retryButton`,
         shop: `shop`,
+            shop_stats: `shopStats`,
             shop_instructions: `shopInstructions`,
             add_card: `addCard`,
             remove_card: `removeCard`,
@@ -105,6 +107,7 @@ const HTML_UIIDS = {
             current_deck: `currentDeck`,
             display_deck: `displayDeck`,
         chest: `chest`,
+            chest_stats: `chestStats`,
             chest_lid: `chestLid`,
                 chest_instructions: `chestInstructions`,
             chest_body: `chestBody`,
@@ -112,6 +115,7 @@ const HTML_UIIDS = {
                 chest_confirm_row: `chestConfirmRow`,
                 content_description: `contentDescription`,
         deck_select: `deckSelect`,
+            deck_select_stats: `deckSelectStats`,
             deck_select_message: `deckSelectMessage`,
             deck_select_table: `deckSelectTable`,
             deck_select_card_info: `deckSelectCardInfo`,

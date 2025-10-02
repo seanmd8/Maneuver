@@ -3,7 +3,6 @@ function update_journal_boons(){
     display.create_fixed_box(UIIDS.journal_boons, UIIDS.journal_boon_info);
     var boons = boons_encountered(BOON_LIST, GS.data.boons);
     display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons);
-
 }
 function boons_encountered(boons, encountered){
     var locked = get_locked_boons();

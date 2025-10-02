@@ -9,9 +9,16 @@ function boss_death(self, target, map){
     if(self.tile.card_drops !== undefined && self.tile.card_drops.length > 0){
         // Create a chest containing a random card from it's loot table.
         var chest = appropriate_chest_tile();
-        var cards = rand_no_repeats(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
-        for(var card of cards){
-            add_card_to_chest(chest, card());
+        var drops = self.tile.card_drops.map((c) => {return c()});
+        var contents = rand_no_repeats(drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
+        if(chance(1, 2) && filter_new_cards(contents).length === 0){
+            var replace_list = filter_new_cards(drops);
+            if(replace_list.length > 0){
+                contents[0] = random_from(replace_list);
+            }
+        }
+        for(var card of contents){
+            add_card_to_chest(chest, card);
         }
         map.add_tile(chest, self.location);
     }
@@ -21,8 +28,8 @@ function boss_death(self, target, map){
     if(player_tile.max_health === 1){
         GS.achieve(achievement_names.one_life);
     }
-    var stats = map.stats.get_stats()
-    if(stats.total_kills_per_floor[stats.total_kills_per_floor.length - 1] === stats.kills){
+    var stats = map.stats.get_stats();
+    if(stats.player_boss_damage === 0){
         GS.achieve(achievement_names.not_my_fault);
     }
     if(stats.boss_kill_start === stats.turn_number){
