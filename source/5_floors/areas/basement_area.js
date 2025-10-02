@@ -13,7 +13,7 @@ function generate_basement_area(){
 
 /** @type {FloorGenerator}*/
 function generate_basement_floor(floor_num, area, map){
-    if(chance(1, 7)){
+    if(chance(1, 6)){
         many_walls_terrain(floor_num, area, map);
     }
     else{
