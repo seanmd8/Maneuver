@@ -433,7 +433,7 @@ function init_settings(){
     const init = {
         enemies: undefined,
         spawnpoints: undefined,
-        chests: undefined,
+        chests: [duplicate],
         cards: undefined,
         area: undefined,
         area_size: undefined,
@@ -2212,18 +2212,8 @@ const HTML_UIIDS = {
         header_box: `headerBox`,
             title: `title`,
     game_screen: `gameScreen`,
-        stats: `stats`,
-            floor_image: `floorImage`,
-            stats_floor: `statsFloor`,
-            turn_image: `turnImage`,
-            stats_turn: `statsTurn`,
-            kills_image: `killsImage`,
-            stats_kills: `statsKills`,
-            dealt_image: `dealtImage`,
-            stats_dealt: `statsDealt`,
-            taken_image: `takenImage`,
-            stats_taken: `statsTaken`,
         stage: `stage`,
+            stage_stats: `stageStats`,
             map_display: `mapDisplay`,
             sidebar: `sidebar`,
                 sidebar_header: `sidebarHeader`,
@@ -2254,6 +2244,7 @@ const HTML_UIIDS = {
             retry_box: `retryBox`,
             retry_button: `retryButton`,
         shop: `shop`,
+            shop_stats: `shopStats`,
             shop_instructions: `shopInstructions`,
             add_card: `addCard`,
             remove_card: `removeCard`,
@@ -2262,6 +2253,7 @@ const HTML_UIIDS = {
             current_deck: `currentDeck`,
             display_deck: `displayDeck`,
         chest: `chest`,
+            chest_stats: `chestStats`,
             chest_lid: `chestLid`,
                 chest_instructions: `chestInstructions`,
             chest_body: `chestBody`,
@@ -2269,6 +2261,7 @@ const HTML_UIIDS = {
                 chest_confirm_row: `chestConfirmRow`,
                 content_description: `contentDescription`,
         deck_select: `deckSelect`,
+            deck_select_stats: `deckSelectStats`,
             deck_select_message: `deckSelectMessage`,
             deck_select_table: `deckSelectTable`,
             deck_select_card_info: `deckSelectCardInfo`,
@@ -3262,6 +3255,25 @@ const DisplayHTML = {
         place.title = label;
         place.alt = label;
     },
+    make_stat_pair(destination, pic, stat, label){
+        var place = DisplayHTML.get_element(destination);
+
+        var div = document.createElement(`div`);
+        div.classList.add(`stat-pair`);
+        div.title = label;
+
+        var img = document.createElement(`img`);
+        img.src = pic;
+        img.alt = label;
+
+        var p = document.createElement(`p`);
+        p.classList.add(`no-margins`);
+        p.innerText = stat;
+
+        div.append(img);
+        div.append(p);
+        place.append(div);
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -3405,12 +3417,6 @@ function display_deck_to_remove(remaining){
     refresh_deck_select_screen(selector);
 }
 function label_images(){
-    display.label_image(UIIDS.floor_image, stat_image_labels.floor);
-    display.label_image(UIIDS.turn_image, stat_image_labels.turns);
-    display.label_image(UIIDS.kills_image, stat_image_labels.kills);
-    display.label_image(UIIDS.dealt_image, stat_image_labels.dealt);
-    display.label_image(UIIDS.taken_image, stat_image_labels.taken);
-    display.label_image(UIIDS.deck_image, stat_image_labels.deck);
     display.label_image(UIIDS.remaining_deck, stat_image_labels.deck);
 }
 function display_entire_deck(deck){
@@ -3667,6 +3673,39 @@ function display_map(map){
     display_health(map.get_player(), TILE_SCALE);
     // Updates the initiative tracker display.
     update_initiative(map);
+}
+function refresh_stats(stats, location){
+    display.remove_children(location);
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}stairs.png`, 
+        stats.floor, 
+        stat_image_labels.floor
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}stopwatch.png`, 
+        stats.turn, 
+        stat_image_labels.turns
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}kills.png`, 
+        stats.kills, 
+        stat_image_labels.kills
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}damage_dealt.png`, 
+        stats.dealt, 
+        stat_image_labels.dealt
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}half_heart.png`, 
+        stats.taken, 
+        stat_image_labels.taken
+    );
 }
 /**
  * Function to create a dropdown menu capable of switching between the game and guide screens.
@@ -11820,11 +11859,17 @@ class GameMap{
      */
     display_stats(){
         var stats = this.stats.get_stats();
-        display.display_message(UIIDS.stats_floor, this.#floor_num);
-        display.display_message(UIIDS.stats_turn, stats.turn_number);
-        display.display_message(UIIDS.stats_kills, stats.kills);
-        display.display_message(UIIDS.stats_dealt, stats.damage_dealt);
-        display.display_message(UIIDS.stats_taken, stats.damage);
+        var to_display = {
+            floor: this.#floor_num,
+            turn: stats.turn_number,
+            kills: stats.kills,
+            dealt: stats.damage_dealt,
+            taken: stats.damage
+        }
+        refresh_stats(to_display, UIIDS.stage_stats);
+        refresh_stats(to_display, UIIDS.shop_stats);
+        refresh_stats(to_display, UIIDS.chest_stats);
+        refresh_stats(to_display, UIIDS.deck_select_stats);
     }
     /**
      * Replaces the exit tile with a lock tile.

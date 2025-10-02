@@ -351,6 +351,7 @@ body>div{
     background-color: var(--card-box-color);
     padding: 5px;
     margin: 5px 0px 5px 0px;
+    display: inline;
 }
 .shop-section-box legend {
     font-weight: bold;
@@ -546,7 +547,6 @@ body>div{
     vertical-align: top;
     width: 260px;
     height: 350px;
-    margin-left: 10px;
 }
 .sidebar-header {
     width: 100%;
@@ -650,15 +650,16 @@ body>div{
 
 .stats{
     display: inline-flex;
-    min-width: 200px;
+    flex-direction: column;
     width: fit-content;
-    justify-content: space-between;
+    margin-right: 4px;
+    margin-left: 4px;
+    vertical-align: top;
 }
 .stat-pair{
     display: inline-flex;
     justify-content: space-between;
-    min-width: 70px;
-    width: fit-content;
+    width: 60px;
     background-color: palegoldenrod;
     border-radius: 10px;
     border-style: solid;
@@ -732,7 +733,7 @@ body>div{
 .header-box{
     display: inline-flex;
     justify-content: space-between;
-    width: 620px;
+    width: 700px;
 }
 .main-header select{
     width: 132px;

@@ -15,31 +15,9 @@
     </div>
 
     <div id= "gameScreen" class="game-style hidden-section">
-        <div id= "stats" class="stats">
-            <div class="stat-pair">
-                <img id="floorImage" src="./images/other/stairs.png">
-                <h2 id="statsFloor" class="no-margins"></h2>
-            </div>
-            <div class="stat-pair">
-                <img id="turnImage"  src="./images/other/stopwatch.png">
-                <h2 id="statsTurn" class="no-margins"></h2>
-            </div>
-            <div class="stat-pair">
-                <img id="killsImage"  src="./images/other/kills.png">
-                <h2 id="statsKills" class="no-margins"></h2>
-            </div>
-            <div class="stat-pair">
-                <img id="dealtImage"  src="./images/other/damage_dealt.png">
-                <h2 id="statsDealt" class="no-margins"></h2>
-            </div>
-            <div class="stat-pair">
-                <img id="takenImage"  src="./images/other/half_heart.png">
-                <h2 id="statsTaken" class="no-margins"></h2>
-            </div>
-        </div>
-
         <div id= "stage">
             <table id="mapDisplay" class="gamemap-box"></table> 
+            <div id="stageStats" class="stats"></div>
             <div id="sidebar" class="sidebar">
                 <div id="sidebarHeader" class="sidebar-header"></div>
                 <div id="initiative"    class="sidebar-section initiative-box"></div>
@@ -92,9 +70,12 @@
                 <hr>
                 <table id="removeCard" class="selectable"></table>
             </fieldset>
-            <p id= "shopMessage" class="no-margins scrollable-text"></p>
-            <div class="shop-button-container">
-                <input type="button" id="shopConfirm" class="shop-confirm"></input>
+            <div id="shopStats" class="stats"></div>
+            <div>
+                <p id= "shopMessage" class="no-margins scrollable-text"></p>
+                <div class="shop-button-container">
+                    <input type="button" id="shopConfirm" class="shop-confirm"></input>
+                </div>
             </div>
             <fieldset class="shop-section-box">
                 <legend id="currentDeck"></legend>
@@ -102,17 +83,20 @@
             </fieldset>
         </div>
         
-        <div id= "chest">
-            <div id="chestLid" class="chest-lid-box">
-                <h2 id= "chestInstructions" class="chest-instruction-text"></h3>
+        <div id="chest">
+            <div style="display: inline-block;">
+                <div id="chestLid" class="chest-lid-box">
+                    <h2 id="chestInstructions" class="chest-instruction-text"></h3>
+                </div>
+                <div id="chestBody" class="chest-body-box">
+                    <table id="contents" class="chest-contents selectable"></table>
+                    <hr>
+                    <table id="chestConfirmRow" class="chest-buttons"></table>
+                    <hr>
+                    <h3 id="contentDescription" class="chest-discription-text"></h3>
+                </div>
             </div>
-            <div id="chestBody" class="chest-body-box">
-                <table id="contents" class="chest-contents selectable"></table>
-                <hr>
-                <table id= "chestConfirmRow" class="chest-buttons"></table>
-                <hr>
-                <h3 id= "contentDescription" class="chest-discription-text"></h3>
-            </div>
+            <div id="chestStats" class="stats"></div>
         </div>
         
         <div id="deckSelect">
@@ -120,9 +104,12 @@
                 <legend id="deckSelectMessage"></legend>
                 <table id="deckSelectTable" class="selectable"></table>
             </fieldset>
-            <p id="deckSelectCardInfo" class="no-margins scrollable-text"></p>
-            <div class="shop-button-container deck-select-confirm">
-                <input type="button" id="deckSelectConfirm" class="shop-confirm"></input>
+            <div id="deckSelectStats" class="stats"></div>
+            <div>
+                <p id="deckSelectCardInfo" class="no-margins scrollable-text"></p>
+                <div class="shop-button-container deck-select-confirm">
+                    <input type="button" id="deckSelectConfirm" class="shop-confirm"></input>
+                </div>
             </div>
         </div>
     </div>

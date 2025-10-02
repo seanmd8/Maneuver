@@ -10,7 +10,7 @@
 .header-box{
     display: inline-flex;
     justify-content: space-between;
-    width: 620px;
+    width: 700px;
 }
 .main-header select{
     width: 132px;

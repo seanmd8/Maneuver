@@ -6,6 +6,7 @@
     background-color: var(--card-box-color);
     padding: 5px;
     margin: 5px 0px 5px 0px;
+    display: inline;
 }
 .shop-section-box legend {
     font-weight: bold;

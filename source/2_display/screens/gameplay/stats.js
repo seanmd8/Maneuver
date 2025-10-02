@@ -1,0 +1,33 @@
+function refresh_stats(stats, location){
+    display.remove_children(location);
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}stairs.png`, 
+        stats.floor, 
+        stat_image_labels.floor
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}stopwatch.png`, 
+        stats.turn, 
+        stat_image_labels.turns
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}kills.png`, 
+        stats.kills, 
+        stat_image_labels.kills
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}damage_dealt.png`, 
+        stats.dealt, 
+        stat_image_labels.dealt
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.other}half_heart.png`, 
+        stats.taken, 
+        stat_image_labels.taken
+    );
+}

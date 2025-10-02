@@ -873,6 +873,25 @@ const DisplayHTML = {
         place.title = label;
         place.alt = label;
     },
+    make_stat_pair(destination, pic, stat, label){
+        var place = DisplayHTML.get_element(destination);
+
+        var div = document.createElement(`div`);
+        div.classList.add(`stat-pair`);
+        div.title = label;
+
+        var img = document.createElement(`img`);
+        img.src = pic;
+        img.alt = label;
+
+        var p = document.createElement(`p`);
+        p.classList.add(`no-margins`);
+        p.innerText = stat;
+
+        div.append(img);
+        div.append(p);
+        place.append(div);
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){

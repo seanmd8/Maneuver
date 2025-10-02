@@ -1,14 +1,15 @@
 .stats{
     display: inline-flex;
-    min-width: 200px;
+    flex-direction: column;
     width: fit-content;
-    justify-content: space-between;
+    margin-right: 4px;
+    margin-left: 4px;
+    vertical-align: top;
 }
 .stat-pair{
     display: inline-flex;
     justify-content: space-between;
-    min-width: 70px;
-    width: fit-content;
+    width: 60px;
     background-color: palegoldenrod;
     border-radius: 10px;
     border-style: solid;

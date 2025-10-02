@@ -639,11 +639,17 @@ class GameMap{
      */
     display_stats(){
         var stats = this.stats.get_stats();
-        display.display_message(UIIDS.stats_floor, this.#floor_num);
-        display.display_message(UIIDS.stats_turn, stats.turn_number);
-        display.display_message(UIIDS.stats_kills, stats.kills);
-        display.display_message(UIIDS.stats_dealt, stats.damage_dealt);
-        display.display_message(UIIDS.stats_taken, stats.damage);
+        var to_display = {
+            floor: this.#floor_num,
+            turn: stats.turn_number,
+            kills: stats.kills,
+            dealt: stats.damage_dealt,
+            taken: stats.damage
+        }
+        refresh_stats(to_display, UIIDS.stage_stats);
+        refresh_stats(to_display, UIIDS.shop_stats);
+        refresh_stats(to_display, UIIDS.chest_stats);
+        refresh_stats(to_display, UIIDS.deck_select_stats);
     }
     /**
      * Replaces the exit tile with a lock tile.
