@@ -14,6 +14,7 @@ function get_achievements(){
         // Other 
         ancient_knowledge_achievement(),
         beyond_the_basics_achievement(),
+        blessed_achievement(),
         clumsy_achievement(),
         collector_achievement(),
         common_sense_achievement(),

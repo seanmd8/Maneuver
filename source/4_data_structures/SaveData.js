@@ -86,6 +86,14 @@ class SaveData{
         this.boons.add(name);
         this.boons.get_node(name).pick();
         this.save();
+        if(!GS.data.achievements.has(achievement_names.blessed)){
+            var has = BOON_LIST.filter((b) => {
+                return this.boons.has(b().name);
+            });
+            if(has.length >= 35){
+                GS.achieve(achievement_names.blessed);
+            }
+        }
     }
     add_tile(name){
         var added = this.tiles.add(name);

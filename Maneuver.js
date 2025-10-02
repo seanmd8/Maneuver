@@ -1807,6 +1807,7 @@ const achievement_names = {
     // Normal
     ancient_knowledge: `Ancient Knowledge`,
     beyond_the_basics: `Beyond The Basics`,
+    blessed: `Blessed`,
     clumsy: `Clumsy`,
     collector: `Collector`,
     common_sense: `Common Sense`,
@@ -1841,6 +1842,7 @@ const achievement_description = {
     // Normal
     ancient_knowledge: `Restore an ancient card to full power.`,
     beyond_the_basics: `Remove all basic cards from your deck.`,
+    blessed: `Obtain 35 different boons at least once.`,
     clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
     collector: `Open 6 or more treasure chests in 1 run.`,
     common_sense: `Obtain every common card at least once.`,
@@ -13231,6 +13233,14 @@ class SaveData{
         this.boons.add(name);
         this.boons.get_node(name).pick();
         this.save();
+        if(!GS.data.achievements.has(achievement_names.blessed)){
+            var has = BOON_LIST.filter((b) => {
+                return this.boons.has(b().name);
+            });
+            if(has.length >= 35){
+                GS.achieve(achievement_names.blessed);
+            }
+        }
     }
     add_tile(name){
         var added = this.tiles.add(name);
@@ -17721,6 +17731,7 @@ function get_achievements(){
         // Other 
         ancient_knowledge_achievement(),
         beyond_the_basics_achievement(),
+        blessed_achievement(),
         clumsy_achievement(),
         collector_achievement(),
         common_sense_achievement(),
@@ -17845,6 +17856,15 @@ function beyond_the_basics_achievement(){
         image: `${IMG_FOLDER.achievements}beyond_the_basics.png`,
         has: false,
         boons: [perfect_the_basics],
+    }
+}
+function blessed_achievement(){
+    return {
+        name: achievement_names.blessed,
+        description: achievement_description.blessed,
+        image: `${IMG_FOLDER.achievements}blessed.png`,
+        has: false,
+        boons: [larger_chests],
     }
 }
 function clumsy_achievement(){
