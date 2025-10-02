@@ -2356,7 +2356,7 @@ function grid_space_description(space){
 }
 function hp_description(tile){
     var hp = hp_ratio(tile);
-    if(hp === ``){
+    if(hp !== ``){
         hp = `(${hp} ${gameplay_labels.hp}) `;
     }
     var stunned = ``;
