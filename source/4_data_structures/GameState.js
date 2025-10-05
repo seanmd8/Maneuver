@@ -36,6 +36,11 @@ class GameState{
         for(var a of init.achievements){
             this.achieve(a);
         }
+        // Auto identify these boons
+        for(var b of init.identify_boons){
+            this.data.boons.add(b().name);
+        }
+        this.data.save();
 
         // Prep map
         for(var i = 0; i < init.enemies.length; ++i){

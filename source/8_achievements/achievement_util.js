@@ -33,3 +33,9 @@ function get_achievements(){
         without_a_scratch_achievement(),
     ];
 }
+
+function get_achievement_names(){
+    return get_achievements().map((a) => {
+        return a.name;
+    });
+}

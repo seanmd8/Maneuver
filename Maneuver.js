@@ -438,6 +438,7 @@ function init_settings(){
         area: undefined,
         area_size: undefined,
         achievements: undefined,
+        identify_boons: undefined,
         save: undefined,
         load: undefined,
     }
@@ -454,6 +455,8 @@ function init_settings(){
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
     // Determines achievements that should be automatically gained upon starting the game.
     init.achievements = init.achievements ? init.achievements : [];
+    // Determined boons that should be added to the journal unpon starting the game.
+    init.identify_boons = init.identify_boons ? init.identify_boons : [];
     // Determines the way of saving and loading the game.
     init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
     init.load = init.load ? init.load: SaveData.load_local_function(`player1`);
@@ -12303,6 +12306,11 @@ class GameState{
         for(var a of init.achievements){
             this.achieve(a);
         }
+        // Auto identify these boons
+        for(var b of init.identify_boons){
+            this.data.boons.add(b().name);
+        }
+        this.data.save();
 
         // Prep map
         for(var i = 0; i < init.enemies.length; ++i){
@@ -17749,6 +17757,12 @@ function get_achievements(){
         triple_achievement(),
         without_a_scratch_achievement(),
     ];
+}
+
+function get_achievement_names(){
+    return get_achievements().map((a) => {
+        return a.name;
+    });
 }
 function arcane_sentry_achievement(){
     return {
