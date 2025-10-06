@@ -1,8 +1,7 @@
 const special_tile_descriptions = {
-    chest: `Chest: It might have something useful inside. Breaking it will damage `
-    +`the contents.`,
-    chest_armored: `Armored Chest: It might have something useful inside. It is larger than `
-    +`a normal chest and armored to protect it's contents.`,
+    chest: `Chest: Has something useful inside. Breaking it will destroy the contents.`,
+    chest_armored: `Armored Chest: Has something useful inside. It is larger than a normal chest and `
+    +`armored to protect it's contents.`,
     empty: `There is nothing here.`,
     exit: `Exit: Stairs to the next floor.`,
     final_exit: `Return Portal: Move here to leave the dungeon and win the game.`,

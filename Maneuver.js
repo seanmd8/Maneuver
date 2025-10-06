@@ -1121,22 +1121,21 @@ const boss_descriptions = {
     lord_of_shadow_and_flame:
         `Lord of Shadow and Flame (Final Boss): Ruler from beyond the veil of reality. Summons `
         +`altars from which to cast it's spells. When next to the player it will prepare to attack `
-        +`all nearby spaces next turn. Moves at double speed while under half health.`,
+        +`all nearby spaces on it's next turn. Moves at double speed while under half health.`,
     spider_queen: 
-        `Spider Queen (Boss): Her back crawls with her young. Moves like a `
-        +`normal spider. Taking damage will stun her, but will also spawn a spider.`,
+        `Spider Queen (Boss): Her back crawls with her young. Behaves like a normal spider. Taking `
+        +`damage will stun her, but will also spawn a spider.`,
     two_headed_serpent_awake: 
-        `Two Headed Serpent (Boss): Moves then attacks 1 square orthogonally. `
-        +`When damaged, the neck will instantly grow a new head.`,
+        `Two Headed Serpent (Boss): Moves 1 square orthogonally, then attacks 1 square orthogonally. `
+        +`When damaged, the neck will instantly grow into a new head.`,
     two_headed_serpent_asleep: 
-        `Two Headed Serpent (Boss): This head is sleeping. When damaged, `
-        +`the neck will grow a new head, which will spend it's turn waking up. `
-        +`The other head will then fall asleep.`,
+        `Two Headed Serpent (Boss): This head is sleeping. When damaged, the neck will grow a new `
+        +`head, which will spend it's turn waking up. The other head will then fall asleep.`,
     two_headed_serpent_body: 
         `Two Headed Serpent (Boss): The scales on the body are too tough to pierce.`,
     velociphile: 
-        `Velociphile (Boss): A rolling ball of mouths and hate. Moves `
-        +`in straight lines. Must build up speed to ram you.`,
+        `Velociphile (Boss): A rolling ball of mouths and hate. Moves in one direction until it hits `
+        +`something, then attacks in that direction. Cannot attack the squares next to it.`,
     young_dragon: [
         `Young Dragon (Boss): Be glad it's still young. Alternates between gliding and breathing fire.\n`
         +`The Dragon is currently `, 
@@ -1173,18 +1172,17 @@ const boss_death_message = {
     forest_heart: `Branches rain from above as the ancient tree is felled.`,
     lich: `The Lich's body crumbles to dust.`,
     lord_of_shadow_and_flame: 
-        `As the ruler of this space fades from reality, the room begins to quake. `
-        +`Better leave quickly.`,
+        `As the ruler of this space fades from reality, the room begins to quake. Better leave quickly.`,
     spider_queen: `As the Spider Queen falls to the floor, the last of her children emerge.`,
     two_headed_serpent: 
-        `It's body too small to regenerate any further, all four of the serpent's `
-        +`eyes close for the final time`,
+        `It's body too small to regenerate any further, all four of the serpent's eyes close for the `
+        +`final time`,
     velociphile: `The wailing falls silent as the Velociphile is defeated.`,
     young_dragon: `Scales so soft are easily pierced. The Young Dragon's fire goes out.`,
 }
 Object.freeze(boss_death_message);
 
-// Boss Specific Descriptions
+// Individual Boss Descriptions
 
 const lich_spell_descriptions = {
     confusion: `Confusion - Creates a cloud of confusion gas to pollute your deck.`,
@@ -1193,8 +1191,8 @@ const lich_spell_descriptions = {
     lava_moat: `Lava Moat - Creates pools of molten lava to shield the user.`,
     piercing_beam: `Piercing Beam - Fires a piercing beam in the direction closest to the target.`,
     rest: `Nothing.`,
-    summon: `Summon - Summons 2 random enemies`,
-    teleport: `Teleport - The user moves to a random square on the map`,
+    summon: `Summon - Summons 2 random enemies.`,
+    teleport: `Teleport - The user moves to a random square on the map.`,
 }
 Object.freeze(lich_spell_descriptions);
 
@@ -1607,20 +1605,20 @@ const entity_types = {
 Object.freeze(entity_types);
 const event_descriptions = {
     black_hole:
-        `A Black Hole is beginning to form here.`,
+        `A Black Hole is beginning to form here damaging anything standing here.`,
     confusion_cloud:
         `A cloud of mind melting magic will confuse or stun everything inside. Lasts 3 turns.`,
     darkling_rift: 
-        `If this space isn't blocked, a darkling will teleport here `
-        +`next turn damaging everything nearby.`,
+        `If this space isn't blocked, a darkling will teleport here next turn damaging everything `
+        +`next to it.`,
     falling_rubble: 
-        `Watch out, something is about to fall here.`,
+        `Watch out, something is about to fall here damaging anything standing here.`,
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
     starfall:
-        `Something is about to be pulled into existence damaging anything standing here.`,
+        `Watch out, something is about to be pulled into existence damaging anything standing here.`,
     sunlight:
-        `This space is rapidly heating up.`,
+        `Watch out, this space is about to light on fire damaging anything standing here.`,
     thorn_root: 
         `Watch out, brambles are about to sprout damaging anything standing here.`,
 }
@@ -1645,15 +1643,15 @@ const event_names = {
 Object.freeze(event_names);
 const other_tile_descriptions = {
     altar_of_scouring:
-        `Altar of Scouring: Activate by moving here. When activated, creates a wall of fireballs to `
-        +`wipe the screen clean.`,
+        `Altar of Scouring: Activate by moving here. When activated, creates a wall of fireballs along `
+        +`the furthest wall to wipe the screen clean.`,
     altar_of_shadow:
         `Altar of Shadow: Activate by moving here. When activated, the Lord of Shadow and Flame will `
         +`become invisible until another altar is activated.`,
     altar_of_singularity:
         `Altar of Singularity: Activate by moving here. When activated, create a Black Hole in this space.`,
     altar_of_space:
-        `Altar of Space: Activate by moving here. When activated, rearrange the floor.`,
+        `Altar of Space: Activate by moving here. When activated, rearrange everything on the floor.`,
     altar_of_stars:
         `Altar of Stars: Activate by moving here. When activated, for the next 3 turns it will `
         +`summon an object from another realm targeting the player's location.`,
@@ -1661,41 +1659,39 @@ const other_tile_descriptions = {
         `Altar of Stasis: Activate by moving here. When activated, rewinds time healing the Lord `
         +`of Shadow and Flame by 3 and all altars by 1.`,
     altar_of_sunlight:
-        `Altar of Sunlight: Activate by moving here. When activated, create an expanding fire `
-        +`centered on the player's location.`,
+        `Altar of Sunlight: Activate by moving here. When activated, create an expanding fire centered `
+        +`on the player's location.`,
     black_hole: 
-        `Black Hole: Draws everything on screen closer to it. The `
-        +`Lord of Shadow and Flame is immune. Decays every turn.`,
+        `Black Hole: Draws everything on screen closer to it. The Lord of Shadow and Flame is immune. `
+        +`Decays every turn and cannot be stunned.`,
     bookshelf: 
         `Bookshelf: When damaged, adds a random temporary card to your deck.`,
     coffin: 
-        `Coffin: There is no telling whether whatever is inside is still `
-        +`alive or not. Touch it at your own risk.`,
+        `Coffin: There is no telling whether whatever is inside is still alive or not. On the other `
+        +`hand there could be treasure inside. Disturb it at your own risk.`,
     corrosive_slime: 
-        `Corrosive Slime: Stepping into this will hurt. Clear it out `
-        +`by attacking.`,
+        `Corrosive Slime: Stepping into this will hurt. Clear it out by attacking.`,
     fireball: 
-        `Fireball: Moves forwards until it comes into contact with `
-        +`something, then damages it. Cannot be stunned.`,
+        `Fireball: Moves forwards until it comes into contact with something, then damages it. Cannot `
+        +`be stunned.`,
     fruit_tree_enticing: 
-        `Enticing Fruit Tree: Moving you here will heal you, but other creatures `
-        +`may be attracted by the fruit.`,
+        `Enticing Fruit Tree: Moving here will heal you, but other creatures may be attracted by the `
+        +`smell of the fruit.`,
     fruit_tree_rotting: 
-        `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell `
-        +`could still attract creatures if it is disturbed.`,
+        `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell could still attract `
+        +`creatures if it is disturbed.`,
     lava_pool: 
         `Lava Pool: Attempting to move here will hurt.`,
     magmatic_boulder: 
-        `Magmatic Boulder: The light reflecting off of it gives you the `
-        +`feeling of being watched.`,
+        `Magmatic Boulder: The light reflecting off of it gives you the feeling of being watched.`,
     moon_rock:
         `Moon Rock: A chunk of fragile rock from somewhere else.`,
     raging_fire: 
-        `Raging Fire: The very ground here is burning. It will grow weaker `
-        +`every turn, but it's not safe to move through. Cannot be stunned.`,
+        `Raging Fire: The very ground here is burning. Attempting to move here will hurt. Decays every `
+        +`turn and cannot be stunned`,
     repulsor: 
-        `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or `
-        +`if touched. Takes 3 turns to recharge afterwards.`,
+        `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 3 turns `
+        +`to recharge afterwards.`,
     sewer_grate: 
         `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
     shatter_sphere_d:
@@ -1704,11 +1700,10 @@ const other_tile_descriptions = {
         `Shatter Sphere: Explodes when damaged harming everything orthogonal to it.`,
     smoldering_ashes: [
         `Smoldering Ashes: A pheonix will be reborn here in `, 
-        ` turns unless you scatter the ashes by attacking them or moving onto them.`
+        ` turns unless you scatter the ashes by attacking or moving onto them.`
     ],
     thorn_bramble: 
-        `Thorn Bramble: Trying to move here hurts. Allows the thorn bush to `
-        +`spread further.`,
+        `Thorn Bramble: Attempting to move here hurts. Allows the thorn bush to spread further.`,
     wall: 
         `Wall: It seems sturdy.`,
     wall_damaged: 
@@ -1745,10 +1740,9 @@ const other_tile_names = {
 }
 Object.freeze(other_tile_names);
 const special_tile_descriptions = {
-    chest: `Chest: It might have something useful inside. Breaking it will damage `
-    +`the contents.`,
-    chest_armored: `Armored Chest: It might have something useful inside. It is larger than `
-    +`a normal chest and armored to protect it's contents.`,
+    chest: `Chest: Has something useful inside. Breaking it will destroy the contents.`,
+    chest_armored: `Armored Chest: Has something useful inside. It is larger than a normal chest and `
+    +`armored to protect it's contents.`,
     empty: `There is nothing here.`,
     exit: `Exit: Stairs to the next floor.`,
     final_exit: `Return Portal: Move here to leave the dungeon and win the game.`,
@@ -8380,7 +8374,7 @@ function black_hole_tile(){
         pic: `${IMG_FOLDER.tiles}black_hole.png`,
         description: other_tile_descriptions.black_hole,
         health: 6,
-        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction, TAGS.unstunnable]),
         behavior: black_hole_ai,
         telegraph_other: black_hole_telegraph_other,
     }
@@ -8606,8 +8600,14 @@ function enticing_fruit_tree_on_enter(self, target, map){
     }
     decay_ai(self, target, map);
 }
-const FRUIT_TREE_SUMMONS = [carrion_flies_tile, ram_tile, living_tree_tile, scythe_tile, scorpion_tile, 
-    spider_tile];
+const FRUIT_TREE_SUMMONS = [
+    carrion_flies_tile, 
+    ram_tile, 
+    living_tree_tile, 
+    scythe_tile, 
+    scorpion_tile, 
+    spider_tile
+];
 /** @type {TileGenerator} A healing fruit that spawns enemies.*/
 function rotting_fruit_tree_tile(){
     return {

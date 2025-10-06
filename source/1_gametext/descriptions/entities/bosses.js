@@ -30,22 +30,21 @@ const boss_descriptions = {
     lord_of_shadow_and_flame:
         `Lord of Shadow and Flame (Final Boss): Ruler from beyond the veil of reality. Summons `
         +`altars from which to cast it's spells. When next to the player it will prepare to attack `
-        +`all nearby spaces next turn. Moves at double speed while under half health.`,
+        +`all nearby spaces on it's next turn. Moves at double speed while under half health.`,
     spider_queen: 
-        `Spider Queen (Boss): Her back crawls with her young. Moves like a `
-        +`normal spider. Taking damage will stun her, but will also spawn a spider.`,
+        `Spider Queen (Boss): Her back crawls with her young. Behaves like a normal spider. Taking `
+        +`damage will stun her, but will also spawn a spider.`,
     two_headed_serpent_awake: 
-        `Two Headed Serpent (Boss): Moves then attacks 1 square orthogonally. `
-        +`When damaged, the neck will instantly grow a new head.`,
+        `Two Headed Serpent (Boss): Moves 1 square orthogonally, then attacks 1 square orthogonally. `
+        +`When damaged, the neck will instantly grow into a new head.`,
     two_headed_serpent_asleep: 
-        `Two Headed Serpent (Boss): This head is sleeping. When damaged, `
-        +`the neck will grow a new head, which will spend it's turn waking up. `
-        +`The other head will then fall asleep.`,
+        `Two Headed Serpent (Boss): This head is sleeping. When damaged, the neck will grow a new `
+        +`head, which will spend it's turn waking up. The other head will then fall asleep.`,
     two_headed_serpent_body: 
         `Two Headed Serpent (Boss): The scales on the body are too tough to pierce.`,
     velociphile: 
-        `Velociphile (Boss): A rolling ball of mouths and hate. Moves `
-        +`in straight lines. Must build up speed to ram you.`,
+        `Velociphile (Boss): A rolling ball of mouths and hate. Moves in one direction until it hits `
+        +`something, then attacks in that direction. Cannot attack the squares next to it.`,
     young_dragon: [
         `Young Dragon (Boss): Be glad it's still young. Alternates between gliding and breathing fire.\n`
         +`The Dragon is currently `, 
@@ -82,18 +81,17 @@ const boss_death_message = {
     forest_heart: `Branches rain from above as the ancient tree is felled.`,
     lich: `The Lich's body crumbles to dust.`,
     lord_of_shadow_and_flame: 
-        `As the ruler of this space fades from reality, the room begins to quake. `
-        +`Better leave quickly.`,
+        `As the ruler of this space fades from reality, the room begins to quake. Better leave quickly.`,
     spider_queen: `As the Spider Queen falls to the floor, the last of her children emerge.`,
     two_headed_serpent: 
-        `It's body too small to regenerate any further, all four of the serpent's `
-        +`eyes close for the final time`,
+        `It's body too small to regenerate any further, all four of the serpent's eyes close for the `
+        +`final time`,
     velociphile: `The wailing falls silent as the Velociphile is defeated.`,
     young_dragon: `Scales so soft are easily pierced. The Young Dragon's fire goes out.`,
 }
 Object.freeze(boss_death_message);
 
-// Boss Specific Descriptions
+// Individual Boss Descriptions
 
 const lich_spell_descriptions = {
     confusion: `Confusion - Creates a cloud of confusion gas to pollute your deck.`,
@@ -102,8 +100,8 @@ const lich_spell_descriptions = {
     lava_moat: `Lava Moat - Creates pools of molten lava to shield the user.`,
     piercing_beam: `Piercing Beam - Fires a piercing beam in the direction closest to the target.`,
     rest: `Nothing.`,
-    summon: `Summon - Summons 2 random enemies`,
-    teleport: `Teleport - The user moves to a random square on the map`,
+    summon: `Summon - Summons 2 random enemies.`,
+    teleport: `Teleport - The user moves to a random square on the map.`,
 }
 Object.freeze(lich_spell_descriptions);
 
