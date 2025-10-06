@@ -114,7 +114,7 @@ const enemy_descriptions = {
         `Strider: Attacks then moves 2 spaces away in one direction.`,
     swaying_nettle: 
         `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal `
-        +`to it. Won't hurt each other`,
+        +`to it. Won't hurt other nettles.`,
     thorn_bush: 
         `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`,
     turret_d: 
