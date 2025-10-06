@@ -26,8 +26,9 @@ Object.freeze(usymbol);
 // Move types.
 const move_types = {
     alt: `Shift click on a button to show actions on the map.`,
-    evolutions: `Dust and paint seems to be covering part of this card obscuring some of the options. `
-                +`Maybe you can find some way to remove it?`,
+    evolutions: 
+        `Dust and paint seems to be covering part of this card obscuring some of the options. `
+        +`Maybe you can find some way to remove it?`,
     intro: `Move Options (actions will be performed in order):\n`,
 
     attack: `Attack`,
@@ -42,7 +43,7 @@ const move_types = {
     nothing: `Do nothing`,
     
     per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
-    temp: `Temporary: Removed from your deck when used, or at the end of the floor.`,
+    temp: `Temporary: Removed from your deck when put into your discard, or at the end of the floor.`,
     instant: `Instant: Play another card this turn.`,
     
     locked: `This card has not been unlocked yet.`,
