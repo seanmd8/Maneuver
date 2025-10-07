@@ -36,7 +36,7 @@ function gem_crawler_telegraph(location, map, self){
     if(self.cycle === 1){
         for(var direction of ALL_DIRECTIONS){
             var space = direction.plus(location);
-            if(map.is_in_bounds(space) && map.check_empty(space)){
+            if(map.looks_empty(space)){
                 // Shows all the spaces it can attack by moving other than the one it's in.
                 attacks.push(
                     ...ALL_DIRECTIONS.map((p) => {

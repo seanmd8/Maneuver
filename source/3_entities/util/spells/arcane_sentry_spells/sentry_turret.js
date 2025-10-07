@@ -19,8 +19,8 @@ function node_turret_behavior(self, target, map){
     }
 }
 function node_turret_telegraph(location, map, self){
-    var x_points = get_points_in_direction(location, new Point(self.direction.x, 0), map);
-    var y_points = get_points_in_direction(location, new Point(0, self.direction.y), map);
+    var x_points = look_at_points_in_direction(location, new Point(self.direction.x, 0), map);
+    var y_points = look_at_points_in_direction(location, new Point(0, self.direction.y), map);
     return [...x_points, ...y_points];
 }
 

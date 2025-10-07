@@ -55,7 +55,7 @@ function moving_turret_o_ai(self, target, map){
 function moving_turret_o_telegraph(location, map, self){
     var attacks = [];
     for(var direction of [self.direction.rotate(90), self.direction.rotate(-90)]){
-        attacks.push(...get_points_in_direction(location, direction, map));
+        attacks.push(...look_at_points_in_direction(location, direction, map));
     }
     return attacks;
 }

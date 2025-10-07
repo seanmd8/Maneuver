@@ -49,7 +49,7 @@ function scythe_telegraph(location, map, self){
     var attacks = [];
     for(var direction of DIAGONAL_DIRECTIONS){
         var current = location.copy();
-        for(var i = 0; i < 3 && map.check_empty(current.plus_equals(direction)); ++i){
+        for(var i = 0; i < 3 && map.looks_empty(current.plus_equals(direction)); ++i){
             attacks.push(current.plus(direction.times(new Point(-1, 0))));
             attacks.push(current.plus(direction.times(new Point(0, -1))));
         }

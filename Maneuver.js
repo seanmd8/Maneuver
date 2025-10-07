@@ -5112,7 +5112,7 @@ function two_headed_serpent_telegraph(location, map, self){
         attacks.push(location.plus(direction));
     }
     for(var move of ORTHOGONAL_DIRECTIONS){
-        if(map.check_empty(location.plus(move))){
+        if(map.looks_empty(location.plus(move))){
             for(var direction of ORTHOGONAL_DIRECTIONS){
                 attacks.push(location.plus(move).plus(direction));
             }
@@ -5160,8 +5160,8 @@ function velociphile_ai(self, target, map){
 function velociphile_telegraph(location, map, self){
     var attacks = [];
     for(var direction of ALL_DIRECTIONS){
-        if(map.check_empty(location.plus(direction))){
-            attacks.push(...get_points_in_direction(location.plus(direction), direction, map));
+        if(map.looks_empty(location.plus(direction))){
+            attacks.push(...look_at_points_in_direction(location.plus(direction), direction, map));
         }
     }
     return attacks;
@@ -5521,7 +5521,7 @@ function blood_crescent_telegraph(location, map, self){
     }
     for(var direction of DIAGONAL_DIRECTIONS){
         var current = location.copy();
-        for(var i = 0; i < 2 && map.check_empty(current.plus_equals(direction)); ++i){
+        for(var i = 0; i < 2 && map.looks_empty(current.plus_equals(direction)); ++i){
             attacks.push(current.copy());
             attacks.push(current.plus(direction.times(new Point(-1, 0))));
             attacks.push(current.plus(direction.times(new Point(0, -1))));
@@ -5937,7 +5937,7 @@ function gem_crawler_telegraph(location, map, self){
     if(self.cycle === 1){
         for(var direction of ALL_DIRECTIONS){
             var space = direction.plus(location);
-            if(map.is_in_bounds(space) && map.check_empty(space)){
+            if(map.looks_empty(space)){
                 // Shows all the spaces it can attack by moving other than the one it's in.
                 attacks.push(
                     ...ALL_DIRECTIONS.map((p) => {
@@ -6241,7 +6241,7 @@ function noxious_toad_telegraph(location, map, self){
     }
     for(var direction of ORTHOGONAL_DIRECTIONS){
         var move = location.plus(direction.times(2));
-        if(map.check_empty(move)){
+        if(map.looks_empty(move)){
             attacks.push(...spider_telegraph(move, map, self));
         }
     }
@@ -6430,7 +6430,7 @@ function pheonix_telegraph(location, map, self){
     for(var direction of nearby){
         var distance = 0
         for(var j = 3; j > 1 && distance === 0; --j){
-            if(map.check_empty(location.plus(direction.times(j)))){
+            if(map.looks_empty(location.plus(direction.times(j)))){
                 distance = j;
             }
         }
@@ -6861,7 +6861,7 @@ function scythe_telegraph(location, map, self){
     var attacks = [];
     for(var direction of DIAGONAL_DIRECTIONS){
         var current = location.copy();
-        for(var i = 0; i < 3 && map.check_empty(current.plus_equals(direction)); ++i){
+        for(var i = 0; i < 3 && map.looks_empty(current.plus_equals(direction)); ++i){
             attacks.push(current.plus(direction.times(new Point(-1, 0))));
             attacks.push(current.plus(direction.times(new Point(0, -1))));
         }
@@ -7144,7 +7144,7 @@ function specter_move(current, passing, map){
     return true;
 }
 
-/** @type {TelegraphFunction} */
+/** @type {TelegraphFunction} Telegraph can see hidden onjects cause I don't want to redo the get moves function*/
 function specter_telegraph(location, map, self){
     var attacks = [];
     for(var direction of ORTHOGONAL_DIRECTIONS){
@@ -7464,7 +7464,7 @@ function moving_turret_d_ai(self, target, map){
 function moving_turret_d_telegraph(location, map, self){
     var attacks = [];
     for(var direction of [self.direction.rotate(90), self.direction.rotate(-90)]){
-        attacks.push(...get_points_in_direction(location, direction, map));
+        attacks.push(...look_at_points_in_direction(location, direction, map));
     }
     return attacks;
 }
@@ -7525,7 +7525,7 @@ function moving_turret_o_ai(self, target, map){
 function moving_turret_o_telegraph(location, map, self){
     var attacks = [];
     for(var direction of [self.direction.rotate(90), self.direction.rotate(-90)]){
-        attacks.push(...get_points_in_direction(location, direction, map));
+        attacks.push(...look_at_points_in_direction(location, direction, map));
     }
     return attacks;
 }
@@ -7572,7 +7572,7 @@ function turret_d_ai(self, target, map){
 function turret_d_telegraph(location, map, self){
     var attacks = [];
     for(var direction of DIAGONAL_DIRECTIONS){
-        attacks.push(...get_points_in_direction(location, direction, map));
+        attacks.push(...look_at_points_in_direction(location, direction, map));
     }
     return attacks;
 }
@@ -7613,7 +7613,7 @@ function turret_o_ai(self, target, map){
 function turret_o_telegraph(location, map, self){
     var attacks = [];
     for(var direction of ORTHOGONAL_DIRECTIONS){
-        attacks.push(...get_points_in_direction(location, direction, map));
+        attacks.push(...look_at_points_in_direction(location, direction, map));
     }
     return attacks;
 }
@@ -7687,8 +7687,8 @@ function turret_r_telegraph(location, map, self){
         throw new Error(ERRORS.missing_property);
     }
     return [
-        ...get_points_in_direction(location, self.direction, map),
-        ...get_points_in_direction(location, self.direction.times(-1), map),
+        ...look_at_points_in_direction(location, self.direction, map),
+        ...look_at_points_in_direction(location, self.direction.times(-1), map),
     ];
 }
 /** @type {TileGenerator} */
@@ -7833,7 +7833,7 @@ function vampire_telegraph(location, map, self){
     var attacks = [];
     for(var move_direction of ORTHOGONAL_DIRECTIONS){
         var move = location.plus(move_direction);
-        if(map.check_empty(move)){
+        if(map.looks_empty(move)){
             for(var attack_direction of DIAGONAL_DIRECTIONS){
                 attacks.push(move.plus(attack_direction));
             }
@@ -8067,7 +8067,7 @@ function wheel_of_fire_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function wheel_of_fire_telegraph(location, map, self){
     var dir_arrs = ALL_DIRECTIONS.map((p) => {
-        return get_points_in_direction(location, p, map);
+        return look_at_points_in_direction(location, p, map);
     });
     var attacks = [];
     for(var arr of dir_arrs){
@@ -8075,7 +8075,7 @@ function wheel_of_fire_telegraph(location, map, self){
     }
     attacks = attacks.filter((p) => {
         var nearby = p.minus(location).within_radius(1);
-        var full = !map.check_empty(p);
+        var full = !map.looks_empty(p);
         var player = point_equals(p, map.get_player_location());
         return !nearby || (full && !player);
     });
@@ -10117,8 +10117,8 @@ function node_turret_behavior(self, target, map){
     }
 }
 function node_turret_telegraph(location, map, self){
-    var x_points = get_points_in_direction(location, new Point(self.direction.x, 0), map);
-    var y_points = get_points_in_direction(location, new Point(0, self.direction.y), map);
+    var x_points = look_at_points_in_direction(location, new Point(self.direction.x, 0), map);
+    var y_points = look_at_points_in_direction(location, new Point(0, self.direction.y), map);
     return [...x_points, ...y_points];
 }
 
@@ -10714,6 +10714,15 @@ function get_points_in_direction(location, direction, map){
     points.push(location);
     return points;
 }
+function look_at_points_in_direction(location, direction, map){
+    location = location.copy();
+    var points = [];
+    while(map.looks_empty(location.plus_equals(direction))){
+        points.push(location.copy());
+    }
+    points.push(location);
+    return points;
+}
 /**
  * Function that for an array of directions, attempts to move in a direction if possible, then attack in that direction.
  * @param {Point} location The starting location
@@ -10724,7 +10733,7 @@ function get_points_in_direction(location, direction, map){
 function move_attack_telegraph(location, map, directions){
     var attacks = [];
     for(var direction of directions){
-        if(map.check_empty(location.plus(direction))){
+        if(map.looks_empty(location.plus(direction))){
             attacks.push(location.plus(direction.times(2)));
         }
         attacks.push(location.plus(direction));

@@ -35,7 +35,7 @@ function turret_o_ai(self, target, map){
 function turret_o_telegraph(location, map, self){
     var attacks = [];
     for(var direction of ORTHOGONAL_DIRECTIONS){
-        attacks.push(...get_points_in_direction(location, direction, map));
+        attacks.push(...look_at_points_in_direction(location, direction, map));
     }
     return attacks;
 }

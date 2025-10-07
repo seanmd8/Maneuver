@@ -258,7 +258,7 @@ function two_headed_serpent_telegraph(location, map, self){
         attacks.push(location.plus(direction));
     }
     for(var move of ORTHOGONAL_DIRECTIONS){
-        if(map.check_empty(location.plus(move))){
+        if(map.looks_empty(location.plus(move))){
             for(var direction of ORTHOGONAL_DIRECTIONS){
                 attacks.push(location.plus(move).plus(direction));
             }

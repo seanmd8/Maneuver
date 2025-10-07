@@ -61,7 +61,7 @@ function pheonix_telegraph(location, map, self){
     for(var direction of nearby){
         var distance = 0
         for(var j = 3; j > 1 && distance === 0; --j){
-            if(map.check_empty(location.plus(direction.times(j)))){
+            if(map.looks_empty(location.plus(direction.times(j)))){
                 distance = j;
             }
         }

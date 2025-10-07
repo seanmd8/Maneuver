@@ -93,7 +93,7 @@ function specter_move(current, passing, map){
     return true;
 }
 
-/** @type {TelegraphFunction} */
+/** @type {TelegraphFunction} Telegraph can see hidden onjects cause I don't want to redo the get moves function*/
 function specter_telegraph(location, map, self){
     var attacks = [];
     for(var direction of ORTHOGONAL_DIRECTIONS){
