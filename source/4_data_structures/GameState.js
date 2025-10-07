@@ -81,7 +81,6 @@ class GameState{
             return;
         }
         display.remove_children(UIIDS.move_buttons);
-        this.map.clear_marked();
         say(``);
         if(GS.boons.has(boon_names.thick_soles)){
             GS.map.get_player().tags.add(TAGS.invulnerable);

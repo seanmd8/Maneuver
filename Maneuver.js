@@ -9306,8 +9306,8 @@ function boss_death(self, target, map){
     say_record(death_message);
 }
 /**
- * Function to create an event function representing hazardous growth.
- * @param {Point} destination A grid of locations to grow things at.
+ * Function to summon altars at specific positions.
+ * @param {Point} destination A grid of locations to summon at.
  * @returns {MapEventFunction} The event.
  */
 function altar_event(destination, altar){
@@ -9317,7 +9317,7 @@ function altar_event(destination, altar){
         telegraph: hazard_telegraph
     }
 
-    var grow = function(location){
+    var summon = function(location){
         return function(map_to_use){
             map_to_use.attack(location);
             if(map_to_use.check_empty(location)){
@@ -9325,13 +9325,13 @@ function altar_event(destination, altar){
             }
         }
     }
-    var plant = function(location){
+    var rift = function(location){
         return function(map_to_use){
             map_to_use.mark_event(location, mark);
-            map_to_use.add_event({name: altar().name, behavior: grow(location)});
+            map_to_use.add_event({name: altar().name, behavior: summon(location)});
         }
     }
-    return plant(destination);
+    return rift(destination);
 }
 /**
  * Function to create a function that delays an event function for a specified number of turns.
@@ -11897,6 +11897,7 @@ class GameMap{
         // Causes each enemy to execute their behavior.
         this.stats.increment_turn();
         this.#is_player_turn = false;
+        this.clear_marked();
         await this.#entity_list.enemy_turn(this);
         this.#is_player_turn = true;
     }
@@ -12351,7 +12352,6 @@ class GameState{
             return;
         }
         display.remove_children(UIIDS.move_buttons);
-        this.map.clear_marked();
         say(``);
         if(GS.boons.has(boon_names.thick_soles)){
             GS.map.get_player().tags.add(TAGS.invulnerable);
