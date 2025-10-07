@@ -1,19 +1,16 @@
 /** @type {TileGenerator} */
 function spider_web_tile(){
-    var spawn_timer = 2
     return{
         type: entity_types.enemy,
         name: enemy_names.spider_web,
         pic: `${IMG_FOLDER.tiles}spider_web.png`,
-        description: 
-            `${enemy_descriptions.spider_web[0]}${spawn_timer + 1}`
-            +`${enemy_descriptions.spider_web[1]}`,
+        description: enemy_descriptions.spider_web,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 4,
         behavior: spider_web_ai,
         cycle: 0,
-        spawn_timer
+        spawn_timer: 2,
     }
 }
 

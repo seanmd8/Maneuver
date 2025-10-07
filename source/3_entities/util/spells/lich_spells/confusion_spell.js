@@ -8,7 +8,7 @@ function confusion_spell_generator(){
     }
 }
 
-/** @type {AIFunction} Spell which adds 2 random temporary debuff cards to the player's deck.*/
+/** @type {AIFunction} Spell which creates a cloud of confusion gas around the target which lasts for 3 turns.*/
 function confusion_spell(self, target, map){
     var mark = {
         pic: `${IMG_FOLDER.tiles}confusion_cloud.png`,
@@ -30,16 +30,16 @@ function confusion_spell(self, target, map){
             map_to_use.add_event({name: event_names.confusion_cloud, behavior: cloud(points)});
         }
     } 
-    var target = map.get_player_location();
+    var center = self.location.plus(target.difference);
     if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
-        var miss = get_nearest_where(map, target, (t, p) => {
+        var miss = get_nearest_where(map, center, (t, p) => {
             return t.type === entity_types.enemy && !point_equals(p, self.location);
         });
-        target = miss ? miss : target;
+        center = miss ? miss : center;
     }
     for(var i = 0; i < 3; ++i){
-        var rectangle = point_rectangle(target.plus(new Point(1, 1)), target.plus(new Point(-1, -1)));
-        rectangle = [...rectangle, target.copy()];
+        var rectangle = point_rectangle(center.plus(new Point(1, 1)), center.plus(new Point(-1, -1)));
+        rectangle = [...rectangle, center.copy()];
         rectangle = rectangle.filter((p) => {
             return map.is_in_bounds(p);
         });

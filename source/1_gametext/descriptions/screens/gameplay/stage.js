@@ -11,7 +11,7 @@ const gameplay_text = {
     welcome: 
         `Use cards to move (blue) and attack (red).\n` 
         +`Click on things to learn more about them.\n`
-        +`Refer to the guidebook if you need more information.`,
+        +`Refer to the guidebook in the top right if you need more information.`,
     floor: 
         `Welcome to floor `,
     new_area:

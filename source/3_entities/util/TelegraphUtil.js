@@ -33,6 +33,15 @@ function get_points_in_direction(location, direction, map){
     points.push(location);
     return points;
 }
+function look_at_points_in_direction(location, direction, map){
+    location = location.copy();
+    var points = [];
+    while(map.looks_empty(location.plus_equals(direction))){
+        points.push(location.copy());
+    }
+    points.push(location);
+    return points;
+}
 /**
  * Function that for an array of directions, attempts to move in a direction if possible, then attack in that direction.
  * @param {Point} location The starting location
@@ -43,7 +52,7 @@ function get_points_in_direction(location, direction, map){
 function move_attack_telegraph(location, map, directions){
     var attacks = [];
     for(var direction of directions){
-        if(map.check_empty(location.plus(direction))){
+        if(map.looks_empty(location.plus(direction))){
             attacks.push(location.plus(direction.times(2)));
         }
         attacks.push(location.plus(direction));

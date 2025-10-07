@@ -38,8 +38,8 @@ function velociphile_ai(self, target, map){
 function velociphile_telegraph(location, map, self){
     var attacks = [];
     for(var direction of ALL_DIRECTIONS){
-        if(map.check_empty(location.plus(direction))){
-            attacks.push(...get_points_in_direction(location.plus(direction), direction, map));
+        if(map.looks_empty(location.plus(direction))){
+            attacks.push(...look_at_points_in_direction(location.plus(direction), direction, map));
         }
     }
     return attacks;

@@ -33,7 +33,7 @@ function bookshelf_on_hit(self, target, map){
         ...CONFUSION_CARDS, 
         ...COMMON_CARDS, 
         ...get_all_achievement_cards(), 
-        ...boss_cards
+        ...boss_cards.filter((c) => {return !c().options.has_action_type(action_types.heal)})
     ];
     var card = randomize_arr(card_list)[0]();
     GS.give_temp_card(card);

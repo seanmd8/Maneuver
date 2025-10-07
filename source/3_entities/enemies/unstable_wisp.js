@@ -19,7 +19,7 @@ function unstable_wisp_ai(self, target, map){
     var start = self.location.copy();
     var directions = random_nearby();
     var moved = move_careful(self, target, map, directions);
-    if(moved !== undefined && chance(1, 3)){
+    if(moved !== undefined && chance(1, 2)){
         // Chance to shoot a fireball after moving.
         moved.times_equals(-1);
         var fireball = shoot_fireball(moved);

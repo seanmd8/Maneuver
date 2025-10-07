@@ -65,7 +65,7 @@ function vampire_telegraph(location, map, self){
     var attacks = [];
     for(var move_direction of ORTHOGONAL_DIRECTIONS){
         var move = location.plus(move_direction);
-        if(map.check_empty(move)){
+        if(map.looks_empty(move)){
             for(var attack_direction of DIAGONAL_DIRECTIONS){
                 attacks.push(move.plus(attack_direction));
             }

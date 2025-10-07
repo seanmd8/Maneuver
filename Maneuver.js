@@ -438,6 +438,7 @@ function init_settings(){
         area: undefined,
         area_size: undefined,
         achievements: undefined,
+        identify_boons: undefined,
         save: undefined,
         load: undefined,
     }
@@ -454,6 +455,8 @@ function init_settings(){
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
     // Determines achievements that should be automatically gained upon starting the game.
     init.achievements = init.achievements ? init.achievements : [];
+    // Determined boons that should be added to the journal unpon starting the game.
+    init.identify_boons = init.identify_boons ? init.identify_boons : [];
     // Determines the way of saving and loading the game.
     init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
     init.load = init.load ? init.load: SaveData.load_local_function(`player1`);
@@ -1061,8 +1064,9 @@ Object.freeze(usymbol);
 // Move types.
 const move_types = {
     alt: `Shift click on a button to show actions on the map.`,
-    evolutions: `Dust and paint seems to be covering part of this card obscuring some of the options. `
-                +`Maybe you can find some way to remove it?`,
+    evolutions: 
+        `Dust and paint seems to be covering part of this card obscuring some of the options. `
+        +`Maybe you can find some way to remove it?`,
     intro: `Move Options (actions will be performed in order):\n`,
 
     attack: `Attack`,
@@ -1077,7 +1081,7 @@ const move_types = {
     nothing: `Do nothing`,
     
     per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
-    temp: `Temporary: Removed from your deck when used, or at the end of the floor.`,
+    temp: `Temporary: Removed from your deck when put into your discard, or at the end of the floor.`,
     instant: `Instant: Play another card this turn.`,
     
     locked: `This card has not been unlocked yet.`,
@@ -1118,22 +1122,21 @@ const boss_descriptions = {
     lord_of_shadow_and_flame:
         `Lord of Shadow and Flame (Final Boss): Ruler from beyond the veil of reality. Summons `
         +`altars from which to cast it's spells. When next to the player it will prepare to attack `
-        +`all nearby spaces next turn. Moves at double speed while under half health.`,
+        +`all nearby spaces on it's next turn. Moves at double speed while under half health.`,
     spider_queen: 
-        `Spider Queen (Boss): Her back crawls with her young. Moves like a `
-        +`normal spider. Taking damage will stun her, but will also spawn a spider.`,
+        `Spider Queen (Boss): Her back crawls with her young. Behaves like a normal spider. Taking `
+        +`damage will stun her, but will also spawn a spider.`,
     two_headed_serpent_awake: 
-        `Two Headed Serpent (Boss): Moves then attacks 1 square orthogonally. `
-        +`When damaged, the neck will instantly grow a new head.`,
+        `Two Headed Serpent (Boss): Moves 1 square orthogonally, then attacks 1 square orthogonally. `
+        +`When damaged, the neck will instantly grow into a new head.`,
     two_headed_serpent_asleep: 
-        `Two Headed Serpent (Boss): This head is sleeping. When damaged, `
-        +`the neck will grow a new head, which will spend it's turn waking up. `
-        +`The other head will then fall asleep.`,
+        `Two Headed Serpent (Boss): This head is sleeping. When damaged, the neck will grow a new `
+        +`head, which will spend it's turn waking up. The other head will then fall asleep.`,
     two_headed_serpent_body: 
         `Two Headed Serpent (Boss): The scales on the body are too tough to pierce.`,
     velociphile: 
-        `Velociphile (Boss): A rolling ball of mouths and hate. Moves `
-        +`in straight lines. Must build up speed to ram you.`,
+        `Velociphile (Boss): A rolling ball of mouths and hate. Moves in one direction until it hits `
+        +`something, then attacks in that direction. Cannot attack the squares next to it.`,
     young_dragon: [
         `Young Dragon (Boss): Be glad it's still young. Alternates between gliding and breathing fire.\n`
         +`The Dragon is currently `, 
@@ -1170,18 +1173,17 @@ const boss_death_message = {
     forest_heart: `Branches rain from above as the ancient tree is felled.`,
     lich: `The Lich's body crumbles to dust.`,
     lord_of_shadow_and_flame: 
-        `As the ruler of this space fades from reality, the room begins to quake. `
-        +`Better leave quickly.`,
+        `As the ruler of this space fades from reality, the room begins to quake. Better leave quickly.`,
     spider_queen: `As the Spider Queen falls to the floor, the last of her children emerge.`,
     two_headed_serpent: 
-        `It's body too small to regenerate any further, all four of the serpent's `
-        +`eyes close for the final time`,
+        `It's body too small to regenerate any further, all four of the serpent's eyes close for the `
+        +`final time`,
     velociphile: `The wailing falls silent as the Velociphile is defeated.`,
     young_dragon: `Scales so soft are easily pierced. The Young Dragon's fire goes out.`,
 }
 Object.freeze(boss_death_message);
 
-// Boss Specific Descriptions
+// Individual Boss Descriptions
 
 const lich_spell_descriptions = {
     confusion: `Confusion - Creates a cloud of confusion gas to pollute your deck.`,
@@ -1190,8 +1192,8 @@ const lich_spell_descriptions = {
     lava_moat: `Lava Moat - Creates pools of molten lava to shield the user.`,
     piercing_beam: `Piercing Beam - Fires a piercing beam in the direction closest to the target.`,
     rest: `Nothing.`,
-    summon: `Summon - Summons 2 random enemies`,
-    teleport: `Teleport - The user moves to a random square on the map`,
+    summon: `Summon - Summons 2 random enemies.`,
+    teleport: `Teleport - The user moves to a random square on the map.`,
 }
 Object.freeze(lich_spell_descriptions);
 
@@ -1225,150 +1227,142 @@ const sentry_mode_descriptions = {
 Object.freeze(sentry_mode_descriptions);
 const enemy_descriptions = {
     acid_bug: 
-        `Acid bug: Moves towards the player 1 space. Has no normal attack, `
-        +`but will spray acid upon death hurting everything next to it.`,
+        `Acid bug: Moves 1 space towards the player. Has no normal attack, but will spray acid `
+        +`upon death hurting everything next to it.`,
     animated_boulder: 
-        `Animated Boulder: Wakes up when something touches it. Each turn it will `
-        +`damage everything close to it, then move 1 space closer to the player. `
-        +`After 3 turns, it will go back to sleep.`,
+        `Animated Boulder: Wakes up when something damages or moves onto it. Each turn it will `
+        +`damage everything next to it, then move 1 space closer to the player. After 3 turns, `
+        +`it will go back to sleep.`,
     blood_crescent:
         `Blood Crescent: Will move 3 spaces diagonally towards the player damaging them if it `
         +`hits them or passes next to them. Moves every other turn.`,
     brightling: 
-        `Brightling: Is not aggressive. Will occasionally teleport the player `
-        +`close to it before teleporting away the next turn.`,
+        `Brightling: Is not aggressive. Will occasionally teleport the player close to it before `
+        +`teleporting away the next turn.`,
     captive_void: 
-        `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it `
-        +`turns it off for 2 turns.`,
+        `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it turns it `
+        +`off for 2 turns.`,
     carrion_flies: 
-        `Carrion Flies: Will attack the player if they are nearby. Otherwise wanders `
-        +`aimlessly. Over time they will multiply.`,
+        `Carrion Flies: Will attack the player if they are nearby. Otherwise wanders aimlessly. `
+        +`Over time they will multiply.`,
     claustropede:
-        `Claustropede: Will attack the player if they are nearby. Otherwise moves one space closer. `
-        +`When hit it will spend it's next turn dividing and teleporting away with both halves being `
-        +`stunned twice.`,
+        `Claustropede: Will attack the player if it is next to them. Otherwise it will move `
+        +`1 space closer. When hit it will spend it's next turn dividing and teleporting away `
+        +`with both halves being stunned twice.`,
     clay_golem: 
-        `Clay Golem: Will attack the player if it is next to them. Otherwise `
-        +`it will move 1 space closer. Taking damage will stun it and it cannot `
-        +`move two turns in a row.`,
+        `Clay Golem: Will attack the player if it is next to them. Otherwise it will move 1 space `
+        +`closer. Taking damage will stun it. Cannot move two turns in a row.`,
     corrosive_caterpillar: 
-        `Corrosive Caterpillar: Is not aggressive. Leaves a trail of corrosive `
-        +`slime behind it when it moves or dies.`,
+        `Corrosive Caterpillar: Is not aggressive. Leaves a trail of corrosive slime behind it `
+        +`when it moves or dies.`,
     darkling: 
-        `Darkling: Teleports around randomly hurting everything next to the location it `
-        +`arrives at. Blocking it's rift will destroy it.`,
+        `Darkling: Creates rifts that allow it to teleport. Hurts everything next to the location `
+        +`it arrives at. Blocking it's rift will destroy it.`,
     gem_crawler: 
         `Gem Crawler: Every other turn it will move 1 space closer to the player, then attack them if `
         +`it is next to them.`,
     igneous_crab: 
-        `Igneous Crab: Will attack the player if it is next to them. Otherwise it will `
-        +`move 1 space closer. When damaged, it will spend the next 2 turns fleeing.`,
+        `Igneous Crab: Will attack the player if it is next to them. Otherwise it will move 1 space `
+        +`closer. When damaged, it will spend the next 2 turns fleeing.`,
     living_tree: 
-        `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
-        +`Moves one square in any direction every other turn if it didn't attack.`,
+        `Living Tree: Will attack the player if they are exactly 2 spaces away in any direction. `
+        +`Otherwise, moves one square towards the player if they are far from it, or away if they `
+        +`are next to it.`,
     living_tree_rooted: 
-        `Living Tree: Damages the player if they are exactly 2 spaces away in any direction. `
+        `Living Tree: Will attack the player if they are exactly 2 spaces away in any direction. `
         +`This one has put down roots making it unable to move.`,
     magma_spewer: 
-        `Magma Spewer: Fires magma into the air every other turn. Retreats when you `
-        +`get close.`,
+        `Magma Spewer: Alternates between firing magma into the air and retreating if the player `
+        +`is next to it.`,
     maw:
         `Maw: Attacks the player 3 times if they are 1 space away orthogonally. Otherwise moves 1 `
         +`space orthogonally towards them. Taking damage stuns it twice.`,
     noxious_toad: 
-        `Noxious Toad: Every other turn it will hop over a space orthogonally. `
-        +`If it lands near the player, it will damage everything next to it.`,
+        `Noxious Toad: Every other turn it will hop over a space orthogonally. If it lands next to `
+        +`the player, it will damage everything next to it.`,
     orb_of_insanity: 
-        `Orb of Insanity: Does not move or attack. If the player is within `
-        +`2 spaces of it, it will confuse them, polluting their deck with a bad temporary card.`,
+        `Orb of Insanity: Does not move or attack. If the player is within 2 spaces of it, it will `
+        +`confuse them, polluting their deck with a bad temporary card.`,
     paper_construct: 
-        `Paper Construct: Can shoot the player from up to 2 spaces away orthogonally. Otherwise, `
-        +`moves up to two spaces diagonally.`,
+        `Paper Construct: Can fire a beam at the player from up to 2 spaces away orthogonally `
+        +`which hits the first thing in it's path. Otherwise, moves up to two spaces diagonally.`,
     pheonix: 
-        `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. `
-        +`Everything it flies over will be damaged and set on fire. When it dies, `
-        +`it drops a pile of ashes from which it will eventually be reborn.`,
+        `Pheonix: Flies to an empty spot 2 or 3 spaces away in a single direction. Everything it `
+        +`flies over will be damaged and set on fire. When it dies, it drops a pile of ashes from `
+        +`which it will eventually be reborn.`,
     porcuslime_large: 
-        `Large Porcuslime: Moves towards the player 1 space and attacks `
-        +`in that direction. Weakens when hit.`,
+        `Large Porcuslime: Moves 1 space towards the player then attacks in that direction. When `
+        +`hit it will spend it's next turn shrinking.`,
     porcuslime_medium: 
-        `Medium Porcuslime: Moves towards the player 1 space and attacks `
-        +`in that direction. Alternates between orthoganal and diagonal `
-        +`movement. Splits when hit.`,
+        `Medium Porcuslime: Moves 1 space towards the player then attacks in that direction. `
+        +`Alternates between orthoganal and diagonal movement. When hit it will spend it's `
+        +`next turn splitting in two.`,
     porcuslime_small_d: 
-        `Small Porcuslime: Moves towards the player 1 space diagonally and `
-        +`attacks in that direction.`,
-    porcuslime_small_h: 
-        `Small Porcuslime: Moves towards the player 1 space orthogonally `
-        +`and attacks in that direction.`,
+        `Small Porcuslime: Moves 1 space diagonally towards the player then attacks in that direction.`,
+    porcuslime_small_o: 
+        `Small Porcuslime: Moves 1 space orthogonally towards the player then attacks in that direction.`,
     ram: 
-        `Ram: Moves orthogonally. When it sees the player, it will `
-        +`prepare to charge towards them and ram them.`,
+        `Ram: Moves orthogonally. When it sees the player, it will prepare to charge towards `
+        +`them and ram them.`,
     rat: 
-        `Rat: Will attack the player if it is next to them. Otherwise it will move `
-        +`2 spaces closer. After attacking, it will flee.`,
+        `Rat: Will attack the player if it is next to them. Otherwise it will move 2 spaces closer. `
+        +`After attacking, it will flee.`,
     scorpion: 
-        `Scorpion: Will attack the player if it is next to them. Otherwise, moves 2 spaces `
-        +`closer every other turn.`,
+        `Scorpion: Will attack the player if it is next to them. Otherwise, moves 2 spaces closer `
+        +`every other turn.`,
     scythe: 
-        `Scythe: Will move 3 spaces diagonally towards the player `
-        +`damaging them if it passes next to them.`,
+        `Scythe: Will move 3 spaces diagonally towards the player damaging them if it passes `
+        +`next to them.`,
     shadow_knight: 
-        `Shadow Knight: Moves in an L shape. If it tramples the player, `
-        +`it will move again.`,
+        `Shadow Knight: Attacks and moves in an L shape. If it tramples the player, it will move again.`,
     shadow_knight_elite: 
-        `Shadow Knight Elite: Moves in an L shape. If it tramples the player, `
-        +`it will move again. Smarter than normal shadow knights.`,
+        `Shadow Knight Elite: Attacks and moves in an L shape. If it tramples the player, it will `
+        +`move again. Smarter than normal shadow knights`,
     shadow_scout: 
-        `Shadow Scout: Will attack the player if it is next to them. Otherwise it will `
-        +`move 1 space closer. Can go invisible every other turn.`,
+        `Shadow Scout: Will attack the player if it is next to them. Otherwise it will move 1 space `
+        +`closer. Can go invisible every other turn.`,
     specter: 
         `Specter: Can travel up to 3 spaces orthogonally. While doing so, it can pass through tiles `
-        +`without costing movement. Passing through a tile damages and stuns/confuses it.`,
-    spider_web: [
-        `Spider Web: Does not move or attack. Spawns a spider every `, 
-        ` turns. Slows over time.`
-    ],
+        +`without costing movement. Damages tiles it passes through as well as stunning or `
+        +`confusing them.`,
+    spider_web: 
+        `Spider Web: Does not move or attack. Spawns a spider every 3 turns. Slows over time.`,
     spider: 
-        `Spider: Will attack the player if it is next to them. `
-        +`Otherwise it will move 1 space closer.`,
+        `Spider: Will attack the player if it is next to them. Otherwise it will move 1 space closer.`,
     starcaller:
-        `Starcaller: Every 3 turns it will summon an object from another realm targeting `
-        +`the player's location.`,
+        `Starcaller: Every 3 turns it will summon an object from another realm targeting the player's `
+        +`location.`,
     strider: 
-        `Strider: Attacks then moves 2 spaces away in one direction.`,
+        `Strider: Can attack and move to squares 2 spaces away in one direction.`,
     swaying_nettle: 
-        `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal `
-        +`to it. Won't hurt each other`,
+        `Swaying Nettle: Alternates between attacking the squares orthogonal and diagonal to it. `
+        +`Won't hurt other nettles.`,
     thorn_bush: 
         `Thorn Bush: Trying to move here hurts. Spreads it's brambles over time.`,
     turret_d: 
-        `Turret: Does not move. Fires beams diagonally that hit the `
-        +`first thing in their path.`,
+        `Turret: Does not move. Fires beams diagonally that hit the first thing in their path.`,
     turret_h: 
-        `Turret: Does not move. Fires beams orthogonally that hit `
-        +`the first thing in their path.`,
+        `Turret: Does not move. Fires beams orthogonally that hit the first thing in their path.`,
     turret_m:
         `Moving Turret: Fires beams in two directions that hit the first thing in their path. `
-        +`Moves in the same direction until it hits something.`,
+        +`Moves in the same direction until it hits something, then reverses.`,
     turret_r: 
-        `Turret: Does not move. Fires beams in two directions hitting `
-        +`the first thing in their path. Rotates every turn.`,
+        `Turret: Does not move. Fires beams in two directions hitting the first thing in their `
+        +`path. Rotates every turn.`,
     unspeakable:
-        `Unspeakable: Moves towards the player 1 space. Does not attack. On death, `
-        +`confuses the player 2 times, polluting their deck with bad cards.`,
+        `Unspeakable: Moves 1 space closer to the player. Does not attack. On death, creates a `
+        +`cloud of confusion gas to pollute your deck.`,
     unstable_wisp: 
-        `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes `
-        +`into a ring of fireballs on death.`,
+        `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes into a `
+        +`ring of fireballs on death.`,
     vampire: 
-        `Vampire: Moves orthogonally then will attempt to attack diagonally. `
-        +`When it hits the player, it will heal itself. Teleports away and is `
-        +`stunned when hit.`,
+        `Vampire: Moves 1 space orthogonally then will attempt to attack diagonally. When it hits `
+        +`the player, it will heal itself. Damaging it stuns it and causes it to teleport away.`,
     vinesnare_bush: 
         `Vinesnare Bush: Does not move. Can drag the player towards it using it's vines from up to 3 `
-        +`spaces away. It can then lash out at the player if they are still nearby next turn.`,
+        +`spaces away. It can then prepare to lash out at the player if they are still nearby next turn.`,
     walking_prism: [
-        `Walking Prism: Has no normal attack, but will fire beams in 4 directions when damaged `
+        `Walking Prism: Has no normal attack, but when damaged it will fire beams in 4 directions `
         +`which hit the first thing in their path. Changes firing direction aftewards.\n`, 
         `Currently aiming orthogonally.`,
         `Currently aiming diagonally.`
@@ -1612,20 +1606,20 @@ const entity_types = {
 Object.freeze(entity_types);
 const event_descriptions = {
     black_hole:
-        `A Black Hole is beginning to form here.`,
+        `A Black Hole is beginning to form here damaging anything standing here.`,
     confusion_cloud:
         `A cloud of mind melting magic will confuse or stun everything inside. Lasts 3 turns.`,
     darkling_rift: 
-        `If this space isn't blocked, a darkling will teleport here `
-        +`next turn damaging everything nearby.`,
+        `If this space isn't blocked, a darkling will teleport here next turn damaging everything `
+        +`next to it.`,
     falling_rubble: 
-        `Watch out, something is about to fall here.`,
+        `Watch out, something is about to fall here damaging anything standing here.`,
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
     starfall:
-        `Something is about to be pulled into existence damaging anything standing here.`,
+        `Watch out, something is about to be pulled into existence damaging anything standing here.`,
     sunlight:
-        `This space is rapidly heating up.`,
+        `Watch out, this space is about to light on fire damaging anything standing here.`,
     thorn_root: 
         `Watch out, brambles are about to sprout damaging anything standing here.`,
 }
@@ -1650,15 +1644,15 @@ const event_names = {
 Object.freeze(event_names);
 const other_tile_descriptions = {
     altar_of_scouring:
-        `Altar of Scouring: Activate by moving here. When activated, creates a wall of fireballs to `
-        +`wipe the screen clean.`,
+        `Altar of Scouring: Activate by moving here. When activated, creates a wall of fireballs along `
+        +`the furthest wall to wipe the screen clean.`,
     altar_of_shadow:
         `Altar of Shadow: Activate by moving here. When activated, the Lord of Shadow and Flame will `
         +`become invisible until another altar is activated.`,
     altar_of_singularity:
         `Altar of Singularity: Activate by moving here. When activated, create a Black Hole in this space.`,
     altar_of_space:
-        `Altar of Space: Activate by moving here. When activated, rearrange the floor.`,
+        `Altar of Space: Activate by moving here. When activated, rearrange everything on the floor.`,
     altar_of_stars:
         `Altar of Stars: Activate by moving here. When activated, for the next 3 turns it will `
         +`summon an object from another realm targeting the player's location.`,
@@ -1666,41 +1660,39 @@ const other_tile_descriptions = {
         `Altar of Stasis: Activate by moving here. When activated, rewinds time healing the Lord `
         +`of Shadow and Flame by 3 and all altars by 1.`,
     altar_of_sunlight:
-        `Altar of Sunlight: Activate by moving here. When activated, create an expanding fire `
-        +`centered on the player's location.`,
+        `Altar of Sunlight: Activate by moving here. When activated, create an expanding fire centered `
+        +`on the player's location.`,
     black_hole: 
-        `Black Hole: Draws everything on screen closer to it. The `
-        +`Lord of Shadow and Flame is immune. Decays every turn.`,
+        `Black Hole: Draws everything on screen closer to it. The Lord of Shadow and Flame is immune. `
+        +`Decays every turn and cannot be stunned.`,
     bookshelf: 
-        `Bookshelf: When damaged, adds a random temporary card to your deck.`,
+        `Bookshelf: When damaged, adds a random temporary card to your deck. Cannot give healing cards.`,
     coffin: 
-        `Coffin: There is no telling whether whatever is inside is still `
-        +`alive or not. Touch it at your own risk.`,
+        `Coffin: There is no telling whether whatever is inside is still alive or not. On the other `
+        +`hand there could be treasure inside. Disturb it at your own risk.`,
     corrosive_slime: 
-        `Corrosive Slime: Stepping into this will hurt. Clear it out `
-        +`by attacking.`,
+        `Corrosive Slime: Stepping into this will hurt. Clear it out by attacking.`,
     fireball: 
-        `Fireball: Moves forwards until it comes into contact with `
-        +`something, then damages it. Cannot be stunned.`,
+        `Fireball: Moves forwards until it comes into contact with something, then damages it. Cannot `
+        +`be stunned.`,
     fruit_tree_enticing: 
-        `Enticing Fruit Tree: Moving you here will heal you, but other creatures `
-        +`may be attracted by the fruit.`,
+        `Enticing Fruit Tree: Moving here will heal you, but other creatures may be attracted by the `
+        +`smell of the fruit.`,
     fruit_tree_rotting: 
-        `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell `
-        +`could still attract creatures if it is disturbed.`,
+        `Rotting Fruit Tree: None of the remaining fruit is edible, but the smell could still attract `
+        +`creatures if it is disturbed.`,
     lava_pool: 
         `Lava Pool: Attempting to move here will hurt.`,
     magmatic_boulder: 
-        `Magmatic Boulder: The light reflecting off of it gives you the `
-        +`feeling of being watched.`,
+        `Magmatic Boulder: The light reflecting off of it gives you the feeling of being watched.`,
     moon_rock:
         `Moon Rock: A chunk of fragile rock from somewhere else.`,
     raging_fire: 
-        `Raging Fire: The very ground here is burning. It will grow weaker `
-        +`every turn, but it's not safe to move through. Cannot be stunned.`,
+        `Raging Fire: The very ground here is burning. Attempting to move here will hurt. Decays every `
+        +`turn and cannot be stunned`,
     repulsor: 
-        `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or `
-        +`if touched. Takes 3 turns to recharge afterwards.`,
+        `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 3 turns `
+        +`to recharge afterwards.`,
     sewer_grate: 
         `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
     shatter_sphere_d:
@@ -1709,11 +1701,10 @@ const other_tile_descriptions = {
         `Shatter Sphere: Explodes when damaged harming everything orthogonal to it.`,
     smoldering_ashes: [
         `Smoldering Ashes: A pheonix will be reborn here in `, 
-        ` turns unless you scatter the ashes by attacking them or moving onto them.`
+        ` turns unless you scatter the ashes by attacking or moving onto them.`
     ],
     thorn_bramble: 
-        `Thorn Bramble: Trying to move here hurts. Allows the thorn bush to `
-        +`spread further.`,
+        `Thorn Bramble: Attempting to move here hurts. Allows the thorn bush to spread further.`,
     wall: 
         `Wall: It seems sturdy.`,
     wall_damaged: 
@@ -1750,10 +1741,9 @@ const other_tile_names = {
 }
 Object.freeze(other_tile_names);
 const special_tile_descriptions = {
-    chest: `Chest: It might have something useful inside. Breaking it will damage `
-    +`the contents.`,
-    chest_armored: `Armored Chest: It might have something useful inside. It is larger than `
-    +`a normal chest and armored to protect it's contents.`,
+    chest: `Chest: Has something useful inside. Breaking it will destroy the contents.`,
+    chest_armored: `Armored Chest: Has something useful inside. It is larger than a normal chest and `
+    +`armored to protect it's contents.`,
     empty: `There is nothing here.`,
     exit: `Exit: Stairs to the next floor.`,
     final_exit: `Return Portal: Move here to leave the dungeon and win the game.`,
@@ -1829,20 +1819,20 @@ Object.freeze(achievement_names);
 
 const achievement_description = {
     // Boss
-    velociphile: `Defeat the Velociphile.`,
-    spider_queen: `Defeat the Spider Queen.`,
-    two_headed_serpent: `Defeat the Two Headed Serpent.`,
-    lich: `Defeat the Lich.`,
-    young_dragon: `Defeat the Young Dragon.`,
-    forest_heart: `Defeat the Forest Heart.`,
-    arcane_sentry: `Defeat the Arcane Sentry.`,
-    lord_of_shadow_and_flame: `Defeat the Lord of Shadow and Flame.`,
+    velociphile: `Defeat the boss of the ${area_names.ruins}.`,
+    spider_queen: `Defeat the boss of the ${area_names.basement}.`,
+    two_headed_serpent: `Defeat the boss of the ${area_names.sewers}.`,
+    lich: `Defeat the boss of the ${area_names.crypt}.`,
+    young_dragon: `Defeat the boss of the ${area_names.magma}.`,
+    forest_heart: `Defeat the boss of the ${area_names.forest}.`,
+    arcane_sentry: `Defeat the boss of the ${area_names.library}.`,
+    lord_of_shadow_and_flame: `Defeat the final boss of the ${area_names.court}.`,
     victory: `Escape victorious.`,
 
     // Normal
     ancient_knowledge: `Restore an ancient card to full power.`,
     beyond_the_basics: `Remove all basic cards from your deck.`,
-    blessed: `Obtain 35 different boons at least once.`,
+    blessed: `Obtain 35 unique boons at least once.`,
     clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
     collector: `Open 6 or more treasure chests in 1 run.`,
     common_sense: `Obtain every common card at least once.`,
@@ -1853,12 +1843,12 @@ const achievement_description = {
     non_violent: `Reach the first boss without killing anything.`,
     not_my_fault: `Let a boss die without dealing any damage to it yourself.`,
     one_hit_wonder: `Defeat a boss in a single turn.`,
-    one_life: `Defeat any boss with exactly 1 max health.`,
+    one_life: `Defeat any boss while having exactly 1 max health.`,
     peerless_sprinter: `Speed through a floor in 3 turns or less.`,
     shrug_it_off: `Take 10 or more damage without dying in 1 run.`,
     speed_runner: `Leave floor 10 in 100 turns or less.`,
     triple: `Have 3 or more of the same non temporary card in your deck.`,
-    without_a_scratch: `Leave floor 10 without taking any damage.`,
+    without_a_scratch: `Leave floor 10 without ever taking damage.`,
 }
 Object.freeze(achievement_description);
 
@@ -1959,7 +1949,7 @@ const gameplay_text = {
     welcome: 
         `Use cards to move (blue) and attack (red).\n` 
         +`Click on things to learn more about them.\n`
-        +`Refer to the guidebook if you need more information.`,
+        +`Refer to the guidebook in the top right if you need more information.`,
     floor: 
         `Welcome to floor `,
     new_area:
@@ -1993,18 +1983,19 @@ const GUIDE_HEADERS = {
 Object.freeze(GUIDE_HEADERS);
 
 const GUIDE_TEXT = {
-    basics: 
-        [`Welcome to Maneuver!\n\n`
+    basics: [
+        `Welcome to Maneuver!\n\n`
         +`The goal of the game is to progress as deep into the dungeon as possible by completing each floor. `
         +`To finish a floor, you need to reach the stairs that lead down to the next one. Enemies will spawn `
         +`on each floor which will try to stop you from continuing. You do not need to defeat everything on `
         +`the current floor to continue, but may need to fight most of them to survive.\n\n`
         +`Exit the dungeon by defeating the final boss on floor 25 to win.\n\n`
         +`Read more about controlling your character in the next section.\n`
-        +`Good luck!\n\n`],
+        +`Good luck!\n\n`
+    ],
 
-    cards: 
-        [`To control your character's actions, you have a deck of cards. Each card gives you several `
+    cards: [
+        `To control your character's actions, you have a deck of cards. Each card gives you several `
         +`options for a set of actions to take. The actions on the card will be performed relative to `
         +`your current location (the black dot). Clicking on a card will bring up a grid of buttons which `
         +`will let you decide which of the card's options to use.\n\n`
@@ -2031,10 +2022,11 @@ const GUIDE_TEXT = {
             ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
         +`\n`
         +`You can use the (?) button next to your move options to learn exactly what a selected card does, `
-        +`or shift click to display what the card does on the map.\n\n`],
+        +`or shift click to display what the card does on the map.\n\n`
+    ],
 
-    enemies: 
-        [`As you travel through the dungeon, you will encounter various other creatures, many of whom want `
+    enemies: [
+        `As you travel through the dungeon, you will encounter various other creatures, many of whom want `
         +`to kill you. Each creature has different patterns of attack and movement. Many of them also have `
         +`other unique abilities.\n\n`
         +`Click on a tile to learn more about creatures and terrain there. Clicking will show you a `
@@ -2048,35 +2040,39 @@ const GUIDE_TEXT = {
         +`immediately get another turn.\n\n`
         +`Some effects will cause an enemy to become stunned. They will be hightlighted in yellow. Stunned `
         +`enemies will skip their next turn. Multiple instances of stun will cause multiple turns to get `
-        +`skipped.\n\n`],
+        +`skipped.\n\n`
+    ],
 
-    shop: 
-        [`When you complete a floor, you will enter a shop where you must either add or remove a card from `
+    shop: [
+        `When you complete a floor, you will enter a shop where you must either add or remove a card from `
         +`your deck. You will get ${ADD_CHOICE_COUNT} options of random cards to add, and `
         +`${REMOVE_CHOICE_COUNT} options of random cards from your deck to remove. The current contents of `
         +`your deck will be shown to help you choose. You cannot go below your minimum deck size.\n\n`
         +`In addition to the shop, there are several other ways to get cards. You can find them from `
         +`defeating certain bosses or aquiring certain boons. Some enemies or effects may also add `
-        +`temporary cards to your deck. They will go away after you play them or go to the next floor.\n\n`],
+        +`temporary cards to your deck. They will go away after you play them or go to the next floor.\n\n`
+    ],
 
-    bosses: 
-        [`Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be `
+    bosses: [
+        `Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be `
         +`locked until you defeat it's occupant. When you defeat the boss, the stairs will be `
         +`unlocked, you will be fully healed, and it will drop a chest containing a powerful new card as a `
         +`reward.\n\n`
         +`When leaving the floor, you will enter a new area of the dungeon with a different set of `
-        +`inhabitants and a new boss at the end.\n\n`],
+        +`inhabitants and a new boss at the end.\n\n`
+    ],
 
-    chests: 
-        [`On floor ${CHEST_LOCATION} of every area, you will find a treasure chest. Moving onto this chest `
+    chests: [
+        `On floor ${CHEST_LOCATION} of every area, you will find a treasure chest. Moving onto this chest `
         +`will allow you to pick a boon. Boons are powerful abilities that can give your character a unique `
         +`edge when it comes to surviving.\n\n`
         +`Chests will also be dropped after a boss is defeated. Rather than boons, these ones will contain `
         +`a card that lets you imitate one of the boss's abilities.\n\n`
-        +`Be careful. Breaking a chest will destroy it's contents.\n\n`],
+        +`Be careful. Breaking a chest will destroy it's contents.\n\n`
+    ],
 
-    sidebar: 
-        [`The sidebar contains several tabs which keep track of useful information so you don't need to `
+    sidebar: [
+        `The sidebar contains several tabs which keep track of useful information so you don't need to `
         +`remember it.\n\n`
         +`${usymbol.bullet} The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like `
         +`the descriptions given by clicking on a tile will not be tracked.\n\n`
@@ -2084,17 +2080,21 @@ const GUIDE_TEXT = {
         +`figure out what might be left to draw. It resets after shuffling.\n\n`
         +`${usymbol.bullet} The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it `
         +`when trying to use one enemy to block the attack of another. It will not track hidden enemies.\n\n`
-        +`More tabs might become available as you play.\n\n`],
+        +`More tabs might become available as you play.\n\n`
+    ],
 
-    confusion: 
-        [`Certain enemies and cards will confuse you. Confusion adds a temporary bad card to your deck which `
+    confusion: [
+        `Certain enemies and cards will confuse you. Confusion adds a temporary bad card to your deck which `
         +`will go away after it goes to your discard pile, or when you go to the next floor. Cards will do `
         +`this if they highlight your current square in yellow.\n\n`
-        +`Here is a list of the possible confusion cards:\n\n`],
+        +`Here is a list of the possible confusion cards:\n\n`
+    ],
 
-    about:
-        [`Maneuver is a game created by Sean Dunbar. It began in 2023. If you would like to view the changelog or `
-        +`look at the source code, you can go to the `, `.\n\n`],
+    about: [
+        `Maneuver is a game created by Sean Dunbar. It began in 2023. If you would like to view the `
+        +`changelog or look at the source code, you can go to the `, 
+        `.\n\n`
+    ],
 }
 Object.freeze(GUIDE_TEXT);
 
@@ -5112,7 +5112,7 @@ function two_headed_serpent_telegraph(location, map, self){
         attacks.push(location.plus(direction));
     }
     for(var move of ORTHOGONAL_DIRECTIONS){
-        if(map.check_empty(location.plus(move))){
+        if(map.looks_empty(location.plus(move))){
             for(var direction of ORTHOGONAL_DIRECTIONS){
                 attacks.push(location.plus(move).plus(direction));
             }
@@ -5160,8 +5160,8 @@ function velociphile_ai(self, target, map){
 function velociphile_telegraph(location, map, self){
     var attacks = [];
     for(var direction of ALL_DIRECTIONS){
-        if(map.check_empty(location.plus(direction))){
-            attacks.push(...get_points_in_direction(location.plus(direction), direction, map));
+        if(map.looks_empty(location.plus(direction))){
+            attacks.push(...look_at_points_in_direction(location.plus(direction), direction, map));
         }
     }
     return attacks;
@@ -5521,7 +5521,7 @@ function blood_crescent_telegraph(location, map, self){
     }
     for(var direction of DIAGONAL_DIRECTIONS){
         var current = location.copy();
-        for(var i = 0; i < 2 && map.check_empty(current.plus_equals(direction)); ++i){
+        for(var i = 0; i < 2 && map.looks_empty(current.plus_equals(direction)); ++i){
             attacks.push(current.copy());
             attacks.push(current.plus(direction.times(new Point(-1, 0))));
             attacks.push(current.plus(direction.times(new Point(0, -1))));
@@ -5937,7 +5937,7 @@ function gem_crawler_telegraph(location, map, self){
     if(self.cycle === 1){
         for(var direction of ALL_DIRECTIONS){
             var space = direction.plus(location);
-            if(map.is_in_bounds(space) && map.check_empty(space)){
+            if(map.looks_empty(space)){
                 // Shows all the spaces it can attack by moving other than the one it's in.
                 attacks.push(
                     ...ALL_DIRECTIONS.map((p) => {
@@ -6241,7 +6241,7 @@ function noxious_toad_telegraph(location, map, self){
     }
     for(var direction of ORTHOGONAL_DIRECTIONS){
         var move = location.plus(direction.times(2));
-        if(map.check_empty(move)){
+        if(map.looks_empty(move)){
             attacks.push(...spider_telegraph(move, map, self));
         }
     }
@@ -6430,7 +6430,7 @@ function pheonix_telegraph(location, map, self){
     for(var direction of nearby){
         var distance = 0
         for(var j = 3; j > 1 && distance === 0; --j){
-            if(map.check_empty(location.plus(direction.times(j)))){
+            if(map.looks_empty(location.plus(direction.times(j)))){
                 distance = j;
             }
         }
@@ -6595,7 +6595,7 @@ function small_o_porcuslime_tile(){
         type: entity_types.enemy,
         name: enemy_names.porcuslime_small,
         pic: `${IMG_FOLDER.tiles}small_o_porcuslime.png`,
-        description: enemy_descriptions.porcuslime_small_h,
+        description: enemy_descriptions.porcuslime_small_o,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -6861,7 +6861,7 @@ function scythe_telegraph(location, map, self){
     var attacks = [];
     for(var direction of DIAGONAL_DIRECTIONS){
         var current = location.copy();
-        for(var i = 0; i < 3 && map.check_empty(current.plus_equals(direction)); ++i){
+        for(var i = 0; i < 3 && map.looks_empty(current.plus_equals(direction)); ++i){
             attacks.push(current.plus(direction.times(new Point(-1, 0))));
             attacks.push(current.plus(direction.times(new Point(0, -1))));
         }
@@ -7144,7 +7144,7 @@ function specter_move(current, passing, map){
     return true;
 }
 
-/** @type {TelegraphFunction} */
+/** @type {TelegraphFunction} Telegraph can see hidden onjects cause I don't want to redo the get moves function*/
 function specter_telegraph(location, map, self){
     var attacks = [];
     for(var direction of ORTHOGONAL_DIRECTIONS){
@@ -7185,20 +7185,17 @@ function spider_telegraph(location, map, self){
 }
 /** @type {TileGenerator} */
 function spider_web_tile(){
-    var spawn_timer = 2
     return{
         type: entity_types.enemy,
         name: enemy_names.spider_web,
         pic: `${IMG_FOLDER.tiles}spider_web.png`,
-        description: 
-            `${enemy_descriptions.spider_web[0]}${spawn_timer + 1}`
-            +`${enemy_descriptions.spider_web[1]}`,
+        description: enemy_descriptions.spider_web,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 4,
         behavior: spider_web_ai,
         cycle: 0,
-        spawn_timer
+        spawn_timer: 2,
     }
 }
 
@@ -7467,7 +7464,7 @@ function moving_turret_d_ai(self, target, map){
 function moving_turret_d_telegraph(location, map, self){
     var attacks = [];
     for(var direction of [self.direction.rotate(90), self.direction.rotate(-90)]){
-        attacks.push(...get_points_in_direction(location, direction, map));
+        attacks.push(...look_at_points_in_direction(location, direction, map));
     }
     return attacks;
 }
@@ -7528,7 +7525,7 @@ function moving_turret_o_ai(self, target, map){
 function moving_turret_o_telegraph(location, map, self){
     var attacks = [];
     for(var direction of [self.direction.rotate(90), self.direction.rotate(-90)]){
-        attacks.push(...get_points_in_direction(location, direction, map));
+        attacks.push(...look_at_points_in_direction(location, direction, map));
     }
     return attacks;
 }
@@ -7575,7 +7572,7 @@ function turret_d_ai(self, target, map){
 function turret_d_telegraph(location, map, self){
     var attacks = [];
     for(var direction of DIAGONAL_DIRECTIONS){
-        attacks.push(...get_points_in_direction(location, direction, map));
+        attacks.push(...look_at_points_in_direction(location, direction, map));
     }
     return attacks;
 }
@@ -7616,7 +7613,7 @@ function turret_o_ai(self, target, map){
 function turret_o_telegraph(location, map, self){
     var attacks = [];
     for(var direction of ORTHOGONAL_DIRECTIONS){
-        attacks.push(...get_points_in_direction(location, direction, map));
+        attacks.push(...look_at_points_in_direction(location, direction, map));
     }
     return attacks;
 }
@@ -7690,8 +7687,8 @@ function turret_r_telegraph(location, map, self){
         throw new Error(ERRORS.missing_property);
     }
     return [
-        ...get_points_in_direction(location, self.direction, map),
-        ...get_points_in_direction(location, self.direction.times(-1), map),
+        ...look_at_points_in_direction(location, self.direction, map),
+        ...look_at_points_in_direction(location, self.direction.times(-1), map),
     ];
 }
 /** @type {TileGenerator} */
@@ -7712,14 +7709,12 @@ function unspeakable_tile(){
 
 /** @type {AIFunction} Function used when unspeakableas die to confuse the player.*/
 function unspeakable_death(self, target, map){
-    for(var i = 0; i < 2; ++i){
-        map.stun_tile(self.location.plus(target.difference));
-    }
+    confusion_spell(self, {difference: new Point(0, 0)}, map)
 }
 
 /** @type {TelegraphFunction} */
 function unspeakable_telegraph(location, map, self){
-    return [map.get_player_location()];
+    return [new Point(0, 0), ...ALL_DIRECTIONS].map((p) => {return p.plus(location)});
 }
 /** @type {TileGenerator} */
 function unstable_wisp_tile(){
@@ -7742,7 +7737,7 @@ function unstable_wisp_ai(self, target, map){
     var start = self.location.copy();
     var directions = random_nearby();
     var moved = move_careful(self, target, map, directions);
-    if(moved !== undefined && chance(1, 3)){
+    if(moved !== undefined && chance(1, 2)){
         // Chance to shoot a fireball after moving.
         moved.times_equals(-1);
         var fireball = shoot_fireball(moved);
@@ -7838,7 +7833,7 @@ function vampire_telegraph(location, map, self){
     var attacks = [];
     for(var move_direction of ORTHOGONAL_DIRECTIONS){
         var move = location.plus(move_direction);
-        if(map.check_empty(move)){
+        if(map.looks_empty(move)){
             for(var attack_direction of DIAGONAL_DIRECTIONS){
                 attacks.push(move.plus(attack_direction));
             }
@@ -8072,7 +8067,7 @@ function wheel_of_fire_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function wheel_of_fire_telegraph(location, map, self){
     var dir_arrs = ALL_DIRECTIONS.map((p) => {
-        return get_points_in_direction(location, p, map);
+        return look_at_points_in_direction(location, p, map);
     });
     var attacks = [];
     for(var arr of dir_arrs){
@@ -8080,7 +8075,7 @@ function wheel_of_fire_telegraph(location, map, self){
     }
     attacks = attacks.filter((p) => {
         var nearby = p.minus(location).within_radius(1);
-        var full = !map.check_empty(p);
+        var full = !map.looks_empty(p);
         var player = point_equals(p, map.get_player_location());
         return !nearby || (full && !player);
     });
@@ -8388,7 +8383,7 @@ function black_hole_tile(){
         pic: `${IMG_FOLDER.tiles}black_hole.png`,
         description: other_tile_descriptions.black_hole,
         health: 6,
-        tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
+        tags: new TagList([TAGS.unmovable, TAGS.obstruction, TAGS.unstunnable]),
         behavior: black_hole_ai,
         telegraph_other: black_hole_telegraph_other,
     }
@@ -8467,7 +8462,7 @@ function bookshelf_on_hit(self, target, map){
         ...CONFUSION_CARDS, 
         ...COMMON_CARDS, 
         ...get_all_achievement_cards(), 
-        ...boss_cards
+        ...boss_cards.filter((c) => {return !c().options.has_action_type(action_types.heal)})
     ];
     var card = randomize_arr(card_list)[0]();
     GS.give_temp_card(card);
@@ -8614,8 +8609,14 @@ function enticing_fruit_tree_on_enter(self, target, map){
     }
     decay_ai(self, target, map);
 }
-const FRUIT_TREE_SUMMONS = [carrion_flies_tile, ram_tile, living_tree_tile, scythe_tile, scorpion_tile, 
-    spider_tile];
+const FRUIT_TREE_SUMMONS = [
+    carrion_flies_tile, 
+    ram_tile, 
+    living_tree_tile, 
+    scythe_tile, 
+    scorpion_tile, 
+    spider_tile
+];
 /** @type {TileGenerator} A healing fruit that spawns enemies.*/
 function rotting_fruit_tree_tile(){
     return {
@@ -9303,8 +9304,8 @@ function boss_death(self, target, map){
     say_record(death_message);
 }
 /**
- * Function to create an event function representing hazardous growth.
- * @param {Point} destination A grid of locations to grow things at.
+ * Function to summon altars at specific positions.
+ * @param {Point} destination A grid of locations to summon at.
  * @returns {MapEventFunction} The event.
  */
 function altar_event(destination, altar){
@@ -9314,7 +9315,7 @@ function altar_event(destination, altar){
         telegraph: hazard_telegraph
     }
 
-    var grow = function(location){
+    var summon = function(location){
         return function(map_to_use){
             map_to_use.attack(location);
             if(map_to_use.check_empty(location)){
@@ -9322,13 +9323,13 @@ function altar_event(destination, altar){
             }
         }
     }
-    var plant = function(location){
+    var rift = function(location){
         return function(map_to_use){
             map_to_use.mark_event(location, mark);
-            map_to_use.add_event({name: altar().name, behavior: grow(location)});
+            map_to_use.add_event({name: altar().name, behavior: summon(location)});
         }
     }
-    return plant(destination);
+    return rift(destination);
 }
 /**
  * Function to create a function that delays an event function for a specified number of turns.
@@ -10116,8 +10117,8 @@ function node_turret_behavior(self, target, map){
     }
 }
 function node_turret_telegraph(location, map, self){
-    var x_points = get_points_in_direction(location, new Point(self.direction.x, 0), map);
-    var y_points = get_points_in_direction(location, new Point(0, self.direction.y), map);
+    var x_points = look_at_points_in_direction(location, new Point(self.direction.x, 0), map);
+    var y_points = look_at_points_in_direction(location, new Point(0, self.direction.y), map);
     return [...x_points, ...y_points];
 }
 
@@ -10440,7 +10441,7 @@ function confusion_spell_generator(){
     }
 }
 
-/** @type {AIFunction} Spell which adds 2 random temporary debuff cards to the player's deck.*/
+/** @type {AIFunction} Spell which creates a cloud of confusion gas around the target which lasts for 3 turns.*/
 function confusion_spell(self, target, map){
     var mark = {
         pic: `${IMG_FOLDER.tiles}confusion_cloud.png`,
@@ -10462,16 +10463,16 @@ function confusion_spell(self, target, map){
             map_to_use.add_event({name: event_names.confusion_cloud, behavior: cloud(points)});
         }
     } 
-    var target = map.get_player_location();
+    var center = self.location.plus(target.difference);
     if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
-        var miss = get_nearest_where(map, target, (t, p) => {
+        var miss = get_nearest_where(map, center, (t, p) => {
             return t.type === entity_types.enemy && !point_equals(p, self.location);
         });
-        target = miss ? miss : target;
+        center = miss ? miss : center;
     }
     for(var i = 0; i < 3; ++i){
-        var rectangle = point_rectangle(target.plus(new Point(1, 1)), target.plus(new Point(-1, -1)));
-        rectangle = [...rectangle, target.copy()];
+        var rectangle = point_rectangle(center.plus(new Point(1, 1)), center.plus(new Point(-1, -1)));
+        rectangle = [...rectangle, center.copy()];
         rectangle = rectangle.filter((p) => {
             return map.is_in_bounds(p);
         });
@@ -10713,6 +10714,15 @@ function get_points_in_direction(location, direction, map){
     points.push(location);
     return points;
 }
+function look_at_points_in_direction(location, direction, map){
+    location = location.copy();
+    var points = [];
+    while(map.looks_empty(location.plus_equals(direction))){
+        points.push(location.copy());
+    }
+    points.push(location);
+    return points;
+}
 /**
  * Function that for an array of directions, attempts to move in a direction if possible, then attack in that direction.
  * @param {Point} location The starting location
@@ -10723,7 +10733,7 @@ function get_points_in_direction(location, direction, map){
 function move_attack_telegraph(location, map, directions){
     var attacks = [];
     for(var direction of directions){
-        if(map.check_empty(location.plus(direction))){
+        if(map.looks_empty(location.plus(direction))){
             attacks.push(location.plus(direction.times(2)));
         }
         attacks.push(location.plus(direction));
@@ -10900,9 +10910,11 @@ class ButtonGrid{
         var initial = {
             description: null_move_button
         }
-        this.#buttons = [[initial, initial, initial],
-                        [initial, initial, initial], 
-                        [initial, initial, initial]];
+        this.#buttons = [
+            [initial, initial, initial],
+            [initial, initial, initial], 
+            [initial, initial, initial]
+        ];
     }
     /**
      * A function to add behavior to a button.
@@ -11011,6 +11023,21 @@ class ButtonGrid{
      */
     is_instant(){
         return this.#instant;
+    }
+    has_action_type(type){
+        for(var row of this.#buttons){
+            for(var button of row){
+                if(button.behavior !== undefined){
+                    var match = button.behavior.find((b) => {
+                        return b.type === type;
+                    });
+                    if(match !== undefined){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
     get_behavior(num){
         if(num < 1 || 9 < num){
@@ -11894,6 +11921,7 @@ class GameMap{
         // Causes each enemy to execute their behavior.
         this.stats.increment_turn();
         this.#is_player_turn = false;
+        this.clear_marked();
         await this.#entity_list.enemy_turn(this);
         this.#is_player_turn = true;
     }
@@ -12303,6 +12331,11 @@ class GameState{
         for(var a of init.achievements){
             this.achieve(a);
         }
+        // Auto identify these boons
+        for(var b of init.identify_boons){
+            this.data.boons.add(b().name);
+        }
+        this.data.save();
 
         // Prep map
         for(var i = 0; i < init.enemies.length; ++i){
@@ -12343,7 +12376,6 @@ class GameState{
             return;
         }
         display.remove_children(UIIDS.move_buttons);
-        this.map.clear_marked();
         say(``);
         if(GS.boons.has(boon_names.thick_soles)){
             GS.map.get_player().tags.add(TAGS.invulnerable);
@@ -17749,6 +17781,12 @@ function get_achievements(){
         triple_achievement(),
         without_a_scratch_achievement(),
     ];
+}
+
+function get_achievement_names(){
+    return get_achievements().map((a) => {
+        return a.name;
+    });
 }
 function arcane_sentry_achievement(){
     return {

@@ -73,7 +73,7 @@ function blood_crescent_telegraph(location, map, self){
     }
     for(var direction of DIAGONAL_DIRECTIONS){
         var current = location.copy();
-        for(var i = 0; i < 2 && map.check_empty(current.plus_equals(direction)); ++i){
+        for(var i = 0; i < 2 && map.looks_empty(current.plus_equals(direction)); ++i){
             attacks.push(current.copy());
             attacks.push(current.plus(direction.times(new Point(-1, 0))));
             attacks.push(current.plus(direction.times(new Point(0, -1))));

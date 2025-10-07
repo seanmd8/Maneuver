@@ -630,6 +630,7 @@ class GameMap{
         // Causes each enemy to execute their behavior.
         this.stats.increment_turn();
         this.#is_player_turn = false;
+        this.clear_marked();
         await this.#entity_list.enemy_turn(this);
         this.#is_player_turn = true;
     }

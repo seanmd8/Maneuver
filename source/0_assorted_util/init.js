@@ -8,6 +8,7 @@ function init_settings(){
         area: undefined,
         area_size: undefined,
         achievements: undefined,
+        identify_boons: undefined,
         save: undefined,
         load: undefined,
     }
@@ -24,6 +25,8 @@ function init_settings(){
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
     // Determines achievements that should be automatically gained upon starting the game.
     init.achievements = init.achievements ? init.achievements : [];
+    // Determined boons that should be added to the journal unpon starting the game.
+    init.identify_boons = init.identify_boons ? init.identify_boons : [];
     // Determines the way of saving and loading the game.
     init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
     init.load = init.load ? init.load: SaveData.load_local_function(`player1`);

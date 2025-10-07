@@ -68,7 +68,7 @@ function turret_r_telegraph(location, map, self){
         throw new Error(ERRORS.missing_property);
     }
     return [
-        ...get_points_in_direction(location, self.direction, map),
-        ...get_points_in_direction(location, self.direction.times(-1), map),
+        ...look_at_points_in_direction(location, self.direction, map),
+        ...look_at_points_in_direction(location, self.direction.times(-1), map),
     ];
 }

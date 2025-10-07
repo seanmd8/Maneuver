@@ -1,19 +1,19 @@
 const event_descriptions = {
     black_hole:
-        `A Black Hole is beginning to form here.`,
+        `A Black Hole is beginning to form here damaging anything standing here.`,
     confusion_cloud:
         `A cloud of mind melting magic will confuse or stun everything inside. Lasts 3 turns.`,
     darkling_rift: 
-        `If this space isn't blocked, a darkling will teleport here `
-        +`next turn damaging everything nearby.`,
+        `If this space isn't blocked, a darkling will teleport here next turn damaging everything `
+        +`next to it.`,
     falling_rubble: 
-        `Watch out, something is about to fall here.`,
+        `Watch out, something is about to fall here damaging anything standing here.`,
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
     starfall:
-        `Something is about to be pulled into existence damaging anything standing here.`,
+        `Watch out, something is about to be pulled into existence damaging anything standing here.`,
     sunlight:
-        `This space is rapidly heating up.`,
+        `Watch out, this space is about to light on fire damaging anything standing here.`,
     thorn_root: 
         `Watch out, brambles are about to sprout damaging anything standing here.`,
 }

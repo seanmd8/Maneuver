@@ -58,7 +58,7 @@ function wheel_of_fire_ai(self, target, map){
 /** @type {TelegraphFunction} */
 function wheel_of_fire_telegraph(location, map, self){
     var dir_arrs = ALL_DIRECTIONS.map((p) => {
-        return get_points_in_direction(location, p, map);
+        return look_at_points_in_direction(location, p, map);
     });
     var attacks = [];
     for(var arr of dir_arrs){
@@ -66,7 +66,7 @@ function wheel_of_fire_telegraph(location, map, self){
     }
     attacks = attacks.filter((p) => {
         var nearby = p.minus(location).within_radius(1);
-        var full = !map.check_empty(p);
+        var full = !map.looks_empty(p);
         var player = point_equals(p, map.get_player_location());
         return !nearby || (full && !player);
     });

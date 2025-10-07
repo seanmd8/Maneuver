@@ -36,6 +36,11 @@ class GameState{
         for(var a of init.achievements){
             this.achieve(a);
         }
+        // Auto identify these boons
+        for(var b of init.identify_boons){
+            this.data.boons.add(b().name);
+        }
+        this.data.save();
 
         // Prep map
         for(var i = 0; i < init.enemies.length; ++i){
@@ -76,7 +81,6 @@ class GameState{
             return;
         }
         display.remove_children(UIIDS.move_buttons);
-        this.map.clear_marked();
         say(``);
         if(GS.boons.has(boon_names.thick_soles)){
             GS.map.get_player().tags.add(TAGS.invulnerable);
