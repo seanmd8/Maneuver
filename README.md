@@ -9,6 +9,17 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+10/7/25
+- Black Holes can no longer be stunned.
+- Unstable Wisp now has a 1/2 chance of shooting fireballs each turn up from 1/3.
+- Unspeakable now uses the lich's confusion spell on death rather than confusing you directly.
+- Bookshelves can no longer give healing cards to remove the need to destroy all of them.
+- Fixed bug where event telegraphs would disapear after playing an instant.
+- Fixed bug where enemy telegraphs could be used to find hidden tiles.
+- Updated many images to improve visibility, detail, and contrast.
+- Updated many descriptions to improve clarity and consistency.
+- Updated boss achievement names to hide boss names.
+
 10/2/25
 - You are now more likely to come across cards and boons that you haven't yet discovered.
 - Pacifism boon now allows you to damage certain terrain elements.
