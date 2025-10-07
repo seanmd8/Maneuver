@@ -123,8 +123,8 @@ const enemy_descriptions = {
         `Turret: Does not move. Fires beams in two directions hitting the first thing in their `
         +`path. Rotates every turn.`,
     unspeakable:
-        `Unspeakable: Moves 1 space closer to the player. Does not attack. On death, confuses the `
-        +`player 2 times, polluting their deck with bad cards.`,
+        `Unspeakable: Moves 1 space closer to the player. Does not attack. On death, creates a `
+        +`cloud of confusion gas to pollute your deck.`,
     unstable_wisp: 
         `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes into a `
         +`ring of fireballs on death.`,

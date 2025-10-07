@@ -1350,8 +1350,8 @@ const enemy_descriptions = {
         `Turret: Does not move. Fires beams in two directions hitting the first thing in their `
         +`path. Rotates every turn.`,
     unspeakable:
-        `Unspeakable: Moves 1 space closer to the player. Does not attack. On death, confuses the `
-        +`player 2 times, polluting their deck with bad cards.`,
+        `Unspeakable: Moves 1 space closer to the player. Does not attack. On death, creates a `
+        +`cloud of confusion gas to pollute your deck.`,
     unstable_wisp: 
         `Unstable Wisp: Moves randomly and occasionally leaves behind a fireball. Explodes into a `
         +`ring of fireballs on death.`,
@@ -7709,14 +7709,12 @@ function unspeakable_tile(){
 
 /** @type {AIFunction} Function used when unspeakableas die to confuse the player.*/
 function unspeakable_death(self, target, map){
-    for(var i = 0; i < 2; ++i){
-        map.stun_tile(self.location.plus(target.difference));
-    }
+    confusion_spell(self, {difference: new Point(0, 0)}, map)
 }
 
 /** @type {TelegraphFunction} */
 function unspeakable_telegraph(location, map, self){
-    return [map.get_player_location()];
+    return [new Point(0, 0), ...ALL_DIRECTIONS].map((p) => {return p.plus(location)});
 }
 /** @type {TileGenerator} */
 function unstable_wisp_tile(){
@@ -10443,7 +10441,7 @@ function confusion_spell_generator(){
     }
 }
 
-/** @type {AIFunction} Spell which adds 2 random temporary debuff cards to the player's deck.*/
+/** @type {AIFunction} Spell which creates a cloud of confusion gas around the target which lasts for 3 turns.*/
 function confusion_spell(self, target, map){
     var mark = {
         pic: `${IMG_FOLDER.tiles}confusion_cloud.png`,
@@ -10465,16 +10463,16 @@ function confusion_spell(self, target, map){
             map_to_use.add_event({name: event_names.confusion_cloud, behavior: cloud(points)});
         }
     } 
-    var target = map.get_player_location();
+    var center = self.location.plus(target.difference);
     if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
-        var miss = get_nearest_where(map, target, (t, p) => {
+        var miss = get_nearest_where(map, center, (t, p) => {
             return t.type === entity_types.enemy && !point_equals(p, self.location);
         });
-        target = miss ? miss : target;
+        center = miss ? miss : center;
     }
     for(var i = 0; i < 3; ++i){
-        var rectangle = point_rectangle(target.plus(new Point(1, 1)), target.plus(new Point(-1, -1)));
-        rectangle = [...rectangle, target.copy()];
+        var rectangle = point_rectangle(center.plus(new Point(1, 1)), center.plus(new Point(-1, -1)));
+        rectangle = [...rectangle, center.copy()];
         rectangle = rectangle.filter((p) => {
             return map.is_in_bounds(p);
         });

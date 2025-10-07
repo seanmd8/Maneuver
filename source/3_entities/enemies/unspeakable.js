@@ -16,12 +16,10 @@ function unspeakable_tile(){
 
 /** @type {AIFunction} Function used when unspeakableas die to confuse the player.*/
 function unspeakable_death(self, target, map){
-    for(var i = 0; i < 2; ++i){
-        map.stun_tile(self.location.plus(target.difference));
-    }
+    confusion_spell(self, {difference: new Point(0, 0)}, map)
 }
 
 /** @type {TelegraphFunction} */
 function unspeakable_telegraph(location, map, self){
-    return [map.get_player_location()];
+    return [new Point(0, 0), ...ALL_DIRECTIONS].map((p) => {return p.plus(location)});
 }
