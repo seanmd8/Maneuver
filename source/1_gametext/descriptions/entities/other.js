@@ -22,7 +22,7 @@ const other_tile_descriptions = {
         `Black Hole: Draws everything on screen closer to it. The Lord of Shadow and Flame is immune. `
         +`Decays every turn and cannot be stunned.`,
     bookshelf: 
-        `Bookshelf: When damaged, adds a random temporary card to your deck.`,
+        `Bookshelf: When damaged, adds a random temporary card to your deck. Cannot give healing cards.`,
     coffin: 
         `Coffin: There is no telling whether whatever is inside is still alive or not. On the other `
         +`hand there could be treasure inside. Disturb it at your own risk.`,

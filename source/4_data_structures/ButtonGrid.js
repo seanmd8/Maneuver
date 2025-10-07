@@ -9,9 +9,11 @@ class ButtonGrid{
         var initial = {
             description: null_move_button
         }
-        this.#buttons = [[initial, initial, initial],
-                        [initial, initial, initial], 
-                        [initial, initial, initial]];
+        this.#buttons = [
+            [initial, initial, initial],
+            [initial, initial, initial], 
+            [initial, initial, initial]
+        ];
     }
     /**
      * A function to add behavior to a button.
@@ -120,6 +122,21 @@ class ButtonGrid{
      */
     is_instant(){
         return this.#instant;
+    }
+    has_action_type(type){
+        for(var row of this.#buttons){
+            for(var button of row){
+                if(button.behavior !== undefined){
+                    var match = button.behavior.find((b) => {
+                        return b.type === type;
+                    });
+                    if(match !== undefined){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
     get_behavior(num){
         if(num < 1 || 9 < num){

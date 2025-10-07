@@ -1666,7 +1666,7 @@ const other_tile_descriptions = {
         `Black Hole: Draws everything on screen closer to it. The Lord of Shadow and Flame is immune. `
         +`Decays every turn and cannot be stunned.`,
     bookshelf: 
-        `Bookshelf: When damaged, adds a random temporary card to your deck.`,
+        `Bookshelf: When damaged, adds a random temporary card to your deck. Cannot give healing cards.`,
     coffin: 
         `Coffin: There is no telling whether whatever is inside is still alive or not. On the other `
         +`hand there could be treasure inside. Disturb it at your own risk.`,
@@ -8464,7 +8464,7 @@ function bookshelf_on_hit(self, target, map){
         ...CONFUSION_CARDS, 
         ...COMMON_CARDS, 
         ...get_all_achievement_cards(), 
-        ...boss_cards
+        ...boss_cards.filter((c) => {return !c().options.has_action_type(action_types.heal)})
     ];
     var card = randomize_arr(card_list)[0]();
     GS.give_temp_card(card);
@@ -10903,9 +10903,11 @@ class ButtonGrid{
         var initial = {
             description: null_move_button
         }
-        this.#buttons = [[initial, initial, initial],
-                        [initial, initial, initial], 
-                        [initial, initial, initial]];
+        this.#buttons = [
+            [initial, initial, initial],
+            [initial, initial, initial], 
+            [initial, initial, initial]
+        ];
     }
     /**
      * A function to add behavior to a button.
@@ -11014,6 +11016,21 @@ class ButtonGrid{
      */
     is_instant(){
         return this.#instant;
+    }
+    has_action_type(type){
+        for(var row of this.#buttons){
+            for(var button of row){
+                if(button.behavior !== undefined){
+                    var match = button.behavior.find((b) => {
+                        return b.type === type;
+                    });
+                    if(match !== undefined){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
     get_behavior(num){
         if(num < 1 || 9 < num){
