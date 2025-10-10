@@ -199,6 +199,10 @@ function telegraph_card(behavior, map, start_position){
             }
         }
     }
+    if(GS.boons.has(boon_names.pacifism)){
+        telegraphs.stun = [...telegraphs.stun, ...telegraphs.attacks];
+        telegraphs.attacks = [];
+    }
     if([ 
         ...telegraphs.moves, 
         ...telegraphs.attacks, 
