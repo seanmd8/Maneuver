@@ -820,6 +820,7 @@ const DisplayHTML = {
             img.src = `${IMG_FOLDER.src}${pic}`;
             img.alt = alt;
             img.title = alt;
+            div.title = alt;
             var text = document.createElement(`p`);
             text.innerText = count;
             div.append(img);
