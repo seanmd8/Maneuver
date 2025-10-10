@@ -1080,7 +1080,7 @@ const move_types = {
     you: `You`,
     nothing: `Do nothing`,
     
-    per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
+    per_floor: `Once Per Floor: Can only be drawn one time per floor.`,
     temp: `Temporary: Removed from your deck when put into your discard, or at the end of the floor.`,
     instant: `Instant: Play another card this turn.`,
     
@@ -1741,9 +1741,10 @@ const other_tile_names = {
 }
 Object.freeze(other_tile_names);
 const special_tile_descriptions = {
-    chest: `Chest: Has something useful inside. Breaking it will destroy the contents.`,
+    chest: `Chest: Has something useful inside. Breaking it will destroy the contents. Moving here `
+    +`grants you another turn.`,
     chest_armored: `Armored Chest: Has something useful inside. It is larger than a normal chest and `
-    +`armored to protect it's contents.`,
+    +`is armored to protect it's contents. Moving here grants you another turn.`,
     empty: `There is nothing here.`,
     exit: `Exit: Stairs to the next floor.`,
     final_exit: `Return Portal: Move here to leave the dungeon and win the game.`,
@@ -1907,6 +1908,8 @@ const stat_image_labels = {
     chests: `Chests opened`,
     destroyed: `Chests destroyed`,
     health: `Health`,
+    added: `Total Cards Added`,
+    removed: `Total Cards Removed`,
 }
 Object.freeze(stat_image_labels);
 const shop_text = {
@@ -2318,7 +2321,6 @@ function explain_card(card){
     var text = ``;
     text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
     text += `${card.options.explain_buttons()}`;
-    text += `\n`;
     if(card.per_floor !== undefined){
         text += `${move_types.per_floor}\n`;
     }
@@ -3749,6 +3751,18 @@ function refresh_other_stats(stats, location){
         `${IMG_FOLDER.src}${IMG_FOLDER.stats}mini_heart.png`, 
         stats.health, 
         stat_image_labels.health
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}card_added.png`, 
+        stats.added, 
+        stat_image_labels.added
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}card_removed.png`, 
+        stats.removed, 
+        stat_image_labels.removed
     );
 }
 /**
@@ -11935,7 +11949,9 @@ class GameMap{
             taken: stats.damage,
             chests: stats.chests,
             destroyed: stats.chest_kills,
-            health: hp_ratio(this.get_player())
+            health: hp_ratio(this.get_player()),
+            added: GS.deck.total_added,
+            removed: GS.deck.total_removed,
         }
         refresh_stage_stats(to_display, UIIDS.stage_stats);
         refresh_other_stats(to_display, UIIDS.shop_stats);
@@ -12884,6 +12900,8 @@ class MoveDeck{
     #id_count;
     #hand_size;
     #min_deck_size;
+    total_added;
+    total_removed;
     constructor(hand_size, minimum, cards = []){
         this.#decklist = [];
         this.#library = [];
@@ -12892,6 +12910,8 @@ class MoveDeck{
         this.#id_count = 0;
         this.#hand_size = hand_size;
         this.#min_deck_size = minimum;
+        this.total_added = 0;
+        this.total_removed = 0;
         for(var card of cards){
             this.#add_card(card());
         }
@@ -12983,6 +13003,7 @@ class MoveDeck{
         this.#check_three_kind_achievement(new_card.name);
         this.#check_jack_of_all_trades_achievement();
         GS.data.pick_card(new_card.name);
+        ++this.total_added;
     }
     #add_card(new_card){
         new_card.id = this.#id_count;
@@ -13111,6 +13132,7 @@ class MoveDeck{
                     this.#check_remaining_basics_achievement();
                 }
                 GS.data.remove_card(card.name);
+                ++this.total_removed
                 return true;
             }
         }

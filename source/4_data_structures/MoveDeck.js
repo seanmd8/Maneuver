@@ -14,6 +14,8 @@ class MoveDeck{
     #id_count;
     #hand_size;
     #min_deck_size;
+    total_added;
+    total_removed;
     constructor(hand_size, minimum, cards = []){
         this.#decklist = [];
         this.#library = [];
@@ -22,6 +24,8 @@ class MoveDeck{
         this.#id_count = 0;
         this.#hand_size = hand_size;
         this.#min_deck_size = minimum;
+        this.total_added = 0;
+        this.total_removed = 0;
         for(var card of cards){
             this.#add_card(card());
         }
@@ -113,6 +117,7 @@ class MoveDeck{
         this.#check_three_kind_achievement(new_card.name);
         this.#check_jack_of_all_trades_achievement();
         GS.data.pick_card(new_card.name);
+        ++this.total_added;
     }
     #add_card(new_card){
         new_card.id = this.#id_count;
@@ -241,6 +246,7 @@ class MoveDeck{
                     this.#check_remaining_basics_achievement();
                 }
                 GS.data.remove_card(card.name);
+                ++this.total_removed
                 return true;
             }
         }
