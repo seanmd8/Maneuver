@@ -161,6 +161,9 @@ function telegraph_card(behavior, map, start_position){
                     if(map.looks_empty(next_position)){
                         start_position = next_position;
                     }
+                    else if(GS.boons.has(boon_names.spiked_shoes)){
+                        telegraphs.attacks.push(next_position);
+                    }
                     break;
                 case action_types.teleport:
                     for(var p of get_all_points()){
@@ -180,6 +183,9 @@ function telegraph_card(behavior, map, start_position){
                     }
                     if(map.looks_movable(next_position)){
                         telegraphs.moves.push(next_position);
+                    }
+                    else if(GS.boons.has(boon_names.spiked_shoes)){
+                        telegraphs.attacks.push(next_position);
                     }
                     break;
                 case action_types.attack_until:
