@@ -53,7 +53,7 @@ function maneuver_3(){
         pstun(-1, 0),
         pstun(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.maneuver_3,
         pic: `${IMG_FOLDER.cards}maneuver_3.png`,

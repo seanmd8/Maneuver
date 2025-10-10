@@ -9,7 +9,6 @@ const S = `S`;
 const SW = `SW`;
 const W = `W`;
 const C = `C`;
-const SPIN = `Spin`;
 
 // Unicode symbols.
 const usymbol = {

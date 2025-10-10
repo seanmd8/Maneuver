@@ -11,7 +11,7 @@ function diamond_slice(){
         pattack(-2, 0),
         pattack(-1, -1)
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.diamond_slice,
         pic: `${IMG_FOLDER.cards}diamond_slice.png`,

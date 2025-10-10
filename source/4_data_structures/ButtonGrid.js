@@ -105,9 +105,6 @@ class ButtonGrid{
         if(index >= 0){
             return index + 1;
         }
-        if(direction === SPIN){
-            return 5;
-        }
         return -1;
     }
     /**

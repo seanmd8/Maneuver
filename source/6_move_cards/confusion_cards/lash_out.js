@@ -12,7 +12,7 @@ function lash_out(){
         pattack(-1, 0),
         pattack(-1, -1)
     ];
-    options.add_button(SPIN, spin, 5);
+    options.add_button(C, spin, 5);
     return{
         name: card_names.lash_out,
         pic: `${IMG_FOLDER.cards}lash_out.png`,

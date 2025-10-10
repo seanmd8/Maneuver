@@ -4,7 +4,7 @@ function branch_strike(){
     var targets = point_rectangle(new Point(-2, -2), new Point(2, 2)).map(p => {
         return pattack(p.x, p.y);
     });
-    options.add_button(SPIN, targets);
+    options.add_button(C, targets);
     return{
         name: card_names.branch_strike,
         pic: `${IMG_FOLDER.cards}branch_strike.png`,

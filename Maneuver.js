@@ -1047,7 +1047,6 @@ const S = `S`;
 const SW = `SW`;
 const W = `W`;
 const C = `C`;
-const SPIN = `Spin`;
 
 // Unicode symbols.
 const usymbol = {
@@ -11020,9 +11019,6 @@ class ButtonGrid{
         if(index >= 0){
             return index + 1;
         }
-        if(direction === SPIN){
-            return 5;
-        }
         return -1;
     }
     /**
@@ -14749,7 +14745,7 @@ function execution_1(){
         pattack(-1, 0),
         pattack(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.execution_1,
         pic: `${IMG_FOLDER.cards}execution_1.png`,
@@ -14772,7 +14768,7 @@ function execution_2(){
         pattack(-1, -1),
     ];
     spin = [...spin, ...spin];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.execution_2,
         pic: `${IMG_FOLDER.cards}execution_2.png`,
@@ -14795,7 +14791,7 @@ function execution_3(){
         pattack(-1, -1),
     ];
     spin = [...spin, ...spin, ...spin];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.execution_3,
         pic: `${IMG_FOLDER.cards}execution_3.png`,
@@ -14826,7 +14822,7 @@ function split_second_1(){
         pattack(-1, 0),
         pattack(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.split_second_1,
         pic: `${IMG_FOLDER.cards}split_second_1.png`,
@@ -14848,7 +14844,7 @@ function split_second_2(){
         pattack(-1, 0),
         pattack(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     options.make_instant();
     return{
         name: card_names.split_second_2,
@@ -14869,7 +14865,7 @@ function superweapon_1(){
         pattack(-1, 0),
         pattack(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.superweapon_1,
         pic: `${IMG_FOLDER.cards}superweapon_1.png`,
@@ -14890,7 +14886,7 @@ function superweapon_2(){
             }
         }
     }
-    options.add_button(SPIN, area);
+    options.add_button(C, area);
     return{
         name: card_names.superweapon_2,
         pic: `${IMG_FOLDER.cards}superweapon_2.png`,
@@ -15020,7 +15016,7 @@ function maneuver_3(){
         pstun(-1, 0),
         pstun(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.maneuver_3,
         pic: `${IMG_FOLDER.cards}maneuver_3.png`,
@@ -15090,7 +15086,7 @@ function branch_strike(){
     var targets = point_rectangle(new Point(-2, -2), new Point(2, 2)).map(p => {
         return pattack(p.x, p.y);
     });
-    options.add_button(SPIN, targets);
+    options.add_button(C, targets);
     return{
         name: card_names.branch_strike,
         pic: `${IMG_FOLDER.cards}branch_strike.png`,
@@ -15159,7 +15155,7 @@ function debilitating_confusion(){
                 pstun(-1, 1),
                 pstun(-1, 0),
                 pstun(-1, -1)];
-    options.add_button(SPIN, [...spin, ...spin, ...spin]);
+    options.add_button(C, [...spin, ...spin, ...spin]);
     return{
         name: card_names.debilitating_confusion,
         pic: `${IMG_FOLDER.cards}debilitating_confusion.png`,
@@ -15554,7 +15550,7 @@ function dash_nw(){
 /** @type {CardGenerator}*/
 function diamond_attack(){
     var options = new ButtonGrid();
-    options.add_button(SPIN, [pattack(0, -1), pattack(1, 0), pattack(0, 1), pattack(-1, 0)]);
+    options.add_button(C, [pattack(0, -1), pattack(1, 0), pattack(0, 1), pattack(-1, 0)]);
     options.add_button(SE, [pmove(2, 1)]);
     options.add_button(SW, [pmove(-2, 1)]);
     return{
@@ -15576,7 +15572,7 @@ function diamond_slice(){
         pattack(-2, 0),
         pattack(-1, -1)
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.diamond_slice,
         pic: `${IMG_FOLDER.cards}diamond_slice.png`,
@@ -15593,7 +15589,7 @@ function explosion(){
         }
     }
     var options = new ButtonGrid();
-    options.add_button(SPIN, area, 5);
+    options.add_button(C, area, 5);
     return{
         name: card_names.explosion,
         pic: `${IMG_FOLDER.cards}explosion.png`,
@@ -15943,7 +15939,7 @@ function spearhead(){
 function spin_attack(){
     var options = new ButtonGrid();
     var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.spin_attack,
         pic: `${IMG_FOLDER.cards}spin_attack.png`,
@@ -16172,7 +16168,7 @@ function lash_out(){
         pattack(-1, 0),
         pattack(-1, -1)
     ];
-    options.add_button(SPIN, spin, 5);
+    options.add_button(C, spin, 5);
     return{
         name: card_names.lash_out,
         pic: `${IMG_FOLDER.cards}lash_out.png`,
@@ -16388,7 +16384,7 @@ function reckless_sidestep_orthogonal(){
 function reckless_spin(){
     var options = new ButtonGrid();
     var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(SPIN, [pstun(0, 0), pstun(0, 0), ...spin, ...spin]);
+    options.add_button(C, [pstun(0, 0), pstun(0, 0), ...spin, ...spin]);
     return{
         name: card_names.reckless_spin,
         pic: `${IMG_FOLDER.cards}reckless_spin.png`,
