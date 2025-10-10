@@ -7,3 +7,9 @@ function repetition(){
         max: 3,
     }
 }
+
+function repeat_amount(){
+    var repetition_count = GS.boons.has(boon_names.repetition);
+    var repeat = repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count;
+    return repeat ? 2 : 1;
+}

@@ -146,8 +146,8 @@ function telegraph_card(behavior, map, start_position){
     if(behavior === undefined){
         return telegraphs;
     }
-    var count = GS.boons.has(boon_names.repetition) ? 2 : 1;
-    for(var i = 0; i < count; ++i){
+    var repeat = repeat_amount();
+    for(var i = 0; i < repeat; ++i){
         for(var action of behavior){
             var next_position = start_position.plus(action.change);
             switch(action.type){

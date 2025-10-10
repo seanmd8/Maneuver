@@ -87,8 +87,7 @@ class GameState{
         }
         try{
             // The repetition boon will double movements 1 in every 3 turns.
-            var repetition_count = GS.boons.has(boon_names.repetition);
-            var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? 2 : 1;
+            var repeat = repeat_amount();
             for(var i = 0; i < repeat; ++i){
                 for(var action of behavior){
                     // Does each valid command in the behavior array.
@@ -403,9 +402,7 @@ class GameState{
         refresh_discard_display(this.deck);
         refresh_deck_order_display(this.deck);
         if(this.boons !== undefined){
-            var repetition_count = this.boons.has(boon_names.repetition);
-            var repeat = repetition_count > 0 && this.map.get_turn_count() % 3 < repetition_count;
-            telegraph_repetition_boon(repeat);
+            telegraph_repetition_boon(repeat_amount());
         }
     }
     /**

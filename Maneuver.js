@@ -3642,7 +3642,7 @@ function telegraph_repetition_boon(repeat){
     display.remove_class(UIIDS.move_box, `telegraph-repetition`);
     display.remove_class(UIIDS.hand_box, `no-repetition`);
     display.remove_class(UIIDS.move_box, `no-repetition`);
-    var class_name = repeat ? `telegraph-repetition` : `no-repetition`;
+    var class_name = repeat > 1 ? `telegraph-repetition` : `no-repetition`;
     display.add_class(UIIDS.hand_box, class_name);
     display.add_class(UIIDS.move_box, class_name);
 }
@@ -12394,8 +12394,7 @@ class GameState{
         }
         try{
             // The repetition boon will double movements 1 in every 3 turns.
-            var repetition_count = GS.boons.has(boon_names.repetition);
-            var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? 2 : 1;
+            var repeat = repeat_amount();
             for(var i = 0; i < repeat; ++i){
                 for(var action of behavior){
                     // Does each valid command in the behavior array.
@@ -12710,9 +12709,7 @@ class GameState{
         refresh_discard_display(this.deck);
         refresh_deck_order_display(this.deck);
         if(this.boons !== undefined){
-            var repetition_count = this.boons.has(boon_names.repetition);
-            var repeat = repetition_count > 0 && this.map.get_turn_count() % 3 < repetition_count;
-            telegraph_repetition_boon(repeat);
+            telegraph_repetition_boon(repeat_amount());
         }
     }
     /**
@@ -16921,8 +16918,8 @@ function telegraph_card(behavior, map, start_position){
     if(behavior === undefined){
         return telegraphs;
     }
-    var count = GS.boons.has(boon_names.repetition) ? 2 : 1;
-    for(var i = 0; i < count; ++i){
+    var repeat = repeat_amount();
+    for(var i = 0; i < repeat; ++i){
         for(var action of behavior){
             var next_position = start_position.plus(action.change);
             switch(action.type){
@@ -17562,6 +17559,12 @@ function repetition(){
         prereq_description: boon_prereq_descriptions.none,
         max: 3,
     }
+}
+
+function repeat_amount(){
+    var repetition_count = GS.boons.has(boon_names.repetition);
+    var repeat = repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count;
+    return repeat ? 2 : 1;
 }
 function retaliate(){
     return {
