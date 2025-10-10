@@ -15,3 +15,10 @@
     color: burlywood;
     cursor: pointer;
 }
+.large-chest .chest-buttons tr input{
+    background-color: slategray;
+}
+.large-chest .chest-buttons tr input:hover{
+    background-color: black;
+    color: slategray;
+}

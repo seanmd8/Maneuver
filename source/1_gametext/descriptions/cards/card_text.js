@@ -9,7 +9,6 @@ const S = `S`;
 const SW = `SW`;
 const W = `W`;
 const C = `C`;
-const SPIN = `Spin`;
 
 // Unicode symbols.
 const usymbol = {
@@ -42,7 +41,7 @@ const move_types = {
     you: `You`,
     nothing: `Do nothing`,
     
-    per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
+    per_floor: `Once Per Floor: Can only be drawn one time per floor.`,
     temp: `Temporary: Removed from your deck when put into your discard, or at the end of the floor.`,
     instant: `Instant: Play another card this turn.`,
     

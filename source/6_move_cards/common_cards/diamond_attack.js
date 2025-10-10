@@ -1,7 +1,7 @@
 /** @type {CardGenerator}*/
 function diamond_attack(){
     var options = new ButtonGrid();
-    options.add_button(SPIN, [pattack(0, -1), pattack(1, 0), pattack(0, 1), pattack(-1, 0)]);
+    options.add_button(C, [pattack(0, -1), pattack(1, 0), pattack(0, 1), pattack(-1, 0)]);
     options.add_button(SE, [pmove(2, 1)]);
     options.add_button(SW, [pmove(-2, 1)]);
     return{

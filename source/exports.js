@@ -13,7 +13,6 @@ exports.BUTTON_LABELS = {
     SW,
     W,
     C,
-    SPIN
 }
 exports.Point = Point;
 exports.point_equals = point_equals;

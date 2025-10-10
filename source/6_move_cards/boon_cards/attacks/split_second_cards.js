@@ -11,7 +11,7 @@ function split_second_1(){
         pattack(-1, 0),
         pattack(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.split_second_1,
         pic: `${IMG_FOLDER.cards}split_second_1.png`,
@@ -33,7 +33,7 @@ function split_second_2(){
         pattack(-1, 0),
         pattack(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     options.make_instant();
     return{
         name: card_names.split_second_2,

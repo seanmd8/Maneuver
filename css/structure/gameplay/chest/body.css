@@ -10,3 +10,8 @@
     width: 95%;
     color: gray;
 }
+.large-chest .chest-body-box {
+    width: 650px;
+    border-color: black;
+    background-color: darkslategray;
+}

@@ -146,55 +146,68 @@ function telegraph_card(behavior, map, start_position){
     if(behavior === undefined){
         return telegraphs;
     }
-    for(var action of behavior){
-        var next_position = start_position.plus(action.change);
-        switch(action.type){
-            case action_types.attack:
-                telegraphs.attacks.push(next_position);
-                break;
-            case action_types.move:
-                if(map.looks_movable(next_position)){
-                    telegraphs.moves.push(next_position);
-                }
-                if(map.looks_empty(next_position)){
-                    start_position = next_position;
-                }
-                break;
-            case action_types.teleport:
-                for(var p of get_all_points()){
-                    if(map.looks_empty(p)){
-                        telegraphs.teleport.push(p);
+    var repeat = repeat_amount();
+    for(var i = 0; i < repeat; ++i){
+        for(var action of behavior){
+            var next_position = start_position.plus(action.change);
+            switch(action.type){
+                case action_types.attack:
+                    telegraphs.attacks.push(next_position);
+                    break;
+                case action_types.move:
+                    if(map.looks_movable(next_position)){
+                        telegraphs.moves.push(next_position);
                     }
-                }
-                break;
-            case action_types.stun:
-                telegraphs.stun.push(next_position);
-                break;
-            case action_types.move_until:
-                while(map.looks_empty(next_position)){
-                    telegraphs.moves.push(next_position);
-                    start_position = next_position;
-                    next_position = start_position.plus(action.change);
-                }
-                if(map.looks_movable(next_position)){
-                    telegraphs.moves.push(next_position);
-                }
-                break;
-            case action_types.attack_until:
-                var temp_next = next_position;
-                var temp_start = start_position;
-                while(map.is_in_bounds(temp_next)){
-                    telegraphs.attacks.push(temp_next);
-                    temp_start = temp_next;
-                    temp_next = temp_start.plus(action.change);
-                }
-                break;
-            case action_types.heal:
-                telegraphs.healing.push(next_position);
-                break;
-            default:
-                throw new Error(ERRORS.invalid_value);
+                    if(map.looks_empty(next_position)){
+                        start_position = next_position;
+                    }
+                    else if(GS.boons.has(boon_names.spiked_shoes)){
+                        telegraphs.attacks.push(next_position);
+                    }
+                    break;
+                case action_types.teleport:
+                    for(var p of get_all_points()){
+                        if(map.looks_empty(p)){
+                            telegraphs.teleport.push(p);
+                        }
+                    }
+                    break;
+                case action_types.stun:
+                    telegraphs.stun.push(next_position);
+                    break;
+                case action_types.move_until:
+                    while(map.looks_empty(next_position)){
+                        telegraphs.moves.push(next_position);
+                        start_position = next_position;
+                        next_position = start_position.plus(action.change);
+                    }
+                    if(map.looks_movable(next_position)){
+                        telegraphs.moves.push(next_position);
+                    }
+                    else if(GS.boons.has(boon_names.spiked_shoes)){
+                        telegraphs.attacks.push(next_position);
+                    }
+                    break;
+                case action_types.attack_until:
+                    var temp_next = next_position;
+                    var temp_start = start_position;
+                    while(map.is_in_bounds(temp_next)){
+                        telegraphs.attacks.push(temp_next);
+                        temp_start = temp_next;
+                        temp_next = temp_start.plus(action.change);
+                    }
+                    break;
+                case action_types.heal:
+                    telegraphs.healing.push(next_position);
+                    break;
+                default:
+                    throw new Error(ERRORS.invalid_value);
+            }
         }
+    }
+    if(GS.boons.has(boon_names.pacifism)){
+        telegraphs.stun = [...telegraphs.stun, ...telegraphs.attacks];
+        telegraphs.attacks = [];
     }
     if([ 
         ...telegraphs.moves, 

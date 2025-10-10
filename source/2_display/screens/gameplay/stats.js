@@ -63,4 +63,16 @@ function refresh_other_stats(stats, location){
         stats.health, 
         stat_image_labels.health
     );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}card_added.png`, 
+        stats.added, 
+        stat_image_labels.added
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}card_removed.png`, 
+        stats.removed, 
+        stat_image_labels.removed
+    );
 }

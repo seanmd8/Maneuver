@@ -1047,7 +1047,6 @@ const S = `S`;
 const SW = `SW`;
 const W = `W`;
 const C = `C`;
-const SPIN = `Spin`;
 
 // Unicode symbols.
 const usymbol = {
@@ -1080,7 +1079,7 @@ const move_types = {
     you: `You`,
     nothing: `Do nothing`,
     
-    per_floor: `Once Per Floor: Once used, disappears until the next floor.`,
+    per_floor: `Once Per Floor: Can only be drawn one time per floor.`,
     temp: `Temporary: Removed from your deck when put into your discard, or at the end of the floor.`,
     instant: `Instant: Play another card this turn.`,
     
@@ -1741,9 +1740,10 @@ const other_tile_names = {
 }
 Object.freeze(other_tile_names);
 const special_tile_descriptions = {
-    chest: `Chest: Has something useful inside. Breaking it will destroy the contents.`,
+    chest: `Chest: Has something useful inside. Breaking it will destroy the contents. Moving here `
+    +`grants you another turn.`,
     chest_armored: `Armored Chest: Has something useful inside. It is larger than a normal chest and `
-    +`armored to protect it's contents.`,
+    +`is armored to protect it's contents. Moving here grants you another turn.`,
     empty: `There is nothing here.`,
     exit: `Exit: Stairs to the next floor.`,
     final_exit: `Return Portal: Move here to leave the dungeon and win the game.`,
@@ -1907,6 +1907,8 @@ const stat_image_labels = {
     chests: `Chests opened`,
     destroyed: `Chests destroyed`,
     health: `Health`,
+    added: `Total Cards Added`,
+    removed: `Total Cards Removed`,
 }
 Object.freeze(stat_image_labels);
 const shop_text = {
@@ -2318,7 +2320,6 @@ function explain_card(card){
     var text = ``;
     text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
     text += `${card.options.explain_buttons()}`;
-    text += `\n`;
     if(card.per_floor !== undefined){
         text += `${move_types.per_floor}\n`;
     }
@@ -3641,7 +3642,7 @@ function telegraph_repetition_boon(repeat){
     display.remove_class(UIIDS.move_box, `telegraph-repetition`);
     display.remove_class(UIIDS.hand_box, `no-repetition`);
     display.remove_class(UIIDS.move_box, `no-repetition`);
-    var class_name = repeat ? `telegraph-repetition` : `no-repetition`;
+    var class_name = repeat > 1 ? `telegraph-repetition` : `no-repetition`;
     display.add_class(UIIDS.hand_box, class_name);
     display.add_class(UIIDS.move_box, class_name);
 }
@@ -3749,6 +3750,18 @@ function refresh_other_stats(stats, location){
         `${IMG_FOLDER.src}${IMG_FOLDER.stats}mini_heart.png`, 
         stats.health, 
         stat_image_labels.health
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}card_added.png`, 
+        stats.added, 
+        stat_image_labels.added
+    );
+    display.make_stat_pair(
+        location,
+        `${IMG_FOLDER.src}${IMG_FOLDER.stats}card_removed.png`, 
+        stats.removed, 
+        stat_image_labels.removed
     );
 }
 /**
@@ -10964,10 +10977,15 @@ class ButtonGrid{
                 }
             }
         }
+        var repeat = repeat_amount();
         for(var row of this.#buttons){
             grid.push(row.map(button => {
+                var str = ``;
+                for(var i = 0; i < repeat; ++i){
+                    str += `${button.description}`;
+                }
                 return {
-                    description: button.description,
+                    description: str,
                     alt_click: telegraph(button.behavior),
                     on_click: click(button.behavior),
                 }
@@ -11005,9 +11023,6 @@ class ButtonGrid{
         var index = direction_list.indexOf(direction);
         if(index >= 0){
             return index + 1;
-        }
-        if(direction === SPIN){
-            return 5;
         }
         return -1;
     }
@@ -11935,7 +11950,9 @@ class GameMap{
             taken: stats.damage,
             chests: stats.chests,
             destroyed: stats.chest_kills,
-            health: hp_ratio(this.get_player())
+            health: hp_ratio(this.get_player()),
+            added: GS.deck.total_added,
+            removed: GS.deck.total_removed,
         }
         refresh_stage_stats(to_display, UIIDS.stage_stats);
         refresh_other_stats(to_display, UIIDS.shop_stats);
@@ -12382,8 +12399,7 @@ class GameState{
         }
         try{
             // The repetition boon will double movements 1 in every 3 turns.
-            var repetition_count = GS.boons.has(boon_names.repetition);
-            var repeat = (repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count) ? 2 : 1;
+            var repeat = repeat_amount();
             for(var i = 0; i < repeat; ++i){
                 for(var action of behavior){
                     // Does each valid command in the behavior array.
@@ -12594,6 +12610,7 @@ class GameState{
             return function(message, position){
                 display.remove_children(UIIDS.retry_button);
                 player_hand_greyed(false);
+                display.remove_class(UIIDS.chest,`large-chest`);
                 game.setup();
             };
         }
@@ -12698,9 +12715,7 @@ class GameState{
         refresh_discard_display(this.deck);
         refresh_deck_order_display(this.deck);
         if(this.boons !== undefined){
-            var repetition_count = this.boons.has(boon_names.repetition);
-            var repeat = repetition_count > 0 && this.map.get_turn_count() % 3 < repetition_count;
-            telegraph_repetition_boon(repeat);
+            telegraph_repetition_boon(repeat_amount());
         }
     }
     /**
@@ -12884,6 +12899,8 @@ class MoveDeck{
     #id_count;
     #hand_size;
     #min_deck_size;
+    total_added;
+    total_removed;
     constructor(hand_size, minimum, cards = []){
         this.#decklist = [];
         this.#library = [];
@@ -12892,6 +12909,8 @@ class MoveDeck{
         this.#id_count = 0;
         this.#hand_size = hand_size;
         this.#min_deck_size = minimum;
+        this.total_added = 0;
+        this.total_removed = 0;
         for(var card of cards){
             this.#add_card(card());
         }
@@ -12983,6 +13002,7 @@ class MoveDeck{
         this.#check_three_kind_achievement(new_card.name);
         this.#check_jack_of_all_trades_achievement();
         GS.data.pick_card(new_card.name);
+        ++this.total_added;
     }
     #add_card(new_card){
         new_card.id = this.#id_count;
@@ -13111,6 +13131,7 @@ class MoveDeck{
                     this.#check_remaining_basics_achievement();
                 }
                 GS.data.remove_card(card.name);
+                ++this.total_removed
                 return true;
             }
         }
@@ -14727,7 +14748,7 @@ function execution_1(){
         pattack(-1, 0),
         pattack(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.execution_1,
         pic: `${IMG_FOLDER.cards}execution_1.png`,
@@ -14750,7 +14771,7 @@ function execution_2(){
         pattack(-1, -1),
     ];
     spin = [...spin, ...spin];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.execution_2,
         pic: `${IMG_FOLDER.cards}execution_2.png`,
@@ -14773,7 +14794,7 @@ function execution_3(){
         pattack(-1, -1),
     ];
     spin = [...spin, ...spin, ...spin];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.execution_3,
         pic: `${IMG_FOLDER.cards}execution_3.png`,
@@ -14804,7 +14825,7 @@ function split_second_1(){
         pattack(-1, 0),
         pattack(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.split_second_1,
         pic: `${IMG_FOLDER.cards}split_second_1.png`,
@@ -14826,7 +14847,7 @@ function split_second_2(){
         pattack(-1, 0),
         pattack(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     options.make_instant();
     return{
         name: card_names.split_second_2,
@@ -14847,7 +14868,7 @@ function superweapon_1(){
         pattack(-1, 0),
         pattack(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.superweapon_1,
         pic: `${IMG_FOLDER.cards}superweapon_1.png`,
@@ -14868,7 +14889,7 @@ function superweapon_2(){
             }
         }
     }
-    options.add_button(SPIN, area);
+    options.add_button(C, area);
     return{
         name: card_names.superweapon_2,
         pic: `${IMG_FOLDER.cards}superweapon_2.png`,
@@ -14998,7 +15019,7 @@ function maneuver_3(){
         pstun(-1, 0),
         pstun(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.maneuver_3,
         pic: `${IMG_FOLDER.cards}maneuver_3.png`,
@@ -15068,7 +15089,7 @@ function branch_strike(){
     var targets = point_rectangle(new Point(-2, -2), new Point(2, 2)).map(p => {
         return pattack(p.x, p.y);
     });
-    options.add_button(SPIN, targets);
+    options.add_button(C, targets);
     return{
         name: card_names.branch_strike,
         pic: `${IMG_FOLDER.cards}branch_strike.png`,
@@ -15137,7 +15158,7 @@ function debilitating_confusion(){
                 pstun(-1, 1),
                 pstun(-1, 0),
                 pstun(-1, -1)];
-    options.add_button(SPIN, [...spin, ...spin, ...spin]);
+    options.add_button(C, [...spin, ...spin, ...spin]);
     return{
         name: card_names.debilitating_confusion,
         pic: `${IMG_FOLDER.cards}debilitating_confusion.png`,
@@ -15532,7 +15553,7 @@ function dash_nw(){
 /** @type {CardGenerator}*/
 function diamond_attack(){
     var options = new ButtonGrid();
-    options.add_button(SPIN, [pattack(0, -1), pattack(1, 0), pattack(0, 1), pattack(-1, 0)]);
+    options.add_button(C, [pattack(0, -1), pattack(1, 0), pattack(0, 1), pattack(-1, 0)]);
     options.add_button(SE, [pmove(2, 1)]);
     options.add_button(SW, [pmove(-2, 1)]);
     return{
@@ -15554,7 +15575,7 @@ function diamond_slice(){
         pattack(-2, 0),
         pattack(-1, -1)
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.diamond_slice,
         pic: `${IMG_FOLDER.cards}diamond_slice.png`,
@@ -15571,7 +15592,7 @@ function explosion(){
         }
     }
     var options = new ButtonGrid();
-    options.add_button(SPIN, area, 5);
+    options.add_button(C, area, 5);
     return{
         name: card_names.explosion,
         pic: `${IMG_FOLDER.cards}explosion.png`,
@@ -15921,7 +15942,7 @@ function spearhead(){
 function spin_attack(){
     var options = new ButtonGrid();
     var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.spin_attack,
         pic: `${IMG_FOLDER.cards}spin_attack.png`,
@@ -16150,7 +16171,7 @@ function lash_out(){
         pattack(-1, 0),
         pattack(-1, -1)
     ];
-    options.add_button(SPIN, spin, 5);
+    options.add_button(C, spin, 5);
     return{
         name: card_names.lash_out,
         pic: `${IMG_FOLDER.cards}lash_out.png`,
@@ -16366,7 +16387,7 @@ function reckless_sidestep_orthogonal(){
 function reckless_spin(){
     var options = new ButtonGrid();
     var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(SPIN, [pstun(0, 0), pstun(0, 0), ...spin, ...spin]);
+    options.add_button(C, [pstun(0, 0), pstun(0, 0), ...spin, ...spin]);
     return{
         name: card_names.reckless_spin,
         pic: `${IMG_FOLDER.cards}reckless_spin.png`,
@@ -16903,55 +16924,68 @@ function telegraph_card(behavior, map, start_position){
     if(behavior === undefined){
         return telegraphs;
     }
-    for(var action of behavior){
-        var next_position = start_position.plus(action.change);
-        switch(action.type){
-            case action_types.attack:
-                telegraphs.attacks.push(next_position);
-                break;
-            case action_types.move:
-                if(map.looks_movable(next_position)){
-                    telegraphs.moves.push(next_position);
-                }
-                if(map.looks_empty(next_position)){
-                    start_position = next_position;
-                }
-                break;
-            case action_types.teleport:
-                for(var p of get_all_points()){
-                    if(map.looks_empty(p)){
-                        telegraphs.teleport.push(p);
+    var repeat = repeat_amount();
+    for(var i = 0; i < repeat; ++i){
+        for(var action of behavior){
+            var next_position = start_position.plus(action.change);
+            switch(action.type){
+                case action_types.attack:
+                    telegraphs.attacks.push(next_position);
+                    break;
+                case action_types.move:
+                    if(map.looks_movable(next_position)){
+                        telegraphs.moves.push(next_position);
                     }
-                }
-                break;
-            case action_types.stun:
-                telegraphs.stun.push(next_position);
-                break;
-            case action_types.move_until:
-                while(map.looks_empty(next_position)){
-                    telegraphs.moves.push(next_position);
-                    start_position = next_position;
-                    next_position = start_position.plus(action.change);
-                }
-                if(map.looks_movable(next_position)){
-                    telegraphs.moves.push(next_position);
-                }
-                break;
-            case action_types.attack_until:
-                var temp_next = next_position;
-                var temp_start = start_position;
-                while(map.is_in_bounds(temp_next)){
-                    telegraphs.attacks.push(temp_next);
-                    temp_start = temp_next;
-                    temp_next = temp_start.plus(action.change);
-                }
-                break;
-            case action_types.heal:
-                telegraphs.healing.push(next_position);
-                break;
-            default:
-                throw new Error(ERRORS.invalid_value);
+                    if(map.looks_empty(next_position)){
+                        start_position = next_position;
+                    }
+                    else if(GS.boons.has(boon_names.spiked_shoes)){
+                        telegraphs.attacks.push(next_position);
+                    }
+                    break;
+                case action_types.teleport:
+                    for(var p of get_all_points()){
+                        if(map.looks_empty(p)){
+                            telegraphs.teleport.push(p);
+                        }
+                    }
+                    break;
+                case action_types.stun:
+                    telegraphs.stun.push(next_position);
+                    break;
+                case action_types.move_until:
+                    while(map.looks_empty(next_position)){
+                        telegraphs.moves.push(next_position);
+                        start_position = next_position;
+                        next_position = start_position.plus(action.change);
+                    }
+                    if(map.looks_movable(next_position)){
+                        telegraphs.moves.push(next_position);
+                    }
+                    else if(GS.boons.has(boon_names.spiked_shoes)){
+                        telegraphs.attacks.push(next_position);
+                    }
+                    break;
+                case action_types.attack_until:
+                    var temp_next = next_position;
+                    var temp_start = start_position;
+                    while(map.is_in_bounds(temp_next)){
+                        telegraphs.attacks.push(temp_next);
+                        temp_start = temp_next;
+                        temp_next = temp_start.plus(action.change);
+                    }
+                    break;
+                case action_types.heal:
+                    telegraphs.healing.push(next_position);
+                    break;
+                default:
+                    throw new Error(ERRORS.invalid_value);
+            }
         }
+    }
+    if(GS.boons.has(boon_names.pacifism)){
+        telegraphs.stun = [...telegraphs.stun, ...telegraphs.attacks];
+        telegraphs.attacks = [];
     }
     if([ 
         ...telegraphs.moves, 
@@ -17390,8 +17424,13 @@ function larger_chests(){
         pic: `${IMG_FOLDER.boons}larger_chests.png`,
         description: boon_descriptions.larger_chests,
         prereq_description: boon_prereq_descriptions.none,
+        on_pick: on_pick_larger_chests,
         max: 1,
     }
+}
+
+function on_pick_larger_chests(){
+    display.add_class(UIIDS.chest,`large-chest`);
 }
 function limitless(){
     return {
@@ -17541,6 +17580,12 @@ function repetition(){
         prereq_description: boon_prereq_descriptions.none,
         max: 3,
     }
+}
+
+function repeat_amount(){
+    var repetition_count = GS.boons.has(boon_names.repetition);
+    var repeat = repetition_count > 0 && GS.map.get_turn_count() % 3 < repetition_count;
+    return repeat ? 2 : 1;
 }
 function retaliate(){
     return {

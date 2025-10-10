@@ -8,5 +8,7 @@ const stat_image_labels = {
     chests: `Chests opened`,
     destroyed: `Chests destroyed`,
     health: `Health`,
+    added: `Total Cards Added`,
+    removed: `Total Cards Removed`,
 }
 Object.freeze(stat_image_labels);

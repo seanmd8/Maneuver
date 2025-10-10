@@ -6,3 +6,9 @@
     background-color: chocolate;
     width: 616px;
 }
+.large-chest .chest-lid-box {
+    width: 650px;
+    border-radius: 0px;
+    border-color: black;
+    background-color: darkslategray;
+}

@@ -644,7 +644,9 @@ class GameMap{
             taken: stats.damage,
             chests: stats.chests,
             destroyed: stats.chest_kills,
-            health: hp_ratio(this.get_player())
+            health: hp_ratio(this.get_player()),
+            added: GS.deck.total_added,
+            removed: GS.deck.total_removed,
         }
         refresh_stage_stats(to_display, UIIDS.stage_stats);
         refresh_other_stats(to_display, UIIDS.shop_stats);

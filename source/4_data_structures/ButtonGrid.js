@@ -63,10 +63,15 @@ class ButtonGrid{
                 }
             }
         }
+        var repeat = repeat_amount();
         for(var row of this.#buttons){
             grid.push(row.map(button => {
+                var str = ``;
+                for(var i = 0; i < repeat; ++i){
+                    str += `${button.description}`;
+                }
                 return {
-                    description: button.description,
+                    description: str,
                     alt_click: telegraph(button.behavior),
                     on_click: click(button.behavior),
                 }
@@ -104,9 +109,6 @@ class ButtonGrid{
         var index = direction_list.indexOf(direction);
         if(index >= 0){
             return index + 1;
-        }
-        if(direction === SPIN){
-            return 5;
         }
         return -1;
     }

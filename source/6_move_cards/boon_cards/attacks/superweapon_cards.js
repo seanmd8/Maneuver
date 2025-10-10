@@ -11,7 +11,7 @@ function superweapon_1(){
         pattack(-1, 0),
         pattack(-1, -1),
     ];
-    options.add_button(SPIN, spin);
+    options.add_button(C, spin);
     return{
         name: card_names.superweapon_1,
         pic: `${IMG_FOLDER.cards}superweapon_1.png`,
@@ -32,7 +32,7 @@ function superweapon_2(){
             }
         }
     }
-    options.add_button(SPIN, area);
+    options.add_button(C, area);
     return{
         name: card_names.superweapon_2,
         pic: `${IMG_FOLDER.cards}superweapon_2.png`,

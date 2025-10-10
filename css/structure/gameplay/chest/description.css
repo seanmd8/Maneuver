@@ -1,4 +1,4 @@
-.chest-discription-text {
+.chest-description-text {
     margin: 20px 40px;
     padding: 10px;
     border-width: 3px;
@@ -8,4 +8,8 @@
     background-color:burlywood;
     height: fit-content;
     min-height: 23px;
+}
+.large-chest .chest-description-text{
+    border-color: black;
+    background-color: slategray;
 }
