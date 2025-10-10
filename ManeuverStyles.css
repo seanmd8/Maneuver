@@ -262,6 +262,11 @@ body>div{
     width: 95%;
     color: gray;
 }
+.large-chest .chest-body-box {
+    width: 650px;
+    border-color: black;
+    background-color: darkslategray;
+}
 .chest-buttons {
     width: 100%;
     text-align: center;
@@ -279,7 +284,13 @@ body>div{
     color: burlywood;
     cursor: pointer;
 }
-
+.large-chest .chest-buttons tr input{
+    background-color: slategray;
+}
+.large-chest .chest-buttons tr input:hover{
+    background-color: black;
+    color: slategray;
+}
 .chest-contents {
     text-align: center;
     margin-left: auto;
@@ -293,7 +304,7 @@ body>div{
     background-color: white;
 }
 
-.chest-discription-text {
+.chest-description-text {
     margin: 20px 40px;
     padding: 10px;
     border-width: 3px;
@@ -303,6 +314,10 @@ body>div{
     background-color:burlywood;
     height: fit-content;
     min-height: 23px;
+}
+.large-chest .chest-description-text{
+    border-color: black;
+    background-color: slategray;
 }
 .chest-instruction-text {
     width: fit-content;
@@ -314,7 +329,10 @@ body>div{
     border-color: black;
     background-color:burlywood;
 }
-
+.large-chest .chest-instruction-text{
+    border-color: black;
+    background-color: slategray;
+}
 .chest-lid-box {
     border-style: solid;
     border-width: 5px;
@@ -323,7 +341,12 @@ body>div{
     background-color: chocolate;
     width: 616px;
 }
-
+.large-chest .chest-lid-box {
+    width: 650px;
+    border-radius: 0px;
+    border-color: black;
+    background-color: darkslategray;
+}
 .deck-select-confirm {
     margin-left: 7px;
 }

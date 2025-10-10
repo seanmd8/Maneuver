@@ -298,6 +298,7 @@ class GameState{
             return function(message, position){
                 display.remove_children(UIIDS.retry_button);
                 player_hand_greyed(false);
+                display.remove_class(UIIDS.chest,`large-chest`);
                 game.setup();
             };
         }

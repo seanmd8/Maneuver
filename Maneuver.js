@@ -12610,6 +12610,7 @@ class GameState{
             return function(message, position){
                 display.remove_children(UIIDS.retry_button);
                 player_hand_greyed(false);
+                display.remove_class(UIIDS.chest,`large-chest`);
                 game.setup();
             };
         }
@@ -17413,8 +17414,13 @@ function larger_chests(){
         pic: `${IMG_FOLDER.boons}larger_chests.png`,
         description: boon_descriptions.larger_chests,
         prereq_description: boon_prereq_descriptions.none,
+        on_pick: on_pick_larger_chests,
         max: 1,
     }
+}
+
+function on_pick_larger_chests(){
+    display.add_class(UIIDS.chest,`large-chest`);
 }
 function limitless(){
     return {
