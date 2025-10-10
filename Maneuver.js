@@ -4602,16 +4602,16 @@ function lich_ai(self, target, map){
         var moved = move_careful(self, target, map, directions);
         if(moved === undefined){
             // If stuck, prep teleport.
-            lich_prep(self.tile, -1);
+            say_record(lich_prep(self.tile, -1));
         }
         else{
-            lich_prep(self.tile, random_num(self.tile.spells.length));
+            say_record(lich_prep(self.tile, random_num(self.tile.spells.length)));
         }
     }
     else if(self.tile.cycle === -1){
         // Cast teleport.
         LICH_UTIL_SPELLS[1].behavior(self, target, map);
-        lich_prep(self.tile, -2);
+        say_record(lich_prep(self.tile, -2));
     }
     else{
         // Cast the current spell.
@@ -4620,7 +4620,7 @@ function lich_ai(self, target, map){
         if(self.tile.spells.length === 0){
             self.tile.spells = [...LICH_SPELLS];
         }
-        lich_prep(self.tile, -2);
+        say_record(lich_prep(self.tile, -2));
     }
 }
 
@@ -4663,7 +4663,7 @@ function lich_hit(self, target, map){
                 self.tile.spells = [...LICH_SPELLS];
             }
         }
-        lich_prep(self.tile, -1, true);
+        say_record(lich_prep(self.tile, -1, true));
     }
 }
 
@@ -4681,7 +4681,7 @@ function lich_prep(tile, cycle, change = false){
             `${boss_descriptions.lich_change_announcement}\n` : 
             `${boss_descriptions.lich_announcement}\n`)
         +`${spell.description}`;
-    say_record(announcement);
+    return announcement;
 }
 /** @type {TileGenerator} */
 function lord_of_shadow_and_flame_tile(){
