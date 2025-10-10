@@ -9,6 +9,12 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+10/10/25
+- Added stats to track total cards added and removed from deck.
+- Pacifism, Spiked Shoes, and Repetition boons are now reflected in card telegraphs.
+- Larger Chests boon now changes chest screen.
+- Edited several descriptions.
+
 10/7/25
 - Black Holes can no longer be stunned.
 - Unstable Wisp now has a 1/2 chance of shooting fireballs each turn up from 1/3.
