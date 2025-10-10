@@ -10977,10 +10977,15 @@ class ButtonGrid{
                 }
             }
         }
+        var repeat = repeat_amount();
         for(var row of this.#buttons){
             grid.push(row.map(button => {
+                var str = ``;
+                for(var i = 0; i < repeat; ++i){
+                    str += `${button.description}`;
+                }
                 return {
-                    description: button.description,
+                    description: str,
                     alt_click: telegraph(button.behavior),
                     on_click: click(button.behavior),
                 }
