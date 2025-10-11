@@ -332,7 +332,7 @@ class GameMap{
                 // Telegraphs possible upcoming attacks and other things.
                 gameMap.mark_telegraph(telegraph_spaces);
                 gameMap.mark_telegraph(telegraph_other_spaces, `${IMG_FOLDER.actions}telegraph_other.png`);
-                display_map(gameMap);
+                refresh_map(gameMap);
                 display.add_class(`${UIIDS.map_display} ${location.y} ${location.x}`, `selected-tile`);
             }
         }

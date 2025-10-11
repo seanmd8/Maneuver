@@ -53,7 +53,7 @@ class ButtonGrid{
                 GS.map.mark_telegraph(t.stun, `${IMG_FOLDER.actions}confuse.png`);
                 GS.map.mark_telegraph(t.healing, `${IMG_FOLDER.actions}heal.png`);
                 GS.map.mark_telegraph(t.teleport, `${IMG_FOLDER.actions}teleport_telegraph.png`);
-                display_map(GS.map);
+                refresh_map(GS.map);
             }
         }
         var click = function(behavior){

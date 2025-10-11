@@ -57,7 +57,7 @@ class GameState{
             add_boon_to_chest(chest, boon());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
-        display_map(this.map);
+        refresh_map(this.map);
         this.map.display_stats();
 
         this.refresh_deck_display();
@@ -104,13 +104,13 @@ class GameState{
             if(GS.boons.has(boon_names.thick_soles)){
                 GS.map.get_player().tags.remove(TAGS.invulnerable);
             }
-            display_map(this.map);
+            refresh_map(this.map);
             await delay(ANIMATION_DELAY);
             if(is_instant){
                 this.refresh_deck_display();
                 this.unlock_player_turn();
                 this.map.display_stats();
-                display_map(this.map);
+                refresh_map(this.map);
                 this.unlock_player_turn();
                 return;
             }
@@ -256,7 +256,7 @@ class GameState{
         // Creates the next floor.
         this.map.next_floor();
         this.map.display_stats();
-        display_map(this.map);
+        refresh_map(this.map);
         this.deck.deal();
             if(GS.boons.has(boon_names.vicious_cycle) > 0){
             apply_vicious_cycle(this.deck);
@@ -264,7 +264,7 @@ class GameState{
         this.refresh_deck_display();
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         await delay(ANIMATION_DELAY);
-        display_map(this.map);
+        refresh_map(this.map);
         this.unlock_player_turn();
     }
     /** 
@@ -290,7 +290,7 @@ class GameState{
     game_over(cause){
         // Tells the user the game is over, prevents them from continuing, tells them the cause
         // and gives them the chance to retry.
-        display_map(this.map);
+        refresh_map(this.map);
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
         say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
@@ -316,7 +316,7 @@ class GameState{
         display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.full_deck));
     }
     victory(){
-        display_map(this.map);
+        refresh_map(this.map);
         display_victory();
         this.achieve(achievement_names.victory);
         say_record(gameplay_text.victory);
@@ -344,9 +344,9 @@ class GameState{
      */
     async prep_turn(){
         this.map.resolve_events();
-        display_map(this.map);
+        refresh_map(this.map);
         await delay(ANIMATION_DELAY);
-        display_map(this.map);
+        refresh_map(this.map);
         this.refresh_deck_display();
         this.map.display_stats();
         this.unlock_player_turn();
