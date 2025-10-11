@@ -1,4 +1,4 @@
-function display_map(map){
+function refresh_map(map){
     // Updates the GameMap display.
     display.remove_children(UIIDS.map_display);
     var grid = map.display();

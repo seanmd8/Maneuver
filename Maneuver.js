@@ -3515,22 +3515,50 @@ function display_boons(boon_list){
  */
 function refresh_deck_order_display(deck){
     var library = deck.get_library_info();
+    var card_explanation = (card) => {
+        return () => {
+            say(explain_card(card));
+        }
+    };
+    for(var card of library){
+            card.on_click = card_explanation(card);
+    }
+    library = [future_sight(), ...library];
+    library[0].on_click = () => {
+        say(future_sight().description);
+    }
     display.remove_children(UIIDS.deck_order_table);
-    display.add_tb_row(UIIDS.deck_order_table, [future_sight(), ...library], SMALL_CARD_SCALE);
+    display.add_tb_row(UIIDS.deck_order_table, library, SMALL_CARD_SCALE);
 }
 /**
  * Displays the discard pile to it's proper location.
  */
 function refresh_discard_display(deck){
     var discard = deck.get_discard_info();
+    var card_explanation = (card) => {
+        return () => {
+            say(explain_card(card));
+        }
+    };
+    for(var card of discard){
+            card.on_click = card_explanation(card);
+    }
     display.remove_children(UIIDS.discard_pile_table);
     display.add_tb_row(UIIDS.discard_pile_table, discard, SMALL_CARD_SCALE);
 }
 /**
- * Displays the full deck to it's proper location.
+ * Displays the full deck to it's proper location in the sidebar.
  */
 function refresh_full_deck_display(deck){
     var full = deck.get_deck_info();
+    var card_explanation = (card) => {
+        return () => {
+            say(explain_card(card));
+        }
+    };
+    for(var card of full){
+            card.on_click = card_explanation(card);
+    }
     display.remove_children(UIIDS.full_deck_table);
     display.add_tb_row(UIIDS.full_deck_table, full, SMALL_CARD_SCALE);
 }
