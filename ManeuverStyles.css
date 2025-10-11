@@ -712,16 +712,18 @@ body>div {
 }
 .achievement-dropdown {
     display: none;
-    width: 600px;
-    padding-left: 15px;
+    width: 540px;
+    padding-left: 10px;
     background-color: palegreen;
-    border-width: 0px 3px 3px 3px;
-    border-radius: 0px 0px 10px 10px ;
+    border-width: 3px;
+    border-radius: 0px 10px 10px 0px;
     border-color: black;
     border-style: solid;
 }
 .achievement-box-unlocked:hover .achievement-dropdown {
     display: block;
+    position: absolute;
+    left: 661px;
 }
 .achievement-dropdown h3 {
     margin: 4px;
@@ -731,7 +733,7 @@ body>div {
     background-color: white;
     width: 100px;
     height: 100px;
-    margin: 5px;
+    margin: 3px;
 }
 .achievement-header {
     border: solid;
@@ -767,7 +769,7 @@ body>div {
 .achievement-section {
     border: solid;
     border-radius: 20px;
-    width: fit-content;
+    width: 604px;
     padding: 20px;
     padding-top: 0px;
     background-color: dimgray;
@@ -797,6 +799,9 @@ body>div {
 }
 .achievement-unlocked-text {
     background-color: lightblue;
+}
+.achievement-box-unlocked:hover {
+    width: 632px;
 }
 .journal-area-screen {
     border-width: 0px 5px 5px 5px;
