@@ -1,4 +1,4 @@
-.main-header{
+.main-header {
     background-color: sandybrown;
     padding: 5px;
     padding-left: 10px;
@@ -7,12 +7,12 @@
     border-bottom-style: solid;
     min-width: 100%;
 }
-.header-box{
+.header-box {
     display: inline-flex;
     justify-content: space-between;
     width: 700px;
 }
-.main-header select{
+.main-header select {
     width: 132px;
     height: 32px;
     background-color: wheat;

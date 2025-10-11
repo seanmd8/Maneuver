@@ -2,14 +2,14 @@ html {
     height: 100%;
     min-width: 100%;
 }
-body{
+body {
     margin: 0px;
     height: 100%;
     min-width: 100%;
     width: fit-content;
     font-family: ArrowFont;
 }
-body>div{
+body>div {
     padding: 8px;
     box-sizing: border-box;
 }
@@ -75,7 +75,7 @@ body>div{
 .control-edit-box div input:hover {
     cursor: pointer;
 }
-.control-edit-box div input:focus-visible{
+.control-edit-box div input:focus-visible {
     outline: none;
 }
 .edit-control {
@@ -114,7 +114,7 @@ body>div{
     color: aliceblue;
     cursor: pointer;
 }
-.control-style{
+.control-style {
     background-color: var(--controls-background-color);
     min-height: 100%;
     min-width: 100%;
@@ -162,10 +162,10 @@ body>div{
     color: burlywood;
     cursor: pointer;
 }
-.large-chest .chest-buttons tr input{
+.large-chest .chest-buttons tr input {
     background-color: slategray;
 }
-.large-chest .chest-buttons tr input:hover{
+.large-chest .chest-buttons tr input:hover {
     background-color: black;
     color: slategray;
 }
@@ -189,11 +189,11 @@ body>div{
     border-radius: 10px;
     border-style: solid;
     border-color: black;
-    background-color:burlywood;
+    background-color: burlywood;
     height: fit-content;
     min-height: 23px;
 }
-.large-chest .chest-description-text{
+.large-chest .chest-description-text {
     border-color: black;
     background-color: slategray;
 }
@@ -207,7 +207,7 @@ body>div{
     border-color: black;
     background-color:burlywood;
 }
-.large-chest .chest-instruction-text{
+.large-chest .chest-instruction-text {
     border-color: black;
     background-color: slategray;
 }
@@ -228,7 +228,7 @@ body>div{
 .deck-select-confirm {
     margin-left: 7px;
 }
-.game-style{
+.game-style {
     background-color: var(--game-background-color);
     min-height: 100%;
     min-width: 100%;
@@ -246,13 +246,13 @@ body>div{
     background-color: lightblue;
     cursor: pointer;
 }
-.shop-button-container{
+.shop-button-container {
     height: 120px;
     width: fit-content;
     display: inline-block;
     vertical-align: top;
 }
-.shop-screen{
+.shop-screen {
     width: fit-content;
 }
 .shop-section-box {
@@ -361,7 +361,7 @@ body>div{
 .gamemap-box {
     background-color: white;
     border-width: 4px;
-    border-color:gray;
+    border-color: gray;
     border-style: groove;
     margin-bottom: 5px;
     display: inline-block;
@@ -379,7 +379,7 @@ body>div{
     width: 440px;
     padding: 5px;
     background-color: var(--text-box-background-color);
-    border-color:rgb(128, 57, 25);
+    border-color: rgb(128, 57, 25);
     border-style: solid;
     border-width: 4px;
     font-size: 18px;
@@ -434,25 +434,25 @@ body>div{
 .boon-box {
     flex-flow: column;
 }
-.boon-box table{
+.boon-box table {
     display: inline-flex;
 }
-.boon-box hr{
+.boon-box hr {
     display: inline-flex;
 }
-.card-container{
+.card-container {
     padding-top: 5px;
     width: 100%;
 }
-.card-container tr{
+.card-container tr {
     width: 100%;
 }
-.card-container tr td{
+.card-container tr td {
     display: inline-block;
     margin: 0px 0px 5px 5px;
     padding: 0px;
 }
-.select-second tr td:nth-child(2) img{
+.select-second tr td:nth-child(2) img {
     box-shadow: 0 0 0 3px cyan;
 }
 .sidebar {
@@ -469,7 +469,7 @@ body>div{
     border: solid;
     border-radius: 15px 15px 0px 0px;
     background-color: moccasin;
-    text-align:center;
+    text-align: center;
 }
 .sidebar-header input {
     margin: 4px 6px 0px 6px;
@@ -498,30 +498,30 @@ body>div{
     cursor: pointer;
     background-color: gray;
 }
-.initiative-element div{
+.initiative-element div {
     display: inline-block;
     width: fit-content;
     vertical-align: middle;
     height: 100%;
     margin: 0px 0px 0px 5px;
 }
-.initiative-element img{
+.initiative-element img {
     border-width: 2px;
     border-color: black;
     border-style: solid;
     margin: 5px;
 }
-.initiative-element p{
+.initiative-element p {
     margin-top: auto;
     margin-bottom: auto;
     line-height: 140%;
     margin: 5px;
     width: 150px;
 }
-.initiative-element p::first-line{
+.initiative-element p::first-line {
     font-weight: bolder;
 }
-.stun-background{
+.stun-background {
     background-color: yellow;
 }
 .sidebar-section {
@@ -533,7 +533,7 @@ body>div{
 .sidebar-section td:hover {
     cursor: pointer;
 }
-.sidebar-section hr{
+.sidebar-section hr {
     width: 100%;
 }
 .normal-log-text {
@@ -566,7 +566,7 @@ body>div{
     margin: 0px;
 }
 
-.stats{
+.stats {
     display: inline-flex;
     flex-direction: column;
     width: fit-content;
@@ -574,7 +574,7 @@ body>div{
     margin-left: 4px;
     vertical-align: top;
 }
-.stat-pair{
+.stat-pair {
     display: inline-flex;
     justify-content: space-between;
     width: 60px;
@@ -588,11 +588,11 @@ body>div{
     margin-bottom: 4px;
     align-items: center;
 }
-.stat-pair img{
+.stat-pair img {
     width: 32px;
     height: 32px;
 }
-.push-down-stats{
+.push-down-stats {
     margin-top: 15px;
 }
 .guidebook-section h2 {
@@ -614,12 +614,12 @@ body>div{
     margin: 0px;
 }
 
-.navbar input{
+.navbar input {
     background-color: lightblue;
     margin-left: 5px;
     margin-right: 5px;
 }
-.navbar input:hover{
+.navbar input:hover {
     background-color: darkgreen;
     color: white;
     cursor: pointer;
@@ -630,7 +630,7 @@ body>div{
     min-height: 100%;
     min-width: 100%;
 }
-.guide-box-style{
+.guide-box-style {
     background-color: beige;
     margin: 8px;
 }
@@ -643,7 +643,7 @@ body>div{
     border-top: none;
     border-color: burlywood;
 }
-.main-header{
+.main-header {
     background-color: sandybrown;
     padding: 5px;
     padding-left: 10px;
@@ -652,12 +652,12 @@ body>div{
     border-bottom-style: solid;
     min-width: 100%;
 }
-.header-box{
+.header-box {
     display: inline-flex;
     justify-content: space-between;
     width: 700px;
 }
-.main-header select{
+.main-header select {
     width: 132px;
     height: 32px;
     background-color: wheat;
@@ -697,7 +697,7 @@ body>div{
 .achievement-reset {
     background-color: lightcoral;
 }
-.achievement-reset:hover{
+.achievement-reset:hover {
     background-color: maroon;
     color: lightcoral;
     cursor: pointer;
@@ -705,12 +705,12 @@ body>div{
 .achievement-confirm-reset {
     background-color: red;
 }
-.achievement-confirm-reset:hover{
+.achievement-confirm-reset:hover {
     background-color: black;
     color: red;
     cursor: pointer;
 }
-.achievement-dropdown{
+.achievement-dropdown {
     display: none;
     width: 600px;
     padding-left: 15px;
@@ -720,14 +720,14 @@ body>div{
     border-color: black;
     border-style: solid;
 }
-.achievement-box-unlocked:hover .achievement-dropdown{
+.achievement-box-unlocked:hover .achievement-dropdown {
     display: block;
 }
-.achievement-dropdown h3{
+.achievement-dropdown h3 {
     margin: 4px;
     text-align: center;
 }
-.achievement-dropdown img{
+.achievement-dropdown img {
     background-color: white;
     width: 100px;
     height: 100px;
@@ -748,11 +748,11 @@ body>div{
     padding: 15px;
     margin: 0px;
 }
-.achievement-img-box{
+.achievement-img-box {
     width: 100px;
     height: 100px;
 }
-.achievement-img-box img{
+.achievement-img-box img {
     width: 100%;
     height: 100%;
 }
@@ -808,7 +808,7 @@ body>div{
     padding-bottom: 0px;
 }
 
-.journal-area-screen>div{
+.journal-area-screen>div {
     width: 840px;
     display: inline-flex;
     justify-content: center;
@@ -905,7 +905,7 @@ body>div{
 .area2>div {
     background-color: var(--area2);
 }
-.area3>div{
+.area3>div {
     background-color: var(--area3);
 }
 .area4>div {
@@ -939,14 +939,14 @@ body>div{
         left: 980px;
     }
 }
-.journal-style{
+.journal-style {
     background-color: var(--journal-background-color);
     min-height: 100%;
     width: 100%;
     min-width: 1456px;
     padding-bottom: 0px;
 }
-:root{
+:root {
     --card-box-color: white;
     --card-box-legend-color: lightblue;
     --text-box-background-color: white;

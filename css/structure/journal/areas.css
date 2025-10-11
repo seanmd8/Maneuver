@@ -8,7 +8,7 @@
     padding-bottom: 0px;
 }
 
-.journal-area-screen>div{
+.journal-area-screen>div {
     width: 840px;
     display: inline-flex;
     justify-content: center;
@@ -105,7 +105,7 @@
 .area2>div {
     background-color: var(--area2);
 }
-.area3>div{
+.area3>div {
     background-color: var(--area3);
 }
 .area4>div {

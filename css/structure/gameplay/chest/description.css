@@ -5,11 +5,11 @@
     border-radius: 10px;
     border-style: solid;
     border-color: black;
-    background-color:burlywood;
+    background-color: burlywood;
     height: fit-content;
     min-height: 23px;
 }
-.large-chest .chest-description-text{
+.large-chest .chest-description-text {
     border-color: black;
     background-color: slategray;
 }

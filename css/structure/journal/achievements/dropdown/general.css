@@ -1,4 +1,4 @@
-.achievement-dropdown{
+.achievement-dropdown {
     display: none;
     width: 600px;
     padding-left: 15px;
@@ -8,6 +8,6 @@
     border-color: black;
     border-style: solid;
 }
-.achievement-box-unlocked:hover .achievement-dropdown{
+.achievement-box-unlocked:hover .achievement-dropdown {
     display: block;
 }

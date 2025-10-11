@@ -1,9 +1,9 @@
 .boon-box {
     flex-flow: column;
 }
-.boon-box table{
+.boon-box table {
     display: inline-flex;
 }
-.boon-box hr{
+.boon-box hr {
     display: inline-flex;
 }
