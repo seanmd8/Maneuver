@@ -27,6 +27,7 @@ function two_headed_serpent_body_tile(){
         type: entity_types.terrain,
         name: boss_names.two_headed_serpent_body,
         pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: boss_descriptions.two_headed_serpent_body,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         pic_arr,

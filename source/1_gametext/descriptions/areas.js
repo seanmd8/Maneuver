@@ -10,6 +10,8 @@ const area_names = {
     
     default: `Post Game Area`,
     unknown: `Unknown`,
-    assorted: `Assorted`
+    basic: `Basic Tiles`,
+    assorted: `Assorted Tiles`,
+    events: `Events`,
 }
 Object.freeze(area_names);

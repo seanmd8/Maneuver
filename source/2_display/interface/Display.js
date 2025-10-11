@@ -851,12 +851,14 @@ const DisplayHTML = {
         }
         box.append(header);
         
-        var boss = document.createElement(`table`);
-        boss.classList.add(`journal-area-boss`);
-        var boss_id = `${destination} ${info.true_name} boss`;
-        boss.id = boss_id;
-        box.append(boss);
-        display.add_tb_row(boss_id, [info.boss], JOURNAL_BOSS_SCALE);
+        if(info.boss !== undefined){
+            var boss = document.createElement(`table`);
+            boss.classList.add(`journal-area-boss`);
+            var boss_id = `${destination} ${info.true_name} boss`;
+            boss.id = boss_id;
+            box.append(boss);
+            display.add_tb_row(boss_id, [info.boss], JOURNAL_BOSS_SCALE);
+        }
 
         var tiles = document.createElement(`table`);
         tiles.classList.add(`journal-area-tiles`);

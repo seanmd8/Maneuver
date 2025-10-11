@@ -1,3 +1,13 @@
+const LORD_SUMMONS = [
+    altar_of_sunlight_tile,
+    altar_of_stars_tile,
+    altar_of_scouring_tile,
+    altar_of_shadow_tile,
+    altar_of_space_tile,
+    altar_of_stasis_tile,
+    altar_of_singularity_tile,
+]
+
 /** @type {TileGenerator} */
 function lord_of_shadow_and_flame_tile(){
     var pic_arr = [
@@ -5,17 +15,7 @@ function lord_of_shadow_and_flame_tile(){
     `${IMG_FOLDER.tiles}lord_attack.png`,
     `${IMG_FOLDER.tiles}lord_summon.png`,
     ];
-
     var health = 13;
-    var summons = [
-        altar_of_sunlight_tile,
-        altar_of_stars_tile,
-        altar_of_scouring_tile,
-        altar_of_shadow_tile,
-        altar_of_space_tile,
-        altar_of_stasis_tile,
-        altar_of_singularity_tile,
-    ];
     return {
         type: entity_types.enemy,
         name: boss_names.lord_of_shadow_and_flame,
@@ -32,7 +32,7 @@ function lord_of_shadow_and_flame_tile(){
         on_death: lord_of_shadow_and_flame_on_death,
         pic_arr,
         cycle: 0,
-        summons,
+        summons: LORD_SUMMONS,
         card_drops: BOSS_CARDS.lord_of_shadow_and_flame
     }
 }

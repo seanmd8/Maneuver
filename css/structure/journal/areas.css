@@ -114,3 +114,7 @@
 .area5>div {
     background-color: var(--area5);
 }
+.area6>div {
+    background-color: var(--area6);
+    height: fit-content;
+}

@@ -656,7 +656,9 @@ const area_names = {
     
     default: `Post Game Area`,
     unknown: `Unknown`,
-    assorted: `Assorted`
+    basic: `Basic Tiles`,
+    assorted: `Assorted Tiles`,
+    events: `Events`,
 }
 Object.freeze(area_names);
 const boon_names = {
@@ -3246,12 +3248,14 @@ const DisplayHTML = {
         }
         box.append(header);
         
-        var boss = document.createElement(`table`);
-        boss.classList.add(`journal-area-boss`);
-        var boss_id = `${destination} ${info.true_name} boss`;
-        boss.id = boss_id;
-        box.append(boss);
-        display.add_tb_row(boss_id, [info.boss], JOURNAL_BOSS_SCALE);
+        if(info.boss !== undefined){
+            var boss = document.createElement(`table`);
+            boss.classList.add(`journal-area-boss`);
+            var boss_id = `${destination} ${info.true_name} boss`;
+            boss.id = boss_id;
+            box.append(boss);
+            display.add_tb_row(boss_id, [info.boss], JOURNAL_BOSS_SCALE);
+        }
 
         var tiles = document.createElement(`table`);
         tiles.classList.add(`journal-area-tiles`);
@@ -3928,13 +3932,13 @@ function assorted_tiles_display_info(){
     return {
         name: area_names.assorted,
         background: area.background,
-        boss: player_tile,
         tiles: [
-            armored_chest_tile,
-            chest_tile,
-            exit_tile,
-            final_exit_tile,
-            lock_tile,
+            ...LORD_SUMMONS,
+            arcane_node_tile,
+            black_hole_tile,
+            living_tree_rooted_tile,
+            rotting_fruit_tree_tile,
+            two_headed_serpent_body_tile,
         ],
     }
 }
@@ -3948,6 +3952,21 @@ function basement_display_info(){
             ...area.enemy_list, 
             wall_tile, 
             damaged_wall_tile
+        ],
+    }
+}
+function basic_tiles_display_info(){
+    var area = generate_ruins_area();
+    return {
+        name: area_names.basic,
+        background: area.background,
+        boss: player_tile,
+        tiles: [
+            armored_chest_tile,
+            chest_tile,
+            exit_tile,
+            final_exit_tile,
+            lock_tile,
         ],
     }
 }
@@ -3978,6 +3997,22 @@ function crypt_display_info(){
         tiles: [
             ...area.enemy_list, 
             coffin_tile
+        ],
+    }
+}
+function events_display_info(){
+    var area = generate_ruins_area();
+    return {
+        name: area_names.events,
+        background: area.background,
+        tiles: [
+            // black_hole_beginning
+            // darkling_rift
+            // falling_rubble
+            // starcaller_rift
+            // sunlight
+            // swaying_nettle_roots
+            // thorn_roots
         ],
     }
 }
@@ -4055,7 +4090,7 @@ function update_journal_areas(){
     for(var i = 0; i < 6; ++i){
         display.remove_children(`${UIIDS.journal_areas}${i}`);
     }
-    show_area(assorted_tiles_display_info(), 0, true);
+    show_area(basic_tiles_display_info(), 0, true);
     show_area(ruins_display_info(), 1);
     show_area(basement_display_info(), 2);
     show_area(sewers_display_info(), 2);
@@ -4064,6 +4099,7 @@ function update_journal_areas(){
     show_area(forest_display_info(), 4);
     show_area(library_display_info(), 4);
     show_area(court_display_info(), 5);
+    show_area(assorted_tiles_display_info(), 6, true);
 }
 
 function show_area(info, depth, force_visited = false){
@@ -4103,7 +4139,9 @@ function show_area(info, depth, force_visited = false){
             description: boon_descriptions.not_encountered,
         }
     };
-    info.boss = check_encountered(info.boss);
+    if(info.boss !== undefined){
+        info.boss = check_encountered(info.boss);
+    }
     info.tiles = info.tiles.map(check_encountered).sort((a, b) => {
         if(a.true_name < b.true_name){
             return -1;
@@ -4274,7 +4312,8 @@ function arcane_node_tile(){
     return{
         type: entity_types.enemy,
         name: boss_names.arcane_sentry_node,
-        pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret`,
+        pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret.png`,
+        display_pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret.png`,
         description: boss_descriptions.arcane_sentry_node,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry, TAGS.controlled, TAGS.unstunnable]),
         health: 5,
@@ -4708,6 +4747,16 @@ function lich_prep(tile, cycle, change = false){
         +`${spell.description}`;
     return announcement;
 }
+const LORD_SUMMONS = [
+    altar_of_sunlight_tile,
+    altar_of_stars_tile,
+    altar_of_scouring_tile,
+    altar_of_shadow_tile,
+    altar_of_space_tile,
+    altar_of_stasis_tile,
+    altar_of_singularity_tile,
+]
+
 /** @type {TileGenerator} */
 function lord_of_shadow_and_flame_tile(){
     var pic_arr = [
@@ -4715,17 +4764,7 @@ function lord_of_shadow_and_flame_tile(){
     `${IMG_FOLDER.tiles}lord_attack.png`,
     `${IMG_FOLDER.tiles}lord_summon.png`,
     ];
-
     var health = 13;
-    var summons = [
-        altar_of_sunlight_tile,
-        altar_of_stars_tile,
-        altar_of_scouring_tile,
-        altar_of_shadow_tile,
-        altar_of_space_tile,
-        altar_of_stasis_tile,
-        altar_of_singularity_tile,
-    ];
     return {
         type: entity_types.enemy,
         name: boss_names.lord_of_shadow_and_flame,
@@ -4742,7 +4781,7 @@ function lord_of_shadow_and_flame_tile(){
         on_death: lord_of_shadow_and_flame_on_death,
         pic_arr,
         cycle: 0,
-        summons,
+        summons: LORD_SUMMONS,
         card_drops: BOSS_CARDS.lord_of_shadow_and_flame
     }
 }
@@ -4920,6 +4959,7 @@ function two_headed_serpent_body_tile(){
         type: entity_types.terrain,
         name: boss_names.two_headed_serpent_body,
         pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: boss_descriptions.two_headed_serpent_body,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         pic_arr,

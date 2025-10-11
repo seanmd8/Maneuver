@@ -2,7 +2,7 @@ function update_journal_areas(){
     for(var i = 0; i < 6; ++i){
         display.remove_children(`${UIIDS.journal_areas}${i}`);
     }
-    show_area(assorted_tiles_display_info(), 0, true);
+    show_area(basic_tiles_display_info(), 0, true);
     show_area(ruins_display_info(), 1);
     show_area(basement_display_info(), 2);
     show_area(sewers_display_info(), 2);
@@ -11,6 +11,7 @@ function update_journal_areas(){
     show_area(forest_display_info(), 4);
     show_area(library_display_info(), 4);
     show_area(court_display_info(), 5);
+    show_area(assorted_tiles_display_info(), 6, true);
 }
 
 function show_area(info, depth, force_visited = false){
@@ -50,7 +51,9 @@ function show_area(info, depth, force_visited = false){
             description: boon_descriptions.not_encountered,
         }
     };
-    info.boss = check_encountered(info.boss);
+    if(info.boss !== undefined){
+        info.boss = check_encountered(info.boss);
+    }
     info.tiles = info.tiles.map(check_encountered).sort((a, b) => {
         if(a.true_name < b.true_name){
             return -1;
