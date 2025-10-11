@@ -4,6 +4,9 @@
     border: solid;
     background-color: white;
 }
+.sidebar-section td:hover {
+    cursor: pointer;
+}
 .sidebar-section hr{
     width: 100%;
 }

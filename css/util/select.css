@@ -9,3 +9,6 @@
     border-spacing: 3px;
     padding: 0px;
 }
+.selectable tr td:hover {
+    cursor: pointer;
+}
