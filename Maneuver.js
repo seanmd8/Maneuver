@@ -1607,7 +1607,8 @@ const event_descriptions = {
     black_hole:
         `A Black Hole is beginning to form here damaging anything standing here.`,
     confusion_cloud:
-        `A cloud of mind melting magic will confuse or stun everything inside. Lasts 3 turns.`,
+        `A cloud of mind melting magic will confuse or stun anythin ending it's turn here. `
+        +`Lasts 3 turns.`,
     darkling_rift: 
         `If this space isn't blocked, a darkling will teleport here next turn damaging everything `
         +`next to it.`,
