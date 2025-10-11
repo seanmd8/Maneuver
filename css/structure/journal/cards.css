@@ -1,6 +1,9 @@
 .journal-card-box {
     width: 942px;
 }
+.journal-card-box td:hover {
+    cursor: pointer;
+}
 
 .journal-info {
     position: fixed;

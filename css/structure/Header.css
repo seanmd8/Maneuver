@@ -23,6 +23,9 @@
     margin-top: auto;
     margin-bottom: auto;
 }
+.main-header select:hover {
+    cursor: pointer;
+}
 
 .header-pic {
     height: 40px;

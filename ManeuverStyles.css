@@ -787,6 +787,9 @@ body>div{
     margin-top: auto;
     margin-bottom: auto;
 }
+.main-header select:hover {
+    cursor: pointer;
+}
 
 .header-pic {
     height: 40px;
@@ -910,6 +913,9 @@ body>div{
 }
 .journal-card-box {
     width: 942px;
+}
+.journal-card-box td:hover {
+    cursor: pointer;
 }
 
 .journal-info {
