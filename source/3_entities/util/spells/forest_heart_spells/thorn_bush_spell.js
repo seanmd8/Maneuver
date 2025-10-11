@@ -14,12 +14,10 @@ function thorn_bush_spell(self, target, map){
         new Point(FLOOR_WIDTH / 2 - 2, FLOOR_HEIGHT / 2 - 2), 
         new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
     );
-    var root_layer = {
-        pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
-        description: event_descriptions.thorn_root,
-        telegraph: hazard_telegraph
-    }
-    map.add_event({name: event_names.bramble_shield, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+    map.add_event({
+        name: event_names.bramble_shield, 
+        behavior: growth_event(points, thorn_roots_mark(), thorn_bramble_tile)
+    });
 }
 
 /** @type {TelegraphFunction} */

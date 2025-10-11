@@ -12,11 +12,6 @@ function altar_of_sunlight_tile(){
 }
 
 function altar_of_sunlight_on_enter(self, target, map){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}sunlight.png`,
-        description: event_descriptions.sunlight,
-        telegraph: hazard_telegraph
-    }
     var fire = function(locations){
         return function(map_to_use){
             for(var location of locations){
@@ -30,7 +25,7 @@ function altar_of_sunlight_on_enter(self, target, map){
     var delay = (points) => {
         return (map_to_use) => {
             for(var point of points){
-                map_to_use.mark_event(point, mark);
+                map_to_use.mark_event(point, sunlight_mark());
             }
             map_to_use.add_event({name: other_tile_names.raging_fire, behavior: fire(points)});
         }

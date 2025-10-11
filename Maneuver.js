@@ -1609,7 +1609,7 @@ const event_descriptions = {
     black_hole:
         `A Black Hole is beginning to form here damaging anything standing here.`,
     confusion_cloud:
-        `A cloud of mind melting magic will confuse or stun anythin ending it's turn here. `
+        `A cloud of mind melting magic will confuse or stun anything ending it's turn here. `
         +`Lasts 3 turns.`,
     darkling_rift: 
         `If this space isn't blocked, a darkling will teleport here next turn damaging everything `
@@ -5960,12 +5960,7 @@ function darkling_ai(self, target, map){
     self.tile.direction = map.random_empty();
     var darkling_rift = function(map_to_use){
         if(self.tile.health === undefined || self.tile.health > 0){
-            var rift = {
-                pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
-                description: event_descriptions.darkling_rift,
-                telegraph: spider_telegraph
-            }
-            map_to_use.mark_event(self.tile.direction, rift, false);
+            map_to_use.mark_event(self.tile.direction, darkling_rift_mark(), false);
         }
     }
     map.add_event({name: event_names.darkling_rift, behavior: darkling_rift});
@@ -7348,12 +7343,7 @@ function starcaller_ai(self, target, map){
         }
         var starfall = function(map_to_use){
             if(self.tile.health === undefined || self.tile.health > 0){
-                var destination = {
-                    pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
-                    description: event_descriptions.starfall,
-                    telegraph: hazard_telegraph
-                }
-                map_to_use.mark_event(self.tile.direction, destination, false);
+                map_to_use.mark_event(self.tile.direction, starcaller_rift_mark(), false);
             }
         }
         map.add_event({name: event_names.starfall, behavior: starfall});
@@ -8278,11 +8268,6 @@ function altar_of_singularity_tile(){
 }
 
 function altar_of_singularity_on_enter(self, target, map){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}black_hole_beginning.png`,
-        description: event_descriptions.black_hole,
-        telegraph: hazard_telegraph
-    }
     var fall = function(location){
         return function(map_to_use){
             map_to_use.attack(location);
@@ -8293,7 +8278,7 @@ function altar_of_singularity_on_enter(self, target, map){
     }
     var delay = (map_to_use) => {
         var destination = self.location;
-        map_to_use.mark_event(destination, mark);
+        map_to_use.mark_event(destination, black_hole_beginning_mark());
         map_to_use.add_event({name: event_names.black_hole, behavior: fall(destination)});
     }
     // If this is the last altar, wait an extra turn so the lord can summon then move.
@@ -8349,11 +8334,6 @@ function altar_of_stars_tile(){
 }
 
 function altar_of_stars_on_enter(self, target, map){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
-        description: event_descriptions.starfall,
-        telegraph: hazard_telegraph
-    }
     var fall = function(location){
         return function(map_to_use){
             map_to_use.attack(location);
@@ -8370,7 +8350,7 @@ function altar_of_stars_on_enter(self, target, map){
             });
             destination = miss ? miss : destination;
         }
-        map_to_use.mark_event(destination, mark);
+        map_to_use.mark_event(destination, starcaller_rift_mark());
         map_to_use.add_event({name: event_names.starfall, behavior: fall(destination)});
     }
     for(var i = 0; i < 3; ++i){
@@ -8416,11 +8396,6 @@ function altar_of_sunlight_tile(){
 }
 
 function altar_of_sunlight_on_enter(self, target, map){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}sunlight.png`,
-        description: event_descriptions.sunlight,
-        telegraph: hazard_telegraph
-    }
     var fire = function(locations){
         return function(map_to_use){
             for(var location of locations){
@@ -8434,7 +8409,7 @@ function altar_of_sunlight_on_enter(self, target, map){
     var delay = (points) => {
         return (map_to_use) => {
             for(var point of points){
-                map_to_use.mark_event(point, mark);
+                map_to_use.mark_event(point, sunlight_mark());
             }
             map_to_use.add_event({name: other_tile_names.raging_fire, behavior: fire(points)});
         }
@@ -9388,12 +9363,6 @@ function boss_death(self, target, map){
  * @returns {MapEventFunction} The event.
  */
 function altar_event(destination, altar){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
-        description: event_descriptions.starfall,
-        telegraph: hazard_telegraph
-    }
-
     var summon = function(location){
         return function(map_to_use){
             map_to_use.attack(location);
@@ -9404,7 +9373,7 @@ function altar_event(destination, altar){
     }
     var rift = function(location){
         return function(map_to_use){
-            map_to_use.mark_event(location, mark);
+            map_to_use.mark_event(location, starcaller_rift_mark());
             map_to_use.add_event({name: altar().name, behavior: summon(location)});
         }
     }
@@ -9444,18 +9413,13 @@ function earthquake_event(amount, locations = undefined){
         }
     }
     var earthquake = function(amount){
-        var falling_rubble_layer = {
-            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-            description: event_descriptions.falling_rubble,
-            telegraph: hazard_telegraph
-        }
         return function(map_to_use){
             var rubble = [];
             var space;
             if(locations === undefined){
                 for(var j = 0; j < amount; ++j){
                     space = map_to_use.random_empty();
-                    map_to_use.mark_event(space, falling_rubble_layer);
+                    map_to_use.mark_event(space, falling_rubble_mark());
                     rubble.push(space);
                 }
             }
@@ -9464,7 +9428,7 @@ function earthquake_event(amount, locations = undefined){
                 for(var i = 0; i < amount; ++i){
                     space = spaces[i];
                     if(map_to_use.check_empty(space)){
-                        map_to_use.mark_event(space, falling_rubble_layer);
+                        map_to_use.mark_event(space, falling_rubble_mark());
                         rubble.push(space);
                     }
                 }
@@ -9489,11 +9453,6 @@ function eternal_earthquake_event(amount){
     }
     var earthquake = function(amount){
         amount = Math.min(amount, FLOOR_HEIGHT * FLOOR_WIDTH * 4/5);
-        var falling_rubble_layer = {
-            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-            description: event_descriptions.falling_rubble,
-            telegraph: hazard_telegraph
-        }
         return function(map_to_use){
             var rubble = [];
             while(rubble.length < amount){
@@ -9501,7 +9460,7 @@ function eternal_earthquake_event(amount){
                 if(rubble.find((p) => {
                     return point_equals(p, space);
                 }) === undefined){
-                    map_to_use.mark_event(space, falling_rubble_layer);
+                    map_to_use.mark_event(space, falling_rubble_mark());
                     rubble.push(space);
                 }
             }
@@ -9538,6 +9497,62 @@ function growth_event(points, root, grown){
     }
     return plant(points);
 }
+function black_hole_beginning_mark(){
+    return {
+        pic: `${IMG_FOLDER.tiles}black_hole_beginning.png`,
+        description: event_descriptions.black_hole,
+        telegraph: hazard_telegraph
+    };
+}
+function confusion_cloud_mark(){
+    return {
+        pic: `${IMG_FOLDER.tiles}confusion_cloud.png`,
+        description: event_descriptions.confusion_cloud,
+        telegraph_other: hazard_telegraph
+    }
+}
+function darkling_rift_mark(){
+    return {
+        pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
+        description: event_descriptions.darkling_rift,
+        telegraph: spider_telegraph
+    };
+}
+function falling_rubble_mark(){
+    return {
+        pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
+        description: event_descriptions.falling_rubble,
+        telegraph: hazard_telegraph
+    }
+}
+function nettle_roots_mark(){
+    return {
+        pic: `${IMG_FOLDER.tiles}swaying_nettle_roots.png`,
+        description: event_descriptions.nettle_root,
+        telegraph: hazard_telegraph
+    }
+}
+function starcaller_rift_mark(){
+    return {
+        pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
+        description: event_descriptions.starfall,
+        telegraph: hazard_telegraph
+    }
+}
+function sunlight_mark(){
+    return {
+        pic: `${IMG_FOLDER.tiles}sunlight.png`,
+        description: event_descriptions.sunlight,
+        telegraph: hazard_telegraph
+    };
+}
+function thorn_roots_mark(){
+    return {
+        pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
+        description: event_descriptions.thorn_root,
+        telegraph: hazard_telegraph
+    }
+}
 /**
  * @param {Point[]} locations A grid of locations to use.
  * @returns {MapEventFunction} The event.
@@ -9551,15 +9566,10 @@ function targeted_earthquake_event(locations){
         }
     }
     var earthquake = function(){
-        var falling_rubble_layer = {
-            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-            description: event_descriptions.falling_rubble,
-            telegraph: hazard_telegraph
-        }
         return function(map_to_use){
             var rubble = [];
             for(var space of locations){
-                map_to_use.mark_event(space, falling_rubble_layer);
+                map_to_use.mark_event(space, falling_rubble_mark());
                 rubble.push(space);
             }
             map_to_use.add_event({name: event_names.falling_rubble, behavior: falling_rubble(rubble)});
@@ -10250,13 +10260,11 @@ function greater_thorn_bush_spell(self, target, map){
         new Point(FLOOR_WIDTH / 2 - 3, FLOOR_HEIGHT / 2 - 3), 
         new Point(FLOOR_WIDTH / 2 + 2, FLOOR_HEIGHT / 2 + 2)
     );
-    var root_layer = {
-        pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
-        description: event_descriptions.thorn_root,
-        telegraph: hazard_telegraph
-    }
     var delayed_func = function(map_to_use){
-        map_to_use.add_event({name: event_names.bramble_shield, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+        map_to_use.add_event({
+            name: event_names.bramble_shield, 
+            behavior: growth_event(points, thorn_roots_mark(), thorn_bramble_tile)
+        });
     };
     map.add_event({name: event_names.bramble_shield, behavior: delay_event(1, delayed_func)});
 }
@@ -10408,12 +10416,10 @@ function swaying_nettle_spell(self, target, map){
         new Point(FLOOR_WIDTH / 2 - 2, FLOOR_HEIGHT / 2 - 2), 
         new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
     );
-    var root_layer = {
-        pic: `${IMG_FOLDER.tiles}swaying_nettle_roots.png`,
-        description: event_descriptions.nettle_root,
-        telegraph: hazard_telegraph
-    }
-    map.add_event({name: event_names.nettle_shield, behavior: growth_event(points, root_layer, swaying_nettle_tile)});
+    map.add_event({
+        name: event_names.nettle_shield, 
+        behavior: growth_event(points, nettle_roots_mark(), swaying_nettle_tile)
+    });
 }
 
 /** @type {TelegraphFunction} */
@@ -10439,12 +10445,10 @@ function thorn_bush_spell(self, target, map){
         new Point(FLOOR_WIDTH / 2 - 2, FLOOR_HEIGHT / 2 - 2), 
         new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
     );
-    var root_layer = {
-        pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
-        description: event_descriptions.thorn_root,
-        telegraph: hazard_telegraph
-    }
-    map.add_event({name: event_names.bramble_shield, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+    map.add_event({
+        name: event_names.bramble_shield, 
+        behavior: growth_event(points, thorn_roots_mark(), thorn_bramble_tile)
+    });
 }
 
 /** @type {TelegraphFunction} */
@@ -10522,11 +10526,6 @@ function confusion_spell_generator(){
 
 /** @type {AIFunction} Spell which creates a cloud of confusion gas around the target which lasts for 3 turns.*/
 function confusion_spell(self, target, map){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}confusion_cloud.png`,
-        description: event_descriptions.confusion_cloud,
-        telegraph_other: hazard_telegraph
-    }
     var cloud = function(locations){
         return function(map_to_use){
             for(var location of locations){
@@ -10537,7 +10536,7 @@ function confusion_spell(self, target, map){
     var delay = (points) => {
         return (map_to_use) => {
             for(var point of points){
-                map_to_use.mark_event(point, mark);
+                map_to_use.mark_event(point, confusion_cloud_mark());
             }
             map_to_use.add_event({name: event_names.confusion_cloud, behavior: cloud(points)});
         }

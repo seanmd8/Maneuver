@@ -13,18 +13,13 @@ function earthquake_event(amount, locations = undefined){
         }
     }
     var earthquake = function(amount){
-        var falling_rubble_layer = {
-            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-            description: event_descriptions.falling_rubble,
-            telegraph: hazard_telegraph
-        }
         return function(map_to_use){
             var rubble = [];
             var space;
             if(locations === undefined){
                 for(var j = 0; j < amount; ++j){
                     space = map_to_use.random_empty();
-                    map_to_use.mark_event(space, falling_rubble_layer);
+                    map_to_use.mark_event(space, falling_rubble_mark());
                     rubble.push(space);
                 }
             }
@@ -33,7 +28,7 @@ function earthquake_event(amount, locations = undefined){
                 for(var i = 0; i < amount; ++i){
                     space = spaces[i];
                     if(map_to_use.check_empty(space)){
-                        map_to_use.mark_event(space, falling_rubble_layer);
+                        map_to_use.mark_event(space, falling_rubble_mark());
                         rubble.push(space);
                     }
                 }

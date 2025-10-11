@@ -11,15 +11,10 @@ function targeted_earthquake_event(locations){
         }
     }
     var earthquake = function(){
-        var falling_rubble_layer = {
-            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-            description: event_descriptions.falling_rubble,
-            telegraph: hazard_telegraph
-        }
         return function(map_to_use){
             var rubble = [];
             for(var space of locations){
-                map_to_use.mark_event(space, falling_rubble_layer);
+                map_to_use.mark_event(space, falling_rubble_mark());
                 rubble.push(space);
             }
             map_to_use.add_event({name: event_names.falling_rubble, behavior: falling_rubble(rubble)});

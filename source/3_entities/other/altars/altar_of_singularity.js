@@ -12,11 +12,6 @@ function altar_of_singularity_tile(){
 }
 
 function altar_of_singularity_on_enter(self, target, map){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}black_hole_beginning.png`,
-        description: event_descriptions.black_hole,
-        telegraph: hazard_telegraph
-    }
     var fall = function(location){
         return function(map_to_use){
             map_to_use.attack(location);
@@ -27,7 +22,7 @@ function altar_of_singularity_on_enter(self, target, map){
     }
     var delay = (map_to_use) => {
         var destination = self.location;
-        map_to_use.mark_event(destination, mark);
+        map_to_use.mark_event(destination, black_hole_beginning_mark());
         map_to_use.add_event({name: event_names.black_hole, behavior: fall(destination)});
     }
     // If this is the last altar, wait an extra turn so the lord can summon then move.

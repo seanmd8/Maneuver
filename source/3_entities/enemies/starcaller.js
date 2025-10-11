@@ -50,12 +50,7 @@ function starcaller_ai(self, target, map){
         }
         var starfall = function(map_to_use){
             if(self.tile.health === undefined || self.tile.health > 0){
-                var destination = {
-                    pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
-                    description: event_descriptions.starfall,
-                    telegraph: hazard_telegraph
-                }
-                map_to_use.mark_event(self.tile.direction, destination, false);
+                map_to_use.mark_event(self.tile.direction, starcaller_rift_mark(), false);
             }
         }
         map.add_event({name: event_names.starfall, behavior: starfall});
