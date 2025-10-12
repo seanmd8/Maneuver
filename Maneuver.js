@@ -1606,7 +1606,7 @@ const entity_types = {
 }
 Object.freeze(entity_types);
 const event_descriptions = {
-    black_hole:
+    black_hole_formation:
         `A Black Hole is beginning to form here damaging anything standing here.`,
     confusion_cloud:
         `A cloud of mind melting magic will confuse or stun anything ending it's turn here. `
@@ -1622,23 +1622,24 @@ const event_descriptions = {
         `Watch out, something is about to be pulled into existence damaging anything standing here.`,
     sunlight:
         `Watch out, this space is about to light on fire damaging anything standing here.`,
-    thorn_root: 
+    thorn_roots: 
         `Watch out, brambles are about to sprout damaging anything standing here.`,
 }
 Object.freeze(event_descriptions);
 
 const event_names = {
-    black_hole: `Black Hole`,
-    bramble_shield: `Bramble Shield`,
+    black_hole_formation: `Black Hole Formation`,
     confusion_cloud: `Confusion Cloud`,
     darkling_rift: `Darkling Rift`,
     delay: `Delay`,
     earthquake: `Earthquake`,
     falling_magma: `Falling Magma`,
     falling_rubble: `Falling Rubble`,
-    nettle_shield: `Nettle Shield`,
+    nettle_roots: `Nettle Roots`,
     spell_announcement: `Spell Announcement`,
     starfall: `Starfall`,
+    sunlight: `Sunlight`,
+    thorn_roots: `Thorn Roots`,
     unstun: `Unstun`,
     wake_up: `Wake Up`,
     warp: `Spacial Warp`
@@ -4006,13 +4007,14 @@ function events_display_info(){
         name: area_names.events,
         background: area.background,
         tiles: [
-            // black_hole_beginning
-            // darkling_rift
-            // falling_rubble
-            // starcaller_rift
-            // sunlight
-            // swaying_nettle_roots
-            // thorn_roots
+            black_hole_beginning_mark,
+            confusion_cloud_mark,
+            darkling_rift_mark,
+            falling_rubble_mark,
+            nettle_roots_mark,
+            starcaller_rift_mark,
+            sunlight_mark,
+            thorn_roots_mark,
         ],
     }
 }
@@ -4087,7 +4089,7 @@ function sewers_display_info(){
     }
 }
 function update_journal_areas(){
-    for(var i = 0; i < 6; ++i){
+    for(var i = 0; i < 7; ++i){
         display.remove_children(`${UIIDS.journal_areas}${i}`);
     }
     show_area(basic_tiles_display_info(), 0, true);
@@ -4100,6 +4102,7 @@ function update_journal_areas(){
     show_area(library_display_info(), 4);
     show_area(court_display_info(), 5);
     show_area(assorted_tiles_display_info(), 6, true);
+    show_area(events_display_info(), 6, true);
 }
 
 function show_area(info, depth, force_visited = false){
@@ -8279,11 +8282,11 @@ function altar_of_singularity_on_enter(self, target, map){
     var delay = (map_to_use) => {
         var destination = self.location;
         map_to_use.mark_event(destination, black_hole_beginning_mark());
-        map_to_use.add_event({name: event_names.black_hole, behavior: fall(destination)});
+        map_to_use.add_event({name: event_names.black_hole_formation, behavior: fall(destination)});
     }
     // If this is the last altar, wait an extra turn so the lord can summon then move.
     var wait = get_nearest_altar(map, self.location) === undefined ? 2 : 1;
-    map.add_event({name: event_names.black_hole, behavior: delay_event(wait, delay)});
+    map.add_event({name: event_names.black_hole_formation, behavior: delay_event(wait, delay)});
 }
 /** @type {TileGenerator}*/
 function altar_of_space_tile(){
@@ -9499,13 +9502,15 @@ function growth_event(points, root, grown){
 }
 function black_hole_beginning_mark(){
     return {
+        name: event_names.black_hole_formation,
         pic: `${IMG_FOLDER.tiles}black_hole_beginning.png`,
-        description: event_descriptions.black_hole,
+        description: event_descriptions.black_hole_formation,
         telegraph: hazard_telegraph
     };
 }
 function confusion_cloud_mark(){
     return {
+        name: event_names.confusion_cloud,
         pic: `${IMG_FOLDER.tiles}confusion_cloud.png`,
         description: event_descriptions.confusion_cloud,
         telegraph_other: hazard_telegraph
@@ -9513,6 +9518,7 @@ function confusion_cloud_mark(){
 }
 function darkling_rift_mark(){
     return {
+        name: event_names.darkling_rift,
         pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
         description: event_descriptions.darkling_rift,
         telegraph: spider_telegraph
@@ -9520,6 +9526,7 @@ function darkling_rift_mark(){
 }
 function falling_rubble_mark(){
     return {
+        name: event_names.falling_rubble,
         pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
         description: event_descriptions.falling_rubble,
         telegraph: hazard_telegraph
@@ -9527,6 +9534,7 @@ function falling_rubble_mark(){
 }
 function nettle_roots_mark(){
     return {
+        name: event_names.nettle_roots,
         pic: `${IMG_FOLDER.tiles}swaying_nettle_roots.png`,
         description: event_descriptions.nettle_root,
         telegraph: hazard_telegraph
@@ -9534,6 +9542,7 @@ function nettle_roots_mark(){
 }
 function starcaller_rift_mark(){
     return {
+        name: event_names.starfall,
         pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
         description: event_descriptions.starfall,
         telegraph: hazard_telegraph
@@ -9541,6 +9550,7 @@ function starcaller_rift_mark(){
 }
 function sunlight_mark(){
     return {
+        name: event_names.sunlight,
         pic: `${IMG_FOLDER.tiles}sunlight.png`,
         description: event_descriptions.sunlight,
         telegraph: hazard_telegraph
@@ -9548,8 +9558,9 @@ function sunlight_mark(){
 }
 function thorn_roots_mark(){
     return {
+        name: event_names.thorn_roots,
         pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
-        description: event_descriptions.thorn_root,
+        description: event_descriptions.thorn_roots,
         telegraph: hazard_telegraph
     }
 }
@@ -10262,11 +10273,11 @@ function greater_thorn_bush_spell(self, target, map){
     );
     var delayed_func = function(map_to_use){
         map_to_use.add_event({
-            name: event_names.bramble_shield, 
+            name: event_names.thorn_roots, 
             behavior: growth_event(points, thorn_roots_mark(), thorn_bramble_tile)
         });
     };
-    map.add_event({name: event_names.bramble_shield, behavior: delay_event(1, delayed_func)});
+    map.add_event({name: event_names.thorn_roots, behavior: delay_event(1, delayed_func)});
 }
 /** @type {SpellGenerator} */
 function living_tree_spell_generator(){
@@ -10417,7 +10428,7 @@ function swaying_nettle_spell(self, target, map){
         new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
     );
     map.add_event({
-        name: event_names.nettle_shield, 
+        name: event_names.nettle_roots, 
         behavior: growth_event(points, nettle_roots_mark(), swaying_nettle_tile)
     });
 }
@@ -10446,7 +10457,7 @@ function thorn_bush_spell(self, target, map){
         new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
     );
     map.add_event({
-        name: event_names.bramble_shield, 
+        name: event_names.thorn_roots, 
         behavior: growth_event(points, thorn_roots_mark(), thorn_bramble_tile)
     });
 }
@@ -11681,6 +11692,9 @@ class GameMap{
                 }
                 say(description);
                 GS.data.add_tile(tile.name);
+                for(var event of [...space.foreground, ...space.background]){
+                    GS.data.add_tile(event.name);
+                }
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
                 var telegraph_other_spaces = [];

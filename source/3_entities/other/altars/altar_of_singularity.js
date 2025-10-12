@@ -23,9 +23,9 @@ function altar_of_singularity_on_enter(self, target, map){
     var delay = (map_to_use) => {
         var destination = self.location;
         map_to_use.mark_event(destination, black_hole_beginning_mark());
-        map_to_use.add_event({name: event_names.black_hole, behavior: fall(destination)});
+        map_to_use.add_event({name: event_names.black_hole_formation, behavior: fall(destination)});
     }
     // If this is the last altar, wait an extra turn so the lord can summon then move.
     var wait = get_nearest_altar(map, self.location) === undefined ? 2 : 1;
-    map.add_event({name: event_names.black_hole, behavior: delay_event(wait, delay)});
+    map.add_event({name: event_names.black_hole_formation, behavior: delay_event(wait, delay)});
 }

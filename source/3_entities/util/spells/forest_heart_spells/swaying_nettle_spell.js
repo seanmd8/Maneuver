@@ -15,7 +15,7 @@ function swaying_nettle_spell(self, target, map){
         new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
     );
     map.add_event({
-        name: event_names.nettle_shield, 
+        name: event_names.nettle_roots, 
         behavior: growth_event(points, nettle_roots_mark(), swaying_nettle_tile)
     });
 }

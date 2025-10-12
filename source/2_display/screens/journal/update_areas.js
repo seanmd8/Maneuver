@@ -1,5 +1,5 @@
 function update_journal_areas(){
-    for(var i = 0; i < 6; ++i){
+    for(var i = 0; i < 7; ++i){
         display.remove_children(`${UIIDS.journal_areas}${i}`);
     }
     show_area(basic_tiles_display_info(), 0, true);
@@ -12,6 +12,7 @@ function update_journal_areas(){
     show_area(library_display_info(), 4);
     show_area(court_display_info(), 5);
     show_area(assorted_tiles_display_info(), 6, true);
+    show_area(events_display_info(), 6, true);
 }
 
 function show_area(info, depth, force_visited = false){

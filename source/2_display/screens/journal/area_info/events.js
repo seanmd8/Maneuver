@@ -4,13 +4,14 @@ function events_display_info(){
         name: area_names.events,
         background: area.background,
         tiles: [
-            // black_hole_beginning
-            // darkling_rift
-            // falling_rubble
-            // starcaller_rift
-            // sunlight
-            // swaying_nettle_roots
-            // thorn_roots
+            black_hole_beginning_mark,
+            confusion_cloud_mark,
+            darkling_rift_mark,
+            falling_rubble_mark,
+            nettle_roots_mark,
+            starcaller_rift_mark,
+            sunlight_mark,
+            thorn_roots_mark,
         ],
     }
 }

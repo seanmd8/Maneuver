@@ -15,7 +15,7 @@ function thorn_bush_spell(self, target, map){
         new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
     );
     map.add_event({
-        name: event_names.bramble_shield, 
+        name: event_names.thorn_roots, 
         behavior: growth_event(points, thorn_roots_mark(), thorn_bramble_tile)
     });
 }

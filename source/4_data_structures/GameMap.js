@@ -310,6 +310,9 @@ class GameMap{
                 }
                 say(description);
                 GS.data.add_tile(tile.name);
+                for(var event of [...space.foreground, ...space.background]){
+                    GS.data.add_tile(event.name);
+                }
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
                 var telegraph_other_spaces = [];

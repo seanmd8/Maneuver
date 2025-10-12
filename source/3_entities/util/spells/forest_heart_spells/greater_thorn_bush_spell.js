@@ -17,9 +17,9 @@ function greater_thorn_bush_spell(self, target, map){
     );
     var delayed_func = function(map_to_use){
         map_to_use.add_event({
-            name: event_names.bramble_shield, 
+            name: event_names.thorn_roots, 
             behavior: growth_event(points, thorn_roots_mark(), thorn_bramble_tile)
         });
     };
-    map.add_event({name: event_names.bramble_shield, behavior: delay_event(1, delayed_func)});
+    map.add_event({name: event_names.thorn_roots, behavior: delay_event(1, delayed_func)});
 }
