@@ -753,7 +753,7 @@ const boon_descriptions = {
     flame_strike: 
         `Attacking an adjacent empty space has a 1/2 chance of shooting a fireball`,
     flame_worship:
-        `An Altar of Scouring spawns on each non boss floor`,
+        `Two Altars of Scouring spawn on each non boss floor`,
     fleeting_thoughts: 
         `Temporary cards added to your deck will happen instantly.`,
     fortitude: 
@@ -14738,6 +14738,7 @@ function generate_normal_floor(floor_num, area, map){
         }
     }
     if(GS.boons.has(boon_names.flame_worship)){
+        map.spawn_safely(altar_of_scouring_tile(), SAFE_SPAWN_ATTEMPTS, true);
         map.spawn_safely(altar_of_scouring_tile(), SAFE_SPAWN_ATTEMPTS, true);
     }
     var enemy_list = area.enemy_list;

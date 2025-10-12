@@ -90,7 +90,7 @@ const boon_descriptions = {
     flame_strike: 
         `Attacking an adjacent empty space has a 1/2 chance of shooting a fireball`,
     flame_worship:
-        `An Altar of Scouring spawns on each non boss floor`,
+        `Two Altars of Scouring spawn on each non boss floor`,
     fleeting_thoughts: 
         `Temporary cards added to your deck will happen instantly.`,
     fortitude: 
