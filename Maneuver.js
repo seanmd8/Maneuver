@@ -1226,6 +1226,57 @@ const sentry_mode_descriptions = {
     }
 }
 Object.freeze(sentry_mode_descriptions);
+const enemy_names = {
+    acid_bug: `Acid Bug`, 
+    animated_boulder: `Animated Boulder`, 
+    blood_crescent: `Blood Crescent`,
+    brightling: `Brightling`, 
+    captive_void: `Captive Void`, 
+    carrion_flies: `Carrion Flies`, 
+    claustropede_1: `Claustropede x1`,
+    claustropede_2: `Claustropede x2`,
+    claustropede_3: `Claustropede x4`,
+    clay_golem: `Clay Golem`, 
+    corrosive_caterpillar: `Corrosive Caterpillar`, 
+    darkling: `Darkling`, 
+    gem_crawler: `Gem Crawler`, 
+    igneous_crab: `Igneous Crab`, 
+    living_tree: `Living Tree`, 
+    magma_spewer: `Magma Spewer`, 
+    maw: `Maw`,
+    noxious_toad: `Noxious Toad`, 
+    orb_of_insanity: `Orb of Insanity`, 
+    paper_construct: `Paper Construct`, 
+    pheonix: `Pheonix`, 
+    porcuslime_large: `Large Porcuslime`, 
+    porcuslime_medium: `Medium Porcuslime`, 
+    porcuslime_small: `Small Porcuslime`, 
+    ram: `Ram`, 
+    rat: `Rat`, 
+    scorpion: `Scorpion`, 
+    scythe: `Scythe`, 
+    shadow_knight: `Shadow Knight`, 
+    shadow_knight_elite: `Shadow Knight Elite`, 
+    shadow_scout: `Shadow Scout`, 
+    specter: `Specter`, 
+    spider_web: `Spider Web`, 
+    spider: `Spider`, 
+    starcaller: `Starcaller`,
+    strider: `Strider`, 
+    swaying_nettle: `Swaying Nettle`, 
+    thorn_bush: `Thorn Bush`, 
+    turret: `Turret`, 
+    turret_m: `Moving Turret`, 
+    turret_r: `Rotary Turret`, 
+    unspeakable: `Unspeakable`,
+    unstable_wisp: `Unstable Wisp`, 
+    vampire: `Vampire`, 
+    vinesnare_bush: `Vinesnare Bush`, 
+    walking_prism: `Walking Prism`,
+    wheel_of_fire: `Wheel of Fire`,
+}
+Object.freeze(enemy_names);
+
 const enemy_descriptions = {
     acid_bug: 
         `Acid bug: Moves 1 space towards the player. Has no normal attack, but will spray acid `
@@ -1374,57 +1425,6 @@ const enemy_descriptions = {
         +`1 space randomly.`,
 }
 Object.freeze(enemy_descriptions);
-
-const enemy_names = {
-    acid_bug: `Acid Bug`, 
-    animated_boulder: `Animated Boulder`, 
-    blood_crescent: `Blood Crescent`,
-    brightling: `Brightling`, 
-    captive_void: `Captive Void`, 
-    carrion_flies: `Carrion Flies`, 
-    claustropede_1: `Claustropede x1`,
-    claustropede_2: `Claustropede x2`,
-    claustropede_3: `Claustropede x4`,
-    clay_golem: `Clay Golem`, 
-    corrosive_caterpillar: `Corrosive Caterpillar`, 
-    darkling: `Darkling`, 
-    gem_crawler: `Gem Crawler`, 
-    igneous_crab: `Igneous Crab`, 
-    living_tree: `Living Tree`, 
-    magma_spewer: `Magma Spewer`, 
-    maw: `Maw`,
-    noxious_toad: `Noxious Toad`, 
-    orb_of_insanity: `Orb of Insanity`, 
-    paper_construct: `Paper Construct`, 
-    pheonix: `Pheonix`, 
-    porcuslime_large: `Large Porcuslime`, 
-    porcuslime_medium: `Medium Porcuslime`, 
-    porcuslime_small: `Small Porcuslime`, 
-    ram: `Ram`, 
-    rat: `Rat`, 
-    scorpion: `Scorpion`, 
-    scythe: `Scythe`, 
-    shadow_knight: `Shadow Knight`, 
-    shadow_knight_elite: `Shadow Knight Elite`, 
-    shadow_scout: `Shadow Scout`, 
-    specter: `Specter`, 
-    spider_web: `Spider Web`, 
-    spider: `Spider`, 
-    starcaller: `Starcaller`,
-    strider: `Strider`, 
-    swaying_nettle: `Swaying Nettle`, 
-    thorn_bush: `Thorn Bush`, 
-    turret: `Turret`, 
-    turret_m: `Moving Turret`, 
-    turret_r: `Rotary Turret`, 
-    unspeakable: `Unspeakable`,
-    unstable_wisp: `Unstable Wisp`, 
-    vampire: `Vampire`, 
-    vinesnare_bush: `Vinesnare Bush`, 
-    walking_prism: `Walking Prism`,
-    wheel_of_fire: `Wheel of Fire`,
-}
-Object.freeze(enemy_names);
 
 const enemy_flavor = {
     acid_bug: 
@@ -1605,6 +1605,25 @@ const entity_types = {
     terrain: `Terrain`,
 }
 Object.freeze(entity_types);
+const event_names = {
+    black_hole_formation: `Black Hole Formation`,
+    confusion_cloud: `Confusion Cloud`,
+    darkling_rift: `Darkling Rift`,
+    delay: `Delay`,
+    earthquake: `Earthquake`,
+    falling_magma: `Falling Magma`,
+    falling_rubble: `Falling Rubble`,
+    nettle_roots: `Nettle Roots`,
+    spell_announcement: `Spell Announcement`,
+    starfall: `Starfall`,
+    sunlight: `Sunlight`,
+    thorn_roots: `Thorn Roots`,
+    unstun: `Unstun`,
+    wake_up: `Wake Up`,
+    warp: `Spacial Warp`
+}
+Object.freeze(event_names);
+
 const event_descriptions = {
     black_hole_formation:
         `A Black Hole is beginning to form here damaging anything standing here.`,
@@ -1626,25 +1645,35 @@ const event_descriptions = {
         `Watch out, brambles are about to sprout damaging anything standing here.`,
 }
 Object.freeze(event_descriptions);
-
-const event_names = {
-    black_hole_formation: `Black Hole Formation`,
-    confusion_cloud: `Confusion Cloud`,
-    darkling_rift: `Darkling Rift`,
-    delay: `Delay`,
-    earthquake: `Earthquake`,
-    falling_magma: `Falling Magma`,
-    falling_rubble: `Falling Rubble`,
-    nettle_roots: `Nettle Roots`,
-    spell_announcement: `Spell Announcement`,
-    starfall: `Starfall`,
-    sunlight: `Sunlight`,
-    thorn_roots: `Thorn Roots`,
-    unstun: `Unstun`,
-    wake_up: `Wake Up`,
-    warp: `Spacial Warp`
+const other_tile_names = {
+    altar_of_scouring: `Altar of Scouring`,
+    altar_of_shadow: `Altar of Shadow`,
+    altar_of_singularity: `Altar of Singularity`,
+    altar_of_space: `Altar of Space`,
+    altar_of_stars: `Altar of Stars`,
+    altar_of_stasis: `Altar of Stasis`,
+    altar_of_sunlight: `Altar of Sunlight`,
+    black_hole: `Black Hole`,
+    bookshelf: `Bookshelf`,
+    coffin: `Coffin`,
+    corrosive_slime: `Corrosive Slime`,
+    fireball: `Fireball`,
+    fruit_tree_enticing: `Enticing Fruit Tree`,
+    fruit_tree_rotting: `Rotting Fruit Tree`,
+    lava_pool: `Lava Pool`,
+    magmatic_boulder: `Magmatic Boulder`,
+    moon_rock: `Moon Rock`,
+    raging_fire: `Raging Fire`,
+    repulsor: `Repulsor`,
+    sewer_grate: `Sewer Grate`,
+    shatter_sphere: `Shatter Sphere`,
+    smoldering_ashes: `Smoldering Ashes`,
+    thorn_bramble: `Thorn Brambles`,
+    wall: `Wall`,
+    wall_damaged: `Damaged Wall`,
 }
-Object.freeze(event_names);
+Object.freeze(other_tile_names);
+
 const other_tile_descriptions = {
     altar_of_scouring:
         `Altar of Scouring: Activate by moving here. When activated, creates a wall of fireballs along `
@@ -1714,35 +1743,18 @@ const other_tile_descriptions = {
         `Damaged Wall: Something might live inside.`,
 }
 Object.freeze(other_tile_descriptions);
-
-const other_tile_names = {
-    altar_of_scouring: `Altar of Scouring`,
-    altar_of_shadow: `Altar of Shadow`,
-    altar_of_singularity: `Altar of Singularity`,
-    altar_of_space: `Altar of Space`,
-    altar_of_stars: `Altar of Stars`,
-    altar_of_stasis: `Altar of Stasis`,
-    altar_of_sunlight: `Altar of Sunlight`,
-    black_hole: `Black Hole`,
-    bookshelf: `Bookshelf`,
-    coffin: `Coffin`,
-    corrosive_slime: `Corrosive Slime`,
-    fireball: `Fireball`,
-    fruit_tree_enticing: `Enticing Fruit Tree`,
-    fruit_tree_rotting: `Rotting Fruit Tree`,
-    lava_pool: `Lava Pool`,
-    magmatic_boulder: `Magmatic Boulder`,
-    moon_rock: `Moon Rock`,
-    raging_fire: `Raging Fire`,
-    repulsor: `Repulsor`,
-    sewer_grate: `Sewer Grate`,
-    shatter_sphere: `Shatter Sphere`,
-    smoldering_ashes: `Smoldering Ashes`,
-    thorn_bramble: `Thorn Brambles`,
-    wall: `Wall`,
-    wall_damaged: `Damaged Wall`,
+const special_tile_names = {
+    chest: `Chest`,
+    chest_armored: `Armored Chest`,
+    empty: `Empty`,
+    exit: `Exit`,
+    final_exit: `Return Portal`,
+    lock: `Locked Exit`,
+    you: `You`,
+    player: `Player`,
 }
-Object.freeze(other_tile_names);
+Object.freeze(special_tile_names);
+
 const special_tile_descriptions = {
     chest: `Chest: Has something useful inside. Breaking it will destroy the contents. Moving here `
     +`grants you another turn.`,
@@ -1755,18 +1767,6 @@ const special_tile_descriptions = {
     player: `You: Click a card to move.`,
 }
 Object.freeze(special_tile_descriptions);
-
-const special_tile_names = {
-    chest: `Chest`,
-    chest_armored: `Armored Chest`,
-    empty: `Empty`,
-    exit: `Exit`,
-    final_exit: `Return Portal`,
-    lock: `Locked Exit`,
-    you: `You`,
-    player: `Player`,
-}
-Object.freeze(special_tile_names);
 
 const chest_text = {
     header: `Choose up to one reward:`,

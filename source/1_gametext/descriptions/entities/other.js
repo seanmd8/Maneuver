@@ -1,3 +1,32 @@
+const other_tile_names = {
+    altar_of_scouring: `Altar of Scouring`,
+    altar_of_shadow: `Altar of Shadow`,
+    altar_of_singularity: `Altar of Singularity`,
+    altar_of_space: `Altar of Space`,
+    altar_of_stars: `Altar of Stars`,
+    altar_of_stasis: `Altar of Stasis`,
+    altar_of_sunlight: `Altar of Sunlight`,
+    black_hole: `Black Hole`,
+    bookshelf: `Bookshelf`,
+    coffin: `Coffin`,
+    corrosive_slime: `Corrosive Slime`,
+    fireball: `Fireball`,
+    fruit_tree_enticing: `Enticing Fruit Tree`,
+    fruit_tree_rotting: `Rotting Fruit Tree`,
+    lava_pool: `Lava Pool`,
+    magmatic_boulder: `Magmatic Boulder`,
+    moon_rock: `Moon Rock`,
+    raging_fire: `Raging Fire`,
+    repulsor: `Repulsor`,
+    sewer_grate: `Sewer Grate`,
+    shatter_sphere: `Shatter Sphere`,
+    smoldering_ashes: `Smoldering Ashes`,
+    thorn_bramble: `Thorn Brambles`,
+    wall: `Wall`,
+    wall_damaged: `Damaged Wall`,
+}
+Object.freeze(other_tile_names);
+
 const other_tile_descriptions = {
     altar_of_scouring:
         `Altar of Scouring: Activate by moving here. When activated, creates a wall of fireballs along `
@@ -67,32 +96,3 @@ const other_tile_descriptions = {
         `Damaged Wall: Something might live inside.`,
 }
 Object.freeze(other_tile_descriptions);
-
-const other_tile_names = {
-    altar_of_scouring: `Altar of Scouring`,
-    altar_of_shadow: `Altar of Shadow`,
-    altar_of_singularity: `Altar of Singularity`,
-    altar_of_space: `Altar of Space`,
-    altar_of_stars: `Altar of Stars`,
-    altar_of_stasis: `Altar of Stasis`,
-    altar_of_sunlight: `Altar of Sunlight`,
-    black_hole: `Black Hole`,
-    bookshelf: `Bookshelf`,
-    coffin: `Coffin`,
-    corrosive_slime: `Corrosive Slime`,
-    fireball: `Fireball`,
-    fruit_tree_enticing: `Enticing Fruit Tree`,
-    fruit_tree_rotting: `Rotting Fruit Tree`,
-    lava_pool: `Lava Pool`,
-    magmatic_boulder: `Magmatic Boulder`,
-    moon_rock: `Moon Rock`,
-    raging_fire: `Raging Fire`,
-    repulsor: `Repulsor`,
-    sewer_grate: `Sewer Grate`,
-    shatter_sphere: `Shatter Sphere`,
-    smoldering_ashes: `Smoldering Ashes`,
-    thorn_bramble: `Thorn Brambles`,
-    wall: `Wall`,
-    wall_damaged: `Damaged Wall`,
-}
-Object.freeze(other_tile_names);
