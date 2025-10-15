@@ -189,6 +189,7 @@ class GameState{
                         (this.map.is_in_bounds(target) && 
                         this.map.get_tile(target).type !== entity_types.chest)
                     ){
+                        // Do delayed_strike
                         this.map.player_attack(action.change);
                     }
                 }

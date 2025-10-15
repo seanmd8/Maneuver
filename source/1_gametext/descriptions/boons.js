@@ -12,6 +12,7 @@ const boon_names = {
     clean_mind: `Clean Mind`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
+    delayed_strike: `Delayed Strike`,
     duplicate: `Duplicate`,
     empty_rooms: `Empty Rooms`,
     escape_artist: `Escape Artist`,
@@ -23,6 +24,7 @@ const boon_names = {
     frenzy: `Frenzy`,
     frugivore: `Frugivore`,
     future_sight: `Future Sight`,
+    greater_boon: `Greater Boon`,
     gruntwork: `Gruntwork`,
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
@@ -45,6 +47,7 @@ const boon_names = {
     skill_trading: `Skill Trading`,
     slime_trail: `Slime Trail`,
     sniper: `Sniper`,
+    soul_voucher: `Soul Voucher`,
     spiked_shoes: `Spiked Shoes`,
     spontaneous: `Spontaneous`,
     stable_mind: `Stable Mind`,
@@ -79,6 +82,9 @@ const boon_descriptions = {
         `Increase your hand size by 1. Increases minimum deck size by 5.`,
     dazing_blows: 
         `Your attacks stun enemies. Bosses are unaffected.`,
+    delayed_strike:
+        `If you would attack or stun an empty space, delay that action until the end of `
+        +`the next enemy turn. Actions delayed this way can't hit you.`,
     duplicate: 
         `Get a copy of any card in your deck.`,
     empty_rooms: 
@@ -102,6 +108,8 @@ const boon_descriptions = {
         +`for 1, but might attract enemies.`,
     future_sight: 
         `You may look at the order of your deck.`,
+    greater_boon:
+        `Choose to copy a boon you have which is not at it's max amount.`,
     gruntwork: 
         `Gain 3 extra max health. Decrease your hand size by 1.`,
     hoarder: 
@@ -149,6 +157,9 @@ const boon_descriptions = {
         `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`,
     sniper: 
         `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
+    soul_voucher:
+        `Ignore any cost to obtain boons. Each boon chest is guaranteed to have at least 1 boon `
+        +`with a cost.`,
     spiked_shoes: 
         `Attempting to move onto enemies damages them. Reduces your max health by 1.`,
     spontaneous: 
@@ -180,6 +191,8 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must have at least 2 max health and not have Limitless.`,
     fortitude: 
         `Prerequisites: You must not have Limitless.`,
+    greater_boon:
+        `Prerequisites: You must have at least one boon which is not at it's max amount.`,
     gruntwork:
         `Prerequisites: You must not have Limitless.`,
     hoarder:
