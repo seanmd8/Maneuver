@@ -3,6 +3,7 @@ function expend_vitality(){
         name: boon_names.expend_vitality,
         pic: `${IMG_FOLDER.boons}expend_vitality.png`,
         description: boon_descriptions.expend_vitality,
+        cost_description: boon_cost_descriptions.expend_vitality,
         prereq_description: boon_prereq_descriptions.expend_vitality,
         prereq: prereq_expend_vitality,
         on_pick: pick_expend_vitality,
@@ -15,5 +16,8 @@ function prereq_expend_vitality(){
 }
 
 function pick_expend_vitality(){
-    change_max_health(-1);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        change_max_health(-1);
+    }
 }

@@ -66,11 +66,11 @@ const boon_descriptions = {
     bitter_determination: 
         `At the start of each floor, heal 1 if your health is exactly 1.`,
     blood_alchemy:
-        `Take 2 damage, gain 2 max hp.`,
+        `Gain 2 max hp.`,
     boss_slayer: 
         `Bosses start with 2 less hp.`,
     brag_and_boast: 
-        `Add 2 random boss cards and 2 random debuff cards to your deck.`,
+        `Add 2 random boss cards to your deck.`,
     chilly_presence: 
         `Enemies have a 1/6 chance to become stunned at the end of their `
         +`turn. Bosses are not affected.`,
@@ -79,7 +79,7 @@ const boon_descriptions = {
     clean_mind: 
         `Remove any 2 cards from your deck.`,
     creative: 
-        `Increase your hand size by 1. Increases minimum deck size by 5.`,
+        `Increase your hand size by 1.`,
     dazing_blows: 
         `Your attacks stun enemies. Bosses are unaffected.`,
     delayed_strike:
@@ -92,7 +92,7 @@ const boon_descriptions = {
     escape_artist: 
         `Teleport away when attacked.`,
     expend_vitality: 
-        `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
+        `Heal 1 life at the start of each floor.`,
     flame_strike: 
         `Attacking an adjacent empty space has a 1/2 chance of shooting a fireball`,
     flame_worship:
@@ -111,7 +111,7 @@ const boon_descriptions = {
     greater_boon:
         `Choose to copy a boon you have which is not at it's max amount.`,
     gruntwork: 
-        `Gain 3 extra max health. Decrease your hand size by 1.`,
+        `Gain 3 extra max health.`,
     hoarder: 
         `Encounter two chests in each area.`,
     larger_chests: 
@@ -145,12 +145,11 @@ const boon_descriptions = {
     rift_touched: 
         `Two Darklings spawn on each non boss floor.`,
     roar_of_challenge: 
-        `Gain 2 max health. Difficulty increases by 5 floors.`,
+        `Gain 2 max health.`,
     safe_passage: 
         `Fully heal and travel to the next floor.`,
     shattered_glass: 
-        `Enemies and Terrain explode on death damaging everything nearby other than you. Reduce your `
-        +`max health by 2.`,
+        `Enemies and Terrain explode on death damaging everything nearby other than you.`,
     skill_trading: 
         `You may both add a card and remove a card at each shop.`,
     slime_trail: 
@@ -158,13 +157,12 @@ const boon_descriptions = {
     sniper: 
         `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
     soul_voucher:
-        `Ignore any cost to obtain boons. Each boon chest is guaranteed to have at least 1 boon `
-        +`with a cost.`,
+        `Ignore any Cost to obtain new boons. Each boon chest is guaranteed to have at least 1 `
+        +`boon with a cost in it.`,
     spiked_shoes: 
-        `Attempting to move onto enemies damages them. Reduces your max health by 1.`,
+        `Attempting to move onto enemies damages them.`,
     spontaneous: 
-        `After using a non instant card, discard your whole hand. Minimum deck size `
-        +`increased by 5.`,
+        `After using a non instant card, discard your whole hand.`,
     stable_mind: 
         `You gain a 50% chance to resist confusion.`,
     stealthy: 
@@ -177,6 +175,18 @@ const boon_descriptions = {
         `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`,
 }
 Object.freeze(boon_descriptions);
+
+const boon_cost_descriptions = {
+    blood_alchemy: `Cost: Take 2 damage.`,
+    brag_and_boast: `Cost: Add 2 non temporary confusion cards to your deck.`,
+    creative: `Cost: Increase your minimum deck size by 5.`,
+    expend_vitality: `Cost: Decrease your maximum health by 1.`,
+    gruntwork: `Cost: Decrease your hand size by 1.`,
+    roar_of_challenge: `Cost: Increase difficulty by 5 floors.`,
+    shattered_glass: `Cost: Decrease your maximum health by 2.`,
+    spiked_shoes: `Cost: Decrease your maximum health by 1.`,
+    spontaneous: `Cost: Increase your minimum deck size by 5.`,
+}
 
 const boon_prereq_descriptions = {
     none: 
@@ -207,6 +217,8 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must have health less than your max health or have Limitless.`,
     shattered_glass:
         `Prerequisites: You must have at least 3 max health and not have Limitless.`,
+    soul_voucher:
+        `Prerequisites: You must be less than 15 floors deep.`,
     spiked_shoes:
         `Prerequisites: You must have at least 2 max health and not have Limitless.`,
     spontaneous:
@@ -224,5 +236,6 @@ const boon_messages = {
     duplicate: `Choose a card to copy:`,
     practice_makes_perfect: `Your maximum health has increased.`,
     rebirth: `You died, but were brought back to life.`,
+    soul_voucher: `Your voucher will negate the cost.`
 }
 Object.freeze(boon_messages);

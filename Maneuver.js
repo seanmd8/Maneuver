@@ -675,6 +675,7 @@ const boon_names = {
     clean_mind: `Clean Mind`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
+    delayed_strike: `Delayed Strike`,
     duplicate: `Duplicate`,
     empty_rooms: `Empty Rooms`,
     escape_artist: `Escape Artist`,
@@ -686,6 +687,7 @@ const boon_names = {
     frenzy: `Frenzy`,
     frugivore: `Frugivore`,
     future_sight: `Future Sight`,
+    greater_boon: `Greater Boon`,
     gruntwork: `Gruntwork`,
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
@@ -708,6 +710,7 @@ const boon_names = {
     skill_trading: `Skill Trading`,
     slime_trail: `Slime Trail`,
     sniper: `Sniper`,
+    soul_voucher: `Soul Voucher`,
     spiked_shoes: `Spiked Shoes`,
     spontaneous: `Spontaneous`,
     stable_mind: `Stable Mind`,
@@ -726,11 +729,11 @@ const boon_descriptions = {
     bitter_determination: 
         `At the start of each floor, heal 1 if your health is exactly 1.`,
     blood_alchemy:
-        `Take 2 damage, gain 2 max hp.`,
+        `Gain 2 max hp.`,
     boss_slayer: 
         `Bosses start with 2 less hp.`,
     brag_and_boast: 
-        `Add 2 random boss cards and 2 random debuff cards to your deck.`,
+        `Add 2 random boss cards to your deck.`,
     chilly_presence: 
         `Enemies have a 1/6 chance to become stunned at the end of their `
         +`turn. Bosses are not affected.`,
@@ -739,9 +742,12 @@ const boon_descriptions = {
     clean_mind: 
         `Remove any 2 cards from your deck.`,
     creative: 
-        `Increase your hand size by 1. Increases minimum deck size by 5.`,
+        `Increase your hand size by 1.`,
     dazing_blows: 
         `Your attacks stun enemies. Bosses are unaffected.`,
+    delayed_strike:
+        `If you would attack or stun an empty space, delay that action until the end of `
+        +`the next enemy turn. Actions delayed this way can't hit you.`,
     duplicate: 
         `Get a copy of any card in your deck.`,
     empty_rooms: 
@@ -749,7 +755,7 @@ const boon_descriptions = {
     escape_artist: 
         `Teleport away when attacked.`,
     expend_vitality: 
-        `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
+        `Heal 1 life at the start of each floor.`,
     flame_strike: 
         `Attacking an adjacent empty space has a 1/2 chance of shooting a fireball`,
     flame_worship:
@@ -765,8 +771,10 @@ const boon_descriptions = {
         +`for 1, but might attract enemies.`,
     future_sight: 
         `You may look at the order of your deck.`,
+    greater_boon:
+        `Choose to copy a boon you have which is not at it's max amount.`,
     gruntwork: 
-        `Gain 3 extra max health. Decrease your hand size by 1.`,
+        `Gain 3 extra max health.`,
     hoarder: 
         `Encounter two chests in each area.`,
     larger_chests: 
@@ -800,23 +808,24 @@ const boon_descriptions = {
     rift_touched: 
         `Two Darklings spawn on each non boss floor.`,
     roar_of_challenge: 
-        `Gain 2 max health. Difficulty increases by 5 floors.`,
+        `Gain 2 max health.`,
     safe_passage: 
         `Fully heal and travel to the next floor.`,
     shattered_glass: 
-        `Enemies and Terrain explode on death damaging everything nearby other than you. Reduce your `
-        +`max health by 2.`,
+        `Enemies and Terrain explode on death damaging everything nearby other than you.`,
     skill_trading: 
         `You may both add a card and remove a card at each shop.`,
     slime_trail: 
         `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`,
     sniper: 
         `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
+    soul_voucher:
+        `Ignore any Cost to obtain new boons. Each boon chest is guaranteed to have at least 1 `
+        +`boon with a cost in it.`,
     spiked_shoes: 
-        `Attempting to move onto enemies damages them. Reduces your max health by 1.`,
+        `Attempting to move onto enemies damages them.`,
     spontaneous: 
-        `After using a non instant card, discard your whole hand. Minimum deck size `
-        +`increased by 5.`,
+        `After using a non instant card, discard your whole hand.`,
     stable_mind: 
         `You gain a 50% chance to resist confusion.`,
     stealthy: 
@@ -829,6 +838,18 @@ const boon_descriptions = {
         `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`,
 }
 Object.freeze(boon_descriptions);
+
+const boon_cost_descriptions = {
+    blood_alchemy: `Cost: Take 2 damage.`,
+    brag_and_boast: `Cost: Add 2 non temporary confusion cards to your deck.`,
+    creative: `Cost: Increase your minimum deck size by 5.`,
+    expend_vitality: `Cost: Decrease your maximum health by 1.`,
+    gruntwork: `Cost: Decrease your hand size by 1.`,
+    roar_of_challenge: `Cost: Increase difficulty by 5 floors.`,
+    shattered_glass: `Cost: Decrease your maximum health by 2.`,
+    spiked_shoes: `Cost: Decrease your maximum health by 1.`,
+    spontaneous: `Cost: Increase your minimum deck size by 5.`,
+}
 
 const boon_prereq_descriptions = {
     none: 
@@ -843,6 +864,8 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must have at least 2 max health and not have Limitless.`,
     fortitude: 
         `Prerequisites: You must not have Limitless.`,
+    greater_boon:
+        `Prerequisites: You must have at least one boon which is not at it's max amount.`,
     gruntwork:
         `Prerequisites: You must not have Limitless.`,
     hoarder:
@@ -857,6 +880,8 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must have health less than your max health or have Limitless.`,
     shattered_glass:
         `Prerequisites: You must have at least 3 max health and not have Limitless.`,
+    soul_voucher:
+        `Prerequisites: You must be less than 15 floors deep.`,
     spiked_shoes:
         `Prerequisites: You must have at least 2 max health and not have Limitless.`,
     spontaneous:
@@ -874,6 +899,7 @@ const boon_messages = {
     duplicate: `Choose a card to copy:`,
     practice_makes_perfect: `Your maximum health has increased.`,
     rebirth: `You died, but were brought back to life.`,
+    soul_voucher: `Your voucher will negate the cost.`
 }
 Object.freeze(boon_messages);
 const action_types = {
@@ -2298,16 +2324,17 @@ Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
 function explain_boon(boon){
-    return `${boon.name}: ${boon.description}`;
+    var cost = boon.cost_description ? `\n${boon.cost_description}` : ``;
+    return `${boon.name}: ${boon.description}${cost}`;
 }
 function explain_boon_with_picked(boon){
     var description = explain_boon(boon);
-    var picked = ``;
+    var prepayed = GS.boons.has(boon_names.soul_voucher) && boon.cost_description !== undefined ? 
+        `\n${boon_messages.soul_voucher}` : ``;
     var node = GS.data.boons.get_node(boon.name);
-    if(node !== undefined){
-        picked = `${boon_messages.number_picked}: ${node.data.picked}.`
-    }
-    return `${description}\n\n${picked}`;
+    var picked = node !== undefined ? 
+        `\n\n${boon_messages.number_picked}: ${node.data.picked}.` : ``;
+    return `${description}${prepayed}${picked}`;
 }
 function explain_boon_with_stats(boon){
     var description = explain_boon(boon);
@@ -10976,7 +11003,7 @@ class BoonTracker{
         return this.#boons.map(b => {return {
             name: b.name,
             pic: b.pic,
-            on_click: function(){say(b.description)}
+            on_click: function(){say(explain_boon(b))}
         }});
     }
     get_lost(){
@@ -11420,6 +11447,7 @@ class GameMap{
     #grid;
     /** @type {number} Which number floor this is.*/
     #floor_num;
+    #floor_mod;
     /** @type {StatTracker} Tracks various statistics about the game.*/
     stats;
     /** @type {MapEvent[]} Events that will happen at the end of the turn.*/
@@ -11440,6 +11468,7 @@ class GameMap{
         this.#y_max = y_max;
         this.#entity_list = new EntityList();
         this.#floor_num = 0;
+        this.#floor_mod = 0;
         this.stats = new StatTracker();
         this.#events = [];
         this.#area = starting_area;
@@ -12153,9 +12182,7 @@ class GameMap{
         }
         else{
             // Normal floor.
-            var extra_difficulty = 5 * GS.boons.has(boon_names.roar_of_challenge);
-            extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
-            this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
+            this.#area.generate_floor(this.#floor_num + this.#floor_mod, this.#area, this);
         }
         if(floor_has_chest(this.#floor_num % area_size)){
             var chest = appropriate_chest_tile();
@@ -12164,6 +12191,12 @@ class GameMap{
                 var replacement_list = filter_new_boons(GS.boons.get_choices());
                 if(replacement_list.length > 0){
                     choices[0] = random_from(replacement_list);
+                }
+            }
+            if(GS.boons.has(boon_names.soul_voucher) && filter_cost_boons(choices).length === 0){
+                var replacement_list = filter_cost_boons(GS.boons.get_choices());
+                if(replacement_list.length > 0){
+                    choices[1] = random_from(replacement_list);
                 }
             }
             for(var boon of choices){
@@ -12378,6 +12411,9 @@ class GameMap{
     get_floor_num(){
         return this.#floor_num;
     }
+    change_floor_modifier(x){
+        this.#floor_mod += x;
+    }
 }
 
 function grid_space(area){
@@ -12580,6 +12616,7 @@ class GameState{
                         (this.map.is_in_bounds(target) && 
                         this.map.get_tile(target).type !== entity_types.chest)
                     ){
+                        // Do delayed_strike
                         this.map.player_attack(action.change);
                     }
                 }
@@ -17113,9 +17150,9 @@ const BOON_LIST = [
     limitless, manic_presence, pacifism, pain_reflexes, perfect_the_basics, 
     picky_shopper, practice_makes_perfect, pressure_points, quick_healing, rebirth, 
     repetition, retaliate, rift_touched, roar_of_challenge, safe_passage, 
-    shattered_glass, skill_trading, slime_trail, sniper, spiked_shoes, 
-    spontaneous, stable_mind, stealthy, stubborn, thick_soles, 
-    vicious_cycle
+    shattered_glass, skill_trading, slime_trail, sniper, soul_voucher, 
+    spiked_shoes, spontaneous, stable_mind, stealthy, stubborn, 
+    thick_soles, vicious_cycle
 ];
 
 function change_max_health(amount){
@@ -17144,6 +17181,12 @@ function get_locked_boons(){
 function filter_new_boons(boons){
     return boons.filter((b) => {
         return !GS.data.boons.has(b.name);
+    });
+}
+
+function filter_cost_boons(boons){
+    return boons.filter((b) => {
+        return b.cost_description !== undefined;
     });
 }
 function symbol_locked_boon(){
@@ -17200,6 +17243,7 @@ function blood_alchemy(){
         name: boon_names.blood_alchemy,
         pic: `${IMG_FOLDER.boons}blood_alchemy.png`,
         description: boon_descriptions.blood_alchemy,
+        cost_description: boon_cost_descriptions.blood_alchemy,
         prereq_description: boon_prereq_descriptions.blood_alchemy,
         prereq: prereq_blood_alchemy,
         on_pick: pick_blood_alchemy,
@@ -17213,9 +17257,12 @@ function prereq_blood_alchemy(){
 
 function pick_blood_alchemy(){
     change_max_health(2);
-    for(var i = 0; i < 2; ++i){
-        var location = GS.map.get_player_location();
-        GS.map.attack(location);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        for(var i = 0; i < 2; ++i){
+            var location = GS.map.get_player_location();
+            GS.map.attack(location);
+        }
     }
 }
 function boss_slayer(){
@@ -17232,6 +17279,7 @@ function brag_and_boast(){
         name: boon_names.brag_and_boast,
         pic: `${IMG_FOLDER.boons}brag_and_boast.png`,
         description: boon_descriptions.brag_and_boast,
+        cost_description: boon_cost_descriptions.brag_and_boast,
         prereq_description: boon_prereq_descriptions.none,
         on_pick: pick_brag_and_boast,
     }
@@ -17242,8 +17290,13 @@ function pick_brag_and_boast(){
         var boss = random_from(BOSS_LIST)();
         var card = random_from(boss.card_drops)();
         GS.deck.add(card);
-        card = random_from(CONFUSION_CARDS)();
-        GS.deck.add(card);
+    }
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        for(var i = 0; i < 2; ++i){
+            card = random_from(CONFUSION_CARDS)();
+            GS.deck.add(card);
+        }
     }
 }
 function chilly_presence(){
@@ -17298,6 +17351,7 @@ function creative(){
         name: boon_names.creative,
         pic: `${IMG_FOLDER.boons}creative.png`,
         description: boon_descriptions.creative,
+        cost_description: boon_cost_descriptions.creative,
         prereq_description: boon_prereq_descriptions.creative,
         prereq: prereq_creative,
         on_pick: pick_creative,
@@ -17310,10 +17364,13 @@ function prereq_creative(){
 }
 
 function pick_creative(){
-    GS.deck.alter_min(5);
     GS.deck.alter_hand_size(1);
     GS.deck.deal();
     GS.refresh_deck_display();
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.deck.alter_min(5);
+    }
 }
 function dazing_blows(){
     return {
@@ -17323,6 +17380,21 @@ function dazing_blows(){
         prereq_description: boon_prereq_descriptions.none,
         max: 1,
     }
+}
+function delayed_strike(){
+    return {
+        name: boon_names.delayed_strike,
+        pic: `${IMG_FOLDER.boons}delayed_strike.png`,
+        description: boon_descriptions.delayed_strike,
+        max: 1,
+    }
+}
+
+function create_delayed_strike(map, point){
+
+}
+function create_delayed_stun(map, point){
+
 }
 function duplicate(){
     return {
@@ -17344,6 +17416,13 @@ function empty_rooms(){
         pic: `${IMG_FOLDER.boons}empty_rooms.png`,
         description: boon_descriptions.empty_rooms,
         prereq_description: boon_prereq_descriptions.none,
+        on_pick: pick_empty_rooms,
+    }
+}
+function pick_empty_rooms(){
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.map.change_floor_modifier(-3);
     }
 }
 function escape_artist(){
@@ -17367,6 +17446,7 @@ function expend_vitality(){
         name: boon_names.expend_vitality,
         pic: `${IMG_FOLDER.boons}expend_vitality.png`,
         description: boon_descriptions.expend_vitality,
+        cost_description: boon_cost_descriptions.expend_vitality,
         prereq_description: boon_prereq_descriptions.expend_vitality,
         prereq: prereq_expend_vitality,
         on_pick: pick_expend_vitality,
@@ -17379,7 +17459,10 @@ function prereq_expend_vitality(){
 }
 
 function pick_expend_vitality(){
-    change_max_health(-1);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        change_max_health(-1);
+    }
 }
 function flame_strike(){
     return {
@@ -17462,11 +17545,34 @@ function pick_future_sight(){
     });
     SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
 }
+function greater_boon(){
+    return {
+        name: boon_names.greater_boon,
+        pic: `${IMG_FOLDER.boons}greater_boon.png`,
+        description: boon_descriptions.greater_boon,
+        prereq_description: boon_prereq_descriptions.greater_boon,
+        prereq: prereq_greater_boon,
+        on_pick: pick_greater_boon,
+    }
+}
+
+function prereq_greater_boon(){
+    // Filter for @max
+    // Filter for meets prereq
+    // Return remainder > 0
+}
+
+function pick_greater_boon(){
+    // Filter for @max
+    // Filter for meets prereq
+    // Use Deck Select? or put 3-5 choices in new chest screen
+}
 function gruntwork(){
     return {
         name: boon_names.gruntwork,
         pic: `${IMG_FOLDER.boons}gruntwork.png`,
         description: boon_descriptions.gruntwork,
+        cost_description: boon_cost_descriptions.gruntwork,
         prereq_description: boon_prereq_descriptions.gruntwork,
         prereq: prereq_gruntwork,
         on_pick: pick_gruntwork,
@@ -17480,9 +17586,12 @@ function prereq_gruntwork(){
 
 function pick_gruntwork(){
     change_max_health(3);
-    GS.deck.alter_hand_size(-1);
-    GS.deck.deal();
-    GS.refresh_deck_display();
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.deck.alter_hand_size(-1);
+        GS.deck.deal();
+        GS.refresh_deck_display();
+    }
 }
 function hoarder(){
     return {
@@ -17710,6 +17819,7 @@ function roar_of_challenge(){
         name: boon_names.roar_of_challenge,
         pic: `${IMG_FOLDER.boons}roar_of_challenge.png`,
         description: boon_descriptions.roar_of_challenge,
+        cost_description: boon_cost_descriptions.roar_of_challenge,
         prereq_description: boon_prereq_descriptions.roar_of_challenge,
         prereq: prereq_roar_of_challenge,
         on_pick: pick_roar_of_challenge,
@@ -17722,6 +17832,10 @@ function prereq_roar_of_challenge(){
 
 function pick_roar_of_challenge(){
     change_max_health(2);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.map.change_floor_modifier(5);
+    }
 }
 function safe_passage(){
     return {
@@ -17742,6 +17856,7 @@ function shattered_glass(){
         name: boon_names.shattered_glass,
         pic: `${IMG_FOLDER.boons}shattered_glass.png`,
         description: boon_descriptions.shattered_glass,
+        cost_description: boon_cost_descriptions.shattered_glass,
         prereq_description: boon_prereq_descriptions.shattered_glass,
         prereq: prereq_shattered_glass,
         on_pick: on_pick_shattered_glass,
@@ -17754,7 +17869,10 @@ function prereq_shattered_glass(){
 }
 
 function on_pick_shattered_glass(){
-    change_max_health(-2);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        change_max_health(-2);
+    }
 }
 function skill_trading(){
     return {
@@ -17783,11 +17901,26 @@ function sniper(){
         max: 1,
     }
 }
+function soul_voucher(){
+    return {
+        name: boon_names.soul_voucher,
+        pic: `${IMG_FOLDER.boons}soul_voucher.png`,
+        description: boon_descriptions.soul_voucher,
+        prereq_description: boon_prereq_descriptions.soul_voucher,
+        prereq: prereq_soul_voucher,
+        max: 1,
+    }
+}
+
+function prereq_soul_voucher(){
+    return GS.map.get_floor_num() < 15;
+}
 function spiked_shoes(){
     return {
         name: boon_names.spiked_shoes,
         pic: `${IMG_FOLDER.boons}spiked_shoes.png`,
         description: boon_descriptions.spiked_shoes,
+        cost_description: boon_cost_descriptions.spiked_shoes,
         prereq_description: boon_prereq_descriptions.spiked_shoes,
         prereq: prereq_spiked_shoes,
         on_pick: pick_spiked_shoes,
@@ -17800,13 +17933,17 @@ function prereq_spiked_shoes(){
 }
 
 function pick_spiked_shoes(){
-    change_max_health(-1);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        change_max_health(-1);
+    }
 }
 function spontaneous(){
     return {
         name: boon_names.spontaneous,
         pic: `${IMG_FOLDER.boons}spontaneous.png`,
         description: boon_descriptions.spontaneous,
+        cost_description: boon_cost_descriptions.spontaneous,
         prereq_description: boon_prereq_descriptions.spontaneous,
         prereq: prereq_spontaneous,
         on_pick: pick_spontaneous,
@@ -17819,7 +17956,10 @@ function prereq_spontaneous(){
 }
 
 function pick_spontaneous(){
-    GS.deck.alter_min(5);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.deck.alter_min(5);
+    }
 }
 function stable_mind(){
     return {

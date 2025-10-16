@@ -79,7 +79,7 @@ class BoonTracker{
         return this.#boons.map(b => {return {
             name: b.name,
             pic: b.pic,
-            on_click: function(){say(b.description)}
+            on_click: function(){say(explain_boon(b))}
         }});
     }
     get_lost(){

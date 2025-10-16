@@ -3,6 +3,7 @@ function spontaneous(){
         name: boon_names.spontaneous,
         pic: `${IMG_FOLDER.boons}spontaneous.png`,
         description: boon_descriptions.spontaneous,
+        cost_description: boon_cost_descriptions.spontaneous,
         prereq_description: boon_prereq_descriptions.spontaneous,
         prereq: prereq_spontaneous,
         on_pick: pick_spontaneous,
@@ -15,5 +16,8 @@ function prereq_spontaneous(){
 }
 
 function pick_spontaneous(){
-    GS.deck.alter_min(5);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.deck.alter_min(5);
+    }
 }

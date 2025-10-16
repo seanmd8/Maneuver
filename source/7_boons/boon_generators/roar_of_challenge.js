@@ -3,6 +3,7 @@ function roar_of_challenge(){
         name: boon_names.roar_of_challenge,
         pic: `${IMG_FOLDER.boons}roar_of_challenge.png`,
         description: boon_descriptions.roar_of_challenge,
+        cost_description: boon_cost_descriptions.roar_of_challenge,
         prereq_description: boon_prereq_descriptions.roar_of_challenge,
         prereq: prereq_roar_of_challenge,
         on_pick: pick_roar_of_challenge,
@@ -15,4 +16,8 @@ function prereq_roar_of_challenge(){
 
 function pick_roar_of_challenge(){
     change_max_health(2);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.map.change_floor_modifier(5);
+    }
 }

@@ -3,6 +3,7 @@ function blood_alchemy(){
         name: boon_names.blood_alchemy,
         pic: `${IMG_FOLDER.boons}blood_alchemy.png`,
         description: boon_descriptions.blood_alchemy,
+        cost_description: boon_cost_descriptions.blood_alchemy,
         prereq_description: boon_prereq_descriptions.blood_alchemy,
         prereq: prereq_blood_alchemy,
         on_pick: pick_blood_alchemy,
@@ -16,8 +17,11 @@ function prereq_blood_alchemy(){
 
 function pick_blood_alchemy(){
     change_max_health(2);
-    for(var i = 0; i < 2; ++i){
-        var location = GS.map.get_player_location();
-        GS.map.attack(location);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        for(var i = 0; i < 2; ++i){
+            var location = GS.map.get_player_location();
+            GS.map.attack(location);
+        }
     }
 }
