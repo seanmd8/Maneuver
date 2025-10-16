@@ -4,6 +4,9 @@ const gameplay_labels = {
     move: `Moves`,
     retry: `Retry?`,
     hp: `hp`,
+    
+    heart: `Heart`,
+    broken_heart: `Broken Heart`,
 }
 Object.freeze(gameplay_labels);
 
