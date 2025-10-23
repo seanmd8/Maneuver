@@ -695,6 +695,7 @@ const boon_names = {
     manic_presence: `Manic Presence`,
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
+    pandoras_box: `Pandora's Box`,
     perfect_the_basics: `Perfect the Basics`,
     picky_shopper: `Picky Shopper`,
     practice_makes_perfect: `Practice Makes Perfect`,
@@ -789,6 +790,8 @@ const boon_descriptions = {
         +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,
     pain_reflexes: 
         `Take a turn whenever you are attacked.`,
+    pandoras_box:
+        `Gain random boons equal to the cost in max hp.`,
     perfect_the_basics: 
         `Replace all your basic cards with better ones.`,
     picky_shopper: 
@@ -845,6 +848,7 @@ const boon_cost_descriptions = {
     creative: `Cost: Increase your minimum deck size by 5.`,
     expend_vitality: `Cost: Decrease your maximum health by 1.`,
     gruntwork: `Cost: Decrease your hand size by 1.`,
+    pandoras_box: `Cost: Reduce your max health to 1.`,
     roar_of_challenge: `Cost: Increase difficulty by 5 floors.`,
     shattered_glass: `Cost: Decrease your maximum health by 2.`,
     spiked_shoes: `Cost: Decrease your maximum health by 1.`,
@@ -870,6 +874,8 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must not have Limitless.`,
     hoarder:
         `Prerequisites: You must be less than 15 floors deep.`,
+    pandoras_box:
+        `Prerequisited: You must have at least 3 max health and not have Limitless.`,
     perfect_the_basics:
         `Prerequisites: You must have at least 2 basic cards in your deck.`,
     practice_makes_perfect:
@@ -17380,21 +17386,6 @@ function dazing_blows(){
         max: 1,
     }
 }
-function delayed_strike(){
-    return {
-        name: boon_names.delayed_strike,
-        pic: `${IMG_FOLDER.boons}delayed_strike.png`,
-        description: boon_descriptions.delayed_strike,
-        max: 1,
-    }
-}
-
-function create_delayed_strike(map, point){
-
-}
-function create_delayed_stun(map, point){
-
-}
 function duplicate(){
     return {
         name: boon_names.duplicate,
@@ -17543,28 +17534,6 @@ function pick_future_sight(){
         SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
     });
     SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
-}
-function greater_boon(){
-    return {
-        name: boon_names.greater_boon,
-        pic: `${IMG_FOLDER.boons}greater_boon.png`,
-        description: boon_descriptions.greater_boon,
-        prereq_description: boon_prereq_descriptions.greater_boon,
-        prereq: prereq_greater_boon,
-        on_pick: pick_greater_boon,
-    }
-}
-
-function prereq_greater_boon(){
-    // Filter for @max
-    // Filter for meets prereq
-    // Return remainder > 0
-}
-
-function pick_greater_boon(){
-    // Filter for @max
-    // Filter for meets prereq
-    // Use Deck Select? or put 3-5 choices in new chest screen
 }
 function gruntwork(){
     return {
@@ -18010,6 +17979,77 @@ function apply_vicious_cycle(deck){
     for(var i = 0; i < 2; ++i){
         confuse_player([lash_out]);
     }
+}
+function delayed_strike(){
+    return {
+        name: boon_names.delayed_strike,
+        pic: `${IMG_FOLDER.boons}delayed_strike.png`,
+        description: boon_descriptions.delayed_strike,
+        max: 1,
+    }
+}
+
+function create_delayed_strike(map, point){
+
+}
+function create_delayed_stun(map, point){
+
+}
+function greater_boon(){
+    return {
+        name: boon_names.greater_boon,
+        pic: `${IMG_FOLDER.boons}greater_boon.png`,
+        description: boon_descriptions.greater_boon,
+        prereq_description: boon_prereq_descriptions.greater_boon,
+        prereq: prereq_greater_boon,
+        on_pick: pick_greater_boon,
+    }
+}
+
+function prereq_greater_boon(){
+    // Filter for @max
+    // Filter for meets prereq
+    // Return remainder > 0
+}
+
+function pick_greater_boon(){
+    // Filter for @max
+    // Filter for meets prereq
+    // Use Deck Select? or put 3-5 choices in new chest screen
+}
+function pandoras_box(){
+    return {
+        name: boon_names.pandoras_box,
+        pic: `${IMG_FOLDER.boons}pandoras_box.png`,
+        description: boon_descriptions.pandoras_box,
+        cost_description: boon_cost_descriptions.pandoras_box,
+        prereq_description: boon_prereq_descriptions.pandoras_box,
+        prereq: prereq_pandoras_box,
+        on_pick: pick_pandoras_box,
+    }
+}
+
+function prereq_pandoras_box(){
+    return max_health_at_least(2);
+}
+
+function pick_pandoras_box(){
+    var reduction = GS.map.get_player().max_health - 1;
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        change_max_health(-reduction);
+    }
+    for(var i = 0; i < reduction; ++i){
+        var boon = GS.boons.get_choices(1)[0];
+        var go_back = GS.boons.pick(boon.name);
+        return go_back
+    }
+    GS.refresh_boon_display();
+    // note max hp - 1
+    // reduce max hp to 1
+    // For lost hp, gain new boon
+    // catch Safe Passage until the end?
+    // Add norandom field?
 }
 function get_achievements(){
     return [
