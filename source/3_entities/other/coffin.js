@@ -22,7 +22,8 @@ function coffin_tile_death(self, target, map){
     }
     var new_enemy = random_from(self.tile.summons)();
     if(new_enemy.type === entity_types.chest){
-        var cards = rand_no_repeats(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
+        var amount = 1 + 2 * GS.boons.has(boon_names.larger_chests);
+        var cards = rand_no_repeats(self.tile.card_drops, amount);
         for(let card of cards){
             add_card_to_chest(new_enemy, card());
         }

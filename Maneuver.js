@@ -687,7 +687,6 @@ const boon_names = {
     frenzy: `Frenzy`,
     frugivore: `Frugivore`,
     future_sight: `Future Sight`,
-    greater_boon: `Greater Boon`,
     gruntwork: `Gruntwork`,
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
@@ -772,14 +771,12 @@ const boon_descriptions = {
         +`for 1, but might attract enemies.`,
     future_sight: 
         `You may look at the order of your deck.`,
-    greater_boon:
-        `Choose to copy a boon you have which is not at it's max amount.`,
     gruntwork: 
         `Gain 3 extra max health.`,
     hoarder: 
-        `Encounter two chests in each area.`,
+        `Encounter two boon chests in each area. Boon chests have 1 fewer choice.`,
     larger_chests: 
-        `All treasure chests contain 2 additional choices and are invulnerable.`,
+        `All chests contain 2 additional choices and are invulnerable.`,
     limitless: 
         `Remove your max health. Heal for 2. If you would be fully healed, heal `
         +`for 1 instead.`,
@@ -868,8 +865,6 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must have at least 2 max health and not have Limitless.`,
     fortitude: 
         `Prerequisites: You must not have Limitless.`,
-    greater_boon:
-        `Prerequisites: You must have at least one boon which is not at it's max amount.`,
     gruntwork:
         `Prerequisites: You must not have Limitless.`,
     hoarder:
@@ -8587,7 +8582,8 @@ function coffin_tile_death(self, target, map){
     }
     var new_enemy = random_from(self.tile.summons)();
     if(new_enemy.type === entity_types.chest){
-        var cards = rand_no_repeats(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
+        var amount = 1 + 2 * GS.boons.has(boon_names.larger_chests);
+        var cards = rand_no_repeats(self.tile.card_drops, amount);
         for(let card of cards){
             add_card_to_chest(new_enemy, card());
         }
@@ -9361,7 +9357,8 @@ function boss_death(self, target, map){
         // Create a chest containing a random card from it's loot table.
         var chest = appropriate_chest_tile();
         var drops = self.tile.card_drops.map((c) => {return c()});
-        var contents = rand_no_repeats(drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
+        var amount = 1 + 2 * GS.boons.has(boon_names.larger_chests);
+        var contents = rand_no_repeats(drops, amount);
         if(chance(1, 2) && filter_new_cards(contents).length === 0){
             var replace_list = filter_new_cards(drops);
             if(replace_list.length > 0){
@@ -12217,7 +12214,10 @@ class GameMap{
         }
         if(floor_has_chest(this.#floor_num % area_size)){
             var chest = appropriate_chest_tile();
-            var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));
+            var amount = BOON_CHOICES 
+                + 2 * GS.boons.has(boon_names.larger_chests) 
+                - 1 * GS.boons.has(boon_names.hoarder);
+            var choices = GS.boons.get_choices(amount);
             if(chance(1, 2) && filter_new_boons(choices).length === 0){
                 var replacement_list = filter_new_boons(GS.boons.get_choices());
                 if(replacement_list.length > 0){
@@ -17433,6 +17433,33 @@ function dazing_blows(){
         max: 1,
     }
 }
+function delayed_strike(){
+    return {
+        name: boon_names.delayed_strike,
+        pic: `${IMG_FOLDER.boons}delayed_strike.png`,
+        description: boon_descriptions.delayed_strike,
+        max: 1,
+    }
+}
+
+function create_delayed_strike(map, point){
+    var strike = () => {
+        if(!point_equals(map.get_player_location(), point)){
+            map.attack(point);
+        }
+    }
+    map.mark_event(point, delayed_strike_mark(), false);
+    map.add_event({name: event_names.delayed_strike, behavior: strike});
+}
+function create_delayed_stun(map, point){
+    var stun = () => {
+        if(!point_equals(map.get_player_location(), point)){
+            map.stun_tile(point);
+        }
+    }
+    map.mark_event(point, delayed_stun_mark(), false);
+    map.add_event({name: event_names.delayed_stun, behavior: stun});
+}
 function duplicate(){
     return {
         name: boon_names.duplicate,
@@ -18026,55 +18053,6 @@ function apply_vicious_cycle(deck){
     for(var i = 0; i < 2; ++i){
         confuse_player([lash_out]);
     }
-}
-function delayed_strike(){
-    return {
-        name: boon_names.delayed_strike,
-        pic: `${IMG_FOLDER.boons}delayed_strike.png`,
-        description: boon_descriptions.delayed_strike,
-        max: 1,
-    }
-}
-
-function create_delayed_strike(map, point){
-    var strike = () => {
-        if(!point_equals(map.get_player_location(), point)){
-            map.attack(point);
-        }
-    }
-    map.mark_event(point, delayed_strike_mark(), false);
-    map.add_event({name: event_names.delayed_strike, behavior: strike});
-}
-function create_delayed_stun(map, point){
-    var stun = () => {
-        if(!point_equals(map.get_player_location(), point)){
-            map.stun_tile(point);
-        }
-    }
-    map.mark_event(point, delayed_stun_mark(), false);
-    map.add_event({name: event_names.delayed_stun, behavior: stun});
-}
-function greater_boon(){
-    return {
-        name: boon_names.greater_boon,
-        pic: `${IMG_FOLDER.boons}greater_boon.png`,
-        description: boon_descriptions.greater_boon,
-        prereq_description: boon_prereq_descriptions.greater_boon,
-        prereq: prereq_greater_boon,
-        on_pick: pick_greater_boon,
-    }
-}
-
-function prereq_greater_boon(){
-    // Filter for @max
-    // Filter for meets prereq
-    // Return remainder > 0
-}
-
-function pick_greater_boon(){
-    // Filter for @max
-    // Filter for meets prereq
-    // Use Deck Select? or put 3-5 choices in new chest screen
 }
 function pandoras_box(){
     return {
