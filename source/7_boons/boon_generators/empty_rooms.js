@@ -8,8 +8,5 @@ function empty_rooms(){
     }
 }
 function pick_empty_rooms(){
-    var has_voucher = GS.boons.has(boon_names.soul_voucher);
-    if(!has_voucher){
-        GS.map.change_floor_modifier(-3);
-    }
+    GS.map.change_floor_modifier(-3);
 }

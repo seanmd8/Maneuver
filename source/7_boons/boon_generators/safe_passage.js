@@ -5,6 +5,7 @@ function safe_passage(){
         description: boon_descriptions.safe_passage,
         prereq_description: boon_prereq_descriptions.safe_passage,
         prereq: prereq_safe_passage,
+        chest_only: true,
     }
 }
 

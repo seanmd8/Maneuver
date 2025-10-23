@@ -788,7 +788,7 @@ const boon_descriptions = {
     pain_reflexes: 
         `Take a turn whenever you are attacked.`,
     pandoras_box:
-        `Gain random boons equal to the cost in max hp.`,
+        `Gain a number of random boons equal to your current max hp, then reduce your maximum hp to 1.`,
     perfect_the_basics: 
         `Replace all your basic cards with better ones.`,
     picky_shopper: 
@@ -845,7 +845,6 @@ const boon_cost_descriptions = {
     creative: `Cost: Increase your minimum deck size by 5.`,
     expend_vitality: `Cost: Decrease your maximum health by 1.`,
     gruntwork: `Cost: Decrease your hand size by 1.`,
-    pandoras_box: `Cost: Reduce your max health to 1.`,
     roar_of_challenge: `Cost: Increase difficulty by 5 floors.`,
     shattered_glass: `Cost: Decrease your maximum health by 2.`,
     spiked_shoes: `Cost: Decrease your maximum health by 1.`,
@@ -11014,7 +11013,7 @@ class BoonTracker{
                 return true;
             }
         }
-        return false;
+        return true;
     }
     lose(name){
         for(var i = 0; i < this.#boons.length; ++i){
@@ -17200,11 +17199,11 @@ const BOON_LIST = [
     expend_vitality, flame_strike, flame_worship, fleeting_thoughts, fortitude, 
     frenzy, frugivore, future_sight, gruntwork, hoarder, 
     larger_chests, limitless, manic_presence, pacifism, pain_reflexes, 
-    perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, quick_healing, 
-    rebirth, repetition, retaliate, rift_touched, roar_of_challenge, 
-    safe_passage, shattered_glass, skill_trading, slime_trail, sniper, 
-    soul_voucher, spiked_shoes, spontaneous, stable_mind, stealthy, 
-    stubborn, thick_soles, vicious_cycle
+    pandoras_box, perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, 
+    quick_healing, rebirth, repetition, retaliate, rift_touched, 
+    roar_of_challenge, safe_passage, shattered_glass, skill_trading, slime_trail, 
+    sniper, soul_voucher, spiked_shoes, spontaneous, stable_mind, 
+    stealthy, stubborn, thick_soles, vicious_cycle
 ];
 
 function change_max_health(amount){
@@ -17386,6 +17385,7 @@ function clean_mind(){
         prereq_description: boon_prereq_descriptions.clean_mind,
         prereq_clean_mind,
         after_pick: pick_clean_mind,
+        chest_only: true,
     }
 }
 
@@ -17467,6 +17467,7 @@ function duplicate(){
         description: boon_descriptions.duplicate,
         prereq_description: boon_prereq_descriptions.none,
         after_pick: pick_duplicate,
+        chest_only: true,
     }
 }
 
@@ -17484,10 +17485,7 @@ function empty_rooms(){
     }
 }
 function pick_empty_rooms(){
-    var has_voucher = GS.boons.has(boon_names.soul_voucher);
-    if(!has_voucher){
-        GS.map.change_floor_modifier(-3);
-    }
+    GS.map.change_floor_modifier(-3);
 }
 function escape_artist(){
     return {
@@ -17705,6 +17703,33 @@ function pain_reflexes(){
         max: 1,
     }
 }
+function pandoras_box(){
+    return {
+        name: boon_names.pandoras_box,
+        pic: `${IMG_FOLDER.boons}pandoras_box.png`,
+        description: boon_descriptions.pandoras_box,
+        prereq_description: boon_prereq_descriptions.pandoras_box,
+        prereq: prereq_pandoras_box,
+        on_pick: pick_pandoras_box,
+        chest_only: true,
+    }
+}
+
+function prereq_pandoras_box(){
+    return max_health_at_least(2);
+}
+
+function pick_pandoras_box(){
+    var max = GS.map.get_player().max_health;
+    change_max_health(1 - max);
+    for(var i = 0; i < max; ++i){
+        var boon = random_from(GS.boons.get_choices().filter((b) => {
+            return !b.chest_only;
+        }));
+        GS.boons.pick(boon.name);
+    }
+    GS.refresh_boon_display();
+}
 function perfect_the_basics(){
     return {
         name: boon_names.perfect_the_basics,
@@ -17886,6 +17911,7 @@ function safe_passage(){
         description: boon_descriptions.safe_passage,
         prereq_description: boon_prereq_descriptions.safe_passage,
         prereq: prereq_safe_passage,
+        chest_only: true,
     }
 }
 
@@ -18053,40 +18079,6 @@ function apply_vicious_cycle(deck){
     for(var i = 0; i < 2; ++i){
         confuse_player([lash_out]);
     }
-}
-function pandoras_box(){
-    return {
-        name: boon_names.pandoras_box,
-        pic: `${IMG_FOLDER.boons}pandoras_box.png`,
-        description: boon_descriptions.pandoras_box,
-        cost_description: boon_cost_descriptions.pandoras_box,
-        prereq_description: boon_prereq_descriptions.pandoras_box,
-        prereq: prereq_pandoras_box,
-        on_pick: pick_pandoras_box,
-    }
-}
-
-function prereq_pandoras_box(){
-    return max_health_at_least(2);
-}
-
-function pick_pandoras_box(){
-    var reduction = GS.map.get_player().max_health - 1;
-    var has_voucher = GS.boons.has(boon_names.soul_voucher);
-    if(!has_voucher){
-        change_max_health(-reduction);
-    }
-    for(var i = 0; i < reduction; ++i){
-        var boon = GS.boons.get_choices(1)[0];
-        var go_back = GS.boons.pick(boon.name);
-        return go_back
-    }
-    GS.refresh_boon_display();
-    // note max hp - 1
-    // reduce max hp to 1
-    // For lost hp, gain new boon
-    // catch Safe Passage until the end?
-    // Add norandom field?
 }
 function get_achievements(){
     return [

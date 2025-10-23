@@ -125,7 +125,7 @@ const boon_descriptions = {
     pain_reflexes: 
         `Take a turn whenever you are attacked.`,
     pandoras_box:
-        `Gain random boons equal to the cost in max hp.`,
+        `Gain a number of random boons equal to your current max hp, then reduce your maximum hp to 1.`,
     perfect_the_basics: 
         `Replace all your basic cards with better ones.`,
     picky_shopper: 
@@ -182,7 +182,6 @@ const boon_cost_descriptions = {
     creative: `Cost: Increase your minimum deck size by 5.`,
     expend_vitality: `Cost: Decrease your maximum health by 1.`,
     gruntwork: `Cost: Decrease your hand size by 1.`,
-    pandoras_box: `Cost: Reduce your max health to 1.`,
     roar_of_challenge: `Cost: Increase difficulty by 5 floors.`,
     shattered_glass: `Cost: Decrease your maximum health by 2.`,
     spiked_shoes: `Cost: Decrease your maximum health by 1.`,

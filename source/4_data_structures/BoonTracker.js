@@ -62,7 +62,7 @@ class BoonTracker{
                 return true;
             }
         }
-        return false;
+        return true;
     }
     lose(name){
         for(var i = 0; i < this.#boons.length; ++i){
