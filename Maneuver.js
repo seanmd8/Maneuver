@@ -1642,6 +1642,8 @@ const event_names = {
     confusion_cloud: `Confusion Cloud`,
     darkling_rift: `Darkling Rift`,
     delay: `Delay`,
+    delayed_strike: `Delayed Strike`,
+    delayed_stun: `Delayed Stun`,
     earthquake: `Earthquake`,
     falling_magma: `Falling Magma`,
     falling_rubble: `Falling Rubble`,
@@ -1665,6 +1667,10 @@ const event_descriptions = {
     darkling_rift: 
         `If this space isn't blocked, a darkling will teleport here next turn damaging everything `
         +`next to it.`,
+    delayed_strike: 
+        `You will attack this square at end of turn if you are not standing here.`,
+    delayed_stun: 
+        `You will stun this square at end of turn if you are not standing here.`,
     falling_rubble: 
         `Watch out, something is about to fall here damaging anything standing here.`,
     nettle_root: 
@@ -1755,8 +1761,8 @@ const other_tile_descriptions = {
         `Raging Fire: The very ground here is burning. Attempting to move here will hurt. Decays every `
         +`turn and cannot be stunned`,
     repulsor: 
-        `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 3 turns `
-        +`to recharge afterwards.`,
+        `Repulsor: Creates jets of hot air that are capable of pushing away any creatures it senses `
+        +`nearby. After pushing them away or being attacked, it will need to spend 3 turns recharging.`,
     sewer_grate: 
         `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
     shatter_sphere_d:
@@ -8809,21 +8815,24 @@ function repulsor_tile(){
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
-        on_enter: repulsor_push_ai,
-        on_hit: repulsor_push_ai,
+        on_hit: repulsor_hit,
         pic_arr,
         cycle: starting_cycle,
     }
 }
 
 /** @type {AIFunction} Pushes nearby creatures away.*/
-function repulsor_push_ai(self, target, map){
+function repulsor_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle > 0){
-        return;
+        --self.tile.cycle;
+        if(self.tile.cycle === 0){
+            self.tile.pic = self.tile.pic_arr[0];
+        }
+        throw new Error(ERRORS.skip_animation);
     }
     var player_was_moved = false;
     var activated = false;
@@ -8845,6 +8854,7 @@ function repulsor_push_ai(self, target, map){
                         target_space.plus_equals(space);
                     }
                 } catch (error) {
+                    // This is probably less necessary since it now only triggers on it's turn.
                     // Catches ERRORS.pass_turn errors to prevent ping pong between 2.
                     // Catches ERRORS.creature_died errors in case it moves a enemy into lava.
                     if(error.message !== ERRORS.pass_turn && error.message !== ERRORS.creature_died){
@@ -8857,23 +8867,23 @@ function repulsor_push_ai(self, target, map){
     if(player_was_moved){
         throw new Error(ERRORS.pass_turn);
     }
+    if(!activated){
+        throw new Error(ERRORS.skip_animation);
+    }
 }
 
 /** @type {AIFunction} AI used by repulsor.*/
-function repulsor_ai(self, target, map){
+function repulsor_hit(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(self.tile.cycle > 0){
-        --self.tile.cycle;
-        if(self.tile.cycle === 0){
-            self.tile.pic = self.tile.pic_arr[0];
-        }
-        return;
+    if(self.tile.cycle === 0){
+        self.tile.cycle = 3;
+        self.tile.pic = self.tile.pic_arr[1];
     }
-    repulsor_push_ai(self, target, map);
 }
+
 /** @type {TelegraphFunction} */
 function repulsor_telegraph_other(location, map, self){
     if( self.cycle === undefined){
@@ -9554,6 +9564,22 @@ function darkling_rift_mark(){
         pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
         description: event_descriptions.darkling_rift,
         telegraph: spider_telegraph
+    };
+}
+function delayed_strike_mark(){
+    return {
+        name: event_names.delayed_strike,
+        pic: `${IMG_FOLDER.tiles}delayed_strike_mark.png`,
+        description: event_descriptions.delayed_strike,
+        telegraph: hazard_telegraph,
+    };
+}
+function delayed_stun_mark(){
+    return {
+        name: event_names.delayed_stun,
+        pic: `${IMG_FOLDER.tiles}delayed_stun_mark.png`,
+        description: event_descriptions.delayed_stun,
+        telegraph_other: hazard_telegraph,
     };
 }
 function falling_rubble_mark(){
@@ -12585,11 +12611,18 @@ class GameState{
      * @returns {boolean} returns true if the action was instant, false otherwise.
      */
     player_action(action){
+        var p_location = this.map.get_player_location();
+        var target = p_location.plus(action.change);
+        var targets_self = action.change.is_origin();
+        var in_bounds = this.map.is_in_bounds(target);
+        if(in_bounds){
+            var target_tile = this.map.get_tile(target);
+        }
+        var is_empty = this.map.check_empty(target);
         switch(action.type){
             case action_types.attack:
                 var attack_count = 1;
                 var stun_count = 0;
-                var target = this.map.get_player_location().plus(action.change);
                 if(this.boons.has(boon_names.sniper)){
                     var distance = Math.max(Math.abs(action.change.x), Math.abs(action.change.y));
                     attack_count += Math.max(0, distance - 1);
@@ -12599,44 +12632,53 @@ class GameState{
                 }
                 if( // Dazing Blows
                     this.boons.has(boon_names.dazing_blows) && 
-                    !action.change.is_origin() &&
-                    this.map.is_in_bounds(target) &&
-                    !this.map.get_tile(target).tags.has(TAGS.boss)
+                    !targets_self &&
+                    in_bounds &&
+                    !target_tile.tags.has(TAGS.boss)
                 ){
                     stun_count += 1
                 }
                 if( // Pacifism
                     this.boons.has(boon_names.pacifism) > 0 && 
-                    !action.change.is_origin() &&
-                    this.map.is_in_bounds(target) &&
-                    !this.map.get_tile(target).tags.has(TAGS.obstruction)
+                    !targets_self &&
+                    in_bounds &&
+                    !target_tile.tags.has(TAGS.obstruction)
                 ){
                     stun_count += 2 * attack_count;
                     attack_count = 0;
                 }
                 for(var i = 0; i < attack_count; ++i){
-                    var target = this.map.get_player_location().plus(action.change);
+                    target = this.map.get_player_location().plus(action.change);
                     if(
                         i === 0 ||
                         (this.map.is_in_bounds(target) && 
                         this.map.get_tile(target).type !== entity_types.chest)
                     ){
                         // Do delayed_strike
-                        this.map.player_attack(action.change);
+                        if(is_empty && this.boons.has(boon_names.delayed_strike)){
+                            create_delayed_strike(this.map, target);
+                        }
+                        else{
+                            this.map.player_attack(action.change);
+                        }
                     }
                 }
                 for(var i = 0; i < stun_count; ++i){
-                    this.player_action(pstun(action.change.x, action.change.y));
+                    if(is_empty && this.boons.has(boon_names.delayed_strike)){
+                        create_delayed_stun(this.map, target);
+                    }
+                    else{
+                        this.player_action(pstun(action.change.x, action.change.y));
+                    }
                 }
                 break;
             case action_types.move:
-                var previous_location = this.map.get_player_location();
                 var moved = this.map.player_move(action.change);
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
                     this.player_action(pattack(action.change.x, action.change.y));
                 }
                 if(moved && chance(GS.boons.has(boon_names.slime_trail), 2)){
-                    this.map.add_tile(corrosive_slime_tile(), previous_location);
+                    this.map.add_tile(corrosive_slime_tile(), p_location);
                 }
                 break;
             case action_types.teleport:
@@ -12650,7 +12692,12 @@ class GameState{
                 }
                 break;
             case action_types.stun:
-                this.map.player_stun(action.change);
+                if(is_empty && this.boons.has(boon_names.delayed_strike)){
+                    create_delayed_stun(this.map, target);
+                }
+                else{
+                    this.map.player_stun(action.change);
+                }
                 break;
             case action_types.move_until:
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
@@ -17149,15 +17196,15 @@ function filter_new_cards(cards){
 const BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, blood_alchemy, boss_slayer, 
     brag_and_boast, chilly_presence, choose_your_path, clean_mind, creative, 
-    dazing_blows, duplicate, empty_rooms, escape_artist, expend_vitality, 
-    flame_strike, flame_worship, fleeting_thoughts, fortitude, frenzy, 
-    frugivore, future_sight, gruntwork, hoarder, larger_chests, 
-    limitless, manic_presence, pacifism, pain_reflexes, perfect_the_basics, 
-    picky_shopper, practice_makes_perfect, pressure_points, quick_healing, rebirth, 
-    repetition, retaliate, rift_touched, roar_of_challenge, safe_passage, 
-    shattered_glass, skill_trading, slime_trail, sniper, soul_voucher, 
-    spiked_shoes, spontaneous, stable_mind, stealthy, stubborn, 
-    thick_soles, vicious_cycle
+    dazing_blows, delayed_strike, duplicate, empty_rooms, escape_artist, 
+    expend_vitality, flame_strike, flame_worship, fleeting_thoughts, fortitude, 
+    frenzy, frugivore, future_sight, gruntwork, hoarder, 
+    larger_chests, limitless, manic_presence, pacifism, pain_reflexes, 
+    perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, quick_healing, 
+    rebirth, repetition, retaliate, rift_touched, roar_of_challenge, 
+    safe_passage, shattered_glass, skill_trading, slime_trail, sniper, 
+    soul_voucher, spiked_shoes, spontaneous, stable_mind, stealthy, 
+    stubborn, thick_soles, vicious_cycle
 ];
 
 function change_max_health(amount){
@@ -17990,10 +18037,22 @@ function delayed_strike(){
 }
 
 function create_delayed_strike(map, point){
-
+    var strike = () => {
+        if(!point_equals(map.get_player_location(), point)){
+            map.attack(point);
+        }
+    }
+    map.mark_event(point, delayed_strike_mark(), false);
+    map.add_event({name: event_names.delayed_strike, behavior: strike});
 }
 function create_delayed_stun(map, point){
-
+    var stun = () => {
+        if(!point_equals(map.get_player_location(), point)){
+            map.stun_tile(point);
+        }
+    }
+    map.mark_event(point, delayed_stun_mark(), false);
+    map.add_event({name: event_names.delayed_stun, behavior: stun});
 }
 function greater_boon(){
     return {

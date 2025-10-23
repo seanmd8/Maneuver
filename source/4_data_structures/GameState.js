@@ -153,11 +153,18 @@ class GameState{
      * @returns {boolean} returns true if the action was instant, false otherwise.
      */
     player_action(action){
+        var p_location = this.map.get_player_location();
+        var target = p_location.plus(action.change);
+        var targets_self = action.change.is_origin();
+        var in_bounds = this.map.is_in_bounds(target);
+        if(in_bounds){
+            var target_tile = this.map.get_tile(target);
+        }
+        var is_empty = this.map.check_empty(target);
         switch(action.type){
             case action_types.attack:
                 var attack_count = 1;
                 var stun_count = 0;
-                var target = this.map.get_player_location().plus(action.change);
                 if(this.boons.has(boon_names.sniper)){
                     var distance = Math.max(Math.abs(action.change.x), Math.abs(action.change.y));
                     attack_count += Math.max(0, distance - 1);
@@ -167,44 +174,53 @@ class GameState{
                 }
                 if( // Dazing Blows
                     this.boons.has(boon_names.dazing_blows) && 
-                    !action.change.is_origin() &&
-                    this.map.is_in_bounds(target) &&
-                    !this.map.get_tile(target).tags.has(TAGS.boss)
+                    !targets_self &&
+                    in_bounds &&
+                    !target_tile.tags.has(TAGS.boss)
                 ){
                     stun_count += 1
                 }
                 if( // Pacifism
                     this.boons.has(boon_names.pacifism) > 0 && 
-                    !action.change.is_origin() &&
-                    this.map.is_in_bounds(target) &&
-                    !this.map.get_tile(target).tags.has(TAGS.obstruction)
+                    !targets_self &&
+                    in_bounds &&
+                    !target_tile.tags.has(TAGS.obstruction)
                 ){
                     stun_count += 2 * attack_count;
                     attack_count = 0;
                 }
                 for(var i = 0; i < attack_count; ++i){
-                    var target = this.map.get_player_location().plus(action.change);
+                    target = this.map.get_player_location().plus(action.change);
                     if(
                         i === 0 ||
                         (this.map.is_in_bounds(target) && 
                         this.map.get_tile(target).type !== entity_types.chest)
                     ){
                         // Do delayed_strike
-                        this.map.player_attack(action.change);
+                        if(is_empty && this.boons.has(boon_names.delayed_strike)){
+                            create_delayed_strike(this.map, target);
+                        }
+                        else{
+                            this.map.player_attack(action.change);
+                        }
                     }
                 }
                 for(var i = 0; i < stun_count; ++i){
-                    this.player_action(pstun(action.change.x, action.change.y));
+                    if(is_empty && this.boons.has(boon_names.delayed_strike)){
+                        create_delayed_stun(this.map, target);
+                    }
+                    else{
+                        this.player_action(pstun(action.change.x, action.change.y));
+                    }
                 }
                 break;
             case action_types.move:
-                var previous_location = this.map.get_player_location();
                 var moved = this.map.player_move(action.change);
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
                     this.player_action(pattack(action.change.x, action.change.y));
                 }
                 if(moved && chance(GS.boons.has(boon_names.slime_trail), 2)){
-                    this.map.add_tile(corrosive_slime_tile(), previous_location);
+                    this.map.add_tile(corrosive_slime_tile(), p_location);
                 }
                 break;
             case action_types.teleport:
@@ -218,7 +234,12 @@ class GameState{
                 }
                 break;
             case action_types.stun:
-                this.map.player_stun(action.change);
+                if(is_empty && this.boons.has(boon_names.delayed_strike)){
+                    create_delayed_stun(this.map, target);
+                }
+                else{
+                    this.map.player_stun(action.change);
+                }
                 break;
             case action_types.move_until:
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);

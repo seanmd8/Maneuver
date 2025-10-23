@@ -3,6 +3,8 @@ const event_names = {
     confusion_cloud: `Confusion Cloud`,
     darkling_rift: `Darkling Rift`,
     delay: `Delay`,
+    delayed_strike: `Delayed Strike`,
+    delayed_stun: `Delayed Stun`,
     earthquake: `Earthquake`,
     falling_magma: `Falling Magma`,
     falling_rubble: `Falling Rubble`,
@@ -26,6 +28,10 @@ const event_descriptions = {
     darkling_rift: 
         `If this space isn't blocked, a darkling will teleport here next turn damaging everything `
         +`next to it.`,
+    delayed_strike: 
+        `You will attack this square at end of turn if you are not standing here.`,
+    delayed_stun: 
+        `You will stun this square at end of turn if you are not standing here.`,
     falling_rubble: 
         `Watch out, something is about to fall here damaging anything standing here.`,
     nettle_root: 

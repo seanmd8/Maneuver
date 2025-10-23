@@ -76,8 +76,8 @@ const other_tile_descriptions = {
         `Raging Fire: The very ground here is burning. Attempting to move here will hurt. Decays every `
         +`turn and cannot be stunned`,
     repulsor: 
-        `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 3 turns `
-        +`to recharge afterwards.`,
+        `Repulsor: Creates jets of hot air that are capable of pushing away any creatures it senses `
+        +`nearby. After pushing them away or being attacked, it will need to spend 3 turns recharging.`,
     sewer_grate: 
         `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
     shatter_sphere_d:
