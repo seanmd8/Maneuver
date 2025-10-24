@@ -62,6 +62,9 @@ function specter_ai(self, target, map){
 }
 
 function get_specter_moves(current, direction, map){
+    if(direction.is_origin()){
+        return [];
+    }
     var locations = [];
     var last_open = 0;
     for(var i = 0; i < 3; ++i){

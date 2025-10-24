@@ -431,7 +431,30 @@ function point_equals(p1, p2){
 // Initialization settings used for testing.
 function init_settings(){
     const init = {
-        enemies: undefined,
+        enemies: [
+            specter_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+            wall_tile,
+        ],
         spawnpoints: undefined,
         chests: undefined,
         cards: undefined,
@@ -7224,6 +7247,9 @@ function specter_ai(self, target, map){
 }
 
 function get_specter_moves(current, direction, map){
+    if(direction.is_origin()){
+        return [];
+    }
     var locations = [];
     var last_open = 0;
     for(var i = 0; i < 3; ++i){
