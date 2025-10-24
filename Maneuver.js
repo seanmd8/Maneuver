@@ -788,7 +788,7 @@ const boon_descriptions = {
     pain_reflexes: 
         `Take a turn whenever you are attacked.`,
     pandoras_box:
-        `Gain a number of random boons equal to your current max hp, then reduce your maximum hp to 1.`,
+        `Gain a number of random boons equal to your current max hp. Reduce your maximum hp to 1.`,
     perfect_the_basics: 
         `Replace all your basic cards with better ones.`,
     picky_shopper: 
