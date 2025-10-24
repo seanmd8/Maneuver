@@ -7,3 +7,6 @@
 .achievement-unlocked-text {
     background-color: lightblue;
 }
+.achievement-box-unlocked:hover {
+    width: 632px;
+}

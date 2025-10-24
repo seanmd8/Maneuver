@@ -32,7 +32,8 @@ function arcane_node_tile(){
     return{
         type: entity_types.enemy,
         name: boss_names.arcane_sentry_node,
-        pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret`,
+        pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret.png`,
+        display_pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret.png`,
         description: boss_descriptions.arcane_sentry_node,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry, TAGS.controlled, TAGS.unstunnable]),
         health: 5,

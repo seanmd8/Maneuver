@@ -13,11 +13,6 @@ function eternal_earthquake_event(amount){
     }
     var earthquake = function(amount){
         amount = Math.min(amount, FLOOR_HEIGHT * FLOOR_WIDTH * 4/5);
-        var falling_rubble_layer = {
-            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-            description: event_descriptions.falling_rubble,
-            telegraph: hazard_telegraph
-        }
         return function(map_to_use){
             var rubble = [];
             while(rubble.length < amount){
@@ -25,7 +20,7 @@ function eternal_earthquake_event(amount){
                 if(rubble.find((p) => {
                     return point_equals(p, space);
                 }) === undefined){
-                    map_to_use.mark_event(space, falling_rubble_layer);
+                    map_to_use.mark_event(space, falling_rubble_mark());
                     rubble.push(space);
                 }
             }

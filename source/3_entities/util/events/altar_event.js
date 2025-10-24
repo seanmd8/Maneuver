@@ -4,12 +4,6 @@
  * @returns {MapEventFunction} The event.
  */
 function altar_event(destination, altar){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
-        description: event_descriptions.starfall,
-        telegraph: hazard_telegraph
-    }
-
     var summon = function(location){
         return function(map_to_use){
             map_to_use.attack(location);
@@ -20,7 +14,7 @@ function altar_event(destination, altar){
     }
     var rift = function(location){
         return function(map_to_use){
-            map_to_use.mark_event(location, mark);
+            map_to_use.mark_event(location, starcaller_rift_mark());
             map_to_use.add_event({name: altar().name, behavior: summon(location)});
         }
     }

@@ -10,21 +10,24 @@ function repulsor_tile(){
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
-        on_enter: repulsor_push_ai,
-        on_hit: repulsor_push_ai,
+        on_hit: repulsor_hit,
         pic_arr,
         cycle: starting_cycle,
     }
 }
 
 /** @type {AIFunction} Pushes nearby creatures away.*/
-function repulsor_push_ai(self, target, map){
+function repulsor_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle > 0){
-        return;
+        --self.tile.cycle;
+        if(self.tile.cycle === 0){
+            self.tile.pic = self.tile.pic_arr[0];
+        }
+        throw new Error(ERRORS.skip_animation);
     }
     var player_was_moved = false;
     var activated = false;
@@ -46,6 +49,7 @@ function repulsor_push_ai(self, target, map){
                         target_space.plus_equals(space);
                     }
                 } catch (error) {
+                    // This is probably less necessary since it now only triggers on it's turn.
                     // Catches ERRORS.pass_turn errors to prevent ping pong between 2.
                     // Catches ERRORS.creature_died errors in case it moves a enemy into lava.
                     if(error.message !== ERRORS.pass_turn && error.message !== ERRORS.creature_died){
@@ -58,23 +62,23 @@ function repulsor_push_ai(self, target, map){
     if(player_was_moved){
         throw new Error(ERRORS.pass_turn);
     }
+    if(!activated){
+        throw new Error(ERRORS.skip_animation);
+    }
 }
 
 /** @type {AIFunction} AI used by repulsor.*/
-function repulsor_ai(self, target, map){
+function repulsor_hit(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(self.tile.cycle > 0){
-        --self.tile.cycle;
-        if(self.tile.cycle === 0){
-            self.tile.pic = self.tile.pic_arr[0];
-        }
-        return;
+    if(self.tile.cycle === 0){
+        self.tile.cycle = 3;
+        self.tile.pic = self.tile.pic_arr[1];
     }
-    repulsor_push_ai(self, target, map);
 }
+
 /** @type {TelegraphFunction} */
 function repulsor_telegraph_other(location, map, self){
     if( self.cycle === undefined){

@@ -5,7 +5,7 @@
     margin-top: 10px;
 }
 .chest-contents tr td {
-    width: fit-content
+    width: fit-content;
 }
 .chest-contents tr td img {
     background-color: white;

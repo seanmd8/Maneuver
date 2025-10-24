@@ -3,13 +3,13 @@ function assorted_tiles_display_info(){
     return {
         name: area_names.assorted,
         background: area.background,
-        boss: player_tile,
         tiles: [
-            armored_chest_tile,
-            chest_tile,
-            exit_tile,
-            final_exit_tile,
-            lock_tile,
+            ...LORD_SUMMONS,
+            arcane_node_tile,
+            black_hole_tile,
+            living_tree_rooted_tile,
+            rotting_fruit_tree_tile,
+            two_headed_serpent_body_tile,
         ],
     }
 }

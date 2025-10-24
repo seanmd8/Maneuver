@@ -3,6 +3,7 @@ function spiked_shoes(){
         name: boon_names.spiked_shoes,
         pic: `${IMG_FOLDER.boons}spiked_shoes.png`,
         description: boon_descriptions.spiked_shoes,
+        cost_description: boon_cost_descriptions.spiked_shoes,
         prereq_description: boon_prereq_descriptions.spiked_shoes,
         prereq: prereq_spiked_shoes,
         on_pick: pick_spiked_shoes,
@@ -15,5 +16,8 @@ function prereq_spiked_shoes(){
 }
 
 function pick_spiked_shoes(){
-    change_max_health(-1);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        change_max_health(-1);
+    }
 }

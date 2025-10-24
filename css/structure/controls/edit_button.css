@@ -6,7 +6,7 @@
 .control-edit-box div input:hover {
     cursor: pointer;
 }
-.control-edit-box div input:focus-visible{
+.control-edit-box div input:focus-visible {
     outline: none;
 }
 .edit-control {

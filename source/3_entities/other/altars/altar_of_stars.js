@@ -19,11 +19,6 @@ function altar_of_stars_tile(){
 }
 
 function altar_of_stars_on_enter(self, target, map){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
-        description: event_descriptions.starfall,
-        telegraph: hazard_telegraph
-    }
     var fall = function(location){
         return function(map_to_use){
             map_to_use.attack(location);
@@ -40,7 +35,7 @@ function altar_of_stars_on_enter(self, target, map){
             });
             destination = miss ? miss : destination;
         }
-        map_to_use.mark_event(destination, mark);
+        map_to_use.mark_event(destination, starcaller_rift_mark());
         map_to_use.add_event({name: event_names.starfall, behavior: fall(destination)});
     }
     for(var i = 0; i < 3; ++i){

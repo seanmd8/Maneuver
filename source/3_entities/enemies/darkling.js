@@ -32,12 +32,7 @@ function darkling_ai(self, target, map){
     self.tile.direction = map.random_empty();
     var darkling_rift = function(map_to_use){
         if(self.tile.health === undefined || self.tile.health > 0){
-            var rift = {
-                pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
-                description: event_descriptions.darkling_rift,
-                telegraph: spider_telegraph
-            }
-            map_to_use.mark_event(self.tile.direction, rift, false);
+            map_to_use.mark_event(self.tile.direction, darkling_rift_mark(), false);
         }
     }
     map.add_event({name: event_names.darkling_rift, behavior: darkling_rift});

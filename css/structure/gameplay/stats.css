@@ -1,4 +1,4 @@
-.stats{
+.stats {
     display: inline-flex;
     flex-direction: column;
     width: fit-content;
@@ -6,7 +6,7 @@
     margin-left: 4px;
     vertical-align: top;
 }
-.stat-pair{
+.stat-pair {
     display: inline-flex;
     justify-content: space-between;
     width: 60px;
@@ -20,10 +20,10 @@
     margin-bottom: 4px;
     align-items: center;
 }
-.stat-pair img{
+.stat-pair img {
     width: 32px;
     height: 32px;
 }
-.push-down-stats{
+.push-down-stats {
     margin-top: 15px;
 }

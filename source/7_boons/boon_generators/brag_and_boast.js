@@ -3,6 +3,7 @@ function brag_and_boast(){
         name: boon_names.brag_and_boast,
         pic: `${IMG_FOLDER.boons}brag_and_boast.png`,
         description: boon_descriptions.brag_and_boast,
+        cost_description: boon_cost_descriptions.brag_and_boast,
         prereq_description: boon_prereq_descriptions.none,
         on_pick: pick_brag_and_boast,
     }
@@ -13,7 +14,12 @@ function pick_brag_and_boast(){
         var boss = random_from(BOSS_LIST)();
         var card = random_from(boss.card_drops)();
         GS.deck.add(card);
-        card = random_from(CONFUSION_CARDS)();
-        GS.deck.add(card);
+    }
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        for(var i = 0; i < 2; ++i){
+            card = random_from(CONFUSION_CARDS)();
+            GS.deck.add(card);
+        }
     }
 }

@@ -3,6 +3,7 @@ function shattered_glass(){
         name: boon_names.shattered_glass,
         pic: `${IMG_FOLDER.boons}shattered_glass.png`,
         description: boon_descriptions.shattered_glass,
+        cost_description: boon_cost_descriptions.shattered_glass,
         prereq_description: boon_prereq_descriptions.shattered_glass,
         prereq: prereq_shattered_glass,
         on_pick: on_pick_shattered_glass,
@@ -15,5 +16,8 @@ function prereq_shattered_glass(){
 }
 
 function on_pick_shattered_glass(){
-    change_max_health(-2);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        change_max_health(-2);
+    }
 }

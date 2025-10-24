@@ -8,18 +8,14 @@ function display_health(player, scale){
         throw new Error(ERRORS.missing_property);
     }
     var health = [];
+    var hp = {pic: `${IMG_FOLDER.other}heart.png`, name: gameplay_labels.heart};
+    var lost = {pic: `${IMG_FOLDER.other}heart_broken.png`, name: gameplay_labels.broken_heart};
     for(var i = 0; i < player.health; ++i){
-        health.push({
-            pic: `${IMG_FOLDER.other}heart.png`, 
-            name: `heart`
-        });
+        health.push(hp);
     }
     if(player.max_health !== undefined){
         for(var i = 0; i < (player.max_health - player.health); ++i){
-            health.push({
-                pic: `${IMG_FOLDER.other}heart_broken.png`, 
-                name: `broken heart`
-            });
+            health.push(lost);
         }
     }
     display.add_tb_row(UIIDS.health_display, health, scale);

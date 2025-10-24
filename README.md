@@ -9,6 +9,15 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+10/23/25
+- Added 3 new boons.
+- Flame Worship boon now spawns 2 altars.
+- Hoarder boon now reduces future boon choices by 1.
+- Achievements have been moved to the journal and have a slightly new layout.
+- All map tiles and events now appear in the journal.
+- All clickable elements will now change the cursor image when moused over.
+- Cards in the sidebar will now be explained when they are clicked on.
+
 10/10/25
 - Added stats to track total cards added and removed from deck.
 - Pacifism, Spiked Shoes, and Repetition boons are now reflected in card telegraphs.

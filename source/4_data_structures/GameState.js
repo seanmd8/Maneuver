@@ -57,7 +57,7 @@ class GameState{
             add_boon_to_chest(chest, boon());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
-        display_map(this.map);
+        refresh_map(this.map);
         this.map.display_stats();
 
         this.refresh_deck_display();
@@ -104,13 +104,13 @@ class GameState{
             if(GS.boons.has(boon_names.thick_soles)){
                 GS.map.get_player().tags.remove(TAGS.invulnerable);
             }
-            display_map(this.map);
+            refresh_map(this.map);
             await delay(ANIMATION_DELAY);
             if(is_instant){
                 this.refresh_deck_display();
                 this.unlock_player_turn();
                 this.map.display_stats();
-                display_map(this.map);
+                refresh_map(this.map);
                 this.unlock_player_turn();
                 return;
             }
@@ -153,11 +153,18 @@ class GameState{
      * @returns {boolean} returns true if the action was instant, false otherwise.
      */
     player_action(action){
+        var p_location = this.map.get_player_location();
+        var target = p_location.plus(action.change);
+        var targets_self = action.change.is_origin();
+        var in_bounds = this.map.is_in_bounds(target);
+        if(in_bounds){
+            var target_tile = this.map.get_tile(target);
+        }
+        var is_empty = this.map.check_empty(target);
         switch(action.type){
             case action_types.attack:
                 var attack_count = 1;
                 var stun_count = 0;
-                var target = this.map.get_player_location().plus(action.change);
                 if(this.boons.has(boon_names.sniper)){
                     var distance = Math.max(Math.abs(action.change.x), Math.abs(action.change.y));
                     attack_count += Math.max(0, distance - 1);
@@ -167,43 +174,53 @@ class GameState{
                 }
                 if( // Dazing Blows
                     this.boons.has(boon_names.dazing_blows) && 
-                    !action.change.is_origin() &&
-                    this.map.is_in_bounds(target) &&
-                    !this.map.get_tile(target).tags.has(TAGS.boss)
+                    !targets_self &&
+                    in_bounds &&
+                    !target_tile.tags.has(TAGS.boss)
                 ){
                     stun_count += 1
                 }
                 if( // Pacifism
                     this.boons.has(boon_names.pacifism) > 0 && 
-                    !action.change.is_origin() &&
-                    this.map.is_in_bounds(target) &&
-                    !this.map.get_tile(target).tags.has(TAGS.obstruction)
+                    !targets_self &&
+                    in_bounds &&
+                    !target_tile.tags.has(TAGS.obstruction)
                 ){
                     stun_count += 2 * attack_count;
                     attack_count = 0;
                 }
                 for(var i = 0; i < attack_count; ++i){
-                    var target = this.map.get_player_location().plus(action.change);
+                    target = this.map.get_player_location().plus(action.change);
                     if(
                         i === 0 ||
                         (this.map.is_in_bounds(target) && 
                         this.map.get_tile(target).type !== entity_types.chest)
                     ){
-                        this.map.player_attack(action.change);
+                        // Do delayed_strike
+                        if(is_empty && this.boons.has(boon_names.delayed_strike)){
+                            create_delayed_strike(this.map, target);
+                        }
+                        else{
+                            this.map.player_attack(action.change);
+                        }
                     }
                 }
                 for(var i = 0; i < stun_count; ++i){
-                    this.player_action(pstun(action.change.x, action.change.y));
+                    if(is_empty && this.boons.has(boon_names.delayed_strike)){
+                        create_delayed_stun(this.map, target);
+                    }
+                    else{
+                        this.player_action(pstun(action.change.x, action.change.y));
+                    }
                 }
                 break;
             case action_types.move:
-                var previous_location = this.map.get_player_location();
                 var moved = this.map.player_move(action.change);
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
                     this.player_action(pattack(action.change.x, action.change.y));
                 }
                 if(moved && chance(GS.boons.has(boon_names.slime_trail), 2)){
-                    this.map.add_tile(corrosive_slime_tile(), previous_location);
+                    this.map.add_tile(corrosive_slime_tile(), p_location);
                 }
                 break;
             case action_types.teleport:
@@ -217,7 +234,12 @@ class GameState{
                 }
                 break;
             case action_types.stun:
-                this.map.player_stun(action.change);
+                if(is_empty && this.boons.has(boon_names.delayed_strike)){
+                    create_delayed_stun(this.map, target);
+                }
+                else{
+                    this.map.player_stun(action.change);
+                }
                 break;
             case action_types.move_until:
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
@@ -256,7 +278,7 @@ class GameState{
         // Creates the next floor.
         this.map.next_floor();
         this.map.display_stats();
-        display_map(this.map);
+        refresh_map(this.map);
         this.deck.deal();
             if(GS.boons.has(boon_names.vicious_cycle) > 0){
             apply_vicious_cycle(this.deck);
@@ -264,7 +286,7 @@ class GameState{
         this.refresh_deck_display();
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         await delay(ANIMATION_DELAY);
-        display_map(this.map);
+        refresh_map(this.map);
         this.unlock_player_turn();
     }
     /** 
@@ -290,7 +312,7 @@ class GameState{
     game_over(cause){
         // Tells the user the game is over, prevents them from continuing, tells them the cause
         // and gives them the chance to retry.
-        display_map(this.map);
+        refresh_map(this.map);
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
         say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
@@ -316,7 +338,7 @@ class GameState{
         display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.full_deck));
     }
     victory(){
-        display_map(this.map);
+        refresh_map(this.map);
         display_victory();
         this.achieve(achievement_names.victory);
         say_record(gameplay_text.victory);
@@ -344,9 +366,9 @@ class GameState{
      */
     async prep_turn(){
         this.map.resolve_events();
-        display_map(this.map);
+        refresh_map(this.map);
         await delay(ANIMATION_DELAY);
-        display_map(this.map);
+        refresh_map(this.map);
         this.refresh_deck_display();
         this.map.display_stats();
         this.unlock_player_turn();

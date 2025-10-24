@@ -28,6 +28,7 @@ function generate_normal_floor(floor_num, area, map){
     }
     if(GS.boons.has(boon_names.flame_worship)){
         map.spawn_safely(altar_of_scouring_tile(), SAFE_SPAWN_ATTEMPTS, true);
+        map.spawn_safely(altar_of_scouring_tile(), SAFE_SPAWN_ATTEMPTS, true);
     }
     var enemy_list = area.enemy_list;
     for(var i = floor_num * 2; i > 0;){

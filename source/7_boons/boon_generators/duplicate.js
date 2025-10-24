@@ -5,6 +5,7 @@ function duplicate(){
         description: boon_descriptions.duplicate,
         prereq_description: boon_prereq_descriptions.none,
         after_pick: pick_duplicate,
+        chest_only: true,
     }
 }
 

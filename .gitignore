@@ -3,3 +3,7 @@ node_modules/
 
 # File generated for tests
 ManeuverTest.js
+
+# Zipped version with only the necessary files.
+# This is the version used to upload the game ti itch.io.
+Maneuver.zip

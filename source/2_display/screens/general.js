@@ -13,13 +13,6 @@ function create_main_dropdown(location){
             on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
         },
         {
-            label: screen_names.achievements,
-            on_change: () => {
-                update_achievements();
-                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
-            }
-        },
-        {
             label: screen_names.journal,
             on_change: () => {
                 update_journal();

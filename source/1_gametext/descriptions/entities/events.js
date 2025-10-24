@@ -1,11 +1,37 @@
+const event_names = {
+    black_hole_formation: `Black Hole Formation`,
+    confusion_cloud: `Confusion Cloud`,
+    darkling_rift: `Darkling Rift`,
+    delay: `Delay`,
+    delayed_strike: `Delayed Strike`,
+    delayed_stun: `Delayed Stun`,
+    earthquake: `Earthquake`,
+    falling_magma: `Falling Magma`,
+    falling_rubble: `Falling Rubble`,
+    nettle_roots: `Nettle Roots`,
+    spell_announcement: `Spell Announcement`,
+    starfall: `Starfall`,
+    sunlight: `Sunlight`,
+    thorn_roots: `Thorn Roots`,
+    unstun: `Unstun`,
+    wake_up: `Wake Up`,
+    warp: `Spacial Warp`
+}
+Object.freeze(event_names);
+
 const event_descriptions = {
-    black_hole:
+    black_hole_formation:
         `A Black Hole is beginning to form here damaging anything standing here.`,
     confusion_cloud:
-        `A cloud of mind melting magic will confuse or stun everything inside. Lasts 3 turns.`,
+        `A cloud of mind melting magic will confuse or stun anything ending it's turn here. `
+        +`Lasts 3 turns.`,
     darkling_rift: 
         `If this space isn't blocked, a darkling will teleport here next turn damaging everything `
         +`next to it.`,
+    delayed_strike: 
+        `You will attack this square at end of turn if you are not standing here.`,
+    delayed_stun: 
+        `You will stun this square at end of turn if you are not standing here.`,
     falling_rubble: 
         `Watch out, something is about to fall here damaging anything standing here.`,
     nettle_root: 
@@ -14,25 +40,7 @@ const event_descriptions = {
         `Watch out, something is about to be pulled into existence damaging anything standing here.`,
     sunlight:
         `Watch out, this space is about to light on fire damaging anything standing here.`,
-    thorn_root: 
+    thorn_roots: 
         `Watch out, brambles are about to sprout damaging anything standing here.`,
 }
 Object.freeze(event_descriptions);
-
-const event_names = {
-    black_hole: `Black Hole`,
-    bramble_shield: `Bramble Shield`,
-    confusion_cloud: `Confusion Cloud`,
-    darkling_rift: `Darkling Rift`,
-    delay: `Delay`,
-    earthquake: `Earthquake`,
-    falling_magma: `Falling Magma`,
-    falling_rubble: `Falling Rubble`,
-    nettle_shield: `Nettle Shield`,
-    spell_announcement: `Spell Announcement`,
-    starfall: `Starfall`,
-    unstun: `Unstun`,
-    wake_up: `Wake Up`,
-    warp: `Spacial Warp`
-}
-Object.freeze(event_names);

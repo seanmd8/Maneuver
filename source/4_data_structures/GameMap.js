@@ -38,6 +38,7 @@ class GameMap{
     #grid;
     /** @type {number} Which number floor this is.*/
     #floor_num;
+    #floor_mod;
     /** @type {StatTracker} Tracks various statistics about the game.*/
     stats;
     /** @type {MapEvent[]} Events that will happen at the end of the turn.*/
@@ -58,6 +59,7 @@ class GameMap{
         this.#y_max = y_max;
         this.#entity_list = new EntityList();
         this.#floor_num = 0;
+        this.#floor_mod = 0;
         this.stats = new StatTracker();
         this.#events = [];
         this.#area = starting_area;
@@ -310,6 +312,9 @@ class GameMap{
                 }
                 say(description);
                 GS.data.add_tile(tile.name);
+                for(var event of [...space.foreground, ...space.background]){
+                    GS.data.add_tile(event.name);
+                }
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
                 var telegraph_other_spaces = [];
@@ -332,7 +337,7 @@ class GameMap{
                 // Telegraphs possible upcoming attacks and other things.
                 gameMap.mark_telegraph(telegraph_spaces);
                 gameMap.mark_telegraph(telegraph_other_spaces, `${IMG_FOLDER.actions}telegraph_other.png`);
-                display_map(gameMap);
+                refresh_map(gameMap);
                 display.add_class(`${UIIDS.map_display} ${location.y} ${location.x}`, `selected-tile`);
             }
         }
@@ -768,17 +773,24 @@ class GameMap{
         }
         else{
             // Normal floor.
-            var extra_difficulty = 5 * GS.boons.has(boon_names.roar_of_challenge);
-            extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
-            this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
+            this.#area.generate_floor(this.#floor_num + this.#floor_mod, this.#area, this);
         }
         if(floor_has_chest(this.#floor_num % area_size)){
             var chest = appropriate_chest_tile();
-            var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));
+            var amount = BOON_CHOICES 
+                + 2 * GS.boons.has(boon_names.larger_chests) 
+                - 1 * GS.boons.has(boon_names.hoarder);
+            var choices = GS.boons.get_choices(amount);
             if(chance(1, 2) && filter_new_boons(choices).length === 0){
                 var replacement_list = filter_new_boons(GS.boons.get_choices());
                 if(replacement_list.length > 0){
                     choices[0] = random_from(replacement_list);
+                }
+            }
+            if(GS.boons.has(boon_names.soul_voucher) && filter_cost_boons(choices).length === 0){
+                var replacement_list = filter_cost_boons(GS.boons.get_choices());
+                if(replacement_list.length > 0){
+                    choices[1] = random_from(replacement_list);
                 }
             }
             for(var boon of choices){
@@ -992,6 +1004,9 @@ class GameMap{
     }
     get_floor_num(){
         return this.#floor_num;
+    }
+    change_floor_modifier(x){
+        this.#floor_mod += x;
     }
 }
 

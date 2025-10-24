@@ -12,7 +12,7 @@
 .achievement-reset {
     background-color: lightcoral;
 }
-.achievement-reset:hover{
+.achievement-reset:hover {
     background-color: maroon;
     color: lightcoral;
     cursor: pointer;
@@ -20,7 +20,7 @@
 .achievement-confirm-reset {
     background-color: red;
 }
-.achievement-confirm-reset:hover{
+.achievement-confirm-reset:hover {
     background-color: black;
     color: red;
     cursor: pointer;

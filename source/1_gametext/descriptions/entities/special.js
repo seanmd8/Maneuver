@@ -1,3 +1,15 @@
+const special_tile_names = {
+    chest: `Chest`,
+    chest_armored: `Armored Chest`,
+    empty: `Empty`,
+    exit: `Exit`,
+    final_exit: `Return Portal`,
+    lock: `Locked Exit`,
+    you: `You`,
+    player: `Player`,
+}
+Object.freeze(special_tile_names);
+
 const special_tile_descriptions = {
     chest: `Chest: Has something useful inside. Breaking it will destroy the contents. Moving here `
     +`grants you another turn.`,
@@ -10,18 +22,6 @@ const special_tile_descriptions = {
     player: `You: Click a card to move.`,
 }
 Object.freeze(special_tile_descriptions);
-
-const special_tile_names = {
-    chest: `Chest`,
-    chest_armored: `Armored Chest`,
-    empty: `Empty`,
-    exit: `Exit`,
-    final_exit: `Return Portal`,
-    lock: `Locked Exit`,
-    you: `You`,
-    player: `Player`,
-}
-Object.freeze(special_tile_names);
 
 const chest_text = {
     header: `Choose up to one reward:`,

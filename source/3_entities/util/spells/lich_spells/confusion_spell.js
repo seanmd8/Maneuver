@@ -10,11 +10,6 @@ function confusion_spell_generator(){
 
 /** @type {AIFunction} Spell which creates a cloud of confusion gas around the target which lasts for 3 turns.*/
 function confusion_spell(self, target, map){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}confusion_cloud.png`,
-        description: event_descriptions.confusion_cloud,
-        telegraph_other: hazard_telegraph
-    }
     var cloud = function(locations){
         return function(map_to_use){
             for(var location of locations){
@@ -25,7 +20,7 @@ function confusion_spell(self, target, map){
     var delay = (points) => {
         return (map_to_use) => {
             for(var point of points){
-                map_to_use.mark_event(point, mark);
+                map_to_use.mark_event(point, confusion_cloud_mark());
             }
             map_to_use.add_event({name: event_names.confusion_cloud, behavior: cloud(points)});
         }

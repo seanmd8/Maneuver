@@ -516,7 +516,7 @@ const JOURNAL_AREA_WIDTH = 6;
 const VICTORY_IMG_SCALE = TILE_SCALE * FLOOR_HEIGHT + 12;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
-const ANIMATION_DELAY = 160;
+const ANIMATION_DELAY = 200;
 const DECK_DISPLAY_WIDTH = 5;
 const JOURNAL_DISPLAY_WIDTH = 10;
 const TEXT_WRAP_WIDTH = 90;
@@ -656,7 +656,9 @@ const area_names = {
     
     default: `Post Game Area`,
     unknown: `Unknown`,
-    assorted: `Assorted`
+    basic: `Basic Tiles`,
+    assorted: `Assorted Tiles`,
+    events: `Events`,
 }
 Object.freeze(area_names);
 const boon_names = {
@@ -673,6 +675,7 @@ const boon_names = {
     clean_mind: `Clean Mind`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
+    delayed_strike: `Delayed Strike`,
     duplicate: `Duplicate`,
     empty_rooms: `Empty Rooms`,
     escape_artist: `Escape Artist`,
@@ -691,6 +694,7 @@ const boon_names = {
     manic_presence: `Manic Presence`,
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
+    pandoras_box: `Pandora's Box`,
     perfect_the_basics: `Perfect the Basics`,
     picky_shopper: `Picky Shopper`,
     practice_makes_perfect: `Practice Makes Perfect`,
@@ -706,6 +710,7 @@ const boon_names = {
     skill_trading: `Skill Trading`,
     slime_trail: `Slime Trail`,
     sniper: `Sniper`,
+    soul_voucher: `Soul Voucher`,
     spiked_shoes: `Spiked Shoes`,
     spontaneous: `Spontaneous`,
     stable_mind: `Stable Mind`,
@@ -724,11 +729,11 @@ const boon_descriptions = {
     bitter_determination: 
         `At the start of each floor, heal 1 if your health is exactly 1.`,
     blood_alchemy:
-        `Take 2 damage, gain 2 max hp.`,
+        `Gain 2 max hp.`,
     boss_slayer: 
         `Bosses start with 2 less hp.`,
     brag_and_boast: 
-        `Add 2 random boss cards and 2 random debuff cards to your deck.`,
+        `Add 2 random boss cards to your deck.`,
     chilly_presence: 
         `Enemies have a 1/6 chance to become stunned at the end of their `
         +`turn. Bosses are not affected.`,
@@ -737,9 +742,12 @@ const boon_descriptions = {
     clean_mind: 
         `Remove any 2 cards from your deck.`,
     creative: 
-        `Increase your hand size by 1. Increases minimum deck size by 5.`,
+        `Increase your hand size by 1.`,
     dazing_blows: 
         `Your attacks stun enemies. Bosses are unaffected.`,
+    delayed_strike:
+        `If you would attack or stun an empty space, delay that action until the end of `
+        +`the next enemy turn. Actions delayed this way can't hit you.`,
     duplicate: 
         `Get a copy of any card in your deck.`,
     empty_rooms: 
@@ -747,11 +755,11 @@ const boon_descriptions = {
     escape_artist: 
         `Teleport away when attacked.`,
     expend_vitality: 
-        `Heal 1 life at the start of each floor. Your max health is decreased by 1.`,
+        `Heal 1 life at the start of each floor.`,
     flame_strike: 
         `Attacking an adjacent empty space has a 1/2 chance of shooting a fireball`,
     flame_worship:
-        `An Altar of Scouring spawns on each non boss floor`,
+        `Two Altars of Scouring spawn on each non boss floor`,
     fleeting_thoughts: 
         `Temporary cards added to your deck will happen instantly.`,
     fortitude: 
@@ -764,11 +772,11 @@ const boon_descriptions = {
     future_sight: 
         `You may look at the order of your deck.`,
     gruntwork: 
-        `Gain 3 extra max health. Decrease your hand size by 1.`,
+        `Gain 3 extra max health.`,
     hoarder: 
-        `Encounter two chests in each area.`,
+        `Encounter two boon chests in each area. Boon chests have 1 fewer choice.`,
     larger_chests: 
-        `All treasure chests contain 2 additional choices and are invulnerable.`,
+        `All chests contain 2 additional choices and are invulnerable.`,
     limitless: 
         `Remove your max health. Heal for 2. If you would be fully healed, heal `
         +`for 1 instead.`,
@@ -779,6 +787,8 @@ const boon_descriptions = {
         +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,
     pain_reflexes: 
         `Take a turn whenever you are attacked.`,
+    pandoras_box:
+        `Gain a number of random boons equal to your current max hp. Reduce your maximum hp to 1.`,
     perfect_the_basics: 
         `Replace all your basic cards with better ones.`,
     picky_shopper: 
@@ -798,23 +808,24 @@ const boon_descriptions = {
     rift_touched: 
         `Two Darklings spawn on each non boss floor.`,
     roar_of_challenge: 
-        `Gain 2 max health. Difficulty increases by 5 floors.`,
+        `Gain 2 max health.`,
     safe_passage: 
         `Fully heal and travel to the next floor.`,
     shattered_glass: 
-        `Enemies and Terrain explode on death damaging everything nearby other than you. Reduce your `
-        +`max health by 2.`,
+        `Enemies and Terrain explode on death damaging everything nearby other than you.`,
     skill_trading: 
         `You may both add a card and remove a card at each shop.`,
     slime_trail: 
         `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`,
     sniper: 
         `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
+    soul_voucher:
+        `Ignore any Cost to obtain new boons. Each boon chest is guaranteed to have at least 1 `
+        +`boon with a cost in it.`,
     spiked_shoes: 
-        `Attempting to move onto enemies damages them. Reduces your max health by 1.`,
+        `Attempting to move onto enemies damages them.`,
     spontaneous: 
-        `After using a non instant card, discard your whole hand. Minimum deck size `
-        +`increased by 5.`,
+        `After using a non instant card, discard your whole hand.`,
     stable_mind: 
         `You gain a 50% chance to resist confusion.`,
     stealthy: 
@@ -827,6 +838,18 @@ const boon_descriptions = {
         `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`,
 }
 Object.freeze(boon_descriptions);
+
+const boon_cost_descriptions = {
+    blood_alchemy: `Cost: Take 2 damage.`,
+    brag_and_boast: `Cost: Add 2 non temporary confusion cards to your deck.`,
+    creative: `Cost: Increase your minimum deck size by 5.`,
+    expend_vitality: `Cost: Decrease your maximum health by 1.`,
+    gruntwork: `Cost: Decrease your hand size by 1.`,
+    roar_of_challenge: `Cost: Increase difficulty by 5 floors.`,
+    shattered_glass: `Cost: Decrease your maximum health by 2.`,
+    spiked_shoes: `Cost: Decrease your maximum health by 1.`,
+    spontaneous: `Cost: Increase your minimum deck size by 5.`,
+}
 
 const boon_prereq_descriptions = {
     none: 
@@ -845,6 +868,8 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must not have Limitless.`,
     hoarder:
         `Prerequisites: You must be less than 15 floors deep.`,
+    pandoras_box:
+        `Prerequisited: You must have at least 3 max health and not have Limitless.`,
     perfect_the_basics:
         `Prerequisites: You must have at least 2 basic cards in your deck.`,
     practice_makes_perfect:
@@ -855,6 +880,8 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must have health less than your max health or have Limitless.`,
     shattered_glass:
         `Prerequisites: You must have at least 3 max health and not have Limitless.`,
+    soul_voucher:
+        `Prerequisites: You must be less than 15 floors deep.`,
     spiked_shoes:
         `Prerequisites: You must have at least 2 max health and not have Limitless.`,
     spontaneous:
@@ -872,6 +899,7 @@ const boon_messages = {
     duplicate: `Choose a card to copy:`,
     practice_makes_perfect: `Your maximum health has increased.`,
     rebirth: `You died, but were brought back to life.`,
+    soul_voucher: `Your voucher will negate the cost.`
 }
 Object.freeze(boon_messages);
 const action_types = {
@@ -1224,6 +1252,57 @@ const sentry_mode_descriptions = {
     }
 }
 Object.freeze(sentry_mode_descriptions);
+const enemy_names = {
+    acid_bug: `Acid Bug`, 
+    animated_boulder: `Animated Boulder`, 
+    blood_crescent: `Blood Crescent`,
+    brightling: `Brightling`, 
+    captive_void: `Captive Void`, 
+    carrion_flies: `Carrion Flies`, 
+    claustropede_1: `Claustropede x1`,
+    claustropede_2: `Claustropede x2`,
+    claustropede_3: `Claustropede x4`,
+    clay_golem: `Clay Golem`, 
+    corrosive_caterpillar: `Corrosive Caterpillar`, 
+    darkling: `Darkling`, 
+    gem_crawler: `Gem Crawler`, 
+    igneous_crab: `Igneous Crab`, 
+    living_tree: `Living Tree`, 
+    magma_spewer: `Magma Spewer`, 
+    maw: `Maw`,
+    noxious_toad: `Noxious Toad`, 
+    orb_of_insanity: `Orb of Insanity`, 
+    paper_construct: `Paper Construct`, 
+    pheonix: `Pheonix`, 
+    porcuslime_large: `Large Porcuslime`, 
+    porcuslime_medium: `Medium Porcuslime`, 
+    porcuslime_small: `Small Porcuslime`, 
+    ram: `Ram`, 
+    rat: `Rat`, 
+    scorpion: `Scorpion`, 
+    scythe: `Scythe`, 
+    shadow_knight: `Shadow Knight`, 
+    shadow_knight_elite: `Shadow Knight Elite`, 
+    shadow_scout: `Shadow Scout`, 
+    specter: `Specter`, 
+    spider_web: `Spider Web`, 
+    spider: `Spider`, 
+    starcaller: `Starcaller`,
+    strider: `Strider`, 
+    swaying_nettle: `Swaying Nettle`, 
+    thorn_bush: `Thorn Bush`, 
+    turret: `Turret`, 
+    turret_m: `Moving Turret`, 
+    turret_r: `Rotary Turret`, 
+    unspeakable: `Unspeakable`,
+    unstable_wisp: `Unstable Wisp`, 
+    vampire: `Vampire`, 
+    vinesnare_bush: `Vinesnare Bush`, 
+    walking_prism: `Walking Prism`,
+    wheel_of_fire: `Wheel of Fire`,
+}
+Object.freeze(enemy_names);
+
 const enemy_descriptions = {
     acid_bug: 
         `Acid bug: Moves 1 space towards the player. Has no normal attack, but will spray acid `
@@ -1372,57 +1451,6 @@ const enemy_descriptions = {
         +`1 space randomly.`,
 }
 Object.freeze(enemy_descriptions);
-
-const enemy_names = {
-    acid_bug: `Acid Bug`, 
-    animated_boulder: `Animated Boulder`, 
-    blood_crescent: `Blood Crescent`,
-    brightling: `Brightling`, 
-    captive_void: `Captive Void`, 
-    carrion_flies: `Carrion Flies`, 
-    claustropede_1: `Claustropede x1`,
-    claustropede_2: `Claustropede x2`,
-    claustropede_3: `Claustropede x4`,
-    clay_golem: `Clay Golem`, 
-    corrosive_caterpillar: `Corrosive Caterpillar`, 
-    darkling: `Darkling`, 
-    gem_crawler: `Gem Crawler`, 
-    igneous_crab: `Igneous Crab`, 
-    living_tree: `Living Tree`, 
-    magma_spewer: `Magma Spewer`, 
-    maw: `Maw`,
-    noxious_toad: `Noxious Toad`, 
-    orb_of_insanity: `Orb of Insanity`, 
-    paper_construct: `Paper Construct`, 
-    pheonix: `Pheonix`, 
-    porcuslime_large: `Large Porcuslime`, 
-    porcuslime_medium: `Medium Porcuslime`, 
-    porcuslime_small: `Small Porcuslime`, 
-    ram: `Ram`, 
-    rat: `Rat`, 
-    scorpion: `Scorpion`, 
-    scythe: `Scythe`, 
-    shadow_knight: `Shadow Knight`, 
-    shadow_knight_elite: `Shadow Knight Elite`, 
-    shadow_scout: `Shadow Scout`, 
-    specter: `Specter`, 
-    spider_web: `Spider Web`, 
-    spider: `Spider`, 
-    starcaller: `Starcaller`,
-    strider: `Strider`, 
-    swaying_nettle: `Swaying Nettle`, 
-    thorn_bush: `Thorn Bush`, 
-    turret: `Turret`, 
-    turret_m: `Moving Turret`, 
-    turret_r: `Rotary Turret`, 
-    unspeakable: `Unspeakable`,
-    unstable_wisp: `Unstable Wisp`, 
-    vampire: `Vampire`, 
-    vinesnare_bush: `Vinesnare Bush`, 
-    walking_prism: `Walking Prism`,
-    wheel_of_fire: `Wheel of Fire`,
-}
-Object.freeze(enemy_names);
 
 const enemy_flavor = {
     acid_bug: 
@@ -1603,14 +1631,40 @@ const entity_types = {
     terrain: `Terrain`,
 }
 Object.freeze(entity_types);
+const event_names = {
+    black_hole_formation: `Black Hole Formation`,
+    confusion_cloud: `Confusion Cloud`,
+    darkling_rift: `Darkling Rift`,
+    delay: `Delay`,
+    delayed_strike: `Delayed Strike`,
+    delayed_stun: `Delayed Stun`,
+    earthquake: `Earthquake`,
+    falling_magma: `Falling Magma`,
+    falling_rubble: `Falling Rubble`,
+    nettle_roots: `Nettle Roots`,
+    spell_announcement: `Spell Announcement`,
+    starfall: `Starfall`,
+    sunlight: `Sunlight`,
+    thorn_roots: `Thorn Roots`,
+    unstun: `Unstun`,
+    wake_up: `Wake Up`,
+    warp: `Spacial Warp`
+}
+Object.freeze(event_names);
+
 const event_descriptions = {
-    black_hole:
+    black_hole_formation:
         `A Black Hole is beginning to form here damaging anything standing here.`,
     confusion_cloud:
-        `A cloud of mind melting magic will confuse or stun everything inside. Lasts 3 turns.`,
+        `A cloud of mind melting magic will confuse or stun anything ending it's turn here. `
+        +`Lasts 3 turns.`,
     darkling_rift: 
         `If this space isn't blocked, a darkling will teleport here next turn damaging everything `
         +`next to it.`,
+    delayed_strike: 
+        `You will attack this square at end of turn if you are not standing here.`,
+    delayed_stun: 
+        `You will stun this square at end of turn if you are not standing here.`,
     falling_rubble: 
         `Watch out, something is about to fall here damaging anything standing here.`,
     nettle_root: 
@@ -1619,28 +1673,39 @@ const event_descriptions = {
         `Watch out, something is about to be pulled into existence damaging anything standing here.`,
     sunlight:
         `Watch out, this space is about to light on fire damaging anything standing here.`,
-    thorn_root: 
+    thorn_roots: 
         `Watch out, brambles are about to sprout damaging anything standing here.`,
 }
 Object.freeze(event_descriptions);
-
-const event_names = {
+const other_tile_names = {
+    altar_of_scouring: `Altar of Scouring`,
+    altar_of_shadow: `Altar of Shadow`,
+    altar_of_singularity: `Altar of Singularity`,
+    altar_of_space: `Altar of Space`,
+    altar_of_stars: `Altar of Stars`,
+    altar_of_stasis: `Altar of Stasis`,
+    altar_of_sunlight: `Altar of Sunlight`,
     black_hole: `Black Hole`,
-    bramble_shield: `Bramble Shield`,
-    confusion_cloud: `Confusion Cloud`,
-    darkling_rift: `Darkling Rift`,
-    delay: `Delay`,
-    earthquake: `Earthquake`,
-    falling_magma: `Falling Magma`,
-    falling_rubble: `Falling Rubble`,
-    nettle_shield: `Nettle Shield`,
-    spell_announcement: `Spell Announcement`,
-    starfall: `Starfall`,
-    unstun: `Unstun`,
-    wake_up: `Wake Up`,
-    warp: `Spacial Warp`
+    bookshelf: `Bookshelf`,
+    coffin: `Coffin`,
+    corrosive_slime: `Corrosive Slime`,
+    fireball: `Fireball`,
+    fruit_tree_enticing: `Enticing Fruit Tree`,
+    fruit_tree_rotting: `Rotting Fruit Tree`,
+    lava_pool: `Lava Pool`,
+    magmatic_boulder: `Magmatic Boulder`,
+    moon_rock: `Moon Rock`,
+    raging_fire: `Raging Fire`,
+    repulsor: `Repulsor`,
+    sewer_grate: `Sewer Grate`,
+    shatter_sphere: `Shatter Sphere`,
+    smoldering_ashes: `Smoldering Ashes`,
+    thorn_bramble: `Thorn Brambles`,
+    wall: `Wall`,
+    wall_damaged: `Damaged Wall`,
 }
-Object.freeze(event_names);
+Object.freeze(other_tile_names);
+
 const other_tile_descriptions = {
     altar_of_scouring:
         `Altar of Scouring: Activate by moving here. When activated, creates a wall of fireballs along `
@@ -1690,8 +1755,8 @@ const other_tile_descriptions = {
         `Raging Fire: The very ground here is burning. Attempting to move here will hurt. Decays every `
         +`turn and cannot be stunned`,
     repulsor: 
-        `Repulsor: Pushes nearby creatures away by 2 spaces on it's turn or if touched. Takes 3 turns `
-        +`to recharge afterwards.`,
+        `Repulsor: Creates jets of hot air that are capable of pushing away any creatures it senses `
+        +`nearby. After pushing them away or being attacked, it will need to spend 3 turns recharging.`,
     sewer_grate: 
         `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
     shatter_sphere_d:
@@ -1710,35 +1775,18 @@ const other_tile_descriptions = {
         `Damaged Wall: Something might live inside.`,
 }
 Object.freeze(other_tile_descriptions);
-
-const other_tile_names = {
-    altar_of_scouring: `Altar of Scouring`,
-    altar_of_shadow: `Altar of Shadow`,
-    altar_of_singularity: `Altar of Singularity`,
-    altar_of_space: `Altar of Space`,
-    altar_of_stars: `Altar of Stars`,
-    altar_of_stasis: `Altar of Stasis`,
-    altar_of_sunlight: `Altar of Sunlight`,
-    black_hole: `Black Hole`,
-    bookshelf: `Bookshelf`,
-    coffin: `Coffin`,
-    corrosive_slime: `Corrosive Slime`,
-    fireball: `Fireball`,
-    fruit_tree_enticing: `Enticing Fruit Tree`,
-    fruit_tree_rotting: `Rotting Fruit Tree`,
-    lava_pool: `Lava Pool`,
-    magmatic_boulder: `Magmatic Boulder`,
-    moon_rock: `Moon Rock`,
-    raging_fire: `Raging Fire`,
-    repulsor: `Repulsor`,
-    sewer_grate: `Sewer Grate`,
-    shatter_sphere: `Shatter Sphere`,
-    smoldering_ashes: `Smoldering Ashes`,
-    thorn_bramble: `Thorn Brambles`,
-    wall: `Wall`,
-    wall_damaged: `Damaged Wall`,
+const special_tile_names = {
+    chest: `Chest`,
+    chest_armored: `Armored Chest`,
+    empty: `Empty`,
+    exit: `Exit`,
+    final_exit: `Return Portal`,
+    lock: `Locked Exit`,
+    you: `You`,
+    player: `Player`,
 }
-Object.freeze(other_tile_names);
+Object.freeze(special_tile_names);
+
 const special_tile_descriptions = {
     chest: `Chest: Has something useful inside. Breaking it will destroy the contents. Moving here `
     +`grants you another turn.`,
@@ -1751,18 +1799,6 @@ const special_tile_descriptions = {
     player: `You: Click a card to move.`,
 }
 Object.freeze(special_tile_descriptions);
-
-const special_tile_names = {
-    chest: `Chest`,
-    chest_armored: `Armored Chest`,
-    empty: `Empty`,
-    exit: `Exit`,
-    final_exit: `Return Portal`,
-    lock: `Locked Exit`,
-    you: `You`,
-    player: `Player`,
-}
-Object.freeze(special_tile_names);
 
 const chest_text = {
     header: `Choose up to one reward:`,
@@ -1944,6 +1980,9 @@ const gameplay_labels = {
     move: `Moves`,
     retry: `Retry?`,
     hp: `hp`,
+    
+    heart: `Heart`,
+    broken_heart: `Broken Heart`,
 }
 Object.freeze(gameplay_labels);
 
@@ -2141,12 +2180,12 @@ const journal_navbar_labels = {
     cards: `Cards`,
     boons: `Boons`,
     areas: `Areas`,
+    achievements: `Achievements`,
 }
 Object.freeze(journal_navbar_labels);
 const screen_names = {
     gameplay: `Gameplay`,
     guide: `Guidebook`,
-    achievements: `Achievements`,
     journal: `Journal`,
     controls: `Controls`,
 }
@@ -2276,8 +2315,6 @@ const HTML_UIIDS = {
     guide: `guide`,
         guide_box: `guide-box`,
             guide_navbar: `guideNavbar`,
-    achievements: `achievements`,
-        achievement_list: `achievement-list`,
     journal: `journal`,
         journal_navbar: `journalNavbar`,
         journal_cards: `journalCards`,
@@ -2285,6 +2322,8 @@ const HTML_UIIDS = {
         journal_boons: `journalBoons`,
             journal_boon_info: `journalBoonInfo`, // Generated
         journal_areas: `journalAreas`,
+        achievements: `achievements`,
+            achievement_list: `achievement-list`,
     controls: `controls`,
         stage_controls: `stageControls`,
         shop_controls: `shopControls`,
@@ -2294,16 +2333,17 @@ Object.freeze(HTML_UIIDS);
 
 const UIIDS = get_uiids(MARKUP_LANGUAGE);
 function explain_boon(boon){
-    return `${boon.name}: ${boon.description}`;
+    var cost = boon.cost_description ? `\n${boon.cost_description}` : ``;
+    return `${boon.name}: ${boon.description}${cost}`;
 }
 function explain_boon_with_picked(boon){
     var description = explain_boon(boon);
-    var picked = ``;
+    var prepayed = GS.boons.has(boon_names.soul_voucher) && boon.cost_description !== undefined ? 
+        `\n${boon_messages.soul_voucher}` : ``;
     var node = GS.data.boons.get_node(boon.name);
-    if(node !== undefined){
-        picked = `${boon_messages.number_picked}: ${node.data.picked}.`
-    }
-    return `${description}\n\n${picked}`;
+    var picked = node !== undefined ? 
+        `\n\n${boon_messages.number_picked}: ${node.data.picked}.` : ``;
+    return `${description}${prepayed}${picked}`;
 }
 function explain_boon_with_stats(boon){
     var description = explain_boon(boon);
@@ -3245,12 +3285,14 @@ const DisplayHTML = {
         }
         box.append(header);
         
-        var boss = document.createElement(`table`);
-        boss.classList.add(`journal-area-boss`);
-        var boss_id = `${destination} ${info.true_name} boss`;
-        boss.id = boss_id;
-        box.append(boss);
-        display.add_tb_row(boss_id, [info.boss], JOURNAL_BOSS_SCALE);
+        if(info.boss !== undefined){
+            var boss = document.createElement(`table`);
+            boss.classList.add(`journal-area-boss`);
+            var boss_id = `${destination} ${info.true_name} boss`;
+            boss.id = boss_id;
+            box.append(boss);
+            display.add_tb_row(boss_id, [info.boss], JOURNAL_BOSS_SCALE);
+        }
 
         var tiles = document.createElement(`table`);
         tiles.classList.add(`journal-area-tiles`);
@@ -3514,22 +3556,50 @@ function display_boons(boon_list){
  */
 function refresh_deck_order_display(deck){
     var library = deck.get_library_info();
+    var card_explanation = (card) => {
+        return () => {
+            say(explain_card(card));
+        }
+    };
+    for(var card of library){
+            card.on_click = card_explanation(card);
+    }
+    library = [future_sight(), ...library];
+    library[0].on_click = () => {
+        say(future_sight().description);
+    }
     display.remove_children(UIIDS.deck_order_table);
-    display.add_tb_row(UIIDS.deck_order_table, [future_sight(), ...library], SMALL_CARD_SCALE);
+    display.add_tb_row(UIIDS.deck_order_table, library, SMALL_CARD_SCALE);
 }
 /**
  * Displays the discard pile to it's proper location.
  */
 function refresh_discard_display(deck){
     var discard = deck.get_discard_info();
+    var card_explanation = (card) => {
+        return () => {
+            say(explain_card(card));
+        }
+    };
+    for(var card of discard){
+            card.on_click = card_explanation(card);
+    }
     display.remove_children(UIIDS.discard_pile_table);
     display.add_tb_row(UIIDS.discard_pile_table, discard, SMALL_CARD_SCALE);
 }
 /**
- * Displays the full deck to it's proper location.
+ * Displays the full deck to it's proper location in the sidebar.
  */
 function refresh_full_deck_display(deck){
     var full = deck.get_deck_info();
+    var card_explanation = (card) => {
+        return () => {
+            say(explain_card(card));
+        }
+    };
+    for(var card of full){
+            card.on_click = card_explanation(card);
+    }
     display.remove_children(UIIDS.full_deck_table);
     display.add_tb_row(UIIDS.full_deck_table, full, SMALL_CARD_SCALE);
 }
@@ -3657,23 +3727,19 @@ function display_health(player, scale){
         throw new Error(ERRORS.missing_property);
     }
     var health = [];
+    var hp = {pic: `${IMG_FOLDER.other}heart.png`, name: gameplay_labels.heart};
+    var lost = {pic: `${IMG_FOLDER.other}heart_broken.png`, name: gameplay_labels.broken_heart};
     for(var i = 0; i < player.health; ++i){
-        health.push({
-            pic: `${IMG_FOLDER.other}heart.png`, 
-            name: `heart`
-        });
+        health.push(hp);
     }
     if(player.max_health !== undefined){
         for(var i = 0; i < (player.max_health - player.health); ++i){
-            health.push({
-                pic: `${IMG_FOLDER.other}heart_broken.png`, 
-                name: `broken heart`
-            });
+            health.push(lost);
         }
     }
     display.add_tb_row(UIIDS.health_display, health, scale);
 }
-function display_map(map){
+function refresh_map(map){
     // Updates the GameMap display.
     display.remove_children(UIIDS.map_display);
     var grid = map.display();
@@ -3778,13 +3844,6 @@ function create_main_dropdown(location){
         {
             label: screen_names.guide,
             on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
-        },
-        {
-            label: screen_names.achievements,
-            on_change: () => {
-                update_achievements();
-                DISPLAY_DIVISIONS.swap(UIIDS.achievements);
-            }
         },
         {
             label: screen_names.journal,
@@ -3906,13 +3965,13 @@ function assorted_tiles_display_info(){
     return {
         name: area_names.assorted,
         background: area.background,
-        boss: player_tile,
         tiles: [
-            armored_chest_tile,
-            chest_tile,
-            exit_tile,
-            final_exit_tile,
-            lock_tile,
+            ...LORD_SUMMONS,
+            arcane_node_tile,
+            black_hole_tile,
+            living_tree_rooted_tile,
+            rotting_fruit_tree_tile,
+            two_headed_serpent_body_tile,
         ],
     }
 }
@@ -3926,6 +3985,21 @@ function basement_display_info(){
             ...area.enemy_list, 
             wall_tile, 
             damaged_wall_tile
+        ],
+    }
+}
+function basic_tiles_display_info(){
+    var area = generate_ruins_area();
+    return {
+        name: area_names.basic,
+        background: area.background,
+        boss: player_tile,
+        tiles: [
+            armored_chest_tile,
+            chest_tile,
+            exit_tile,
+            final_exit_tile,
+            lock_tile,
         ],
     }
 }
@@ -3956,6 +4030,23 @@ function crypt_display_info(){
         tiles: [
             ...area.enemy_list, 
             coffin_tile
+        ],
+    }
+}
+function events_display_info(){
+    var area = generate_ruins_area();
+    return {
+        name: area_names.events,
+        background: area.background,
+        tiles: [
+            black_hole_beginning_mark,
+            confusion_cloud_mark,
+            darkling_rift_mark,
+            falling_rubble_mark,
+            nettle_roots_mark,
+            starcaller_rift_mark,
+            sunlight_mark,
+            thorn_roots_mark,
         ],
     }
 }
@@ -4030,10 +4121,10 @@ function sewers_display_info(){
     }
 }
 function update_journal_areas(){
-    for(var i = 0; i < 6; ++i){
+    for(var i = 0; i < 7; ++i){
         display.remove_children(`${UIIDS.journal_areas}${i}`);
     }
-    show_area(assorted_tiles_display_info(), 0, true);
+    show_area(basic_tiles_display_info(), 0, true);
     show_area(ruins_display_info(), 1);
     show_area(basement_display_info(), 2);
     show_area(sewers_display_info(), 2);
@@ -4042,6 +4133,8 @@ function update_journal_areas(){
     show_area(forest_display_info(), 4);
     show_area(library_display_info(), 4);
     show_area(court_display_info(), 5);
+    show_area(assorted_tiles_display_info(), 6, true);
+    show_area(events_display_info(), 6, true);
 }
 
 function show_area(info, depth, force_visited = false){
@@ -4081,7 +4174,9 @@ function show_area(info, depth, force_visited = false){
             description: boon_descriptions.not_encountered,
         }
     };
-    info.boss = check_encountered(info.boss);
+    if(info.boss !== undefined){
+        info.boss = check_encountered(info.boss);
+    }
     info.tiles = info.tiles.map(check_encountered).sort((a, b) => {
         if(a.true_name < b.true_name){
             return -1;
@@ -4192,6 +4287,7 @@ function update_journal(){
     update_journal_cards();
     update_journal_boons();
     update_journal_areas();
+    update_achievements();
 }
 
 function setup_journal_navbar(){
@@ -4201,6 +4297,7 @@ function setup_journal_navbar(){
         UIIDS.journal_cards,
         UIIDS.journal_boons,
         UIIDS.journal_areas,
+        UIIDS.achievements,
     ];
 
     var swap_visibility = function(id_list, id){
@@ -4212,6 +4309,7 @@ function setup_journal_navbar(){
     display.create_visibility_toggle(id, journal_navbar_labels.cards, swap_visibility(section_id_list, UIIDS.journal_cards));
     display.create_visibility_toggle(id, journal_navbar_labels.boons, swap_visibility(section_id_list, UIIDS.journal_boons));
     display.create_visibility_toggle(id, journal_navbar_labels.areas, swap_visibility(section_id_list, UIIDS.journal_areas));
+    display.create_visibility_toggle(id, journal_navbar_labels.achievements, swap_visibility(section_id_list, UIIDS.achievements));
 
     display.swap_screen(section_id_list, UIIDS.journal_cards);
 }
@@ -4249,7 +4347,8 @@ function arcane_node_tile(){
     return{
         type: entity_types.enemy,
         name: boss_names.arcane_sentry_node,
-        pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret`,
+        pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret.png`,
+        display_pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret.png`,
         description: boss_descriptions.arcane_sentry_node,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry, TAGS.controlled, TAGS.unstunnable]),
         health: 5,
@@ -4683,6 +4782,16 @@ function lich_prep(tile, cycle, change = false){
         +`${spell.description}`;
     return announcement;
 }
+const LORD_SUMMONS = [
+    altar_of_sunlight_tile,
+    altar_of_stars_tile,
+    altar_of_scouring_tile,
+    altar_of_shadow_tile,
+    altar_of_space_tile,
+    altar_of_stasis_tile,
+    altar_of_singularity_tile,
+]
+
 /** @type {TileGenerator} */
 function lord_of_shadow_and_flame_tile(){
     var pic_arr = [
@@ -4690,17 +4799,7 @@ function lord_of_shadow_and_flame_tile(){
     `${IMG_FOLDER.tiles}lord_attack.png`,
     `${IMG_FOLDER.tiles}lord_summon.png`,
     ];
-
     var health = 13;
-    var summons = [
-        altar_of_sunlight_tile,
-        altar_of_stars_tile,
-        altar_of_scouring_tile,
-        altar_of_shadow_tile,
-        altar_of_space_tile,
-        altar_of_stasis_tile,
-        altar_of_singularity_tile,
-    ];
     return {
         type: entity_types.enemy,
         name: boss_names.lord_of_shadow_and_flame,
@@ -4717,7 +4816,7 @@ function lord_of_shadow_and_flame_tile(){
         on_death: lord_of_shadow_and_flame_on_death,
         pic_arr,
         cycle: 0,
-        summons,
+        summons: LORD_SUMMONS,
         card_drops: BOSS_CARDS.lord_of_shadow_and_flame
     }
 }
@@ -4895,6 +4994,7 @@ function two_headed_serpent_body_tile(){
         type: entity_types.terrain,
         name: boss_names.two_headed_serpent_body,
         pic: pic_arr[0],
+        display_pic: pic_arr[0],
         description: boss_descriptions.two_headed_serpent_body,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         pic_arr,
@@ -5895,12 +5995,7 @@ function darkling_ai(self, target, map){
     self.tile.direction = map.random_empty();
     var darkling_rift = function(map_to_use){
         if(self.tile.health === undefined || self.tile.health > 0){
-            var rift = {
-                pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
-                description: event_descriptions.darkling_rift,
-                telegraph: spider_telegraph
-            }
-            map_to_use.mark_event(self.tile.direction, rift, false);
+            map_to_use.mark_event(self.tile.direction, darkling_rift_mark(), false);
         }
     }
     map.add_event({name: event_names.darkling_rift, behavior: darkling_rift});
@@ -7283,12 +7378,7 @@ function starcaller_ai(self, target, map){
         }
         var starfall = function(map_to_use){
             if(self.tile.health === undefined || self.tile.health > 0){
-                var destination = {
-                    pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
-                    description: event_descriptions.starfall,
-                    telegraph: hazard_telegraph
-                }
-                map_to_use.mark_event(self.tile.direction, destination, false);
+                map_to_use.mark_event(self.tile.direction, starcaller_rift_mark(), false);
             }
         }
         map.add_event({name: event_names.starfall, behavior: starfall});
@@ -8213,11 +8303,6 @@ function altar_of_singularity_tile(){
 }
 
 function altar_of_singularity_on_enter(self, target, map){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}black_hole_beginning.png`,
-        description: event_descriptions.black_hole,
-        telegraph: hazard_telegraph
-    }
     var fall = function(location){
         return function(map_to_use){
             map_to_use.attack(location);
@@ -8228,12 +8313,12 @@ function altar_of_singularity_on_enter(self, target, map){
     }
     var delay = (map_to_use) => {
         var destination = self.location;
-        map_to_use.mark_event(destination, mark);
-        map_to_use.add_event({name: event_names.black_hole, behavior: fall(destination)});
+        map_to_use.mark_event(destination, black_hole_beginning_mark());
+        map_to_use.add_event({name: event_names.black_hole_formation, behavior: fall(destination)});
     }
     // If this is the last altar, wait an extra turn so the lord can summon then move.
     var wait = get_nearest_altar(map, self.location) === undefined ? 2 : 1;
-    map.add_event({name: event_names.black_hole, behavior: delay_event(wait, delay)});
+    map.add_event({name: event_names.black_hole_formation, behavior: delay_event(wait, delay)});
 }
 /** @type {TileGenerator}*/
 function altar_of_space_tile(){
@@ -8284,11 +8369,6 @@ function altar_of_stars_tile(){
 }
 
 function altar_of_stars_on_enter(self, target, map){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
-        description: event_descriptions.starfall,
-        telegraph: hazard_telegraph
-    }
     var fall = function(location){
         return function(map_to_use){
             map_to_use.attack(location);
@@ -8305,7 +8385,7 @@ function altar_of_stars_on_enter(self, target, map){
             });
             destination = miss ? miss : destination;
         }
-        map_to_use.mark_event(destination, mark);
+        map_to_use.mark_event(destination, starcaller_rift_mark());
         map_to_use.add_event({name: event_names.starfall, behavior: fall(destination)});
     }
     for(var i = 0; i < 3; ++i){
@@ -8351,11 +8431,6 @@ function altar_of_sunlight_tile(){
 }
 
 function altar_of_sunlight_on_enter(self, target, map){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}sunlight.png`,
-        description: event_descriptions.sunlight,
-        telegraph: hazard_telegraph
-    }
     var fire = function(locations){
         return function(map_to_use){
             for(var location of locations){
@@ -8369,7 +8444,7 @@ function altar_of_sunlight_on_enter(self, target, map){
     var delay = (points) => {
         return (map_to_use) => {
             for(var point of points){
-                map_to_use.mark_event(point, mark);
+                map_to_use.mark_event(point, sunlight_mark());
             }
             map_to_use.add_event({name: other_tile_names.raging_fire, behavior: fire(points)});
         }
@@ -8506,7 +8581,8 @@ function coffin_tile_death(self, target, map){
     }
     var new_enemy = random_from(self.tile.summons)();
     if(new_enemy.type === entity_types.chest){
-        var cards = rand_no_repeats(self.tile.card_drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
+        var amount = 1 + 2 * GS.boons.has(boon_names.larger_chests);
+        var cards = rand_no_repeats(self.tile.card_drops, amount);
         for(let card of cards){
             add_card_to_chest(new_enemy, card());
         }
@@ -8734,21 +8810,24 @@ function repulsor_tile(){
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
-        on_enter: repulsor_push_ai,
-        on_hit: repulsor_push_ai,
+        on_hit: repulsor_hit,
         pic_arr,
         cycle: starting_cycle,
     }
 }
 
 /** @type {AIFunction} Pushes nearby creatures away.*/
-function repulsor_push_ai(self, target, map){
+function repulsor_ai(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.cycle > 0){
-        return;
+        --self.tile.cycle;
+        if(self.tile.cycle === 0){
+            self.tile.pic = self.tile.pic_arr[0];
+        }
+        throw new Error(ERRORS.skip_animation);
     }
     var player_was_moved = false;
     var activated = false;
@@ -8770,6 +8849,7 @@ function repulsor_push_ai(self, target, map){
                         target_space.plus_equals(space);
                     }
                 } catch (error) {
+                    // This is probably less necessary since it now only triggers on it's turn.
                     // Catches ERRORS.pass_turn errors to prevent ping pong between 2.
                     // Catches ERRORS.creature_died errors in case it moves a enemy into lava.
                     if(error.message !== ERRORS.pass_turn && error.message !== ERRORS.creature_died){
@@ -8782,23 +8862,23 @@ function repulsor_push_ai(self, target, map){
     if(player_was_moved){
         throw new Error(ERRORS.pass_turn);
     }
+    if(!activated){
+        throw new Error(ERRORS.skip_animation);
+    }
 }
 
 /** @type {AIFunction} AI used by repulsor.*/
-function repulsor_ai(self, target, map){
+function repulsor_hit(self, target, map){
     if( self.tile.cycle === undefined || 
         self.tile.pic_arr === undefined){
         throw new Error(ERRORS.missing_property);
     }
-    if(self.tile.cycle > 0){
-        --self.tile.cycle;
-        if(self.tile.cycle === 0){
-            self.tile.pic = self.tile.pic_arr[0];
-        }
-        return;
+    if(self.tile.cycle === 0){
+        self.tile.cycle = 3;
+        self.tile.pic = self.tile.pic_arr[1];
     }
-    repulsor_push_ai(self, target, map);
 }
+
 /** @type {TelegraphFunction} */
 function repulsor_telegraph_other(location, map, self){
     if( self.cycle === undefined){
@@ -9041,7 +9121,7 @@ function chest_on_enter(self, target, map){
         display.remove_children(UIIDS.contents);
         display.display_message(UIIDS.content_description, ``);
         GS.refresh_deck_display();
-        display_map(map);
+        refresh_map(map);
         if(GS.boons.has(boon_names.safe_passage)){
             GS.boons.lose(boon_names.safe_passage);
             GS.refresh_boon_display();
@@ -9276,7 +9356,8 @@ function boss_death(self, target, map){
         // Create a chest containing a random card from it's loot table.
         var chest = appropriate_chest_tile();
         var drops = self.tile.card_drops.map((c) => {return c()});
-        var contents = rand_no_repeats(drops, 1 + 2 * GS.boons.has(boon_names.larger_chests));
+        var amount = 1 + 2 * GS.boons.has(boon_names.larger_chests);
+        var contents = rand_no_repeats(drops, amount);
         if(chance(1, 2) && filter_new_cards(contents).length === 0){
             var replace_list = filter_new_cards(drops);
             if(replace_list.length > 0){
@@ -9323,12 +9404,6 @@ function boss_death(self, target, map){
  * @returns {MapEventFunction} The event.
  */
 function altar_event(destination, altar){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
-        description: event_descriptions.starfall,
-        telegraph: hazard_telegraph
-    }
-
     var summon = function(location){
         return function(map_to_use){
             map_to_use.attack(location);
@@ -9339,7 +9414,7 @@ function altar_event(destination, altar){
     }
     var rift = function(location){
         return function(map_to_use){
-            map_to_use.mark_event(location, mark);
+            map_to_use.mark_event(location, starcaller_rift_mark());
             map_to_use.add_event({name: altar().name, behavior: summon(location)});
         }
     }
@@ -9379,18 +9454,13 @@ function earthquake_event(amount, locations = undefined){
         }
     }
     var earthquake = function(amount){
-        var falling_rubble_layer = {
-            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-            description: event_descriptions.falling_rubble,
-            telegraph: hazard_telegraph
-        }
         return function(map_to_use){
             var rubble = [];
             var space;
             if(locations === undefined){
                 for(var j = 0; j < amount; ++j){
                     space = map_to_use.random_empty();
-                    map_to_use.mark_event(space, falling_rubble_layer);
+                    map_to_use.mark_event(space, falling_rubble_mark());
                     rubble.push(space);
                 }
             }
@@ -9399,7 +9469,7 @@ function earthquake_event(amount, locations = undefined){
                 for(var i = 0; i < amount; ++i){
                     space = spaces[i];
                     if(map_to_use.check_empty(space)){
-                        map_to_use.mark_event(space, falling_rubble_layer);
+                        map_to_use.mark_event(space, falling_rubble_mark());
                         rubble.push(space);
                     }
                 }
@@ -9424,11 +9494,6 @@ function eternal_earthquake_event(amount){
     }
     var earthquake = function(amount){
         amount = Math.min(amount, FLOOR_HEIGHT * FLOOR_WIDTH * 4/5);
-        var falling_rubble_layer = {
-            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-            description: event_descriptions.falling_rubble,
-            telegraph: hazard_telegraph
-        }
         return function(map_to_use){
             var rubble = [];
             while(rubble.length < amount){
@@ -9436,7 +9501,7 @@ function eternal_earthquake_event(amount){
                 if(rubble.find((p) => {
                     return point_equals(p, space);
                 }) === undefined){
-                    map_to_use.mark_event(space, falling_rubble_layer);
+                    map_to_use.mark_event(space, falling_rubble_mark());
                     rubble.push(space);
                 }
             }
@@ -9473,6 +9538,86 @@ function growth_event(points, root, grown){
     }
     return plant(points);
 }
+function black_hole_beginning_mark(){
+    return {
+        name: event_names.black_hole_formation,
+        pic: `${IMG_FOLDER.tiles}black_hole_beginning.png`,
+        description: event_descriptions.black_hole_formation,
+        telegraph: hazard_telegraph
+    };
+}
+function confusion_cloud_mark(){
+    return {
+        name: event_names.confusion_cloud,
+        pic: `${IMG_FOLDER.tiles}confusion_cloud.png`,
+        description: event_descriptions.confusion_cloud,
+        telegraph_other: hazard_telegraph
+    }
+}
+function darkling_rift_mark(){
+    return {
+        name: event_names.darkling_rift,
+        pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
+        description: event_descriptions.darkling_rift,
+        telegraph: spider_telegraph
+    };
+}
+function delayed_strike_mark(){
+    return {
+        name: event_names.delayed_strike,
+        pic: `${IMG_FOLDER.tiles}delayed_strike_mark.png`,
+        description: event_descriptions.delayed_strike,
+        telegraph: hazard_telegraph,
+    };
+}
+function delayed_stun_mark(){
+    return {
+        name: event_names.delayed_stun,
+        pic: `${IMG_FOLDER.tiles}delayed_stun_mark.png`,
+        description: event_descriptions.delayed_stun,
+        telegraph_other: hazard_telegraph,
+    };
+}
+function falling_rubble_mark(){
+    return {
+        name: event_names.falling_rubble,
+        pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
+        description: event_descriptions.falling_rubble,
+        telegraph: hazard_telegraph
+    }
+}
+function nettle_roots_mark(){
+    return {
+        name: event_names.nettle_roots,
+        pic: `${IMG_FOLDER.tiles}swaying_nettle_roots.png`,
+        description: event_descriptions.nettle_root,
+        telegraph: hazard_telegraph
+    }
+}
+function starcaller_rift_mark(){
+    return {
+        name: event_names.starfall,
+        pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
+        description: event_descriptions.starfall,
+        telegraph: hazard_telegraph
+    }
+}
+function sunlight_mark(){
+    return {
+        name: event_names.sunlight,
+        pic: `${IMG_FOLDER.tiles}sunlight.png`,
+        description: event_descriptions.sunlight,
+        telegraph: hazard_telegraph
+    };
+}
+function thorn_roots_mark(){
+    return {
+        name: event_names.thorn_roots,
+        pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
+        description: event_descriptions.thorn_roots,
+        telegraph: hazard_telegraph
+    }
+}
 /**
  * @param {Point[]} locations A grid of locations to use.
  * @returns {MapEventFunction} The event.
@@ -9486,15 +9631,10 @@ function targeted_earthquake_event(locations){
         }
     }
     var earthquake = function(){
-        var falling_rubble_layer = {
-            pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
-            description: event_descriptions.falling_rubble,
-            telegraph: hazard_telegraph
-        }
         return function(map_to_use){
             var rubble = [];
             for(var space of locations){
-                map_to_use.mark_event(space, falling_rubble_layer);
+                map_to_use.mark_event(space, falling_rubble_mark());
                 rubble.push(space);
             }
             map_to_use.add_event({name: event_names.falling_rubble, behavior: falling_rubble(rubble)});
@@ -10185,15 +10325,13 @@ function greater_thorn_bush_spell(self, target, map){
         new Point(FLOOR_WIDTH / 2 - 3, FLOOR_HEIGHT / 2 - 3), 
         new Point(FLOOR_WIDTH / 2 + 2, FLOOR_HEIGHT / 2 + 2)
     );
-    var root_layer = {
-        pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
-        description: event_descriptions.thorn_root,
-        telegraph: hazard_telegraph
-    }
     var delayed_func = function(map_to_use){
-        map_to_use.add_event({name: event_names.bramble_shield, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+        map_to_use.add_event({
+            name: event_names.thorn_roots, 
+            behavior: growth_event(points, thorn_roots_mark(), thorn_bramble_tile)
+        });
     };
-    map.add_event({name: event_names.bramble_shield, behavior: delay_event(1, delayed_func)});
+    map.add_event({name: event_names.thorn_roots, behavior: delay_event(1, delayed_func)});
 }
 /** @type {SpellGenerator} */
 function living_tree_spell_generator(){
@@ -10343,12 +10481,10 @@ function swaying_nettle_spell(self, target, map){
         new Point(FLOOR_WIDTH / 2 - 2, FLOOR_HEIGHT / 2 - 2), 
         new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
     );
-    var root_layer = {
-        pic: `${IMG_FOLDER.tiles}swaying_nettle_roots.png`,
-        description: event_descriptions.nettle_root,
-        telegraph: hazard_telegraph
-    }
-    map.add_event({name: event_names.nettle_shield, behavior: growth_event(points, root_layer, swaying_nettle_tile)});
+    map.add_event({
+        name: event_names.nettle_roots, 
+        behavior: growth_event(points, nettle_roots_mark(), swaying_nettle_tile)
+    });
 }
 
 /** @type {TelegraphFunction} */
@@ -10374,12 +10510,10 @@ function thorn_bush_spell(self, target, map){
         new Point(FLOOR_WIDTH / 2 - 2, FLOOR_HEIGHT / 2 - 2), 
         new Point(FLOOR_WIDTH / 2 + 1, FLOOR_HEIGHT / 2 + 1)
     );
-    var root_layer = {
-        pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
-        description: event_descriptions.thorn_root,
-        telegraph: hazard_telegraph
-    }
-    map.add_event({name: event_names.bramble_shield, behavior: growth_event(points, root_layer, thorn_bramble_tile)});
+    map.add_event({
+        name: event_names.thorn_roots, 
+        behavior: growth_event(points, thorn_roots_mark(), thorn_bramble_tile)
+    });
 }
 
 /** @type {TelegraphFunction} */
@@ -10457,11 +10591,6 @@ function confusion_spell_generator(){
 
 /** @type {AIFunction} Spell which creates a cloud of confusion gas around the target which lasts for 3 turns.*/
 function confusion_spell(self, target, map){
-    var mark = {
-        pic: `${IMG_FOLDER.tiles}confusion_cloud.png`,
-        description: event_descriptions.confusion_cloud,
-        telegraph_other: hazard_telegraph
-    }
     var cloud = function(locations){
         return function(map_to_use){
             for(var location of locations){
@@ -10472,7 +10601,7 @@ function confusion_spell(self, target, map){
     var delay = (points) => {
         return (map_to_use) => {
             for(var point of points){
-                map_to_use.mark_event(point, mark);
+                map_to_use.mark_event(point, confusion_cloud_mark());
             }
             map_to_use.add_event({name: event_names.confusion_cloud, behavior: cloud(points)});
         }
@@ -10884,7 +11013,7 @@ class BoonTracker{
                 return true;
             }
         }
-        return false;
+        return true;
     }
     lose(name){
         for(var i = 0; i < this.#boons.length; ++i){
@@ -10901,7 +11030,7 @@ class BoonTracker{
         return this.#boons.map(b => {return {
             name: b.name,
             pic: b.pic,
-            on_click: function(){say(b.description)}
+            on_click: function(){say(explain_boon(b))}
         }});
     }
     get_lost(){
@@ -10968,7 +11097,7 @@ class ButtonGrid{
                 GS.map.mark_telegraph(t.stun, `${IMG_FOLDER.actions}confuse.png`);
                 GS.map.mark_telegraph(t.healing, `${IMG_FOLDER.actions}heal.png`);
                 GS.map.mark_telegraph(t.teleport, `${IMG_FOLDER.actions}teleport_telegraph.png`);
-                display_map(GS.map);
+                refresh_map(GS.map);
             }
         }
         var click = function(behavior){
@@ -11271,7 +11400,7 @@ class EntityList{
                                 throw error
                             }
                         }
-                        display_map(map);
+                        refresh_map(map);
                         if(do_delay){
                             await delay(ANIMATION_DELAY);
                         }
@@ -11345,6 +11474,7 @@ class GameMap{
     #grid;
     /** @type {number} Which number floor this is.*/
     #floor_num;
+    #floor_mod;
     /** @type {StatTracker} Tracks various statistics about the game.*/
     stats;
     /** @type {MapEvent[]} Events that will happen at the end of the turn.*/
@@ -11365,6 +11495,7 @@ class GameMap{
         this.#y_max = y_max;
         this.#entity_list = new EntityList();
         this.#floor_num = 0;
+        this.#floor_mod = 0;
         this.stats = new StatTracker();
         this.#events = [];
         this.#area = starting_area;
@@ -11617,6 +11748,9 @@ class GameMap{
                 }
                 say(description);
                 GS.data.add_tile(tile.name);
+                for(var event of [...space.foreground, ...space.background]){
+                    GS.data.add_tile(event.name);
+                }
                 gameMap.clear_telegraphs();
                 var telegraph_spaces = [];
                 var telegraph_other_spaces = [];
@@ -11639,7 +11773,7 @@ class GameMap{
                 // Telegraphs possible upcoming attacks and other things.
                 gameMap.mark_telegraph(telegraph_spaces);
                 gameMap.mark_telegraph(telegraph_other_spaces, `${IMG_FOLDER.actions}telegraph_other.png`);
-                display_map(gameMap);
+                refresh_map(gameMap);
                 display.add_class(`${UIIDS.map_display} ${location.y} ${location.x}`, `selected-tile`);
             }
         }
@@ -12075,17 +12209,24 @@ class GameMap{
         }
         else{
             // Normal floor.
-            var extra_difficulty = 5 * GS.boons.has(boon_names.roar_of_challenge);
-            extra_difficulty -= 3 * GS.boons.has(boon_names.empty_rooms);
-            this.#area.generate_floor(this.#floor_num + extra_difficulty, this.#area, this);
+            this.#area.generate_floor(this.#floor_num + this.#floor_mod, this.#area, this);
         }
         if(floor_has_chest(this.#floor_num % area_size)){
             var chest = appropriate_chest_tile();
-            var choices = GS.boons.get_choices(BOON_CHOICES + (2 * GS.boons.has(boon_names.larger_chests)));
+            var amount = BOON_CHOICES 
+                + 2 * GS.boons.has(boon_names.larger_chests) 
+                - 1 * GS.boons.has(boon_names.hoarder);
+            var choices = GS.boons.get_choices(amount);
             if(chance(1, 2) && filter_new_boons(choices).length === 0){
                 var replacement_list = filter_new_boons(GS.boons.get_choices());
                 if(replacement_list.length > 0){
                     choices[0] = random_from(replacement_list);
+                }
+            }
+            if(GS.boons.has(boon_names.soul_voucher) && filter_cost_boons(choices).length === 0){
+                var replacement_list = filter_cost_boons(GS.boons.get_choices());
+                if(replacement_list.length > 0){
+                    choices[1] = random_from(replacement_list);
                 }
             }
             for(var boon of choices){
@@ -12300,6 +12441,9 @@ class GameMap{
     get_floor_num(){
         return this.#floor_num;
     }
+    change_floor_modifier(x){
+        this.#floor_mod += x;
+    }
 }
 
 function grid_space(area){
@@ -12370,7 +12514,7 @@ class GameState{
             add_boon_to_chest(chest, boon());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
         }
-        display_map(this.map);
+        refresh_map(this.map);
         this.map.display_stats();
 
         this.refresh_deck_display();
@@ -12417,13 +12561,13 @@ class GameState{
             if(GS.boons.has(boon_names.thick_soles)){
                 GS.map.get_player().tags.remove(TAGS.invulnerable);
             }
-            display_map(this.map);
+            refresh_map(this.map);
             await delay(ANIMATION_DELAY);
             if(is_instant){
                 this.refresh_deck_display();
                 this.unlock_player_turn();
                 this.map.display_stats();
-                display_map(this.map);
+                refresh_map(this.map);
                 this.unlock_player_turn();
                 return;
             }
@@ -12466,11 +12610,18 @@ class GameState{
      * @returns {boolean} returns true if the action was instant, false otherwise.
      */
     player_action(action){
+        var p_location = this.map.get_player_location();
+        var target = p_location.plus(action.change);
+        var targets_self = action.change.is_origin();
+        var in_bounds = this.map.is_in_bounds(target);
+        if(in_bounds){
+            var target_tile = this.map.get_tile(target);
+        }
+        var is_empty = this.map.check_empty(target);
         switch(action.type){
             case action_types.attack:
                 var attack_count = 1;
                 var stun_count = 0;
-                var target = this.map.get_player_location().plus(action.change);
                 if(this.boons.has(boon_names.sniper)){
                     var distance = Math.max(Math.abs(action.change.x), Math.abs(action.change.y));
                     attack_count += Math.max(0, distance - 1);
@@ -12480,43 +12631,53 @@ class GameState{
                 }
                 if( // Dazing Blows
                     this.boons.has(boon_names.dazing_blows) && 
-                    !action.change.is_origin() &&
-                    this.map.is_in_bounds(target) &&
-                    !this.map.get_tile(target).tags.has(TAGS.boss)
+                    !targets_self &&
+                    in_bounds &&
+                    !target_tile.tags.has(TAGS.boss)
                 ){
                     stun_count += 1
                 }
                 if( // Pacifism
                     this.boons.has(boon_names.pacifism) > 0 && 
-                    !action.change.is_origin() &&
-                    this.map.is_in_bounds(target) &&
-                    !this.map.get_tile(target).tags.has(TAGS.obstruction)
+                    !targets_self &&
+                    in_bounds &&
+                    !target_tile.tags.has(TAGS.obstruction)
                 ){
                     stun_count += 2 * attack_count;
                     attack_count = 0;
                 }
                 for(var i = 0; i < attack_count; ++i){
-                    var target = this.map.get_player_location().plus(action.change);
+                    target = this.map.get_player_location().plus(action.change);
                     if(
                         i === 0 ||
                         (this.map.is_in_bounds(target) && 
                         this.map.get_tile(target).type !== entity_types.chest)
                     ){
-                        this.map.player_attack(action.change);
+                        // Do delayed_strike
+                        if(is_empty && this.boons.has(boon_names.delayed_strike)){
+                            create_delayed_strike(this.map, target);
+                        }
+                        else{
+                            this.map.player_attack(action.change);
+                        }
                     }
                 }
                 for(var i = 0; i < stun_count; ++i){
-                    this.player_action(pstun(action.change.x, action.change.y));
+                    if(is_empty && this.boons.has(boon_names.delayed_strike)){
+                        create_delayed_stun(this.map, target);
+                    }
+                    else{
+                        this.player_action(pstun(action.change.x, action.change.y));
+                    }
                 }
                 break;
             case action_types.move:
-                var previous_location = this.map.get_player_location();
                 var moved = this.map.player_move(action.change);
                 if(!moved && GS.boons.has(boon_names.spiked_shoes)){
                     this.player_action(pattack(action.change.x, action.change.y));
                 }
                 if(moved && chance(GS.boons.has(boon_names.slime_trail), 2)){
-                    this.map.add_tile(corrosive_slime_tile(), previous_location);
+                    this.map.add_tile(corrosive_slime_tile(), p_location);
                 }
                 break;
             case action_types.teleport:
@@ -12530,7 +12691,12 @@ class GameState{
                 }
                 break;
             case action_types.stun:
-                this.map.player_stun(action.change);
+                if(is_empty && this.boons.has(boon_names.delayed_strike)){
+                    create_delayed_stun(this.map, target);
+                }
+                else{
+                    this.map.player_stun(action.change);
+                }
                 break;
             case action_types.move_until:
                 var spiked_shoes = GS.boons.has(boon_names.spiked_shoes);
@@ -12569,7 +12735,7 @@ class GameState{
         // Creates the next floor.
         this.map.next_floor();
         this.map.display_stats();
-        display_map(this.map);
+        refresh_map(this.map);
         this.deck.deal();
             if(GS.boons.has(boon_names.vicious_cycle) > 0){
             apply_vicious_cycle(this.deck);
@@ -12577,7 +12743,7 @@ class GameState{
         this.refresh_deck_display();
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
         await delay(ANIMATION_DELAY);
-        display_map(this.map);
+        refresh_map(this.map);
         this.unlock_player_turn();
     }
     /** 
@@ -12603,7 +12769,7 @@ class GameState{
     game_over(cause){
         // Tells the user the game is over, prevents them from continuing, tells them the cause
         // and gives them the chance to retry.
-        display_map(this.map);
+        refresh_map(this.map);
         display.remove_children(UIIDS.hand_display);
         display.remove_children(UIIDS.move_buttons);
         say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
@@ -12629,7 +12795,7 @@ class GameState{
         display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.full_deck));
     }
     victory(){
-        display_map(this.map);
+        refresh_map(this.map);
         display_victory();
         this.achieve(achievement_names.victory);
         say_record(gameplay_text.victory);
@@ -12657,9 +12823,9 @@ class GameState{
      */
     async prep_turn(){
         this.map.resolve_events();
-        display_map(this.map);
+        refresh_map(this.map);
         await delay(ANIMATION_DELAY);
-        display_map(this.map);
+        refresh_map(this.map);
         this.refresh_deck_display();
         this.map.display_stats();
         this.unlock_player_turn();
@@ -14660,6 +14826,7 @@ function generate_normal_floor(floor_num, area, map){
         }
     }
     if(GS.boons.has(boon_names.flame_worship)){
+        map.spawn_safely(altar_of_scouring_tile(), SAFE_SPAWN_ATTEMPTS, true);
         map.spawn_safely(altar_of_scouring_tile(), SAFE_SPAWN_ATTEMPTS, true);
     }
     var enemy_list = area.enemy_list;
@@ -17028,15 +17195,15 @@ function filter_new_cards(cards){
 const BOON_LIST = [
     ancient_card, ancient_card_2, bitter_determination, blood_alchemy, boss_slayer, 
     brag_and_boast, chilly_presence, choose_your_path, clean_mind, creative, 
-    dazing_blows, duplicate, empty_rooms, escape_artist, expend_vitality, 
-    flame_strike, flame_worship, fleeting_thoughts, fortitude, frenzy, 
-    frugivore, future_sight, gruntwork, hoarder, larger_chests, 
-    limitless, manic_presence, pacifism, pain_reflexes, perfect_the_basics, 
-    picky_shopper, practice_makes_perfect, pressure_points, quick_healing, rebirth, 
-    repetition, retaliate, rift_touched, roar_of_challenge, safe_passage, 
-    shattered_glass, skill_trading, slime_trail, sniper, spiked_shoes, 
-    spontaneous, stable_mind, stealthy, stubborn, thick_soles, 
-    vicious_cycle
+    dazing_blows, delayed_strike, duplicate, empty_rooms, escape_artist, 
+    expend_vitality, flame_strike, flame_worship, fleeting_thoughts, fortitude, 
+    frenzy, frugivore, future_sight, gruntwork, hoarder, 
+    larger_chests, limitless, manic_presence, pacifism, pain_reflexes, 
+    pandoras_box, perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, 
+    quick_healing, rebirth, repetition, retaliate, rift_touched, 
+    roar_of_challenge, safe_passage, shattered_glass, skill_trading, slime_trail, 
+    sniper, soul_voucher, spiked_shoes, spontaneous, stable_mind, 
+    stealthy, stubborn, thick_soles, vicious_cycle
 ];
 
 function change_max_health(amount){
@@ -17065,6 +17232,12 @@ function get_locked_boons(){
 function filter_new_boons(boons){
     return boons.filter((b) => {
         return !GS.data.boons.has(b.name);
+    });
+}
+
+function filter_cost_boons(boons){
+    return boons.filter((b) => {
+        return b.cost_description !== undefined;
     });
 }
 function symbol_locked_boon(){
@@ -17121,6 +17294,7 @@ function blood_alchemy(){
         name: boon_names.blood_alchemy,
         pic: `${IMG_FOLDER.boons}blood_alchemy.png`,
         description: boon_descriptions.blood_alchemy,
+        cost_description: boon_cost_descriptions.blood_alchemy,
         prereq_description: boon_prereq_descriptions.blood_alchemy,
         prereq: prereq_blood_alchemy,
         on_pick: pick_blood_alchemy,
@@ -17134,9 +17308,12 @@ function prereq_blood_alchemy(){
 
 function pick_blood_alchemy(){
     change_max_health(2);
-    for(var i = 0; i < 2; ++i){
-        var location = GS.map.get_player_location();
-        GS.map.attack(location);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        for(var i = 0; i < 2; ++i){
+            var location = GS.map.get_player_location();
+            GS.map.attack(location);
+        }
     }
 }
 function boss_slayer(){
@@ -17153,6 +17330,7 @@ function brag_and_boast(){
         name: boon_names.brag_and_boast,
         pic: `${IMG_FOLDER.boons}brag_and_boast.png`,
         description: boon_descriptions.brag_and_boast,
+        cost_description: boon_cost_descriptions.brag_and_boast,
         prereq_description: boon_prereq_descriptions.none,
         on_pick: pick_brag_and_boast,
     }
@@ -17163,8 +17341,13 @@ function pick_brag_and_boast(){
         var boss = random_from(BOSS_LIST)();
         var card = random_from(boss.card_drops)();
         GS.deck.add(card);
-        card = random_from(CONFUSION_CARDS)();
-        GS.deck.add(card);
+    }
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        for(var i = 0; i < 2; ++i){
+            card = random_from(CONFUSION_CARDS)();
+            GS.deck.add(card);
+        }
     }
 }
 function chilly_presence(){
@@ -17202,6 +17385,7 @@ function clean_mind(){
         prereq_description: boon_prereq_descriptions.clean_mind,
         prereq_clean_mind,
         after_pick: pick_clean_mind,
+        chest_only: true,
     }
 }
 
@@ -17219,6 +17403,7 @@ function creative(){
         name: boon_names.creative,
         pic: `${IMG_FOLDER.boons}creative.png`,
         description: boon_descriptions.creative,
+        cost_description: boon_cost_descriptions.creative,
         prereq_description: boon_prereq_descriptions.creative,
         prereq: prereq_creative,
         on_pick: pick_creative,
@@ -17231,10 +17416,13 @@ function prereq_creative(){
 }
 
 function pick_creative(){
-    GS.deck.alter_min(5);
     GS.deck.alter_hand_size(1);
     GS.deck.deal();
     GS.refresh_deck_display();
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.deck.alter_min(5);
+    }
 }
 function dazing_blows(){
     return {
@@ -17245,6 +17433,33 @@ function dazing_blows(){
         max: 1,
     }
 }
+function delayed_strike(){
+    return {
+        name: boon_names.delayed_strike,
+        pic: `${IMG_FOLDER.boons}delayed_strike.png`,
+        description: boon_descriptions.delayed_strike,
+        max: 1,
+    }
+}
+
+function create_delayed_strike(map, point){
+    var strike = () => {
+        if(!point_equals(map.get_player_location(), point)){
+            map.attack(point);
+        }
+    }
+    map.mark_event(point, delayed_strike_mark(), false);
+    map.add_event({name: event_names.delayed_strike, behavior: strike});
+}
+function create_delayed_stun(map, point){
+    var stun = () => {
+        if(!point_equals(map.get_player_location(), point)){
+            map.stun_tile(point);
+        }
+    }
+    map.mark_event(point, delayed_stun_mark(), false);
+    map.add_event({name: event_names.delayed_stun, behavior: stun});
+}
 function duplicate(){
     return {
         name: boon_names.duplicate,
@@ -17252,6 +17467,7 @@ function duplicate(){
         description: boon_descriptions.duplicate,
         prereq_description: boon_prereq_descriptions.none,
         after_pick: pick_duplicate,
+        chest_only: true,
     }
 }
 
@@ -17265,7 +17481,11 @@ function empty_rooms(){
         pic: `${IMG_FOLDER.boons}empty_rooms.png`,
         description: boon_descriptions.empty_rooms,
         prereq_description: boon_prereq_descriptions.none,
+        on_pick: pick_empty_rooms,
     }
+}
+function pick_empty_rooms(){
+    GS.map.change_floor_modifier(-3);
 }
 function escape_artist(){
     return {
@@ -17288,6 +17508,7 @@ function expend_vitality(){
         name: boon_names.expend_vitality,
         pic: `${IMG_FOLDER.boons}expend_vitality.png`,
         description: boon_descriptions.expend_vitality,
+        cost_description: boon_cost_descriptions.expend_vitality,
         prereq_description: boon_prereq_descriptions.expend_vitality,
         prereq: prereq_expend_vitality,
         on_pick: pick_expend_vitality,
@@ -17300,7 +17521,10 @@ function prereq_expend_vitality(){
 }
 
 function pick_expend_vitality(){
-    change_max_health(-1);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        change_max_health(-1);
+    }
 }
 function flame_strike(){
     return {
@@ -17388,6 +17612,7 @@ function gruntwork(){
         name: boon_names.gruntwork,
         pic: `${IMG_FOLDER.boons}gruntwork.png`,
         description: boon_descriptions.gruntwork,
+        cost_description: boon_cost_descriptions.gruntwork,
         prereq_description: boon_prereq_descriptions.gruntwork,
         prereq: prereq_gruntwork,
         on_pick: pick_gruntwork,
@@ -17401,9 +17626,12 @@ function prereq_gruntwork(){
 
 function pick_gruntwork(){
     change_max_health(3);
-    GS.deck.alter_hand_size(-1);
-    GS.deck.deal();
-    GS.refresh_deck_display();
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.deck.alter_hand_size(-1);
+        GS.deck.deal();
+        GS.refresh_deck_display();
+    }
 }
 function hoarder(){
     return {
@@ -17474,6 +17702,33 @@ function pain_reflexes(){
         prereq_description: boon_prereq_descriptions.none,
         max: 1,
     }
+}
+function pandoras_box(){
+    return {
+        name: boon_names.pandoras_box,
+        pic: `${IMG_FOLDER.boons}pandoras_box.png`,
+        description: boon_descriptions.pandoras_box,
+        prereq_description: boon_prereq_descriptions.pandoras_box,
+        prereq: prereq_pandoras_box,
+        on_pick: pick_pandoras_box,
+        chest_only: true,
+    }
+}
+
+function prereq_pandoras_box(){
+    return max_health_at_least(2);
+}
+
+function pick_pandoras_box(){
+    var max = GS.map.get_player().max_health;
+    change_max_health(1 - max);
+    for(var i = 0; i < max; ++i){
+        var boon = random_from(GS.boons.get_choices().filter((b) => {
+            return !b.chest_only;
+        }));
+        GS.boons.pick(boon.name);
+    }
+    GS.refresh_boon_display();
 }
 function perfect_the_basics(){
     return {
@@ -17631,6 +17886,7 @@ function roar_of_challenge(){
         name: boon_names.roar_of_challenge,
         pic: `${IMG_FOLDER.boons}roar_of_challenge.png`,
         description: boon_descriptions.roar_of_challenge,
+        cost_description: boon_cost_descriptions.roar_of_challenge,
         prereq_description: boon_prereq_descriptions.roar_of_challenge,
         prereq: prereq_roar_of_challenge,
         on_pick: pick_roar_of_challenge,
@@ -17643,6 +17899,10 @@ function prereq_roar_of_challenge(){
 
 function pick_roar_of_challenge(){
     change_max_health(2);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.map.change_floor_modifier(5);
+    }
 }
 function safe_passage(){
     return {
@@ -17651,6 +17911,7 @@ function safe_passage(){
         description: boon_descriptions.safe_passage,
         prereq_description: boon_prereq_descriptions.safe_passage,
         prereq: prereq_safe_passage,
+        chest_only: true,
     }
 }
 
@@ -17663,6 +17924,7 @@ function shattered_glass(){
         name: boon_names.shattered_glass,
         pic: `${IMG_FOLDER.boons}shattered_glass.png`,
         description: boon_descriptions.shattered_glass,
+        cost_description: boon_cost_descriptions.shattered_glass,
         prereq_description: boon_prereq_descriptions.shattered_glass,
         prereq: prereq_shattered_glass,
         on_pick: on_pick_shattered_glass,
@@ -17675,7 +17937,10 @@ function prereq_shattered_glass(){
 }
 
 function on_pick_shattered_glass(){
-    change_max_health(-2);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        change_max_health(-2);
+    }
 }
 function skill_trading(){
     return {
@@ -17704,11 +17969,26 @@ function sniper(){
         max: 1,
     }
 }
+function soul_voucher(){
+    return {
+        name: boon_names.soul_voucher,
+        pic: `${IMG_FOLDER.boons}soul_voucher.png`,
+        description: boon_descriptions.soul_voucher,
+        prereq_description: boon_prereq_descriptions.soul_voucher,
+        prereq: prereq_soul_voucher,
+        max: 1,
+    }
+}
+
+function prereq_soul_voucher(){
+    return GS.map.get_floor_num() < 15;
+}
 function spiked_shoes(){
     return {
         name: boon_names.spiked_shoes,
         pic: `${IMG_FOLDER.boons}spiked_shoes.png`,
         description: boon_descriptions.spiked_shoes,
+        cost_description: boon_cost_descriptions.spiked_shoes,
         prereq_description: boon_prereq_descriptions.spiked_shoes,
         prereq: prereq_spiked_shoes,
         on_pick: pick_spiked_shoes,
@@ -17721,13 +18001,17 @@ function prereq_spiked_shoes(){
 }
 
 function pick_spiked_shoes(){
-    change_max_health(-1);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        change_max_health(-1);
+    }
 }
 function spontaneous(){
     return {
         name: boon_names.spontaneous,
         pic: `${IMG_FOLDER.boons}spontaneous.png`,
         description: boon_descriptions.spontaneous,
+        cost_description: boon_cost_descriptions.spontaneous,
         prereq_description: boon_prereq_descriptions.spontaneous,
         prereq: prereq_spontaneous,
         on_pick: pick_spontaneous,
@@ -17740,7 +18024,10 @@ function prereq_spontaneous(){
 }
 
 function pick_spontaneous(){
-    GS.deck.alter_min(5);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.deck.alter_min(5);
+    }
 }
 function stable_mind(){
     return {

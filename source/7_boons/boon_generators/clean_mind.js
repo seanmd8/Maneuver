@@ -6,6 +6,7 @@ function clean_mind(){
         prereq_description: boon_prereq_descriptions.clean_mind,
         prereq_clean_mind,
         after_pick: pick_clean_mind,
+        chest_only: true,
     }
 }
 
