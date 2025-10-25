@@ -3,5 +3,5 @@
 @font-face {
     font-family: "ArrowFont";
     src: url(./fonts/quivira.regular.otf);
-    unicode-range: U+2B9C-2B9F;
+    unicode-range: U+2B9C-2B9F, U+1F878-1F87F, U+25C9;
 }

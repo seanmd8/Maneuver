@@ -398,12 +398,15 @@ body>div {
     height : 33%;
 }
 .move-button-box table tr input {
-    height: 100%;
-    width: 33%;
-    text-align: center;
+    height: 32px;
+    width: 42px;
     padding-left: 0;
     padding-right: 0;
+    margin: 1px;
+    text-align: center;
+    vertical-align: middle;
     cursor: pointer;
+    font-size: 18px;
 }
 .center-retry-box {
     width: 140px;
@@ -979,7 +982,7 @@ body>div {
 @font-face {
     font-family: "ArrowFont";
     src: url(./fonts/quivira.regular.otf);
-    unicode-range: U+2B9C-2B9F;
+    unicode-range: U+2B9C-2B9F, U+1F878-1F87F, U+25C9;
 }
 .greyed-out {
     opacity: 0.7;
