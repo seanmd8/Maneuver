@@ -74,6 +74,7 @@ class ButtonGrid{
                     description: str,
                     alt_click: telegraph(button.behavior),
                     on_click: click(button.behavior),
+                    colors: get_colors(button.behavior),
                 }
             }));
         }

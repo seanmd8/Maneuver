@@ -895,6 +895,18 @@ const DisplayHTML = {
         div.append(p);
         place.append(div);
     },
+    add_gradient(destination, colors){
+        var element = DisplayHTML.get_element(destination);
+        var percent = 100 / (colors.length * 4 - 3);
+        var cstring = colors.reverse().reduce((str, color, i) => {
+            var div1 = (4 * i) - 3;
+            var grad = `${div1 * percent}%, ${colors[i - 1]} ${div1 * percent}%`;
+            var div2 = div1 + 3;
+            var block = `, ${color} ${div2 * percent}%`;
+            return `${str} ${grad} ${block}`;
+        });
+        element.style.backgroundImage = `linear-gradient(to left, ${cstring})`;
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){

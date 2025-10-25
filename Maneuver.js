@@ -912,6 +912,40 @@ const action_types = {
     heal: `Heal`,
 }
 Object.freeze(action_types);
+
+const color_options = {
+    red: `rgb(255 0 0)`,
+    blue: `rgb(13 58 209)`,
+    yellow: `rgb(255 255 0)`,
+    light_blue: `rgb(100 149 237)`,
+    green: `rgb(50 205 50)`,
+    grey: `rgb(169 169 169)`,
+    dark_grey: `rgb(105 105 105)`,
+}
+Object.freeze(color_options);
+
+const action_type_colors = {
+    move: color_options.blue,
+    attack: color_options.red,
+    teleport: color_options.light_blue,
+    stun: color_options.yellow,
+    move_until: color_options.blue,
+    attack_until: color_options.red,
+    heal: color_options.green,
+    do_nothing: color_options.dark_grey,
+    none: color_options.grey,
+}
+Object.freeze(action_type_colors);
+
+const COLOR_MAP = new Map([
+    [action_types.move, action_type_colors.move],
+    [action_types.attack, action_type_colors.attack],
+    [action_types.teleport, action_type_colors.teleport],
+    [action_types.stun, action_type_colors.stun],
+    [action_types.move_until, action_type_colors.move_until],
+    [action_types.attack_until, action_type_colors.attack_until],
+    [action_types.heal, action_type_colors.heal],
+]);
 const card_names = {
     symbol_add_card: `Add`,
     symbol_deck_at_minimum: `Minimum`,
@@ -3343,6 +3377,18 @@ const DisplayHTML = {
         div.append(p);
         place.append(div);
     },
+    add_gradient(destination, colors){
+        var element = DisplayHTML.get_element(destination);
+        var percent = 100 / (colors.length * 4 - 3);
+        var cstring = colors.reverse().reduce((str, color, i) => {
+            var div1 = (4 * i) - 3;
+            var grad = `${div1 * percent}%, ${colors[i - 1]} ${div1 * percent}%`;
+            var div2 = div1 + 3;
+            var block = `, ${color} ${div2 * percent}%`;
+            return `${str} ${grad} ${block}`;
+        });
+        element.style.backgroundImage = `linear-gradient(to left, ${cstring})`;
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -3710,17 +3756,40 @@ function display_move_buttons(card, hand_position){
     display.select(UIIDS.hand_display, 0, hand_position);
     display.remove_children(UIIDS.move_buttons);
     var button_data = card.options.show_buttons(hand_position);
-    for(let row of button_data){
-        let button_row = row.map(button => {return {
-            description: button.description,
-            on_click: function(){
-                GS.data.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
+    for(var i = 0; i < button_data.length; ++i){
+        let row = button_data[i];
+        let button_row = row.map(button => {
+            return {
+                description: button.description,
+                on_click: function(){
+                    GS.data.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
+                },
+                colors: button.colors
             }
-        }});
+        });
         display.add_button_row(UIIDS.move_buttons, button_row);
+        for(var j = 0; j < button_row.length; ++j){
+            display.add_gradient(`${UIIDS.move_buttons} ${i} ${j}`, button_row[j].colors);
+        }
     }
     var explanation = move_types.alt + `\n` + explain_card(card);
     display.add_on_click(UIIDS.move_info, function(){say(explanation)});
+}
+function get_colors(actions){
+    if(actions === undefined){
+        return [action_type_colors.none];
+    }
+    var colors = [];
+    for(var action of actions){
+        var color = COLOR_MAP.get(action.type);
+        if(!colors.includes(color)){
+            colors.push(color);
+        }
+    }
+    if(colors.length === 0){
+        colors.push(action_type_colors.do_nothing);
+    }
+    return colors;
 }
 function telegraph_repetition_boon(repeat){
     display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
@@ -11137,6 +11206,7 @@ class ButtonGrid{
                     description: str,
                     alt_click: telegraph(button.behavior),
                     on_click: click(button.behavior),
+                    colors: get_colors(button.behavior),
                 }
             }));
         }
@@ -11210,6 +11280,7 @@ class ButtonGrid{
         return this.#buttons[Math.floor(num / 3)][num % 3].behavior;
     }
 }
+
 class DeckSelector{
     #deck;
     #cards;
