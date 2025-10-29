@@ -6,6 +6,8 @@ function events_display_info(){
         tiles: [
             black_hole_beginning_mark,
             confusion_cloud_mark,
+            delayed_strike_mark,
+            delayed_stun_mark,
             darkling_rift_mark,
             falling_rubble_mark,
             nettle_roots_mark,

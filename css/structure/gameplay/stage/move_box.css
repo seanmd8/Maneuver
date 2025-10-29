@@ -11,10 +11,13 @@
     height : 33%;
 }
 .move-button-box table tr input {
-    height: 100%;
-    width: 33%;
-    text-align: center;
+    height: 32px;
+    width: 42px;
     padding-left: 0;
     padding-right: 0;
+    margin: 1px;
+    text-align: center;
+    vertical-align: middle;
     cursor: pointer;
+    font-size: 18px;
 }

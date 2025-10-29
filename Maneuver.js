@@ -912,6 +912,40 @@ const action_types = {
     heal: `Heal`,
 }
 Object.freeze(action_types);
+
+const color_options = {
+    red: `rgb(255 0 0)`,
+    blue: `rgb(13 58 209)`,
+    yellow: `rgb(255 255 0)`,
+    light_blue: `rgb(100 149 237)`,
+    green: `rgb(50 205 50)`,
+    grey: `rgb(169 169 169)`,
+    dark_grey: `rgb(105 105 105)`,
+}
+Object.freeze(color_options);
+
+const action_type_colors = {
+    move: color_options.blue,
+    attack: color_options.red,
+    teleport: color_options.light_blue,
+    stun: color_options.yellow,
+    move_until: color_options.blue,
+    attack_until: color_options.red,
+    heal: color_options.green,
+    do_nothing: color_options.dark_grey,
+    none: color_options.grey,
+}
+Object.freeze(action_type_colors);
+
+const COLOR_MAP = new Map([
+    [action_types.move, action_type_colors.move],
+    [action_types.attack, action_type_colors.attack],
+    [action_types.teleport, action_type_colors.teleport],
+    [action_types.stun, action_type_colors.stun],
+    [action_types.move_until, action_type_colors.move_until],
+    [action_types.attack_until, action_type_colors.attack_until],
+    [action_types.heal, action_type_colors.heal],
+]);
 const card_names = {
     symbol_add_card: `Add`,
     symbol_deck_at_minimum: `Minimum`,
@@ -1064,29 +1098,43 @@ const card_names = {
     y_strike_nw: `Y Strike NW`,
 }
 Object.freeze(card_names);
-// Button Options.
-const null_move_button = `--`;
-const NW = `NW`;
-const N = `N`;
-const NE = `NE`;
-const E = `E`;
-const SE = `SE`;
-const S = `S`;
-const SW = `SW`;
-const W = `W`;
-const C = `C`;
-
 // Unicode symbols.
 const usymbol = {
-    // Unicode arrows
+    // Arrows for card descriptions.
     left:   `\u2B9C`,
     up:     `\u2B9D`,
     right:  `\u2B9E`,
     down:   `\u2B9F`,
-    // Bullet point
+
+    // Bullet points.
     bullet: `\u2022`,
+    
+    // Arrows for move buttons.
+    w:      `\uD83E\uDC78`,
+    n:      `\uD83E\uDC79`,
+    e:      `\uD83E\uDC7A`,
+    s:      `\uD83E\uDC7B`,
+    nw:     `\uD83E\uDC7C`,
+    ne:     `\uD83E\uDC7D`,
+    se:     `\uD83E\uDC7E`,
+    sw:     `\uD83E\uDC7F`,
+    c:      `\u25C9`,
 }
 Object.freeze(usymbol);
+
+// Button Options.
+const null_move_button = `--`;
+const NW = usymbol.nw;
+const N = usymbol.n;
+const NE = usymbol.ne;
+const E = usymbol.e;
+const SE = usymbol.se;
+const S = usymbol.s;
+const SW = usymbol.sw;
+const W = usymbol.w;
+const C = usymbol.c;
+const DIRECTION_LIST = [NW, N, NE, W, C, E, SW, S, SE];
+
 
 // Move types.
 const move_types = {
@@ -3329,6 +3377,18 @@ const DisplayHTML = {
         div.append(p);
         place.append(div);
     },
+    add_gradient(destination, colors){
+        var element = DisplayHTML.get_element(destination);
+        var percent = 100 / (colors.length * 4 - 3);
+        var cstring = colors.reverse().reduce((str, color, i) => {
+            var div1 = (4 * i) - 3;
+            var grad = `${div1 * percent}%, ${colors[i - 1]} ${div1 * percent}%`;
+            var div2 = div1 + 3;
+            var block = `, ${color} ${div2 * percent}%`;
+            return `${str} ${grad} ${block}`;
+        });
+        element.style.backgroundImage = `linear-gradient(to left, ${cstring})`;
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -3696,17 +3756,40 @@ function display_move_buttons(card, hand_position){
     display.select(UIIDS.hand_display, 0, hand_position);
     display.remove_children(UIIDS.move_buttons);
     var button_data = card.options.show_buttons(hand_position);
-    for(let row of button_data){
-        let button_row = row.map(button => {return {
-            description: button.description,
-            on_click: function(){
-                GS.data.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
+    for(var i = 0; i < button_data.length; ++i){
+        let row = button_data[i];
+        let button_row = row.map(button => {
+            return {
+                description: button.description,
+                on_click: function(){
+                    GS.data.controls.alternate_is_pressed ? button.alt_click() : button.on_click();
+                },
+                colors: button.colors
             }
-        }});
+        });
         display.add_button_row(UIIDS.move_buttons, button_row);
+        for(var j = 0; j < button_row.length; ++j){
+            display.add_gradient(`${UIIDS.move_buttons} ${i} ${j}`, button_row[j].colors);
+        }
     }
     var explanation = move_types.alt + `\n` + explain_card(card);
     display.add_on_click(UIIDS.move_info, function(){say(explanation)});
+}
+function get_colors(actions){
+    if(actions === undefined){
+        return [action_type_colors.none];
+    }
+    var colors = [];
+    for(var action of actions){
+        var color = COLOR_MAP.get(action.type);
+        if(!colors.includes(color)){
+            colors.push(color);
+        }
+    }
+    if(colors.length === 0){
+        colors.push(action_type_colors.do_nothing);
+    }
+    return colors;
 }
 function telegraph_repetition_boon(repeat){
     display.remove_class(UIIDS.hand_box, `telegraph-repetition`);
@@ -4041,6 +4124,8 @@ function events_display_info(){
         tiles: [
             black_hole_beginning_mark,
             confusion_cloud_mark,
+            delayed_strike_mark,
+            delayed_stun_mark,
             darkling_rift_mark,
             falling_rubble_mark,
             nettle_roots_mark,
@@ -7222,6 +7307,9 @@ function specter_ai(self, target, map){
 }
 
 function get_specter_moves(current, direction, map){
+    if(direction.is_origin()){
+        return [];
+    }
     var locations = [];
     var last_open = 0;
     for(var i = 0; i < 3; ++i){
@@ -11118,6 +11206,7 @@ class ButtonGrid{
                     description: str,
                     alt_click: telegraph(button.behavior),
                     on_click: click(button.behavior),
+                    colors: get_colors(button.behavior),
                 }
             }));
         }
@@ -11149,8 +11238,7 @@ class ButtonGrid{
      * @returns {number} Returns the number (1-9) if it can be infered and -1 if it can't.
      */
     #convert_direction(direction){
-        var direction_list = [NW, N, NE, W, C, E, SW, S, SE];
-        var index = direction_list.indexOf(direction);
+        var index = DIRECTION_LIST.indexOf(direction);
         if(index >= 0){
             return index + 1;
         }
@@ -11192,6 +11280,7 @@ class ButtonGrid{
         return this.#buttons[Math.floor(num / 3)][num % 3].behavior;
     }
 }
+
 class DeckSelector{
     #deck;
     #cards;
@@ -16855,6 +16944,7 @@ const BOON_CARDS = [
     back_stab_1, back_stab_2,
     blink_1, blink_2,
     maneuver_1, maneuver_2, maneuver_3,
+
     // Attacks
     lost_technique,
     execution_1, execution_2, execution_3,
@@ -17193,17 +17283,60 @@ function filter_new_cards(cards){
     });
 }
 const BOON_LIST = [
-    ancient_card, ancient_card_2, bitter_determination, blood_alchemy, boss_slayer, 
-    brag_and_boast, chilly_presence, choose_your_path, clean_mind, creative, 
-    dazing_blows, delayed_strike, duplicate, empty_rooms, escape_artist, 
-    expend_vitality, flame_strike, flame_worship, fleeting_thoughts, fortitude, 
-    frenzy, frugivore, future_sight, gruntwork, hoarder, 
-    larger_chests, limitless, manic_presence, pacifism, pain_reflexes, 
-    pandoras_box, perfect_the_basics, picky_shopper, practice_makes_perfect, pressure_points, 
-    quick_healing, rebirth, repetition, retaliate, rift_touched, 
-    roar_of_challenge, safe_passage, shattered_glass, skill_trading, slime_trail, 
-    sniper, soul_voucher, spiked_shoes, spontaneous, stable_mind, 
-    stealthy, stubborn, thick_soles, vicious_cycle
+    ancient_card, 
+    ancient_card_2, 
+    bitter_determination, 
+    blood_alchemy, 
+    boss_slayer, 
+    brag_and_boast, 
+    chilly_presence, 
+    choose_your_path, 
+    clean_mind, 
+    creative, 
+    dazing_blows, 
+    delayed_strike, 
+    duplicate, 
+    empty_rooms, 
+    escape_artist, 
+    expend_vitality, 
+    flame_strike, 
+    flame_worship, 
+    fleeting_thoughts, 
+    fortitude, 
+    frenzy, 
+    frugivore, 
+    future_sight, 
+    gruntwork, 
+    hoarder, 
+    larger_chests, 
+    limitless, 
+    manic_presence, 
+    pacifism, 
+    pain_reflexes, 
+    pandoras_box, 
+    perfect_the_basics, 
+    picky_shopper, 
+    practice_makes_perfect, 
+    pressure_points, 
+    quick_healing, 
+    rebirth, 
+    repetition, 
+    retaliate, 
+    rift_touched, 
+    roar_of_challenge, 
+    safe_passage, 
+    shattered_glass, 
+    skill_trading, 
+    slime_trail, 
+    sniper, 
+    soul_voucher, 
+    spiked_shoes, 
+    spontaneous, 
+    stable_mind, 
+    stealthy, 
+    stubborn, 
+    thick_soles, 
+    vicious_cycle,
 ];
 
 function change_max_health(amount){

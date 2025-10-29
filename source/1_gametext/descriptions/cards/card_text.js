@@ -1,26 +1,40 @@
-// Button Options.
-const null_move_button = `--`;
-const NW = `NW`;
-const N = `N`;
-const NE = `NE`;
-const E = `E`;
-const SE = `SE`;
-const S = `S`;
-const SW = `SW`;
-const W = `W`;
-const C = `C`;
-
 // Unicode symbols.
 const usymbol = {
-    // Unicode arrows
+    // Arrows for card descriptions.
     left:   `\u2B9C`,
     up:     `\u2B9D`,
     right:  `\u2B9E`,
     down:   `\u2B9F`,
-    // Bullet point
+
+    // Bullet points.
     bullet: `\u2022`,
+    
+    // Arrows for move buttons.
+    w:      `\uD83E\uDC78`,
+    n:      `\uD83E\uDC79`,
+    e:      `\uD83E\uDC7A`,
+    s:      `\uD83E\uDC7B`,
+    nw:     `\uD83E\uDC7C`,
+    ne:     `\uD83E\uDC7D`,
+    se:     `\uD83E\uDC7E`,
+    sw:     `\uD83E\uDC7F`,
+    c:      `\u25C9`,
 }
 Object.freeze(usymbol);
+
+// Button Options.
+const null_move_button = `--`;
+const NW = usymbol.nw;
+const N = usymbol.n;
+const NE = usymbol.ne;
+const E = usymbol.e;
+const SE = usymbol.se;
+const S = usymbol.s;
+const SW = usymbol.sw;
+const W = usymbol.w;
+const C = usymbol.c;
+const DIRECTION_LIST = [NW, N, NE, W, C, E, SW, S, SE];
+
 
 // Move types.
 const move_types = {

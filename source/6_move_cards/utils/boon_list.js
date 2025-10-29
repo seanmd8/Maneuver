@@ -4,6 +4,7 @@ const BOON_CARDS = [
     back_stab_1, back_stab_2,
     blink_1, blink_2,
     maneuver_1, maneuver_2, maneuver_3,
+
     // Attacks
     lost_technique,
     execution_1, execution_2, execution_3,

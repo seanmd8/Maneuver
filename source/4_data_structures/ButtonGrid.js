@@ -74,6 +74,7 @@ class ButtonGrid{
                     description: str,
                     alt_click: telegraph(button.behavior),
                     on_click: click(button.behavior),
+                    colors: get_colors(button.behavior),
                 }
             }));
         }
@@ -105,8 +106,7 @@ class ButtonGrid{
      * @returns {number} Returns the number (1-9) if it can be infered and -1 if it can't.
      */
     #convert_direction(direction){
-        var direction_list = [NW, N, NE, W, C, E, SW, S, SE];
-        var index = direction_list.indexOf(direction);
+        var index = DIRECTION_LIST.indexOf(direction);
         if(index >= 0){
             return index + 1;
         }
