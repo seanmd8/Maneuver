@@ -9,6 +9,11 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+10/28/25
+- Move buttons are now colored based on the type and order of actions performed.
+- Added 2 missing events to journal.
+- Fixed bug with specter.
+
 10/23/25
 - Added 3 new boons.
 - Flame Worship boon now spawns 2 altars.
