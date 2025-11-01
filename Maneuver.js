@@ -517,6 +517,7 @@ const VICTORY_IMG_SCALE = TILE_SCALE * FLOOR_HEIGHT + 12;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY = 200;
+const CONFIRMATION_BUTTON_DELAY = 3000;
 const DECK_DISPLAY_WIDTH = 5;
 const JOURNAL_DISPLAY_WIDTH = 10;
 const TEXT_WRAP_WIDTH = 90;
@@ -621,6 +622,7 @@ function initiate_game(){
     display_guide();
     setup_journal_navbar();
     setup_settings_navbar();
+    setup_reset_page();
 }
 
 /**
@@ -2389,6 +2391,16 @@ const settings_navbar_labels = {
     controls: `Controls`,
 }
 Object.freeze(settings_navbar_labels);
+const reset_text = {
+    reset: `Reset`,
+    confirm: `Confirm?`,
+
+    achievements: `Reset achievement data: `,
+    areas: `Reset area and tile data: `,
+    boons: `Reset boon data: `,
+    cards: `Reset card data: `,
+    journal: `Reset all journal data: `,
+}
 // ----------------UIID.js----------------
 // File containing a library of ids used to retrieve elements of the ui.
 
@@ -3266,7 +3278,7 @@ const DisplayHTML = {
             reset_achievements, 
             achievement_text.reset,
             achievement_text.confirm_reset,
-            3000
+            CONFIRMATION_BUTTON_DELAY
         );
         toprow.append(reset);
         place.append(toprow);
@@ -3546,11 +3558,29 @@ const DisplayHTML = {
             button.innerText = text2;
             button.classList.add(`achievement-confirm-reset`);
             button.classList.remove(`achievement-reset`);
-            button.onclick = on_click;
+            button.onclick = () => {
+                on_click();
+                reset_button();
+            }
             setTimeout(() => {reset_button();}, wait);
         }
         reset_button();
         return button;
+    },
+    reset_section(location, on_click, question){
+        var element = DisplayHTML.get_element(location);
+        var section = document.createElement(`div`);
+        var p = document.createElement(`p`);
+        p.innerText = question;
+        var button = DisplayHTML.make_confirmation_button(
+            on_click,
+            reset_text.reset,
+            reset_text.confirm,
+            CONFIRMATION_BUTTON_DELAY
+        );
+        section.append(p);
+        section.append(button);
+        element.append(section);
     },
 
     // Non Required helper functions.
@@ -4579,6 +4609,13 @@ function setup_settings_navbar(){
     display.create_visibility_toggle(id, settings_navbar_labels.controls, swap_visibility(section_id_list, UIIDS.controls));
 
     display.swap_screen(section_id_list, UIIDS.general_settings);
+}
+function setup_reset_page(){
+    display.reset_section(UIIDS.general_settings, reset_cards, reset_text.cards);
+    display.reset_section(UIIDS.general_settings, reset_boons, reset_text.boons);
+    display.reset_section(UIIDS.general_settings, reset_areas, reset_text.areas);
+    display.reset_section(UIIDS.general_settings, reset_achievements, reset_text.achievements);
+    display.reset_section(UIIDS.general_settings, reset_journal, reset_text.journal);
 }
 function reset_achievements(){
     GS.data.reset_achievements();

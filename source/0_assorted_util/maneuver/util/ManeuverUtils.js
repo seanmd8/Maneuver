@@ -17,6 +17,7 @@ function initiate_game(){
     display_guide();
     setup_journal_navbar();
     setup_settings_navbar();
+    setup_reset_page();
 }
 
 /**

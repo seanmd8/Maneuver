@@ -630,7 +630,7 @@ const DisplayHTML = {
             reset_achievements, 
             achievement_text.reset,
             achievement_text.confirm_reset,
-            3000
+            CONFIRMATION_BUTTON_DELAY
         );
         toprow.append(reset);
         place.append(toprow);
@@ -910,11 +910,29 @@ const DisplayHTML = {
             button.innerText = text2;
             button.classList.add(`achievement-confirm-reset`);
             button.classList.remove(`achievement-reset`);
-            button.onclick = on_click;
+            button.onclick = () => {
+                on_click();
+                reset_button();
+            }
             setTimeout(() => {reset_button();}, wait);
         }
         reset_button();
         return button;
+    },
+    reset_section(location, on_click, question){
+        var element = DisplayHTML.get_element(location);
+        var section = document.createElement(`div`);
+        var p = document.createElement(`p`);
+        p.innerText = question;
+        var button = DisplayHTML.make_confirmation_button(
+            on_click,
+            reset_text.reset,
+            reset_text.confirm,
+            CONFIRMATION_BUTTON_DELAY
+        );
+        section.append(p);
+        section.append(button);
+        element.append(section);
     },
 
     // Non Required helper functions.
