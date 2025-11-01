@@ -620,7 +620,7 @@ function initiate_game(){
     GS.setup();
     display_guide();
     setup_journal_navbar();
-    setup_settings_page();
+    setup_settings_navbar();
 }
 
 /**
@@ -2092,41 +2092,6 @@ const boss_achievements = [
     achievement_names.arcane_sentry,
     achievement_names.lord_of_shadow_and_flame,
 ]
-const control_screen_text = {
-    default: `Default`,
-    edit: `Edit`,
-    save: `Save`,
-    undo: `Undo`,
-}
-Object.freeze(control_screen_text);
-
-const CONTROLS_TEXT = {
-    header: `Controls`,
-    stage: {
-        header: `Stage Controls`,
-        card: `Choose card`,
-        direction: `Make move`,
-        toggle: `Preview move (hold key down)`,
-        info: `View card info`,
-        retry: `Retry`
-    },
-    shop: {
-        header: `Shop Controls`,
-        add: `Choose card to add`,
-        remove: `Choose card to remove`,
-        confirm: `Confirm choice`
-    },
-    chest: {
-        header: `Chest Controls`,
-        choose: `Choose item`,
-        confirm: `Confirm choice`,
-        reject: `Abandon chest`
-    }
-}
-Object.freeze(CONTROLS_TEXT);
-
-const KEYBOARD_SYMBOL_MAP = new Map();
-KEYBOARD_SYMBOL_MAP.set(` `, `space`);
 const stat_image_labels = {
     deck: `Cards in deck`,
     floor: `Floor number`,
@@ -2384,6 +2349,46 @@ const screen_names = {
     settings: `Settings`,
 }
 Object.freeze(screen_names);
+const control_screen_text = {
+    default: `Default`,
+    edit: `Edit`,
+    save: `Save`,
+    undo: `Undo`,
+}
+Object.freeze(control_screen_text);
+
+const CONTROLS_TEXT = {
+    header: `Controls`,
+    stage: {
+        header: `Stage Controls`,
+        card: `Choose card`,
+        direction: `Make move`,
+        toggle: `Preview move (hold key down)`,
+        info: `View card info`,
+        retry: `Retry`
+    },
+    shop: {
+        header: `Shop Controls`,
+        add: `Choose card to add`,
+        remove: `Choose card to remove`,
+        confirm: `Confirm choice`
+    },
+    chest: {
+        header: `Chest Controls`,
+        choose: `Choose item`,
+        confirm: `Confirm choice`,
+        reject: `Abandon chest`
+    }
+}
+Object.freeze(CONTROLS_TEXT);
+
+const KEYBOARD_SYMBOL_MAP = new Map();
+KEYBOARD_SYMBOL_MAP.set(` `, `space`);
+const settings_navbar_labels = {
+    general: `General`,
+    controls: `Controls`,
+}
+Object.freeze(settings_navbar_labels);
 // ----------------UIID.js----------------
 // File containing a library of ids used to retrieve elements of the ui.
 
@@ -2519,6 +2524,8 @@ const HTML_UIIDS = {
         achievements: `achievements`,
             achievement_list: `achievement-list`,
     settings: `settings`,
+        settings_navbar: `settingsNavbar`,
+        general_settings: `generalSettings`,
         controls: `controls`,
             stage_controls: `stageControls`,
             shop_controls: `shopControls`,
@@ -4547,6 +4554,26 @@ function edit_stage_controls(controls){
 }
 function setup_settings_page(){
     setup_controls_page();
+}
+
+function setup_settings_navbar(){
+    var id = UIIDS.settings_navbar;
+
+    var section_id_list = [
+        UIIDS.general_settings,
+        UIIDS.controls,
+    ];
+
+    var swap_visibility = function(id_list, id){
+        return function(){
+            display.swap_screen(id_list, id);
+        }
+    }
+
+    display.create_visibility_toggle(id, settings_navbar_labels.general, swap_visibility(section_id_list, UIIDS.general_settings));
+    display.create_visibility_toggle(id, settings_navbar_labels.controls, swap_visibility(section_id_list, UIIDS.controls));
+
+    display.swap_screen(section_id_list, UIIDS.general_settings);
 }
 const SENTRY_MODES = {
     saw: `Saw`,

@@ -133,6 +133,8 @@ const HTML_UIIDS = {
         achievements: `achievements`,
             achievement_list: `achievement-list`,
     settings: `settings`,
+        settings_navbar: `settingsNavbar`,
+        general_settings: `generalSettings`,
         controls: `controls`,
             stage_controls: `stageControls`,
             shop_controls: `shopControls`,
