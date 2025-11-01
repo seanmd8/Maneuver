@@ -16,7 +16,7 @@ function initiate_game(){
     GS.setup();
     display_guide();
     setup_journal_navbar();
-    setup_controls_page();
+    setup_settings_page();
 }
 
 /**

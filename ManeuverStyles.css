@@ -13,121 +13,6 @@ body>div {
     padding: 8px;
     box-sizing: border-box;
 }
-.control-box {
-    display: flex;
-    align-items: center;
-    border-style: solid;
-    height: 91px;
-    width: 594px;
-    margin: 2px;
-    font-size: 20px;
-    background-color: lightblue;
-    margin-bottom: 4px;
-}
-.control-box div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 91px;
-    width: 90px;
-    border-right: solid;
-    background-color: cadetblue;
-}
-.control-box p {
-    margin-left: 20px;
-}
-.control-box div table tr input {
-    min-width: 27px;
-    height: 27px;
-    margin-top: 1px;
-    margin-left: 1px;
-    font-size: 17px;
-}
-
-.control-edit-box {
-    display: flex;
-    align-items: center;
-    border-style: solid;
-    width: 600px;
-    height: 50px;
-    margin: 2px;
-    margin-bottom: 4px;
-    font-size: 20px;
-    background-color: lightblue;
-}
-.control-edit-box div {
-    width: 80px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-right: solid;
-    background-color: cadetblue;
-}
-.control-edit-box p {
-    margin-left: 10px;
-}
-.control-edit-box div input {
-    min-width: 27px;
-    height: 27px;
-    font-size: 17px;
-}
-.control-edit-box div input:hover {
-    cursor: pointer;
-}
-.control-edit-box div input:focus-visible {
-    outline: none;
-}
-.edit-control {
-    background-color: black;
-    color: white;
-}
-.control-header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-}
-.control-header h2 {
-    width: fit-content;
-    display: inline-flex;
-    margin-left: 20px;
-    margin-right: auto;
-    background-color: lightgrey;
-    padding: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-radius: 7px;
-    border-style: solid;
-}
-.control-header input {
-    display: inline-flex;
-    margin-right: 20px;
-    width: 70px;
-    height: 30px;
-    border-width: 3px;
-    border-style: groove;
-    border-color: blue;
-    background-color: aliceblue;
-}
-.control-header input:hover {
-    background-color: blueviolet;
-    color: aliceblue;
-    cursor: pointer;
-}
-.control-style {
-    background-color: var(--controls-background-color);
-    min-height: 100%;
-    min-width: 100%;
-}
-.control-section {
-    border: solid;
-    border-radius: 20px;
-    width: fit-content;
-    padding: 20px;
-    padding-top: 0px;
-    background-color: #2c7d2c;
-    margin: 6px;
-}
 .chest-body-box {
     border-style: solid;
     border-width: 5px;
@@ -958,13 +843,128 @@ body>div {
     min-width: 1456px;
     padding-bottom: 0px;
 }
+.control-box {
+    display: flex;
+    align-items: center;
+    border-style: solid;
+    height: 91px;
+    width: 594px;
+    margin: 2px;
+    font-size: 20px;
+    background-color: lightblue;
+    margin-bottom: 4px;
+}
+.control-box div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 91px;
+    width: 90px;
+    border-right: solid;
+    background-color: cadetblue;
+}
+.control-box p {
+    margin-left: 20px;
+}
+.control-box div table tr input {
+    min-width: 27px;
+    height: 27px;
+    margin-top: 1px;
+    margin-left: 1px;
+    font-size: 17px;
+}
+
+.control-edit-box {
+    display: flex;
+    align-items: center;
+    border-style: solid;
+    width: 600px;
+    height: 50px;
+    margin: 2px;
+    margin-bottom: 4px;
+    font-size: 20px;
+    background-color: lightblue;
+}
+.control-edit-box div {
+    width: 80px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: solid;
+    background-color: cadetblue;
+}
+.control-edit-box p {
+    margin-left: 10px;
+}
+.control-edit-box div input {
+    min-width: 27px;
+    height: 27px;
+    font-size: 17px;
+}
+.control-edit-box div input:hover {
+    cursor: pointer;
+}
+.control-edit-box div input:focus-visible {
+    outline: none;
+}
+.edit-control {
+    background-color: black;
+    color: white;
+}
+.control-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+.control-header h2 {
+    width: fit-content;
+    display: inline-flex;
+    margin-left: 20px;
+    margin-right: auto;
+    background-color: lightgrey;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 7px;
+    border-style: solid;
+}
+.control-header input {
+    display: inline-flex;
+    margin-right: 20px;
+    width: 70px;
+    height: 30px;
+    border-width: 3px;
+    border-style: groove;
+    border-color: blue;
+    background-color: aliceblue;
+}
+.control-header input:hover {
+    background-color: blueviolet;
+    color: aliceblue;
+    cursor: pointer;
+}
+.control-section {
+    border: solid;
+    border-radius: 20px;
+    width: fit-content;
+    padding: 20px;
+    padding-top: 0px;
+    background-color: #2c7d2c;
+    margin: 6px;
+}
+.settings-style{
+    background-color: var(--settings-background-color);
+    min-height: 100%;
+    min-width: 100%;
+}
 :root {
     --card-box-color: white;
     --card-box-legend-color: lightblue;
     --text-box-background-color: white;
     
     --game-background-color: antiquewhite;
-    --controls-background-color: antiquewhite;
+    --settings-background-color: antiquewhite;
     --achievements-background-color: antiquewhite;
     --guidebook-background-color: antiquewhite;
     --journal-background-color: antiquewhite;

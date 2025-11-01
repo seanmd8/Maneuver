@@ -132,10 +132,11 @@ const HTML_UIIDS = {
         journal_areas: `journalAreas`,
         achievements: `achievements`,
             achievement_list: `achievement-list`,
-    controls: `controls`,
-        stage_controls: `stageControls`,
-        shop_controls: `shopControls`,
-        chest_controls: `chestControls`,
+    settings: `settings`,
+        controls: `controls`,
+            stage_controls: `stageControls`,
+            shop_controls: `shopControls`,
+            chest_controls: `chestControls`,
 }
 Object.freeze(HTML_UIIDS);
 

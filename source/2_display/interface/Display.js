@@ -308,7 +308,7 @@ const DisplayHTML = {
                 GS.data.controls.chest(key);
             }
         }
-        else if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
+        else if(DISPLAY_DIVISIONS.is(UIIDS.settings) && display.set_control !== undefined){
             display.set_control(key);
         }
     },
@@ -512,7 +512,7 @@ const DisplayHTML = {
         header.innerText = description;
         var edit_mode = function(controls){
             return () => {
-                setup_controls_page();
+                setup_settings_page();
                 DisplayHTML.remove_children(location);
                 edit_function(controls);
             }

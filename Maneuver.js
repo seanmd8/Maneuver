@@ -620,7 +620,7 @@ function initiate_game(){
     GS.setup();
     display_guide();
     setup_journal_navbar();
-    setup_controls_page();
+    setup_settings_page();
 }
 
 /**
@@ -2381,7 +2381,7 @@ const screen_names = {
     gameplay: `Gameplay`,
     guide: `Guidebook`,
     journal: `Journal`,
-    controls: `Controls`,
+    settings: `Settings`,
 }
 Object.freeze(screen_names);
 // ----------------UIID.js----------------
@@ -2518,10 +2518,11 @@ const HTML_UIIDS = {
         journal_areas: `journalAreas`,
         achievements: `achievements`,
             achievement_list: `achievement-list`,
-    controls: `controls`,
-        stage_controls: `stageControls`,
-        shop_controls: `shopControls`,
-        chest_controls: `chestControls`,
+    settings: `settings`,
+        controls: `controls`,
+            stage_controls: `stageControls`,
+            shop_controls: `shopControls`,
+            chest_controls: `chestControls`,
 }
 Object.freeze(HTML_UIIDS);
 
@@ -2936,7 +2937,7 @@ const DisplayHTML = {
                 GS.data.controls.chest(key);
             }
         }
-        else if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
+        else if(DISPLAY_DIVISIONS.is(UIIDS.settings) && display.set_control !== undefined){
             display.set_control(key);
         }
     },
@@ -3140,7 +3141,7 @@ const DisplayHTML = {
         header.innerText = description;
         var edit_mode = function(controls){
             return () => {
-                setup_controls_page();
+                setup_settings_page();
                 DisplayHTML.remove_children(location);
                 edit_function(controls);
             }
@@ -3572,60 +3573,6 @@ function update_achievements(){
 function reset_achievements(){
     GS.data.reset_achievements();
     update_achievements();
-}
-function controls_chest_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
-    display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
-    display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
-    display.control_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
-}
-
-function edit_chest_controls(controls){
-    display.add_edit_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, controls_chest_section, controls);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
-}
-function setup_controls_page(){
-    display.remove_children(UIIDS.stage_controls);
-    controls_stage_section();
-    display.remove_children(UIIDS.shop_controls);
-    controls_shop_section();
-    display.remove_children(UIIDS.chest_controls);
-    controls_chest_section();
-}
-function controls_shop_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
-    display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
-    display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
-    display.control_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
-}
-
-function edit_shop_controls(controls){
-    display.add_edit_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, controls_shop_section, controls);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.add, CONTROLS_TEXT.shop.add);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
-}
-function controls_stage_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
-    display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
-    display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
-    display.control_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
-    display.control_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
-    display.control_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
-}
-
-function edit_stage_controls(controls){
-    display.add_edit_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, controls_stage_section, controls);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.card, CONTROLS_TEXT.stage.card);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
-    display.control_edit_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
 }
 function display_deck_to_duplicate(){
     display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
@@ -4082,10 +4029,10 @@ function create_main_dropdown(location){
             }
         },
         {
-            label: screen_names.controls,
+            label: screen_names.settings,
             on_change: () => {
-                setup_controls_page();
-                DISPLAY_DIVISIONS.swap(UIIDS.controls);
+                setup_settings_page();
+                DISPLAY_DIVISIONS.swap(UIIDS.settings);
             }
         },
 
@@ -4543,6 +4490,63 @@ function setup_journal_navbar(){
     display.create_visibility_toggle(id, journal_navbar_labels.achievements, swap_visibility(section_id_list, UIIDS.achievements));
 
     display.swap_screen(section_id_list, UIIDS.journal_cards);
+}
+function controls_chest_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
+    display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
+    display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+
+function edit_chest_controls(controls){
+    display.add_edit_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, controls_chest_section, controls);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+function setup_controls_page(){
+    display.remove_children(UIIDS.stage_controls);
+    controls_stage_section();
+    display.remove_children(UIIDS.shop_controls);
+    controls_shop_section();
+    display.remove_children(UIIDS.chest_controls);
+    controls_chest_section();
+}
+function controls_shop_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
+    display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
+    display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
+    display.control_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+
+function edit_shop_controls(controls){
+    display.add_edit_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, controls_shop_section, controls);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.add, CONTROLS_TEXT.shop.add);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+function controls_stage_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
+    display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
+    display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+
+function edit_stage_controls(controls){
+    display.add_edit_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, controls_stage_section, controls);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.card, CONTROLS_TEXT.stage.card);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_edit_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+function setup_settings_page(){
+    setup_controls_page();
 }
 const SENTRY_MODES = {
     saw: `Saw`,
@@ -13865,7 +13869,7 @@ class ScreenTracker{
     }
 }
 
-const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.achievements, UIIDS.journal, UIIDS.controls, ]);
+const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.achievements, UIIDS.journal, UIIDS.settings, ]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.full_deck, UIIDS.initiative, UIIDS.deck_order]);
 class AreaTreeNode{
