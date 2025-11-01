@@ -626,22 +626,12 @@ const DisplayHTML = {
         header.append(title);
         toprow.append(header);
         
-        var reset = document.createElement(`button`);
-        reset.classList.add(`achievement-button`);
-        var set_reset_button = () => {
-            reset.innerText = achievement_text.reset;
-            reset.classList.add(`achievement-reset`);
-            reset.classList.remove(`achievement-confirm-reset`);
-            reset.onclick = set_confirm_reset_button;
-        }
-        var set_confirm_reset_button = () => {
-            reset.innerText = achievement_text.confirm_reset;
-            reset.classList.add(`achievement-confirm-reset`);
-            reset.classList.remove(`achievement-reset`);
-            reset.onclick = reset_achievements;
-            setTimeout(() => {set_reset_button();}, 4000);
-        }
-        set_reset_button();
+        var reset = DisplayHTML.make_confirmation_button(
+            reset_achievements, 
+            achievement_text.reset,
+            achievement_text.confirm_reset,
+            3000
+        );
         toprow.append(reset);
         place.append(toprow);
 
@@ -906,6 +896,25 @@ const DisplayHTML = {
             return `${str} ${grad} ${block}`;
         });
         element.style.backgroundImage = `linear-gradient(to left, ${cstring})`;
+    },
+    make_confirmation_button(on_click, text1, text2, wait){
+        var button = document.createElement(`button`);
+        button.classList.add(`achievement-button`);
+        var reset_button = () => {
+            button.innerText = text1;
+            button.classList.add(`achievement-reset`);
+            button.classList.remove(`achievement-confirm-reset`);
+            button.onclick = confirm_button;
+        }
+        var confirm_button = () => {
+            button.innerText = text2;
+            button.classList.add(`achievement-confirm-reset`);
+            button.classList.remove(`achievement-reset`);
+            button.onclick = on_click;
+            setTimeout(() => {reset_button();}, wait);
+        }
+        reset_button();
+        return button;
     },
 
     // Non Required helper functions.

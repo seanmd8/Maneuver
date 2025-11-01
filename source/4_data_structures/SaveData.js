@@ -82,6 +82,10 @@ class SaveData{
         this.cards.get_node(name).remove();
         this.save();
     }
+    reset_cards(){
+        this.cards = new SearchTree([], CardTreeNode);
+        this.save();
+    }
     add_boon(name){
         this.boons.add(name);
         this.boons.get_node(name).pick();
@@ -94,6 +98,10 @@ class SaveData{
                 GS.achieve(achievement_names.blessed);
             }
         }
+    }
+    reset_boons(){
+        this.boons = new SearchTree([], BoonTreeNode);
+        this.save();
     }
     add_tile(name){
         var added = this.tiles.add(name);
@@ -117,6 +125,11 @@ class SaveData{
     clear_area(name){
         var area = this.areas.get_node(name);
         area.clear();
+        this.save();
+    }
+    reset_areas(){
+        this.tiles = new SearchTree([], TileTreeNode);
+        this.areas = new SearchTree([], AreaTreeNode);
         this.save();
     }
 

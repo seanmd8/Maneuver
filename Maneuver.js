@@ -3262,22 +3262,12 @@ const DisplayHTML = {
         header.append(title);
         toprow.append(header);
         
-        var reset = document.createElement(`button`);
-        reset.classList.add(`achievement-button`);
-        var set_reset_button = () => {
-            reset.innerText = achievement_text.reset;
-            reset.classList.add(`achievement-reset`);
-            reset.classList.remove(`achievement-confirm-reset`);
-            reset.onclick = set_confirm_reset_button;
-        }
-        var set_confirm_reset_button = () => {
-            reset.innerText = achievement_text.confirm_reset;
-            reset.classList.add(`achievement-confirm-reset`);
-            reset.classList.remove(`achievement-reset`);
-            reset.onclick = reset_achievements;
-            setTimeout(() => {set_reset_button();}, 4000);
-        }
-        set_reset_button();
+        var reset = DisplayHTML.make_confirmation_button(
+            reset_achievements, 
+            achievement_text.reset,
+            achievement_text.confirm_reset,
+            3000
+        );
         toprow.append(reset);
         place.append(toprow);
 
@@ -3543,6 +3533,25 @@ const DisplayHTML = {
         });
         element.style.backgroundImage = `linear-gradient(to left, ${cstring})`;
     },
+    make_confirmation_button(on_click, text1, text2, wait){
+        var button = document.createElement(`button`);
+        button.classList.add(`achievement-button`);
+        var reset_button = () => {
+            button.innerText = text1;
+            button.classList.add(`achievement-reset`);
+            button.classList.remove(`achievement-confirm-reset`);
+            button.onclick = confirm_button;
+        }
+        var confirm_button = () => {
+            button.innerText = text2;
+            button.classList.add(`achievement-confirm-reset`);
+            button.classList.remove(`achievement-reset`);
+            button.onclick = on_click;
+            setTimeout(() => {reset_button();}, wait);
+        }
+        reset_button();
+        return button;
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -3571,16 +3580,6 @@ const DisplayHTML = {
 const display = get_display(MARKUP_LANGUAGE);
 
 const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.
-function update_achievements(){
-    var achievements = GS.data.achievements.all();
-    display.remove_children(UIIDS.achievement_list);
-    display.show_achievements(UIIDS.achievement_list, achievements);
-}
-
-function reset_achievements(){
-    GS.data.reset_achievements();
-    update_achievements();
-}
 function display_deck_to_duplicate(){
     display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
     var finish = (card, deck) => {
@@ -4305,6 +4304,12 @@ function sewers_display_info(){
         ],
     }
 }
+function update_achievements(){
+    var achievements = GS.data.achievements.all();
+    display.remove_children(UIIDS.achievement_list);
+    display.show_achievements(UIIDS.achievement_list, achievements);
+}
+
 function update_journal_areas(){
     for(var i = 0; i < 7; ++i){
         display.remove_children(`${UIIDS.journal_areas}${i}`);
@@ -4574,6 +4579,28 @@ function setup_settings_navbar(){
     display.create_visibility_toggle(id, settings_navbar_labels.controls, swap_visibility(section_id_list, UIIDS.controls));
 
     display.swap_screen(section_id_list, UIIDS.general_settings);
+}
+function reset_achievements(){
+    GS.data.reset_achievements();
+    update_achievements();
+}
+function reset_areas(){
+    GS.data.reset_areas();
+    update_journal_areas();
+}
+function reset_boons(){
+    GS.data.reset_boons();
+    update_journal_boons();
+}
+function reset_cards(){
+    GS.data.reset_cards();
+    update_journal_cards();
+}
+function reset_journal(){
+    reset_achievements();
+    reset_areas();
+    reset_boons();
+    reset_cards();
 }
 const SENTRY_MODES = {
     saw: `Saw`,
@@ -13766,6 +13793,10 @@ class SaveData{
         this.cards.get_node(name).remove();
         this.save();
     }
+    reset_cards(){
+        this.cards = new SearchTree([], CardTreeNode);
+        this.save();
+    }
     add_boon(name){
         this.boons.add(name);
         this.boons.get_node(name).pick();
@@ -13778,6 +13809,10 @@ class SaveData{
                 GS.achieve(achievement_names.blessed);
             }
         }
+    }
+    reset_boons(){
+        this.boons = new SearchTree([], BoonTreeNode);
+        this.save();
     }
     add_tile(name){
         var added = this.tiles.add(name);
@@ -13801,6 +13836,11 @@ class SaveData{
     clear_area(name){
         var area = this.areas.get_node(name);
         area.clear();
+        this.save();
+    }
+    reset_areas(){
+        this.tiles = new SearchTree([], TileTreeNode);
+        this.areas = new SearchTree([], AreaTreeNode);
         this.save();
     }
 
