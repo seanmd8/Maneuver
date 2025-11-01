@@ -182,7 +182,7 @@ const boon_cost_descriptions = {
     creative: `Cost: Increase your minimum deck size by 5.`,
     expend_vitality: `Cost: Decrease your maximum health by 1.`,
     gruntwork: `Cost: Decrease your hand size by 1.`,
-    roar_of_challenge: `Cost: Increase difficulty by 5 floors.`,
+    roar_of_challenge: `Cost: Increase difficulty by 3 floors.`,
     shattered_glass: `Cost: Decrease your maximum health by 2.`,
     spiked_shoes: `Cost: Decrease your maximum health by 1.`,
     spontaneous: `Cost: Increase your minimum deck size by 5.`,

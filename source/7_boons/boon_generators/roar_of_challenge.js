@@ -18,6 +18,6 @@ function pick_roar_of_challenge(){
     change_max_health(2);
     var has_voucher = GS.boons.has(boon_names.soul_voucher);
     if(!has_voucher){
-        GS.map.change_floor_modifier(5);
+        GS.map.change_floor_modifier(3);
     }
 }
