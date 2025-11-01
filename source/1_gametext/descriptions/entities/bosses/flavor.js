@@ -1,0 +1,23 @@
+const boss_flavor = {
+    arcane_sentry:
+        ``,
+    arcane_sentry_node:
+        ``,
+    forest_heart:
+        ``,
+    lich:
+        ``,
+    lord_of_shadow_and_flame:
+        ``,
+    spider_queen:
+        ``,
+    two_headed_serpent:
+        ``,
+    two_headed_serpent_body:
+        ``,
+    velociphile:
+        ``,
+    young_dragon:
+        ``,
+}
+Object.freeze(boss_flavor);

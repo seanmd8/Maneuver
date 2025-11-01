@@ -1,0 +1,37 @@
+const event_flavor = {
+    black_hole_formation:
+        ``,
+    confusion_cloud:
+        ``,
+    darkling_rift:
+        ``,
+    delay:
+        ``,
+    delayed_strike:
+        ``,
+    delayed_stun:
+        ``,
+    earthquake:
+        ``,
+    falling_magma:
+        ``,
+    falling_rubble:
+        ``,
+    nettle_roots:
+        ``,
+    spell_announcement:
+        ``,
+    starfall:
+        ``,
+    sunlight:
+        ``,
+    thorn_roots:
+        ``,
+    unstun:
+        ``,
+    wake_up:
+        ``,
+    warp:
+        ``,
+}
+Object.freeze(event_flavor);

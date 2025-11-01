@@ -58,6 +58,8 @@ const enemy_flavor = {
         +`nature could be an attempt to reach areas with fresh nutrients, it is unclear what led these `
         +`trees to be so aggressive. Thankfully their control over their branches isn't very fine `
         +`making their attacks easy to evade at close range.`,
+    living_tree_rooted:
+        ``,
     magma_spewer: 
         `These strange creatures possess a unique digestive tract. Rather than eating organic matter, `
         +`they get most of their energy through drinking magma. In addition to acting as a thermal `

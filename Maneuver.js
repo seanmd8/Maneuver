@@ -1227,6 +1227,29 @@ const boss_descriptions = {
     ],
 }
 Object.freeze(boss_descriptions);
+const boss_flavor = {
+    arcane_sentry:
+        ``,
+    arcane_sentry_node:
+        ``,
+    forest_heart:
+        ``,
+    lich:
+        ``,
+    lord_of_shadow_and_flame:
+        ``,
+    spider_queen:
+        ``,
+    two_headed_serpent:
+        ``,
+    two_headed_serpent_body:
+        ``,
+    velociphile:
+        ``,
+    young_dragon:
+        ``,
+}
+Object.freeze(boss_flavor);
 const boss_floor_message = {
     arcane_sentry: 
         `An alarm begins to blare.\n`
@@ -1500,6 +1523,8 @@ const enemy_flavor = {
         +`nature could be an attempt to reach areas with fresh nutrients, it is unclear what led these `
         +`trees to be so aggressive. Thankfully their control over their branches isn't very fine `
         +`making their attacks easy to evade at close range.`,
+    living_tree_rooted:
+        ``,
     magma_spewer: 
         `These strange creatures possess a unique digestive tract. Rather than eating organic matter, `
         +`they get most of their energy through drinking magma. In addition to acting as a thermal `
@@ -1722,6 +1747,43 @@ const event_descriptions = {
         `Watch out, brambles are about to sprout damaging anything standing here.`,
 }
 Object.freeze(event_descriptions);
+const event_flavor = {
+    black_hole_formation:
+        ``,
+    confusion_cloud:
+        ``,
+    darkling_rift:
+        ``,
+    delay:
+        ``,
+    delayed_strike:
+        ``,
+    delayed_stun:
+        ``,
+    earthquake:
+        ``,
+    falling_magma:
+        ``,
+    falling_rubble:
+        ``,
+    nettle_roots:
+        ``,
+    spell_announcement:
+        ``,
+    starfall:
+        ``,
+    sunlight:
+        ``,
+    thorn_roots:
+        ``,
+    unstun:
+        ``,
+    wake_up:
+        ``,
+    warp:
+        ``,
+}
+Object.freeze(event_flavor);
 const event_names = {
     black_hole_formation: `Black Hole Formation`,
     confusion_cloud: `Confusion Cloud`,
@@ -1811,6 +1873,59 @@ const other_tile_descriptions = {
         `Damaged Wall: Something might live inside.`,
 }
 Object.freeze(other_tile_descriptions);
+const other_flavor = {
+    altar_of_scouring:
+        ``,
+    altar_of_shadow:
+        ``,
+    altar_of_singularity:
+        ``,
+    altar_of_space:
+        ``,
+    altar_of_stars:
+        ``,
+    altar_of_stasis:
+        ``,
+    altar_of_sunlight:
+        ``,
+    black_hole:
+        ``,
+    bookshelf:
+        ``,
+    coffin:
+        ``,
+    corrosive_slime:
+        ``,
+    fireball:
+        ``,
+    fruit_tree_enticing:
+        ``,
+    fruit_tree_rotting:
+        ``,
+    lava_pool:
+        ``,
+    magmatic_boulder:
+        ``,
+    moon_rock:
+        ``,
+    raging_fire:
+        ``,
+    repulsor:
+        ``,
+    sewer_grate:
+        ``,
+    shatter_sphere:
+        ``,
+    smoldering_ashes:
+        ``,
+    thorn_bramble:
+        ``,
+    wall:
+        ``,
+    wall_damaged:
+        ``,
+}
+Object.freeze(other_flavor);
 const other_tile_names = {
     altar_of_scouring: `Altar of Scouring`,
     altar_of_shadow: `Altar of Shadow`,
@@ -1858,6 +1973,23 @@ const special_tile_descriptions = {
     player: `You: Click a card to move.`,
 }
 Object.freeze(special_tile_descriptions);
+const special_flavor = {
+    chest:
+        ``,
+    chest_armored:
+        ``,
+    empty:
+        ``,
+    exit:
+        ``,
+    final_exit:
+        ``,
+    lock:
+        ``,
+    you:
+        ``,
+}
+Object.freeze(special_flavor);
 const special_tile_names = {
     chest: `Chest`,
     chest_armored: `Armored Chest`,
@@ -6283,6 +6415,7 @@ function living_tree_rooted_tile(){
         name: enemy_names.living_tree,
         pic: `${IMG_FOLDER.tiles}living_tree_rooted.png`,
         description: enemy_descriptions.living_tree_rooted,
+        flavor: enemy_flavor.living_tree_rooted,
         tags: new TagList(),
         health: 2,
         behavior: living_tree_rooted_ai,
