@@ -625,14 +625,6 @@ const DisplayHTML = {
         title.innerText = `${achievement_text.title}  (${complete} / ${achievements.length})`;
         header.append(title);
         toprow.append(header);
-        
-        var reset = DisplayHTML.make_confirmation_button(
-            reset_achievements, 
-            achievement_text.reset,
-            achievement_text.confirm_reset,
-            CONFIRMATION_BUTTON_DELAY
-        );
-        toprow.append(reset);
         place.append(toprow);
 
         for(var a of achievements){
@@ -899,17 +891,17 @@ const DisplayHTML = {
     },
     make_confirmation_button(on_click, text1, text2, wait){
         var button = document.createElement(`button`);
-        button.classList.add(`achievement-button`);
+        button.classList.add(`confirmation-button`);
         var reset_button = () => {
             button.innerText = text1;
-            button.classList.add(`achievement-reset`);
-            button.classList.remove(`achievement-confirm-reset`);
+            button.classList.add(`confirmation-reset`);
+            button.classList.remove(`confirmation-confirm`);
             button.onclick = confirm_button;
         }
         var confirm_button = () => {
             button.innerText = text2;
-            button.classList.add(`achievement-confirm-reset`);
-            button.classList.remove(`achievement-reset`);
+            button.classList.add(`confirmation-confirm`);
+            button.classList.remove(`confirmation-reset`);
             button.onclick = () => {
                 on_click();
                 reset_button();
@@ -922,8 +914,10 @@ const DisplayHTML = {
     reset_section(location, on_click, question){
         var element = DisplayHTML.get_element(location);
         var section = document.createElement(`div`);
+        section.classList.add(`reset-pair`);
         var p = document.createElement(`p`);
         p.innerText = question;
+        p.classList.add(`reset-text`);
         var button = DisplayHTML.make_confirmation_button(
             on_click,
             reset_text.reset,

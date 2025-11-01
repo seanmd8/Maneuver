@@ -6,7 +6,7 @@ function setup_settings_navbar(){
     var id = UIIDS.settings_navbar;
 
     var section_id_list = [
-        UIIDS.general_settings,
+        UIIDS.settings_data,
         UIIDS.controls,
     ];
 
@@ -16,8 +16,8 @@ function setup_settings_navbar(){
         }
     }
 
-    display.create_visibility_toggle(id, settings_navbar_labels.general, swap_visibility(section_id_list, UIIDS.general_settings));
+    display.create_visibility_toggle(id, settings_navbar_labels.data, swap_visibility(section_id_list, UIIDS.settings_data));
     display.create_visibility_toggle(id, settings_navbar_labels.controls, swap_visibility(section_id_list, UIIDS.controls));
 
-    display.swap_screen(section_id_list, UIIDS.general_settings);
+    display.swap_screen(section_id_list, UIIDS.settings_data);
 }

@@ -1,5 +1,5 @@
 const settings_navbar_labels = {
-    general: `General`,
+    data: `Data`,
     controls: `Controls`,
 }
 Object.freeze(settings_navbar_labels);

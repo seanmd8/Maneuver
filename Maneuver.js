@@ -2386,11 +2386,6 @@ Object.freeze(CONTROLS_TEXT);
 
 const KEYBOARD_SYMBOL_MAP = new Map();
 KEYBOARD_SYMBOL_MAP.set(` `, `space`);
-const settings_navbar_labels = {
-    general: `General`,
-    controls: `Controls`,
-}
-Object.freeze(settings_navbar_labels);
 const reset_text = {
     reset: `Reset`,
     confirm: `Confirm?`,
@@ -2401,6 +2396,11 @@ const reset_text = {
     cards: `Reset card data: `,
     journal: `Reset all journal data: `,
 }
+const settings_navbar_labels = {
+    data: `Data`,
+    controls: `Controls`,
+}
+Object.freeze(settings_navbar_labels);
 // ----------------UIID.js----------------
 // File containing a library of ids used to retrieve elements of the ui.
 
@@ -2537,7 +2537,7 @@ const HTML_UIIDS = {
             achievement_list: `achievement-list`,
     settings: `settings`,
         settings_navbar: `settingsNavbar`,
-        general_settings: `generalSettings`,
+        settings_data: `settingsData`,
         controls: `controls`,
             stage_controls: `stageControls`,
             shop_controls: `shopControls`,
@@ -3273,14 +3273,6 @@ const DisplayHTML = {
         title.innerText = `${achievement_text.title}  (${complete} / ${achievements.length})`;
         header.append(title);
         toprow.append(header);
-        
-        var reset = DisplayHTML.make_confirmation_button(
-            reset_achievements, 
-            achievement_text.reset,
-            achievement_text.confirm_reset,
-            CONFIRMATION_BUTTON_DELAY
-        );
-        toprow.append(reset);
         place.append(toprow);
 
         for(var a of achievements){
@@ -3547,17 +3539,17 @@ const DisplayHTML = {
     },
     make_confirmation_button(on_click, text1, text2, wait){
         var button = document.createElement(`button`);
-        button.classList.add(`achievement-button`);
+        button.classList.add(`confirmation-button`);
         var reset_button = () => {
             button.innerText = text1;
-            button.classList.add(`achievement-reset`);
-            button.classList.remove(`achievement-confirm-reset`);
+            button.classList.add(`confirmation-reset`);
+            button.classList.remove(`confirmation-confirm`);
             button.onclick = confirm_button;
         }
         var confirm_button = () => {
             button.innerText = text2;
-            button.classList.add(`achievement-confirm-reset`);
-            button.classList.remove(`achievement-reset`);
+            button.classList.add(`confirmation-confirm`);
+            button.classList.remove(`confirmation-reset`);
             button.onclick = () => {
                 on_click();
                 reset_button();
@@ -3570,8 +3562,10 @@ const DisplayHTML = {
     reset_section(location, on_click, question){
         var element = DisplayHTML.get_element(location);
         var section = document.createElement(`div`);
+        section.classList.add(`reset-pair`);
         var p = document.createElement(`p`);
         p.innerText = question;
+        p.classList.add(`reset-text`);
         var button = DisplayHTML.make_confirmation_button(
             on_click,
             reset_text.reset,
@@ -4587,35 +4581,12 @@ function edit_stage_controls(controls){
     display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
     display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
 }
-function setup_settings_page(){
-    setup_controls_page();
-}
-
-function setup_settings_navbar(){
-    var id = UIIDS.settings_navbar;
-
-    var section_id_list = [
-        UIIDS.general_settings,
-        UIIDS.controls,
-    ];
-
-    var swap_visibility = function(id_list, id){
-        return function(){
-            display.swap_screen(id_list, id);
-        }
-    }
-
-    display.create_visibility_toggle(id, settings_navbar_labels.general, swap_visibility(section_id_list, UIIDS.general_settings));
-    display.create_visibility_toggle(id, settings_navbar_labels.controls, swap_visibility(section_id_list, UIIDS.controls));
-
-    display.swap_screen(section_id_list, UIIDS.general_settings);
-}
 function setup_reset_page(){
-    display.reset_section(UIIDS.general_settings, reset_cards, reset_text.cards);
-    display.reset_section(UIIDS.general_settings, reset_boons, reset_text.boons);
-    display.reset_section(UIIDS.general_settings, reset_areas, reset_text.areas);
-    display.reset_section(UIIDS.general_settings, reset_achievements, reset_text.achievements);
-    display.reset_section(UIIDS.general_settings, reset_journal, reset_text.journal);
+    display.reset_section(UIIDS.settings_data, reset_cards, reset_text.cards);
+    display.reset_section(UIIDS.settings_data, reset_boons, reset_text.boons);
+    display.reset_section(UIIDS.settings_data, reset_areas, reset_text.areas);
+    display.reset_section(UIIDS.settings_data, reset_achievements, reset_text.achievements);
+    display.reset_section(UIIDS.settings_data, reset_journal, reset_text.journal);
 }
 function reset_achievements(){
     GS.data.reset_achievements();
@@ -4638,6 +4609,29 @@ function reset_journal(){
     reset_areas();
     reset_boons();
     reset_cards();
+}
+function setup_settings_page(){
+    setup_controls_page();
+}
+
+function setup_settings_navbar(){
+    var id = UIIDS.settings_navbar;
+
+    var section_id_list = [
+        UIIDS.settings_data,
+        UIIDS.controls,
+    ];
+
+    var swap_visibility = function(id_list, id){
+        return function(){
+            display.swap_screen(id_list, id);
+        }
+    }
+
+    display.create_visibility_toggle(id, settings_navbar_labels.data, swap_visibility(section_id_list, UIIDS.settings_data));
+    display.create_visibility_toggle(id, settings_navbar_labels.controls, swap_visibility(section_id_list, UIIDS.controls));
+
+    display.swap_screen(section_id_list, UIIDS.settings_data);
 }
 const SENTRY_MODES = {
     saw: `Saw`,
