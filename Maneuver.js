@@ -1165,20 +1165,26 @@ const move_types = {
     number_removed: `Times Removed`,
 }
 Object.freeze(move_types);
-const boss_names = {
-    arcane_sentry: `Arcane Sentry`,
-    arcane_sentry_node: `Arcane Sentry Node`,
-    forest_heart: `Forest Heart`,
-    lich: `Lich`,
-    lord_of_shadow_and_flame: `Lord of Shadow and Flame`,
-    spider_queen: `Spider Queen`,
-    two_headed_serpent: `Two Headed Serpent`,
-    two_headed_serpent_body: `Two Headed Serpent Body`,
-    velociphile: `Velociphile`,
-    young_dragon: `Young Dragon`,
+const boss_death_message = {
+    general: 
+        `The exit opens.\n`
+        +`You feel your wounds begin to heal.`,
+    arcane_sentry: 
+        `MAIN SYSTEMS FAILING!\n`
+        +`The ringing alarm subsides.`,
+    arcane_sentry_node: `NODE OFFLINE!`,
+    forest_heart: `Branches rain from above as the ancient tree is felled.`,
+    lich: `The Lich's body crumbles to dust.`,
+    lord_of_shadow_and_flame: 
+        `As the ruler of this space fades from reality, the room begins to quake. Better leave quickly.`,
+    spider_queen: `As the Spider Queen falls to the floor, the last of her children emerge.`,
+    two_headed_serpent: 
+        `It's body too small to regenerate any further, all four of the serpent's eyes close for the `
+        +`final time`,
+    velociphile: `The wailing falls silent as the Velociphile is defeated.`,
+    young_dragon: `Scales so soft are easily pierced. The Young Dragon's fire goes out.`,
 }
-Object.freeze(boss_names);
-
+Object.freeze(boss_death_message);
 const boss_descriptions = {
     arcane_sentry: 
         `Arcane Sentry (Boss): An automated defense station. Changes modes in response to damage.`,
@@ -1221,7 +1227,6 @@ const boss_descriptions = {
     ],
 }
 Object.freeze(boss_descriptions);
-
 const boss_floor_message = {
     arcane_sentry: 
         `An alarm begins to blare.\n`
@@ -1236,49 +1241,6 @@ const boss_floor_message = {
     young_dragon: `The air burns in your lungs.`,
 }
 Object.freeze(boss_floor_message);
-
-const boss_death_message = {
-    general: 
-        `The exit opens.\n`
-        +`You feel your wounds begin to heal.`,
-    arcane_sentry: 
-        `MAIN SYSTEMS FAILING!\n`
-        +`The ringing alarm subsides.`,
-    arcane_sentry_node: `NODE OFFLINE!`,
-    forest_heart: `Branches rain from above as the ancient tree is felled.`,
-    lich: `The Lich's body crumbles to dust.`,
-    lord_of_shadow_and_flame: 
-        `As the ruler of this space fades from reality, the room begins to quake. Better leave quickly.`,
-    spider_queen: `As the Spider Queen falls to the floor, the last of her children emerge.`,
-    two_headed_serpent: 
-        `It's body too small to regenerate any further, all four of the serpent's eyes close for the `
-        +`final time`,
-    velociphile: `The wailing falls silent as the Velociphile is defeated.`,
-    young_dragon: `Scales so soft are easily pierced. The Young Dragon's fire goes out.`,
-}
-Object.freeze(boss_death_message);
-
-// Individual Boss Descriptions
-
-const lich_spell_descriptions = {
-    confusion: `Confusion - Creates a cloud of confusion gas to pollute your deck.`,
-    earthquake: `Earthquake - Causes chunks of the ceiling to rain down.`,
-    flame_wave: `Flame Wave - Shoots 3 explosive fireballs towards the target.`,
-    lava_moat: `Lava Moat - Creates pools of molten lava to shield the user.`,
-    piercing_beam: `Piercing Beam - Fires a piercing beam in the direction closest to the target.`,
-    rest: `Nothing.`,
-    summon: `Summon - Summons 2 random enemies.`,
-    teleport: `Teleport - The user moves to a random square on the map.`,
-}
-Object.freeze(lich_spell_descriptions);
-
-const heart_spell_descriptions = {
-    rest: `Currently, the Forest Heart is resting.`,
-    growth: `Currently, the Forest Heart is preparing to grow plants.`,
-    summon: `Currently, the Forest Heart is preparing to summon forest creatures.`,
-}
-Object.freeze(heart_spell_descriptions);
-
 const sentry_mode_descriptions = {
     core: {
         turret: 
@@ -1300,57 +1262,36 @@ const sentry_mode_descriptions = {
     }
 }
 Object.freeze(sentry_mode_descriptions);
-const enemy_names = {
-    acid_bug: `Acid Bug`, 
-    animated_boulder: `Animated Boulder`, 
-    blood_crescent: `Blood Crescent`,
-    brightling: `Brightling`, 
-    captive_void: `Captive Void`, 
-    carrion_flies: `Carrion Flies`, 
-    claustropede_1: `Claustropede x1`,
-    claustropede_2: `Claustropede x2`,
-    claustropede_3: `Claustropede x4`,
-    clay_golem: `Clay Golem`, 
-    corrosive_caterpillar: `Corrosive Caterpillar`, 
-    darkling: `Darkling`, 
-    gem_crawler: `Gem Crawler`, 
-    igneous_crab: `Igneous Crab`, 
-    living_tree: `Living Tree`, 
-    magma_spewer: `Magma Spewer`, 
-    maw: `Maw`,
-    noxious_toad: `Noxious Toad`, 
-    orb_of_insanity: `Orb of Insanity`, 
-    paper_construct: `Paper Construct`, 
-    pheonix: `Pheonix`, 
-    porcuslime_large: `Large Porcuslime`, 
-    porcuslime_medium: `Medium Porcuslime`, 
-    porcuslime_small: `Small Porcuslime`, 
-    ram: `Ram`, 
-    rat: `Rat`, 
-    scorpion: `Scorpion`, 
-    scythe: `Scythe`, 
-    shadow_knight: `Shadow Knight`, 
-    shadow_knight_elite: `Shadow Knight Elite`, 
-    shadow_scout: `Shadow Scout`, 
-    specter: `Specter`, 
-    spider_web: `Spider Web`, 
-    spider: `Spider`, 
-    starcaller: `Starcaller`,
-    strider: `Strider`, 
-    swaying_nettle: `Swaying Nettle`, 
-    thorn_bush: `Thorn Bush`, 
-    turret: `Turret`, 
-    turret_m: `Moving Turret`, 
-    turret_r: `Rotary Turret`, 
-    unspeakable: `Unspeakable`,
-    unstable_wisp: `Unstable Wisp`, 
-    vampire: `Vampire`, 
-    vinesnare_bush: `Vinesnare Bush`, 
-    walking_prism: `Walking Prism`,
-    wheel_of_fire: `Wheel of Fire`,
+const heart_spell_descriptions = {
+    rest: `Currently, the Forest Heart is resting.`,
+    growth: `Currently, the Forest Heart is preparing to grow plants.`,
+    summon: `Currently, the Forest Heart is preparing to summon forest creatures.`,
 }
-Object.freeze(enemy_names);
-
+Object.freeze(heart_spell_descriptions);
+const lich_spell_descriptions = {
+    confusion: `Confusion - Creates a cloud of confusion gas to pollute your deck.`,
+    earthquake: `Earthquake - Causes chunks of the ceiling to rain down.`,
+    flame_wave: `Flame Wave - Shoots 3 explosive fireballs towards the target.`,
+    lava_moat: `Lava Moat - Creates pools of molten lava to shield the user.`,
+    piercing_beam: `Piercing Beam - Fires a piercing beam in the direction closest to the target.`,
+    rest: `Nothing.`,
+    summon: `Summon - Summons 2 random enemies.`,
+    teleport: `Teleport - The user moves to a random square on the map.`,
+}
+Object.freeze(lich_spell_descriptions);
+const boss_names = {
+    arcane_sentry: `Arcane Sentry`,
+    arcane_sentry_node: `Arcane Sentry Node`,
+    forest_heart: `Forest Heart`,
+    lich: `Lich`,
+    lord_of_shadow_and_flame: `Lord of Shadow and Flame`,
+    spider_queen: `Spider Queen`,
+    two_headed_serpent: `Two Headed Serpent`,
+    two_headed_serpent_body: `Two Headed Serpent Body`,
+    velociphile: `Velociphile`,
+    young_dragon: `Young Dragon`,
+}
+Object.freeze(boss_names);
 const enemy_descriptions = {
     acid_bug: 
         `Acid bug: Moves 1 space towards the player. Has no normal attack, but will spray acid `
@@ -1499,7 +1440,6 @@ const enemy_descriptions = {
         +`1 space randomly.`,
 }
 Object.freeze(enemy_descriptions);
-
 const enemy_flavor = {
     acid_bug: 
         `The explosive defenses these bugs have has left them without any natural predators. This is`
@@ -1697,6 +1637,56 @@ const enemy_flavor = {
         +`#!$&!$^(@^B*&!#$^!@$^!#%U&#}^$^?!#$>&!#"&!#>%&R?#%:&%#{&}@$*:@$>N^*>@$%&:@$%&>@)`, // BURN
 }
 Object.freeze(enemy_descriptions);
+const enemy_names = {
+    acid_bug: `Acid Bug`, 
+    animated_boulder: `Animated Boulder`, 
+    blood_crescent: `Blood Crescent`,
+    brightling: `Brightling`, 
+    captive_void: `Captive Void`, 
+    carrion_flies: `Carrion Flies`, 
+    claustropede_1: `Claustropede x1`,
+    claustropede_2: `Claustropede x2`,
+    claustropede_3: `Claustropede x4`,
+    clay_golem: `Clay Golem`, 
+    corrosive_caterpillar: `Corrosive Caterpillar`, 
+    darkling: `Darkling`, 
+    gem_crawler: `Gem Crawler`, 
+    igneous_crab: `Igneous Crab`, 
+    living_tree: `Living Tree`, 
+    magma_spewer: `Magma Spewer`, 
+    maw: `Maw`,
+    noxious_toad: `Noxious Toad`, 
+    orb_of_insanity: `Orb of Insanity`, 
+    paper_construct: `Paper Construct`, 
+    pheonix: `Pheonix`, 
+    porcuslime_large: `Large Porcuslime`, 
+    porcuslime_medium: `Medium Porcuslime`, 
+    porcuslime_small: `Small Porcuslime`, 
+    ram: `Ram`, 
+    rat: `Rat`, 
+    scorpion: `Scorpion`, 
+    scythe: `Scythe`, 
+    shadow_knight: `Shadow Knight`, 
+    shadow_knight_elite: `Shadow Knight Elite`, 
+    shadow_scout: `Shadow Scout`, 
+    specter: `Specter`, 
+    spider_web: `Spider Web`, 
+    spider: `Spider`, 
+    starcaller: `Starcaller`,
+    strider: `Strider`, 
+    swaying_nettle: `Swaying Nettle`, 
+    thorn_bush: `Thorn Bush`, 
+    turret: `Turret`, 
+    turret_m: `Moving Turret`, 
+    turret_r: `Rotary Turret`, 
+    unspeakable: `Unspeakable`,
+    unstable_wisp: `Unstable Wisp`, 
+    vampire: `Vampire`, 
+    vinesnare_bush: `Vinesnare Bush`, 
+    walking_prism: `Walking Prism`,
+    wheel_of_fire: `Wheel of Fire`,
+}
+Object.freeze(enemy_names);
 const entity_types = {
     chest: `Chest`,
     empty: `Empty`,
@@ -1707,27 +1697,6 @@ const entity_types = {
     terrain: `Terrain`,
 }
 Object.freeze(entity_types);
-const event_names = {
-    black_hole_formation: `Black Hole Formation`,
-    confusion_cloud: `Confusion Cloud`,
-    darkling_rift: `Darkling Rift`,
-    delay: `Delay`,
-    delayed_strike: `Delayed Strike`,
-    delayed_stun: `Delayed Stun`,
-    earthquake: `Earthquake`,
-    falling_magma: `Falling Magma`,
-    falling_rubble: `Falling Rubble`,
-    nettle_roots: `Nettle Roots`,
-    spell_announcement: `Spell Announcement`,
-    starfall: `Starfall`,
-    sunlight: `Sunlight`,
-    thorn_roots: `Thorn Roots`,
-    unstun: `Unstun`,
-    wake_up: `Wake Up`,
-    warp: `Spacial Warp`
-}
-Object.freeze(event_names);
-
 const event_descriptions = {
     black_hole_formation:
         `A Black Hole is beginning to form here damaging anything standing here.`,
@@ -1753,35 +1722,26 @@ const event_descriptions = {
         `Watch out, brambles are about to sprout damaging anything standing here.`,
 }
 Object.freeze(event_descriptions);
-const other_tile_names = {
-    altar_of_scouring: `Altar of Scouring`,
-    altar_of_shadow: `Altar of Shadow`,
-    altar_of_singularity: `Altar of Singularity`,
-    altar_of_space: `Altar of Space`,
-    altar_of_stars: `Altar of Stars`,
-    altar_of_stasis: `Altar of Stasis`,
-    altar_of_sunlight: `Altar of Sunlight`,
-    black_hole: `Black Hole`,
-    bookshelf: `Bookshelf`,
-    coffin: `Coffin`,
-    corrosive_slime: `Corrosive Slime`,
-    fireball: `Fireball`,
-    fruit_tree_enticing: `Enticing Fruit Tree`,
-    fruit_tree_rotting: `Rotting Fruit Tree`,
-    lava_pool: `Lava Pool`,
-    magmatic_boulder: `Magmatic Boulder`,
-    moon_rock: `Moon Rock`,
-    raging_fire: `Raging Fire`,
-    repulsor: `Repulsor`,
-    sewer_grate: `Sewer Grate`,
-    shatter_sphere: `Shatter Sphere`,
-    smoldering_ashes: `Smoldering Ashes`,
-    thorn_bramble: `Thorn Brambles`,
-    wall: `Wall`,
-    wall_damaged: `Damaged Wall`,
+const event_names = {
+    black_hole_formation: `Black Hole Formation`,
+    confusion_cloud: `Confusion Cloud`,
+    darkling_rift: `Darkling Rift`,
+    delay: `Delay`,
+    delayed_strike: `Delayed Strike`,
+    delayed_stun: `Delayed Stun`,
+    earthquake: `Earthquake`,
+    falling_magma: `Falling Magma`,
+    falling_rubble: `Falling Rubble`,
+    nettle_roots: `Nettle Roots`,
+    spell_announcement: `Spell Announcement`,
+    starfall: `Starfall`,
+    sunlight: `Sunlight`,
+    thorn_roots: `Thorn Roots`,
+    unstun: `Unstun`,
+    wake_up: `Wake Up`,
+    warp: `Spacial Warp`
 }
-Object.freeze(other_tile_names);
-
+Object.freeze(event_names);
 const other_tile_descriptions = {
     altar_of_scouring:
         `Altar of Scouring: Activate by moving here. When activated, creates a wall of fireballs along `
@@ -1851,18 +1811,41 @@ const other_tile_descriptions = {
         `Damaged Wall: Something might live inside.`,
 }
 Object.freeze(other_tile_descriptions);
-const special_tile_names = {
-    chest: `Chest`,
-    chest_armored: `Armored Chest`,
-    empty: `Empty`,
-    exit: `Exit`,
-    final_exit: `Return Portal`,
-    lock: `Locked Exit`,
-    you: `You`,
-    player: `Player`,
+const other_tile_names = {
+    altar_of_scouring: `Altar of Scouring`,
+    altar_of_shadow: `Altar of Shadow`,
+    altar_of_singularity: `Altar of Singularity`,
+    altar_of_space: `Altar of Space`,
+    altar_of_stars: `Altar of Stars`,
+    altar_of_stasis: `Altar of Stasis`,
+    altar_of_sunlight: `Altar of Sunlight`,
+    black_hole: `Black Hole`,
+    bookshelf: `Bookshelf`,
+    coffin: `Coffin`,
+    corrosive_slime: `Corrosive Slime`,
+    fireball: `Fireball`,
+    fruit_tree_enticing: `Enticing Fruit Tree`,
+    fruit_tree_rotting: `Rotting Fruit Tree`,
+    lava_pool: `Lava Pool`,
+    magmatic_boulder: `Magmatic Boulder`,
+    moon_rock: `Moon Rock`,
+    raging_fire: `Raging Fire`,
+    repulsor: `Repulsor`,
+    sewer_grate: `Sewer Grate`,
+    shatter_sphere: `Shatter Sphere`,
+    smoldering_ashes: `Smoldering Ashes`,
+    thorn_bramble: `Thorn Brambles`,
+    wall: `Wall`,
+    wall_damaged: `Damaged Wall`,
 }
-Object.freeze(special_tile_names);
-
+Object.freeze(other_tile_names);
+const chest_text = {
+    header: `Choose up to one reward:`,
+    take: `Take`,
+    abandon: `Abandon`,
+    add_card: `Add this card to your deck.`,
+}
+Object.freeze(chest_text);
 const special_tile_descriptions = {
     chest: `Chest: Has something useful inside. Breaking it will destroy the contents. Moving here `
     +`grants you another turn.`,
@@ -1875,14 +1858,17 @@ const special_tile_descriptions = {
     player: `You: Click a card to move.`,
 }
 Object.freeze(special_tile_descriptions);
-
-const chest_text = {
-    header: `Choose up to one reward:`,
-    take: `Take`,
-    abandon: `Abandon`,
-    add_card: `Add this card to your deck.`,
+const special_tile_names = {
+    chest: `Chest`,
+    chest_armored: `Armored Chest`,
+    empty: `Empty`,
+    exit: `Exit`,
+    final_exit: `Return Portal`,
+    lock: `Locked Exit`,
+    you: `You`,
+    player: `Player`,
 }
-Object.freeze(chest_text);
+Object.freeze(special_tile_names);
 const achievement_text = {
     title: `Achievements`,
     reset: `Reset`,
