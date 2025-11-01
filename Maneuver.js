@@ -11418,9 +11418,9 @@ class ButtonGrid{
         for(let row of this.#buttons){
             for(let button of row){
                 if(button.description !== null_move_button){
-                    var commands = button.behavior.map((b) => `(${explain_action(b)})`);
+                    var commands = button.behavior.map((b) => `[${explain_action(b)}]`);
                     if(commands.length === 0){
-                        commands = [`(${move_types.nothing})`];
+                        commands = [`[${move_types.nothing}]`];
                     }
                     var command_str = commands.join(`, ${NBS}`); // Non breaking spaces used so they won't be collapsed.
                     explanation = explanation.concat(`${NBS}${NBS}${NBS}${NBS}${usymbol.bullet} ${button.description}: ${command_str}\n`);
