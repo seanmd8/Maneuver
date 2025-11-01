@@ -5,6 +5,7 @@ function strider_tile(){
         name: enemy_names.strider,
         pic: `${IMG_FOLDER.tiles}strider.png`,
         description: enemy_descriptions.strider,
+        flavor: enemy_flavor.strider,
         tags: new TagList(),
         health: 2,
         difficulty: 4,

@@ -6,6 +6,7 @@ function brightling_tile(){
         name: enemy_names.brightling,
         pic: `${IMG_FOLDER.tiles}brightling.png`,
         description: enemy_descriptions.brightling,
+        flavor: enemy_flavor.brightling,
         tags: new TagList(),
         health: 1,
         difficulty: 4,

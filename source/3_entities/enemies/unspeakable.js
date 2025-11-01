@@ -5,6 +5,7 @@ function unspeakable_tile(){
         name: enemy_names.unspeakable,
         pic: `${IMG_FOLDER.tiles}unspeakable.png`,
         description: enemy_descriptions.unspeakable,
+        flavor: enemy_flavor.unspeakable,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

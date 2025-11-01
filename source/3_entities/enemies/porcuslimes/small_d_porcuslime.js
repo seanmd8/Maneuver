@@ -5,6 +5,7 @@ function small_d_porcuslime_tile(){
         name: enemy_names.porcuslime_small,
         pic: `${IMG_FOLDER.tiles}small_d_porcuslime.png`,
         description: enemy_descriptions.porcuslime_small_d,
+        flavor: enemy_flavor.porcuslime,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

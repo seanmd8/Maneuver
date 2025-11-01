@@ -8,6 +8,7 @@ function ram_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[1],
         description: enemy_descriptions.ram,
+        flavor: enemy_flavor.ram,
         tags: new TagList(),
         health: 2,
         difficulty: 5,

@@ -5,6 +5,7 @@ function carrion_flies_tile(){
         name: enemy_names.carrion_flies,
         pic: `${IMG_FOLDER.tiles}carrion_flies.png`,
         description: enemy_descriptions.carrion_flies,
+        flavor: enemy_flavor.carrion_flies,
         tags: new TagList(),
         health: 1,
         difficulty: 6,

@@ -12,6 +12,7 @@ function turret_r_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: enemy_descriptions.turret_r,
+        flavor: enemy_flavor.turret_r,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

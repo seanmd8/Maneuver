@@ -5,6 +5,7 @@ function claustropede_1_tile(){
         name: enemy_names.claustropede_1,
         pic: `${IMG_FOLDER.tiles}claustropede_1.png`,
         description: enemy_descriptions.claustropede,
+        flavor: enemy_flavor.claustropede,
         tags: new TagList(),
         health: 1,
         difficulty: 1,

@@ -5,6 +5,7 @@ function pheonix_tile(){
         name: enemy_names.pheonix,
         pic: `${IMG_FOLDER.tiles}pheonix.png`,
         description: enemy_descriptions.pheonix,
+        flavor: enemy_flavor.pheonix,
         tags: new TagList(),
         health: 1,
         difficulty: 5,

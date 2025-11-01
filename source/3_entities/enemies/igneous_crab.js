@@ -5,6 +5,7 @@ function igneous_crab_tile(){
         name: enemy_names.igneous_crab,
         pic: `${IMG_FOLDER.tiles}igneous_crab.png`,
         description: enemy_descriptions.igneous_crab,
+        flavor: enemy_flavor.igneous_crab,
         tags: new TagList(),
         health: 2,
         difficulty: 3,

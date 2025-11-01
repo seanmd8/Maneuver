@@ -5,6 +5,7 @@ function spider_web_tile(){
         name: enemy_names.spider_web,
         pic: `${IMG_FOLDER.tiles}spider_web.png`,
         description: enemy_descriptions.spider_web,
+        flavor: enemy_flavor.spider_web,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 4,

@@ -5,6 +5,7 @@ function specter_tile(){
         name: enemy_names.specter,
         pic: `${IMG_FOLDER.tiles}specter.png`,
         description: enemy_descriptions.specter,
+        flavor: enemy_flavor.specter,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

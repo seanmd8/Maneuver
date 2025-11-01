@@ -5,6 +5,7 @@ function shadow_knight_tile(){
         name: enemy_names.shadow_knight,
         pic: `${IMG_FOLDER.tiles}shadow_knight.png`,
         description: enemy_descriptions.shadow_knight,
+        flavor: enemy_flavor.shadow_knight,
         tags: new TagList(),
         health: 2,
         difficulty: 4,

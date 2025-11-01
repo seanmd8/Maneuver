@@ -200,36 +200,43 @@ Object.freeze(enemy_descriptions);
 
 const enemy_flavor = {
     acid_bug: 
-        `The explosive defenses these bugs have has left them without any natural predators. Their `
-        +`resulting lack of fear is probably what lead to their curious nature. These are best `
-        +`dispatched at range if possible. If they do manage to get close, be careful where you `
-        +`swing your weapon.`,
+        `The explosive defenses these bugs have has left them without any natural predators. This is`
+        +`probably what has led to their lack of fear and curious nature. While they are not dangerous `
+        +`by themselves, they can get in the way of combat with other enemies. If possible, they should `
+        +`be dispatched from a distance.`,
     animated_boulder: 
         `The magnetic fields present in these caverns have interacted with the natural magic of the `
         +`area to create powerful elementals with a desire to be left alone. While their rocky makeup `
         +`makes them all but invulnerable and completely indistinguishable from stationary parts of `
         +`the terrain, they tend to tire quickly making fleeing a viable option.`,
     blood_crescent:
-        ``,
+        `@%#H%&#$^*I%&&(%*)&(S_^@$%` // HIS
+        +`!@#~C$@^#%&$^L*^&(*)%A#)**$%&@W$!#~%#!@S^%$*%$` // CLAWS
+        +`&(%^*T)$&^&#$%^!@H#$~@$A#!@$^$%*%$&($&^T&#$%~@#$` // THAT
+        +`#@!T^@#%&#%^E%&(#%^**A@))##%@#$^#$R^*$&(%*)%)`, // TEAR
     brightling: 
         `Beings from a higher plane of existance who have been attracted to the natural magic of the `
         +`area. Both curious and cautious, they warp space to bring creatures closer to be studied `
         +`before fleeing via the same method. They are entirely unaggressive and may help or hinder `
         +`in equal parts through their unexpected teleportations.`,
     captive_void: 
-        `Either the result of some strange experiment or perhaps another part of the library's expansive `
-        +`security system. Either way, these devices bend space around them to draw in everything `
-        +`nearby. Thankfully they can be temporarily disabled through the use of blunt force.`,
+        `Perhaps the result of some strange experiment or just another part of the library's expansive `
+        +`security system. These devices bend space around them to draw in everything nearby. `
+        +`They can be temporarily disabled through the use of blunt force to make escape easier.`,
     carrion_flies: 
         `Swarms move about at random attracted by the ample food sources available down here. They `
-        +`tend to multiply quickly making it important to get rid of them as soon as possible.`,
+        +`tend to multiply quickly making it important to get rid of them as soon as possible. `
+        +`Strangly, these flies show little resemblance to any other species found outside the dungeon.`,
     claustropede:
-        ``,
+        `!@#%!@$^H#%&#$^*$)^*(*#I%^!@%!&#%@$S^%()&#` // HIS
+        +`%&!$H#~+&$&($$^!#%*@$^A($%^!#$%!@$^$%N*#%(#*&!D#$^~$^!S$^#%&@$*!#$^^#%*` // HANDS
+        +`%$!#$&#T^%(#&(@~~^*)^*)%_H+)#%!$@$*#%&(#%A^*#^$!$^))!#%*$^(%&T(^&!#$%!` // THAT
+        +`#@^@#%)G$&(#^&!^!#$&R$_*+%*&($%^!#$%~#%!A%#*&#%&)%&(_&*@$^~S@#$!@$@$&#^-))==+$P#&@$^*`, // GRASP
     clay_golem: 
-        `These golems are built to last with their tough skin showing countless scars. That makes it `
-        +`likely that their construction wasn't recent. Thankfully they are incredibly slow moving `
-        +`and seem to malfunction slightly when recieving damage. As long as you avoid being `
-        +`surrounded it will be possible to wear them out eventually, or just run past them.`,
+        `These golems are built to last with tough skin and a near limitless power source. `
+        +`The countless scars on the bodies of most of them make it likely that their construction `
+        +`wasn't recent. Thankfully they are incredibly slow moving and seem to malfunction slightly `
+        +`when recieving damage.`,
     corrosive_caterpillar: 
         ``,
     darkling: 
@@ -258,7 +265,10 @@ const enemy_flavor = {
         +`on their head. This gives them a powerful natural defense mechanism that can take out targets `
         +`at great distances.`,
     maw:
-        ``,
+        `!@$^@H%*#%&($^&($%^!@^#$)$I_%+^!@$%!@$^#%(+_=+=!@$^$S$^(^)$` // HIS
+        +`%&^!23)!M@$^@$*@#$^@~!#~%@$^@$^($^O($%^!$%!#%*#%&)$^*);:;U!$#&@$^*$%^@T^@$^#^*&!#$^~!#$&H@^(#` // MOUTH
+        +`/?/?)@#T%!#$&@$^*#%*$%H^~$@$&@$*#%&(%$^!#$^A!#%*&@^(#%&(#^;:<>T))??)~?/+==!#$@$` // THAT
+        +`^*@$%&F!#!@#^!#%*&@%E^(#&%#!$%@#^!#%*@%^(*#$@#!^E!@)?.>+@#&%<,D)+==!#$&@#$S^*@`, // FEEDS
     noxious_toad: 
         `Capable of leaping great distances to navigate the difficcult terrain of the sewers, these `
         +`toads have also developed a natural defense mechanism which sets them apart from their `
@@ -307,7 +317,9 @@ const enemy_flavor = {
     shadow_knight_elite: 
         ``,
     shadow_scout: 
-        ``,
+        `!@$&@$^(#%&)^H$%^!#$%@#^!#%*@$I^(#%&)$^*&$S%@^@#%*@` // HIS
+        +`(^?-+)@$^@E$^I(#%^*!#$^#%&;Y:)]{}@#$!!%*@E$^*@$!&#!%*$%@&#$S%!$^!#%*@$^%` // EYES
+        +`()$^*)U$^&(*#%^++N==|\\""$*^@$%&!#&S$#^*#%^(#%^&E@$%&!#%&@$^*$E^*))!@$^@#%*!#%N^!#$&@$^*@#%@`, // UNSEEN
     specter: 
         `It is unclear if these are actually the ghosts of the departed or simply some sort of `
         +`magically created creature of pure shadow. Either way they are capable of phasing through `
@@ -349,7 +361,20 @@ const enemy_flavor = {
         `While it can't fire in as many directions at once, this turret can keep watch over more `
         +`directions overall. Thankfully it rotates at a fixed speed so it's movement can be predicted.`,
     unspeakable:
-        ``,
+        `%!@$#&#T$^(#%^&#!$^!O#%*(#%&^)%` // TO
+        +`*%^&#K%$^!#$^_+$@_^N+!#$+&_!#+%&_O$+*__+}!$#^|}$W|!{^|$^{` // KNOW
+        +`|]#%&@$^*#$H%@$^!#%&#$^!$"^!#$^?!I#&>!#%&!#?&>!#%?&#M%&!#&!#<&` // HIM
+        +`@$^!#%&*I@$^*#$%!@#^S@#%*@$%&` // IS
+        +`!@$&@$T^(#%&($#O%!#^@#%&%` // TO
+        +`}^!|#$^&S!#%&{#%|!}|!#$^{E!$#^}!#$^:!$#"^!#$>R^!#$<^!$#?^!#<&>!#V$&!#%"&!{#%&$@^E*}%^({#` // SERVE
+        +`%&!#$^!#H$<&@$^>*$^&}I@%&:!#%&!#M%&)!@#^$@#%&@#$%` // HIM
+        +`$#&@$^($^&I)#$$&@S$*#%&)#^` // IS
+        +`*&!#$^!#$T&@+%&!#$^{!#}O%&:!#%&"!` // TO
+        +`#%&!#%D?&@$>^*<%^*>#&<%I$^!>$<&>#$^*?$@>%E*<>$@^*@%&~` // DIE
+        +`@$^(!$*&I!#)&$@*(@$^_*N^@#$::^>` // IN
+        +`!$?^!#S"&:!%{#&}H!#%:&%$"&>$%?&!%"&>A#!%>!&"!%:D&>@)!@$&@$^*($^O&)%^&*@#$%@$W^!#:&` // SHADOW
+        +`"!#$>^!?#%A&<!$%?*$:^*$@^N}*$}@{$%}*D!$>*!>%$` // AND
+        +`!@$^!#F%}&{%}:*$^"*L#>%^<(?&%(>%^*)A"^$:&*$}^&{!#%M&|!#{%&>@$%*@E(#%^>(`, // FLAME
     unstable_wisp: 
         `Beings of elemental fire that naturally spawn from the extreme heat. They are very unstable `
         +`and can explode violently if disrupted. They are not aggressive however so as long as you `
@@ -364,6 +389,9 @@ const enemy_flavor = {
     walking_prism: 
         ``,
     wheel_of_fire:
-        ``,
+        `@$$^@$^H*#%&)$^*($@%^!@#I%#!@$&@$^*)#+_@%@$^_!#S$&+#!_$^` // HIS
+        +`+~"!#$&?#!E%&"#$^?!$#^!#Y$|$^!$^!#%&!E@$^@#%*%&(%^*)$%*#%S$^!#@%~_^+` // EYES
+        +`!#+$_&^+#T_^~":":">><:#$<>@H#%&>@#<%&:@#%"@&:%>A&@<%&@%:>@%&<!@$&@$^(#$T%^!$#%)` // THAT
+        +`#!$&!$^(@^B*&!#$^!@$^!#%U&#}^$^?!#$>&!#"&!#>%&R?#%:&%#{&}@$*:@$>N^*>@$%&:@$%&>@)`, // BURN
 }
 Object.freeze(enemy_descriptions);

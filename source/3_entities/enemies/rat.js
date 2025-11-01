@@ -5,6 +5,7 @@ function rat_tile(){
         name: enemy_names.rat,
         pic: `${IMG_FOLDER.tiles}rat.png`,
         description: enemy_descriptions.rat,
+        flavor: enemy_flavor.rat,
         tags: new TagList(),
         health: 1,
         difficulty: 2,

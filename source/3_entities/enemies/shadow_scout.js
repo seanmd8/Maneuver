@@ -6,6 +6,7 @@ function shadow_scout_tile(){
         name: enemy_names.shadow_scout,
         pic: `${IMG_FOLDER.tiles}shadow_scout.png`,
         description: enemy_descriptions.shadow_scout,
+        flavor: enemy_flavor.shadow_scout,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

@@ -1502,36 +1502,43 @@ Object.freeze(enemy_descriptions);
 
 const enemy_flavor = {
     acid_bug: 
-        `The explosive defenses these bugs have has left them without any natural predators. Their `
-        +`resulting lack of fear is probably what lead to their curious nature. These are best `
-        +`dispatched at range if possible. If they do manage to get close, be careful where you `
-        +`swing your weapon.`,
+        `The explosive defenses these bugs have has left them without any natural predators. This is`
+        +`probably what has led to their lack of fear and curious nature. While they are not dangerous `
+        +`by themselves, they can get in the way of combat with other enemies. If possible, they should `
+        +`be dispatched from a distance.`,
     animated_boulder: 
         `The magnetic fields present in these caverns have interacted with the natural magic of the `
         +`area to create powerful elementals with a desire to be left alone. While their rocky makeup `
         +`makes them all but invulnerable and completely indistinguishable from stationary parts of `
         +`the terrain, they tend to tire quickly making fleeing a viable option.`,
     blood_crescent:
-        ``,
+        `@%#H%&#$^*I%&&(%*)&(S_^@$%` // HIS
+        +`!@#~C$@^#%&$^L*^&(*)%A#)**$%&@W$!#~%#!@S^%$*%$` // CLAWS
+        +`&(%^*T)$&^&#$%^!@H#$~@$A#!@$^$%*%$&($&^T&#$%~@#$` // THAT
+        +`#@!T^@#%&#%^E%&(#%^**A@))##%@#$^#$R^*$&(%*)%)`, // TEAR
     brightling: 
         `Beings from a higher plane of existance who have been attracted to the natural magic of the `
         +`area. Both curious and cautious, they warp space to bring creatures closer to be studied `
         +`before fleeing via the same method. They are entirely unaggressive and may help or hinder `
         +`in equal parts through their unexpected teleportations.`,
     captive_void: 
-        `Either the result of some strange experiment or perhaps another part of the library's expansive `
-        +`security system. Either way, these devices bend space around them to draw in everything `
-        +`nearby. Thankfully they can be temporarily disabled through the use of blunt force.`,
+        `Perhaps the result of some strange experiment or just another part of the library's expansive `
+        +`security system. These devices bend space around them to draw in everything nearby. `
+        +`They can be temporarily disabled through the use of blunt force to make escape easier.`,
     carrion_flies: 
         `Swarms move about at random attracted by the ample food sources available down here. They `
-        +`tend to multiply quickly making it important to get rid of them as soon as possible.`,
+        +`tend to multiply quickly making it important to get rid of them as soon as possible. `
+        +`Strangly, these flies show little resemblance to any other species found outside the dungeon.`,
     claustropede:
-        ``,
+        `!@#%!@$^H#%&#$^*$)^*(*#I%^!@%!&#%@$S^%()&#` // HIS
+        +`%&!$H#~+&$&($$^!#%*@$^A($%^!#$%!@$^$%N*#%(#*&!D#$^~$^!S$^#%&@$*!#$^^#%*` // HANDS
+        +`%$!#$&#T^%(#&(@~~^*)^*)%_H+)#%!$@$*#%&(#%A^*#^$!$^))!#%*$^(%&T(^&!#$%!` // THAT
+        +`#@^@#%)G$&(#^&!^!#$&R$_*+%*&($%^!#$%~#%!A%#*&#%&)%&(_&*@$^~S@#$!@$@$&#^-))==+$P#&@$^*`, // GRASP
     clay_golem: 
-        `These golems are built to last with their tough skin showing countless scars. That makes it `
-        +`likely that their construction wasn't recent. Thankfully they are incredibly slow moving `
-        +`and seem to malfunction slightly when recieving damage. As long as you avoid being `
-        +`surrounded it will be possible to wear them out eventually, or just run past them.`,
+        `These golems are built to last with tough skin and a near limitless power source. `
+        +`The countless scars on the bodies of most of them make it likely that their construction `
+        +`wasn't recent. Thankfully they are incredibly slow moving and seem to malfunction slightly `
+        +`when recieving damage.`,
     corrosive_caterpillar: 
         ``,
     darkling: 
@@ -1560,7 +1567,10 @@ const enemy_flavor = {
         +`on their head. This gives them a powerful natural defense mechanism that can take out targets `
         +`at great distances.`,
     maw:
-        ``,
+        `!@$^@H%*#%&($^&($%^!@^#$)$I_%+^!@$%!@$^#%(+_=+=!@$^$S$^(^)$` // HIS
+        +`%&^!23)!M@$^@$*@#$^@~!#~%@$^@$^($^O($%^!$%!#%*#%&)$^*);:;U!$#&@$^*$%^@T^@$^#^*&!#$^~!#$&H@^(#` // MOUTH
+        +`/?/?)@#T%!#$&@$^*#%*$%H^~$@$&@$*#%&(%$^!#$^A!#%*&@^(#%&(#^;:<>T))??)~?/+==!#$@$` // THAT
+        +`^*@$%&F!#!@#^!#%*&@%E^(#&%#!$%@#^!#%*@%^(*#$@#!^E!@)?.>+@#&%<,D)+==!#$&@#$S^*@`, // FEEDS
     noxious_toad: 
         `Capable of leaping great distances to navigate the difficcult terrain of the sewers, these `
         +`toads have also developed a natural defense mechanism which sets them apart from their `
@@ -1609,7 +1619,9 @@ const enemy_flavor = {
     shadow_knight_elite: 
         ``,
     shadow_scout: 
-        ``,
+        `!@$&@$^(#%&)^H$%^!#$%@#^!#%*@$I^(#%&)$^*&$S%@^@#%*@` // HIS
+        +`(^?-+)@$^@E$^I(#%^*!#$^#%&;Y:)]{}@#$!!%*@E$^*@$!&#!%*$%@&#$S%!$^!#%*@$^%` // EYES
+        +`()$^*)U$^&(*#%^++N==|\\""$*^@$%&!#&S$#^*#%^(#%^&E@$%&!#%&@$^*$E^*))!@$^@#%*!#%N^!#$&@$^*@#%@`, // UNSEEN
     specter: 
         `It is unclear if these are actually the ghosts of the departed or simply some sort of `
         +`magically created creature of pure shadow. Either way they are capable of phasing through `
@@ -1651,7 +1663,20 @@ const enemy_flavor = {
         `While it can't fire in as many directions at once, this turret can keep watch over more `
         +`directions overall. Thankfully it rotates at a fixed speed so it's movement can be predicted.`,
     unspeakable:
-        ``,
+        `%!@$#&#T$^(#%^&#!$^!O#%*(#%&^)%` // TO
+        +`*%^&#K%$^!#$^_+$@_^N+!#$+&_!#+%&_O$+*__+}!$#^|}$W|!{^|$^{` // KNOW
+        +`|]#%&@$^*#$H%@$^!#%&#$^!$"^!#$^?!I#&>!#%&!#?&>!#%?&#M%&!#&!#<&` // HIM
+        +`@$^!#%&*I@$^*#$%!@#^S@#%*@$%&` // IS
+        +`!@$&@$T^(#%&($#O%!#^@#%&%` // TO
+        +`}^!|#$^&S!#%&{#%|!}|!#$^{E!$#^}!#$^:!$#"^!#$>R^!#$<^!$#?^!#<&>!#V$&!#%"&!{#%&$@^E*}%^({#` // SERVE
+        +`%&!#$^!#H$<&@$^>*$^&}I@%&:!#%&!#M%&)!@#^$@#%&@#$%` // HIM
+        +`$#&@$^($^&I)#$$&@S$*#%&)#^` // IS
+        +`*&!#$^!#$T&@+%&!#$^{!#}O%&:!#%&"!` // TO
+        +`#%&!#%D?&@$>^*<%^*>#&<%I$^!>$<&>#$^*?$@>%E*<>$@^*@%&~` // DIE
+        +`@$^(!$*&I!#)&$@*(@$^_*N^@#$::^>` // IN
+        +`!$?^!#S"&:!%{#&}H!#%:&%$"&>$%?&!%"&>A#!%>!&"!%:D&>@)!@$&@$^*($^O&)%^&*@#$%@$W^!#:&` // SHADOW
+        +`"!#$>^!?#%A&<!$%?*$:^*$@^N}*$}@{$%}*D!$>*!>%$` // AND
+        +`!@$^!#F%}&{%}:*$^"*L#>%^<(?&%(>%^*)A"^$:&*$}^&{!#%M&|!#{%&>@$%*@E(#%^>(`, // FLAME
     unstable_wisp: 
         `Beings of elemental fire that naturally spawn from the extreme heat. They are very unstable `
         +`and can explode violently if disrupted. They are not aggressive however so as long as you `
@@ -1666,7 +1691,10 @@ const enemy_flavor = {
     walking_prism: 
         ``,
     wheel_of_fire:
-        ``,
+        `@$$^@$^H*#%&)$^*($@%^!@#I%#!@$&@$^*)#+_@%@$^_!#S$&+#!_$^` // HIS
+        +`+~"!#$&?#!E%&"#$^?!$#^!#Y$|$^!$^!#%&!E@$^@#%*%&(%^*)$%*#%S$^!#@%~_^+` // EYES
+        +`!#+$_&^+#T_^~":":">><:#$<>@H#%&>@#<%&:@#%"@&:%>A&@<%&@%:>@%&<!@$&@$^(#$T%^!$#%)` // THAT
+        +`#!$&!$^(@^B*&!#$^!@$^!#%U&#}^$^?!#$>&!#"&!#>%&R?#%:&%#{&}@$*:@$>N^*>@$%&:@$%&>@)`, // BURN
 }
 Object.freeze(enemy_descriptions);
 const entity_types = {
@@ -5562,6 +5590,7 @@ function acid_bug_tile(){
         name: enemy_names.acid_bug,
         pic: `${IMG_FOLDER.tiles}acid_bug.png`,
         description: enemy_descriptions.acid_bug,
+        flavor: enemy_flavor.acid_bug,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -5586,6 +5615,7 @@ function animated_boulder_tile(){
         name: enemy_names.animated_boulder,
         pic: `${IMG_FOLDER.tiles}animated_boulder.png`,
         description: enemy_descriptions.animated_boulder,
+        flavor: enemy_flavor.animated_boulder,
         tags: new TagList([TAGS.unmovable, TAGS.hidden]),
         behavior: animated_boulder_ai,
         telegraph: spider_telegraph,
@@ -5655,6 +5685,7 @@ function blood_crescent_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[1],
         description: enemy_descriptions.blood_crescent,
+        flavor: enemy_flavor.blood_crescent,
         tags: new TagList(),
         health: 1,
         difficulty: 5,
@@ -5736,6 +5767,7 @@ function brightling_tile(){
         name: enemy_names.brightling,
         pic: `${IMG_FOLDER.tiles}brightling.png`,
         description: enemy_descriptions.brightling,
+        flavor: enemy_flavor.brightling,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -5783,6 +5815,7 @@ function captive_void_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.captive_void,
+        flavor: enemy_flavor.captive_void,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         difficulty: 2,
         behavior: captive_void_ai,
@@ -5854,6 +5887,7 @@ function carrion_flies_tile(){
         name: enemy_names.carrion_flies,
         pic: `${IMG_FOLDER.tiles}carrion_flies.png`,
         description: enemy_descriptions.carrion_flies,
+        flavor: enemy_flavor.carrion_flies,
         tags: new TagList(),
         health: 1,
         difficulty: 6,
@@ -5896,6 +5930,7 @@ function claustropede_1_tile(){
         name: enemy_names.claustropede_1,
         pic: `${IMG_FOLDER.tiles}claustropede_1.png`,
         description: enemy_descriptions.claustropede,
+        flavor: enemy_flavor.claustropede,
         tags: new TagList(),
         health: 1,
         difficulty: 1,
@@ -5912,6 +5947,7 @@ function claustropede_2_tile(){
         name: enemy_names.claustropede_2,
         pic: `${IMG_FOLDER.tiles}claustropede_2.png`,
         description: enemy_descriptions.claustropede,
+        flavor: enemy_flavor.claustropede,
         tags: new TagList(),
         health: 2,
         difficulty: 7,
@@ -5928,6 +5964,7 @@ function claustropede_3_tile(){
         name: enemy_names.claustropede_3,
         pic: `${IMG_FOLDER.tiles}claustropede_3.png`,
         description: enemy_descriptions.claustropede,
+        flavor: enemy_flavor.claustropede,
         tags: new TagList(),
         health: 3,
         difficulty: 12,
@@ -5983,6 +6020,7 @@ function clay_golem_tile(){
         name: enemy_names.clay_golem,
         pic: `${IMG_FOLDER.tiles}clay_golem.png`,
         description: enemy_descriptions.clay_golem,
+        flavor: enemy_flavor.clay_golem,
         tags: new TagList(),
         health: 3,
         difficulty: 4,
@@ -6024,6 +6062,7 @@ function corrosive_caterpillar_tile(){
         name: enemy_names.corrosive_caterpillar,
         pic: `${IMG_FOLDER.tiles}corrosive_caterpillar.png`,
         description: enemy_descriptions.corrosive_caterpillar,
+        flavor: enemy_flavor.corrosive_caterpillar,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -6053,6 +6092,7 @@ function darkling_tile(){
         name: enemy_names.darkling,
         pic: `${IMG_FOLDER.tiles}darkling.png`,
         description: enemy_descriptions.darkling,
+        flavor: enemy_flavor.darkling,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -6103,6 +6143,7 @@ function gem_crawler_tile(){
         pic: pic_arr[cycle],
         display_pic: pic_arr[1],
         description: enemy_descriptions.gem_crawler,
+        flavor: enemy_flavor.gem_crawler,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -6152,6 +6193,7 @@ function igneous_crab_tile(){
         name: enemy_names.igneous_crab,
         pic: `${IMG_FOLDER.tiles}igneous_crab.png`,
         description: enemy_descriptions.igneous_crab,
+        flavor: enemy_flavor.igneous_crab,
         tags: new TagList(),
         health: 2,
         difficulty: 3,
@@ -6206,6 +6248,7 @@ function living_tree_tile(){
         name: enemy_names.living_tree,
         pic: `${IMG_FOLDER.tiles}living_tree.png`,
         description: enemy_descriptions.living_tree,
+        flavor: enemy_flavor.living_tree,
         tags: new TagList(),
         health: 2,
         difficulty: 7,
@@ -6284,6 +6327,7 @@ function magma_spewer_tile(){
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
         display_pic: pic_arr[1],
         description: enemy_descriptions.magma_spewer,
+        flavor: enemy_flavor.magma_spewer,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -6339,6 +6383,7 @@ function maw_tile(){
         name: enemy_names.maw,
         pic: `${IMG_FOLDER.tiles}maw.png`,
         description: enemy_descriptions.maw,
+        flavor: enemy_flavor.maw,
         tags: new TagList(),
         health: 4,
         difficulty: 3,
@@ -6383,6 +6428,7 @@ function noxious_toad_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.noxious_toad, 
+        flavor: enemy_flavor.noxious_toad,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -6451,6 +6497,7 @@ function orb_of_insanity_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[1],
         description: enemy_descriptions.orb_of_insanity,
+        flavor: enemy_flavor.orb_of_insanity,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 3,
@@ -6510,6 +6557,7 @@ function paper_construct_tile(){
         name: enemy_names.paper_construct,
         pic: `${IMG_FOLDER.tiles}paper_construct.png`,
         description: enemy_descriptions.paper_construct,
+        flavor: enemy_flavor.paper_construct,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -6568,6 +6616,7 @@ function pheonix_tile(){
         name: enemy_names.pheonix,
         pic: `${IMG_FOLDER.tiles}pheonix.png`,
         description: enemy_descriptions.pheonix,
+        flavor: enemy_flavor.pheonix,
         tags: new TagList(),
         health: 1,
         difficulty: 5,
@@ -6641,6 +6690,7 @@ function large_porcuslime_tile(){
         name: enemy_names.porcuslime_large,
         pic: `${IMG_FOLDER.tiles}large_porcuslime.png`,
         description: enemy_descriptions.porcuslime_large,
+        flavor: enemy_flavor.porcuslime,
         tags: new TagList(),
         health: 3,
         difficulty: 8,
@@ -6688,6 +6738,7 @@ function medium_porcuslime_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.porcuslime_medium,
+        flavor: enemy_flavor.porcuslime,
         tags: new TagList(),
         health: 2,
         difficulty: 5,
@@ -6776,6 +6827,7 @@ function small_d_porcuslime_tile(){
         name: enemy_names.porcuslime_small,
         pic: `${IMG_FOLDER.tiles}small_d_porcuslime.png`,
         description: enemy_descriptions.porcuslime_small_d,
+        flavor: enemy_flavor.porcuslime,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -6790,6 +6842,7 @@ function small_o_porcuslime_tile(){
         name: enemy_names.porcuslime_small,
         pic: `${IMG_FOLDER.tiles}small_o_porcuslime.png`,
         description: enemy_descriptions.porcuslime_small_o,
+        flavor: enemy_flavor.porcuslime,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -6807,6 +6860,7 @@ function ram_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[1],
         description: enemy_descriptions.ram,
+        flavor: enemy_flavor.ram,
         tags: new TagList(),
         health: 2,
         difficulty: 5,
@@ -6904,6 +6958,7 @@ function rat_tile(){
         name: enemy_names.rat,
         pic: `${IMG_FOLDER.tiles}rat.png`,
         description: enemy_descriptions.rat,
+        flavor: enemy_flavor.rat,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -6962,6 +7017,7 @@ function scorpion_tile(){
         name: enemy_names.scorpion,
         pic: `${IMG_FOLDER.tiles}scorpion.png`,
         description: enemy_descriptions.scorpion,
+        flavor: enemy_flavor.scorpion,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7011,6 +7067,7 @@ function scythe_tile(){
         name: enemy_names.scythe,
         pic: `${IMG_FOLDER.tiles}scythe.png`,
         description: enemy_descriptions.scythe,
+        flavor: enemy_flavor.scythe,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -7069,6 +7126,7 @@ function shadow_knight_tile(){
         name: enemy_names.shadow_knight,
         pic: `${IMG_FOLDER.tiles}shadow_knight.png`,
         description: enemy_descriptions.shadow_knight,
+        flavor: enemy_flavor.shadow_knight,
         tags: new TagList(),
         health: 2,
         difficulty: 4,
@@ -7152,6 +7210,7 @@ function shadow_knight_elite_tile(){
         name: enemy_names.shadow_knight_elite,
         pic: `${IMG_FOLDER.tiles}shadow_knight_elite.png`,
         description: enemy_descriptions.shadow_knight_elite,
+        flavor: enemy_flavor.shadow_knight_elite,
         tags: new TagList(),
         health: 2,
         difficulty: 6,
@@ -7223,6 +7282,7 @@ function shadow_scout_tile(){
         name: enemy_names.shadow_scout,
         pic: `${IMG_FOLDER.tiles}shadow_scout.png`,
         description: enemy_descriptions.shadow_scout,
+        flavor: enemy_flavor.shadow_scout,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7250,6 +7310,7 @@ function specter_tile(){
         name: enemy_names.specter,
         pic: `${IMG_FOLDER.tiles}specter.png`,
         description: enemy_descriptions.specter,
+        flavor: enemy_flavor.specter,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7356,6 +7417,7 @@ function spider_tile(){
         name: enemy_names.spider,
         pic: `${IMG_FOLDER.tiles}spider.png`,
         description: enemy_descriptions.spider,
+        flavor: enemy_flavor.spider,
         tags: new TagList(),
         health: 1,
         difficulty: 1,
@@ -7387,6 +7449,7 @@ function spider_web_tile(){
         name: enemy_names.spider_web,
         pic: `${IMG_FOLDER.tiles}spider_web.png`,
         description: enemy_descriptions.spider_web,
+        flavor: enemy_flavor.spider_web,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 4,
@@ -7432,6 +7495,7 @@ function starcaller_tile(){
         pic: `${IMG_FOLDER.tiles}starcaller_off.png`,
         display_pic: pic_arr[1],
         description: enemy_descriptions.starcaller,
+        flavor: enemy_flavor.starcaller,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -7483,6 +7547,7 @@ function strider_tile(){
         name: enemy_names.strider,
         pic: `${IMG_FOLDER.tiles}strider.png`,
         description: enemy_descriptions.strider,
+        flavor: enemy_flavor.strider,
         tags: new TagList(),
         health: 2,
         difficulty: 4,
@@ -7523,6 +7588,7 @@ function swaying_nettle_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.swaying_nettle,
+        flavor: enemy_flavor.swaying_nettle,
         tags: new TagList([TAGS.unmovable, TAGS.nettle_immune]),
         health: 1,
         difficulty: 1,
@@ -7571,6 +7637,7 @@ function thorn_bush_tile(){
         name: enemy_names.thorn_bush,
         pic: `${IMG_FOLDER.tiles}thorn_bush.png`,
         description: enemy_descriptions.thorn_bush,
+        flavor: enemy_flavor.thorn_bush,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
         health: 2,
         difficulty: 5,
@@ -7607,6 +7674,7 @@ function moving_turret_d_tile(){
         name: enemy_names.turret_m,
         pic: `${IMG_FOLDER.tiles}moving_turret_d.png`,
         description: enemy_descriptions.turret_m,
+        flavor: enemy_flavor.turret_m,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7668,6 +7736,7 @@ function moving_turret_o_tile(){
         name: enemy_names.turret_m,
         pic: `${IMG_FOLDER.tiles}moving_turret_o.png`,
         description: enemy_descriptions.turret_m,
+        flavor: enemy_flavor.turret_m,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7734,6 +7803,7 @@ function turret_d_tile(){
         name: enemy_names.turret,
         pic: `${IMG_FOLDER.tiles}turret_d.png`,
         description: enemy_descriptions.turret_d,
+        flavor: enemy_flavor.turret,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -7775,6 +7845,7 @@ function turret_o_tile(){
         name: enemy_names.turret,
         pic: `${IMG_FOLDER.tiles}turret_o.png`,
         description: enemy_descriptions.turret_h,
+        flavor: enemy_flavor.turret,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -7823,6 +7894,7 @@ function turret_r_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: enemy_descriptions.turret_r,
+        flavor: enemy_flavor.turret_r,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7890,6 +7962,7 @@ function unspeakable_tile(){
         name: enemy_names.unspeakable,
         pic: `${IMG_FOLDER.tiles}unspeakable.png`,
         description: enemy_descriptions.unspeakable,
+        flavor: enemy_flavor.unspeakable,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7915,6 +7988,7 @@ function unstable_wisp_tile(){
         name: enemy_names.unstable_wisp,
         pic: `${IMG_FOLDER.tiles}unstable_wisp.png`, 
         description: enemy_descriptions.unstable_wisp,
+        flavor: enemy_flavor.unstable_wisp,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -7965,6 +8039,7 @@ function vampire_tile(){
         name: enemy_names.vampire,
         pic: `${IMG_FOLDER.tiles}vampire.png`,
         description: enemy_descriptions.vampire,
+        flavor: enemy_flavor.vampire,
         tags: new TagList(),
         health: 2,
         max_health: 2,
@@ -8044,6 +8119,7 @@ function vinesnare_bush_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.vinesnare_bush,
+        flavor: enemy_flavor.vinesnare_bush,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 2,
@@ -8138,6 +8214,7 @@ function walking_prism_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[1],
         description: `${description_arr[0]}${description_arr[1 + starting_cycle]}`, 
+        flavor: enemy_flavor.walking_prism,
         tags: new TagList(),
         health: 2,
         difficulty: 3,
@@ -8206,6 +8283,7 @@ function wheel_of_fire_tile(){
         name: enemy_names.wheel_of_fire,
         pic: `${IMG_FOLDER.tiles}wheel_of_fire.png`,
         description: enemy_descriptions.wheel_of_fire,
+        flavor: enemy_flavor.wheel_of_fire,
         tags: new TagList(),
         health: 1,
         difficulty: 6,

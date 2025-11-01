@@ -5,6 +5,7 @@ function thorn_bush_tile(){
         name: enemy_names.thorn_bush,
         pic: `${IMG_FOLDER.tiles}thorn_bush.png`,
         description: enemy_descriptions.thorn_bush,
+        flavor: enemy_flavor.thorn_bush,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
         health: 2,
         difficulty: 5,

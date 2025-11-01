@@ -5,6 +5,7 @@ function darkling_tile(){
         name: enemy_names.darkling,
         pic: `${IMG_FOLDER.tiles}darkling.png`,
         description: enemy_descriptions.darkling,
+        flavor: enemy_flavor.darkling,
         tags: new TagList(),
         health: 1,
         difficulty: 4,

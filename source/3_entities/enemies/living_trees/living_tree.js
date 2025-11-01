@@ -5,6 +5,7 @@ function living_tree_tile(){
         name: enemy_names.living_tree,
         pic: `${IMG_FOLDER.tiles}living_tree.png`,
         description: enemy_descriptions.living_tree,
+        flavor: enemy_flavor.living_tree,
         tags: new TagList(),
         health: 2,
         difficulty: 7,

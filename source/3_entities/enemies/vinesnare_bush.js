@@ -9,6 +9,7 @@ function vinesnare_bush_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.vinesnare_bush,
+        flavor: enemy_flavor.vinesnare_bush,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 2,
