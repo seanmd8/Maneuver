@@ -6,7 +6,7 @@
 }
 
 .journal-info {
-    position: fixed;
+    position: absolute;
     left: 980px;
     border-color: saddlebrown;
     border-width: 4px;
@@ -15,11 +15,5 @@
     height: 180px;
     overflow-x: auto;
     font-weight: 400;
-}
-
-@media (max-width: 1465px) {
-    .journal-info {
-        position: absolute;
-        left: 980px;
-    }
+    margin-top: -15px;
 }

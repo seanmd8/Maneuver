@@ -747,14 +747,27 @@ const DisplayHTML = {
         legend.innerText = header;
         var table_id = `${destination} ${header} table`;
         table.id = table_id;
+        var text_id = `${destination} ${header} text`;
+        var text = DisplayHTML.make_side_text_box(text_id);
 
         place.append(box);
         box.append(legend);
+        box.append(text);
         box.append(table);
         
         for(var i = 0; i < Math.ceil(cards.length / JOURNAL_DISPLAY_WIDTH); ++i){
             var slice_start = i * JOURNAL_DISPLAY_WIDTH;
             var slice = cards.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            for(let card of slice){
+                card.on_click = () => {
+                    var boxes = place.getElementsByClassName(`journal-info`);
+                    for(let box of boxes){
+                        DisplayHTML.toggle_visibility(box.id, false);
+                    }
+                    DisplayHTML.toggle_visibility(text.id, true);
+                    DisplayHTML.display_message(text_id, card.description);
+                }
+            }
             display.add_tb_row(table_id, slice, CARD_SCALE);
         }
     },
@@ -779,14 +792,23 @@ const DisplayHTML = {
         legend.innerText = header;
         var table_id = `${destination} ${header} table`;
         table.id = table_id;
+        var text_id = `${destination} ${header} text`;
+        var text = DisplayHTML.make_side_text_box(text_id);
 
         place.append(box);
         box.append(legend);
+        box.append(text);
         box.append(table);
         
         for(var i = 0; i < Math.ceil(boons.length / JOURNAL_DISPLAY_WIDTH); ++i){
             var slice_start = i * JOURNAL_DISPLAY_WIDTH;
             var slice = boons.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            for(let boon of slice){
+                boon.on_click = () => {
+                    DisplayHTML.toggle_visibility(text.id, true);
+                    DisplayHTML.display_message(text_id, boon.description);
+                }
+            }
             display.add_tb_row(table_id, slice, CARD_SCALE);
         }
     },
@@ -927,6 +949,14 @@ const DisplayHTML = {
         section.append(p);
         section.append(button);
         element.append(section);
+    },
+    make_side_text_box(id){
+        var text = document.createElement(`p`);
+        text.classList.add(`journal-info`);
+        text.classList.add(`scrollable-text`);
+        text.classList.add(`hidden-section`);
+        text.id = id;
+        return text;
     },
 
     // Non Required helper functions.

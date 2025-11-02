@@ -3398,14 +3398,27 @@ const DisplayHTML = {
         legend.innerText = header;
         var table_id = `${destination} ${header} table`;
         table.id = table_id;
+        var text_id = `${destination} ${header} text`;
+        var text = DisplayHTML.make_side_text_box(text_id);
 
         place.append(box);
         box.append(legend);
+        box.append(text);
         box.append(table);
         
         for(var i = 0; i < Math.ceil(cards.length / JOURNAL_DISPLAY_WIDTH); ++i){
             var slice_start = i * JOURNAL_DISPLAY_WIDTH;
             var slice = cards.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            for(let card of slice){
+                card.on_click = () => {
+                    var boxes = place.getElementsByClassName(`journal-info`);
+                    for(let box of boxes){
+                        DisplayHTML.toggle_visibility(box.id, false);
+                    }
+                    DisplayHTML.toggle_visibility(text.id, true);
+                    DisplayHTML.display_message(text_id, card.description);
+                }
+            }
             display.add_tb_row(table_id, slice, CARD_SCALE);
         }
     },
@@ -3430,14 +3443,23 @@ const DisplayHTML = {
         legend.innerText = header;
         var table_id = `${destination} ${header} table`;
         table.id = table_id;
+        var text_id = `${destination} ${header} text`;
+        var text = DisplayHTML.make_side_text_box(text_id);
 
         place.append(box);
         box.append(legend);
+        box.append(text);
         box.append(table);
         
         for(var i = 0; i < Math.ceil(boons.length / JOURNAL_DISPLAY_WIDTH); ++i){
             var slice_start = i * JOURNAL_DISPLAY_WIDTH;
             var slice = boons.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            for(let boon of slice){
+                boon.on_click = () => {
+                    DisplayHTML.toggle_visibility(text.id, true);
+                    DisplayHTML.display_message(text_id, boon.description);
+                }
+            }
             display.add_tb_row(table_id, slice, CARD_SCALE);
         }
     },
@@ -3578,6 +3600,14 @@ const DisplayHTML = {
         section.append(p);
         section.append(button);
         element.append(section);
+    },
+    make_side_text_box(id){
+        var text = document.createElement(`p`);
+        text.classList.add(`journal-info`);
+        text.classList.add(`scrollable-text`);
+        text.classList.add(`hidden-section`);
+        text.id = id;
+        return text;
     },
 
     // Non Required helper functions.
@@ -4407,7 +4437,6 @@ function show_area(info, depth, force_visited = false){
 }
 function update_journal_boons(){
     display.remove_children(UIIDS.journal_boons);
-    display.create_fixed_box(UIIDS.journal_boons, UIIDS.journal_boon_info);
     var boons = boons_encountered(BOON_LIST, GS.data.boons);
     display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons);
 }
@@ -4424,15 +4453,11 @@ function boons_encountered(boons, encountered){
         else{
             boon.description = explain_boon_with_stats(boon);
         }
-        boon.on_click = () => {
-            display.display_message(UIIDS.journal_boon_info, boon.description);
-        }
         return boon;
     });
 }
 function update_journal_cards(){
     display.remove_children(UIIDS.journal_cards);
-    display.create_fixed_box(UIIDS.journal_cards, UIIDS.journal_card_info);
     display_basic_cards();
     display_common_cards();
     display_achievement_cards();
@@ -4471,21 +4496,15 @@ function cards_encountered(cards, encountered){
     return cards.map((c) => {
         var card = c();
         if(card.name === card_names.symbol_locked){
-            card.on_click = () => {
-                display.display_message(UIIDS.journal_card_info, move_types.locked);
-            }
+            card.description = move_types.locked;
             return card;
         }
         if(encountered.has(card.name)){
-            card.on_click = () => {
-                display.display_message(UIIDS.journal_card_info, explain_card_w_stats(card));
-            }
+            card.description = explain_card_w_stats(card);
             return card;
         }
         var card = symbol_not_encountered_card();
-        card.on_click = () => {
-            display.display_message(UIIDS.journal_card_info, move_types.not_found);
-        }
+        card.description = move_types.not_found;
         return card;
     });
 }
