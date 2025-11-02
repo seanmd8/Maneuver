@@ -1,6 +1,9 @@
 function update_journal_areas(){
     for(var i = 0; i < 7; ++i){
-        display.remove_children(`${UIIDS.journal_areas}${i}`);
+        var area_id = `${UIIDS.journal_areas}${i}`
+        display.remove_children(area_id);
+        var text = display.make_side_text_box(`${area_id} text`);
+        display.add_element(area_id, text);
     }
     show_area(basic_tiles_display_info(), 0, true);
     show_area(ruins_display_info(), 1);
@@ -42,7 +45,7 @@ function show_area(info, depth, force_visited = false){
                 true_name: t.name,
                 pic: t.display_pic ? t.display_pic : t.pic,
                 background: [info.background],
-                description: t.description,
+                description: t.flavor,
             }
         }
         return {

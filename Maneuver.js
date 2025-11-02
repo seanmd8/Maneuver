@@ -3482,6 +3482,19 @@ const DisplayHTML = {
             div.append(text);
             return div;
         }
+        var say = (msg) => {
+            return () => {
+                console.log(msg);
+                var text_id = `${destination} text`;
+                var areas = DisplayHTML.get_element(UIIDS.journal_areas);
+                var boxes = areas.getElementsByClassName(`journal-info`);
+                for(let box of boxes){
+                    DisplayHTML.toggle_visibility(box.id, false);
+                }
+                DisplayHTML.toggle_visibility(text_id, true);
+                DisplayHTML.display_message(text_id, msg);
+            }
+        }
         var header = document.createElement(`div`);
         header.classList.add(`journal-area-box-header`);
         if(info.visit_count === undefined && info.clear_count === undefined){
@@ -3508,6 +3521,7 @@ const DisplayHTML = {
         
         if(info.boss !== undefined){
             var boss = document.createElement(`table`);
+            info.boss.on_click = say(info.boss.description);
             boss.classList.add(`journal-area-boss`);
             var boss_id = `${destination} ${info.true_name} boss`;
             boss.id = boss_id;
@@ -3523,6 +3537,9 @@ const DisplayHTML = {
         for(var i = 0; i < Math.ceil(info.tiles.length / JOURNAL_AREA_WIDTH); ++i){
             var slice_start = i * JOURNAL_AREA_WIDTH;
             var slice = info.tiles.slice(slice_start, slice_start + JOURNAL_AREA_WIDTH);
+            for(var tile of slice){
+                tile.on_click = say(tile.description);
+            }
             display.add_tb_row(tiles_id, slice, JOURNAL_TILE_SCALE);
         }
     },
@@ -3608,6 +3625,10 @@ const DisplayHTML = {
         text.classList.add(`hidden-section`);
         text.id = id;
         return text;
+    },
+    add_element(location, element){
+        var destination = DisplayHTML.get_element(location);
+        destination.append(element);
     },
 
     // Non Required helper functions.
@@ -4369,7 +4390,10 @@ function update_achievements(){
 
 function update_journal_areas(){
     for(var i = 0; i < 7; ++i){
-        display.remove_children(`${UIIDS.journal_areas}${i}`);
+        var area_id = `${UIIDS.journal_areas}${i}`
+        display.remove_children(area_id);
+        var text = display.make_side_text_box(`${area_id} text`);
+        display.add_element(area_id, text);
     }
     show_area(basic_tiles_display_info(), 0, true);
     show_area(ruins_display_info(), 1);
@@ -4411,7 +4435,7 @@ function show_area(info, depth, force_visited = false){
                 true_name: t.name,
                 pic: t.display_pic ? t.display_pic : t.pic,
                 background: [info.background],
-                description: t.description,
+                description: t.flavor,
             }
         }
         return {

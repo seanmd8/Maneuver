@@ -17,6 +17,7 @@
 .journal-area-box {
     border-width: 5px;
     border-color: black;
+    background-color: var(--area-color);
     border-radius: 10px;
     border-style: solid;
     display: inline-flex;
@@ -86,6 +87,7 @@
     border-width: 4px;
     border-style: solid;
     border-color: black;
+    cursor: pointer;
 }
 
 .journal-area-tiles img {
@@ -93,28 +95,38 @@
     border-width: 2px;
     border-style: solid;
     border-color: black;
+    cursor: pointer;
 }
 
-.area0>div {
-    background-color: var(--area0);
-    height: fit-content;
+.journal-area-screen .journal-info {
+    left: 858px;
+    margin-top: 100px;
+    background-color: var(--area-color);
+    border-color: black;
 }
-.area1>div {
-    background-color: var(--area1);
+
+.area0 {
+    --area-color: var(--area0);
 }
-.area2>div {
-    background-color: var(--area2);
+.area1 {
+    --area-color: var(--area1);
 }
-.area3>div {
-    background-color: var(--area3);
+.area2 {
+    --area-color: var(--area2);
 }
-.area4>div {
-    background-color: var(--area4);
+.area3 {
+    --area-color: var(--area3);
 }
-.area5>div {
-    background-color: var(--area5);
+.area4 {
+    --area-color: var(--area4);
 }
-.area6>div {
-    background-color: var(--area6);
+.area5 {
+    --area-color: var(--area5);
+}
+.area6 {
+    --area-color: var(--area6);
+}
+
+.area0>div, .area6>div {
     height: fit-content;
 }
