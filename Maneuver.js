@@ -622,7 +622,7 @@ function initiate_game(){
     display_guide();
     setup_journal_navbar();
     setup_settings_navbar();
-    setup_reset_page();
+    setup_data_page();
 }
 
 /**
@@ -2387,6 +2387,8 @@ Object.freeze(CONTROLS_TEXT);
 const KEYBOARD_SYMBOL_MAP = new Map();
 KEYBOARD_SYMBOL_MAP.set(` `, `space`);
 const reset_text = {
+    header: `Manage Save Data`,
+
     reset: `Reset`,
     confirm: `Confirm?`,
 
@@ -2538,6 +2540,7 @@ const HTML_UIIDS = {
     settings: `settings`,
         settings_navbar: `settingsNavbar`,
         settings_data: `settingsData`,
+            data_header: `dataHeader`,
         controls: `controls`,
             stage_controls: `stageControls`,
             shop_controls: `shopControls`,
@@ -4581,7 +4584,8 @@ function edit_stage_controls(controls){
     display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
     display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
 }
-function setup_reset_page(){
+function setup_data_page(){
+    display.display_message(UIIDS.data_header, reset_text.header);
     display.reset_section(UIIDS.settings_data, reset_cards, reset_text.cards);
     display.reset_section(UIIDS.settings_data, reset_boons, reset_text.boons);
     display.reset_section(UIIDS.settings_data, reset_areas, reset_text.areas);
@@ -4618,8 +4622,8 @@ function setup_settings_navbar(){
     var id = UIIDS.settings_navbar;
 
     var section_id_list = [
-        UIIDS.settings_data,
         UIIDS.controls,
+        UIIDS.settings_data,
     ];
 
     var swap_visibility = function(id_list, id){
@@ -4628,10 +4632,10 @@ function setup_settings_navbar(){
         }
     }
 
-    display.create_visibility_toggle(id, settings_navbar_labels.data, swap_visibility(section_id_list, UIIDS.settings_data));
     display.create_visibility_toggle(id, settings_navbar_labels.controls, swap_visibility(section_id_list, UIIDS.controls));
+    display.create_visibility_toggle(id, settings_navbar_labels.data, swap_visibility(section_id_list, UIIDS.settings_data));
 
-    display.swap_screen(section_id_list, UIIDS.settings_data);
+    display.swap_screen(section_id_list, UIIDS.controls);
 }
 const SENTRY_MODES = {
     saw: `Saw`,

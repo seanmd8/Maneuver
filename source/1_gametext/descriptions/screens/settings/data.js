@@ -1,4 +1,6 @@
 const reset_text = {
+    header: `Manage Save Data`,
+
     reset: `Reset`,
     confirm: `Confirm?`,
 

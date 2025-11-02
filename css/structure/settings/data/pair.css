@@ -2,4 +2,10 @@
     display: flex;
     justify-content: space-between;
     width: 400px;
+    background-color: lightblue;
+    border-width: 3px;
+    border-style: solid;
+    margin: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
 }

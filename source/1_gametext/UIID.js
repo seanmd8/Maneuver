@@ -135,6 +135,7 @@ const HTML_UIIDS = {
     settings: `settings`,
         settings_navbar: `settingsNavbar`,
         settings_data: `settingsData`,
+            data_header: `dataHeader`,
         controls: `controls`,
             stage_controls: `stageControls`,
             shop_controls: `shopControls`,

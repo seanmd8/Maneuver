@@ -953,10 +953,36 @@ body>div {
     color: red;
     cursor: pointer;
 }
+.data-header {
+    background-color: lightgrey;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 0px;
+    margin-bottom: 20px;
+    margin-left: 10px;
+    border-radius: 7px;
+    border-style: solid;
+    width: fit-content;
+}
 .reset-pair{
     display: flex;
     justify-content: space-between;
     width: 400px;
+    background-color: lightblue;
+    border-width: 3px;
+    border-style: solid;
+    margin: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.data-section {
+    border: solid;
+    border-radius: 20px;
+    width: fit-content;
+    padding: 20px;
+    background-color: #2c7d2c;
+    margin: 6px;
 }
 .reset-text {
     font-weight: bold;

@@ -1,4 +1,5 @@
-function setup_reset_page(){
+function setup_data_page(){
+    display.display_message(UIIDS.data_header, reset_text.header);
     display.reset_section(UIIDS.settings_data, reset_cards, reset_text.cards);
     display.reset_section(UIIDS.settings_data, reset_boons, reset_text.boons);
     display.reset_section(UIIDS.settings_data, reset_areas, reset_text.areas);
