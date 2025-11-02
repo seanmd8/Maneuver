@@ -1157,7 +1157,7 @@ const move_types = {
     you: `You`,
     nothing: `Do nothing`,
     
-    per_floor: `Once Per Floor: Can only be drawn one time per floor.`,
+    per_floor: `Once Per Floor: Only usable one time each floor.`,
     temp: `Temporary: Removed from your deck when put into your discard, or at the end of the floor.`,
     instant: `Instant: Play another card this turn.`,
     
@@ -3604,7 +3604,7 @@ const DisplayHTML = {
     make_side_text_box(id){
         var text = document.createElement(`p`);
         text.classList.add(`journal-info`);
-        text.classList.add(`scrollable-text`);
+        //text.classList.add(`scrollable-text`);
         text.classList.add(`hidden-section`);
         text.id = id;
         return text;
@@ -4495,6 +4495,7 @@ function display_boss_cards(){
 function cards_encountered(cards, encountered){
     return cards.map((c) => {
         var card = c();
+        card.background = [`${IMG_FOLDER.other}default_card_background.png`];
         if(card.name === card_names.symbol_locked){
             card.description = move_types.locked;
             return card;

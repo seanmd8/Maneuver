@@ -953,7 +953,7 @@ const DisplayHTML = {
     make_side_text_box(id){
         var text = document.createElement(`p`);
         text.classList.add(`journal-info`);
-        text.classList.add(`scrollable-text`);
+        //text.classList.add(`scrollable-text`);
         text.classList.add(`hidden-section`);
         text.id = id;
         return text;

@@ -786,6 +786,7 @@ body>div {
 }
 .journal-card-box {
     width: 942px;
+    background-color: #f4d6aa;
 }
 .journal-card-box td:hover {
     cursor: pointer;
@@ -793,15 +794,28 @@ body>div {
 
 .journal-info {
     position: absolute;
-    left: 980px;
-    border-color: saddlebrown;
-    border-width: 4px;
+    left: 1000px;
+    text-align: left;
+    padding: 5px;
+    border-style: solid;
+    border-color: #af5413;
+    background-color: #f4d6aa;
+    border-width: 6px 6px 6px 0px;
     white-space: normal;
     width: 450px;
-    height: 180px;
-    overflow-x: auto;
+    height: fit-content;
+    min-height: 180px;
     font-weight: 400;
     margin-top: -15px;
+}
+
+.journal-page {
+    background-color: saddlebrown;
+    width: 956px;
+    padding: 0px 12px;
+    border-width: 0px 6px 6px 6px;
+    border-style: solid;
+    border-color: #45230a;
 }
 .journal-style {
     background-color: var(--journal-background-color);

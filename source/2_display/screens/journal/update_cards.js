@@ -37,6 +37,7 @@ function display_boss_cards(){
 function cards_encountered(cards, encountered){
     return cards.map((c) => {
         var card = c();
+        card.background = [`${IMG_FOLDER.other}default_card_background.png`];
         if(card.name === card_names.symbol_locked){
             card.description = move_types.locked;
             return card;
