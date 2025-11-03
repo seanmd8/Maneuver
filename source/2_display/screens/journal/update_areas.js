@@ -36,7 +36,7 @@ function show_area(info, depth, force_visited = false){
                 name: boon_names.locked,
                 pic: `${IMG_FOLDER.other}locked.png`,
                 background: [info.background],
-                description: boon_descriptions.locked,
+                description: journal_area_messages.locked,
             }
         }
         if(GS.data.tiles.has(t.name)){
@@ -52,7 +52,7 @@ function show_area(info, depth, force_visited = false){
             name: boon_names.not_encountered,
             pic: `${IMG_FOLDER.other}not_encountered.png`,
             background: [info.background],
-            description: boon_descriptions.not_encountered,
+            description: journal_area_messages.not_encountered,
         }
     };
     if(info.boss !== undefined){

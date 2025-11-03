@@ -25,6 +25,7 @@ function forest_heart_tile(){
         pic: pic_arr[0],
         display_pic: `${IMG_FOLDER.tiles}forest_heart.png`,
         description: `${boss_descriptions.forest_heart} ${heart_spell_descriptions.rest}`,
+        flavor: boss_flavor.forest_heart,
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
         health,
         death_message: boss_death_message.forest_heart,

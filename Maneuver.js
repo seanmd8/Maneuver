@@ -2325,7 +2325,10 @@ const about_page_text = {
 Object.freeze(about_page_text);
 const journal_area_messages = {
     visited: `Times Visited`,
-    cleared: `Times Cleared`
+    cleared: `Times Cleared`,
+    
+    locked: `You haven't visited this area yet`,
+    not_encountered: `Click on this tile in game to unlock it's journal entry.`
 }
 Object.freeze(journal_area_messages);
 const journal_card_headers = {
@@ -4426,7 +4429,7 @@ function show_area(info, depth, force_visited = false){
                 name: boon_names.locked,
                 pic: `${IMG_FOLDER.other}locked.png`,
                 background: [info.background],
-                description: boon_descriptions.locked,
+                description: journal_area_messages.locked,
             }
         }
         if(GS.data.tiles.has(t.name)){
@@ -4442,7 +4445,7 @@ function show_area(info, depth, force_visited = false){
             name: boon_names.not_encountered,
             pic: `${IMG_FOLDER.other}not_encountered.png`,
             background: [info.background],
-            description: boon_descriptions.not_encountered,
+            description: journal_area_messages.not_encountered,
         }
     };
     if(info.boss !== undefined){
@@ -4698,6 +4701,7 @@ function arcane_sentry_tile(){
         name: boss_names.arcane_sentry,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
         description: boss_descriptions.arcane_sentry,
+        flavor: boss_flavor.arcane_sentry,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry]),
         health: 7,
         death_message: boss_death_message.arcane_sentry,
@@ -4718,6 +4722,7 @@ function arcane_node_tile(){
         pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret.png`,
         display_pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret.png`,
         description: boss_descriptions.arcane_sentry_node,
+        flavor: boss_flavor.arcane_sentry_node,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry, TAGS.controlled, TAGS.unstunnable]),
         health: 5,
         death_message: boss_death_message.arcane_sentry_node,
@@ -4890,6 +4895,7 @@ function forest_heart_tile(){
         pic: pic_arr[0],
         display_pic: `${IMG_FOLDER.tiles}forest_heart.png`,
         description: `${boss_descriptions.forest_heart} ${heart_spell_descriptions.rest}`,
+        flavor: boss_flavor.forest_heart,
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
         health,
         death_message: boss_death_message.forest_heart,
@@ -5040,6 +5046,7 @@ function lich_tile(){
         type: entity_types.enemy,
         name: boss_names.lich,
         display_pic: `${IMG_FOLDER.tiles}lich_rest.png`,
+        flavor: boss_flavor.lich,
         tags: new TagList([TAGS.boss]),
         health: 4,
         death_message: boss_death_message.lich,
@@ -5174,6 +5181,7 @@ function lord_of_shadow_and_flame_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: boss_descriptions.lord_of_shadow_and_flame,
+        flavor: boss_flavor.lord_of_shadow_and_flame,
         tags: new TagList([TAGS.boss]),
         health,
         max_health: health,
@@ -5313,6 +5321,7 @@ function spider_queen_tile(){
         name: boss_names.spider_queen,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
         description: boss_descriptions.spider_queen,
+        flavor: boss_flavor.spider_queen,
         tags: new TagList([TAGS.boss]),
         health: 3,
         death_message: boss_death_message.spider_queen,
@@ -5342,6 +5351,7 @@ function two_headed_serpent_tile(){
         pic: pic_arr[1],
         display_pic: pic_arr[1],
         description: boss_descriptions.two_headed_serpent_awake,
+        flavor: boss_flavor.two_headed_serpent,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         health: 1,
         death_message: boss_death_message.two_headed_serpent,
@@ -5364,6 +5374,7 @@ function two_headed_serpent_body_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: boss_descriptions.two_headed_serpent_body,
+        flavor: boss_flavor.two_headed_serpent_body,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         pic_arr,
         segment_list: [undefined, undefined],
@@ -5609,6 +5620,7 @@ function velociphile_tile(){
         name: boss_names.velociphile,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
         description: boss_descriptions.velociphile,
+        flavor: boss_flavor.velociphile,
         tags: new TagList([TAGS.boss]),
         health: 3,
         death_message: boss_death_message.velociphile,
@@ -5664,6 +5676,7 @@ function young_dragon_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: `${boss_descriptions.young_dragon[0]}${boss_descriptions.young_dragon[1]}`,
+        flavor: boss_flavor.young_dragon,
         tags: new TagList([TAGS.boss]),
         health: 5,
         death_message: boss_death_message.young_dragon,

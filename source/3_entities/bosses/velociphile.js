@@ -5,6 +5,7 @@ function velociphile_tile(){
         name: boss_names.velociphile,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
         description: boss_descriptions.velociphile,
+        flavor: boss_flavor.velociphile,
         tags: new TagList([TAGS.boss]),
         health: 3,
         death_message: boss_death_message.velociphile,

@@ -25,6 +25,7 @@ function lich_tile(){
         type: entity_types.enemy,
         name: boss_names.lich,
         display_pic: `${IMG_FOLDER.tiles}lich_rest.png`,
+        flavor: boss_flavor.lich,
         tags: new TagList([TAGS.boss]),
         health: 4,
         death_message: boss_death_message.lich,

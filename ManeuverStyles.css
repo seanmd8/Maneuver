@@ -766,9 +766,13 @@ body>div {
 
 .journal-area-screen .journal-info {
     left: 858px;
-    margin-top: 100px;
+    margin-top: 40px;
     background-color: var(--area-color);
     border-color: black;
+}
+
+.journal-area-screen .area6 .journal-info {
+    margin-top: 10px;
 }
 
 .area0 {
