@@ -125,7 +125,7 @@ const boon_descriptions = {
     pain_reflexes: 
         `Take a turn whenever you are attacked.`,
     pandoras_box:
-        `Gain a number of random boons equal to your current max hp. Reduce your maximum hp to 1.`,
+        `Gain a number of random boons equal to your current maximum hp. Reduce your maximum hp to 1.`,
     perfect_the_basics: 
         `Replace all your basic cards with better ones.`,
     picky_shopper: 
@@ -172,7 +172,7 @@ const boon_descriptions = {
     thick_soles: 
         `You are immune to damage on your turn.`,
     vicious_cycle: 
-        `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`,
+        `At the start of each floor fully heal, then add 2 temporary Lash Out cards to your deck.`,
 }
 Object.freeze(boon_descriptions);
 
