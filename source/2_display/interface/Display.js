@@ -735,24 +735,31 @@ const DisplayHTML = {
             element.classList.remove(`hidden-section`);
         }
     },
-    journal_card_section(destination, header, cards){
+    journal_card_section(destination, header, cards, has = undefined){
         var place = DisplayHTML.get_element(destination);
 
         var box = document.createElement(`fieldset`);
-        var legend = document.createElement(`legend`);
-        var table = document.createElement(`table`);
-
         box.classList.add(`shop-section-box`);
         box.classList.add(`journal-card-box`);
+        place.append(box);
+
+        var legend = document.createElement(`legend`);
         legend.innerText = header;
-        var table_id = `${destination} ${header} table`;
-        table.id = table_id;
+        box.append(legend);
+
+        if(has !== undefined){
+            var legend2 = document.createElement(`legend`);
+            legend2.innerText = has;
+            box.append(legend2);
+        }
+
         var text_id = `${destination} ${header} text`;
         var text = DisplayHTML.make_side_text_box(text_id);
-
-        place.append(box);
-        box.append(legend);
         box.append(text);
+
+        var table = document.createElement(`table`);
+        var table_id = `${destination} ${header} table`;
+        table.id = table_id;
         box.append(table);
         
         for(var i = 0; i < Math.ceil(cards.length / JOURNAL_DISPLAY_WIDTH); ++i){
@@ -780,24 +787,31 @@ const DisplayHTML = {
         box.classList.add(`journal-info`);
         place.append(box);
     },
-    journal_boon_section(destination, header, boons){
+    journal_boon_section(destination, header, boons, has = undefined){
         var place = DisplayHTML.get_element(destination);
 
         var box = document.createElement(`fieldset`);
-        var legend = document.createElement(`legend`);
-        var table = document.createElement(`table`);
-
         box.classList.add(`shop-section-box`);
         box.classList.add(`journal-card-box`);
+        place.append(box);
+
+        var legend = document.createElement(`legend`);
         legend.innerText = header;
-        var table_id = `${destination} ${header} table`;
-        table.id = table_id;
+        box.append(legend);
+
+        if(has !== undefined){
+            var legend2 = document.createElement(`legend`);
+            legend2.innerText = has;
+            box.append(legend2);
+        }
+
         var text_id = `${destination} ${header} text`;
         var text = DisplayHTML.make_side_text_box(text_id);
-
-        place.append(box);
-        box.append(legend);
         box.append(text);
+
+        var table = document.createElement(`table`);
+        var table_id = `${destination} ${header} table`;
+        table.id = table_id;
         box.append(table);
         
         for(var i = 0; i < Math.ceil(boons.length / JOURNAL_DISPLAY_WIDTH); ++i){

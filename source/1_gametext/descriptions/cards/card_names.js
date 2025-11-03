@@ -2,7 +2,7 @@ const card_names = {
     symbol_add_card: `Add`,
     symbol_deck_at_minimum: `Minimum`,
     symbol_locked: `Locked`,
-    symbol_not_encountered_card: `Not Encountered`,
+    symbol_not_encountered: `Not Encountered`,
     symbol_remove_card: `Remove`,
 
     advance: `Advance`,

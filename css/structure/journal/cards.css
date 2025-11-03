@@ -6,6 +6,19 @@
     cursor: pointer;
 }
 
+.journal-card-box legend {
+    width: fit-content;
+    line-height: 20px;
+    font-size: 20px;
+}
+.journal-card-box :nth-child(2 of legend) {
+    margin-top: -28px;
+    vertical-align: middle;
+    float: right;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
 .journal-info {
     position: absolute;
     left: 1000px;

@@ -949,7 +949,7 @@ const card_names = {
     symbol_add_card: `Add`,
     symbol_deck_at_minimum: `Minimum`,
     symbol_locked: `Locked`,
-    symbol_not_encountered_card: `Not Encountered`,
+    symbol_not_encountered: `Not Encountered`,
     symbol_remove_card: `Remove`,
 
     advance: `Advance`,
@@ -3387,24 +3387,31 @@ const DisplayHTML = {
             element.classList.remove(`hidden-section`);
         }
     },
-    journal_card_section(destination, header, cards){
+    journal_card_section(destination, header, cards, has = undefined){
         var place = DisplayHTML.get_element(destination);
 
         var box = document.createElement(`fieldset`);
-        var legend = document.createElement(`legend`);
-        var table = document.createElement(`table`);
-
         box.classList.add(`shop-section-box`);
         box.classList.add(`journal-card-box`);
+        place.append(box);
+
+        var legend = document.createElement(`legend`);
         legend.innerText = header;
-        var table_id = `${destination} ${header} table`;
-        table.id = table_id;
+        box.append(legend);
+
+        if(has !== undefined){
+            var legend2 = document.createElement(`legend`);
+            legend2.innerText = has;
+            box.append(legend2);
+        }
+
         var text_id = `${destination} ${header} text`;
         var text = DisplayHTML.make_side_text_box(text_id);
-
-        place.append(box);
-        box.append(legend);
         box.append(text);
+
+        var table = document.createElement(`table`);
+        var table_id = `${destination} ${header} table`;
+        table.id = table_id;
         box.append(table);
         
         for(var i = 0; i < Math.ceil(cards.length / JOURNAL_DISPLAY_WIDTH); ++i){
@@ -3432,24 +3439,31 @@ const DisplayHTML = {
         box.classList.add(`journal-info`);
         place.append(box);
     },
-    journal_boon_section(destination, header, boons){
+    journal_boon_section(destination, header, boons, has = undefined){
         var place = DisplayHTML.get_element(destination);
 
         var box = document.createElement(`fieldset`);
-        var legend = document.createElement(`legend`);
-        var table = document.createElement(`table`);
-
         box.classList.add(`shop-section-box`);
         box.classList.add(`journal-card-box`);
+        place.append(box);
+
+        var legend = document.createElement(`legend`);
         legend.innerText = header;
-        var table_id = `${destination} ${header} table`;
-        table.id = table_id;
+        box.append(legend);
+
+        if(has !== undefined){
+            var legend2 = document.createElement(`legend`);
+            legend2.innerText = has;
+            box.append(legend2);
+        }
+
         var text_id = `${destination} ${header} text`;
         var text = DisplayHTML.make_side_text_box(text_id);
-
-        place.append(box);
-        box.append(legend);
         box.append(text);
+
+        var table = document.createElement(`table`);
+        var table_id = `${destination} ${header} table`;
+        table.id = table_id;
         box.append(table);
         
         for(var i = 0; i < Math.ceil(boons.length / JOURNAL_DISPLAY_WIDTH); ++i){
@@ -4511,7 +4525,8 @@ function unlock_all_boons(){
 function update_journal_boons(){
     display.remove_children(UIIDS.journal_boons);
     var boons = boons_encountered(BOON_LIST, GS.data.boons);
-    display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons);
+    var has = boons_has_amount(boons);
+    display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons, has);
 }
 function boons_encountered(boons, encountered){
     var locked = get_locked_boons();
@@ -4528,6 +4543,16 @@ function boons_encountered(boons, encountered){
         }
         return boon;
     });
+}
+function boons_has_amount(boons){
+    var has = 0;
+    var total = boons.length;
+    for(var boon of boons){
+        if(boon.name !== boon_names.locked && boon.name !== boon_names.not_encountered){
+            ++has;
+        }
+    }
+    return `${has}/${total}`;
 }
 function unlock_all_cards(){
     const cards = [
@@ -4554,28 +4579,34 @@ function update_journal_cards(){
 
 function display_basic_cards(){
     var cards = cards_encountered(BASIC_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards, has);
 }
 function display_common_cards(){
     var cards = cards_encountered(COMMON_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards, has);
 }
 function display_achievement_cards(){
     var cards = cards_locked(get_all_achievement_cards(), get_locked_achievement_cards());
     var cards = cards_encountered(cards, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards, has);
 }
 function display_boon_cards(){
     var cards = cards_encountered(BOON_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards, has);
 }
 function display_confusion_cards(){
     var cards = cards_encountered(CONFUSION_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards, has);
 }
 function display_boss_cards(){
     var cards = cards_encountered(get_boss_cards(), GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards, has);
 }
 
 function cards_encountered(cards, encountered){
@@ -4605,6 +4636,16 @@ function cards_locked(cards, locked){
         }
         return c;
     });
+}
+function cards_has_amount(cards){
+    var has = 0;
+    var total = cards.length;
+    for(var card of cards){
+        if(card.name !== card_names.symbol_locked && card.name !== card_names.symbol_not_encountered){
+            ++has;
+        }
+    }
+    return `${has}/${total}`;
 }
 function unlock_full_journal(){
     unlock_all_cards();
@@ -17316,7 +17357,7 @@ function symbol_locked_card(){
 /** @type {CardGenerator} Shown in the journal for cards you have not yet added to your deck.*/
 function symbol_not_encountered_card(){
     return{
-        name: card_names.symbol_not_encountered_card,
+        name: card_names.symbol_not_encountered,
         pic: `${IMG_FOLDER.other}not_encountered.png`,
         options: new ButtonGrid(),
     }

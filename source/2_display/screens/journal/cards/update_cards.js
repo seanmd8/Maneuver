@@ -10,28 +10,34 @@ function update_journal_cards(){
 
 function display_basic_cards(){
     var cards = cards_encountered(BASIC_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards, has);
 }
 function display_common_cards(){
     var cards = cards_encountered(COMMON_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards, has);
 }
 function display_achievement_cards(){
     var cards = cards_locked(get_all_achievement_cards(), get_locked_achievement_cards());
     var cards = cards_encountered(cards, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards, has);
 }
 function display_boon_cards(){
     var cards = cards_encountered(BOON_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards, has);
 }
 function display_confusion_cards(){
     var cards = cards_encountered(CONFUSION_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards, has);
 }
 function display_boss_cards(){
     var cards = cards_encountered(get_boss_cards(), GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards, has);
 }
 
 function cards_encountered(cards, encountered){
@@ -61,4 +67,14 @@ function cards_locked(cards, locked){
         }
         return c;
     });
+}
+function cards_has_amount(cards){
+    var has = 0;
+    var total = cards.length;
+    for(var card of cards){
+        if(card.name !== card_names.symbol_locked && card.name !== card_names.symbol_not_encountered){
+            ++has;
+        }
+    }
+    return `${has}/${total}`;
 }
