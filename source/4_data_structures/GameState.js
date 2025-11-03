@@ -32,14 +32,7 @@ class GameState{
         display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
         create_sidebar();
         
-        // Starting achievements
-        for(var a of init.achievements){
-            this.achieve(a);
-        }
-        // Auto identify these boons
-        for(var b of init.identify_boons){
-            this.data.boons.add(b().name);
-        }
+        init.unlock_journal();
         this.data.save();
 
         // Prep map

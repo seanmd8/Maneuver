@@ -7,8 +7,7 @@ function init_settings(){
         cards: undefined,
         area: undefined,
         area_size: undefined,
-        achievements: undefined,
-        identify_boons: undefined,
+        unlock_journal: undefined,
         save: undefined,
         load: undefined,
     }
@@ -23,10 +22,8 @@ function init_settings(){
     // Determines the size of each area.
     // Set to a minimum of 2 since bosses cannot generate on the first floor.
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
-    // Determines achievements that should be automatically gained upon starting the game.
-    init.achievements = init.achievements ? init.achievements : [];
-    // Determined boons that should be added to the journal unpon starting the game.
-    init.identify_boons = init.identify_boons ? init.identify_boons : [];
+    // Function to unlock parts of the journal automatically.
+    init.unlock_journal = init.unlock_journal ? init.unlock_journal : () => {};
     // Determines the way of saving and loading the game.
     init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
     init.load = init.load ? init.load: SaveData.load_local_function(`player1`);

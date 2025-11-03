@@ -437,8 +437,7 @@ function init_settings(){
         cards: undefined,
         area: undefined,
         area_size: undefined,
-        achievements: undefined,
-        identify_boons: undefined,
+        unlock_journal: undefined,
         save: undefined,
         load: undefined,
     }
@@ -453,10 +452,8 @@ function init_settings(){
     // Determines the size of each area.
     // Set to a minimum of 2 since bosses cannot generate on the first floor.
     init.area_size = init.area_size ? init.area_size : AREA_SIZE;
-    // Determines achievements that should be automatically gained upon starting the game.
-    init.achievements = init.achievements ? init.achievements : [];
-    // Determined boons that should be added to the journal unpon starting the game.
-    init.identify_boons = init.identify_boons ? init.identify_boons : [];
+    // Function to unlock parts of the journal automatically.
+    init.unlock_journal = init.unlock_journal ? init.unlock_journal : () => {};
     // Determines the way of saving and loading the game.
     init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
     init.load = init.load ? init.load: SaveData.load_local_function(`player1`);
@@ -4223,6 +4220,18 @@ function make_guidebook_images(arr){
     }
     return images;
 }
+function unlock_all_achievements(){
+    var achievements = get_achievements();
+    for(var achievement of achievements){
+        GS.achieve(achievement.name);
+    }
+}
+function update_achievements(){
+    var achievements = GS.data.achievements.all();
+    display.remove_children(UIIDS.achievement_list);
+    display.show_achievements(UIIDS.achievement_list, achievements);
+}
+
 function assorted_tiles_display_info(){
     var area = generate_ruins_area();
     return {
@@ -4385,12 +4394,42 @@ function sewers_display_info(){
         ],
     }
 }
-function update_achievements(){
-    var achievements = GS.data.achievements.all();
-    display.remove_children(UIIDS.achievement_list);
-    display.show_achievements(UIIDS.achievement_list, achievements);
+function get_all_area_info(){
+    return [
+        basic_tiles_display_info(),
+        ruins_display_info(),
+        basement_display_info(),
+        sewers_display_info(),
+        crypt_display_info(),
+        magma_display_info(),
+        forest_display_info(),
+        library_display_info(),
+        court_display_info(),
+        assorted_tiles_display_info(),
+        events_display_info(),
+    ];
 }
 
+function unlock_all_tiles(){
+    var areas = get_all_area_info();
+    for(var area of areas){
+        if(area.boss !== undefined){
+            GS.data.add_tile(area.boss().name);
+        }
+        for(var tile of area.tiles){
+            GS.data.add_tile(tile().name);
+        }
+    }
+}
+
+function unlock_all_areas(){
+    const areas = get_all_area_info();
+    for(var area of areas){
+        if(area.boss !== undefined){
+            GS.data.add_area(area.name);
+        }
+    }
+}
 function update_journal_areas(){
     for(var i = 0; i < 7; ++i){
         var area_id = `${UIIDS.journal_areas}${i}`
@@ -4462,6 +4501,12 @@ function show_area(info, depth, force_visited = false){
     });
     display.journal_area_section(`${UIIDS.journal_areas}${depth}`, info);
 }
+function unlock_all_boons(){
+    const boons = BOON_LIST;
+    for(var boon of boons){
+        GS.data.add_boon(boon().name);
+    }
+}
 function update_journal_boons(){
     display.remove_children(UIIDS.journal_boons);
     var boons = boons_encountered(BOON_LIST, GS.data.boons);
@@ -4482,6 +4527,19 @@ function boons_encountered(boons, encountered){
         }
         return boon;
     });
+}
+function unlock_all_cards(){
+    const cards = [
+        ...BASIC_CARDS,
+        ...COMMON_CARDS,
+        ...get_all_achievement_cards(),
+        ...BOON_CARDS,
+        ...CONFUSION_CARDS,
+        ...get_boss_cards(),
+    ];
+    for(var card of cards){
+        GS.data.add_card(card().name);
+    }
 }
 function update_journal_cards(){
     display.remove_children(UIIDS.journal_cards);
@@ -4546,6 +4604,13 @@ function cards_locked(cards, locked){
         }
         return c;
     });
+}
+function unlock_full_journal(){
+    unlock_all_cards();
+    unlock_all_boons();
+    unlock_all_achievements();
+    unlock_all_tiles();
+    unlock_all_areas();
 }
 function update_journal(){
     update_journal_cards();
@@ -12925,14 +12990,7 @@ class GameState{
         display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
         create_sidebar();
         
-        // Starting achievements
-        for(var a of init.achievements){
-            this.achieve(a);
-        }
-        // Auto identify these boons
-        for(var b of init.identify_boons){
-            this.data.boons.add(b().name);
-        }
+        init.unlock_journal();
         this.data.save();
 
         // Prep map
