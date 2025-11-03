@@ -3,6 +3,7 @@ function darkling_rift_mark(){
         name: event_names.darkling_rift,
         pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
         description: event_descriptions.darkling_rift,
+        flavor: event_flavor.darkling_rift,
         telegraph: spider_telegraph
     };
 }

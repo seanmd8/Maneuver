@@ -5,6 +5,7 @@ function lock_tile(){
         name: special_tile_names.lock,
         pic: `${IMG_FOLDER.tiles}lock.png`,
         description: special_tile_descriptions.lock,
+        flavor: special_flavor.lock,
         tags: new TagList([TAGS.unmovable]),
     }
 }

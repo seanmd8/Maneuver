@@ -5,6 +5,7 @@ function altar_of_space_tile(){
         name: other_tile_names.altar_of_space,
         pic: `${IMG_FOLDER.tiles}altar_of_space.png`,
         description: other_tile_descriptions.altar_of_space,
+        flavor: other_flavor.altar_of_space,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_space_on_enter),

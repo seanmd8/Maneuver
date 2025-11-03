@@ -5,6 +5,7 @@ function shatter_sphere_d_tile(){
         name: other_tile_names.shatter_sphere,
         pic: `${IMG_FOLDER.tiles}shatter_sphere_d.png`,
         description: other_tile_descriptions.shatter_sphere_d,
+        flavor: other_flavor.shatter_sphere,
         tags: new TagList([TAGS.obstruction]),
         health: 1,
         telegraph_other: shatter_sphere_d_telegraph,

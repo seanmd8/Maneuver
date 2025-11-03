@@ -1655,7 +1655,7 @@ const enemy_flavor = {
     walking_prism: 
         ``,
     wheel_of_fire:
-        `@$$^@$^H*#%&)$^*($@%^!@#I%#!@$&@$^*)#+_@%@$^_!#S$&+#!_$^` // HIS
+        `@$^@$^H*#%&)$^*($@%^!@#I%#!@$&@$^*)#+_@%@$^_!#S$&+#!_$^` // HIS
         +`+~"!#$&?#!E%&"#$^?!$#^!#Y$|$^!$^!#%&!E@$^@#%*%&(%^*)$%*#%S$^!#@%~_^+` // EYES
         +`!#+$_&^+#T_^~":":">><:#$<>@H#%&>@#<%&:@#%"@&:%>A&@<%&@%:>@%&<!@$&@$^(#$T%^!$#%)` // THAT
         +`#!$&!$^(@^B*&!#$^!@$^!#%U&#}^$^?!#$>&!#"&!#>%&R?#%:&%#{&}@$*:@$>N^*>@$%&:@$%&>@)`, // BURN
@@ -1753,33 +1753,19 @@ const event_flavor = {
         ``,
     darkling_rift:
         ``,
-    delay:
-        ``,
     delayed_strike:
         ``,
     delayed_stun:
         ``,
-    earthquake:
-        ``,
-    falling_magma:
-        ``,
     falling_rubble:
         ``,
     nettle_roots:
-        ``,
-    spell_announcement:
         ``,
     starfall:
         ``,
     sunlight:
         ``,
     thorn_roots:
-        ``,
-    unstun:
-        ``,
-    wake_up:
-        ``,
-    warp:
         ``,
 }
 Object.freeze(event_flavor);
@@ -8717,6 +8703,7 @@ function altar_of_scouring_tile(){
         name: other_tile_names.altar_of_scouring,
         pic: `${IMG_FOLDER.tiles}altar_of_scouring.png`,
         description: other_tile_descriptions.altar_of_scouring,
+        flavor: other_flavor.altar_of_scouring,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_scouring_on_enter),
@@ -8775,6 +8762,7 @@ function altar_of_shadow_tile(){
         name: other_tile_names.altar_of_shadow,
         pic: `${IMG_FOLDER.tiles}altar_of_shadow.png`,
         description: other_tile_descriptions.altar_of_shadow,
+        flavor: other_flavor.altar_of_shadow,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_shadow_on_enter),
@@ -8796,6 +8784,7 @@ function altar_of_singularity_tile(){
         name: other_tile_names.altar_of_singularity,
         pic: `${IMG_FOLDER.tiles}altar_of_singularity.png`,
         description: other_tile_descriptions.altar_of_singularity,
+        flavor: other_flavor.altar_of_singularity,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_singularity_on_enter),
@@ -8827,6 +8816,7 @@ function altar_of_space_tile(){
         name: other_tile_names.altar_of_space,
         pic: `${IMG_FOLDER.tiles}altar_of_space.png`,
         description: other_tile_descriptions.altar_of_space,
+        flavor: other_flavor.altar_of_space,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_space_on_enter),
@@ -8861,6 +8851,7 @@ function altar_of_stars_tile(){
         name: other_tile_names.altar_of_stars,
         pic: `${IMG_FOLDER.tiles}altar_of_stars.png`,
         description: other_tile_descriptions.altar_of_stars,
+        flavor: other_flavor.altar_of_stars,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_stars_on_enter),
@@ -8899,6 +8890,7 @@ function altar_of_stasis_tile(){
         name: other_tile_names.altar_of_stasis,
         pic: `${IMG_FOLDER.tiles}altar_of_stasis.png`,
         description: other_tile_descriptions.altar_of_stasis,
+        flavor: other_flavor.altar_of_stasis,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_stasis_on_enter),
@@ -8924,6 +8916,7 @@ function altar_of_sunlight_tile(){
         name: other_tile_names.altar_of_sunlight,
         pic: `${IMG_FOLDER.tiles}altar_of_sunlight.png`,
         description: other_tile_descriptions.altar_of_sunlight,
+        flavor: other_flavor.altar_of_sunlight,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_sunlight_on_enter),
@@ -8971,6 +8964,7 @@ function black_hole_tile(){
         name: other_tile_names.black_hole,
         pic: `${IMG_FOLDER.tiles}black_hole.png`,
         description: other_tile_descriptions.black_hole,
+        flavor: other_flavor.black_hole,
         health: 6,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction, TAGS.unstunnable]),
         behavior: black_hole_ai,
@@ -9029,6 +9023,7 @@ function bookshelf_tile(){
         name: other_tile_names.bookshelf,
         pic: pic_arr[health - 1],
         description: other_tile_descriptions.bookshelf,
+        flavor: other_flavor.bookshelf,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health,
         on_hit: bookshelf_on_hit,
@@ -9064,6 +9059,7 @@ function coffin_tile(){
         name: other_tile_names.coffin,
         pic: `${IMG_FOLDER.tiles}coffin.png`,
         description: other_tile_descriptions.coffin,
+        flavor: other_flavor.coffin,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health: 1,
         on_enter: decay_ai,
@@ -9099,6 +9095,7 @@ function corrosive_slime_tile(){
         name: other_tile_names.corrosive_slime,
         pic: `${IMG_FOLDER.tiles}corrosive_slime.png`,
         description: other_tile_descriptions.corrosive_slime,
+        flavor: other_flavor.corrosive_slime,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health: 1,
         telegraph: hazard_telegraph,
@@ -9120,6 +9117,7 @@ function fireball_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: other_tile_descriptions.fireball,
+        flavor: other_flavor.fireball,
         tags: new TagList([TAGS.fireball, TAGS.unstunnable]),
         behavior: fireball_ai,
         telegraph: fireball_telegraph,
@@ -9175,6 +9173,7 @@ function enticing_fruit_tree_tile(){
         name: other_tile_names.fruit_tree_enticing,
         pic: `${IMG_FOLDER.tiles}enticing_fruit_tree.png`,
         description: other_tile_descriptions.fruit_tree_enticing,
+        flavor: other_flavor.fruit_tree_enticing,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: enticing_fruit_tree_on_enter,
@@ -9214,6 +9213,7 @@ function rotting_fruit_tree_tile(){
         name: other_tile_names.fruit_tree_rotting,
         pic: `${IMG_FOLDER.tiles}rotting_fruit_tree.png`,
         description: other_tile_descriptions.fruit_tree_rotting,
+        flavor: other_flavor.fruit_tree_rotting,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: decay_ai,
@@ -9240,6 +9240,7 @@ function lava_pool_tile(){
         name: other_tile_names.lava_pool,
         pic: `${IMG_FOLDER.tiles}lava_pool.png`,
         description: other_tile_descriptions.lava_pool,
+        flavor: other_flavor.lava_pool,
         tags: new TagList([TAGS.unmovable]),
         telegraph: hazard_telegraph,
         on_enter: hazard
@@ -9252,6 +9253,7 @@ function magmatic_boulder_tile(){
         name: other_tile_names.magmatic_boulder,
         pic: `${IMG_FOLDER.tiles}magmatic_boulder.png`,
         description: other_tile_descriptions.magmatic_boulder,
+        flavor: other_flavor.magmatic_boulder,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -9262,6 +9264,7 @@ function moon_rock_tile(){
         name: other_tile_names.moon_rock,
         pic: `${IMG_FOLDER.tiles}moon_rock.png`,
         description: other_tile_descriptions.moon_rock,
+        flavor: other_flavor.moon_rock,
         tags: new TagList([TAGS.obstruction]),
         health: 1,
     }
@@ -9276,6 +9279,7 @@ function raging_fire_tile(){
         pic: pic_arr[health - 1],
         display_pic: pic_arr[1],
         description: other_tile_descriptions.raging_fire,
+        flavor: other_flavor.raging_fire,
         tags: new TagList([TAGS.unmovable, TAGS.unstunnable, TAGS.obstruction]),
         health,
         behavior: decay_ai,
@@ -9307,6 +9311,7 @@ function repulsor_tile(){
         name: other_tile_names.repulsor,
         pic: pic_arr[starting_cycle],
         description: other_tile_descriptions.repulsor,
+        flavor: other_flavor.repulsor,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
@@ -9399,6 +9404,7 @@ function sewer_grate_tile(){
         name: other_tile_names.sewer_grate,
         pic: `${IMG_FOLDER.tiles}sewer_grate.png`,
         description: other_tile_descriptions.sewer_grate,
+        flavor: other_flavor.sewer_grate,
         tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
         behavior: sewer_grate_ai,
     }
@@ -9422,6 +9428,7 @@ function shatter_sphere_d_tile(){
         name: other_tile_names.shatter_sphere,
         pic: `${IMG_FOLDER.tiles}shatter_sphere_d.png`,
         description: other_tile_descriptions.shatter_sphere_d,
+        flavor: other_flavor.shatter_sphere,
         tags: new TagList([TAGS.obstruction]),
         health: 1,
         telegraph_other: shatter_sphere_d_telegraph,
@@ -9448,6 +9455,7 @@ function shatter_sphere_o_tile(){
         name: other_tile_names.shatter_sphere,
         pic: `${IMG_FOLDER.tiles}shatter_sphere_o.png`,
         description: other_tile_descriptions.shatter_sphere_o,
+        flavor: other_flavor.shatter_sphere,
         tags: new TagList([TAGS.obstruction]),
         health: 1,
         telegraph_other: shatter_sphere_o_telegraph,
@@ -9476,6 +9484,7 @@ function smoldering_ashes_tile(){
         name: other_tile_names.smoldering_ashes,
         pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
         description: `${desc[0]}${spawn_timer}${desc[1]}`,
+        flavor: other_flavor.smoldering_ashes,
         tags: new TagList([TAGS.obstruction]),
         health: 1,
         behavior: smoldering_ashes_ai,
@@ -9512,6 +9521,7 @@ function thorn_bramble_tile(){
         name: other_tile_names.thorn_bramble,
         pic: `${IMG_FOLDER.tiles}thorn_bramble.png`,
         description: other_tile_descriptions.thorn_bramble,
+        flavor: other_flavor.thorn_bramble,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots, TAGS.obstruction]),
         health: 1,
         telegraph: hazard_telegraph,
@@ -9527,6 +9537,7 @@ function damaged_wall_tile(){
         name: other_tile_names.wall_damaged,
         pic: pic_arr[health - 1],
         description: other_tile_descriptions.wall_damaged,
+        flavor: other_flavor.wall_damaged,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health,
         on_hit: damaged_wall_on_hit,
@@ -9565,6 +9576,7 @@ function wall_tile(){
         name: other_tile_names.wall,
         pic: `${IMG_FOLDER.tiles}wall.png`,
         description: other_tile_descriptions.wall,
+        flavor: other_flavor.wall,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -9575,6 +9587,7 @@ function armored_chest_tile(){
         name: special_tile_names.chest_armored,
         pic: `${IMG_FOLDER.tiles}armored_chest.png`,
         description: special_tile_descriptions.chest_armored,
+        flavor: special_flavor.chest_armored,
         tags: new TagList([TAGS.unmovable]),
         on_enter: chest_on_enter,
         contents: [],
@@ -9587,6 +9600,7 @@ function chest_tile(){
         name: special_tile_names.chest,
         pic: `${IMG_FOLDER.tiles}chest.png`,
         description: special_tile_descriptions.chest,
+        flavor: special_flavor.chest,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health: 1,
         on_enter: chest_on_enter,
@@ -9742,6 +9756,7 @@ function empty_tile(){
         name: special_tile_names.empty,
         pic: `${IMG_FOLDER.tiles}empty.png`,
         description: special_tile_descriptions.empty,
+        flavor: special_flavor.empty,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -9752,6 +9767,7 @@ function exit_tile(){
         name: special_tile_names.exit,
         pic: `${IMG_FOLDER.tiles}stairs.png`,
         description: special_tile_descriptions.exit,
+        flavor: special_flavor.exit,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -9762,6 +9778,7 @@ function final_exit_tile(){
         name: special_tile_names.final_exit,
         pic: `${IMG_FOLDER.tiles}final_exit.png`,
         description: special_tile_descriptions.final_exit,
+        flavor: special_flavor.final_exit,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -9772,6 +9789,7 @@ function lock_tile(){
         name: special_tile_names.lock,
         pic: `${IMG_FOLDER.tiles}lock.png`,
         description: special_tile_descriptions.lock,
+        flavor: special_flavor.lock,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -9782,6 +9800,7 @@ function player_tile(){
         name: special_tile_names.you,
         pic: `${IMG_FOLDER.tiles}helmet.png`,
         description: special_tile_descriptions.player,
+        flavor: special_flavor.you,
         tags: new TagList(),
         health: PLAYER_STARTING_HEALTH,
         max_health: PLAYER_STARTING_HEALTH,
@@ -10043,6 +10062,7 @@ function black_hole_beginning_mark(){
         name: event_names.black_hole_formation,
         pic: `${IMG_FOLDER.tiles}black_hole_beginning.png`,
         description: event_descriptions.black_hole_formation,
+        flavor: event_flavor.black_hole_formation,
         telegraph: hazard_telegraph
     };
 }
@@ -10051,6 +10071,7 @@ function confusion_cloud_mark(){
         name: event_names.confusion_cloud,
         pic: `${IMG_FOLDER.tiles}confusion_cloud.png`,
         description: event_descriptions.confusion_cloud,
+        flavor: event_flavor.confusion_cloud,
         telegraph_other: hazard_telegraph
     }
 }
@@ -10059,6 +10080,7 @@ function darkling_rift_mark(){
         name: event_names.darkling_rift,
         pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
         description: event_descriptions.darkling_rift,
+        flavor: event_flavor.darkling_rift,
         telegraph: spider_telegraph
     };
 }
@@ -10067,6 +10089,7 @@ function delayed_strike_mark(){
         name: event_names.delayed_strike,
         pic: `${IMG_FOLDER.tiles}delayed_strike_mark.png`,
         description: event_descriptions.delayed_strike,
+        flavor: event_flavor.delayed_strike,
         telegraph: hazard_telegraph,
     };
 }
@@ -10075,6 +10098,7 @@ function delayed_stun_mark(){
         name: event_names.delayed_stun,
         pic: `${IMG_FOLDER.tiles}delayed_stun_mark.png`,
         description: event_descriptions.delayed_stun,
+        flavor: event_flavor.delayed_stun,
         telegraph_other: hazard_telegraph,
     };
 }
@@ -10083,6 +10107,7 @@ function falling_rubble_mark(){
         name: event_names.falling_rubble,
         pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
         description: event_descriptions.falling_rubble,
+        flavor: event_flavor.falling_rubble,
         telegraph: hazard_telegraph
     }
 }
@@ -10091,6 +10116,7 @@ function nettle_roots_mark(){
         name: event_names.nettle_roots,
         pic: `${IMG_FOLDER.tiles}swaying_nettle_roots.png`,
         description: event_descriptions.nettle_root,
+        flavor: event_flavor.nettle_roots,
         telegraph: hazard_telegraph
     }
 }
@@ -10099,6 +10125,7 @@ function starcaller_rift_mark(){
         name: event_names.starfall,
         pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
         description: event_descriptions.starfall,
+        flavor: event_flavor.starfall,
         telegraph: hazard_telegraph
     }
 }
@@ -10107,6 +10134,7 @@ function sunlight_mark(){
         name: event_names.sunlight,
         pic: `${IMG_FOLDER.tiles}sunlight.png`,
         description: event_descriptions.sunlight,
+        flavor: event_flavor.sunlight,
         telegraph: hazard_telegraph
     };
 }
@@ -10115,6 +10143,7 @@ function thorn_roots_mark(){
         name: event_names.thorn_roots,
         pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
         description: event_descriptions.thorn_roots,
+        flavor: event_flavor.thorn_roots,
         telegraph: hazard_telegraph
     }
 }

@@ -5,6 +5,7 @@ function wall_tile(){
         name: other_tile_names.wall,
         pic: `${IMG_FOLDER.tiles}wall.png`,
         description: other_tile_descriptions.wall,
+        flavor: other_flavor.wall,
         tags: new TagList([TAGS.unmovable]),
     }
 }

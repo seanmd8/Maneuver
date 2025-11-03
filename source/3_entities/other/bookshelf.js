@@ -11,6 +11,7 @@ function bookshelf_tile(){
         name: other_tile_names.bookshelf,
         pic: pic_arr[health - 1],
         description: other_tile_descriptions.bookshelf,
+        flavor: other_flavor.bookshelf,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health,
         on_hit: bookshelf_on_hit,

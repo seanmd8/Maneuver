@@ -5,6 +5,7 @@ function black_hole_tile(){
         name: other_tile_names.black_hole,
         pic: `${IMG_FOLDER.tiles}black_hole.png`,
         description: other_tile_descriptions.black_hole,
+        flavor: other_flavor.black_hole,
         health: 6,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction, TAGS.unstunnable]),
         behavior: black_hole_ai,

@@ -7,6 +7,7 @@ function fireball_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: other_tile_descriptions.fireball,
+        flavor: other_flavor.fireball,
         tags: new TagList([TAGS.fireball, TAGS.unstunnable]),
         behavior: fireball_ai,
         telegraph: fireball_telegraph,

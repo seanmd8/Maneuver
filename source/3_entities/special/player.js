@@ -5,6 +5,7 @@ function player_tile(){
         name: special_tile_names.you,
         pic: `${IMG_FOLDER.tiles}helmet.png`,
         description: special_tile_descriptions.player,
+        flavor: special_flavor.you,
         tags: new TagList(),
         health: PLAYER_STARTING_HEALTH,
         max_health: PLAYER_STARTING_HEALTH,
