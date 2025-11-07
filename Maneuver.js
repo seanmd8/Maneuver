@@ -691,6 +691,7 @@ const boon_names = {
     larger_chests: `Larger Chests`,
     limitless: `Limitless`,
     manic_presence: `Manic Presence`,
+    medical_investment: `Medical Investment`,
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
     pandoras_box: `Pandora's Box`,
@@ -781,6 +782,8 @@ const boon_descriptions = {
         +`for 1 instead.`,
     manic_presence: 
         `Some types of enemies are prone to misfiring.`,
+    medical_investment: 
+        `Gain 2 extra max health. Heal for 2.`,
     pacifism: 
         `If you would attack an enemy, stun them twice instead (some terrain elements can still `
         +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,
@@ -791,7 +794,7 @@ const boon_descriptions = {
     perfect_the_basics: 
         `Replace all your basic cards with better ones.`,
     picky_shopper: 
-        `Recieve an extra card choice for adding and removing cards in the shop.`,
+        `Recieve 1 extra card choice for adding and removing cards in the shop.`,
     practice_makes_perfect: 
         `Defeating a boss while at max health increases your max health by 1.`,
     pressure_points: 
@@ -844,6 +847,7 @@ const boon_cost_descriptions = {
     creative: `Cost: Increase your minimum deck size by 5.`,
     expend_vitality: `Cost: Decrease your maximum health by 1.`,
     gruntwork: `Cost: Decrease your hand size by 1.`,
+    medical_investment: `Cost: Receive 1 fewer card choice for adding and removing cards in the shop.`,
     roar_of_challenge: `Cost: Increase difficulty by 3 floors.`,
     shattered_glass: `Cost: Decrease your maximum health by 2.`,
     spiked_shoes: `Cost: Decrease your maximum health by 1.`,
@@ -867,6 +871,8 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must not have Limitless.`,
     hoarder:
         `Prerequisites: You must be less than 15 floors deep.`,
+    medical_investment: 
+        `Prerequisites: You must not have Limitless.`,
     pandoras_box:
         `Prerequisited: You must have at least 3 max health and not have Limitless.`,
     perfect_the_basics:
@@ -14475,7 +14481,7 @@ class Shop{
         this.#generate_remove_row();
     }
     #generate_add_row(){
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        var amount = GS.map.stats.get_stats().add_choices;
         var add_list_generators = rand_no_repeats(COMMON_CARDS, amount);
         var index_of_rare = random_num(4);
         var rares = get_achievement_cards();
@@ -14498,7 +14504,7 @@ class Shop{
         }
     }
     #generate_remove_row(){
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        var amount = GS.map.stats.get_stats().remove_choices;
         this.#remove_row = this.#deck.get_rand_cards(amount);
     }
     select_add_row(index){
@@ -14594,6 +14600,8 @@ class StatTracker{
     #destroyed;
     #chest_kills;
     #total_kills_per_floor;
+    #add_choices;
+    #remove_choices;
 
     constructor(){
         this.#turn_number = 0;
@@ -14609,6 +14617,8 @@ class StatTracker{
         this.#destroyed = 0;
         this.#chest_kills = 0;
         this.#total_kills_per_floor = [0];
+        this.#add_choices = ADD_CHOICE_COUNT;
+        this.#remove_choices = REMOVE_CHOICE_COUNT;
     }
     increment_turn(){
         ++this.#turn_number;
@@ -14677,6 +14687,12 @@ class StatTracker{
             GS.achieve(achievement_names.manic_vandal);
         }
     }
+    alter_add_choices(n){
+        this.#add_choices += n;
+    }
+    alter_remove_choices(n){
+        this.#remove_choices += n;
+    }
     get_stats(){
         return {
             turn_number: this.#turn_number,
@@ -14691,7 +14707,9 @@ class StatTracker{
             kills: this.#kills,
             destroyed: this.#destroyed,
             chest_kills: this.#chest_kills,
-            total_kills_per_floor: this.#total_kills_per_floor
+            total_kills_per_floor: this.#total_kills_per_floor,
+            add_choices: this.#add_choices,
+            remove_choices: this.#remove_choices,
         }
     }
 }
@@ -17814,6 +17832,7 @@ const BOON_LIST = [
     larger_chests, 
     limitless, 
     manic_presence, 
+    medical_investment,
     pacifism, 
     pain_reflexes, 
     pandoras_box, 
@@ -18321,6 +18340,32 @@ function manic_presence(){
         max: 1,
     }
 }
+function medical_investment(){
+    return {
+        name: boon_names.medical_investment,
+        pic: `${IMG_FOLDER.boons}medical_investment.png`,
+        description: boon_descriptions.medical_investment,
+        cost_description: boon_cost_descriptions.medical_investment,
+        prereq_description: boon_prereq_descriptions.medical_investment,
+        max: 2,
+        prereq: prereq_medical_investment,
+        on_pick: pick_medical_investment,
+    }
+}
+
+function prereq_medical_investment(){
+    return GS.map.get_player().max_health !== undefined;
+}
+
+function pick_medical_investment(){
+    change_max_health(2);
+    GS.map.heal(GS.map.get_player_location(), 2);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.map.stats.alter_add_choices(-1);
+        GS.map.stats.alter_remove_choices(-1);
+    }
+}
 function pacifism(){
     return {
         name: boon_names.pacifism,
@@ -18420,7 +18465,13 @@ function picky_shopper(){
         pic: `${IMG_FOLDER.boons}picky_shopper.png`,
         description: boon_descriptions.picky_shopper,
         prereq_description: boon_prereq_descriptions.none,
+        on_pick: pick_picky_shopper,
     }
+}
+
+function pick_picky_shopper(){
+    GS.map.stats.alter_add_choices(1);
+    GS.map.stats.alter_remove_choices(1);
 }
 function practice_makes_perfect(){
     return {

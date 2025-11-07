@@ -12,6 +12,8 @@ class StatTracker{
     #destroyed;
     #chest_kills;
     #total_kills_per_floor;
+    #add_choices;
+    #remove_choices;
 
     constructor(){
         this.#turn_number = 0;
@@ -27,6 +29,8 @@ class StatTracker{
         this.#destroyed = 0;
         this.#chest_kills = 0;
         this.#total_kills_per_floor = [0];
+        this.#add_choices = ADD_CHOICE_COUNT;
+        this.#remove_choices = REMOVE_CHOICE_COUNT;
     }
     increment_turn(){
         ++this.#turn_number;
@@ -95,6 +99,12 @@ class StatTracker{
             GS.achieve(achievement_names.manic_vandal);
         }
     }
+    alter_add_choices(n){
+        this.#add_choices += n;
+    }
+    alter_remove_choices(n){
+        this.#remove_choices += n;
+    }
     get_stats(){
         return {
             turn_number: this.#turn_number,
@@ -109,7 +119,9 @@ class StatTracker{
             kills: this.#kills,
             destroyed: this.#destroyed,
             chest_kills: this.#chest_kills,
-            total_kills_per_floor: this.#total_kills_per_floor
+            total_kills_per_floor: this.#total_kills_per_floor,
+            add_choices: this.#add_choices,
+            remove_choices: this.#remove_choices,
         }
     }
 }

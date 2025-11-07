@@ -27,6 +27,7 @@ const BOON_LIST = [
     larger_chests, 
     limitless, 
     manic_presence, 
+    medical_investment,
     pacifism, 
     pain_reflexes, 
     pandoras_box, 

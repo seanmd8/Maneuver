@@ -29,6 +29,7 @@ const boon_names = {
     larger_chests: `Larger Chests`,
     limitless: `Limitless`,
     manic_presence: `Manic Presence`,
+    medical_investment: `Medical Investment`,
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
     pandoras_box: `Pandora's Box`,
@@ -119,6 +120,8 @@ const boon_descriptions = {
         +`for 1 instead.`,
     manic_presence: 
         `Some types of enemies are prone to misfiring.`,
+    medical_investment: 
+        `Gain 2 extra max health. Heal for 2.`,
     pacifism: 
         `If you would attack an enemy, stun them twice instead (some terrain elements can still `
         +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,
@@ -129,7 +132,7 @@ const boon_descriptions = {
     perfect_the_basics: 
         `Replace all your basic cards with better ones.`,
     picky_shopper: 
-        `Recieve an extra card choice for adding and removing cards in the shop.`,
+        `Recieve 1 extra card choice for adding and removing cards in the shop.`,
     practice_makes_perfect: 
         `Defeating a boss while at max health increases your max health by 1.`,
     pressure_points: 
@@ -182,6 +185,7 @@ const boon_cost_descriptions = {
     creative: `Cost: Increase your minimum deck size by 5.`,
     expend_vitality: `Cost: Decrease your maximum health by 1.`,
     gruntwork: `Cost: Decrease your hand size by 1.`,
+    medical_investment: `Cost: Receive 1 fewer card choice for adding and removing cards in the shop.`,
     roar_of_challenge: `Cost: Increase difficulty by 3 floors.`,
     shattered_glass: `Cost: Decrease your maximum health by 2.`,
     spiked_shoes: `Cost: Decrease your maximum health by 1.`,
@@ -205,6 +209,8 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must not have Limitless.`,
     hoarder:
         `Prerequisites: You must be less than 15 floors deep.`,
+    medical_investment: 
+        `Prerequisites: You must not have Limitless.`,
     pandoras_box:
         `Prerequisited: You must have at least 3 max health and not have Limitless.`,
     perfect_the_basics:
