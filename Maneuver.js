@@ -811,7 +811,7 @@ const boon_descriptions = {
     roar_of_challenge: 
         `Gain 2 max health.`,
     safe_passage: 
-        `Fully heal and travel to the next floor.`,
+        `Fully heal and travel to the next boss floor.`,
     shattered_glass: 
         `Enemies and Terrain explode on death damaging everything nearby other than you.`,
     skill_trading: 
@@ -9700,11 +9700,7 @@ function chest_on_enter(self, target, map){
         GS.refresh_deck_display();
         refresh_map(map);
         if(GS.boons.has(boon_names.safe_passage)){
-            GS.boons.lose(boon_names.safe_passage);
-            GS.refresh_boon_display();
-            GS.map.player_heal(new Point(0, 0));
-            GS.map.display_stats();
-            GS.enter_shop();
+            do_safe_passage();
         }
     }
     var abandon_button = {
@@ -13036,6 +13032,9 @@ class GameMap{
     }
     change_floor_modifier(x){
         this.#floor_mod += x;
+    }
+    add_to_floor(x){
+        this.#floor_num += x;
     }
 }
 
@@ -18609,6 +18608,18 @@ function safe_passage(){
 function prereq_safe_passage(){
     var player = GS.map.get_player();
     return player.max_health === undefined || player.health < player.max_health;
+}
+
+function do_safe_passage(){
+    GS.boons.lose(boon_names.safe_passage);
+    GS.refresh_boon_display();
+    GS.map.player_heal(new Point(0, 0));
+    GS.map.display_stats();
+    var floor = GS.map.get_floor_num();
+    var size = init_settings().area_size;
+    var dif = size - (floor % size) - 1;
+    GS.map.add_to_floor(dif);
+    GS.enter_shop();
 }
 function shattered_glass(){
     return {

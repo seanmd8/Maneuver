@@ -1008,6 +1008,9 @@ class GameMap{
     change_floor_modifier(x){
         this.#floor_mod += x;
     }
+    add_to_floor(x){
+        this.#floor_num += x;
+    }
 }
 
 function grid_space(area){

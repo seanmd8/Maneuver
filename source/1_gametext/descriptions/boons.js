@@ -149,7 +149,7 @@ const boon_descriptions = {
     roar_of_challenge: 
         `Gain 2 max health.`,
     safe_passage: 
-        `Fully heal and travel to the next floor.`,
+        `Fully heal and travel to the next boss floor.`,
     shattered_glass: 
         `Enemies and Terrain explode on death damaging everything nearby other than you.`,
     skill_trading: 
