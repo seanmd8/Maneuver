@@ -116,8 +116,7 @@ const boon_descriptions = {
     larger_chests: 
         `All chests contain 2 additional choices and are invulnerable.`,
     limitless: 
-        `Remove your max health. Heal for 2. If you would be fully healed, heal `
-        +`for 1 instead.`,
+        `Fully heal, then remove your max health. If you would be fully healed, heal for 1 instead.`,
     manic_presence: 
         `Some types of enemies are prone to misfiring.`,
     medical_investment: 

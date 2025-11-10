@@ -778,8 +778,7 @@ const boon_descriptions = {
     larger_chests: 
         `All chests contain 2 additional choices and are invulnerable.`,
     limitless: 
-        `Remove your max health. Heal for 2. If you would be fully healed, heal `
-        +`for 1 instead.`,
+        `Fully heal, then remove your max health. If you would be fully healed, heal for 1 instead.`,
     manic_presence: 
         `Some types of enemies are prone to misfiring.`,
     medical_investment: 
@@ -9703,7 +9702,7 @@ function chest_on_enter(self, target, map){
         if(GS.boons.has(boon_names.safe_passage)){
             GS.boons.lose(boon_names.safe_passage);
             GS.refresh_boon_display();
-            GS.map.heal(GS.map.get_player_location());
+            GS.map.player_heal(new Point(0, 0));
             GS.map.display_stats();
             GS.enter_shop();
         }
@@ -18331,8 +18330,8 @@ function limitless(){
 }
 
 function on_pick_limitless(){
+    GS.map.player_heal(new Point(0, 0));
     GS.map.get_player().max_health = undefined;
-    GS.map.player_heal(new Point(0, 0), 2);
 }
 function manic_presence(){
     return {
