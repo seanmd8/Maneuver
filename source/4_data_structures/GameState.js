@@ -79,6 +79,7 @@ class GameState{
             GS.map.get_player().tags.add(TAGS.invulnerable);
         }
         try{
+            var damage_taken = GS.map.stats.get_stats().damage;
             // The repetition boon will double movements 1 in every 3 turns.
             var repeat = repeat_amount();
             for(var i = 0; i < repeat; ++i){
@@ -99,7 +100,8 @@ class GameState{
             }
             refresh_map(this.map);
             await delay(ANIMATION_DELAY);
-            if(is_instant){
+            var reflex_turn = GS.boons.has(boon_names.pain_reflexes) && damage_taken < GS.map.stats.get_stats().damage;
+            if(is_instant || reflex_turn){
                 this.refresh_deck_display();
                 this.unlock_player_turn();
                 this.map.display_stats();

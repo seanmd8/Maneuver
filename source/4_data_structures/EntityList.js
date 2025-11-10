@@ -136,7 +136,7 @@ class EntityList{
             }
             if(!(this.#find_by_id(e.enemy.id) === -1)){
                 try{
-                    var initial_health = GS.map.get_player().health;
+                    var damage_taken = GS.map.stats.get_stats().damage;
                     if(e.enemy.stun !== undefined && e.enemy.stun > 0){
                         --e.enemy.stun;
                     }
@@ -173,7 +173,7 @@ class EntityList{
                             await delay(ANIMATION_DELAY);
                         }
                     }
-                    if(GS.boons.has(boon_names.pain_reflexes) && GS.map.get_player().health < initial_health){
+                    if(GS.boons.has(boon_names.pain_reflexes) && damage_taken < GS.map.stats.get_stats().damage){
                         throw new Error(ERRORS.pass_turn);
                     }
                 }

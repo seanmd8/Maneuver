@@ -11961,7 +11961,7 @@ class EntityList{
             }
             if(!(this.#find_by_id(e.enemy.id) === -1)){
                 try{
-                    var initial_health = GS.map.get_player().health;
+                    var damage_taken = GS.map.stats.get_stats().damage;
                     if(e.enemy.stun !== undefined && e.enemy.stun > 0){
                         --e.enemy.stun;
                     }
@@ -11998,7 +11998,7 @@ class EntityList{
                             await delay(ANIMATION_DELAY);
                         }
                     }
-                    if(GS.boons.has(boon_names.pain_reflexes) && GS.map.get_player().health < initial_health){
+                    if(GS.boons.has(boon_names.pain_reflexes) && damage_taken < GS.map.stats.get_stats().damage){
                         throw new Error(ERRORS.pass_turn);
                     }
                 }
@@ -13129,6 +13129,7 @@ class GameState{
             GS.map.get_player().tags.add(TAGS.invulnerable);
         }
         try{
+            var damage_taken = GS.map.stats.get_stats().damage;
             // The repetition boon will double movements 1 in every 3 turns.
             var repeat = repeat_amount();
             for(var i = 0; i < repeat; ++i){
@@ -13149,7 +13150,8 @@ class GameState{
             }
             refresh_map(this.map);
             await delay(ANIMATION_DELAY);
-            if(is_instant){
+            var reflex_turn = GS.boons.has(boon_names.pain_reflexes) && damage_taken < GS.map.stats.get_stats().damage;
+            if(is_instant || reflex_turn){
                 this.refresh_deck_display();
                 this.unlock_player_turn();
                 this.map.display_stats();
