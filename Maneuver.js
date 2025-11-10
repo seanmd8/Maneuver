@@ -780,7 +780,7 @@ const boon_descriptions = {
     limitless: 
         `Fully heal, then remove your max health. If you would be fully healed, heal for 1 instead.`,
     manic_presence: 
-        `Some types of enemies are prone to misfiring.`,
+        `Some types of enemies have poor trigger discipline.`,
     medical_investment: 
         `Gain 2 extra max health. Heal for 2.`,
     pacifism: 
