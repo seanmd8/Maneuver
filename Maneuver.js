@@ -822,7 +822,7 @@ const boon_descriptions = {
     sniper: 
         `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
     soul_voucher:
-        `Ignore any Cost to obtain new boons. Each boon chest is guaranteed to have at least 1 `
+        `Ignore any cost to obtain new boons. Each boon chest is guaranteed to have at least 1 `
         +`boon with a cost in it.`,
     spiked_shoes: 
         `Attempting to move onto enemies damages them.`,
@@ -850,6 +850,7 @@ const boon_cost_descriptions = {
     medical_investment: `Cost: Receive 1 fewer card choice for adding and removing cards in the shop.`,
     roar_of_challenge: `Cost: Increase difficulty by 3 floors.`,
     shattered_glass: `Cost: Decrease your maximum health by 2.`,
+    soul_voucher: `Cost: Decrease your maximum health by 1.`,
     spiked_shoes: `Cost: Decrease your maximum health by 1.`,
     spontaneous: `Cost: Increase your minimum deck size by 5.`,
 }
@@ -886,7 +887,8 @@ const boon_prereq_descriptions = {
     shattered_glass:
         `Prerequisites: You must have at least 3 max health and not have Limitless.`,
     soul_voucher:
-        `Prerequisites: You must be less than 15 floors deep.`,
+        `Prerequisites: You must be less than 15 floors deep, have at least 2 max health, `
+        +`and not have Limitless.`,
     spiked_shoes:
         `Prerequisites: You must have at least 2 max health and not have Limitless.`,
     spontaneous:
@@ -17869,7 +17871,7 @@ function change_max_health(amount){
     GS.map.get_player().health = Math.min(GS.map.get_player().max_health, GS.map.get_player().health);
 }
 
-function max_health_at_least(amount){
+function max_health_greater_than(amount){
     var max_health = GS.map.get_player().max_health;
     return max_health !== undefined && max_health > amount;
 }
@@ -18172,7 +18174,7 @@ function expend_vitality(){
 }
 
 function prereq_expend_vitality(){
-    return max_health_at_least(1);
+    return max_health_greater_than(1);
 }
 
 function pick_expend_vitality(){
@@ -18397,7 +18399,7 @@ function pandoras_box(){
 }
 
 function prereq_pandoras_box(){
-    return max_health_at_least(2);
+    return max_health_greater_than(2);
 }
 
 function pick_pandoras_box(){
@@ -18620,7 +18622,7 @@ function shattered_glass(){
 }
 
 function prereq_shattered_glass(){
-    return max_health_at_least(2);
+    return max_health_greater_than(2);
 }
 
 function on_pick_shattered_glass(){
@@ -18661,14 +18663,20 @@ function soul_voucher(){
         name: boon_names.soul_voucher,
         pic: `${IMG_FOLDER.boons}soul_voucher.png`,
         description: boon_descriptions.soul_voucher,
+        cost_description: boon_cost_descriptions.soul_voucher,
         prereq_description: boon_prereq_descriptions.soul_voucher,
         prereq: prereq_soul_voucher,
+        on_pick: on_pick_soul_voucher,
         max: 1,
     }
 }
 
 function prereq_soul_voucher(){
-    return GS.map.get_floor_num() < 15;
+    return max_health_greater_than(1) && GS.map.get_floor_num() < 15;
+}
+
+function on_pick_soul_voucher(){
+    change_max_health(-1);
 }
 function spiked_shoes(){
     return {
@@ -18684,7 +18692,7 @@ function spiked_shoes(){
 }
 
 function prereq_spiked_shoes(){
-    return max_health_at_least(1);
+    return max_health_greater_than(1);
 }
 
 function pick_spiked_shoes(){

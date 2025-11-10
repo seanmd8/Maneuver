@@ -11,7 +11,7 @@ function pandoras_box(){
 }
 
 function prereq_pandoras_box(){
-    return max_health_at_least(2);
+    return max_health_greater_than(2);
 }
 
 function pick_pandoras_box(){

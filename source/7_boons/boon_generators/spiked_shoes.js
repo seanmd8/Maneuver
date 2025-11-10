@@ -12,7 +12,7 @@ function spiked_shoes(){
 }
 
 function prereq_spiked_shoes(){
-    return max_health_at_least(1);
+    return max_health_greater_than(1);
 }
 
 function pick_spiked_shoes(){

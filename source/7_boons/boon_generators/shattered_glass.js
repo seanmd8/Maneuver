@@ -12,7 +12,7 @@ function shattered_glass(){
 }
 
 function prereq_shattered_glass(){
-    return max_health_at_least(2);
+    return max_health_greater_than(2);
 }
 
 function on_pick_shattered_glass(){
