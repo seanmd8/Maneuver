@@ -984,7 +984,6 @@ const DisplayHTML = {
     make_side_text_box(id){
         var text = document.createElement(`p`);
         text.classList.add(`journal-info`);
-        //text.classList.add(`scrollable-text`);
         text.classList.add(`hidden-section`);
         text.id = id;
         return text;
@@ -992,6 +991,49 @@ const DisplayHTML = {
     add_element(location, element){
         var destination = DisplayHTML.get_element(location);
         destination.append(element);
+    },
+    visual_settings(location, settings){
+        var destination = DisplayHTML.get_element(location);
+        var set_animation_speed = (value) => {settings.set({animation_speed: value})}
+        var set_text_size = (value) => {settings.set({text_size: value})}
+        var set_grid_visibility = (value) => {settings.set({checkered_overlay: value})}
+        var set_button_color = (value) => {settings.set({move_color: value})}
+        var click = (set) => {
+            return (value) => {
+                set(value);
+                GS.data.save();
+                reset_visual_settings_page();
+            }
+        }
+        destination.append(DisplayHTML.selector(
+            visual_settings_titles.animation_speed, 
+            animation_speeds, 
+            click(set_animation_speed),
+            settings.get().animation_speed,
+        ));
+        destination.append(DisplayHTML.selector(
+            visual_settings_titles.button_color, 
+            button_color_options, 
+            click(set_button_color),
+            settings.get().move_color,
+        ));
+    },
+    selector(title, options, click, current_value){
+        var div = document.createElement(`div`);
+        var p = document.createElement(`p`);
+        p.innerText = title;
+        div.append(p);
+        for(let option of options){
+            let button = document.createElement(`button`);
+            let button_value = option.value;
+            button.innerText = option.text;
+            button.onclick = () => {click(button_value)};
+            if(button_value === current_value){
+                button.classList.add(`selected`);
+            }
+            div.append(button);
+        }
+        return div;
     },
 
     // Non Required helper functions.

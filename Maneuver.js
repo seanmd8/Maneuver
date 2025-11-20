@@ -442,21 +442,21 @@ function init_settings(){
         load: undefined,
     }
     // Determines the starting enemies on the first floor.
-    init.enemies = init.enemies ? init.enemies : [spider_tile];
+    init.enemies = init.enemies !== undefined ? init.enemies : [spider_tile];
     // Determines the boons found in chests on the first floor.
-    init.chests = init.chests ? init.chests : [];
+    init.chests = init.chests !== undefined ? init.chests : [];
     // Determines the cards in the starting deck.
-    init.make_deck = init.cards ? () => {return make_test_deck(init.cards)} : () => {return make_starting_deck()};
+    init.make_deck = init.cards !== undefined ? () => {return make_test_deck(init.cards)} : () => {return make_starting_deck()};
     // Determines the area to start in.
-    init.area = init.area? [init.area] : area1;
+    init.area = init.area !== undefined ? [init.area] : area1;
     // Determines the size of each area.
     // Set to a minimum of 2 since bosses cannot generate on the first floor.
-    init.area_size = init.area_size ? init.area_size : AREA_SIZE;
+    init.area_size = init.area_size !== undefined ? init.area_size : AREA_SIZE;
     // Function to unlock parts of the journal automatically.
-    init.unlock_journal = init.unlock_journal ? init.unlock_journal : () => {};
+    init.unlock_journal = init.unlock_journal !== undefined ? init.unlock_journal : () => {};
     // Determines the way of saving and loading the game.
-    init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
-    init.load = init.load ? init.load: SaveData.load_local_function(`player1`);
+    init.save = init.save !== undefined ? init.save : SaveData.save_local_function(`player1`);
+    init.load = init.load !== undefined ? init.load: SaveData.load_local_function(`player1`);
     return init;
 }
 // Default keyboard controls
@@ -513,7 +513,7 @@ const JOURNAL_AREA_WIDTH = 6;
 const VICTORY_IMG_SCALE = TILE_SCALE * FLOOR_HEIGHT + 12;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
-const ANIMATION_DELAY = 200;
+const ANIMATION_DELAY_OPTIONS = [60, 200, 400, 800];
 const CONFIRMATION_BUTTON_DELAY = 3000;
 const DECK_DISPLAY_WIDTH = 5;
 const JOURNAL_DISPLAY_WIDTH = 10;
@@ -927,6 +927,7 @@ const color_options = {
     green: `rgb(50 205 50)`,
     grey: `rgb(169 169 169)`,
     dark_grey: `rgb(105 105 105)`,
+    darker_grey: `rgb(62, 62, 62)`,
 }
 Object.freeze(color_options);
 
@@ -939,6 +940,7 @@ const action_type_colors = {
     attack_until: color_options.red,
     heal: color_options.green,
     do_nothing: color_options.dark_grey,
+    generic_action: color_options.darker_grey,
     none: color_options.grey,
 }
 Object.freeze(action_type_colors);
@@ -2406,11 +2408,32 @@ const reset_text = {
     cards: `Reset card data: `,
     journal: `Reset all journal data: `,
 }
+Object.freeze(reset_text);
 const settings_navbar_labels = {
+    visual: `Visual`,
     data: `Data`,
     controls: `Controls`,
 }
 Object.freeze(settings_navbar_labels);
+const visual_settings_titles = {
+    animation_speed: `Animation Speed:`,
+    text_size: `Text Size:`,
+    grid: `Grid Visibility`,
+    button_color: `Move Button Colors`,
+}
+Object.freeze(visual_settings_titles);
+
+const animation_speeds = [
+    {text: `Turbo`,  value: 0},
+    {text: `Fast`,   value: 1},
+    {text: `Medium`, value: 2},
+    {text: `Slow`,   value: 3},
+];
+
+const button_color_options = [
+    {text: `On`,  value: true},
+    {text: `Off`, value: false},
+];
 // ----------------UIID.js----------------
 // File containing a library of ids used to retrieve elements of the ui.
 
@@ -2547,6 +2570,7 @@ const HTML_UIIDS = {
             achievement_list: `achievement-list`,
     settings: `settings`,
         settings_navbar: `settingsNavbar`,
+        settings_visual: `settingsVisual`,
         settings_data: `settingsData`,
             data_header: `dataHeader`,
         controls: `controls`,
@@ -3643,7 +3667,6 @@ const DisplayHTML = {
     make_side_text_box(id){
         var text = document.createElement(`p`);
         text.classList.add(`journal-info`);
-        //text.classList.add(`scrollable-text`);
         text.classList.add(`hidden-section`);
         text.id = id;
         return text;
@@ -3651,6 +3674,49 @@ const DisplayHTML = {
     add_element(location, element){
         var destination = DisplayHTML.get_element(location);
         destination.append(element);
+    },
+    visual_settings(location, settings){
+        var destination = DisplayHTML.get_element(location);
+        var set_animation_speed = (value) => {settings.set({animation_speed: value})}
+        var set_text_size = (value) => {settings.set({text_size: value})}
+        var set_grid_visibility = (value) => {settings.set({checkered_overlay: value})}
+        var set_button_color = (value) => {settings.set({move_color: value})}
+        var click = (set) => {
+            return (value) => {
+                set(value);
+                GS.data.save();
+                reset_visual_settings_page();
+            }
+        }
+        destination.append(DisplayHTML.selector(
+            visual_settings_titles.animation_speed, 
+            animation_speeds, 
+            click(set_animation_speed),
+            settings.get().animation_speed,
+        ));
+        destination.append(DisplayHTML.selector(
+            visual_settings_titles.button_color, 
+            button_color_options, 
+            click(set_button_color),
+            settings.get().move_color,
+        ));
+    },
+    selector(title, options, click, current_value){
+        var div = document.createElement(`div`);
+        var p = document.createElement(`p`);
+        p.innerText = title;
+        div.append(p);
+        for(let option of options){
+            let button = document.createElement(`button`);
+            let button_value = option.value;
+            button.innerText = option.text;
+            button.onclick = () => {click(button_value)};
+            if(button_value === current_value){
+                button.classList.add(`selected`);
+            }
+            div.append(button);
+        }
+        return div;
     },
 
     // Non Required helper functions.
@@ -3977,6 +4043,9 @@ function display_move_buttons(card, hand_position){
 function get_colors(actions){
     if(actions === undefined){
         return [action_type_colors.none];
+    }
+    if(!GS.data.settings.do_color()){
+        return [action_type_colors.generic_action];
     }
     var colors = [];
     for(var action of actions){
@@ -4776,6 +4845,7 @@ function reset_journal(){
     reset_cards();
 }
 function setup_settings_page(){
+    reset_visual_settings_page();
     setup_controls_page();
 }
 
@@ -4783,6 +4853,7 @@ function setup_settings_navbar(){
     var id = UIIDS.settings_navbar;
 
     var section_id_list = [
+        UIIDS.settings_visual,
         UIIDS.controls,
         UIIDS.settings_data,
     ];
@@ -4793,10 +4864,16 @@ function setup_settings_navbar(){
         }
     }
 
+    display.create_visibility_toggle(id, settings_navbar_labels.visual, swap_visibility(section_id_list, UIIDS.settings_visual));
     display.create_visibility_toggle(id, settings_navbar_labels.controls, swap_visibility(section_id_list, UIIDS.controls));
     display.create_visibility_toggle(id, settings_navbar_labels.data, swap_visibility(section_id_list, UIIDS.settings_data));
 
-    display.swap_screen(section_id_list, UIIDS.controls);
+    display.swap_screen(section_id_list, UIIDS.settings_visual);
+}
+function reset_visual_settings_page(){
+    display.remove_children(UIIDS.settings_visual);
+    var settings = GS.data.settings;
+    display.visual_settings(UIIDS.settings_visual, settings);
 }
 const SENTRY_MODES = {
     saw: `Saw`,
@@ -11991,7 +12068,7 @@ class EntityList{
                         }
                         refresh_map(map);
                         if(do_delay){
-                            await delay(ANIMATION_DELAY);
+                            await delay(GS.data.settings.delay());
                         }
                     }
                     if(GS.boons.has(boon_names.pain_reflexes) && damage_taken < GS.map.stats.get_stats().damage){
@@ -13148,7 +13225,7 @@ class GameState{
                 GS.map.get_player().tags.remove(TAGS.invulnerable);
             }
             refresh_map(this.map);
-            await delay(ANIMATION_DELAY);
+            await delay(GS.data.settings.delay());
             var reflex_turn = GS.boons.has(boon_names.pain_reflexes) && damage_taken < GS.map.stats.get_stats().damage;
             if(is_instant || reflex_turn){
                 this.refresh_deck_display();
@@ -13329,7 +13406,7 @@ class GameState{
         }
         this.refresh_deck_display();
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
-        await delay(ANIMATION_DELAY);
+        await delay(GS.data.settings.delay());
         refresh_map(this.map);
         this.unlock_player_turn();
     }
@@ -13411,7 +13488,7 @@ class GameState{
     async prep_turn(){
         this.map.resolve_events();
         refresh_map(this.map);
-        await delay(ANIMATION_DELAY);
+        await delay(GS.data.settings.delay());
         refresh_map(this.map);
         this.refresh_deck_display();
         this.map.display_stats();
@@ -13961,6 +14038,7 @@ class MoveDeck{
 */
 
 class SaveData{
+    settings;
     controls;
     achievements;
     cards;
@@ -13978,6 +14056,8 @@ class SaveData{
     load(){
         var data = this.#load_function();
         data = SaveData.#load_missing(data);
+        this.settings = new SettingsTracker();
+        this.settings.set(data.settings);
         this.controls = new KeyBind();
         this.controls.set(data.controls);
         this.achievements = new AchievementList();
@@ -13989,6 +14069,7 @@ class SaveData{
     }
     save(){
         var data = {
+            settings: this.settings.get(),
             controls: this.controls.get(),
             achievements: this.achievements.get(),
             cards: this.cards.to_list(),
@@ -13997,6 +14078,10 @@ class SaveData{
             areas: this.areas.to_list(),
         }
         this.#save_function(data);
+    }
+    set_settings(new_settings){
+        this.settings.set(new_settings);
+        this.save();
     }
     set_controls(new_controls){
         this.controls.set(new_controls);
@@ -14464,6 +14549,42 @@ class TileTreeNode{
     }
     die_to(){
         ++this.data.killed_by;
+    }
+}
+class SettingsTracker{
+    #animation_speed;
+    #text_size;
+    #move_color;
+    #checkered_overlay;
+
+    constructor(){
+        this.#animation_speed = 1;
+        this.#text_size = undefined;
+        this.#move_color = true;
+        this.#checkered_overlay = false;
+    }
+    set(settings = {}){
+        this.#animation_speed = settings.animation_speed !== undefined ? settings.animation_speed : this.#animation_speed;
+        this.#text_size = settings.text_size !== undefined ? settings.text_size : this.#text_size;
+        this.#move_color = settings.move_color !== undefined ? settings.move_color : this.#move_color;
+        this.#checkered_overlay = settings.checkered_overlay !== undefined ? settings.checkered_overlay : this.#checkered_overlay;
+    }
+    get(){
+        return {
+            animation_speed: this.#animation_speed,
+            text_size: this.#text_size,
+            move_color: this.#move_color,
+            checkered_overlay: this.#checkered_overlay,
+        }
+    }
+    delay(){
+        return ANIMATION_DELAY_OPTIONS[this.#animation_speed];
+    }
+    do_color(){
+        return this.#move_color;
+    }
+    overlay(){
+        return this.#checkered_overlay;
     }
 }
 class Shop{

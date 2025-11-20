@@ -25,6 +25,9 @@ function get_colors(actions){
     if(actions === undefined){
         return [action_type_colors.none];
     }
+    if(!GS.data.settings.do_color()){
+        return [action_type_colors.generic_action];
+    }
     var colors = [];
     for(var action of actions){
         var color = COLOR_MAP.get(action.type);

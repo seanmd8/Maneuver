@@ -1,4 +1,5 @@
 const settings_navbar_labels = {
+    visual: `Visual`,
     data: `Data`,
     controls: `Controls`,
 }

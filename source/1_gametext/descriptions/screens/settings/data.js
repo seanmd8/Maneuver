@@ -10,3 +10,4 @@ const reset_text = {
     cards: `Reset card data: `,
     journal: `Reset all journal data: `,
 }
+Object.freeze(reset_text);

@@ -99,7 +99,7 @@ class GameState{
                 GS.map.get_player().tags.remove(TAGS.invulnerable);
             }
             refresh_map(this.map);
-            await delay(ANIMATION_DELAY);
+            await delay(GS.data.settings.delay());
             var reflex_turn = GS.boons.has(boon_names.pain_reflexes) && damage_taken < GS.map.stats.get_stats().damage;
             if(is_instant || reflex_turn){
                 this.refresh_deck_display();
@@ -280,7 +280,7 @@ class GameState{
         }
         this.refresh_deck_display();
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
-        await delay(ANIMATION_DELAY);
+        await delay(GS.data.settings.delay());
         refresh_map(this.map);
         this.unlock_player_turn();
     }
@@ -362,7 +362,7 @@ class GameState{
     async prep_turn(){
         this.map.resolve_events();
         refresh_map(this.map);
-        await delay(ANIMATION_DELAY);
+        await delay(GS.data.settings.delay());
         refresh_map(this.map);
         this.refresh_deck_display();
         this.map.display_stats();

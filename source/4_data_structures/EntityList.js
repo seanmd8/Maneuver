@@ -170,7 +170,7 @@ class EntityList{
                         }
                         refresh_map(map);
                         if(do_delay){
-                            await delay(ANIMATION_DELAY);
+                            await delay(GS.data.settings.delay());
                         }
                     }
                     if(GS.boons.has(boon_names.pain_reflexes) && damage_taken < GS.map.stats.get_stats().damage){

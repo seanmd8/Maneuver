@@ -7,6 +7,7 @@
 */
 
 class SaveData{
+    settings;
     controls;
     achievements;
     cards;
@@ -24,6 +25,8 @@ class SaveData{
     load(){
         var data = this.#load_function();
         data = SaveData.#load_missing(data);
+        this.settings = new SettingsTracker();
+        this.settings.set(data.settings);
         this.controls = new KeyBind();
         this.controls.set(data.controls);
         this.achievements = new AchievementList();
@@ -35,6 +38,7 @@ class SaveData{
     }
     save(){
         var data = {
+            settings: this.settings.get(),
             controls: this.controls.get(),
             achievements: this.achievements.get(),
             cards: this.cards.to_list(),
@@ -43,6 +47,10 @@ class SaveData{
             areas: this.areas.to_list(),
         }
         this.#save_function(data);
+    }
+    set_settings(new_settings){
+        this.settings.set(new_settings);
+        this.save();
     }
     set_controls(new_controls){
         this.controls.set(new_controls);
