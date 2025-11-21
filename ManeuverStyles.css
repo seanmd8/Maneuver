@@ -930,7 +930,7 @@ body>div {
 .control-header h2 {
     width: fit-content;
     display: inline-flex;
-    margin-left: 20px;
+    margin-left: 10px;
     margin-right: auto;
     background-color: lightgrey;
     padding: 5px;
@@ -1005,11 +1005,11 @@ body>div {
 .reset-pair{
     display: flex;
     justify-content: space-between;
-    width: 400px;
+    width: 574px;
     background-color: lightblue;
     border-width: 3px;
     border-style: solid;
-    margin: 4px;
+    margin: 4px 2px;
     padding-left: 10px;
     padding-right: 10px;
 }
@@ -1030,6 +1030,49 @@ body>div {
     background-color: var(--settings-background-color);
     min-height: 100%;
     min-width: 100%;
+}
+.visual-section {
+    border: solid;
+    border-radius: 20px;
+    width: fit-content;
+    padding: 20px;
+    background-color: #2c7d2c;
+    margin: 6px;
+}
+.selector {
+    display: flex;
+    width: 574px;
+    background-color: lightblue;
+    border-width: 3px;
+    border-style: solid;
+    margin: 4px 2px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.selector p {
+    font-weight: bold;
+    line-height: 20px;
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.selector button {
+    height: 25px;
+    width: fit-content;
+    margin: auto 10px;
+    border-color: blue;
+    background-color: aliceblue;
+    cursor: pointer;
+}
+
+.selector button:hover {
+    background-color: orchid;
+}
+
+.selector .selected {
+    background-color: blueviolet;
+    color: white;
 }
 :root {
     --card-box-color: white;

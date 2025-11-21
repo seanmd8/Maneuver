@@ -994,6 +994,10 @@ const DisplayHTML = {
     },
     visual_settings(location, settings){
         var destination = DisplayHTML.get_element(location);
+        var h2 = document.createElement(`h2`);
+        h2.innerText = visual_settings_titles.main;
+        h2.classList.add(`data-header`)
+        destination.append(h2);
         var set_animation_speed = (value) => {settings.set({animation_speed: value})}
         var set_text_size = (value) => {settings.set({text_size: value})}
         var set_grid_visibility = (value) => {settings.set({checkered_overlay: value})}
@@ -1020,6 +1024,7 @@ const DisplayHTML = {
     },
     selector(title, options, click, current_value){
         var div = document.createElement(`div`);
+        div.classList.add(`selector`);
         var p = document.createElement(`p`);
         p.innerText = title;
         div.append(p);

@@ -2416,10 +2416,11 @@ const settings_navbar_labels = {
 }
 Object.freeze(settings_navbar_labels);
 const visual_settings_titles = {
+    main: `Visuals and Animation`,
     animation_speed: `Animation Speed:`,
     text_size: `Text Size:`,
-    grid: `Grid Visibility`,
-    button_color: `Move Button Colors`,
+    grid: `Grid Visibility:`,
+    button_color: `Move Button Colors:`,
 }
 Object.freeze(visual_settings_titles);
 
@@ -3677,6 +3678,10 @@ const DisplayHTML = {
     },
     visual_settings(location, settings){
         var destination = DisplayHTML.get_element(location);
+        var h2 = document.createElement(`h2`);
+        h2.innerText = visual_settings_titles.main;
+        h2.classList.add(`data-header`)
+        destination.append(h2);
         var set_animation_speed = (value) => {settings.set({animation_speed: value})}
         var set_text_size = (value) => {settings.set({text_size: value})}
         var set_grid_visibility = (value) => {settings.set({checkered_overlay: value})}
@@ -3703,6 +3708,7 @@ const DisplayHTML = {
     },
     selector(title, options, click, current_value){
         var div = document.createElement(`div`);
+        div.classList.add(`selector`);
         var p = document.createElement(`p`);
         p.innerText = title;
         div.append(p);
@@ -12815,6 +12821,7 @@ class GameMap{
                 throw error;
             }
         }
+        return current_events.length > 0;
     }
     /**
      * Clears the current floor and goes to the next one then generates it based on the current area.
@@ -13486,9 +13493,11 @@ class GameState{
      * @returns {Promise<void>}
      */
     async prep_turn(){
-        this.map.resolve_events();
-        refresh_map(this.map);
-        await delay(GS.data.settings.delay());
+        var did_events = this.map.resolve_events();
+        if(did_events){
+            refresh_map(this.map);
+            await delay(GS.data.settings.delay());
+        }
         refresh_map(this.map);
         this.refresh_deck_display();
         this.map.display_stats();

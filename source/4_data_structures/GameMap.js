@@ -713,6 +713,7 @@ class GameMap{
                 throw error;
             }
         }
+        return current_events.length > 0;
     }
     /**
      * Clears the current floor and goes to the next one then generates it based on the current area.

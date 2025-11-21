@@ -360,9 +360,11 @@ class GameState{
      * @returns {Promise<void>}
      */
     async prep_turn(){
-        this.map.resolve_events();
-        refresh_map(this.map);
-        await delay(GS.data.settings.delay());
+        var did_events = this.map.resolve_events();
+        if(did_events){
+            refresh_map(this.map);
+            await delay(GS.data.settings.delay());
+        }
         refresh_map(this.map);
         this.refresh_deck_display();
         this.map.display_stats();

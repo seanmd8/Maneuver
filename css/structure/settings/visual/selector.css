@@ -1,0 +1,35 @@
+.selector {
+    display: flex;
+    width: 574px;
+    background-color: lightblue;
+    border-width: 3px;
+    border-style: solid;
+    margin: 4px 2px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.selector p {
+    font-weight: bold;
+    line-height: 20px;
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.selector button {
+    height: 25px;
+    width: fit-content;
+    margin: auto 10px;
+    border-color: blue;
+    background-color: aliceblue;
+    cursor: pointer;
+}
+
+.selector button:hover {
+    background-color: orchid;
+}
+
+.selector .selected {
+    background-color: blueviolet;
+    color: white;
+}
