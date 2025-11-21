@@ -5,6 +5,7 @@ function refresh_hand_display(deck){
     // Updates the hand.
     var card_row = deck.get_hand_info();
     display.remove_children(UIIDS.hand_display);
+    display.add_gradient(UIIDS.move_box, [action_type_colors.empty]);
     display.add_tb_row(UIIDS.hand_display, card_row, CARD_SCALE);
 
     // Shows how many cards are left in your deck.

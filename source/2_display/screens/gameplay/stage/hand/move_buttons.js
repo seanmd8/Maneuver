@@ -18,6 +18,7 @@ function display_move_buttons(card, hand_position){
             display.add_gradient(`${UIIDS.move_buttons} ${i} ${j}`, button_row[j].colors);
         }
     }
+    display.add_gradient(UIIDS.move_box, get_box_colors(card));
     var explanation = move_types.alt + `\n` + explain_card(card);
     display.add_on_click(UIIDS.move_info, function(){say(explanation)});
 }
@@ -37,6 +38,22 @@ function get_colors(actions){
     }
     if(colors.length === 0){
         colors.push(action_type_colors.do_nothing);
+    }
+    return colors;
+}
+function get_box_colors(card){
+    if(!GS.data.settings.do_color()){
+        return [action_type_colors.empty];
+    }
+    var colors = [];
+    if(card.options.is_instant()){
+        colors.push(action_type_colors.instant);
+    }
+    if(card.temp){
+        colors.push(action_type_colors.temp);
+    }
+    if(colors.length === 0){
+        colors.push(action_type_colors.empty);
     }
     return colors;
 }

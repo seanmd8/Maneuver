@@ -309,6 +309,7 @@ class GameState{
         // and gives them the chance to retry.
         refresh_map(this.map);
         display.remove_children(UIIDS.hand_display);
+        display.add_gradient(UIIDS.move_box, [action_type_colors.empty]);
         display.remove_children(UIIDS.move_buttons);
         say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
         var restart = function(game){
