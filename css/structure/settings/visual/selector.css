@@ -20,7 +20,7 @@
     height: 25px;
     width: fit-content;
     margin: auto 10px;
-    border-color: blue;
+    border-color: darkblue;
     background-color: aliceblue;
     cursor: pointer;
 }
@@ -30,6 +30,6 @@
 }
 
 .selector .selected {
-    background-color: blueviolet;
+    background-color: darkblue;
     color: white;
 }

@@ -52,6 +52,10 @@ class SaveData{
         this.settings.set(new_settings);
         this.save();
     }
+    reset_settings(){
+        this.settings.reset();
+        this.save();
+    }
     set_controls(new_controls){
         this.controls.set(new_controls);
         this.save();

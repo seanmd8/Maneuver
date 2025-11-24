@@ -2425,6 +2425,7 @@ const settings_navbar_labels = {
 Object.freeze(settings_navbar_labels);
 const visual_settings_titles = {
     main: `Visuals and Animation`,
+    reset: `Reset`,
     animation_speed: `Animation Speed:`,
     text_size: `Text Size:`,
     grid: `Grid Visibility:`,
@@ -3686,10 +3687,18 @@ const DisplayHTML = {
     },
     visual_settings(location, settings){
         var destination = DisplayHTML.get_element(location);
+        var header = document.createElement(`div`);
+        header.classList.add(`control-header`)
+        destination.append(header);
         var h2 = document.createElement(`h2`);
         h2.innerText = visual_settings_titles.main;
-        h2.classList.add(`data-header`)
-        destination.append(h2);
+        header.append(h2);
+        var reset = () => {
+            GS.data.reset_settings();
+            reset_visual_settings_page();
+        }
+        var reset_button = DisplayHTML.create_button(visual_settings_titles.reset, undefined, reset);
+        header.append(reset_button);
         var set_animation_speed = (value) => {settings.set({animation_speed: value})}
         var set_text_size = (value) => {settings.set({text_size: value})}
         var set_grid_visibility = (value) => {settings.set({checkered_overlay: value})}
@@ -14119,6 +14128,10 @@ class SaveData{
         this.settings.set(new_settings);
         this.save();
     }
+    reset_settings(){
+        this.settings.reset();
+        this.save();
+    }
     set_controls(new_controls){
         this.controls.set(new_controls);
         this.save();
@@ -14594,10 +14607,13 @@ class SettingsTracker{
     #checkered_overlay;
 
     constructor(){
+        this.reset();
+    }
+    reset(){
         this.#animation_speed = 1;
         this.#text_size = undefined;
         this.#move_color = true;
-        this.#checkered_overlay = false;
+        this.#checkered_overlay = 0;
     }
     set(settings = {}){
         this.#animation_speed = settings.animation_speed !== undefined ? settings.animation_speed : this.#animation_speed;

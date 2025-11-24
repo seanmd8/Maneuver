@@ -994,10 +994,18 @@ const DisplayHTML = {
     },
     visual_settings(location, settings){
         var destination = DisplayHTML.get_element(location);
+        var header = document.createElement(`div`);
+        header.classList.add(`control-header`)
+        destination.append(header);
         var h2 = document.createElement(`h2`);
         h2.innerText = visual_settings_titles.main;
-        h2.classList.add(`data-header`)
-        destination.append(h2);
+        header.append(h2);
+        var reset = () => {
+            GS.data.reset_settings();
+            reset_visual_settings_page();
+        }
+        var reset_button = DisplayHTML.create_button(visual_settings_titles.reset, undefined, reset);
+        header.append(reset_button);
         var set_animation_speed = (value) => {settings.set({animation_speed: value})}
         var set_text_size = (value) => {settings.set({text_size: value})}
         var set_grid_visibility = (value) => {settings.set({checkered_overlay: value})}

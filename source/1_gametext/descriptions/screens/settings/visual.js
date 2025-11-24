@@ -1,5 +1,6 @@
 const visual_settings_titles = {
     main: `Visuals and Animation`,
+    reset: `Reset`,
     animation_speed: `Animation Speed:`,
     text_size: `Text Size:`,
     grid: `Grid Visibility:`,

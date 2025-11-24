@@ -1036,6 +1036,7 @@ body>div {
     border-radius: 20px;
     width: fit-content;
     padding: 20px;
+    padding-top: 0px;
     background-color: #2c7d2c;
     margin: 6px;
 }
@@ -1061,7 +1062,7 @@ body>div {
     height: 25px;
     width: fit-content;
     margin: auto 10px;
-    border-color: blue;
+    border-color: darkblue;
     background-color: aliceblue;
     cursor: pointer;
 }
@@ -1071,7 +1072,7 @@ body>div {
 }
 
 .selector .selected {
-    background-color: blueviolet;
+    background-color: darkblue;
     color: white;
 }
 :root {

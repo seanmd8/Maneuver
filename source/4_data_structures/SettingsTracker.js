@@ -5,10 +5,13 @@ class SettingsTracker{
     #checkered_overlay;
 
     constructor(){
+        this.reset();
+    }
+    reset(){
         this.#animation_speed = 1;
         this.#text_size = undefined;
         this.#move_color = true;
-        this.#checkered_overlay = false;
+        this.#checkered_overlay = 0;
     }
     set(settings = {}){
         this.#animation_speed = settings.animation_speed !== undefined ? settings.animation_speed : this.#animation_speed;
