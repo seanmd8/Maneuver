@@ -3554,7 +3554,6 @@ const DisplayHTML = {
         }
         var say = (msg) => {
             return () => {
-                console.log(msg);
                 var text_id = `${destination} text`;
                 var areas = DisplayHTML.get_element(UIIDS.journal_areas);
                 var boxes = areas.getElementsByClassName(`journal-info`);
@@ -3591,7 +3590,7 @@ const DisplayHTML = {
         
         if(info.boss !== undefined){
             var boss = document.createElement(`table`);
-            info.boss.on_click = say(info.boss.description);
+            //info.boss.on_click = say(info.boss.description);
             boss.classList.add(`journal-area-boss`);
             var boss_id = `${destination} ${info.true_name} boss`;
             boss.id = boss_id;
@@ -3608,7 +3607,7 @@ const DisplayHTML = {
             var slice_start = i * JOURNAL_AREA_WIDTH;
             var slice = info.tiles.slice(slice_start, slice_start + JOURNAL_AREA_WIDTH);
             for(var tile of slice){
-                tile.on_click = say(tile.description);
+                //tile.on_click = say(tile.description);
             }
             display.add_tb_row(tiles_id, slice, JOURNAL_TILE_SCALE);
         }

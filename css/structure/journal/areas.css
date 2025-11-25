@@ -87,7 +87,7 @@
     border-width: 4px;
     border-style: solid;
     border-color: black;
-    cursor: pointer;
+    /*cursor: pointer;*/
 }
 
 .journal-area-tiles img {
@@ -95,7 +95,7 @@
     border-width: 2px;
     border-style: solid;
     border-color: black;
-    cursor: pointer;
+    /*cursor: pointer;*/
 }
 
 .journal-area-screen .journal-info {
