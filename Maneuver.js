@@ -3715,8 +3715,15 @@ const DisplayHTML = {
         header.append(reset_button);
         var set_animation_speed = (value) => {settings.set({animation_speed: value})}
         var set_text_size = (value) => {settings.set({text_size: value})}
-        var set_grid_visibility = (value) => {settings.set({checkered_overlay: value})}
-        var set_button_color = (value) => {settings.set({move_color: value})}
+        var set_grid_visibility = (value) => {
+            settings.set({checkered_overlay: value});
+            refresh_map_grid(GS.map);
+        }
+        var set_button_color = (value) => {
+            settings.set({move_color: value});
+            display.remove_children(UIIDS.move_buttons);
+            GS.refresh_deck_display();
+        }
         var click = (set) => {
             return (value) => {
                 set(value);
@@ -4153,17 +4160,21 @@ function display_health(player, scale){
 }
 function refresh_map(map){
     // Updates the GameMap display.
-    display.remove_children(UIIDS.map_display);
-    var grid = map.display();
-    for(var row of grid){
-        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE, true);
-    }
+    refresh_map_grid(map);
     map.clear_telegraphs();
     // Updates the health bar display.
     display.remove_children(UIIDS.health_display);
     display_health(map.get_player(), TILE_SCALE);
     // Updates the initiative tracker display.
     update_initiative(map);
+}
+
+function refresh_map_grid(map){
+    display.remove_children(UIIDS.map_display);
+    var grid = map.display();
+    for(var row of grid){
+        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE, true);
+    }
 }
 function refresh_stage_stats(stats, location){
     display.remove_children(location);
