@@ -514,6 +514,7 @@ const VICTORY_IMG_SCALE = TILE_SCALE * FLOOR_HEIGHT + 12;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
 const ANIMATION_DELAY_OPTIONS = [60, 200, 400, 800];
+const GRID_OPACITY_OPTIONS = [0, 0.1, 0.3];
 const CONFIRMATION_BUTTON_DELAY = 3000;
 const DECK_DISPLAY_WIDTH = 5;
 const JOURNAL_DISPLAY_WIDTH = 10;
@@ -2444,6 +2445,12 @@ const button_color_options = [
     {text: `On`,  value: true},
     {text: `Off`, value: false},
 ];
+
+const grid_options = [
+    {text: `None`, value: 0},
+    {text: `Light`, value: 1},
+    {text: `Dark`, value: 2},
+];
 // ----------------UIID.js----------------
 // File containing a library of ids used to retrieve elements of the ui.
 
@@ -2927,6 +2934,13 @@ const DisplayHTML = {
             }
             image.style.transform = DisplayHTML.get_transformation(to_display);
             layers.push(image);
+            // Checkerboard
+            if(to_display.checker){
+                image = document.createElement(`img`);
+                image.src = `${IMG_FOLDER.src}${IMG_FOLDER.backgrounds}grid_black.png`;
+                image.style.opacity = `${GS.data.settings.overlay()}`;
+                layers.push(image);
+            }
             // Background images
             if(to_display.background !== undefined){
                 for(let pic of to_display.background){
@@ -3722,6 +3736,12 @@ const DisplayHTML = {
             click(set_button_color),
             settings.get().move_color,
         ));
+        destination.append(DisplayHTML.selector(
+            visual_settings_titles.grid, 
+            grid_options, 
+            click(set_grid_visibility),
+            settings.get().checkered_overlay,
+        ));
     },
     selector(title, options, click, current_value){
         var div = document.createElement(`div`);
@@ -4136,7 +4156,7 @@ function refresh_map(map){
     display.remove_children(UIIDS.map_display);
     var grid = map.display();
     for(var row of grid){
-        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE);
+        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE, true);
     }
     map.clear_telegraphs();
     // Updates the health bar display.
@@ -12503,6 +12523,7 @@ class GameMap{
                     pic: tile.pic,
                     rotate: tile.rotate,
                     flip: tile.flip,
+                    checker: (x + y) % 2 === 0,
                     background: [...background_pics, space.action, ...stunned, space.floor],
                     on_click: make_on_click(space, new Point(x, y), this),
                 });
@@ -14636,7 +14657,7 @@ class SettingsTracker{
         return this.#move_color;
     }
     overlay(){
-        return this.#checkered_overlay;
+        return GRID_OPACITY_OPTIONS[this.#checkered_overlay];
     }
 }
 class Shop{

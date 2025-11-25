@@ -360,6 +360,7 @@ class GameMap{
                     pic: tile.pic,
                     rotate: tile.rotate,
                     flip: tile.flip,
+                    checker: (x + y) % 2 === 0,
                     background: [...background_pics, space.action, ...stunned, space.floor],
                     on_click: make_on_click(space, new Point(x, y), this),
                 });

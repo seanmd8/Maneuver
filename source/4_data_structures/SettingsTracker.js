@@ -34,6 +34,6 @@ class SettingsTracker{
         return this.#move_color;
     }
     overlay(){
-        return this.#checkered_overlay;
+        return GRID_OPACITY_OPTIONS[this.#checkered_overlay];
     }
 }

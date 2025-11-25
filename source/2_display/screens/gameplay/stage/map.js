@@ -3,7 +3,7 @@ function refresh_map(map){
     display.remove_children(UIIDS.map_display);
     var grid = map.display();
     for(var row of grid){
-        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE);
+        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE, true);
     }
     map.clear_telegraphs();
     // Updates the health bar display.

@@ -234,6 +234,13 @@ const DisplayHTML = {
             }
             image.style.transform = DisplayHTML.get_transformation(to_display);
             layers.push(image);
+            // Checkerboard
+            if(to_display.checker){
+                image = document.createElement(`img`);
+                image.src = `${IMG_FOLDER.src}${IMG_FOLDER.backgrounds}grid_black.png`;
+                image.style.opacity = `${GS.data.settings.overlay()}`;
+                layers.push(image);
+            }
             // Background images
             if(to_display.background !== undefined){
                 for(let pic of to_display.background){
@@ -1028,6 +1035,12 @@ const DisplayHTML = {
             button_color_options, 
             click(set_button_color),
             settings.get().move_color,
+        ));
+        destination.append(DisplayHTML.selector(
+            visual_settings_titles.grid, 
+            grid_options, 
+            click(set_grid_visibility),
+            settings.get().checkered_overlay,
         ));
     },
     selector(title, options, click, current_value){

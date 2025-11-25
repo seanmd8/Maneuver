@@ -19,3 +19,9 @@ const button_color_options = [
     {text: `On`,  value: true},
     {text: `Off`, value: false},
 ];
+
+const grid_options = [
+    {text: `None`, value: 0},
+    {text: `Light`, value: 1},
+    {text: `Dark`, value: 2},
+];
