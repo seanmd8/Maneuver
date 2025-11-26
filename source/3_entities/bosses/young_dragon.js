@@ -14,6 +14,7 @@ function young_dragon_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: `${boss_descriptions.young_dragon[0]}${boss_descriptions.young_dragon[1]}`,
+        flavor: boss_flavor.young_dragon,
         tags: new TagList([TAGS.boss]),
         health: 5,
         death_message: boss_death_message.young_dragon,

@@ -5,6 +5,7 @@ function corrosive_caterpillar_tile(){
         name: enemy_names.corrosive_caterpillar,
         pic: `${IMG_FOLDER.tiles}corrosive_caterpillar.png`,
         description: enemy_descriptions.corrosive_caterpillar,
+        flavor: enemy_flavor.corrosive_caterpillar,
         tags: new TagList(),
         health: 1,
         difficulty: 2,

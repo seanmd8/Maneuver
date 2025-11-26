@@ -8,6 +8,7 @@ function blood_crescent_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[1],
         description: enemy_descriptions.blood_crescent,
+        flavor: enemy_flavor.blood_crescent,
         tags: new TagList(),
         health: 1,
         difficulty: 5,

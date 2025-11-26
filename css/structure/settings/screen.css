@@ -1,0 +1,5 @@
+.settings-style{
+    background-color: var(--settings-background-color);
+    min-height: 100%;
+    min-width: 100%;
+}

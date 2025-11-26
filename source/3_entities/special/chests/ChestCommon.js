@@ -28,11 +28,7 @@ function chest_on_enter(self, target, map){
         GS.refresh_deck_display();
         refresh_map(map);
         if(GS.boons.has(boon_names.safe_passage)){
-            GS.boons.lose(boon_names.safe_passage);
-            GS.refresh_boon_display();
-            GS.map.heal(GS.map.get_player_location());
-            GS.map.display_stats();
-            GS.enter_shop();
+            do_safe_passage();
         }
     }
     var abandon_button = {

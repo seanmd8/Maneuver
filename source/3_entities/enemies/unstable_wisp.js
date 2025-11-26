@@ -5,6 +5,7 @@ function unstable_wisp_tile(){
         name: enemy_names.unstable_wisp,
         pic: `${IMG_FOLDER.tiles}unstable_wisp.png`, 
         description: enemy_descriptions.unstable_wisp,
+        flavor: enemy_flavor.unstable_wisp,
         tags: new TagList(),
         health: 1,
         difficulty: 2,

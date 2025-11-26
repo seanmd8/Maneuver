@@ -5,6 +5,7 @@ function wheel_of_fire_tile(){
         name: enemy_names.wheel_of_fire,
         pic: `${IMG_FOLDER.tiles}wheel_of_fire.png`,
         description: enemy_descriptions.wheel_of_fire,
+        flavor: enemy_flavor.wheel_of_fire,
         tags: new TagList(),
         health: 1,
         difficulty: 6,

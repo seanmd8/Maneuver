@@ -22,6 +22,7 @@ function lord_of_shadow_and_flame_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: boss_descriptions.lord_of_shadow_and_flame,
+        flavor: boss_flavor.lord_of_shadow_and_flame,
         tags: new TagList([TAGS.boss]),
         health,
         max_health: health,

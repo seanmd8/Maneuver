@@ -8,6 +8,7 @@ function captive_void_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.captive_void,
+        flavor: enemy_flavor.captive_void,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         difficulty: 2,
         behavior: captive_void_ai,

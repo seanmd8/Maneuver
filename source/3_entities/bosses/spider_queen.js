@@ -5,6 +5,7 @@ function spider_queen_tile(){
         name: boss_names.spider_queen,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
         description: boss_descriptions.spider_queen,
+        flavor: boss_flavor.spider_queen,
         tags: new TagList([TAGS.boss]),
         health: 3,
         death_message: boss_death_message.spider_queen,

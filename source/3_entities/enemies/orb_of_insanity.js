@@ -8,6 +8,7 @@ function orb_of_insanity_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[1],
         description: enemy_descriptions.orb_of_insanity,
+        flavor: enemy_flavor.orb_of_insanity,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 3,

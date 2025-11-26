@@ -5,6 +5,7 @@ function acid_bug_tile(){
         name: enemy_names.acid_bug,
         pic: `${IMG_FOLDER.tiles}acid_bug.png`,
         description: enemy_descriptions.acid_bug,
+        flavor: enemy_flavor.acid_bug,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

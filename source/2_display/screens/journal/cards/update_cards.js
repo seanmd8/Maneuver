@@ -1,6 +1,5 @@
 function update_journal_cards(){
     display.remove_children(UIIDS.journal_cards);
-    display.create_fixed_box(UIIDS.journal_cards, UIIDS.journal_card_info);
     display_basic_cards();
     display_common_cards();
     display_achievement_cards();
@@ -11,49 +10,50 @@ function update_journal_cards(){
 
 function display_basic_cards(){
     var cards = cards_encountered(BASIC_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards, has);
 }
 function display_common_cards(){
     var cards = cards_encountered(COMMON_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards, has);
 }
 function display_achievement_cards(){
     var cards = cards_locked(get_all_achievement_cards(), get_locked_achievement_cards());
     var cards = cards_encountered(cards, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards, has);
 }
 function display_boon_cards(){
     var cards = cards_encountered(BOON_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards, has);
 }
 function display_confusion_cards(){
     var cards = cards_encountered(CONFUSION_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards, has);
 }
 function display_boss_cards(){
     var cards = cards_encountered(get_boss_cards(), GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards, has);
 }
 
 function cards_encountered(cards, encountered){
     return cards.map((c) => {
         var card = c();
+        card.background = [`${IMG_FOLDER.other}default_card_background.png`];
         if(card.name === card_names.symbol_locked){
-            card.on_click = () => {
-                display.display_message(UIIDS.journal_card_info, move_types.locked);
-            }
+            card.description = move_types.locked;
             return card;
         }
         if(encountered.has(card.name)){
-            card.on_click = () => {
-                display.display_message(UIIDS.journal_card_info, explain_card_w_stats(card));
-            }
+            card.description = explain_card_w_stats(card);
             return card;
         }
         var card = symbol_not_encountered_card();
-        card.on_click = () => {
-            display.display_message(UIIDS.journal_card_info, move_types.not_found);
-        }
+        card.description = move_types.not_found;
         return card;
     });
 }
@@ -67,4 +67,14 @@ function cards_locked(cards, locked){
         }
         return c;
     });
+}
+function cards_has_amount(cards){
+    var has = 0;
+    var total = cards.length;
+    for(var card of cards){
+        if(card.name !== card_names.symbol_locked && card.name !== card_names.symbol_not_encountered){
+            ++has;
+        }
+    }
+    return `${has}/${total}`;
 }

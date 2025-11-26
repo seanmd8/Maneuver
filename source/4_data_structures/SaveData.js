@@ -7,6 +7,7 @@
 */
 
 class SaveData{
+    settings;
     controls;
     achievements;
     cards;
@@ -24,6 +25,8 @@ class SaveData{
     load(){
         var data = this.#load_function();
         data = SaveData.#load_missing(data);
+        this.settings = new SettingsTracker();
+        this.settings.set(data.settings);
         this.controls = new KeyBind();
         this.controls.set(data.controls);
         this.achievements = new AchievementList();
@@ -35,6 +38,7 @@ class SaveData{
     }
     save(){
         var data = {
+            settings: this.settings.get(),
             controls: this.controls.get(),
             achievements: this.achievements.get(),
             cards: this.cards.to_list(),
@@ -43,6 +47,14 @@ class SaveData{
             areas: this.areas.to_list(),
         }
         this.#save_function(data);
+    }
+    set_settings(new_settings){
+        this.settings.set(new_settings);
+        this.save();
+    }
+    reset_settings(){
+        this.settings.reset();
+        this.save();
     }
     set_controls(new_controls){
         this.controls.set(new_controls);
@@ -82,6 +94,10 @@ class SaveData{
         this.cards.get_node(name).remove();
         this.save();
     }
+    reset_cards(){
+        this.cards = new SearchTree([], CardTreeNode);
+        this.save();
+    }
     add_boon(name){
         this.boons.add(name);
         this.boons.get_node(name).pick();
@@ -94,6 +110,10 @@ class SaveData{
                 GS.achieve(achievement_names.blessed);
             }
         }
+    }
+    reset_boons(){
+        this.boons = new SearchTree([], BoonTreeNode);
+        this.save();
     }
     add_tile(name){
         var added = this.tiles.add(name);
@@ -117,6 +137,11 @@ class SaveData{
     clear_area(name){
         var area = this.areas.get_node(name);
         area.clear();
+        this.save();
+    }
+    reset_areas(){
+        this.tiles = new SearchTree([], TileTreeNode);
+        this.areas = new SearchTree([], AreaTreeNode);
         this.save();
     }
 

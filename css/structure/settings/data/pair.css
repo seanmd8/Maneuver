@@ -1,0 +1,11 @@
+.reset-pair{
+    display: flex;
+    justify-content: space-between;
+    width: 574px;
+    background-color: lightblue;
+    border-width: 3px;
+    border-style: solid;
+    margin: 4px 2px;
+    padding-left: 10px;
+    padding-right: 10px;
+}

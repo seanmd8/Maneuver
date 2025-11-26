@@ -9,6 +9,7 @@ function walking_prism_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[1],
         description: `${description_arr[0]}${description_arr[1 + starting_cycle]}`, 
+        flavor: enemy_flavor.walking_prism,
         tags: new TagList(),
         health: 2,
         difficulty: 3,

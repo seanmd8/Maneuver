@@ -8,6 +8,7 @@ function magma_spewer_tile(){
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
         display_pic: pic_arr[1],
         description: enemy_descriptions.magma_spewer,
+        flavor: enemy_flavor.magma_spewer,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

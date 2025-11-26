@@ -437,29 +437,26 @@ function init_settings(){
         cards: undefined,
         area: undefined,
         area_size: undefined,
-        achievements: undefined,
-        identify_boons: undefined,
+        unlock_journal: undefined,
         save: undefined,
         load: undefined,
     }
     // Determines the starting enemies on the first floor.
-    init.enemies = init.enemies ? init.enemies : [spider_tile];
+    init.enemies = init.enemies !== undefined ? init.enemies : [spider_tile];
     // Determines the boons found in chests on the first floor.
-    init.chests = init.chests ? init.chests : [];
+    init.chests = init.chests !== undefined ? init.chests : [];
     // Determines the cards in the starting deck.
-    init.make_deck = init.cards ? () => {return make_test_deck(init.cards)} : () => {return make_starting_deck()};
+    init.make_deck = init.cards !== undefined ? () => {return make_test_deck(init.cards)} : () => {return make_starting_deck()};
     // Determines the area to start in.
-    init.area = init.area? [init.area] : area1;
+    init.area = init.area !== undefined ? [init.area] : area1;
     // Determines the size of each area.
     // Set to a minimum of 2 since bosses cannot generate on the first floor.
-    init.area_size = init.area_size ? init.area_size : AREA_SIZE;
-    // Determines achievements that should be automatically gained upon starting the game.
-    init.achievements = init.achievements ? init.achievements : [];
-    // Determined boons that should be added to the journal unpon starting the game.
-    init.identify_boons = init.identify_boons ? init.identify_boons : [];
+    init.area_size = init.area_size !== undefined ? init.area_size : AREA_SIZE;
+    // Function to unlock parts of the journal automatically.
+    init.unlock_journal = init.unlock_journal !== undefined ? init.unlock_journal : () => {};
     // Determines the way of saving and loading the game.
-    init.save = init.save ? init.save : SaveData.save_local_function(`player1`);
-    init.load = init.load ? init.load: SaveData.load_local_function(`player1`);
+    init.save = init.save !== undefined ? init.save : SaveData.save_local_function(`player1`);
+    init.load = init.load !== undefined ? init.load: SaveData.load_local_function(`player1`);
     return init;
 }
 // Default keyboard controls
@@ -516,7 +513,9 @@ const JOURNAL_AREA_WIDTH = 6;
 const VICTORY_IMG_SCALE = TILE_SCALE * FLOOR_HEIGHT + 12;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
-const ANIMATION_DELAY = 200;
+const ANIMATION_DELAY_OPTIONS = [60, 200, 400, 800];
+const GRID_OPACITY_OPTIONS = [0, 0.13, 0.26];
+const CONFIRMATION_BUTTON_DELAY = 3000;
 const DECK_DISPLAY_WIDTH = 5;
 const JOURNAL_DISPLAY_WIDTH = 10;
 const TEXT_WRAP_WIDTH = 90;
@@ -620,7 +619,8 @@ function initiate_game(){
     GS.setup();
     display_guide();
     setup_journal_navbar();
-    setup_controls_page();
+    setup_settings_navbar();
+    setup_data_page();
 }
 
 /**
@@ -692,6 +692,7 @@ const boon_names = {
     larger_chests: `Larger Chests`,
     limitless: `Limitless`,
     manic_presence: `Manic Presence`,
+    medical_investment: `Medical Investment`,
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
     pandoras_box: `Pandora's Box`,
@@ -778,21 +779,22 @@ const boon_descriptions = {
     larger_chests: 
         `All chests contain 2 additional choices and are invulnerable.`,
     limitless: 
-        `Remove your max health. Heal for 2. If you would be fully healed, heal `
-        +`for 1 instead.`,
+        `Fully heal, then remove your max health. If you would be fully healed, heal for 1 instead.`,
     manic_presence: 
-        `Some types of enemies are prone to misfiring.`,
+        `Some types of enemies have poor trigger discipline.`,
+    medical_investment: 
+        `Gain 2 extra max health. Heal for 2.`,
     pacifism: 
         `If you would attack an enemy, stun them twice instead (some terrain elements can still `
         +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,
     pain_reflexes: 
         `Take a turn whenever you are attacked.`,
     pandoras_box:
-        `Gain a number of random boons equal to your current max hp. Reduce your maximum hp to 1.`,
+        `Gain a number of random boons equal to your current maximum hp. Reduce your maximum hp to 1.`,
     perfect_the_basics: 
         `Replace all your basic cards with better ones.`,
     picky_shopper: 
-        `Recieve an extra card choice for adding and removing cards in the shop.`,
+        `Recieve 1 extra card choice for adding and removing cards in the shop.`,
     practice_makes_perfect: 
         `Defeating a boss while at max health increases your max health by 1.`,
     pressure_points: 
@@ -810,7 +812,7 @@ const boon_descriptions = {
     roar_of_challenge: 
         `Gain 2 max health.`,
     safe_passage: 
-        `Fully heal and travel to the next floor.`,
+        `Fully heal and travel to the next boss floor.`,
     shattered_glass: 
         `Enemies and Terrain explode on death damaging everything nearby other than you.`,
     skill_trading: 
@@ -820,7 +822,7 @@ const boon_descriptions = {
     sniper: 
         `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
     soul_voucher:
-        `Ignore any Cost to obtain new boons. Each boon chest is guaranteed to have at least 1 `
+        `Ignore any cost to obtain new boons. Each boon chest is guaranteed to have at least 1 `
         +`boon with a cost in it.`,
     spiked_shoes: 
         `Attempting to move onto enemies damages them.`,
@@ -835,7 +837,7 @@ const boon_descriptions = {
     thick_soles: 
         `You are immune to damage on your turn.`,
     vicious_cycle: 
-        `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`,
+        `At the start of each floor fully heal, then add 2 temporary Lash Out cards to your deck.`,
 }
 Object.freeze(boon_descriptions);
 
@@ -845,8 +847,10 @@ const boon_cost_descriptions = {
     creative: `Cost: Increase your minimum deck size by 5.`,
     expend_vitality: `Cost: Decrease your maximum health by 1.`,
     gruntwork: `Cost: Decrease your hand size by 1.`,
-    roar_of_challenge: `Cost: Increase difficulty by 5 floors.`,
+    medical_investment: `Cost: Receive 1 fewer card choice for adding and removing cards in the shop.`,
+    roar_of_challenge: `Cost: Increase difficulty by 3 floors.`,
     shattered_glass: `Cost: Decrease your maximum health by 2.`,
+    soul_voucher: `Cost: Decrease your maximum health by 1.`,
     spiked_shoes: `Cost: Decrease your maximum health by 1.`,
     spontaneous: `Cost: Increase your minimum deck size by 5.`,
 }
@@ -868,6 +872,8 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must not have Limitless.`,
     hoarder:
         `Prerequisites: You must be less than 15 floors deep.`,
+    medical_investment: 
+        `Prerequisites: You must not have Limitless.`,
     pandoras_box:
         `Prerequisited: You must have at least 3 max health and not have Limitless.`,
     perfect_the_basics:
@@ -881,7 +887,8 @@ const boon_prereq_descriptions = {
     shattered_glass:
         `Prerequisites: You must have at least 3 max health and not have Limitless.`,
     soul_voucher:
-        `Prerequisites: You must be less than 15 floors deep.`,
+        `Prerequisites: You must be less than 15 floors deep, have at least 2 max health, `
+        +`and not have Limitless.`,
     spiked_shoes:
         `Prerequisites: You must have at least 2 max health and not have Limitless.`,
     spontaneous:
@@ -921,6 +928,10 @@ const color_options = {
     green: `rgb(50 205 50)`,
     grey: `rgb(169 169 169)`,
     dark_grey: `rgb(105 105 105)`,
+    darker_grey: `rgb(62 62 62)`,
+    purple: `rgb(163 73 164)`,
+    tan: `rgb(231 178 77)`,
+    white: `rgb(255 255 255)`,
 }
 Object.freeze(color_options);
 
@@ -933,7 +944,13 @@ const action_type_colors = {
     attack_until: color_options.red,
     heal: color_options.green,
     do_nothing: color_options.dark_grey,
+
+    generic_action: color_options.darker_grey,
     none: color_options.grey,
+    
+    instant: color_options.purple,
+    temp: color_options.tan,
+    empty: color_options.white,
 }
 Object.freeze(action_type_colors);
 
@@ -950,7 +967,7 @@ const card_names = {
     symbol_add_card: `Add`,
     symbol_deck_at_minimum: `Minimum`,
     symbol_locked: `Locked`,
-    symbol_not_encountered_card: `Not Encountered`,
+    symbol_not_encountered: `Not Encountered`,
     symbol_remove_card: `Remove`,
 
     advance: `Advance`,
@@ -1155,7 +1172,7 @@ const move_types = {
     you: `You`,
     nothing: `Do nothing`,
     
-    per_floor: `Once Per Floor: Can only be drawn one time per floor.`,
+    per_floor: `Once Per Floor: Only usable one time each floor.`,
     temp: `Temporary: Removed from your deck when put into your discard, or at the end of the floor.`,
     instant: `Instant: Play another card this turn.`,
     
@@ -1165,20 +1182,26 @@ const move_types = {
     number_removed: `Times Removed`,
 }
 Object.freeze(move_types);
-const boss_names = {
-    arcane_sentry: `Arcane Sentry`,
-    arcane_sentry_node: `Arcane Sentry Node`,
-    forest_heart: `Forest Heart`,
-    lich: `Lich`,
-    lord_of_shadow_and_flame: `Lord of Shadow and Flame`,
-    spider_queen: `Spider Queen`,
-    two_headed_serpent: `Two Headed Serpent`,
-    two_headed_serpent_body: `Two Headed Serpent Body`,
-    velociphile: `Velociphile`,
-    young_dragon: `Young Dragon`,
+const boss_death_message = {
+    general: 
+        `The exit opens.\n`
+        +`You feel your wounds begin to heal.`,
+    arcane_sentry: 
+        `MAIN SYSTEMS FAILING!\n`
+        +`The ringing alarm subsides.`,
+    arcane_sentry_node: `NODE OFFLINE!`,
+    forest_heart: `Branches rain from above as the ancient tree is felled.`,
+    lich: `The Lich's body crumbles to dust.`,
+    lord_of_shadow_and_flame: 
+        `As the ruler of this space fades from reality, the room begins to quake. Better leave quickly.`,
+    spider_queen: `As the Spider Queen falls to the floor, the last of her children emerge.`,
+    two_headed_serpent: 
+        `It's body too small to regenerate any further, all four of the serpent's eyes close for the `
+        +`final time`,
+    velociphile: `The wailing falls silent as the Velociphile is defeated.`,
+    young_dragon: `Scales so soft are easily pierced. The Young Dragon's fire goes out.`,
 }
-Object.freeze(boss_names);
-
+Object.freeze(boss_death_message);
 const boss_descriptions = {
     arcane_sentry: 
         `Arcane Sentry (Boss): An automated defense station. Changes modes in response to damage.`,
@@ -1221,7 +1244,36 @@ const boss_descriptions = {
     ],
 }
 Object.freeze(boss_descriptions);
-
+const boss_flavor = {
+    arcane_sentry:
+        ``,
+    arcane_sentry_node:
+        ``,
+    forest_heart:
+        ``,
+    lich:
+        ``,
+    lord_of_shadow_and_flame:
+        ``,
+    spider_queen:
+        ``,
+    two_headed_serpent:
+        ``,
+    two_headed_serpent_body:
+        `The scales on the body are tougher than any weapon I have, but the flesh within has perhaps `
+        +`a more impressive and unexpected property. It seems to be able to almost instantly change `
+        +`shape to heal any injury one of the heads sustains no matter how large. If I could get `
+        +`a sample of it, there's no telling what kinds of medical advances it could lead to. Doing `
+        +`so would be difficult however as they seem to lose those regenerative properties once they `
+        +`change shape.`,
+    velociphile:
+        ``,
+    young_dragon:
+        `The presence of a young dragon here presents a puzzling mystery. It seems like they spend `
+        +`their youths in caves such as this to avoid most larger predators and make their way out `
+        +`as they mature, but how did a dragon egg make it's way down here in the first place? `,
+}
+Object.freeze(boss_flavor);
 const boss_floor_message = {
     arcane_sentry: 
         `An alarm begins to blare.\n`
@@ -1236,49 +1288,6 @@ const boss_floor_message = {
     young_dragon: `The air burns in your lungs.`,
 }
 Object.freeze(boss_floor_message);
-
-const boss_death_message = {
-    general: 
-        `The exit opens.\n`
-        +`You feel your wounds begin to heal.`,
-    arcane_sentry: 
-        `MAIN SYSTEMS FAILING!\n`
-        +`The ringing alarm subsides.`,
-    arcane_sentry_node: `NODE OFFLINE!`,
-    forest_heart: `Branches rain from above as the ancient tree is felled.`,
-    lich: `The Lich's body crumbles to dust.`,
-    lord_of_shadow_and_flame: 
-        `As the ruler of this space fades from reality, the room begins to quake. Better leave quickly.`,
-    spider_queen: `As the Spider Queen falls to the floor, the last of her children emerge.`,
-    two_headed_serpent: 
-        `It's body too small to regenerate any further, all four of the serpent's eyes close for the `
-        +`final time`,
-    velociphile: `The wailing falls silent as the Velociphile is defeated.`,
-    young_dragon: `Scales so soft are easily pierced. The Young Dragon's fire goes out.`,
-}
-Object.freeze(boss_death_message);
-
-// Individual Boss Descriptions
-
-const lich_spell_descriptions = {
-    confusion: `Confusion - Creates a cloud of confusion gas to pollute your deck.`,
-    earthquake: `Earthquake - Causes chunks of the ceiling to rain down.`,
-    flame_wave: `Flame Wave - Shoots 3 explosive fireballs towards the target.`,
-    lava_moat: `Lava Moat - Creates pools of molten lava to shield the user.`,
-    piercing_beam: `Piercing Beam - Fires a piercing beam in the direction closest to the target.`,
-    rest: `Nothing.`,
-    summon: `Summon - Summons 2 random enemies.`,
-    teleport: `Teleport - The user moves to a random square on the map.`,
-}
-Object.freeze(lich_spell_descriptions);
-
-const heart_spell_descriptions = {
-    rest: `Currently, the Forest Heart is resting.`,
-    growth: `Currently, the Forest Heart is preparing to grow plants.`,
-    summon: `Currently, the Forest Heart is preparing to summon forest creatures.`,
-}
-Object.freeze(heart_spell_descriptions);
-
 const sentry_mode_descriptions = {
     core: {
         turret: 
@@ -1300,57 +1309,36 @@ const sentry_mode_descriptions = {
     }
 }
 Object.freeze(sentry_mode_descriptions);
-const enemy_names = {
-    acid_bug: `Acid Bug`, 
-    animated_boulder: `Animated Boulder`, 
-    blood_crescent: `Blood Crescent`,
-    brightling: `Brightling`, 
-    captive_void: `Captive Void`, 
-    carrion_flies: `Carrion Flies`, 
-    claustropede_1: `Claustropede x1`,
-    claustropede_2: `Claustropede x2`,
-    claustropede_3: `Claustropede x4`,
-    clay_golem: `Clay Golem`, 
-    corrosive_caterpillar: `Corrosive Caterpillar`, 
-    darkling: `Darkling`, 
-    gem_crawler: `Gem Crawler`, 
-    igneous_crab: `Igneous Crab`, 
-    living_tree: `Living Tree`, 
-    magma_spewer: `Magma Spewer`, 
-    maw: `Maw`,
-    noxious_toad: `Noxious Toad`, 
-    orb_of_insanity: `Orb of Insanity`, 
-    paper_construct: `Paper Construct`, 
-    pheonix: `Pheonix`, 
-    porcuslime_large: `Large Porcuslime`, 
-    porcuslime_medium: `Medium Porcuslime`, 
-    porcuslime_small: `Small Porcuslime`, 
-    ram: `Ram`, 
-    rat: `Rat`, 
-    scorpion: `Scorpion`, 
-    scythe: `Scythe`, 
-    shadow_knight: `Shadow Knight`, 
-    shadow_knight_elite: `Shadow Knight Elite`, 
-    shadow_scout: `Shadow Scout`, 
-    specter: `Specter`, 
-    spider_web: `Spider Web`, 
-    spider: `Spider`, 
-    starcaller: `Starcaller`,
-    strider: `Strider`, 
-    swaying_nettle: `Swaying Nettle`, 
-    thorn_bush: `Thorn Bush`, 
-    turret: `Turret`, 
-    turret_m: `Moving Turret`, 
-    turret_r: `Rotary Turret`, 
-    unspeakable: `Unspeakable`,
-    unstable_wisp: `Unstable Wisp`, 
-    vampire: `Vampire`, 
-    vinesnare_bush: `Vinesnare Bush`, 
-    walking_prism: `Walking Prism`,
-    wheel_of_fire: `Wheel of Fire`,
+const heart_spell_descriptions = {
+    rest: `Currently, the Forest Heart is resting.`,
+    growth: `Currently, the Forest Heart is preparing to grow plants.`,
+    summon: `Currently, the Forest Heart is preparing to summon forest creatures.`,
 }
-Object.freeze(enemy_names);
-
+Object.freeze(heart_spell_descriptions);
+const lich_spell_descriptions = {
+    confusion: `Confusion - Creates a cloud of confusion gas to pollute your deck.`,
+    earthquake: `Earthquake - Causes chunks of the ceiling to rain down.`,
+    flame_wave: `Flame Wave - Shoots 3 explosive fireballs towards the target.`,
+    lava_moat: `Lava Moat - Creates pools of molten lava to shield the user.`,
+    piercing_beam: `Piercing Beam - Fires a piercing beam in the direction closest to the target.`,
+    rest: `Nothing.`,
+    summon: `Summon - Summons 2 random enemies.`,
+    teleport: `Teleport - The user moves to a random square on the map.`,
+}
+Object.freeze(lich_spell_descriptions);
+const boss_names = {
+    arcane_sentry: `Arcane Sentry`,
+    arcane_sentry_node: `Arcane Sentry Node`,
+    forest_heart: `Forest Heart`,
+    lich: `Lich`,
+    lord_of_shadow_and_flame: `Lord of Shadow and Flame`,
+    spider_queen: `Spider Queen`,
+    two_headed_serpent: `Two Headed Serpent`,
+    two_headed_serpent_body: `Two Headed Serpent Body`,
+    velociphile: `Velociphile`,
+    young_dragon: `Young Dragon`,
+}
+Object.freeze(boss_names);
 const enemy_descriptions = {
     acid_bug: 
         `Acid bug: Moves 1 space towards the player. Has no normal attack, but will spray acid `
@@ -1499,39 +1487,45 @@ const enemy_descriptions = {
         +`1 space randomly.`,
 }
 Object.freeze(enemy_descriptions);
-
 const enemy_flavor = {
     acid_bug: 
-        `The explosive defenses these bugs have has left them without any natural predators. Their `
-        +`resulting lack of fear is probably what lead to their curious nature. These are best `
-        +`dispatched at range if possible. If they do manage to get close, be careful where you `
-        +`swing your weapon.`,
+        `The explosive defenses these bugs have has left them without any natural predators. This is`
+        +`probably what has led to their lack of fear and curious nature. While they are not dangerous `
+        +`by themselves, they can get in the way of combat with other enemies. If possible, they should `
+        +`be dispatched from a distance.`,
     animated_boulder: 
         `The magnetic fields present in these caverns have interacted with the natural magic of the `
         +`area to create powerful elementals with a desire to be left alone. While their rocky makeup `
         +`makes them all but invulnerable and completely indistinguishable from stationary parts of `
         +`the terrain, they tend to tire quickly making fleeing a viable option.`,
     blood_crescent:
-        ``,
+        `@%#H%&#$^*I%&&(%*)&(S_^@$%` // HIS
+        +`!@#~C$@^#%&$^L*^&(*)%A#)**$%&@W$!#~%#!@S^%$*%$` // CLAWS
+        +`&(%^*T)$&^&#$%^!@H#$~@$A#!@$^$%*%$&($&^T&#$%~@#$` // THAT
+        +`#@!T^@#%&#%^E%&(#%^**A@))##%@#$^#$R^*$&(%*)%)`, // TEAR
     brightling: 
         `Beings from a higher plane of existance who have been attracted to the natural magic of the `
         +`area. Both curious and cautious, they warp space to bring creatures closer to be studied `
         +`before fleeing via the same method. They are entirely unaggressive and may help or hinder `
         +`in equal parts through their unexpected teleportations.`,
     captive_void: 
-        `Either the result of some strange experiment or perhaps another part of the library's expansive `
-        +`security system. Either way, these devices bend space around them to draw in everything `
-        +`nearby. Thankfully they can be temporarily disabled through the use of blunt force.`,
+        `Perhaps the result of some strange experiment or just another part of the library's expansive `
+        +`security system. These devices bend space around them to draw in everything nearby. `
+        +`They can be temporarily disabled through the use of blunt force to make escape easier.`,
     carrion_flies: 
         `Swarms move about at random attracted by the ample food sources available down here. They `
-        +`tend to multiply quickly making it important to get rid of them as soon as possible.`,
+        +`tend to multiply quickly making it important to get rid of them as soon as possible. `
+        +`Strangly, these flies show little resemblance to any other species found outside the dungeon.`,
     claustropede:
-        ``,
+        `!@#%!@$^H#%&#$^*$)^*(*#I%^!@%!&#%@$S^%()&#` // HIS
+        +`%&!$H#~+&$&($$^!#%*@$^A($%^!#$%!@$^$%N*#%(#*&!D#$^~$^!S$^#%&@$*!#$^^#%*` // HANDS
+        +`%$!#$&#T^%(#&(@~~^*)^*)%_H+)#%!$@$*#%&(#%A^*#^$!$^))!#%*$^(%&T(^&!#$%!` // THAT
+        +`#@^@#%)G$&(#^&!^!#$&R$_*+%*&($%^!#$%~#%!A%#*&#%&)%&(_&*@$^~S@#$!@$@$&#^-))==+$P#&@$^*`, // GRASP
     clay_golem: 
-        `These golems are built to last with their tough skin showing countless scars. That makes it `
-        +`likely that their construction wasn't recent. Thankfully they are incredibly slow moving `
-        +`and seem to malfunction slightly when recieving damage. As long as you avoid being `
-        +`surrounded it will be possible to wear them out eventually, or just run past them.`,
+        `These golems are built to last with tough skin and a near limitless power source. `
+        +`The countless scars on the bodies of most of them make it likely that their construction `
+        +`wasn't recent. Thankfully they are incredibly slow moving and seem to malfunction slightly `
+        +`when recieving damage.`,
     corrosive_caterpillar: 
         ``,
     darkling: 
@@ -1553,6 +1547,8 @@ const enemy_flavor = {
         +`nature could be an attempt to reach areas with fresh nutrients, it is unclear what led these `
         +`trees to be so aggressive. Thankfully their control over their branches isn't very fine `
         +`making their attacks easy to evade at close range.`,
+    living_tree_rooted:
+        ``,
     magma_spewer: 
         `These strange creatures possess a unique digestive tract. Rather than eating organic matter, `
         +`they get most of their energy through drinking magma. In addition to acting as a thermal `
@@ -1560,7 +1556,10 @@ const enemy_flavor = {
         +`on their head. This gives them a powerful natural defense mechanism that can take out targets `
         +`at great distances.`,
     maw:
-        ``,
+        `!@$^@H%*#%&($^&($%^!@^#$)$I_%+^!@$%!@$^#%(+_=+=!@$^$S$^(^)$` // HIS
+        +`%&^!23)!M@$^@$*@#$^@~!#~%@$^@$^($^O($%^!$%!#%*#%&)$^*);:;U!$#&@$^*$%^@T^@$^#^*&!#$^~!#$&H@^(#` // MOUTH
+        +`/?/?)@#T%!#$&@$^*#%*$%H^~$@$&@$*#%&(%$^!#$^A!#%*&@^(#%&(#^;:<>T))??)~?/+==!#$@$` // THAT
+        +`^*@$%&F!#!@#^!#%*&@%E^(#&%#!$%@#^!#%*@%^(*#$@#!^E!@)?.>+@#&%<,D)+==!#$&@#$S^*@`, // FEEDS
     noxious_toad: 
         `Capable of leaping great distances to navigate the difficcult terrain of the sewers, these `
         +`toads have also developed a natural defense mechanism which sets them apart from their `
@@ -1609,7 +1608,9 @@ const enemy_flavor = {
     shadow_knight_elite: 
         ``,
     shadow_scout: 
-        ``,
+        `!@$&@$^(#%&)^H$%^!#$%@#^!#%*@$I^(#%&)$^*&$S%@^@#%*@` // HIS
+        +`(^?-+)@$^@E$^I(#%^*!#$^#%&;Y:)]{}@#$!!%*@E$^*@$!&#!%*$%@&#$S%!$^!#%*@$^%` // EYES
+        +`()$^*)U$^&(*#%^++N==|\\""$*^@$%&!#&S$#^*#%^(#%^&E@$%&!#%&@$^*$E^*))!@$^@#%*!#%N^!#$&@$^*@#%@`, // UNSEEN
     specter: 
         `It is unclear if these are actually the ghosts of the departed or simply some sort of `
         +`magically created creature of pure shadow. Either way they are capable of phasing through `
@@ -1651,7 +1652,20 @@ const enemy_flavor = {
         `While it can't fire in as many directions at once, this turret can keep watch over more `
         +`directions overall. Thankfully it rotates at a fixed speed so it's movement can be predicted.`,
     unspeakable:
-        ``,
+        `%!@$#&#T$^(#%^&#!$^!O#%*(#%&^)%` // TO
+        +`*%^&#K%$^!#$^_+$@_^N+!#$+&_!#+%&_O$+*__+}!$#^|}$W|!{^|$^{` // KNOW
+        +`|]#%&@$^*#$H%@$^!#%&#$^!$"^!#$^?!I#&>!#%&!#?&>!#%?&#M%&!#&!#<&` // HIM
+        +`@$^!#%&*I@$^*#$%!@#^S@#%*@$%&` // IS
+        +`!@$&@$T^(#%&($#O%!#^@#%&%` // TO
+        +`}^!|#$^&S!#%&{#%|!}|!#$^{E!$#^}!#$^:!$#"^!#$>R^!#$<^!$#?^!#<&>!#V$&!#%"&!{#%&$@^E*}%^({#` // SERVE
+        +`%&!#$^!#H$<&@$^>*$^&}I@%&:!#%&!#M%&)!@#^$@#%&@#$%` // HIM
+        +`$#&@$^($^&I)#$$&@S$*#%&)#^` // IS
+        +`*&!#$^!#$T&@+%&!#$^{!#}O%&:!#%&"!` // TO
+        +`#%&!#%D?&@$>^*<%^*>#&<%I$^!>$<&>#$^*?$@>%E*<>$@^*@%&~` // DIE
+        +`@$^(!$*&I!#)&$@*(@$^_*N^@#$::^>` // IN
+        +`!$?^!#S"&:!%{#&}H!#%:&%$"&>$%?&!%"&>A#!%>!&"!%:D&>@)!@$&@$^*($^O&)%^&*@#$%@$W^!#:&` // SHADOW
+        +`"!#$>^!?#%A&<!$%?*$:^*$@^N}*$}@{$%}*D!$>*!>%$` // AND
+        +`!@$^!#F%}&{%}:*$^"*L#>%^<(?&%(>%^*)A"^$:&*$}^&{!#%M&|!#{%&>@$%*@E(#%^>(`, // FLAME
     unstable_wisp: 
         `Beings of elemental fire that naturally spawn from the extreme heat. They are very unstable `
         +`and can explode violently if disrupted. They are not aggressive however so as long as you `
@@ -1666,9 +1680,62 @@ const enemy_flavor = {
     walking_prism: 
         ``,
     wheel_of_fire:
-        ``,
+        `@$^@$^H*#%&)$^*($@%^!@#I%#!@$&@$^*)#+_@%@$^_!#S$&+#!_$^` // HIS
+        +`+~"!#$&?#!E%&"#$^?!$#^!#Y$|$^!$^!#%&!E@$^@#%*%&(%^*)$%*#%S$^!#@%~_^+` // EYES
+        +`!#+$_&^+#T_^~":":">><:#$<>@H#%&>@#<%&:@#%"@&:%>A&@<%&@%:>@%&<!@$&@$^(#$T%^!$#%)` // THAT
+        +`#!$&!$^(@^B*&!#$^!@$^!#%U&#}^$^?!#$>&!#"&!#>%&R?#%:&%#{&}@$*:@$>N^*>@$%&:@$%&>@)`, // BURN
 }
 Object.freeze(enemy_descriptions);
+const enemy_names = {
+    acid_bug: `Acid Bug`, 
+    animated_boulder: `Animated Boulder`, 
+    blood_crescent: `Blood Crescent`,
+    brightling: `Brightling`, 
+    captive_void: `Captive Void`, 
+    carrion_flies: `Carrion Flies`, 
+    claustropede_1: `Claustropede x1`,
+    claustropede_2: `Claustropede x2`,
+    claustropede_3: `Claustropede x4`,
+    clay_golem: `Clay Golem`, 
+    corrosive_caterpillar: `Corrosive Caterpillar`, 
+    darkling: `Darkling`, 
+    gem_crawler: `Gem Crawler`, 
+    igneous_crab: `Igneous Crab`, 
+    living_tree: `Living Tree`, 
+    magma_spewer: `Magma Spewer`, 
+    maw: `Maw`,
+    noxious_toad: `Noxious Toad`, 
+    orb_of_insanity: `Orb of Insanity`, 
+    paper_construct: `Paper Construct`, 
+    pheonix: `Pheonix`, 
+    porcuslime_large: `Large Porcuslime`, 
+    porcuslime_medium: `Medium Porcuslime`, 
+    porcuslime_small: `Small Porcuslime`, 
+    ram: `Ram`, 
+    rat: `Rat`, 
+    scorpion: `Scorpion`, 
+    scythe: `Scythe`, 
+    shadow_knight: `Shadow Knight`, 
+    shadow_knight_elite: `Shadow Knight Elite`, 
+    shadow_scout: `Shadow Scout`, 
+    specter: `Specter`, 
+    spider_web: `Spider Web`, 
+    spider: `Spider`, 
+    starcaller: `Starcaller`,
+    strider: `Strider`, 
+    swaying_nettle: `Swaying Nettle`, 
+    thorn_bush: `Thorn Bush`, 
+    turret: `Turret`, 
+    turret_m: `Moving Turret`, 
+    turret_r: `Rotary Turret`, 
+    unspeakable: `Unspeakable`,
+    unstable_wisp: `Unstable Wisp`, 
+    vampire: `Vampire`, 
+    vinesnare_bush: `Vinesnare Bush`, 
+    walking_prism: `Walking Prism`,
+    wheel_of_fire: `Wheel of Fire`,
+}
+Object.freeze(enemy_names);
 const entity_types = {
     chest: `Chest`,
     empty: `Empty`,
@@ -1679,27 +1746,6 @@ const entity_types = {
     terrain: `Terrain`,
 }
 Object.freeze(entity_types);
-const event_names = {
-    black_hole_formation: `Black Hole Formation`,
-    confusion_cloud: `Confusion Cloud`,
-    darkling_rift: `Darkling Rift`,
-    delay: `Delay`,
-    delayed_strike: `Delayed Strike`,
-    delayed_stun: `Delayed Stun`,
-    earthquake: `Earthquake`,
-    falling_magma: `Falling Magma`,
-    falling_rubble: `Falling Rubble`,
-    nettle_roots: `Nettle Roots`,
-    spell_announcement: `Spell Announcement`,
-    starfall: `Starfall`,
-    sunlight: `Sunlight`,
-    thorn_roots: `Thorn Roots`,
-    unstun: `Unstun`,
-    wake_up: `Wake Up`,
-    warp: `Spacial Warp`
-}
-Object.freeze(event_names);
-
 const event_descriptions = {
     black_hole_formation:
         `A Black Hole is beginning to form here damaging anything standing here.`,
@@ -1725,35 +1771,49 @@ const event_descriptions = {
         `Watch out, brambles are about to sprout damaging anything standing here.`,
 }
 Object.freeze(event_descriptions);
-const other_tile_names = {
-    altar_of_scouring: `Altar of Scouring`,
-    altar_of_shadow: `Altar of Shadow`,
-    altar_of_singularity: `Altar of Singularity`,
-    altar_of_space: `Altar of Space`,
-    altar_of_stars: `Altar of Stars`,
-    altar_of_stasis: `Altar of Stasis`,
-    altar_of_sunlight: `Altar of Sunlight`,
-    black_hole: `Black Hole`,
-    bookshelf: `Bookshelf`,
-    coffin: `Coffin`,
-    corrosive_slime: `Corrosive Slime`,
-    fireball: `Fireball`,
-    fruit_tree_enticing: `Enticing Fruit Tree`,
-    fruit_tree_rotting: `Rotting Fruit Tree`,
-    lava_pool: `Lava Pool`,
-    magmatic_boulder: `Magmatic Boulder`,
-    moon_rock: `Moon Rock`,
-    raging_fire: `Raging Fire`,
-    repulsor: `Repulsor`,
-    sewer_grate: `Sewer Grate`,
-    shatter_sphere: `Shatter Sphere`,
-    smoldering_ashes: `Smoldering Ashes`,
-    thorn_bramble: `Thorn Brambles`,
-    wall: `Wall`,
-    wall_damaged: `Damaged Wall`,
+const event_flavor = {
+    black_hole_formation:
+        ``,
+    confusion_cloud:
+        ``,
+    darkling_rift:
+        ``,
+    delayed_strike:
+        ``,
+    delayed_stun:
+        ``,
+    falling_rubble:
+        ``,
+    nettle_roots:
+        ``,
+    starfall:
+        ``,
+    sunlight:
+        ``,
+    thorn_roots:
+        ``,
 }
-Object.freeze(other_tile_names);
-
+Object.freeze(event_flavor);
+const event_names = {
+    black_hole_formation: `Black Hole Formation`,
+    confusion_cloud: `Confusion Cloud`,
+    darkling_rift: `Darkling Rift`,
+    delay: `Delay`,
+    delayed_strike: `Delayed Strike`,
+    delayed_stun: `Delayed Stun`,
+    earthquake: `Earthquake`,
+    falling_magma: `Falling Magma`,
+    falling_rubble: `Falling Rubble`,
+    nettle_roots: `Nettle Roots`,
+    spell_announcement: `Spell Announcement`,
+    starfall: `Starfall`,
+    sunlight: `Sunlight`,
+    thorn_roots: `Thorn Roots`,
+    unstun: `Unstun`,
+    wake_up: `Wake Up`,
+    warp: `Spacial Warp`
+}
+Object.freeze(event_names);
 const other_tile_descriptions = {
     altar_of_scouring:
         `Altar of Scouring: Activate by moving here. When activated, creates a wall of fireballs along `
@@ -1823,18 +1883,102 @@ const other_tile_descriptions = {
         `Damaged Wall: Something might live inside.`,
 }
 Object.freeze(other_tile_descriptions);
-const special_tile_names = {
-    chest: `Chest`,
-    chest_armored: `Armored Chest`,
-    empty: `Empty`,
-    exit: `Exit`,
-    final_exit: `Return Portal`,
-    lock: `Locked Exit`,
-    you: `You`,
-    player: `Player`,
+const other_flavor = {
+    altar_of_scouring:
+        ``,
+    altar_of_shadow:
+        ``,
+    altar_of_singularity:
+        ``,
+    altar_of_space:
+        ``,
+    altar_of_stars:
+        ``,
+    altar_of_stasis:
+        ``,
+    altar_of_sunlight:
+        ``,
+    black_hole:
+        ``,
+    bookshelf:
+        ``,
+    coffin:
+        ``,
+    corrosive_slime:
+        ``,
+    fireball:
+        ``,
+    fruit_tree_enticing:
+        ``,
+    fruit_tree_rotting:
+        ``,
+    lava_pool:
+        ``,
+    magmatic_boulder:
+        `Many of the rocks here are smooth, glassy, and exert magnetic forces. They are similar in `
+        +`appearance to obsidian, but are much less brittle showing no signs of chipping or breaking `
+        +`from even the hardest blows. Many places on the surface are smooth enough to see your `
+        +`reflection, but something about it is unnerving, almost like I am being watched...`,
+    moon_rock:
+        ``,
+    raging_fire:
+        ``,
+    repulsor:
+        `It is hard to tell if these strange lifeforms are plants, or closer to corals. They grow `
+        +`around volcanic vents which provide them with nutrients. They collect and store gasses `
+        +`in bubbles along their surface to use as natural defenses. When sensing a nearby predator, `
+        +`they can release them all in a jet of hot air to push nearby creatures away from them.`,
+    sewer_grate:
+        `Virtually none of the sewers here still function. Most are dried up, but those that are `
+        +`still full of liquid have grown more and more toxic. Sludge regularly spills out and then `
+        +`retreats almost like the tide.`,
+    shatter_sphere:
+        ``,
+    smoldering_ashes:
+        ``,
+    thorn_bramble:
+        ``,
+    wall:
+        ``,
+    wall_damaged:
+        ``,
 }
-Object.freeze(special_tile_names);
-
+Object.freeze(other_flavor);
+const other_tile_names = {
+    altar_of_scouring: `Altar of Scouring`,
+    altar_of_shadow: `Altar of Shadow`,
+    altar_of_singularity: `Altar of Singularity`,
+    altar_of_space: `Altar of Space`,
+    altar_of_stars: `Altar of Stars`,
+    altar_of_stasis: `Altar of Stasis`,
+    altar_of_sunlight: `Altar of Sunlight`,
+    black_hole: `Black Hole`,
+    bookshelf: `Bookshelf`,
+    coffin: `Coffin`,
+    corrosive_slime: `Corrosive Slime`,
+    fireball: `Fireball`,
+    fruit_tree_enticing: `Enticing Fruit Tree`,
+    fruit_tree_rotting: `Rotting Fruit Tree`,
+    lava_pool: `Lava Pool`,
+    magmatic_boulder: `Magmatic Boulder`,
+    moon_rock: `Moon Rock`,
+    raging_fire: `Raging Fire`,
+    repulsor: `Repulsor`,
+    sewer_grate: `Sewer Grate`,
+    shatter_sphere: `Shatter Sphere`,
+    smoldering_ashes: `Smoldering Ashes`,
+    thorn_bramble: `Thorn Brambles`,
+    wall: `Wall`,
+    wall_damaged: `Damaged Wall`,
+}
+Object.freeze(other_tile_names);
+const chest_text = {
+    header: `Choose up to one reward:`,
+    take: `Take`,
+    abandon: `Abandon`,
+    add_card: `Add this card to your deck.`,
+}
+Object.freeze(chest_text);
 const special_tile_descriptions = {
     chest: `Chest: Has something useful inside. Breaking it will destroy the contents. Moving here `
     +`grants you another turn.`,
@@ -1847,14 +1991,34 @@ const special_tile_descriptions = {
     player: `You: Click a card to move.`,
 }
 Object.freeze(special_tile_descriptions);
-
-const chest_text = {
-    header: `Choose up to one reward:`,
-    take: `Take`,
-    abandon: `Abandon`,
-    add_card: `Add this card to your deck.`,
+const special_flavor = {
+    chest:
+        ``,
+    chest_armored:
+        ``,
+    empty:
+        ``,
+    exit:
+        ``,
+    final_exit:
+        ``,
+    lock:
+        ``,
+    you:
+        ``,
 }
-Object.freeze(chest_text);
+Object.freeze(special_flavor);
+const special_tile_names = {
+    chest: `Chest`,
+    chest_armored: `Armored Chest`,
+    empty: `Empty`,
+    exit: `Exit`,
+    final_exit: `Return Portal`,
+    lock: `Locked Exit`,
+    you: `You`,
+    player: `Player`,
+}
+Object.freeze(special_tile_names);
 const achievement_text = {
     title: `Achievements`,
     reset: `Reset`,
@@ -1946,41 +2110,6 @@ const boss_achievements = [
     achievement_names.arcane_sentry,
     achievement_names.lord_of_shadow_and_flame,
 ]
-const control_screen_text = {
-    default: `Default`,
-    edit: `Edit`,
-    save: `Save`,
-    undo: `Undo`,
-}
-Object.freeze(control_screen_text);
-
-const CONTROLS_TEXT = {
-    header: `Controls`,
-    stage: {
-        header: `Stage Controls`,
-        card: `Choose card`,
-        direction: `Make move`,
-        toggle: `Preview move (hold key down)`,
-        info: `View card info`,
-        retry: `Retry`
-    },
-    shop: {
-        header: `Shop Controls`,
-        add: `Choose card to add`,
-        remove: `Choose card to remove`,
-        confirm: `Confirm choice`
-    },
-    chest: {
-        header: `Chest Controls`,
-        choose: `Choose item`,
-        confirm: `Confirm choice`,
-        reject: `Abandon chest`
-    }
-}
-Object.freeze(CONTROLS_TEXT);
-
-const KEYBOARD_SYMBOL_MAP = new Map();
-KEYBOARD_SYMBOL_MAP.set(` `, `space`);
 const stat_image_labels = {
     deck: `Cards in deck`,
     floor: `Floor number`,
@@ -2212,7 +2341,10 @@ const about_page_text = {
 Object.freeze(about_page_text);
 const journal_area_messages = {
     visited: `Times Visited`,
-    cleared: `Times Cleared`
+    cleared: `Times Cleared`,
+    
+    locked: `You haven't visited this area yet`,
+    not_encountered: `Click on this tile in game to unlock it's journal entry.`
 }
 Object.freeze(journal_area_messages);
 const journal_card_headers = {
@@ -2235,9 +2367,90 @@ const screen_names = {
     gameplay: `Gameplay`,
     guide: `Guidebook`,
     journal: `Journal`,
-    controls: `Controls`,
+    settings: `Settings`,
 }
 Object.freeze(screen_names);
+const control_screen_text = {
+    default: `Default`,
+    edit: `Edit`,
+    save: `Save`,
+    undo: `Undo`,
+}
+Object.freeze(control_screen_text);
+
+const CONTROLS_TEXT = {
+    header: `Controls`,
+    stage: {
+        header: `Stage Controls`,
+        card: `Choose card`,
+        direction: `Make move`,
+        toggle: `Preview move (hold key down)`,
+        info: `View card info`,
+        retry: `Retry`
+    },
+    shop: {
+        header: `Shop Controls`,
+        add: `Choose card to add`,
+        remove: `Choose card to remove`,
+        confirm: `Confirm choice`
+    },
+    chest: {
+        header: `Chest Controls`,
+        choose: `Choose item`,
+        confirm: `Confirm choice`,
+        reject: `Abandon chest`
+    }
+}
+Object.freeze(CONTROLS_TEXT);
+
+const KEYBOARD_SYMBOL_MAP = new Map();
+KEYBOARD_SYMBOL_MAP.set(` `, `space`);
+const reset_text = {
+    header: `Manage Save Data`,
+
+    reset: `Reset`,
+    confirm: `Confirm?`,
+
+    achievements: `Reset achievement data: `,
+    areas: `Reset area and tile data: `,
+    boons: `Reset boon data: `,
+    cards: `Reset card data: `,
+    journal: `Reset all journal data: `,
+}
+Object.freeze(reset_text);
+const settings_navbar_labels = {
+    visual: `Visual`,
+    data: `Data`,
+    controls: `Controls`,
+}
+Object.freeze(settings_navbar_labels);
+const visual_settings_titles = {
+    main: `Visuals and Animation`,
+    reset: `Reset`,
+    animation_speed: `Animation Speed:`,
+    text_size: `Text Size:`,
+    grid: `Grid Visibility:`,
+    button_color: `Move Button Colors:`,
+}
+Object.freeze(visual_settings_titles);
+
+const animation_speeds = [
+    {text: `Turbo`,  value: 0},
+    {text: `Fast`,   value: 1},
+    {text: `Medium`, value: 2},
+    {text: `Slow`,   value: 3},
+];
+
+const button_color_options = [
+    {text: `On`,  value: true},
+    {text: `Off`, value: false},
+];
+
+const grid_options = [
+    {text: `None`, value: 0},
+    {text: `Light`, value: 1},
+    {text: `Dark`, value: 2},
+];
 // ----------------UIID.js----------------
 // File containing a library of ids used to retrieve elements of the ui.
 
@@ -2372,10 +2585,15 @@ const HTML_UIIDS = {
         journal_areas: `journalAreas`,
         achievements: `achievements`,
             achievement_list: `achievement-list`,
-    controls: `controls`,
-        stage_controls: `stageControls`,
-        shop_controls: `shopControls`,
-        chest_controls: `chestControls`,
+    settings: `settings`,
+        settings_navbar: `settingsNavbar`,
+        settings_visual: `settingsVisual`,
+        settings_data: `settingsData`,
+            data_header: `dataHeader`,
+        controls: `controls`,
+            stage_controls: `stageControls`,
+            shop_controls: `shopControls`,
+            chest_controls: `chestControls`,
 }
 Object.freeze(HTML_UIIDS);
 
@@ -2716,6 +2934,13 @@ const DisplayHTML = {
             }
             image.style.transform = DisplayHTML.get_transformation(to_display);
             layers.push(image);
+            // Checkerboard
+            if(to_display.checker){
+                image = document.createElement(`img`);
+                image.src = `${IMG_FOLDER.src}${IMG_FOLDER.backgrounds}grid_black.png`;
+                image.style.opacity = `${GS.data.settings.overlay()}`;
+                layers.push(image);
+            }
             // Background images
             if(to_display.background !== undefined){
                 for(let pic of to_display.background){
@@ -2790,7 +3015,7 @@ const DisplayHTML = {
                 GS.data.controls.chest(key);
             }
         }
-        else if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
+        else if(DISPLAY_DIVISIONS.is(UIIDS.settings) && display.set_control !== undefined){
             display.set_control(key);
         }
     },
@@ -2994,7 +3219,7 @@ const DisplayHTML = {
         header.innerText = description;
         var edit_mode = function(controls){
             return () => {
-                setup_controls_page();
+                setup_settings_page();
                 DisplayHTML.remove_children(location);
                 edit_function(controls);
             }
@@ -3107,24 +3332,6 @@ const DisplayHTML = {
         title.innerText = `${achievement_text.title}  (${complete} / ${achievements.length})`;
         header.append(title);
         toprow.append(header);
-        
-        var reset = document.createElement(`button`);
-        reset.classList.add(`achievement-button`);
-        var set_reset_button = () => {
-            reset.innerText = achievement_text.reset;
-            reset.classList.add(`achievement-reset`);
-            reset.classList.remove(`achievement-confirm-reset`);
-            reset.onclick = set_confirm_reset_button;
-        }
-        var set_confirm_reset_button = () => {
-            reset.innerText = achievement_text.confirm_reset;
-            reset.classList.add(`achievement-confirm-reset`);
-            reset.classList.remove(`achievement-reset`);
-            reset.onclick = reset_achievements;
-            setTimeout(() => {set_reset_button();}, 4000);
-        }
-        set_reset_button();
-        toprow.append(reset);
         place.append(toprow);
 
         for(var a of achievements){
@@ -3235,26 +3442,46 @@ const DisplayHTML = {
             element.classList.remove(`hidden-section`);
         }
     },
-    journal_card_section(destination, header, cards){
+    journal_card_section(destination, header, cards, has = undefined){
         var place = DisplayHTML.get_element(destination);
 
         var box = document.createElement(`fieldset`);
-        var legend = document.createElement(`legend`);
-        var table = document.createElement(`table`);
-
         box.classList.add(`shop-section-box`);
         box.classList.add(`journal-card-box`);
+        place.append(box);
+
+        var legend = document.createElement(`legend`);
         legend.innerText = header;
+        box.append(legend);
+
+        if(has !== undefined){
+            var legend2 = document.createElement(`legend`);
+            legend2.innerText = has;
+            box.append(legend2);
+        }
+
+        var text_id = `${destination} ${header} text`;
+        var text = DisplayHTML.make_side_text_box(text_id);
+        box.append(text);
+
+        var table = document.createElement(`table`);
         var table_id = `${destination} ${header} table`;
         table.id = table_id;
-
-        place.append(box);
-        box.append(legend);
         box.append(table);
         
         for(var i = 0; i < Math.ceil(cards.length / JOURNAL_DISPLAY_WIDTH); ++i){
             var slice_start = i * JOURNAL_DISPLAY_WIDTH;
             var slice = cards.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            for(let card of slice){
+                card.on_click = () => {
+                    var boxes = place.getElementsByClassName(`journal-info`);
+                    for(let box of boxes){
+                        DisplayHTML.toggle_visibility(box.id, false);
+                    }
+                    DisplayHTML.toggle_visibility(text.id, true);
+                    DisplayHTML.display_message(text_id, card.description);
+                }
+            }
             display.add_tb_row(table_id, slice, CARD_SCALE);
         }
     },
@@ -3267,26 +3494,42 @@ const DisplayHTML = {
         box.classList.add(`journal-info`);
         place.append(box);
     },
-    journal_boon_section(destination, header, boons){
+    journal_boon_section(destination, header, boons, has = undefined){
         var place = DisplayHTML.get_element(destination);
 
         var box = document.createElement(`fieldset`);
-        var legend = document.createElement(`legend`);
-        var table = document.createElement(`table`);
-
         box.classList.add(`shop-section-box`);
         box.classList.add(`journal-card-box`);
+        place.append(box);
+
+        var legend = document.createElement(`legend`);
         legend.innerText = header;
+        box.append(legend);
+
+        if(has !== undefined){
+            var legend2 = document.createElement(`legend`);
+            legend2.innerText = has;
+            box.append(legend2);
+        }
+
+        var text_id = `${destination} ${header} text`;
+        var text = DisplayHTML.make_side_text_box(text_id);
+        box.append(text);
+
+        var table = document.createElement(`table`);
         var table_id = `${destination} ${header} table`;
         table.id = table_id;
-
-        place.append(box);
-        box.append(legend);
         box.append(table);
         
         for(var i = 0; i < Math.ceil(boons.length / JOURNAL_DISPLAY_WIDTH); ++i){
             var slice_start = i * JOURNAL_DISPLAY_WIDTH;
             var slice = boons.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            for(let boon of slice){
+                boon.on_click = () => {
+                    DisplayHTML.toggle_visibility(text.id, true);
+                    DisplayHTML.display_message(text_id, boon.description);
+                }
+            }
             display.add_tb_row(table_id, slice, CARD_SCALE);
         }
     },
@@ -3308,6 +3551,18 @@ const DisplayHTML = {
             div.append(img);
             div.append(text);
             return div;
+        }
+        var say = (msg) => {
+            return () => {
+                var text_id = `${destination} text`;
+                var areas = DisplayHTML.get_element(UIIDS.journal_areas);
+                var boxes = areas.getElementsByClassName(`journal-info`);
+                for(let box of boxes){
+                    DisplayHTML.toggle_visibility(box.id, false);
+                }
+                DisplayHTML.toggle_visibility(text_id, true);
+                DisplayHTML.display_message(text_id, msg);
+            }
         }
         var header = document.createElement(`div`);
         header.classList.add(`journal-area-box-header`);
@@ -3335,6 +3590,7 @@ const DisplayHTML = {
         
         if(info.boss !== undefined){
             var boss = document.createElement(`table`);
+            //info.boss.on_click = say(info.boss.description);
             boss.classList.add(`journal-area-boss`);
             var boss_id = `${destination} ${info.true_name} boss`;
             boss.id = boss_id;
@@ -3350,6 +3606,9 @@ const DisplayHTML = {
         for(var i = 0; i < Math.ceil(info.tiles.length / JOURNAL_AREA_WIDTH); ++i){
             var slice_start = i * JOURNAL_AREA_WIDTH;
             var slice = info.tiles.slice(slice_start, slice_start + JOURNAL_AREA_WIDTH);
+            for(var tile of slice){
+                //tile.on_click = say(tile.description);
+            }
             display.add_tb_row(tiles_id, slice, JOURNAL_TILE_SCALE);
         }
     },
@@ -3389,6 +3648,125 @@ const DisplayHTML = {
         });
         element.style.backgroundImage = `linear-gradient(to left, ${cstring})`;
     },
+    make_confirmation_button(on_click, text1, text2, wait){
+        var button = document.createElement(`button`);
+        button.classList.add(`confirmation-button`);
+        var reset_button = () => {
+            button.innerText = text1;
+            button.classList.add(`confirmation-reset`);
+            button.classList.remove(`confirmation-confirm`);
+            button.onclick = confirm_button;
+        }
+        var confirm_button = () => {
+            button.innerText = text2;
+            button.classList.add(`confirmation-confirm`);
+            button.classList.remove(`confirmation-reset`);
+            button.onclick = () => {
+                on_click();
+                reset_button();
+            }
+            setTimeout(() => {reset_button();}, wait);
+        }
+        reset_button();
+        return button;
+    },
+    reset_section(location, on_click, question){
+        var element = DisplayHTML.get_element(location);
+        var section = document.createElement(`div`);
+        section.classList.add(`reset-pair`);
+        var p = document.createElement(`p`);
+        p.innerText = question;
+        p.classList.add(`reset-text`);
+        var button = DisplayHTML.make_confirmation_button(
+            on_click,
+            reset_text.reset,
+            reset_text.confirm,
+            CONFIRMATION_BUTTON_DELAY
+        );
+        section.append(p);
+        section.append(button);
+        element.append(section);
+    },
+    make_side_text_box(id){
+        var text = document.createElement(`p`);
+        text.classList.add(`journal-info`);
+        text.classList.add(`hidden-section`);
+        text.id = id;
+        return text;
+    },
+    add_element(location, element){
+        var destination = DisplayHTML.get_element(location);
+        destination.append(element);
+    },
+    visual_settings(location, settings){
+        var destination = DisplayHTML.get_element(location);
+        var header = document.createElement(`div`);
+        header.classList.add(`control-header`)
+        destination.append(header);
+        var h2 = document.createElement(`h2`);
+        h2.innerText = visual_settings_titles.main;
+        header.append(h2);
+        var reset = () => {
+            GS.data.reset_settings();
+            reset_visual_settings_page();
+        }
+        var reset_button = DisplayHTML.create_button(visual_settings_titles.reset, undefined, reset);
+        header.append(reset_button);
+        var set_animation_speed = (value) => {settings.set({animation_speed: value})}
+        var set_text_size = (value) => {settings.set({text_size: value})}
+        var set_grid_visibility = (value) => {
+            settings.set({checkered_overlay: value});
+            refresh_map_grid(GS.map);
+        }
+        var set_button_color = (value) => {
+            settings.set({move_color: value});
+            display.remove_children(UIIDS.move_buttons);
+            GS.refresh_deck_display();
+        }
+        var click = (set) => {
+            return (value) => {
+                set(value);
+                GS.data.save();
+                reset_visual_settings_page();
+            }
+        }
+        destination.append(DisplayHTML.selector(
+            visual_settings_titles.animation_speed, 
+            animation_speeds, 
+            click(set_animation_speed),
+            settings.get().animation_speed,
+        ));
+        destination.append(DisplayHTML.selector(
+            visual_settings_titles.button_color, 
+            button_color_options, 
+            click(set_button_color),
+            settings.get().move_color,
+        ));
+        destination.append(DisplayHTML.selector(
+            visual_settings_titles.grid, 
+            grid_options, 
+            click(set_grid_visibility),
+            settings.get().checkered_overlay,
+        ));
+    },
+    selector(title, options, click, current_value){
+        var div = document.createElement(`div`);
+        div.classList.add(`selector`);
+        var p = document.createElement(`p`);
+        p.innerText = title;
+        div.append(p);
+        for(let option of options){
+            let button = document.createElement(`button`);
+            let button_value = option.value;
+            button.innerText = option.text;
+            button.onclick = () => {click(button_value)};
+            if(button_value === current_value){
+                button.classList.add(`selected`);
+            }
+            div.append(button);
+        }
+        return div;
+    },
 
     // Non Required helper functions.
     get_transformation: function(to_display){
@@ -3417,70 +3795,6 @@ const DisplayHTML = {
 const display = get_display(MARKUP_LANGUAGE);
 
 const NBS = `\u00a0`; // non-breaking space used for inserting multiple html spaces.
-function update_achievements(){
-    var achievements = GS.data.achievements.all();
-    display.remove_children(UIIDS.achievement_list);
-    display.show_achievements(UIIDS.achievement_list, achievements);
-}
-
-function reset_achievements(){
-    GS.data.reset_achievements();
-    update_achievements();
-}
-function controls_chest_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
-    display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
-    display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
-    display.control_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
-}
-
-function edit_chest_controls(controls){
-    display.add_edit_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, controls_chest_section, controls);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
-    display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
-}
-function setup_controls_page(){
-    display.remove_children(UIIDS.stage_controls);
-    controls_stage_section();
-    display.remove_children(UIIDS.shop_controls);
-    controls_shop_section();
-    display.remove_children(UIIDS.chest_controls);
-    controls_chest_section();
-}
-function controls_shop_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
-    display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
-    display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
-    display.control_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
-}
-
-function edit_shop_controls(controls){
-    display.add_edit_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, controls_shop_section, controls);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.add, CONTROLS_TEXT.shop.add);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
-    display.control_edit_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
-}
-function controls_stage_section(){
-    var controls = GS.data.controls.get();
-    display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
-    display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
-    display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
-    display.control_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
-    display.control_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
-    display.control_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
-}
-
-function edit_stage_controls(controls){
-    display.add_edit_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, controls_stage_section, controls);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.card, CONTROLS_TEXT.stage.card);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
-    display.control_edit_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
-    display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
-}
 function display_deck_to_duplicate(){
     display.display_message(UIIDS.deck_select_message, boon_messages.duplicate);
     var finish = (card, deck) => {
@@ -3735,6 +4049,7 @@ function refresh_hand_display(deck){
     // Updates the hand.
     var card_row = deck.get_hand_info();
     display.remove_children(UIIDS.hand_display);
+    display.add_gradient(UIIDS.move_box, [action_type_colors.empty]);
     display.add_tb_row(UIIDS.hand_display, card_row, CARD_SCALE);
 
     // Shows how many cards are left in your deck.
@@ -3772,12 +4087,16 @@ function display_move_buttons(card, hand_position){
             display.add_gradient(`${UIIDS.move_buttons} ${i} ${j}`, button_row[j].colors);
         }
     }
+    display.add_gradient(UIIDS.move_box, get_box_colors(card));
     var explanation = move_types.alt + `\n` + explain_card(card);
     display.add_on_click(UIIDS.move_info, function(){say(explanation)});
 }
 function get_colors(actions){
     if(actions === undefined){
         return [action_type_colors.none];
+    }
+    if(!GS.data.settings.do_color()){
+        return [action_type_colors.generic_action];
     }
     var colors = [];
     for(var action of actions){
@@ -3788,6 +4107,22 @@ function get_colors(actions){
     }
     if(colors.length === 0){
         colors.push(action_type_colors.do_nothing);
+    }
+    return colors;
+}
+function get_box_colors(card){
+    if(!GS.data.settings.do_color()){
+        return [action_type_colors.empty];
+    }
+    var colors = [];
+    if(card.options.is_instant()){
+        colors.push(action_type_colors.instant);
+    }
+    if(card.temp){
+        colors.push(action_type_colors.temp);
+    }
+    if(colors.length === 0){
+        colors.push(action_type_colors.empty);
     }
     return colors;
 }
@@ -3824,17 +4159,21 @@ function display_health(player, scale){
 }
 function refresh_map(map){
     // Updates the GameMap display.
-    display.remove_children(UIIDS.map_display);
-    var grid = map.display();
-    for(var row of grid){
-        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE);
-    }
+    refresh_map_grid(map);
     map.clear_telegraphs();
     // Updates the health bar display.
     display.remove_children(UIIDS.health_display);
     display_health(map.get_player(), TILE_SCALE);
     // Updates the initiative tracker display.
     update_initiative(map);
+}
+
+function refresh_map_grid(map){
+    display.remove_children(UIIDS.map_display);
+    var grid = map.display();
+    for(var row of grid){
+        display.add_tb_row(UIIDS.map_display, row, TILE_SCALE, true);
+    }
 }
 function refresh_stage_stats(stats, location){
     display.remove_children(location);
@@ -3936,10 +4275,10 @@ function create_main_dropdown(location){
             }
         },
         {
-            label: screen_names.controls,
+            label: screen_names.settings,
             on_change: () => {
-                setup_controls_page();
-                DISPLAY_DIVISIONS.swap(UIIDS.controls);
+                setup_settings_page();
+                DISPLAY_DIVISIONS.swap(UIIDS.settings);
             }
         },
 
@@ -4043,6 +4382,18 @@ function make_guidebook_images(arr){
     }
     return images;
 }
+function unlock_all_achievements(){
+    var achievements = get_achievements();
+    for(var achievement of achievements){
+        GS.achieve(achievement.name);
+    }
+}
+function update_achievements(){
+    var achievements = GS.data.achievements.all();
+    display.remove_children(UIIDS.achievement_list);
+    display.show_achievements(UIIDS.achievement_list, achievements);
+}
+
 function assorted_tiles_display_info(){
     var area = generate_ruins_area();
     return {
@@ -4205,9 +4556,48 @@ function sewers_display_info(){
         ],
     }
 }
+function get_all_area_info(){
+    return [
+        basic_tiles_display_info(),
+        ruins_display_info(),
+        basement_display_info(),
+        sewers_display_info(),
+        crypt_display_info(),
+        magma_display_info(),
+        forest_display_info(),
+        library_display_info(),
+        court_display_info(),
+        assorted_tiles_display_info(),
+        events_display_info(),
+    ];
+}
+
+function unlock_all_tiles(){
+    var areas = get_all_area_info();
+    for(var area of areas){
+        if(area.boss !== undefined){
+            GS.data.add_tile(area.boss().name);
+        }
+        for(var tile of area.tiles){
+            GS.data.add_tile(tile().name);
+        }
+    }
+}
+
+function unlock_all_areas(){
+    const areas = get_all_area_info();
+    for(var area of areas){
+        if(area.boss !== undefined){
+            GS.data.add_area(area.name);
+        }
+    }
+}
 function update_journal_areas(){
     for(var i = 0; i < 7; ++i){
-        display.remove_children(`${UIIDS.journal_areas}${i}`);
+        var area_id = `${UIIDS.journal_areas}${i}`
+        display.remove_children(area_id);
+        var text = display.make_side_text_box(`${area_id} text`);
+        display.add_element(area_id, text);
     }
     show_area(basic_tiles_display_info(), 0, true);
     show_area(ruins_display_info(), 1);
@@ -4240,7 +4630,7 @@ function show_area(info, depth, force_visited = false){
                 name: boon_names.locked,
                 pic: `${IMG_FOLDER.other}locked.png`,
                 background: [info.background],
-                description: boon_descriptions.locked,
+                description: journal_area_messages.locked,
             }
         }
         if(GS.data.tiles.has(t.name)){
@@ -4249,14 +4639,14 @@ function show_area(info, depth, force_visited = false){
                 true_name: t.name,
                 pic: t.display_pic ? t.display_pic : t.pic,
                 background: [info.background],
-                description: t.description,
+                description: t.flavor,
             }
         }
         return {
             name: boon_names.not_encountered,
             pic: `${IMG_FOLDER.other}not_encountered.png`,
             background: [info.background],
-            description: boon_descriptions.not_encountered,
+            description: journal_area_messages.not_encountered,
         }
     };
     if(info.boss !== undefined){
@@ -4273,11 +4663,17 @@ function show_area(info, depth, force_visited = false){
     });
     display.journal_area_section(`${UIIDS.journal_areas}${depth}`, info);
 }
+function unlock_all_boons(){
+    const boons = BOON_LIST;
+    for(var boon of boons){
+        GS.data.add_boon(boon().name);
+    }
+}
 function update_journal_boons(){
     display.remove_children(UIIDS.journal_boons);
-    display.create_fixed_box(UIIDS.journal_boons, UIIDS.journal_boon_info);
     var boons = boons_encountered(BOON_LIST, GS.data.boons);
-    display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons);
+    var has = boons_has_amount(boons);
+    display.journal_boon_section(UIIDS.journal_boons, boon_messages.section_header, boons, has);
 }
 function boons_encountered(boons, encountered){
     var locked = get_locked_boons();
@@ -4292,15 +4688,34 @@ function boons_encountered(boons, encountered){
         else{
             boon.description = explain_boon_with_stats(boon);
         }
-        boon.on_click = () => {
-            display.display_message(UIIDS.journal_boon_info, boon.description);
-        }
         return boon;
     });
 }
+function boons_has_amount(boons){
+    var has = 0;
+    var total = boons.length;
+    for(var boon of boons){
+        if(boon.name !== boon_names.locked && boon.name !== boon_names.not_encountered){
+            ++has;
+        }
+    }
+    return `${has}/${total}`;
+}
+function unlock_all_cards(){
+    const cards = [
+        ...BASIC_CARDS,
+        ...COMMON_CARDS,
+        ...get_all_achievement_cards(),
+        ...BOON_CARDS,
+        ...CONFUSION_CARDS,
+        ...get_boss_cards(),
+    ];
+    for(var card of cards){
+        GS.data.add_card(card().name);
+    }
+}
 function update_journal_cards(){
     display.remove_children(UIIDS.journal_cards);
-    display.create_fixed_box(UIIDS.journal_cards, UIIDS.journal_card_info);
     display_basic_cards();
     display_common_cards();
     display_achievement_cards();
@@ -4311,49 +4726,50 @@ function update_journal_cards(){
 
 function display_basic_cards(){
     var cards = cards_encountered(BASIC_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.basic, cards, has);
 }
 function display_common_cards(){
     var cards = cards_encountered(COMMON_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.common, cards, has);
 }
 function display_achievement_cards(){
     var cards = cards_locked(get_all_achievement_cards(), get_locked_achievement_cards());
     var cards = cards_encountered(cards, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.achievement, cards, has);
 }
 function display_boon_cards(){
     var cards = cards_encountered(BOON_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boon, cards, has);
 }
 function display_confusion_cards(){
     var cards = cards_encountered(CONFUSION_CARDS, GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.confusion, cards, has);
 }
 function display_boss_cards(){
     var cards = cards_encountered(get_boss_cards(), GS.data.cards);
-    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards);
+    var has = cards_has_amount(cards);
+    display.journal_card_section(UIIDS.journal_cards, journal_card_headers.boss, cards, has);
 }
 
 function cards_encountered(cards, encountered){
     return cards.map((c) => {
         var card = c();
+        card.background = [`${IMG_FOLDER.other}default_card_background.png`];
         if(card.name === card_names.symbol_locked){
-            card.on_click = () => {
-                display.display_message(UIIDS.journal_card_info, move_types.locked);
-            }
+            card.description = move_types.locked;
             return card;
         }
         if(encountered.has(card.name)){
-            card.on_click = () => {
-                display.display_message(UIIDS.journal_card_info, explain_card_w_stats(card));
-            }
+            card.description = explain_card_w_stats(card);
             return card;
         }
         var card = symbol_not_encountered_card();
-        card.on_click = () => {
-            display.display_message(UIIDS.journal_card_info, move_types.not_found);
-        }
+        card.description = move_types.not_found;
         return card;
     });
 }
@@ -4367,6 +4783,23 @@ function cards_locked(cards, locked){
         }
         return c;
     });
+}
+function cards_has_amount(cards){
+    var has = 0;
+    var total = cards.length;
+    for(var card of cards){
+        if(card.name !== card_names.symbol_locked && card.name !== card_names.symbol_not_encountered){
+            ++has;
+        }
+    }
+    return `${has}/${total}`;
+}
+function unlock_full_journal(){
+    unlock_all_cards();
+    unlock_all_boons();
+    unlock_all_achievements();
+    unlock_all_tiles();
+    unlock_all_areas();
 }
 function update_journal(){
     update_journal_cards();
@@ -4398,6 +4831,121 @@ function setup_journal_navbar(){
 
     display.swap_screen(section_id_list, UIIDS.journal_cards);
 }
+function controls_chest_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, edit_chest_controls);
+    display.control_box(UIIDS.chest_controls, controls.chest.choose.slice(0, 3), CONTROLS_TEXT.chest.choose);
+    display.control_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+
+function edit_chest_controls(controls){
+    display.add_edit_controls_header(UIIDS.chest_controls, CONTROLS_TEXT.chest.header, controls_chest_section, controls);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.choose, CONTROLS_TEXT.chest.choose);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.confirm, CONTROLS_TEXT.chest.confirm);
+    display.control_edit_box(UIIDS.chest_controls, controls.chest.reject, CONTROLS_TEXT.chest.reject);
+}
+function setup_controls_page(){
+    display.remove_children(UIIDS.stage_controls);
+    controls_stage_section();
+    display.remove_children(UIIDS.shop_controls);
+    controls_shop_section();
+    display.remove_children(UIIDS.chest_controls);
+    controls_chest_section();
+}
+function controls_shop_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, edit_shop_controls);
+    display.control_box(UIIDS.shop_controls, controls.shop.add.slice(0, 3), CONTROLS_TEXT.shop.add);
+    display.control_box(UIIDS.shop_controls, controls.shop.remove.slice(0, 3), CONTROLS_TEXT.shop.remove);
+    display.control_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+
+function edit_shop_controls(controls){
+    display.add_edit_controls_header(UIIDS.shop_controls, CONTROLS_TEXT.shop.header, controls_shop_section, controls);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.add, CONTROLS_TEXT.shop.add);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.remove, CONTROLS_TEXT.shop.remove);
+    display.control_edit_box(UIIDS.shop_controls, controls.shop.confirm, CONTROLS_TEXT.shop.confirm);
+}
+function controls_stage_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, edit_stage_controls);
+    display.control_box(UIIDS.stage_controls, controls.stage.card.slice(0, 3), CONTROLS_TEXT.stage.card);
+    display.control_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+
+function edit_stage_controls(controls){
+    display.add_edit_controls_header(UIIDS.stage_controls, CONTROLS_TEXT.stage.header, controls_stage_section, controls);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.card, CONTROLS_TEXT.stage.card);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.direction, CONTROLS_TEXT.stage.direction);
+    display.control_edit_box(UIIDS.stage_controls, controls.toggle.alt, CONTROLS_TEXT.stage.toggle);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.info, CONTROLS_TEXT.stage.info);
+    display.control_edit_box(UIIDS.stage_controls, controls.stage.retry, CONTROLS_TEXT.stage.retry);
+}
+function setup_data_page(){
+    display.display_message(UIIDS.data_header, reset_text.header);
+    display.reset_section(UIIDS.settings_data, reset_cards, reset_text.cards);
+    display.reset_section(UIIDS.settings_data, reset_boons, reset_text.boons);
+    display.reset_section(UIIDS.settings_data, reset_areas, reset_text.areas);
+    display.reset_section(UIIDS.settings_data, reset_achievements, reset_text.achievements);
+    display.reset_section(UIIDS.settings_data, reset_journal, reset_text.journal);
+}
+function reset_achievements(){
+    GS.data.reset_achievements();
+    update_achievements();
+}
+function reset_areas(){
+    GS.data.reset_areas();
+    update_journal_areas();
+}
+function reset_boons(){
+    GS.data.reset_boons();
+    update_journal_boons();
+}
+function reset_cards(){
+    GS.data.reset_cards();
+    update_journal_cards();
+}
+function reset_journal(){
+    reset_achievements();
+    reset_areas();
+    reset_boons();
+    reset_cards();
+}
+function setup_settings_page(){
+    reset_visual_settings_page();
+    setup_controls_page();
+}
+
+function setup_settings_navbar(){
+    var id = UIIDS.settings_navbar;
+
+    var section_id_list = [
+        UIIDS.settings_visual,
+        UIIDS.controls,
+        UIIDS.settings_data,
+    ];
+
+    var swap_visibility = function(id_list, id){
+        return function(){
+            display.swap_screen(id_list, id);
+        }
+    }
+
+    display.create_visibility_toggle(id, settings_navbar_labels.visual, swap_visibility(section_id_list, UIIDS.settings_visual));
+    display.create_visibility_toggle(id, settings_navbar_labels.controls, swap_visibility(section_id_list, UIIDS.controls));
+    display.create_visibility_toggle(id, settings_navbar_labels.data, swap_visibility(section_id_list, UIIDS.settings_data));
+
+    display.swap_screen(section_id_list, UIIDS.settings_visual);
+}
+function reset_visual_settings_page(){
+    display.remove_children(UIIDS.settings_visual);
+    var settings = GS.data.settings;
+    display.visual_settings(UIIDS.settings_visual, settings);
+}
 const SENTRY_MODES = {
     saw: `Saw`,
     cannon: `Cannon`,
@@ -4415,6 +4963,7 @@ function arcane_sentry_tile(){
         name: boss_names.arcane_sentry,
         pic: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
         description: boss_descriptions.arcane_sentry,
+        flavor: boss_flavor.arcane_sentry,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry]),
         health: 7,
         death_message: boss_death_message.arcane_sentry,
@@ -4435,6 +4984,7 @@ function arcane_node_tile(){
         pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret.png`,
         display_pic: `${IMG_FOLDER.tiles}arcane_sentry_node_turret.png`,
         description: boss_descriptions.arcane_sentry_node,
+        flavor: boss_flavor.arcane_sentry_node,
         tags: new TagList([TAGS.boss, TAGS.arcane_sentry, TAGS.controlled, TAGS.unstunnable]),
         health: 5,
         death_message: boss_death_message.arcane_sentry_node,
@@ -4607,6 +5157,7 @@ function forest_heart_tile(){
         pic: pic_arr[0],
         display_pic: `${IMG_FOLDER.tiles}forest_heart.png`,
         description: `${boss_descriptions.forest_heart} ${heart_spell_descriptions.rest}`,
+        flavor: boss_flavor.forest_heart,
         tags: new TagList([TAGS.boss, TAGS.unmovable, TAGS.unstunnable, TAGS.nettle_immune]),
         health,
         death_message: boss_death_message.forest_heart,
@@ -4757,6 +5308,7 @@ function lich_tile(){
         type: entity_types.enemy,
         name: boss_names.lich,
         display_pic: `${IMG_FOLDER.tiles}lich_rest.png`,
+        flavor: boss_flavor.lich,
         tags: new TagList([TAGS.boss]),
         health: 4,
         death_message: boss_death_message.lich,
@@ -4891,6 +5443,7 @@ function lord_of_shadow_and_flame_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: boss_descriptions.lord_of_shadow_and_flame,
+        flavor: boss_flavor.lord_of_shadow_and_flame,
         tags: new TagList([TAGS.boss]),
         health,
         max_health: health,
@@ -5030,6 +5583,7 @@ function spider_queen_tile(){
         name: boss_names.spider_queen,
         pic: `${IMG_FOLDER.tiles}spider_queen.png`,
         description: boss_descriptions.spider_queen,
+        flavor: boss_flavor.spider_queen,
         tags: new TagList([TAGS.boss]),
         health: 3,
         death_message: boss_death_message.spider_queen,
@@ -5059,6 +5613,7 @@ function two_headed_serpent_tile(){
         pic: pic_arr[1],
         display_pic: pic_arr[1],
         description: boss_descriptions.two_headed_serpent_awake,
+        flavor: boss_flavor.two_headed_serpent,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         health: 1,
         death_message: boss_death_message.two_headed_serpent,
@@ -5081,6 +5636,7 @@ function two_headed_serpent_body_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: boss_descriptions.two_headed_serpent_body,
+        flavor: boss_flavor.two_headed_serpent_body,
         tags: new TagList([TAGS.boss, TAGS.unmovable]),
         pic_arr,
         segment_list: [undefined, undefined],
@@ -5326,6 +5882,7 @@ function velociphile_tile(){
         name: boss_names.velociphile,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
         description: boss_descriptions.velociphile,
+        flavor: boss_flavor.velociphile,
         tags: new TagList([TAGS.boss]),
         health: 3,
         death_message: boss_death_message.velociphile,
@@ -5381,6 +5938,7 @@ function young_dragon_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: `${boss_descriptions.young_dragon[0]}${boss_descriptions.young_dragon[1]}`,
+        flavor: boss_flavor.young_dragon,
         tags: new TagList([TAGS.boss]),
         health: 5,
         death_message: boss_death_message.young_dragon,
@@ -5562,6 +6120,7 @@ function acid_bug_tile(){
         name: enemy_names.acid_bug,
         pic: `${IMG_FOLDER.tiles}acid_bug.png`,
         description: enemy_descriptions.acid_bug,
+        flavor: enemy_flavor.acid_bug,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -5586,6 +6145,7 @@ function animated_boulder_tile(){
         name: enemy_names.animated_boulder,
         pic: `${IMG_FOLDER.tiles}animated_boulder.png`,
         description: enemy_descriptions.animated_boulder,
+        flavor: enemy_flavor.animated_boulder,
         tags: new TagList([TAGS.unmovable, TAGS.hidden]),
         behavior: animated_boulder_ai,
         telegraph: spider_telegraph,
@@ -5655,6 +6215,7 @@ function blood_crescent_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[1],
         description: enemy_descriptions.blood_crescent,
+        flavor: enemy_flavor.blood_crescent,
         tags: new TagList(),
         health: 1,
         difficulty: 5,
@@ -5736,6 +6297,7 @@ function brightling_tile(){
         name: enemy_names.brightling,
         pic: `${IMG_FOLDER.tiles}brightling.png`,
         description: enemy_descriptions.brightling,
+        flavor: enemy_flavor.brightling,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -5783,6 +6345,7 @@ function captive_void_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.captive_void,
+        flavor: enemy_flavor.captive_void,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         difficulty: 2,
         behavior: captive_void_ai,
@@ -5854,6 +6417,7 @@ function carrion_flies_tile(){
         name: enemy_names.carrion_flies,
         pic: `${IMG_FOLDER.tiles}carrion_flies.png`,
         description: enemy_descriptions.carrion_flies,
+        flavor: enemy_flavor.carrion_flies,
         tags: new TagList(),
         health: 1,
         difficulty: 6,
@@ -5896,6 +6460,7 @@ function claustropede_1_tile(){
         name: enemy_names.claustropede_1,
         pic: `${IMG_FOLDER.tiles}claustropede_1.png`,
         description: enemy_descriptions.claustropede,
+        flavor: enemy_flavor.claustropede,
         tags: new TagList(),
         health: 1,
         difficulty: 1,
@@ -5912,6 +6477,7 @@ function claustropede_2_tile(){
         name: enemy_names.claustropede_2,
         pic: `${IMG_FOLDER.tiles}claustropede_2.png`,
         description: enemy_descriptions.claustropede,
+        flavor: enemy_flavor.claustropede,
         tags: new TagList(),
         health: 2,
         difficulty: 7,
@@ -5928,6 +6494,7 @@ function claustropede_3_tile(){
         name: enemy_names.claustropede_3,
         pic: `${IMG_FOLDER.tiles}claustropede_3.png`,
         description: enemy_descriptions.claustropede,
+        flavor: enemy_flavor.claustropede,
         tags: new TagList(),
         health: 3,
         difficulty: 12,
@@ -5983,6 +6550,7 @@ function clay_golem_tile(){
         name: enemy_names.clay_golem,
         pic: `${IMG_FOLDER.tiles}clay_golem.png`,
         description: enemy_descriptions.clay_golem,
+        flavor: enemy_flavor.clay_golem,
         tags: new TagList(),
         health: 3,
         difficulty: 4,
@@ -6024,6 +6592,7 @@ function corrosive_caterpillar_tile(){
         name: enemy_names.corrosive_caterpillar,
         pic: `${IMG_FOLDER.tiles}corrosive_caterpillar.png`,
         description: enemy_descriptions.corrosive_caterpillar,
+        flavor: enemy_flavor.corrosive_caterpillar,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -6053,6 +6622,7 @@ function darkling_tile(){
         name: enemy_names.darkling,
         pic: `${IMG_FOLDER.tiles}darkling.png`,
         description: enemy_descriptions.darkling,
+        flavor: enemy_flavor.darkling,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -6103,6 +6673,7 @@ function gem_crawler_tile(){
         pic: pic_arr[cycle],
         display_pic: pic_arr[1],
         description: enemy_descriptions.gem_crawler,
+        flavor: enemy_flavor.gem_crawler,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -6152,6 +6723,7 @@ function igneous_crab_tile(){
         name: enemy_names.igneous_crab,
         pic: `${IMG_FOLDER.tiles}igneous_crab.png`,
         description: enemy_descriptions.igneous_crab,
+        flavor: enemy_flavor.igneous_crab,
         tags: new TagList(),
         health: 2,
         difficulty: 3,
@@ -6206,6 +6778,7 @@ function living_tree_tile(){
         name: enemy_names.living_tree,
         pic: `${IMG_FOLDER.tiles}living_tree.png`,
         description: enemy_descriptions.living_tree,
+        flavor: enemy_flavor.living_tree,
         tags: new TagList(),
         health: 2,
         difficulty: 7,
@@ -6254,6 +6827,7 @@ function living_tree_rooted_tile(){
         name: enemy_names.living_tree,
         pic: `${IMG_FOLDER.tiles}living_tree_rooted.png`,
         description: enemy_descriptions.living_tree_rooted,
+        flavor: enemy_flavor.living_tree_rooted,
         tags: new TagList(),
         health: 2,
         behavior: living_tree_rooted_ai,
@@ -6284,6 +6858,7 @@ function magma_spewer_tile(){
         pic: `${IMG_FOLDER.tiles}magma_spewer.png`,
         display_pic: pic_arr[1],
         description: enemy_descriptions.magma_spewer,
+        flavor: enemy_flavor.magma_spewer,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -6339,6 +6914,7 @@ function maw_tile(){
         name: enemy_names.maw,
         pic: `${IMG_FOLDER.tiles}maw.png`,
         description: enemy_descriptions.maw,
+        flavor: enemy_flavor.maw,
         tags: new TagList(),
         health: 4,
         difficulty: 3,
@@ -6383,6 +6959,7 @@ function noxious_toad_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.noxious_toad, 
+        flavor: enemy_flavor.noxious_toad,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -6451,6 +7028,7 @@ function orb_of_insanity_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[1],
         description: enemy_descriptions.orb_of_insanity,
+        flavor: enemy_flavor.orb_of_insanity,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 3,
@@ -6510,6 +7088,7 @@ function paper_construct_tile(){
         name: enemy_names.paper_construct,
         pic: `${IMG_FOLDER.tiles}paper_construct.png`,
         description: enemy_descriptions.paper_construct,
+        flavor: enemy_flavor.paper_construct,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -6568,6 +7147,7 @@ function pheonix_tile(){
         name: enemy_names.pheonix,
         pic: `${IMG_FOLDER.tiles}pheonix.png`,
         description: enemy_descriptions.pheonix,
+        flavor: enemy_flavor.pheonix,
         tags: new TagList(),
         health: 1,
         difficulty: 5,
@@ -6641,6 +7221,7 @@ function large_porcuslime_tile(){
         name: enemy_names.porcuslime_large,
         pic: `${IMG_FOLDER.tiles}large_porcuslime.png`,
         description: enemy_descriptions.porcuslime_large,
+        flavor: enemy_flavor.porcuslime,
         tags: new TagList(),
         health: 3,
         difficulty: 8,
@@ -6688,6 +7269,7 @@ function medium_porcuslime_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.porcuslime_medium,
+        flavor: enemy_flavor.porcuslime,
         tags: new TagList(),
         health: 2,
         difficulty: 5,
@@ -6776,6 +7358,7 @@ function small_d_porcuslime_tile(){
         name: enemy_names.porcuslime_small,
         pic: `${IMG_FOLDER.tiles}small_d_porcuslime.png`,
         description: enemy_descriptions.porcuslime_small_d,
+        flavor: enemy_flavor.porcuslime,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -6790,6 +7373,7 @@ function small_o_porcuslime_tile(){
         name: enemy_names.porcuslime_small,
         pic: `${IMG_FOLDER.tiles}small_o_porcuslime.png`,
         description: enemy_descriptions.porcuslime_small_o,
+        flavor: enemy_flavor.porcuslime,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -6807,6 +7391,7 @@ function ram_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[1],
         description: enemy_descriptions.ram,
+        flavor: enemy_flavor.ram,
         tags: new TagList(),
         health: 2,
         difficulty: 5,
@@ -6904,6 +7489,7 @@ function rat_tile(){
         name: enemy_names.rat,
         pic: `${IMG_FOLDER.tiles}rat.png`,
         description: enemy_descriptions.rat,
+        flavor: enemy_flavor.rat,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -6962,6 +7548,7 @@ function scorpion_tile(){
         name: enemy_names.scorpion,
         pic: `${IMG_FOLDER.tiles}scorpion.png`,
         description: enemy_descriptions.scorpion,
+        flavor: enemy_flavor.scorpion,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7011,6 +7598,7 @@ function scythe_tile(){
         name: enemy_names.scythe,
         pic: `${IMG_FOLDER.tiles}scythe.png`,
         description: enemy_descriptions.scythe,
+        flavor: enemy_flavor.scythe,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -7069,6 +7657,7 @@ function shadow_knight_tile(){
         name: enemy_names.shadow_knight,
         pic: `${IMG_FOLDER.tiles}shadow_knight.png`,
         description: enemy_descriptions.shadow_knight,
+        flavor: enemy_flavor.shadow_knight,
         tags: new TagList(),
         health: 2,
         difficulty: 4,
@@ -7152,6 +7741,7 @@ function shadow_knight_elite_tile(){
         name: enemy_names.shadow_knight_elite,
         pic: `${IMG_FOLDER.tiles}shadow_knight_elite.png`,
         description: enemy_descriptions.shadow_knight_elite,
+        flavor: enemy_flavor.shadow_knight_elite,
         tags: new TagList(),
         health: 2,
         difficulty: 6,
@@ -7223,6 +7813,7 @@ function shadow_scout_tile(){
         name: enemy_names.shadow_scout,
         pic: `${IMG_FOLDER.tiles}shadow_scout.png`,
         description: enemy_descriptions.shadow_scout,
+        flavor: enemy_flavor.shadow_scout,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7250,6 +7841,7 @@ function specter_tile(){
         name: enemy_names.specter,
         pic: `${IMG_FOLDER.tiles}specter.png`,
         description: enemy_descriptions.specter,
+        flavor: enemy_flavor.specter,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7356,6 +7948,7 @@ function spider_tile(){
         name: enemy_names.spider,
         pic: `${IMG_FOLDER.tiles}spider.png`,
         description: enemy_descriptions.spider,
+        flavor: enemy_flavor.spider,
         tags: new TagList(),
         health: 1,
         difficulty: 1,
@@ -7387,6 +7980,7 @@ function spider_web_tile(){
         name: enemy_names.spider_web,
         pic: `${IMG_FOLDER.tiles}spider_web.png`,
         description: enemy_descriptions.spider_web,
+        flavor: enemy_flavor.spider_web,
         tags:  new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 4,
@@ -7432,6 +8026,7 @@ function starcaller_tile(){
         pic: `${IMG_FOLDER.tiles}starcaller_off.png`,
         display_pic: pic_arr[1],
         description: enemy_descriptions.starcaller,
+        flavor: enemy_flavor.starcaller,
         tags: new TagList(),
         health: 1,
         difficulty: 4,
@@ -7483,6 +8078,7 @@ function strider_tile(){
         name: enemy_names.strider,
         pic: `${IMG_FOLDER.tiles}strider.png`,
         description: enemy_descriptions.strider,
+        flavor: enemy_flavor.strider,
         tags: new TagList(),
         health: 2,
         difficulty: 4,
@@ -7523,6 +8119,7 @@ function swaying_nettle_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.swaying_nettle,
+        flavor: enemy_flavor.swaying_nettle,
         tags: new TagList([TAGS.unmovable, TAGS.nettle_immune]),
         health: 1,
         difficulty: 1,
@@ -7571,6 +8168,7 @@ function thorn_bush_tile(){
         name: enemy_names.thorn_bush,
         pic: `${IMG_FOLDER.tiles}thorn_bush.png`,
         description: enemy_descriptions.thorn_bush,
+        flavor: enemy_flavor.thorn_bush,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots]),
         health: 2,
         difficulty: 5,
@@ -7607,6 +8205,7 @@ function moving_turret_d_tile(){
         name: enemy_names.turret_m,
         pic: `${IMG_FOLDER.tiles}moving_turret_d.png`,
         description: enemy_descriptions.turret_m,
+        flavor: enemy_flavor.turret_m,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7668,6 +8267,7 @@ function moving_turret_o_tile(){
         name: enemy_names.turret_m,
         pic: `${IMG_FOLDER.tiles}moving_turret_o.png`,
         description: enemy_descriptions.turret_m,
+        flavor: enemy_flavor.turret_m,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7734,6 +8334,7 @@ function turret_d_tile(){
         name: enemy_names.turret,
         pic: `${IMG_FOLDER.tiles}turret_d.png`,
         description: enemy_descriptions.turret_d,
+        flavor: enemy_flavor.turret,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -7775,6 +8376,7 @@ function turret_o_tile(){
         name: enemy_names.turret,
         pic: `${IMG_FOLDER.tiles}turret_o.png`,
         description: enemy_descriptions.turret_h,
+        flavor: enemy_flavor.turret,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -7823,6 +8425,7 @@ function turret_r_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: enemy_descriptions.turret_r,
+        flavor: enemy_flavor.turret_r,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7890,6 +8493,7 @@ function unspeakable_tile(){
         name: enemy_names.unspeakable,
         pic: `${IMG_FOLDER.tiles}unspeakable.png`,
         description: enemy_descriptions.unspeakable,
+        flavor: enemy_flavor.unspeakable,
         tags: new TagList(),
         health: 1,
         difficulty: 3,
@@ -7915,6 +8519,7 @@ function unstable_wisp_tile(){
         name: enemy_names.unstable_wisp,
         pic: `${IMG_FOLDER.tiles}unstable_wisp.png`, 
         description: enemy_descriptions.unstable_wisp,
+        flavor: enemy_flavor.unstable_wisp,
         tags: new TagList(),
         health: 1,
         difficulty: 2,
@@ -7965,6 +8570,7 @@ function vampire_tile(){
         name: enemy_names.vampire,
         pic: `${IMG_FOLDER.tiles}vampire.png`,
         description: enemy_descriptions.vampire,
+        flavor: enemy_flavor.vampire,
         tags: new TagList(),
         health: 2,
         max_health: 2,
@@ -8044,6 +8650,7 @@ function vinesnare_bush_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.vinesnare_bush,
+        flavor: enemy_flavor.vinesnare_bush,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         difficulty: 2,
@@ -8138,6 +8745,7 @@ function walking_prism_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[1],
         description: `${description_arr[0]}${description_arr[1 + starting_cycle]}`, 
+        flavor: enemy_flavor.walking_prism,
         tags: new TagList(),
         health: 2,
         difficulty: 3,
@@ -8206,6 +8814,7 @@ function wheel_of_fire_tile(){
         name: enemy_names.wheel_of_fire,
         pic: `${IMG_FOLDER.tiles}wheel_of_fire.png`,
         description: enemy_descriptions.wheel_of_fire,
+        flavor: enemy_flavor.wheel_of_fire,
         tags: new TagList(),
         health: 1,
         difficulty: 6,
@@ -8305,6 +8914,7 @@ function altar_of_scouring_tile(){
         name: other_tile_names.altar_of_scouring,
         pic: `${IMG_FOLDER.tiles}altar_of_scouring.png`,
         description: other_tile_descriptions.altar_of_scouring,
+        flavor: other_flavor.altar_of_scouring,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_scouring_on_enter),
@@ -8363,6 +8973,7 @@ function altar_of_shadow_tile(){
         name: other_tile_names.altar_of_shadow,
         pic: `${IMG_FOLDER.tiles}altar_of_shadow.png`,
         description: other_tile_descriptions.altar_of_shadow,
+        flavor: other_flavor.altar_of_shadow,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_shadow_on_enter),
@@ -8384,6 +8995,7 @@ function altar_of_singularity_tile(){
         name: other_tile_names.altar_of_singularity,
         pic: `${IMG_FOLDER.tiles}altar_of_singularity.png`,
         description: other_tile_descriptions.altar_of_singularity,
+        flavor: other_flavor.altar_of_singularity,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_singularity_on_enter),
@@ -8415,6 +9027,7 @@ function altar_of_space_tile(){
         name: other_tile_names.altar_of_space,
         pic: `${IMG_FOLDER.tiles}altar_of_space.png`,
         description: other_tile_descriptions.altar_of_space,
+        flavor: other_flavor.altar_of_space,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_space_on_enter),
@@ -8449,6 +9062,7 @@ function altar_of_stars_tile(){
         name: other_tile_names.altar_of_stars,
         pic: `${IMG_FOLDER.tiles}altar_of_stars.png`,
         description: other_tile_descriptions.altar_of_stars,
+        flavor: other_flavor.altar_of_stars,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_stars_on_enter),
@@ -8487,6 +9101,7 @@ function altar_of_stasis_tile(){
         name: other_tile_names.altar_of_stasis,
         pic: `${IMG_FOLDER.tiles}altar_of_stasis.png`,
         description: other_tile_descriptions.altar_of_stasis,
+        flavor: other_flavor.altar_of_stasis,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_stasis_on_enter),
@@ -8512,6 +9127,7 @@ function altar_of_sunlight_tile(){
         name: other_tile_names.altar_of_sunlight,
         pic: `${IMG_FOLDER.tiles}altar_of_sunlight.png`,
         description: other_tile_descriptions.altar_of_sunlight,
+        flavor: other_flavor.altar_of_sunlight,
         tags: new TagList([TAGS.altar, TAGS.obstruction]),
         health: 1,
         on_enter: altar_on_enter(altar_of_sunlight_on_enter),
@@ -8559,6 +9175,7 @@ function black_hole_tile(){
         name: other_tile_names.black_hole,
         pic: `${IMG_FOLDER.tiles}black_hole.png`,
         description: other_tile_descriptions.black_hole,
+        flavor: other_flavor.black_hole,
         health: 6,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction, TAGS.unstunnable]),
         behavior: black_hole_ai,
@@ -8617,6 +9234,7 @@ function bookshelf_tile(){
         name: other_tile_names.bookshelf,
         pic: pic_arr[health - 1],
         description: other_tile_descriptions.bookshelf,
+        flavor: other_flavor.bookshelf,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health,
         on_hit: bookshelf_on_hit,
@@ -8652,6 +9270,7 @@ function coffin_tile(){
         name: other_tile_names.coffin,
         pic: `${IMG_FOLDER.tiles}coffin.png`,
         description: other_tile_descriptions.coffin,
+        flavor: other_flavor.coffin,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health: 1,
         on_enter: decay_ai,
@@ -8687,6 +9306,7 @@ function corrosive_slime_tile(){
         name: other_tile_names.corrosive_slime,
         pic: `${IMG_FOLDER.tiles}corrosive_slime.png`,
         description: other_tile_descriptions.corrosive_slime,
+        flavor: other_flavor.corrosive_slime,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health: 1,
         telegraph: hazard_telegraph,
@@ -8708,6 +9328,7 @@ function fireball_tile(){
         pic: pic_arr[0],
         display_pic: pic_arr[0],
         description: other_tile_descriptions.fireball,
+        flavor: other_flavor.fireball,
         tags: new TagList([TAGS.fireball, TAGS.unstunnable]),
         behavior: fireball_ai,
         telegraph: fireball_telegraph,
@@ -8763,6 +9384,7 @@ function enticing_fruit_tree_tile(){
         name: other_tile_names.fruit_tree_enticing,
         pic: `${IMG_FOLDER.tiles}enticing_fruit_tree.png`,
         description: other_tile_descriptions.fruit_tree_enticing,
+        flavor: other_flavor.fruit_tree_enticing,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: enticing_fruit_tree_on_enter,
@@ -8802,6 +9424,7 @@ function rotting_fruit_tree_tile(){
         name: other_tile_names.fruit_tree_rotting,
         pic: `${IMG_FOLDER.tiles}rotting_fruit_tree.png`,
         description: other_tile_descriptions.fruit_tree_rotting,
+        flavor: other_flavor.fruit_tree_rotting,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: decay_ai,
@@ -8828,6 +9451,7 @@ function lava_pool_tile(){
         name: other_tile_names.lava_pool,
         pic: `${IMG_FOLDER.tiles}lava_pool.png`,
         description: other_tile_descriptions.lava_pool,
+        flavor: other_flavor.lava_pool,
         tags: new TagList([TAGS.unmovable]),
         telegraph: hazard_telegraph,
         on_enter: hazard
@@ -8840,6 +9464,7 @@ function magmatic_boulder_tile(){
         name: other_tile_names.magmatic_boulder,
         pic: `${IMG_FOLDER.tiles}magmatic_boulder.png`,
         description: other_tile_descriptions.magmatic_boulder,
+        flavor: other_flavor.magmatic_boulder,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -8850,6 +9475,7 @@ function moon_rock_tile(){
         name: other_tile_names.moon_rock,
         pic: `${IMG_FOLDER.tiles}moon_rock.png`,
         description: other_tile_descriptions.moon_rock,
+        flavor: other_flavor.moon_rock,
         tags: new TagList([TAGS.obstruction]),
         health: 1,
     }
@@ -8864,6 +9490,7 @@ function raging_fire_tile(){
         pic: pic_arr[health - 1],
         display_pic: pic_arr[1],
         description: other_tile_descriptions.raging_fire,
+        flavor: other_flavor.raging_fire,
         tags: new TagList([TAGS.unmovable, TAGS.unstunnable, TAGS.obstruction]),
         health,
         behavior: decay_ai,
@@ -8895,6 +9522,7 @@ function repulsor_tile(){
         name: other_tile_names.repulsor,
         pic: pic_arr[starting_cycle],
         description: other_tile_descriptions.repulsor,
+        flavor: other_flavor.repulsor,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
@@ -8987,6 +9615,7 @@ function sewer_grate_tile(){
         name: other_tile_names.sewer_grate,
         pic: `${IMG_FOLDER.tiles}sewer_grate.png`,
         description: other_tile_descriptions.sewer_grate,
+        flavor: other_flavor.sewer_grate,
         tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
         behavior: sewer_grate_ai,
     }
@@ -9010,6 +9639,7 @@ function shatter_sphere_d_tile(){
         name: other_tile_names.shatter_sphere,
         pic: `${IMG_FOLDER.tiles}shatter_sphere_d.png`,
         description: other_tile_descriptions.shatter_sphere_d,
+        flavor: other_flavor.shatter_sphere,
         tags: new TagList([TAGS.obstruction]),
         health: 1,
         telegraph_other: shatter_sphere_d_telegraph,
@@ -9036,6 +9666,7 @@ function shatter_sphere_o_tile(){
         name: other_tile_names.shatter_sphere,
         pic: `${IMG_FOLDER.tiles}shatter_sphere_o.png`,
         description: other_tile_descriptions.shatter_sphere_o,
+        flavor: other_flavor.shatter_sphere,
         tags: new TagList([TAGS.obstruction]),
         health: 1,
         telegraph_other: shatter_sphere_o_telegraph,
@@ -9064,6 +9695,7 @@ function smoldering_ashes_tile(){
         name: other_tile_names.smoldering_ashes,
         pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
         description: `${desc[0]}${spawn_timer}${desc[1]}`,
+        flavor: other_flavor.smoldering_ashes,
         tags: new TagList([TAGS.obstruction]),
         health: 1,
         behavior: smoldering_ashes_ai,
@@ -9100,6 +9732,7 @@ function thorn_bramble_tile(){
         name: other_tile_names.thorn_bramble,
         pic: `${IMG_FOLDER.tiles}thorn_bramble.png`,
         description: other_tile_descriptions.thorn_bramble,
+        flavor: other_flavor.thorn_bramble,
         tags: new TagList([TAGS.unmovable, TAGS.thorn_bush_roots, TAGS.obstruction]),
         health: 1,
         telegraph: hazard_telegraph,
@@ -9115,6 +9748,7 @@ function damaged_wall_tile(){
         name: other_tile_names.wall_damaged,
         pic: pic_arr[health - 1],
         description: other_tile_descriptions.wall_damaged,
+        flavor: other_flavor.wall_damaged,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health,
         on_hit: damaged_wall_on_hit,
@@ -9153,6 +9787,7 @@ function wall_tile(){
         name: other_tile_names.wall,
         pic: `${IMG_FOLDER.tiles}wall.png`,
         description: other_tile_descriptions.wall,
+        flavor: other_flavor.wall,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -9163,6 +9798,7 @@ function armored_chest_tile(){
         name: special_tile_names.chest_armored,
         pic: `${IMG_FOLDER.tiles}armored_chest.png`,
         description: special_tile_descriptions.chest_armored,
+        flavor: special_flavor.chest_armored,
         tags: new TagList([TAGS.unmovable]),
         on_enter: chest_on_enter,
         contents: [],
@@ -9175,6 +9811,7 @@ function chest_tile(){
         name: special_tile_names.chest,
         pic: `${IMG_FOLDER.tiles}chest.png`,
         description: special_tile_descriptions.chest,
+        flavor: special_flavor.chest,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
         health: 1,
         on_enter: chest_on_enter,
@@ -9211,11 +9848,7 @@ function chest_on_enter(self, target, map){
         GS.refresh_deck_display();
         refresh_map(map);
         if(GS.boons.has(boon_names.safe_passage)){
-            GS.boons.lose(boon_names.safe_passage);
-            GS.refresh_boon_display();
-            GS.map.heal(GS.map.get_player_location());
-            GS.map.display_stats();
-            GS.enter_shop();
+            do_safe_passage();
         }
     }
     var abandon_button = {
@@ -9330,6 +9963,7 @@ function empty_tile(){
         name: special_tile_names.empty,
         pic: `${IMG_FOLDER.tiles}empty.png`,
         description: special_tile_descriptions.empty,
+        flavor: special_flavor.empty,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -9340,6 +9974,7 @@ function exit_tile(){
         name: special_tile_names.exit,
         pic: `${IMG_FOLDER.tiles}stairs.png`,
         description: special_tile_descriptions.exit,
+        flavor: special_flavor.exit,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -9350,6 +9985,7 @@ function final_exit_tile(){
         name: special_tile_names.final_exit,
         pic: `${IMG_FOLDER.tiles}final_exit.png`,
         description: special_tile_descriptions.final_exit,
+        flavor: special_flavor.final_exit,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -9360,6 +9996,7 @@ function lock_tile(){
         name: special_tile_names.lock,
         pic: `${IMG_FOLDER.tiles}lock.png`,
         description: special_tile_descriptions.lock,
+        flavor: special_flavor.lock,
         tags: new TagList([TAGS.unmovable]),
     }
 }
@@ -9370,6 +10007,7 @@ function player_tile(){
         name: special_tile_names.you,
         pic: `${IMG_FOLDER.tiles}helmet.png`,
         description: special_tile_descriptions.player,
+        flavor: special_flavor.you,
         tags: new TagList(),
         health: PLAYER_STARTING_HEALTH,
         max_health: PLAYER_STARTING_HEALTH,
@@ -9631,6 +10269,7 @@ function black_hole_beginning_mark(){
         name: event_names.black_hole_formation,
         pic: `${IMG_FOLDER.tiles}black_hole_beginning.png`,
         description: event_descriptions.black_hole_formation,
+        flavor: event_flavor.black_hole_formation,
         telegraph: hazard_telegraph
     };
 }
@@ -9639,6 +10278,7 @@ function confusion_cloud_mark(){
         name: event_names.confusion_cloud,
         pic: `${IMG_FOLDER.tiles}confusion_cloud.png`,
         description: event_descriptions.confusion_cloud,
+        flavor: event_flavor.confusion_cloud,
         telegraph_other: hazard_telegraph
     }
 }
@@ -9647,6 +10287,7 @@ function darkling_rift_mark(){
         name: event_names.darkling_rift,
         pic: `${IMG_FOLDER.tiles}darkling_rift.png`,
         description: event_descriptions.darkling_rift,
+        flavor: event_flavor.darkling_rift,
         telegraph: spider_telegraph
     };
 }
@@ -9655,6 +10296,7 @@ function delayed_strike_mark(){
         name: event_names.delayed_strike,
         pic: `${IMG_FOLDER.tiles}delayed_strike_mark.png`,
         description: event_descriptions.delayed_strike,
+        flavor: event_flavor.delayed_strike,
         telegraph: hazard_telegraph,
     };
 }
@@ -9663,6 +10305,7 @@ function delayed_stun_mark(){
         name: event_names.delayed_stun,
         pic: `${IMG_FOLDER.tiles}delayed_stun_mark.png`,
         description: event_descriptions.delayed_stun,
+        flavor: event_flavor.delayed_stun,
         telegraph_other: hazard_telegraph,
     };
 }
@@ -9671,6 +10314,7 @@ function falling_rubble_mark(){
         name: event_names.falling_rubble,
         pic: `${IMG_FOLDER.tiles}falling_rubble.png`,
         description: event_descriptions.falling_rubble,
+        flavor: event_flavor.falling_rubble,
         telegraph: hazard_telegraph
     }
 }
@@ -9679,6 +10323,7 @@ function nettle_roots_mark(){
         name: event_names.nettle_roots,
         pic: `${IMG_FOLDER.tiles}swaying_nettle_roots.png`,
         description: event_descriptions.nettle_root,
+        flavor: event_flavor.nettle_roots,
         telegraph: hazard_telegraph
     }
 }
@@ -9687,6 +10332,7 @@ function starcaller_rift_mark(){
         name: event_names.starfall,
         pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
         description: event_descriptions.starfall,
+        flavor: event_flavor.starfall,
         telegraph: hazard_telegraph
     }
 }
@@ -9695,6 +10341,7 @@ function sunlight_mark(){
         name: event_names.sunlight,
         pic: `${IMG_FOLDER.tiles}sunlight.png`,
         description: event_descriptions.sunlight,
+        flavor: event_flavor.sunlight,
         telegraph: hazard_telegraph
     };
 }
@@ -9703,6 +10350,7 @@ function thorn_roots_mark(){
         name: event_names.thorn_roots,
         pic: `${IMG_FOLDER.tiles}thorn_roots.png`,
         description: event_descriptions.thorn_roots,
+        flavor: event_flavor.thorn_roots,
         telegraph: hazard_telegraph
     }
 }
@@ -11221,9 +11869,9 @@ class ButtonGrid{
         for(let row of this.#buttons){
             for(let button of row){
                 if(button.description !== null_move_button){
-                    var commands = button.behavior.map((b) => `(${explain_action(b)})`);
+                    var commands = button.behavior.map((b) => `[${explain_action(b)}]`);
                     if(commands.length === 0){
-                        commands = [`(${move_types.nothing})`];
+                        commands = [`[${move_types.nothing}]`];
                     }
                     var command_str = commands.join(`, ${NBS}`); // Non breaking spaces used so they won't be collapsed.
                     explanation = explanation.concat(`${NBS}${NBS}${NBS}${NBS}${usymbol.bullet} ${button.description}: ${command_str}\n`);
@@ -11457,7 +12105,7 @@ class EntityList{
             }
             if(!(this.#find_by_id(e.enemy.id) === -1)){
                 try{
-                    var initial_health = GS.map.get_player().health;
+                    var damage_taken = GS.map.stats.get_stats().damage;
                     if(e.enemy.stun !== undefined && e.enemy.stun > 0){
                         --e.enemy.stun;
                     }
@@ -11491,10 +12139,10 @@ class EntityList{
                         }
                         refresh_map(map);
                         if(do_delay){
-                            await delay(ANIMATION_DELAY);
+                            await delay(GS.data.settings.delay());
                         }
                     }
-                    if(GS.boons.has(boon_names.pain_reflexes) && GS.map.get_player().health < initial_health){
+                    if(GS.boons.has(boon_names.pain_reflexes) && damage_taken < GS.map.stats.get_stats().damage){
                         throw new Error(ERRORS.pass_turn);
                     }
                 }
@@ -11885,6 +12533,7 @@ class GameMap{
                     pic: tile.pic,
                     rotate: tile.rotate,
                     flip: tile.flip,
+                    checker: (x + y) % 2 === 0,
                     background: [...background_pics, space.action, ...stunned, space.floor],
                     on_click: make_on_click(space, new Point(x, y), this),
                 });
@@ -12238,6 +12887,7 @@ class GameMap{
                 throw error;
             }
         }
+        return current_events.length > 0;
     }
     /**
      * Clears the current floor and goes to the next one then generates it based on the current area.
@@ -12533,6 +13183,9 @@ class GameMap{
     change_floor_modifier(x){
         this.#floor_mod += x;
     }
+    add_to_floor(x){
+        this.#floor_num += x;
+    }
 }
 
 function grid_space(area){
@@ -12578,14 +13231,7 @@ class GameState{
         display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
         create_sidebar();
         
-        // Starting achievements
-        for(var a of init.achievements){
-            this.achieve(a);
-        }
-        // Auto identify these boons
-        for(var b of init.identify_boons){
-            this.data.boons.add(b().name);
-        }
+        init.unlock_journal();
         this.data.save();
 
         // Prep map
@@ -12632,6 +13278,7 @@ class GameState{
             GS.map.get_player().tags.add(TAGS.invulnerable);
         }
         try{
+            var damage_taken = GS.map.stats.get_stats().damage;
             // The repetition boon will double movements 1 in every 3 turns.
             var repeat = repeat_amount();
             for(var i = 0; i < repeat; ++i){
@@ -12651,8 +13298,9 @@ class GameState{
                 GS.map.get_player().tags.remove(TAGS.invulnerable);
             }
             refresh_map(this.map);
-            await delay(ANIMATION_DELAY);
-            if(is_instant){
+            await delay(GS.data.settings.delay());
+            var reflex_turn = GS.boons.has(boon_names.pain_reflexes) && damage_taken < GS.map.stats.get_stats().damage;
+            if(is_instant || reflex_turn){
                 this.refresh_deck_display();
                 this.unlock_player_turn();
                 this.map.display_stats();
@@ -12831,7 +13479,7 @@ class GameState{
         }
         this.refresh_deck_display();
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
-        await delay(ANIMATION_DELAY);
+        await delay(GS.data.settings.delay());
         refresh_map(this.map);
         this.unlock_player_turn();
     }
@@ -12860,6 +13508,7 @@ class GameState{
         // and gives them the chance to retry.
         refresh_map(this.map);
         display.remove_children(UIIDS.hand_display);
+        display.add_gradient(UIIDS.move_box, [action_type_colors.empty]);
         display.remove_children(UIIDS.move_buttons);
         say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
         var restart = function(game){
@@ -12911,9 +13560,11 @@ class GameState{
      * @returns {Promise<void>}
      */
     async prep_turn(){
-        this.map.resolve_events();
-        refresh_map(this.map);
-        await delay(ANIMATION_DELAY);
+        var did_events = this.map.resolve_events();
+        if(did_events){
+            refresh_map(this.map);
+            await delay(GS.data.settings.delay());
+        }
         refresh_map(this.map);
         this.refresh_deck_display();
         this.map.display_stats();
@@ -13463,6 +14114,7 @@ class MoveDeck{
 */
 
 class SaveData{
+    settings;
     controls;
     achievements;
     cards;
@@ -13480,6 +14132,8 @@ class SaveData{
     load(){
         var data = this.#load_function();
         data = SaveData.#load_missing(data);
+        this.settings = new SettingsTracker();
+        this.settings.set(data.settings);
         this.controls = new KeyBind();
         this.controls.set(data.controls);
         this.achievements = new AchievementList();
@@ -13491,6 +14145,7 @@ class SaveData{
     }
     save(){
         var data = {
+            settings: this.settings.get(),
             controls: this.controls.get(),
             achievements: this.achievements.get(),
             cards: this.cards.to_list(),
@@ -13499,6 +14154,14 @@ class SaveData{
             areas: this.areas.to_list(),
         }
         this.#save_function(data);
+    }
+    set_settings(new_settings){
+        this.settings.set(new_settings);
+        this.save();
+    }
+    reset_settings(){
+        this.settings.reset();
+        this.save();
     }
     set_controls(new_controls){
         this.controls.set(new_controls);
@@ -13538,6 +14201,10 @@ class SaveData{
         this.cards.get_node(name).remove();
         this.save();
     }
+    reset_cards(){
+        this.cards = new SearchTree([], CardTreeNode);
+        this.save();
+    }
     add_boon(name){
         this.boons.add(name);
         this.boons.get_node(name).pick();
@@ -13550,6 +14217,10 @@ class SaveData{
                 GS.achieve(achievement_names.blessed);
             }
         }
+    }
+    reset_boons(){
+        this.boons = new SearchTree([], BoonTreeNode);
+        this.save();
     }
     add_tile(name){
         var added = this.tiles.add(name);
@@ -13573,6 +14244,11 @@ class SaveData{
     clear_area(name){
         var area = this.areas.get_node(name);
         area.clear();
+        this.save();
+    }
+    reset_areas(){
+        this.tiles = new SearchTree([], TileTreeNode);
+        this.areas = new SearchTree([], AreaTreeNode);
         this.save();
     }
 
@@ -13668,7 +14344,7 @@ class ScreenTracker{
     }
 }
 
-const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.achievements, UIIDS.journal, UIIDS.controls, ]);
+const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.journal, UIIDS.settings]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.full_deck, UIIDS.initiative, UIIDS.deck_order]);
 class AreaTreeNode{
@@ -13955,6 +14631,45 @@ class TileTreeNode{
         ++this.data.killed_by;
     }
 }
+class SettingsTracker{
+    #animation_speed;
+    #text_size;
+    #move_color;
+    #checkered_overlay;
+
+    constructor(){
+        this.reset();
+    }
+    reset(){
+        this.#animation_speed = 1;
+        this.#text_size = undefined;
+        this.#move_color = true;
+        this.#checkered_overlay = 0;
+    }
+    set(settings = {}){
+        this.#animation_speed = settings.animation_speed !== undefined ? settings.animation_speed : this.#animation_speed;
+        this.#text_size = settings.text_size !== undefined ? settings.text_size : this.#text_size;
+        this.#move_color = settings.move_color !== undefined ? settings.move_color : this.#move_color;
+        this.#checkered_overlay = settings.checkered_overlay !== undefined ? settings.checkered_overlay : this.#checkered_overlay;
+    }
+    get(){
+        return {
+            animation_speed: this.#animation_speed,
+            text_size: this.#text_size,
+            move_color: this.#move_color,
+            checkered_overlay: this.#checkered_overlay,
+        }
+    }
+    delay(){
+        return ANIMATION_DELAY_OPTIONS[this.#animation_speed];
+    }
+    do_color(){
+        return this.#move_color;
+    }
+    overlay(){
+        return GRID_OPACITY_OPTIONS[this.#checkered_overlay];
+    }
+}
 class Shop{
     #deck;
     #has_skill_trading;
@@ -13972,7 +14687,7 @@ class Shop{
         this.#generate_remove_row();
     }
     #generate_add_row(){
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        var amount = GS.map.stats.get_stats().add_choices;
         var add_list_generators = rand_no_repeats(COMMON_CARDS, amount);
         var index_of_rare = random_num(4);
         var rares = get_achievement_cards();
@@ -13995,7 +14710,7 @@ class Shop{
         }
     }
     #generate_remove_row(){
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        var amount = GS.map.stats.get_stats().remove_choices;
         this.#remove_row = this.#deck.get_rand_cards(amount);
     }
     select_add_row(index){
@@ -14091,6 +14806,8 @@ class StatTracker{
     #destroyed;
     #chest_kills;
     #total_kills_per_floor;
+    #add_choices;
+    #remove_choices;
 
     constructor(){
         this.#turn_number = 0;
@@ -14106,6 +14823,8 @@ class StatTracker{
         this.#destroyed = 0;
         this.#chest_kills = 0;
         this.#total_kills_per_floor = [0];
+        this.#add_choices = ADD_CHOICE_COUNT;
+        this.#remove_choices = REMOVE_CHOICE_COUNT;
     }
     increment_turn(){
         ++this.#turn_number;
@@ -14174,6 +14893,12 @@ class StatTracker{
             GS.achieve(achievement_names.manic_vandal);
         }
     }
+    alter_add_choices(n){
+        this.#add_choices += n;
+    }
+    alter_remove_choices(n){
+        this.#remove_choices += n;
+    }
     get_stats(){
         return {
             turn_number: this.#turn_number,
@@ -14188,7 +14913,9 @@ class StatTracker{
             kills: this.#kills,
             destroyed: this.#destroyed,
             chest_kills: this.#chest_kills,
-            total_kills_per_floor: this.#total_kills_per_floor
+            total_kills_per_floor: this.#total_kills_per_floor,
+            add_choices: this.#add_choices,
+            remove_choices: this.#remove_choices,
         }
     }
 }
@@ -16854,7 +17581,7 @@ function symbol_locked_card(){
 /** @type {CardGenerator} Shown in the journal for cards you have not yet added to your deck.*/
 function symbol_not_encountered_card(){
     return{
-        name: card_names.symbol_not_encountered_card,
+        name: card_names.symbol_not_encountered,
         pic: `${IMG_FOLDER.other}not_encountered.png`,
         options: new ButtonGrid(),
     }
@@ -17311,6 +18038,7 @@ const BOON_LIST = [
     larger_chests, 
     limitless, 
     manic_presence, 
+    medical_investment,
     pacifism, 
     pain_reflexes, 
     pandoras_box, 
@@ -17347,7 +18075,7 @@ function change_max_health(amount){
     GS.map.get_player().health = Math.min(GS.map.get_player().max_health, GS.map.get_player().health);
 }
 
-function max_health_at_least(amount){
+function max_health_greater_than(amount){
     var max_health = GS.map.get_player().max_health;
     return max_health !== undefined && max_health > amount;
 }
@@ -17571,6 +18299,7 @@ function delayed_strike(){
         name: boon_names.delayed_strike,
         pic: `${IMG_FOLDER.boons}delayed_strike.png`,
         description: boon_descriptions.delayed_strike,
+        prereq_description: boon_prereq_descriptions.none,
         max: 1,
     }
 }
@@ -17650,7 +18379,7 @@ function expend_vitality(){
 }
 
 function prereq_expend_vitality(){
-    return max_health_at_least(1);
+    return max_health_greater_than(1);
 }
 
 function pick_expend_vitality(){
@@ -17806,8 +18535,8 @@ function limitless(){
 }
 
 function on_pick_limitless(){
+    GS.map.player_heal(new Point(0, 0));
     GS.map.get_player().max_health = undefined;
-    GS.map.player_heal(new Point(0, 0), 2);
 }
 function manic_presence(){
     return {
@@ -17816,6 +18545,32 @@ function manic_presence(){
         description: boon_descriptions.manic_presence,
         prereq_description: boon_prereq_descriptions.none,
         max: 1,
+    }
+}
+function medical_investment(){
+    return {
+        name: boon_names.medical_investment,
+        pic: `${IMG_FOLDER.boons}medical_investment.png`,
+        description: boon_descriptions.medical_investment,
+        cost_description: boon_cost_descriptions.medical_investment,
+        prereq_description: boon_prereq_descriptions.medical_investment,
+        max: 2,
+        prereq: prereq_medical_investment,
+        on_pick: pick_medical_investment,
+    }
+}
+
+function prereq_medical_investment(){
+    return GS.map.get_player().max_health !== undefined;
+}
+
+function pick_medical_investment(){
+    change_max_health(2);
+    GS.map.heal(GS.map.get_player_location(), 2);
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.map.stats.alter_add_choices(-1);
+        GS.map.stats.alter_remove_choices(-1);
     }
 }
 function pacifism(){
@@ -17849,7 +18604,7 @@ function pandoras_box(){
 }
 
 function prereq_pandoras_box(){
-    return max_health_at_least(2);
+    return max_health_greater_than(2);
 }
 
 function pick_pandoras_box(){
@@ -17917,7 +18672,13 @@ function picky_shopper(){
         pic: `${IMG_FOLDER.boons}picky_shopper.png`,
         description: boon_descriptions.picky_shopper,
         prereq_description: boon_prereq_descriptions.none,
+        on_pick: pick_picky_shopper,
     }
+}
+
+function pick_picky_shopper(){
+    GS.map.stats.alter_add_choices(1);
+    GS.map.stats.alter_remove_choices(1);
 }
 function practice_makes_perfect(){
     return {
@@ -18034,7 +18795,7 @@ function pick_roar_of_challenge(){
     change_max_health(2);
     var has_voucher = GS.boons.has(boon_names.soul_voucher);
     if(!has_voucher){
-        GS.map.change_floor_modifier(5);
+        GS.map.change_floor_modifier(3);
     }
 }
 function safe_passage(){
@@ -18052,6 +18813,18 @@ function prereq_safe_passage(){
     var player = GS.map.get_player();
     return player.max_health === undefined || player.health < player.max_health;
 }
+
+function do_safe_passage(){
+    GS.boons.lose(boon_names.safe_passage);
+    GS.refresh_boon_display();
+    GS.map.player_heal(new Point(0, 0));
+    GS.map.display_stats();
+    var floor = GS.map.get_floor_num();
+    var size = init_settings().area_size;
+    var dif = size - (floor % size) - 1;
+    GS.map.add_to_floor(dif);
+    GS.enter_shop();
+}
 function shattered_glass(){
     return {
         name: boon_names.shattered_glass,
@@ -18066,7 +18839,7 @@ function shattered_glass(){
 }
 
 function prereq_shattered_glass(){
-    return max_health_at_least(2);
+    return max_health_greater_than(2);
 }
 
 function on_pick_shattered_glass(){
@@ -18107,14 +18880,20 @@ function soul_voucher(){
         name: boon_names.soul_voucher,
         pic: `${IMG_FOLDER.boons}soul_voucher.png`,
         description: boon_descriptions.soul_voucher,
+        cost_description: boon_cost_descriptions.soul_voucher,
         prereq_description: boon_prereq_descriptions.soul_voucher,
         prereq: prereq_soul_voucher,
+        on_pick: on_pick_soul_voucher,
         max: 1,
     }
 }
 
 function prereq_soul_voucher(){
-    return GS.map.get_floor_num() < 15;
+    return max_health_greater_than(1) && GS.map.get_floor_num() < 15;
+}
+
+function on_pick_soul_voucher(){
+    change_max_health(-1);
 }
 function spiked_shoes(){
     return {
@@ -18130,7 +18909,7 @@ function spiked_shoes(){
 }
 
 function prereq_spiked_shoes(){
-    return max_health_at_least(1);
+    return max_health_greater_than(1);
 }
 
 function pick_spiked_shoes(){

@@ -16,6 +16,7 @@ function starcaller_tile(){
         pic: `${IMG_FOLDER.tiles}starcaller_off.png`,
         display_pic: pic_arr[1],
         description: enemy_descriptions.starcaller,
+        flavor: enemy_flavor.starcaller,
         tags: new TagList(),
         health: 1,
         difficulty: 4,

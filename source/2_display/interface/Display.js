@@ -234,6 +234,13 @@ const DisplayHTML = {
             }
             image.style.transform = DisplayHTML.get_transformation(to_display);
             layers.push(image);
+            // Checkerboard
+            if(to_display.checker){
+                image = document.createElement(`img`);
+                image.src = `${IMG_FOLDER.src}${IMG_FOLDER.backgrounds}grid_black.png`;
+                image.style.opacity = `${GS.data.settings.overlay()}`;
+                layers.push(image);
+            }
             // Background images
             if(to_display.background !== undefined){
                 for(let pic of to_display.background){
@@ -308,7 +315,7 @@ const DisplayHTML = {
                 GS.data.controls.chest(key);
             }
         }
-        else if(DISPLAY_DIVISIONS.is(UIIDS.controls) && display.set_control !== undefined){
+        else if(DISPLAY_DIVISIONS.is(UIIDS.settings) && display.set_control !== undefined){
             display.set_control(key);
         }
     },
@@ -512,7 +519,7 @@ const DisplayHTML = {
         header.innerText = description;
         var edit_mode = function(controls){
             return () => {
-                setup_controls_page();
+                setup_settings_page();
                 DisplayHTML.remove_children(location);
                 edit_function(controls);
             }
@@ -625,24 +632,6 @@ const DisplayHTML = {
         title.innerText = `${achievement_text.title}  (${complete} / ${achievements.length})`;
         header.append(title);
         toprow.append(header);
-        
-        var reset = document.createElement(`button`);
-        reset.classList.add(`achievement-button`);
-        var set_reset_button = () => {
-            reset.innerText = achievement_text.reset;
-            reset.classList.add(`achievement-reset`);
-            reset.classList.remove(`achievement-confirm-reset`);
-            reset.onclick = set_confirm_reset_button;
-        }
-        var set_confirm_reset_button = () => {
-            reset.innerText = achievement_text.confirm_reset;
-            reset.classList.add(`achievement-confirm-reset`);
-            reset.classList.remove(`achievement-reset`);
-            reset.onclick = reset_achievements;
-            setTimeout(() => {set_reset_button();}, 4000);
-        }
-        set_reset_button();
-        toprow.append(reset);
         place.append(toprow);
 
         for(var a of achievements){
@@ -753,26 +742,46 @@ const DisplayHTML = {
             element.classList.remove(`hidden-section`);
         }
     },
-    journal_card_section(destination, header, cards){
+    journal_card_section(destination, header, cards, has = undefined){
         var place = DisplayHTML.get_element(destination);
 
         var box = document.createElement(`fieldset`);
-        var legend = document.createElement(`legend`);
-        var table = document.createElement(`table`);
-
         box.classList.add(`shop-section-box`);
         box.classList.add(`journal-card-box`);
+        place.append(box);
+
+        var legend = document.createElement(`legend`);
         legend.innerText = header;
+        box.append(legend);
+
+        if(has !== undefined){
+            var legend2 = document.createElement(`legend`);
+            legend2.innerText = has;
+            box.append(legend2);
+        }
+
+        var text_id = `${destination} ${header} text`;
+        var text = DisplayHTML.make_side_text_box(text_id);
+        box.append(text);
+
+        var table = document.createElement(`table`);
         var table_id = `${destination} ${header} table`;
         table.id = table_id;
-
-        place.append(box);
-        box.append(legend);
         box.append(table);
         
         for(var i = 0; i < Math.ceil(cards.length / JOURNAL_DISPLAY_WIDTH); ++i){
             var slice_start = i * JOURNAL_DISPLAY_WIDTH;
             var slice = cards.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            for(let card of slice){
+                card.on_click = () => {
+                    var boxes = place.getElementsByClassName(`journal-info`);
+                    for(let box of boxes){
+                        DisplayHTML.toggle_visibility(box.id, false);
+                    }
+                    DisplayHTML.toggle_visibility(text.id, true);
+                    DisplayHTML.display_message(text_id, card.description);
+                }
+            }
             display.add_tb_row(table_id, slice, CARD_SCALE);
         }
     },
@@ -785,26 +794,42 @@ const DisplayHTML = {
         box.classList.add(`journal-info`);
         place.append(box);
     },
-    journal_boon_section(destination, header, boons){
+    journal_boon_section(destination, header, boons, has = undefined){
         var place = DisplayHTML.get_element(destination);
 
         var box = document.createElement(`fieldset`);
-        var legend = document.createElement(`legend`);
-        var table = document.createElement(`table`);
-
         box.classList.add(`shop-section-box`);
         box.classList.add(`journal-card-box`);
+        place.append(box);
+
+        var legend = document.createElement(`legend`);
         legend.innerText = header;
+        box.append(legend);
+
+        if(has !== undefined){
+            var legend2 = document.createElement(`legend`);
+            legend2.innerText = has;
+            box.append(legend2);
+        }
+
+        var text_id = `${destination} ${header} text`;
+        var text = DisplayHTML.make_side_text_box(text_id);
+        box.append(text);
+
+        var table = document.createElement(`table`);
         var table_id = `${destination} ${header} table`;
         table.id = table_id;
-
-        place.append(box);
-        box.append(legend);
         box.append(table);
         
         for(var i = 0; i < Math.ceil(boons.length / JOURNAL_DISPLAY_WIDTH); ++i){
             var slice_start = i * JOURNAL_DISPLAY_WIDTH;
             var slice = boons.slice(slice_start, slice_start + JOURNAL_DISPLAY_WIDTH);
+            for(let boon of slice){
+                boon.on_click = () => {
+                    DisplayHTML.toggle_visibility(text.id, true);
+                    DisplayHTML.display_message(text_id, boon.description);
+                }
+            }
             display.add_tb_row(table_id, slice, CARD_SCALE);
         }
     },
@@ -826,6 +851,18 @@ const DisplayHTML = {
             div.append(img);
             div.append(text);
             return div;
+        }
+        var say = (msg) => {
+            return () => {
+                var text_id = `${destination} text`;
+                var areas = DisplayHTML.get_element(UIIDS.journal_areas);
+                var boxes = areas.getElementsByClassName(`journal-info`);
+                for(let box of boxes){
+                    DisplayHTML.toggle_visibility(box.id, false);
+                }
+                DisplayHTML.toggle_visibility(text_id, true);
+                DisplayHTML.display_message(text_id, msg);
+            }
         }
         var header = document.createElement(`div`);
         header.classList.add(`journal-area-box-header`);
@@ -853,6 +890,7 @@ const DisplayHTML = {
         
         if(info.boss !== undefined){
             var boss = document.createElement(`table`);
+            //info.boss.on_click = say(info.boss.description);
             boss.classList.add(`journal-area-boss`);
             var boss_id = `${destination} ${info.true_name} boss`;
             boss.id = boss_id;
@@ -868,6 +906,9 @@ const DisplayHTML = {
         for(var i = 0; i < Math.ceil(info.tiles.length / JOURNAL_AREA_WIDTH); ++i){
             var slice_start = i * JOURNAL_AREA_WIDTH;
             var slice = info.tiles.slice(slice_start, slice_start + JOURNAL_AREA_WIDTH);
+            for(var tile of slice){
+                //tile.on_click = say(tile.description);
+            }
             display.add_tb_row(tiles_id, slice, JOURNAL_TILE_SCALE);
         }
     },
@@ -906,6 +947,125 @@ const DisplayHTML = {
             return `${str} ${grad} ${block}`;
         });
         element.style.backgroundImage = `linear-gradient(to left, ${cstring})`;
+    },
+    make_confirmation_button(on_click, text1, text2, wait){
+        var button = document.createElement(`button`);
+        button.classList.add(`confirmation-button`);
+        var reset_button = () => {
+            button.innerText = text1;
+            button.classList.add(`confirmation-reset`);
+            button.classList.remove(`confirmation-confirm`);
+            button.onclick = confirm_button;
+        }
+        var confirm_button = () => {
+            button.innerText = text2;
+            button.classList.add(`confirmation-confirm`);
+            button.classList.remove(`confirmation-reset`);
+            button.onclick = () => {
+                on_click();
+                reset_button();
+            }
+            setTimeout(() => {reset_button();}, wait);
+        }
+        reset_button();
+        return button;
+    },
+    reset_section(location, on_click, question){
+        var element = DisplayHTML.get_element(location);
+        var section = document.createElement(`div`);
+        section.classList.add(`reset-pair`);
+        var p = document.createElement(`p`);
+        p.innerText = question;
+        p.classList.add(`reset-text`);
+        var button = DisplayHTML.make_confirmation_button(
+            on_click,
+            reset_text.reset,
+            reset_text.confirm,
+            CONFIRMATION_BUTTON_DELAY
+        );
+        section.append(p);
+        section.append(button);
+        element.append(section);
+    },
+    make_side_text_box(id){
+        var text = document.createElement(`p`);
+        text.classList.add(`journal-info`);
+        text.classList.add(`hidden-section`);
+        text.id = id;
+        return text;
+    },
+    add_element(location, element){
+        var destination = DisplayHTML.get_element(location);
+        destination.append(element);
+    },
+    visual_settings(location, settings){
+        var destination = DisplayHTML.get_element(location);
+        var header = document.createElement(`div`);
+        header.classList.add(`control-header`)
+        destination.append(header);
+        var h2 = document.createElement(`h2`);
+        h2.innerText = visual_settings_titles.main;
+        header.append(h2);
+        var reset = () => {
+            GS.data.reset_settings();
+            reset_visual_settings_page();
+        }
+        var reset_button = DisplayHTML.create_button(visual_settings_titles.reset, undefined, reset);
+        header.append(reset_button);
+        var set_animation_speed = (value) => {settings.set({animation_speed: value})}
+        var set_text_size = (value) => {settings.set({text_size: value})}
+        var set_grid_visibility = (value) => {
+            settings.set({checkered_overlay: value});
+            refresh_map_grid(GS.map);
+        }
+        var set_button_color = (value) => {
+            settings.set({move_color: value});
+            display.remove_children(UIIDS.move_buttons);
+            GS.refresh_deck_display();
+        }
+        var click = (set) => {
+            return (value) => {
+                set(value);
+                GS.data.save();
+                reset_visual_settings_page();
+            }
+        }
+        destination.append(DisplayHTML.selector(
+            visual_settings_titles.animation_speed, 
+            animation_speeds, 
+            click(set_animation_speed),
+            settings.get().animation_speed,
+        ));
+        destination.append(DisplayHTML.selector(
+            visual_settings_titles.button_color, 
+            button_color_options, 
+            click(set_button_color),
+            settings.get().move_color,
+        ));
+        destination.append(DisplayHTML.selector(
+            visual_settings_titles.grid, 
+            grid_options, 
+            click(set_grid_visibility),
+            settings.get().checkered_overlay,
+        ));
+    },
+    selector(title, options, click, current_value){
+        var div = document.createElement(`div`);
+        div.classList.add(`selector`);
+        var p = document.createElement(`p`);
+        p.innerText = title;
+        div.append(p);
+        for(let option of options){
+            let button = document.createElement(`button`);
+            let button_value = option.value;
+            button.innerText = option.text;
+            button.onclick = () => {click(button_value)};
+            if(button_value === current_value){
+                button.classList.add(`selected`);
+            }
+            div.append(button);
+        }
+        return div;
     },
 
     // Non Required helper functions.

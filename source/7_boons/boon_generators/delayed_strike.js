@@ -3,6 +3,7 @@ function delayed_strike(){
         name: boon_names.delayed_strike,
         pic: `${IMG_FOLDER.boons}delayed_strike.png`,
         description: boon_descriptions.delayed_strike,
+        prereq_description: boon_prereq_descriptions.none,
         max: 1,
     }
 }

@@ -5,6 +5,7 @@ function maw_tile(){
         name: enemy_names.maw,
         pic: `${IMG_FOLDER.tiles}maw.png`,
         description: enemy_descriptions.maw,
+        flavor: enemy_flavor.maw,
         tags: new TagList(),
         health: 4,
         difficulty: 3,

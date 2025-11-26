@@ -17,6 +17,10 @@ const color_options = {
     green: `rgb(50 205 50)`,
     grey: `rgb(169 169 169)`,
     dark_grey: `rgb(105 105 105)`,
+    darker_grey: `rgb(62 62 62)`,
+    purple: `rgb(163 73 164)`,
+    tan: `rgb(231 178 77)`,
+    white: `rgb(255 255 255)`,
 }
 Object.freeze(color_options);
 
@@ -29,7 +33,13 @@ const action_type_colors = {
     attack_until: color_options.red,
     heal: color_options.green,
     do_nothing: color_options.dark_grey,
+
+    generic_action: color_options.darker_grey,
     none: color_options.grey,
+    
+    instant: color_options.purple,
+    temp: color_options.tan,
+    empty: color_options.white,
 }
 Object.freeze(action_type_colors);
 

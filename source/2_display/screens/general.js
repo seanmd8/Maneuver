@@ -20,10 +20,10 @@ function create_main_dropdown(location){
             }
         },
         {
-            label: screen_names.controls,
+            label: screen_names.settings,
             on_change: () => {
-                setup_controls_page();
-                DISPLAY_DIVISIONS.swap(UIIDS.controls);
+                setup_settings_page();
+                DISPLAY_DIVISIONS.swap(UIIDS.settings);
             }
         },
 

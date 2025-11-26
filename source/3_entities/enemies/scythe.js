@@ -5,6 +5,7 @@ function scythe_tile(){
         name: enemy_names.scythe,
         pic: `${IMG_FOLDER.tiles}scythe.png`,
         description: enemy_descriptions.scythe,
+        flavor: enemy_flavor.scythe,
         tags: new TagList(),
         health: 1,
         difficulty: 4,

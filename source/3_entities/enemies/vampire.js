@@ -5,6 +5,7 @@ function vampire_tile(){
         name: enemy_names.vampire,
         pic: `${IMG_FOLDER.tiles}vampire.png`,
         description: enemy_descriptions.vampire,
+        flavor: enemy_flavor.vampire,
         tags: new TagList(),
         health: 2,
         max_health: 2,

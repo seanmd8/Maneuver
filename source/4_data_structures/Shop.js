@@ -15,7 +15,7 @@ class Shop{
         this.#generate_remove_row();
     }
     #generate_add_row(){
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        var amount = GS.map.stats.get_stats().add_choices;
         var add_list_generators = rand_no_repeats(COMMON_CARDS, amount);
         var index_of_rare = random_num(4);
         var rares = get_achievement_cards();
@@ -38,7 +38,7 @@ class Shop{
         }
     }
     #generate_remove_row(){
-        var amount = ADD_CHOICE_COUNT + GS.boons.has(boon_names.picky_shopper);
+        var amount = GS.map.stats.get_stats().remove_choices;
         this.#remove_row = this.#deck.get_rand_cards(amount);
     }
     select_add_row(index){

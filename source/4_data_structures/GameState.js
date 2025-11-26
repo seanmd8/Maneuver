@@ -32,14 +32,7 @@ class GameState{
         display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
         create_sidebar();
         
-        // Starting achievements
-        for(var a of init.achievements){
-            this.achieve(a);
-        }
-        // Auto identify these boons
-        for(var b of init.identify_boons){
-            this.data.boons.add(b().name);
-        }
+        init.unlock_journal();
         this.data.save();
 
         // Prep map
@@ -86,6 +79,7 @@ class GameState{
             GS.map.get_player().tags.add(TAGS.invulnerable);
         }
         try{
+            var damage_taken = GS.map.stats.get_stats().damage;
             // The repetition boon will double movements 1 in every 3 turns.
             var repeat = repeat_amount();
             for(var i = 0; i < repeat; ++i){
@@ -105,8 +99,9 @@ class GameState{
                 GS.map.get_player().tags.remove(TAGS.invulnerable);
             }
             refresh_map(this.map);
-            await delay(ANIMATION_DELAY);
-            if(is_instant){
+            await delay(GS.data.settings.delay());
+            var reflex_turn = GS.boons.has(boon_names.pain_reflexes) && damage_taken < GS.map.stats.get_stats().damage;
+            if(is_instant || reflex_turn){
                 this.refresh_deck_display();
                 this.unlock_player_turn();
                 this.map.display_stats();
@@ -285,7 +280,7 @@ class GameState{
         }
         this.refresh_deck_display();
         GAME_SCREEN_DIVISIONS.swap(UIIDS.stage);
-        await delay(ANIMATION_DELAY);
+        await delay(GS.data.settings.delay());
         refresh_map(this.map);
         this.unlock_player_turn();
     }
@@ -314,6 +309,7 @@ class GameState{
         // and gives them the chance to retry.
         refresh_map(this.map);
         display.remove_children(UIIDS.hand_display);
+        display.add_gradient(UIIDS.move_box, [action_type_colors.empty]);
         display.remove_children(UIIDS.move_buttons);
         say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
         var restart = function(game){
@@ -365,9 +361,11 @@ class GameState{
      * @returns {Promise<void>}
      */
     async prep_turn(){
-        this.map.resolve_events();
-        refresh_map(this.map);
-        await delay(ANIMATION_DELAY);
+        var did_events = this.map.resolve_events();
+        if(did_events){
+            refresh_map(this.map);
+            await delay(GS.data.settings.delay());
+        }
         refresh_map(this.map);
         this.refresh_deck_display();
         this.map.display_stats();

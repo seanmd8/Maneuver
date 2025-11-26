@@ -9,6 +9,18 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+11/25/25
+- Added 1 new Boon.
+- Rebalanced Roar of Challenge: Increases difficulty by 3 floors rather than 5.
+- Rebalanced Soul Voucher: Now has a cost of 1 max hp.
+- Rebalanced Limitless: Now fully heals before removing max hp rather than healing twice afterwards.
+- Rebalanced Safe Passage: Now takes you to the next boss floor rather than just to the next floor.
+- Fixed bug with pain reflexes not working during your turn.
+- Visually updated Journal pages. Card and Boon sections will show amount discovered.
+- Controls section was renamed to settings and has sections for visual settings and clearing save data.
+- You can now change the animation speed, move button colors, or toggle grid overlay in the settings.
+- Reformatted card explanations for readability.
+
 10/28/25
 - Move buttons are now colored based on the type and order of actions performed.
 - Added 2 missing events to journal.

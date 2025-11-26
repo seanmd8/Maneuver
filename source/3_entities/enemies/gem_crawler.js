@@ -8,6 +8,7 @@ function gem_crawler_tile(){
         pic: pic_arr[cycle],
         display_pic: pic_arr[1],
         description: enemy_descriptions.gem_crawler,
+        flavor: enemy_flavor.gem_crawler,
         tags: new TagList(),
         health: 1,
         difficulty: 4,

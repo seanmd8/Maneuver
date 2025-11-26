@@ -13,121 +13,6 @@ body>div {
     padding: 8px;
     box-sizing: border-box;
 }
-.control-box {
-    display: flex;
-    align-items: center;
-    border-style: solid;
-    height: 91px;
-    width: 594px;
-    margin: 2px;
-    font-size: 20px;
-    background-color: lightblue;
-    margin-bottom: 4px;
-}
-.control-box div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 91px;
-    width: 90px;
-    border-right: solid;
-    background-color: cadetblue;
-}
-.control-box p {
-    margin-left: 20px;
-}
-.control-box div table tr input {
-    min-width: 27px;
-    height: 27px;
-    margin-top: 1px;
-    margin-left: 1px;
-    font-size: 17px;
-}
-
-.control-edit-box {
-    display: flex;
-    align-items: center;
-    border-style: solid;
-    width: 600px;
-    height: 50px;
-    margin: 2px;
-    margin-bottom: 4px;
-    font-size: 20px;
-    background-color: lightblue;
-}
-.control-edit-box div {
-    width: 80px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-right: solid;
-    background-color: cadetblue;
-}
-.control-edit-box p {
-    margin-left: 10px;
-}
-.control-edit-box div input {
-    min-width: 27px;
-    height: 27px;
-    font-size: 17px;
-}
-.control-edit-box div input:hover {
-    cursor: pointer;
-}
-.control-edit-box div input:focus-visible {
-    outline: none;
-}
-.edit-control {
-    background-color: black;
-    color: white;
-}
-.control-header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-}
-.control-header h2 {
-    width: fit-content;
-    display: inline-flex;
-    margin-left: 20px;
-    margin-right: auto;
-    background-color: lightgrey;
-    padding: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-radius: 7px;
-    border-style: solid;
-}
-.control-header input {
-    display: inline-flex;
-    margin-right: 20px;
-    width: 70px;
-    height: 30px;
-    border-width: 3px;
-    border-style: groove;
-    border-color: blue;
-    background-color: aliceblue;
-}
-.control-header input:hover {
-    background-color: blueviolet;
-    color: aliceblue;
-    cursor: pointer;
-}
-.control-style {
-    background-color: var(--controls-background-color);
-    min-height: 100%;
-    min-width: 100%;
-}
-.control-section {
-    border: solid;
-    border-radius: 20px;
-    width: fit-content;
-    padding: 20px;
-    padding-top: 0px;
-    background-color: #2c7d2c;
-    margin: 6px;
-}
 .chest-body-box {
     border-style: solid;
     border-width: 5px;
@@ -686,33 +571,6 @@ body>div {
     flex-wrap: wrap;
     margin: 2px;
 }
-.achievement-button {
-    margin-top: auto;
-    margin-bottom: auto;
-    font-weight: bold;
-    line-height: 20px;
-    font-size: 20px;
-    border-radius: 10px;
-    border-width: 3px;
-    border-style: solid;
-    padding: 5px;
-}
-.achievement-reset {
-    background-color: lightcoral;
-}
-.achievement-reset:hover {
-    background-color: maroon;
-    color: lightcoral;
-    cursor: pointer;
-}
-.achievement-confirm-reset {
-    background-color: red;
-}
-.achievement-confirm-reset:hover {
-    background-color: black;
-    color: red;
-    cursor: pointer;
-}
 .achievement-dropdown {
     display: none;
     width: 540px;
@@ -825,6 +683,7 @@ body>div {
 .journal-area-box {
     border-width: 5px;
     border-color: black;
+    background-color: var(--area-color);
     border-radius: 10px;
     border-style: solid;
     display: inline-flex;
@@ -894,6 +753,7 @@ body>div {
     border-width: 4px;
     border-style: solid;
     border-color: black;
+    /*cursor: pointer;*/
 }
 
 .journal-area-tiles img {
@@ -901,55 +761,90 @@ body>div {
     border-width: 2px;
     border-style: solid;
     border-color: black;
+    /*cursor: pointer;*/
 }
 
-.area0>div {
-    background-color: var(--area0);
-    height: fit-content;
+.journal-area-screen .journal-info {
+    left: 858px;
+    margin-top: 40px;
+    background-color: var(--area-color);
+    border-color: black;
 }
-.area1>div {
-    background-color: var(--area1);
+
+.journal-area-screen .area6 .journal-info {
+    margin-top: 10px;
 }
-.area2>div {
-    background-color: var(--area2);
+
+.area0 {
+    --area-color: var(--area0);
 }
-.area3>div {
-    background-color: var(--area3);
+.area1 {
+    --area-color: var(--area1);
 }
-.area4>div {
-    background-color: var(--area4);
+.area2 {
+    --area-color: var(--area2);
 }
-.area5>div {
-    background-color: var(--area5);
+.area3 {
+    --area-color: var(--area3);
 }
-.area6>div {
-    background-color: var(--area6);
+.area4 {
+    --area-color: var(--area4);
+}
+.area5 {
+    --area-color: var(--area5);
+}
+.area6 {
+    --area-color: var(--area6);
+}
+
+.area0>div, .area6>div {
     height: fit-content;
 }
 .journal-card-box {
     width: 942px;
+    background-color: #f4d6aa;
 }
 .journal-card-box td:hover {
     cursor: pointer;
 }
 
-.journal-info {
-    position: fixed;
-    left: 980px;
-    border-color: saddlebrown;
-    border-width: 4px;
-    white-space: normal;
-    width: 450px;
-    height: 180px;
-    overflow-x: auto;
-    font-weight: 400;
+.journal-card-box legend {
+    width: fit-content;
+    line-height: 20px;
+    font-size: 20px;
+}
+.journal-card-box :nth-child(2 of legend) {
+    margin-top: -28px;
+    vertical-align: middle;
+    float: right;
+    padding-left: 3px;
+    padding-right: 3px;
 }
 
-@media (max-width: 1465px) {
-    .journal-info {
-        position: absolute;
-        left: 980px;
-    }
+.journal-info {
+    position: absolute;
+    left: 1000px;
+    text-align: left;
+    padding: 5px;
+    border-style: solid;
+    border-color: #af5413;
+    background-color: #f4d6aa;
+    border-width: 6px 6px 6px 0px;
+    white-space: normal;
+    width: 450px;
+    height: fit-content;
+    min-height: 180px;
+    font-weight: 400;
+    margin-top: -15px;
+}
+
+.journal-page {
+    background-color: saddlebrown;
+    width: 956px;
+    padding: 0px 12px;
+    border-width: 0px 6px 6px 6px;
+    border-style: solid;
+    border-color: #45230a;
 }
 .journal-style {
     background-color: var(--journal-background-color);
@@ -958,13 +853,236 @@ body>div {
     min-width: 1456px;
     padding-bottom: 0px;
 }
+.control-box {
+    display: flex;
+    align-items: center;
+    border-style: solid;
+    height: 91px;
+    width: 594px;
+    margin: 2px;
+    font-size: 20px;
+    background-color: lightblue;
+    margin-bottom: 4px;
+}
+.control-box div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 91px;
+    width: 90px;
+    border-right: solid;
+    background-color: cadetblue;
+}
+.control-box p {
+    margin-left: 20px;
+}
+.control-box div table tr input {
+    min-width: 27px;
+    height: 27px;
+    margin-top: 1px;
+    margin-left: 1px;
+    font-size: 17px;
+}
+
+.control-edit-box {
+    display: flex;
+    align-items: center;
+    border-style: solid;
+    width: 600px;
+    height: 50px;
+    margin: 2px;
+    margin-bottom: 4px;
+    font-size: 20px;
+    background-color: lightblue;
+}
+.control-edit-box div {
+    width: 80px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: solid;
+    background-color: cadetblue;
+}
+.control-edit-box p {
+    margin-left: 10px;
+}
+.control-edit-box div input {
+    min-width: 27px;
+    height: 27px;
+    font-size: 17px;
+}
+.control-edit-box div input:hover {
+    cursor: pointer;
+}
+.control-edit-box div input:focus-visible {
+    outline: none;
+}
+.edit-control {
+    background-color: black;
+    color: white;
+}
+.control-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+.control-header h2 {
+    width: fit-content;
+    display: inline-flex;
+    margin-left: 10px;
+    margin-right: auto;
+    background-color: lightgrey;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 7px;
+    border-style: solid;
+}
+.control-header input {
+    display: inline-flex;
+    margin-right: 20px;
+    width: 70px;
+    height: 30px;
+    border-width: 3px;
+    border-style: groove;
+    border-color: blue;
+    background-color: aliceblue;
+}
+.control-header input:hover {
+    background-color: blueviolet;
+    color: aliceblue;
+    cursor: pointer;
+}
+.control-section {
+    border: solid;
+    border-radius: 20px;
+    width: fit-content;
+    padding: 20px;
+    padding-top: 0px;
+    background-color: #2c7d2c;
+    margin: 6px;
+}
+.confirmation-button {
+    margin-top: auto;
+    margin-bottom: auto;
+    font-weight: bold;
+    line-height: 20px;
+    font-size: 20px;
+    border-radius: 10px;
+    border-width: 3px;
+    border-style: solid;
+    padding: 5px;
+}
+.confirmation-reset {
+    background-color: lightcoral;
+}
+.confirmation-reset:hover {
+    background-color: maroon;
+    color: lightcoral;
+    cursor: pointer;
+}
+.confirmation-confirm{
+    background-color: red;
+}
+.confirmation-confirm:hover {
+    background-color: black;
+    color: red;
+    cursor: pointer;
+}
+.data-header {
+    background-color: lightgrey;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 0px;
+    margin-bottom: 20px;
+    margin-left: 10px;
+    border-radius: 7px;
+    border-style: solid;
+    width: fit-content;
+}
+.reset-pair{
+    display: flex;
+    justify-content: space-between;
+    width: 574px;
+    background-color: lightblue;
+    border-width: 3px;
+    border-style: solid;
+    margin: 4px 2px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.data-section {
+    border: solid;
+    border-radius: 20px;
+    width: fit-content;
+    padding: 20px;
+    background-color: #2c7d2c;
+    margin: 6px;
+}
+.reset-text {
+    font-weight: bold;
+    line-height: 20px;
+    font-size: 20px;
+}
+.settings-style{
+    background-color: var(--settings-background-color);
+    min-height: 100%;
+    min-width: 100%;
+}
+.visual-section {
+    border: solid;
+    border-radius: 20px;
+    width: fit-content;
+    padding: 20px;
+    padding-top: 0px;
+    background-color: #2c7d2c;
+    margin: 6px;
+}
+.selector {
+    display: flex;
+    width: 574px;
+    background-color: lightblue;
+    border-width: 3px;
+    border-style: solid;
+    margin: 4px 2px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.selector p {
+    font-weight: bold;
+    line-height: 20px;
+    font-size: 20px;
+    margin-right: 10px;
+    width: 260px;
+}
+
+.selector button {
+    height: 25px;
+    width: fit-content;
+    margin: auto 10px;
+    border-color: darkblue;
+    background-color: aliceblue;
+    cursor: pointer;
+}
+
+.selector button:hover {
+    background-color: orchid;
+}
+
+.selector .selected {
+    background-color: darkblue;
+    color: white;
+}
 :root {
     --card-box-color: white;
     --card-box-legend-color: lightblue;
     --text-box-background-color: white;
     
     --game-background-color: antiquewhite;
-    --controls-background-color: antiquewhite;
+    --settings-background-color: antiquewhite;
     --achievements-background-color: antiquewhite;
     --guidebook-background-color: antiquewhite;
     --journal-background-color: antiquewhite;

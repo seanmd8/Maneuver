@@ -5,6 +5,7 @@ function clay_golem_tile(){
         name: enemy_names.clay_golem,
         pic: `${IMG_FOLDER.tiles}clay_golem.png`,
         description: enemy_descriptions.clay_golem,
+        flavor: enemy_flavor.clay_golem,
         tags: new TagList(),
         health: 3,
         difficulty: 4,

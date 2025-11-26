@@ -8,6 +8,7 @@ function noxious_toad_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.noxious_toad, 
+        flavor: enemy_flavor.noxious_toad,
         tags: new TagList(),
         health: 1,
         difficulty: 4,

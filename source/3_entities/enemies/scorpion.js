@@ -5,6 +5,7 @@ function scorpion_tile(){
         name: enemy_names.scorpion,
         pic: `${IMG_FOLDER.tiles}scorpion.png`,
         description: enemy_descriptions.scorpion,
+        flavor: enemy_flavor.scorpion,
         tags: new TagList(),
         health: 1,
         difficulty: 3,

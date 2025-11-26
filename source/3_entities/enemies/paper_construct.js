@@ -5,6 +5,7 @@ function paper_construct_tile(){
         name: enemy_names.paper_construct,
         pic: `${IMG_FOLDER.tiles}paper_construct.png`,
         description: enemy_descriptions.paper_construct,
+        flavor: enemy_flavor.paper_construct,
         tags: new TagList(),
         health: 1,
         difficulty: 2,

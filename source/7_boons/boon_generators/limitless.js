@@ -10,6 +10,6 @@ function limitless(){
 }
 
 function on_pick_limitless(){
+    GS.map.player_heal(new Point(0, 0));
     GS.map.get_player().max_health = undefined;
-    GS.map.player_heal(new Point(0, 0), 2);
 }

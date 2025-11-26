@@ -5,6 +5,7 @@ function living_tree_rooted_tile(){
         name: enemy_names.living_tree,
         pic: `${IMG_FOLDER.tiles}living_tree_rooted.png`,
         description: enemy_descriptions.living_tree_rooted,
+        flavor: enemy_flavor.living_tree_rooted,
         tags: new TagList(),
         health: 2,
         behavior: living_tree_rooted_ai,

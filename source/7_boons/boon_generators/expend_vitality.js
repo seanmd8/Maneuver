@@ -12,7 +12,7 @@ function expend_vitality(){
 }
 
 function prereq_expend_vitality(){
-    return max_health_at_least(1);
+    return max_health_greater_than(1);
 }
 
 function pick_expend_vitality(){

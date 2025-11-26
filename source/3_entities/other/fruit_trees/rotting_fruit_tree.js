@@ -5,6 +5,7 @@ function rotting_fruit_tree_tile(){
         name: other_tile_names.fruit_tree_rotting,
         pic: `${IMG_FOLDER.tiles}rotting_fruit_tree.png`,
         description: other_tile_descriptions.fruit_tree_rotting,
+        flavor: other_flavor.fruit_tree_rotting,
         tags: new TagList([TAGS.unmovable]),
         health: 1,
         on_enter: decay_ai,

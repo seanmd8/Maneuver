@@ -8,6 +8,7 @@ function medium_porcuslime_tile(){
         pic: pic_arr[starting_cycle],
         display_pic: pic_arr[0],
         description: enemy_descriptions.porcuslime_medium,
+        flavor: enemy_flavor.porcuslime,
         tags: new TagList(),
         health: 2,
         difficulty: 5,

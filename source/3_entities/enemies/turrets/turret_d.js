@@ -5,6 +5,7 @@ function turret_d_tile(){
         name: enemy_names.turret,
         pic: `${IMG_FOLDER.tiles}turret_d.png`,
         description: enemy_descriptions.turret_d,
+        flavor: enemy_flavor.turret,
         tags: new TagList(),
         health: 1,
         difficulty: 2,

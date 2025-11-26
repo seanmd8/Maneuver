@@ -360,6 +360,7 @@ class GameMap{
                     pic: tile.pic,
                     rotate: tile.rotate,
                     flip: tile.flip,
+                    checker: (x + y) % 2 === 0,
                     background: [...background_pics, space.action, ...stunned, space.floor],
                     on_click: make_on_click(space, new Point(x, y), this),
                 });
@@ -713,6 +714,7 @@ class GameMap{
                 throw error;
             }
         }
+        return current_events.length > 0;
     }
     /**
      * Clears the current floor and goes to the next one then generates it based on the current area.
@@ -1007,6 +1009,9 @@ class GameMap{
     }
     change_floor_modifier(x){
         this.#floor_mod += x;
+    }
+    add_to_floor(x){
+        this.#floor_num += x;
     }
 }
 

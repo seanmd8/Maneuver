@@ -29,6 +29,7 @@ const boon_names = {
     larger_chests: `Larger Chests`,
     limitless: `Limitless`,
     manic_presence: `Manic Presence`,
+    medical_investment: `Medical Investment`,
     pacifism: `Pacifism`,
     pain_reflexes: `Pain Reflexes`,
     pandoras_box: `Pandora's Box`,
@@ -115,21 +116,22 @@ const boon_descriptions = {
     larger_chests: 
         `All chests contain 2 additional choices and are invulnerable.`,
     limitless: 
-        `Remove your max health. Heal for 2. If you would be fully healed, heal `
-        +`for 1 instead.`,
+        `Fully heal, then remove your max health. If you would be fully healed, heal for 1 instead.`,
     manic_presence: 
-        `Some types of enemies are prone to misfiring.`,
+        `Some types of enemies have poor trigger discipline.`,
+    medical_investment: 
+        `Gain 2 extra max health. Heal for 2.`,
     pacifism: 
         `If you would attack an enemy, stun them twice instead (some terrain elements can still `
         +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,
     pain_reflexes: 
         `Take a turn whenever you are attacked.`,
     pandoras_box:
-        `Gain a number of random boons equal to your current max hp. Reduce your maximum hp to 1.`,
+        `Gain a number of random boons equal to your current maximum hp. Reduce your maximum hp to 1.`,
     perfect_the_basics: 
         `Replace all your basic cards with better ones.`,
     picky_shopper: 
-        `Recieve an extra card choice for adding and removing cards in the shop.`,
+        `Recieve 1 extra card choice for adding and removing cards in the shop.`,
     practice_makes_perfect: 
         `Defeating a boss while at max health increases your max health by 1.`,
     pressure_points: 
@@ -147,7 +149,7 @@ const boon_descriptions = {
     roar_of_challenge: 
         `Gain 2 max health.`,
     safe_passage: 
-        `Fully heal and travel to the next floor.`,
+        `Fully heal and travel to the next boss floor.`,
     shattered_glass: 
         `Enemies and Terrain explode on death damaging everything nearby other than you.`,
     skill_trading: 
@@ -157,7 +159,7 @@ const boon_descriptions = {
     sniper: 
         `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
     soul_voucher:
-        `Ignore any Cost to obtain new boons. Each boon chest is guaranteed to have at least 1 `
+        `Ignore any cost to obtain new boons. Each boon chest is guaranteed to have at least 1 `
         +`boon with a cost in it.`,
     spiked_shoes: 
         `Attempting to move onto enemies damages them.`,
@@ -172,7 +174,7 @@ const boon_descriptions = {
     thick_soles: 
         `You are immune to damage on your turn.`,
     vicious_cycle: 
-        `At the start of each floor, fully heal and then add 2 temporary Lash Out cards to your deck.`,
+        `At the start of each floor fully heal, then add 2 temporary Lash Out cards to your deck.`,
 }
 Object.freeze(boon_descriptions);
 
@@ -182,8 +184,10 @@ const boon_cost_descriptions = {
     creative: `Cost: Increase your minimum deck size by 5.`,
     expend_vitality: `Cost: Decrease your maximum health by 1.`,
     gruntwork: `Cost: Decrease your hand size by 1.`,
-    roar_of_challenge: `Cost: Increase difficulty by 5 floors.`,
+    medical_investment: `Cost: Receive 1 fewer card choice for adding and removing cards in the shop.`,
+    roar_of_challenge: `Cost: Increase difficulty by 3 floors.`,
     shattered_glass: `Cost: Decrease your maximum health by 2.`,
+    soul_voucher: `Cost: Decrease your maximum health by 1.`,
     spiked_shoes: `Cost: Decrease your maximum health by 1.`,
     spontaneous: `Cost: Increase your minimum deck size by 5.`,
 }
@@ -205,6 +209,8 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must not have Limitless.`,
     hoarder:
         `Prerequisites: You must be less than 15 floors deep.`,
+    medical_investment: 
+        `Prerequisites: You must not have Limitless.`,
     pandoras_box:
         `Prerequisited: You must have at least 3 max health and not have Limitless.`,
     perfect_the_basics:
@@ -218,7 +224,8 @@ const boon_prereq_descriptions = {
     shattered_glass:
         `Prerequisites: You must have at least 3 max health and not have Limitless.`,
     soul_voucher:
-        `Prerequisites: You must be less than 15 floors deep.`,
+        `Prerequisites: You must be less than 15 floors deep, have at least 2 max health, `
+        +`and not have Limitless.`,
     spiked_shoes:
         `Prerequisites: You must have at least 2 max health and not have Limitless.`,
     spontaneous:

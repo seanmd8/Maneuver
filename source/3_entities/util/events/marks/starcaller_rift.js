@@ -3,6 +3,7 @@ function starcaller_rift_mark(){
         name: event_names.starfall,
         pic: `${IMG_FOLDER.tiles}starcaller_rift.png`,
         description: event_descriptions.starfall,
+        flavor: event_flavor.starfall,
         telegraph: hazard_telegraph
     }
 }

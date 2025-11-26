@@ -5,6 +5,7 @@ function final_exit_tile(){
         name: special_tile_names.final_exit,
         pic: `${IMG_FOLDER.tiles}final_exit.png`,
         description: special_tile_descriptions.final_exit,
+        flavor: special_flavor.final_exit,
         tags: new TagList([TAGS.unmovable]),
     }
 }

@@ -7,6 +7,7 @@ function smoldering_ashes_tile(){
         name: other_tile_names.smoldering_ashes,
         pic: `${IMG_FOLDER.tiles}smoldering_ashes.png`,
         description: `${desc[0]}${spawn_timer}${desc[1]}`,
+        flavor: other_flavor.smoldering_ashes,
         tags: new TagList([TAGS.obstruction]),
         health: 1,
         behavior: smoldering_ashes_ai,

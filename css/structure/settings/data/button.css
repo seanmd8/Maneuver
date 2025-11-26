@@ -1,4 +1,4 @@
-.achievement-button {
+.confirmation-button {
     margin-top: auto;
     margin-bottom: auto;
     font-weight: bold;
@@ -9,18 +9,18 @@
     border-style: solid;
     padding: 5px;
 }
-.achievement-reset {
+.confirmation-reset {
     background-color: lightcoral;
 }
-.achievement-reset:hover {
+.confirmation-reset:hover {
     background-color: maroon;
     color: lightcoral;
     cursor: pointer;
 }
-.achievement-confirm-reset {
+.confirmation-confirm{
     background-color: red;
 }
-.achievement-confirm-reset:hover {
+.confirmation-confirm:hover {
     background-color: black;
     color: red;
     cursor: pointer;
