@@ -30,6 +30,7 @@ function lord_of_shadow_and_flame_tile(){
         death_achievement: achievement_names.lord_of_shadow_and_flame,
         behavior: lord_of_shadow_and_flame_ai,
         telegraph: lord_of_shadow_and_flame_telegraph,
+        on_hit: lord_of_shadow_and_flame_on_hit,
         on_death: lord_of_shadow_and_flame_on_death,
         pic_arr,
         cycle: 0,
@@ -156,6 +157,12 @@ function check_fireball_target(map, location){
         return point_equals(map.get_tile(p).direction.plus(p), location);
     });
     return fireballs.length > 0;
+}
+
+function lord_of_shadow_and_flame_on_hit(self, target, map){
+    if(self.tile.stun > 0){
+        --self.tile.stun;
+    }
 }
 
 function lord_of_shadow_and_flame_on_death(self, target, map){
