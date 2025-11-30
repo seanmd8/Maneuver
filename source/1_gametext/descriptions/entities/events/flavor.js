@@ -13,6 +13,8 @@ const event_flavor = {
         ``,
     nettle_roots:
         ``,
+    shockwave:
+        ``,
     starfall:
         ``,
     sunlight:

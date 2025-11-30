@@ -15,6 +15,9 @@ const event_descriptions = {
         `Watch out, something is about to fall here damaging anything standing here.`,
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
+    shockwave:
+        `Watch out, a shockwave is about to hit this space damaging anything standing here `
+        +`other than altars or the lord.`,
     starfall:
         `Watch out, something is about to be pulled into existence damaging anything standing here.`,
     sunlight:

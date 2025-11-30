@@ -9,6 +9,7 @@ const event_names = {
     falling_magma: `Falling Magma`,
     falling_rubble: `Falling Rubble`,
     nettle_roots: `Nettle Roots`,
+    shockwave: `Shockwave`,
     spell_announcement: `Spell Announcement`,
     starfall: `Starfall`,
     sunlight: `Sunlight`,

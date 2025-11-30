@@ -16,7 +16,8 @@ const boss_descriptions = {
     lord_of_shadow_and_flame:
         `Lord of Shadow and Flame (Final Boss): Ruler from beyond the veil of reality. Summons `
         +`altars from which to cast it's spells. When next to the player it will prepare to attack `
-        +`all nearby spaces on it's next turn. Moves at double speed while under half health.`,
+        +`all nearby spaces on it's next turn. While under half health, it moves at double speed `
+        +`and it's attacks cause shockwaves.`,
     spider_queen: 
         `Spider Queen (Boss): Her back crawls with her young. Behaves like a normal spider. Taking `
         +`damage will stun her, but will also spawn a spider.`,

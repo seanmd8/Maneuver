@@ -1220,7 +1220,8 @@ const boss_descriptions = {
     lord_of_shadow_and_flame:
         `Lord of Shadow and Flame (Final Boss): Ruler from beyond the veil of reality. Summons `
         +`altars from which to cast it's spells. When next to the player it will prepare to attack `
-        +`all nearby spaces on it's next turn. Moves at double speed while under half health.`,
+        +`all nearby spaces on it's next turn. While under half health, it moves at double speed `
+        +`and it's attacks cause shockwaves.`,
     spider_queen: 
         `Spider Queen (Boss): Her back crawls with her young. Behaves like a normal spider. Taking `
         +`damage will stun her, but will also spawn a spider.`,
@@ -1763,6 +1764,9 @@ const event_descriptions = {
         `Watch out, something is about to fall here damaging anything standing here.`,
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
+    shockwave:
+        `Watch out, a shockwave is about to hit this space damaging anything standing here `
+        +`other than altars or the lord.`,
     starfall:
         `Watch out, something is about to be pulled into existence damaging anything standing here.`,
     sunlight:
@@ -1786,6 +1790,8 @@ const event_flavor = {
         ``,
     nettle_roots:
         ``,
+    shockwave:
+        ``,
     starfall:
         ``,
     sunlight:
@@ -1805,6 +1811,7 @@ const event_names = {
     falling_magma: `Falling Magma`,
     falling_rubble: `Falling Rubble`,
     nettle_roots: `Nettle Roots`,
+    shockwave: `Shockwave`,
     spell_announcement: `Spell Announcement`,
     starfall: `Starfall`,
     sunlight: `Sunlight`,
@@ -4480,6 +4487,7 @@ function events_display_info(){
             darkling_rift_mark,
             falling_rubble_mark,
             nettle_roots_mark,
+            shockwave_mark,
             starcaller_rift_mark,
             sunlight_mark,
             thorn_roots_mark,
@@ -5461,6 +5469,7 @@ function lord_of_shadow_and_flame_tile(){
 
 /** @type {AIFunction} AI used by the Lord of Shadow and Flame.*/
 function lord_of_shadow_and_flame_ai(self, target, map){
+    var damaged = self.tile.health < self.tile.max_health / 2;
     var lord_slow_pics = [
         `${IMG_FOLDER.tiles}lord_move.png`,
         `${IMG_FOLDER.tiles}lord_attack.png`,
@@ -5472,7 +5481,7 @@ function lord_of_shadow_and_flame_ai(self, target, map){
         `${IMG_FOLDER.tiles}lord_fast_summon.png`
     ];
 
-    self.tile.pic_arr = self.tile.health < self.tile.max_health / 2 ? lord_fast_pics : lord_slow_pics;
+    self.tile.pic_arr = damaged ? lord_fast_pics : lord_slow_pics;
     switch(self.tile.cycle){
         case 2: // Summon Mode
             // Do nothing since the actual summon should be an event that is already in motion.
@@ -5489,10 +5498,17 @@ function lord_of_shadow_and_flame_ai(self, target, map){
                     map.attack(attack);
                 }
             }
+            if(damaged){
+                var locations = point_rectangle(self.location.plus(2, 2), self.location.plus(-2, -2));
+                map.add_event({
+                    name: event_names.shockwave, 
+                    behavior: shockwave_event(locations),
+                });
+            }
             break;
         case 0: // Movement Mode
             if(!target.difference.within_radius(1)){
-                var speed = self.tile.health < self.tile.max_health / 2 ? 2 : 1;
+                var speed = damaged ? 2 : 1;
                 for(var i = 0; i < speed; ++i){
                     var nearest = get_nearest_altar(map, self.location);
                     if(nearest !== undefined){
@@ -10327,6 +10343,16 @@ function nettle_roots_mark(){
         telegraph: hazard_telegraph
     }
 }
+
+function shockwave_mark(){
+    return {
+        name: event_names.shockwave,
+        pic: `${IMG_FOLDER.tiles}shockwave.png`,
+        description: event_descriptions.shockwave,
+        flavor: event_flavor.shockwave,
+        telegraph: hazard_telegraph
+    };
+}
 function starcaller_rift_mark(){
     return {
         name: event_names.starfall,
@@ -10358,6 +10384,35 @@ function thorn_roots_mark(){
  * @param {Point[]} locations A grid of locations to use.
  * @returns {MapEventFunction} The event.
  */
+function shockwave_event(locations){
+    var harm = function(locations){
+        return function(map_to_use){
+            for(var location of locations){
+                var tile = map_to_use.get_tile(location);
+                if(!tile.tags.has(TAGS.altar) && !tile.tags.has(TAGS.boss)){
+                    map_to_use.attack(location);
+                }
+            }
+        }
+    }
+    var wave = function(){
+        return function(map_to_use){
+            var targets = [];
+            for(var space of locations){
+                if(map_to_use.is_in_bounds(space)){
+                    map_to_use.mark_event(space, shockwave_mark());
+                    targets.push(space);
+                }
+            }
+            map_to_use.add_event({name: event_names.shockwave, behavior: harm(targets)});
+        }
+    }
+    return wave();
+}
+/**
+ * @param {Point[]} locations A grid of locations to use.
+ * @returns {MapEventFunction} The event.
+ */
 function targeted_earthquake_event(locations){
     var falling_rubble = function(locations){
         return function(map_to_use){
@@ -10370,8 +10425,10 @@ function targeted_earthquake_event(locations){
         return function(map_to_use){
             var rubble = [];
             for(var space of locations){
-                map_to_use.mark_event(space, falling_rubble_mark());
-                rubble.push(space);
+                if(map_to_use.is_in_bounds(space)){
+                    map_to_use.mark_event(space, falling_rubble_mark());
+                    rubble.push(space);
+                }
             }
             map_to_use.add_event({name: event_names.falling_rubble, behavior: falling_rubble(rubble)});
         }
