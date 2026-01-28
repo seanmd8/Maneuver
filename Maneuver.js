@@ -1625,8 +1625,7 @@ const enemy_flavor = {
         +`than lying in wait in a web. Thankfully their large size hasn't made them very tough so they `
         +`are easily dispatched.`,
     starcaller:
-        `Starcaller: Every 3 turns it will summon an object from another realm targeting `
-        +`the player's location creating a small explosion.`,
+        ``,
     strider: 
         `These long legged creatures navigate the trecherous terrain of the magmatic caves with ease.`
         +`The strength of their barbed feet seems to mostly be used for defense as they can be seen `

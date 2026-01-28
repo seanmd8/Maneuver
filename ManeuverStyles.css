@@ -836,6 +836,7 @@ body>div {
     min-height: 180px;
     font-weight: 400;
     margin-top: -15px;
+    overflow-wrap: break-word;
 }
 
 .journal-page {
