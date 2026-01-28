@@ -120,7 +120,7 @@ const boon_descriptions = {
     manic_presence: 
         `Some types of enemies have poor trigger discipline.`,
     medical_investment: 
-        `Gain 2 extra max health. Heal for 2.`,
+        `Gain 2 extra max health.`,
     pacifism: 
         `If you would attack an enemy, stun them twice instead (some terrain elements can still `
         +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,

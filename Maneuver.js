@@ -783,7 +783,7 @@ const boon_descriptions = {
     manic_presence: 
         `Some types of enemies have poor trigger discipline.`,
     medical_investment: 
-        `Gain 2 extra max health. Heal for 2.`,
+        `Gain 2 extra max health.`,
     pacifism: 
         `If you would attack an enemy, stun them twice instead (some terrain elements can still `
         +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,
@@ -18630,7 +18630,6 @@ function prereq_medical_investment(){
 
 function pick_medical_investment(){
     change_max_health(2);
-    GS.map.heal(GS.map.get_player_location(), 2);
     var has_voucher = GS.boons.has(boon_names.soul_voucher);
     if(!has_voucher){
         GS.map.stats.alter_add_choices(-1);
