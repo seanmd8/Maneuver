@@ -779,9 +779,7 @@ class GameMap{
         }
         if(floor_has_chest(this.#floor_num % area_size)){
             var chest = appropriate_chest_tile();
-            var amount = BOON_CHOICES 
-                + 2 * GS.boons.has(boon_names.larger_chests) 
-                - 1 * GS.boons.has(boon_names.hoarder);
+            var amount = GS.map.stats.get_stats().boon_chest_choices;
             var choices = GS.boons.get_choices(amount);
             if(chance(1, 2) && filter_new_boons(choices).length === 0){
                 var replacement_list = filter_new_boons(GS.boons.get_choices());

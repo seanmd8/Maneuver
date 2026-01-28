@@ -14,7 +14,8 @@ const FLOOR_HEIGHT = 8;
 const AREA_SIZE = 5;
 const CHEST_LOCATION = 3;
 const SECOND_CHEST_LOCATION = 2;
-const BOON_CHOICES = 3;
+const BOON_CHEST_CHOICES = 3;
+const CARD_CHEST_CHOICES = 1;
 const SAFE_SPAWN_ATTEMPTS = 5;
 
 // Visual and animation settings.

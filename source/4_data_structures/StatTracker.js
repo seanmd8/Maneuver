@@ -14,6 +14,9 @@ class StatTracker{
     #total_kills_per_floor;
     #add_choices;
     #remove_choices;
+    #chest_choices;
+    #card_chest_choices;
+    #boon_chest_choices;
 
     constructor(){
         this.#turn_number = 0;
@@ -31,6 +34,8 @@ class StatTracker{
         this.#total_kills_per_floor = [0];
         this.#add_choices = ADD_CHOICE_COUNT;
         this.#remove_choices = REMOVE_CHOICE_COUNT;
+        this.#card_chest_choices = CARD_CHEST_CHOICES;
+        this.#boon_chest_choices = BOON_CHEST_CHOICES;
     }
     increment_turn(){
         ++this.#turn_number;
@@ -105,6 +110,12 @@ class StatTracker{
     alter_remove_choices(n){
         this.#remove_choices += n;
     }
+    alter_card_chest_choices(x){
+        this.#card_chest_choices = Math.max(this.#card_chest_choices + x, 0);
+    }
+    alter_boon_chest_choices(x){
+        this.#boon_chest_choices = Math.max(this.#boon_chest_choices + x, 0);
+    }
     get_stats(){
         return {
             turn_number: this.#turn_number,
@@ -122,6 +133,8 @@ class StatTracker{
             total_kills_per_floor: this.#total_kills_per_floor,
             add_choices: this.#add_choices,
             remove_choices: this.#remove_choices,
+            card_chest_choices: this.#card_chest_choices,
+            boon_chest_choices: this.#boon_chest_choices,
         }
     }
 }

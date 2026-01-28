@@ -499,7 +499,8 @@ const FLOOR_HEIGHT = 8;
 const AREA_SIZE = 5;
 const CHEST_LOCATION = 3;
 const SECOND_CHEST_LOCATION = 2;
-const BOON_CHOICES = 3;
+const BOON_CHEST_CHOICES = 3;
+const CARD_CHEST_CHOICES = 1;
 const SAFE_SPAWN_ATTEMPTS = 5;
 
 // Visual and animation settings.
@@ -661,67 +662,21 @@ const area_names = {
     events: `Events`,
 }
 Object.freeze(area_names);
-const boon_names = {
-    locked: `Locked`,
-    not_encountered: `Not Encountered`,
-
-    ancient_card: `Ancient Card`,
-    bitter_determination: `Bitter Determination`,
-    blood_alchemy: `Blood Alchemy`,
-    boss_slayer: `Boss Slayer`,
-    brag_and_boast: `Brag & Boast`,
-    chilly_presence: `Chilly Presence`,
-    choose_your_path: `Choose Your Path`,
-    clean_mind: `Clean Mind`,
-    creative: `Creative`,
-    dazing_blows: `Dazing Blows`,
-    delayed_strike: `Delayed Strike`,
-    duplicate: `Duplicate`,
-    empty_rooms: `Empty Rooms`,
-    escape_artist: `Escape Artist`,
-    expend_vitality: `Expend Vitality`,
-    flame_strike: `Flame Strike`,
-    flame_worship: `Flame Worship`,
-    fleeting_thoughts: `Fleeting Thoughts`,
-    fortitude: `Fortitude`,
-    frenzy: `Frenzy`,
-    frugivore: `Frugivore`,
-    future_sight: `Future Sight`,
-    gruntwork: `Gruntwork`,
-    hoarder: `Hoarder`,
-    larger_chests: `Larger Chests`,
-    limitless: `Limitless`,
-    manic_presence: `Manic Presence`,
-    medical_investment: `Medical Investment`,
-    pacifism: `Pacifism`,
-    pain_reflexes: `Pain Reflexes`,
-    pandoras_box: `Pandora's Box`,
-    perfect_the_basics: `Perfect the Basics`,
-    picky_shopper: `Picky Shopper`,
-    practice_makes_perfect: `Practice Makes Perfect`,
-    pressure_points: `Preassure Points`,
-    quick_healing: `Quick Healing`,
-    rebirth: `Rebirth`,
-    repetition: `Repetition`,
-    retaliate: `Retaliate`,
-    rift_touched: `Rift Touched`,
-    roar_of_challenge: `Roar of Challenge`,
-    safe_passage: `Safe Passage`,
-    shattered_glass: `Shattered Glass`,
-    skill_trading: `Skill Trading`,
-    slime_trail: `Slime Trail`,
-    sniper: `Sniper`,
-    soul_voucher: `Soul Voucher`,
-    spiked_shoes: `Spiked Shoes`,
-    spontaneous: `Spontaneous`,
-    stable_mind: `Stable Mind`,
-    stealthy: `Stealthy`,
-    stubborn: `Stubborn`,
-    thick_soles: `Thick Soles`,
-    vicious_cycle: `Vicious Cycle`,
+const boon_cost_descriptions = {
+    blood_alchemy: `Cost: Take 2 damage.`,
+    brag_and_boast: `Cost: Add 2 non temporary confusion cards to your deck.`,
+    creative: `Cost: Increase your minimum deck size by 5.`,
+    expend_vitality: `Cost: Decrease your maximum health by 1.`,
+    gruntwork: `Cost: Decrease your hand size by 1.`,
+    hoarder: `Cost: Boon chests have 1 fewer choice`,
+    medical_investment: `Cost: Receive 1 fewer card choice for adding and removing cards in the shop.`,
+    roar_of_challenge: `Cost: Increase difficulty by 3 floors.`,
+    shattered_glass: `Cost: Decrease your maximum health by 2.`,
+    soul_voucher: `Cost: Decrease your maximum health by 1.`,
+    spiked_shoes: `Cost: Decrease your maximum health by 1.`,
+    spontaneous: `Cost: Increase your minimum deck size by 5.`,
 }
-Object.freeze(boon_names);
-
+Object.freeze(boon_cost_descriptions);
 const boon_descriptions = {
     locked: `You have not unlocked this boon yet.`,
     not_encountered:
@@ -775,7 +730,7 @@ const boon_descriptions = {
     gruntwork: 
         `Gain 3 extra max health.`,
     hoarder: 
-        `Encounter two boon chests in each area. Boon chests have 1 fewer choice.`,
+        `Encounter two boon chests in each area.`,
     larger_chests: 
         `All chests contain 2 additional choices and are invulnerable.`,
     limitless: 
@@ -840,21 +795,79 @@ const boon_descriptions = {
         `At the start of each floor fully heal, then add 2 temporary Lash Out cards to your deck.`,
 }
 Object.freeze(boon_descriptions);
+const boon_messages = {
+    section_header: `Boons`,
+    max: `Max`,
+    no_max: `Unlimited`,
+    number_picked: `Times Picked`,
 
-const boon_cost_descriptions = {
-    blood_alchemy: `Cost: Take 2 damage.`,
-    brag_and_boast: `Cost: Add 2 non temporary confusion cards to your deck.`,
-    creative: `Cost: Increase your minimum deck size by 5.`,
-    expend_vitality: `Cost: Decrease your maximum health by 1.`,
-    gruntwork: `Cost: Decrease your hand size by 1.`,
-    medical_investment: `Cost: Receive 1 fewer card choice for adding and removing cards in the shop.`,
-    roar_of_challenge: `Cost: Increase difficulty by 3 floors.`,
-    shattered_glass: `Cost: Decrease your maximum health by 2.`,
-    soul_voucher: `Cost: Decrease your maximum health by 1.`,
-    spiked_shoes: `Cost: Decrease your maximum health by 1.`,
-    spontaneous: `Cost: Increase your minimum deck size by 5.`,
+    clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
+    duplicate: `Choose a card to copy:`,
+    practice_makes_perfect: `Your maximum health has increased.`,
+    rebirth: `You died, but were brought back to life.`,
+    soul_voucher: `Your voucher will negate the cost.`
 }
+Object.freeze(boon_messages);
+const boon_names = {
+    locked: `Locked`,
+    not_encountered: `Not Encountered`,
 
+    ancient_card: `Ancient Card`,
+    bitter_determination: `Bitter Determination`,
+    blood_alchemy: `Blood Alchemy`,
+    boss_slayer: `Boss Slayer`,
+    brag_and_boast: `Brag & Boast`,
+    chilly_presence: `Chilly Presence`,
+    choose_your_path: `Choose Your Path`,
+    clean_mind: `Clean Mind`,
+    creative: `Creative`,
+    dazing_blows: `Dazing Blows`,
+    delayed_strike: `Delayed Strike`,
+    duplicate: `Duplicate`,
+    empty_rooms: `Empty Rooms`,
+    escape_artist: `Escape Artist`,
+    expend_vitality: `Expend Vitality`,
+    flame_strike: `Flame Strike`,
+    flame_worship: `Flame Worship`,
+    fleeting_thoughts: `Fleeting Thoughts`,
+    fortitude: `Fortitude`,
+    frenzy: `Frenzy`,
+    frugivore: `Frugivore`,
+    future_sight: `Future Sight`,
+    gruntwork: `Gruntwork`,
+    hoarder: `Hoarder`,
+    larger_chests: `Larger Chests`,
+    limitless: `Limitless`,
+    manic_presence: `Manic Presence`,
+    medical_investment: `Medical Investment`,
+    pacifism: `Pacifism`,
+    pain_reflexes: `Pain Reflexes`,
+    pandoras_box: `Pandora's Box`,
+    perfect_the_basics: `Perfect the Basics`,
+    picky_shopper: `Picky Shopper`,
+    practice_makes_perfect: `Practice Makes Perfect`,
+    pressure_points: `Preassure Points`,
+    quick_healing: `Quick Healing`,
+    rebirth: `Rebirth`,
+    repetition: `Repetition`,
+    retaliate: `Retaliate`,
+    rift_touched: `Rift Touched`,
+    roar_of_challenge: `Roar of Challenge`,
+    safe_passage: `Safe Passage`,
+    shattered_glass: `Shattered Glass`,
+    skill_trading: `Skill Trading`,
+    slime_trail: `Slime Trail`,
+    sniper: `Sniper`,
+    soul_voucher: `Soul Voucher`,
+    spiked_shoes: `Spiked Shoes`,
+    spontaneous: `Spontaneous`,
+    stable_mind: `Stable Mind`,
+    stealthy: `Stealthy`,
+    stubborn: `Stubborn`,
+    thick_soles: `Thick Soles`,
+    vicious_cycle: `Vicious Cycle`,
+}
+Object.freeze(boon_names);
 const boon_prereq_descriptions = {
     none: 
         `Prerequisites: None.`,
@@ -895,20 +908,6 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must have at least 10 cards in your deck.`,
 }
 Object.freeze(boon_prereq_descriptions);
-
-const boon_messages = {
-    section_header: `Boons`,
-    max: `Max`,
-    no_max: `Unlimited`,
-    number_picked: `Times Picked`,
-
-    clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
-    duplicate: `Choose a card to copy:`,
-    practice_makes_perfect: `Your maximum health has increased.`,
-    rebirth: `You died, but were brought back to life.`,
-    soul_voucher: `Your voucher will negate the cost.`
-}
-Object.freeze(boon_messages);
 const action_types = {
     move: `Move`,
     attack: `Attack`,
@@ -9311,7 +9310,7 @@ function coffin_tile_death(self, target, map){
     }
     var new_enemy = random_from(self.tile.summons)();
     if(new_enemy.type === entity_types.chest){
-        var amount = 1 + 2 * GS.boons.has(boon_names.larger_chests);
+        var amount = map.stats.get_stats().card_chest_choices;
         var cards = rand_no_repeats(self.tile.card_drops, amount);
         for(let card of cards){
             add_card_to_chest(new_enemy, card());
@@ -10105,7 +10104,7 @@ function boss_death(self, target, map){
         // Create a chest containing a random card from it's loot table.
         var chest = appropriate_chest_tile();
         var drops = self.tile.card_drops.map((c) => {return c()});
-        var amount = 1 + 2 * GS.boons.has(boon_names.larger_chests);
+        var amount = map.stats.get_stats().card_chest_choices;
         var contents = rand_no_repeats(drops, amount);
         if(chance(1, 2) && filter_new_cards(contents).length === 0){
             var replace_list = filter_new_cards(drops);
@@ -13016,9 +13015,7 @@ class GameMap{
         }
         if(floor_has_chest(this.#floor_num % area_size)){
             var chest = appropriate_chest_tile();
-            var amount = BOON_CHOICES 
-                + 2 * GS.boons.has(boon_names.larger_chests) 
-                - 1 * GS.boons.has(boon_names.hoarder);
+            var amount = GS.map.stats.get_stats().boon_chest_choices;
             var choices = GS.boons.get_choices(amount);
             if(chance(1, 2) && filter_new_boons(choices).length === 0){
                 var replacement_list = filter_new_boons(GS.boons.get_choices());
@@ -14872,6 +14869,9 @@ class StatTracker{
     #total_kills_per_floor;
     #add_choices;
     #remove_choices;
+    #chest_choices;
+    #card_chest_choices;
+    #boon_chest_choices;
 
     constructor(){
         this.#turn_number = 0;
@@ -14889,6 +14889,8 @@ class StatTracker{
         this.#total_kills_per_floor = [0];
         this.#add_choices = ADD_CHOICE_COUNT;
         this.#remove_choices = REMOVE_CHOICE_COUNT;
+        this.#card_chest_choices = CARD_CHEST_CHOICES;
+        this.#boon_chest_choices = BOON_CHEST_CHOICES;
     }
     increment_turn(){
         ++this.#turn_number;
@@ -14963,6 +14965,12 @@ class StatTracker{
     alter_remove_choices(n){
         this.#remove_choices += n;
     }
+    alter_card_chest_choices(x){
+        this.#card_chest_choices = Math.max(this.#card_chest_choices + x, 0);
+    }
+    alter_boon_chest_choices(x){
+        this.#boon_chest_choices = Math.max(this.#boon_chest_choices + x, 0);
+    }
     get_stats(){
         return {
             turn_number: this.#turn_number,
@@ -14980,6 +14988,8 @@ class StatTracker{
             total_kills_per_floor: this.#total_kills_per_floor,
             add_choices: this.#add_choices,
             remove_choices: this.#remove_choices,
+            card_chest_choices: this.#card_chest_choices,
+            boon_chest_choices: this.#boon_chest_choices,
         }
     }
 }
@@ -18564,8 +18574,10 @@ function hoarder(){
         name: boon_names.hoarder,
         pic: `${IMG_FOLDER.boons}hoarder.png`,
         description: boon_descriptions.hoarder,
+        cost_description: boon_cost_descriptions.hoarder,
         prereq_description: boon_prereq_descriptions.hoarder,
         prereq: prereq_hoarder,
+        on_pick: pick_hoarder,
         max: 1,
     }
 }
@@ -18573,19 +18585,28 @@ function hoarder(){
 function prereq_hoarder(){
     return GS.map.get_floor_num() < 15;
 }
+
+function pick_hoarder(){
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.map.stats.alter_boon_chest_choices(-1);
+    }
+}
 function larger_chests(){
     return {
         name: boon_names.larger_chests,
         pic: `${IMG_FOLDER.boons}larger_chests.png`,
         description: boon_descriptions.larger_chests,
         prereq_description: boon_prereq_descriptions.none,
-        on_pick: on_pick_larger_chests,
+        on_pick: pick_larger_chests,
         max: 1,
     }
 }
 
-function on_pick_larger_chests(){
+function pick_larger_chests(){
     display.add_class(UIIDS.chest,`large-chest`);
+    GS.map.stats.alter_card_chest_choices(2);
+    GS.map.stats.alter_boon_chest_choices(2);
 }
 function limitless(){
     return {
@@ -18593,12 +18614,12 @@ function limitless(){
         pic: `${IMG_FOLDER.boons}limitless.png`,
         description: boon_descriptions.limitless,
         prereq_description: boon_prereq_descriptions.none,
-        on_pick: on_pick_limitless,
+        on_pick: pick_limitless,
         max: 1,
     }
 }
 
-function on_pick_limitless(){
+function pick_limitless(){
     GS.map.player_heal(new Point(0, 0));
     GS.map.get_player().max_health = undefined;
 }
@@ -18896,7 +18917,7 @@ function shattered_glass(){
         cost_description: boon_cost_descriptions.shattered_glass,
         prereq_description: boon_prereq_descriptions.shattered_glass,
         prereq: prereq_shattered_glass,
-        on_pick: on_pick_shattered_glass,
+        on_pick: pick_shattered_glass,
         max: 1,
     }
 }
@@ -18905,7 +18926,7 @@ function prereq_shattered_glass(){
     return max_health_greater_than(2);
 }
 
-function on_pick_shattered_glass(){
+function pick_shattered_glass(){
     var has_voucher = GS.boons.has(boon_names.soul_voucher);
     if(!has_voucher){
         change_max_health(-2);
@@ -18946,7 +18967,7 @@ function soul_voucher(){
         cost_description: boon_cost_descriptions.soul_voucher,
         prereq_description: boon_prereq_descriptions.soul_voucher,
         prereq: prereq_soul_voucher,
-        on_pick: on_pick_soul_voucher,
+        on_pick: pick_soul_voucher,
         max: 1,
     }
 }
@@ -18955,7 +18976,7 @@ function prereq_soul_voucher(){
     return max_health_greater_than(1) && GS.map.get_floor_num() < 15;
 }
 
-function on_pick_soul_voucher(){
+function pick_soul_voucher(){
     change_max_health(-1);
 }
 function spiked_shoes(){
