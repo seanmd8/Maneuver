@@ -2,7 +2,7 @@
 function symbol_deck_at_minimum(){
     return{
         name: card_names.symbol_deck_at_minimum,
-        pic: `${IMG_FOLDER.other}x.png`,
+        pic: `${IMG_FOLDER.ui}x.png`,
         options: new ButtonGrid(),
     }
 }

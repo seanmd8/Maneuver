@@ -646,7 +646,7 @@ const DisplayHTML = {
             img_box.classList.add(`achievement-img-box`);
             div.append(img_box);
 
-            var img_name = a.has ? a.image : `${IMG_FOLDER.other}locked.png`;
+            var img_name = a.has ? a.image : `${IMG_FOLDER.ui}locked.png`;
             var img = document.createElement(`img`);
             img.src = `${IMG_FOLDER.src}${img_name}`;
             img.alt = a.has? `unlocked` : `locked`;
@@ -1013,7 +1013,7 @@ const DisplayHTML = {
         var reset_button = DisplayHTML.create_button(visual_settings_titles.reset, undefined, reset);
         header.append(reset_button);
         var set_animation_speed = (value) => {settings.set({animation_speed: value})}
-        var set_text_size = (value) => {settings.set({text_size: value})}
+        //var set_text_size = (value) => {settings.set({text_size: value})}
         var set_grid_visibility = (value) => {
             settings.set({checkered_overlay: value});
             refresh_map_grid(GS.map);
@@ -1066,6 +1066,11 @@ const DisplayHTML = {
             div.append(button);
         }
         return div;
+    },
+    set_header_img(header_img_object){
+        var img = DisplayHTML.get_element(UIIDS.header_img);
+        img.src = header_img_object.source;
+        img.alt = header_img_object.alt;
     },
 
     // Non Required helper functions.

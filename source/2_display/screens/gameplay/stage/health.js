@@ -8,8 +8,8 @@ function display_health(player, scale){
         throw new Error(ERRORS.missing_property);
     }
     var health = [];
-    var hp = {pic: `${IMG_FOLDER.other}heart.png`, name: gameplay_labels.heart};
-    var lost = {pic: `${IMG_FOLDER.other}heart_broken.png`, name: gameplay_labels.broken_heart};
+    var hp = {pic: `${IMG_FOLDER.ui}heart.png`, name: gameplay_labels.heart};
+    var lost = {pic: `${IMG_FOLDER.ui}heart_broken.png`, name: gameplay_labels.broken_heart};
     for(var i = 0; i < player.health; ++i){
         health.push(hp);
     }

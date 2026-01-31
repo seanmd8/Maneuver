@@ -522,6 +522,35 @@ const JOURNAL_DISPLAY_WIDTH = 10;
 const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
 
+function header_imgs(){
+    return [
+        {
+            source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_0.png`,
+            alt: `sword`,
+            count: 0,
+        },
+        {
+            source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_1.png`,
+            alt: `sword slightly bloody`,
+            count: 10,
+        },
+        {
+            source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_2.png`,
+            alt: `sword medium bloody`,
+            count: 25,
+        },
+        {
+            source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_3.png`,
+            alt: `sword very bloody`,
+            count: 50,
+        },
+        {
+            source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_4.png`,
+            alt: `sword fully bloody`,
+            count: 75,
+        },
+    ];
+}
 // Image folder file structure.
 const IMG_FOLDER = {
     src: `images/`,
@@ -534,6 +563,7 @@ const IMG_FOLDER = {
     tiles: `tiles/`,
     boons: `boons/`,
     stats: `stats/`,
+    ui: `ui/`
 }
 Object.freeze(IMG_FOLDER);
 // Tags that entities can have.
@@ -2523,6 +2553,7 @@ const HTML_UIIDS = {
     header_bar: `headerBar`,
         header_box: `headerBox`,
             title: `title`,
+            header_img: `headerImg`,
     game_screen: `gameScreen`,
         stage: `stage`,
             stage_stats: `stageStats`,
@@ -3351,7 +3382,7 @@ const DisplayHTML = {
             img_box.classList.add(`achievement-img-box`);
             div.append(img_box);
 
-            var img_name = a.has ? a.image : `${IMG_FOLDER.other}locked.png`;
+            var img_name = a.has ? a.image : `${IMG_FOLDER.ui}locked.png`;
             var img = document.createElement(`img`);
             img.src = `${IMG_FOLDER.src}${img_name}`;
             img.alt = a.has? `unlocked` : `locked`;
@@ -3718,7 +3749,7 @@ const DisplayHTML = {
         var reset_button = DisplayHTML.create_button(visual_settings_titles.reset, undefined, reset);
         header.append(reset_button);
         var set_animation_speed = (value) => {settings.set({animation_speed: value})}
-        var set_text_size = (value) => {settings.set({text_size: value})}
+        //var set_text_size = (value) => {settings.set({text_size: value})}
         var set_grid_visibility = (value) => {
             settings.set({checkered_overlay: value});
             refresh_map_grid(GS.map);
@@ -3771,6 +3802,11 @@ const DisplayHTML = {
             div.append(button);
         }
         return div;
+    },
+    set_header_img(header_img_object){
+        var img = DisplayHTML.get_element(UIIDS.header_img);
+        img.src = header_img_object.source;
+        img.alt = header_img_object.alt;
     },
 
     // Non Required helper functions.
@@ -4150,8 +4186,8 @@ function display_health(player, scale){
         throw new Error(ERRORS.missing_property);
     }
     var health = [];
-    var hp = {pic: `${IMG_FOLDER.other}heart.png`, name: gameplay_labels.heart};
-    var lost = {pic: `${IMG_FOLDER.other}heart_broken.png`, name: gameplay_labels.broken_heart};
+    var hp = {pic: `${IMG_FOLDER.ui}heart.png`, name: gameplay_labels.heart};
+    var lost = {pic: `${IMG_FOLDER.ui}heart_broken.png`, name: gameplay_labels.broken_heart};
     for(var i = 0; i < player.health; ++i){
         health.push(hp);
     }
@@ -4634,7 +4670,7 @@ function show_area(info, depth, force_visited = false){
         if(!visited){
             return {
                 name: boon_names.locked,
-                pic: `${IMG_FOLDER.other}locked.png`,
+                pic: `${IMG_FOLDER.ui}locked.png`,
                 background: [info.background],
                 description: journal_area_messages.locked,
             }
@@ -4650,7 +4686,7 @@ function show_area(info, depth, force_visited = false){
         }
         return {
             name: boon_names.not_encountered,
-            pic: `${IMG_FOLDER.other}not_encountered.png`,
+            pic: `${IMG_FOLDER.ui}not_encountered.png`,
             background: [info.background],
             description: journal_area_messages.not_encountered,
         }
@@ -4765,7 +4801,7 @@ function display_boss_cards(){
 function cards_encountered(cards, encountered){
     return cards.map((c) => {
         var card = c();
-        card.background = [`${IMG_FOLDER.other}default_card_background.png`];
+        card.background = [`${IMG_FOLDER.ui}default_card_background.png`];
         if(card.name === card_names.symbol_locked){
             card.description = move_types.locked;
             return card;
@@ -11834,7 +11870,7 @@ class BoonTracker{
     get_lost(){
         return this.#lost_boons.map(b => {return {
             name: b.name,
-            foreground: [`${IMG_FOLDER.other}lost.png`],
+            foreground: [`${IMG_FOLDER.ui}lost.png`],
             pic: b.pic,
             on_click: function(){say(b.description)}
         }});
@@ -13289,6 +13325,7 @@ class GameState{
         say_record(starting_text);
         display.display_message(UIIDS.hand_label, `${gameplay_labels.hand}`);
         display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
+        display.set_header_img(header_imgs()[0]);
         create_sidebar();
         
         init.unlock_journal();
@@ -14015,10 +14052,10 @@ class MoveDeck{
             let card = this.#hand[i];
             let background = [];
             if(card.temp){
-                background.push(`${IMG_FOLDER.other}temporary_background.png`);
+                background.push(`${IMG_FOLDER.ui}temporary_background.png`);
             }
             else{
-                background.push(`${IMG_FOLDER.other}default_card_background.png`);
+                background.push(`${IMG_FOLDER.ui}default_card_background.png`);
             }
             card_row.push({
                 pic: card.pic,
@@ -14948,6 +14985,10 @@ class StatTracker{
     }
     increment_kills(){
         ++this.#kills;
+        const img = header_imgs().find((i) => {return i.count === this.#kills});
+        if(img !== undefined){
+            display.set_header_img(img);
+        }
     }
     increment_destroyed(){
         ++this.#destroyed;
@@ -17631,7 +17672,7 @@ function teleport(){
 function symbol_add_card(){
     return{
         name: card_names.symbol_add_card,
-        pic: `${IMG_FOLDER.other}plus.png`,
+        pic: `${IMG_FOLDER.ui}plus.png`,
         options: new ButtonGrid(),
     }
 }
@@ -17639,7 +17680,7 @@ function symbol_add_card(){
 function symbol_deck_at_minimum(){
     return{
         name: card_names.symbol_deck_at_minimum,
-        pic: `${IMG_FOLDER.other}x.png`,
+        pic: `${IMG_FOLDER.ui}x.png`,
         options: new ButtonGrid(),
     }
 }
@@ -17647,7 +17688,7 @@ function symbol_deck_at_minimum(){
 function symbol_locked_card(){
     return{
         name: card_names.symbol_locked,
-        pic: `${IMG_FOLDER.other}locked.png`,
+        pic: `${IMG_FOLDER.ui}locked.png`,
         options: new ButtonGrid(),
     }
 }
@@ -17655,7 +17696,7 @@ function symbol_locked_card(){
 function symbol_not_encountered_card(){
     return{
         name: card_names.symbol_not_encountered,
-        pic: `${IMG_FOLDER.other}not_encountered.png`,
+        pic: `${IMG_FOLDER.ui}not_encountered.png`,
         options: new ButtonGrid(),
     }
 }
@@ -17663,7 +17704,7 @@ function symbol_not_encountered_card(){
 function symbol_remove_card(){
     return{
         name: card_names.symbol_remove_card,
-        pic: `${IMG_FOLDER.other}minus.png`,
+        pic: `${IMG_FOLDER.ui}minus.png`,
         options: new ButtonGrid(),
     }
 }
@@ -18177,14 +18218,14 @@ function filter_cost_boons(boons){
 function symbol_locked_boon(){
     return {
         name: boon_names.locked,
-        pic: `${IMG_FOLDER.other}locked.png`,
+        pic: `${IMG_FOLDER.ui}locked.png`,
         description: boon_descriptions.locked,
     }
 }
 function symbol_not_encountered_boon(){
     return {
         name: boon_names.not_encountered,
-        pic: `${IMG_FOLDER.other}not_encountered.png`,
+        pic: `${IMG_FOLDER.ui}not_encountered.png`,
         description: boon_descriptions.not_encountered,
     }
 }

@@ -163,10 +163,10 @@ class MoveDeck{
             let card = this.#hand[i];
             let background = [];
             if(card.temp){
-                background.push(`${IMG_FOLDER.other}temporary_background.png`);
+                background.push(`${IMG_FOLDER.ui}temporary_background.png`);
             }
             else{
-                background.push(`${IMG_FOLDER.other}default_card_background.png`);
+                background.push(`${IMG_FOLDER.ui}default_card_background.png`);
             }
             card_row.push({
                 pic: card.pic,

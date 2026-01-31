@@ -30,6 +30,7 @@ class GameState{
         say_record(starting_text);
         display.display_message(UIIDS.hand_label, `${gameplay_labels.hand}`);
         display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
+        display.set_header_img(header_imgs()[0]);
         create_sidebar();
         
         init.unlock_journal();

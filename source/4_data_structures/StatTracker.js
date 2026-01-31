@@ -94,6 +94,10 @@ class StatTracker{
     }
     increment_kills(){
         ++this.#kills;
+        const img = header_imgs().find((i) => {return i.count === this.#kills});
+        if(img !== undefined){
+            display.set_header_img(img);
+        }
     }
     increment_destroyed(){
         ++this.#destroyed;

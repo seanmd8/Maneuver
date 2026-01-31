@@ -2,7 +2,7 @@
 function symbol_add_card(){
     return{
         name: card_names.symbol_add_card,
-        pic: `${IMG_FOLDER.other}plus.png`,
+        pic: `${IMG_FOLDER.ui}plus.png`,
         options: new ButtonGrid(),
     }
 }

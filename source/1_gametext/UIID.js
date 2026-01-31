@@ -65,6 +65,7 @@ const HTML_UIIDS = {
     header_bar: `headerBar`,
         header_box: `headerBox`,
             title: `title`,
+            header_img: `headerImg`,
     game_screen: `gameScreen`,
         stage: `stage`,
             stage_stats: `stageStats`,

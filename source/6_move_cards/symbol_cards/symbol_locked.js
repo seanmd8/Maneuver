@@ -2,7 +2,7 @@
 function symbol_locked_card(){
     return{
         name: card_names.symbol_locked,
-        pic: `${IMG_FOLDER.other}locked.png`,
+        pic: `${IMG_FOLDER.ui}locked.png`,
         options: new ButtonGrid(),
     }
 }

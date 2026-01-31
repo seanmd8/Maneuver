@@ -34,7 +34,7 @@ function show_area(info, depth, force_visited = false){
         if(!visited){
             return {
                 name: boon_names.locked,
-                pic: `${IMG_FOLDER.other}locked.png`,
+                pic: `${IMG_FOLDER.ui}locked.png`,
                 background: [info.background],
                 description: journal_area_messages.locked,
             }
@@ -50,7 +50,7 @@ function show_area(info, depth, force_visited = false){
         }
         return {
             name: boon_names.not_encountered,
-            pic: `${IMG_FOLDER.other}not_encountered.png`,
+            pic: `${IMG_FOLDER.ui}not_encountered.png`,
             background: [info.background],
             description: journal_area_messages.not_encountered,
         }
