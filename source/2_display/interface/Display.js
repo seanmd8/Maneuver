@@ -1121,6 +1121,7 @@ const DisplayHTML = {
         const parent = this.get_element(destination);
         const fs = document.createElement(`fieldset`);
         fs.classList.add(`shop-section-box`);
+        fs.classList.add(`history-box`);
         const legend = document.createElement(`legend`);
         const table = document.createElement(`table`);
         parent.append(fs);
@@ -1147,12 +1148,15 @@ const DisplayHTML = {
                 return;
             }
             const page_info = history_list[page];
+            const death = page_info.victory ? `` : journal_history_messages.killed_by;
             const header_message = 
                 `${journal_history_messages.run_num}`
                 +`${page_info.run_number}: `
+                +`${death}`
                 +`${page_info.end_message}`;
             const h2 = document.createElement(`h2`);
             h2.innerText = header_message;
+            h2.classList.add(`history-header`);
             pageElement.append(h2);
             const stat_box = document.createElement(`div`);
             const stat_box_id = `statBox`;
@@ -1214,6 +1218,9 @@ const DisplayHTML = {
                 history_stat_labels.chests
             );
             var decklist = remake_deck(page_info.deck);
+            for(var c of decklist){
+                c.background = [`${IMG_FOLDER.other}card_background.png`];
+            }
             pageElement.append(
                 this.create_card_section(
                     UIIDS.history_section, 

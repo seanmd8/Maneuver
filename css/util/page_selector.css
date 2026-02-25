@@ -1,6 +1,7 @@
 .page-selector-button {
     width: 28px;
-    height: 2px;
+    height: 28px;
+    margin: 1px;
 }
 
 .page-selector-clickable {

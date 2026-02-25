@@ -1,5 +1,6 @@
 const journal_history_messages = {
     run_num: `Run #`,
+    killed_by: `Killed by `,
     victory: `Victory!`
 }
 

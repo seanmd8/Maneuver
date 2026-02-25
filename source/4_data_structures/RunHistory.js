@@ -5,10 +5,11 @@ class RunHistory{
     }
     add_run(stat_tracker, floors, end_message, max_health, boons, deck, achievements){
         var stats = stat_tracker.get_stats();
+        const a_names = achievements.completed().map((a) => {return a.name});
         var run = {
             run_number: this.#history.length + 1,
             end_message,
-            victory: floors === 25,
+            victory: a_names.includes(achievement_names.victory),
 
             floors: floors,
             turns: stats.turn_number,
@@ -24,7 +25,7 @@ class RunHistory{
 
             boons: boons.get_names(),
             deck: deck.get_names(),
-            achievements: achievements.completed().map((a) => {return a.name}),
+            achievements: a_names,
         }
         this.#history.push(run);
     }

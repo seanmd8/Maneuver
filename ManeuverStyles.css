@@ -857,12 +857,28 @@ body>div {
     margin: 5px;
 }
 
+.history-header {
+    text-align: center;
+    padding: 15px;
+    border: solid;
+    border-radius: 20px;
+    background-color: lavender;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: fit-content;
+    height: fit-content;
+}
+
 .history-page {
     width: 604px;
-    border-color: black;
     display: flex;
     align-items: center;
     flex-direction: column;
+    background-color: dimgrey;
+    border-color: black;
+    border-style: solid;
+    border-width: 6px;
+    border-top-width: 0px;
 }
 
 .history-section {
@@ -888,6 +904,17 @@ body>div {
 
 .history-section .shop-section-box {
     min-width: 472px;
+}
+
+.history-box {
+    background-color: #f4d6aa;
+    border-color: saddlebrown;
+    border-width: 3px;
+}
+.history-box legend {
+    border-color: black;
+    border-width: 2px;
+    padding: 2px 5px;
 }
 .journal-style {
     background-color: var(--journal-background-color);
@@ -1172,7 +1199,8 @@ body>div {
 }
 .page-selector-button {
     width: 28px;
-    height: 2px;
+    height: 28px;
+    margin: 1px;
 }
 
 .page-selector-clickable {
