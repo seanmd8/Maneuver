@@ -1254,8 +1254,8 @@ const DisplayHTML = {
             }
         }
         const selector = new PageSelector((p) => {update(p)}, max);
-        selectorElement.append(this.make_page_selector(selector));
         selector.set_max();
+        selectorElement.append(this.make_page_selector(selector));
     },
 
     // Non Required helper functions.
