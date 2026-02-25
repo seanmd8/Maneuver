@@ -90,4 +90,7 @@ class BoonTracker{
             on_click: function(){say(b.description)}
         }});
     }
+    get_names(){
+        return [...this.#boons, ...this.#lost_boons].map((b) => {return b.name});
+    }
 }

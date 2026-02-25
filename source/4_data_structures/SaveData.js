@@ -14,6 +14,7 @@ class SaveData{
     boons;
     tiles;
     areas;
+    history;
     
     #load_function;
     #save_function;
@@ -35,6 +36,7 @@ class SaveData{
         this.boons = new SearchTree(data.boons, BoonTreeNode);
         this.tiles = new SearchTree(data.tiles, TileTreeNode);
         this.areas = new SearchTree(data.areas, AreaTreeNode);
+        this.history = new RunHistory(data.runs);
     }
     save(){
         var data = {
@@ -142,6 +144,27 @@ class SaveData{
     reset_areas(){
         this.tiles = new SearchTree([], TileTreeNode);
         this.areas = new SearchTree([], AreaTreeNode);
+        this.save();
+    }
+    record_run(end_message, map, boons, deck, achievements){
+        const player = map.get_player();
+        this.history.add_run(
+            map.stats, 
+            map.get_floor_num(), 
+            end_message, 
+            player.max_health,
+            boons, 
+            deck, 
+            achievements
+        );
+        this.save();
+    }
+    get_runs(){
+        return this.history.get_runs();
+        
+    }
+    clear_runs(){
+        this.history = new RunHistory();
         this.save();
     }
 

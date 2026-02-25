@@ -90,3 +90,34 @@ function filter_cost_boons(boons){
         return b.cost_description !== undefined;
     });
 }
+
+function remake_boons(boon_names){
+    var boons = [...BOON_LIST];
+    boons = boons.sort((a, b) => {
+        if(a().name < b().name){
+            return -1;
+        }
+        return 1;
+    });
+    var f = (a, b) => {
+        var name = a().name;
+        if(name < b){
+            return -1;
+        }
+        if(name > b){
+            return 1;
+        }
+        return 0;
+    }
+    var list = [];
+    for(var name of boon_names){
+        var index = binary_search(boons, name, f);
+        if(index > 0){
+            list.push(boons[index]());
+        }
+        else{
+            list.push(symbol_card_info_missing());
+        }
+    }
+    return list;
+}

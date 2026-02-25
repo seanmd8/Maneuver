@@ -234,3 +234,33 @@ function same_structure(obj1, obj2){
     }
     return true;
 }
+
+function binary_search(arr, val, f = undefined){
+    if(f === undefined){
+        f = (a, b) => {
+            if(a < b){
+                return 1;
+            }
+            if(a > b){
+                return -1;
+            }
+            return 0;
+        }
+    }
+    var start = 0;
+    var end = arr.length;
+    while(start !== end){
+        var mid = Math.floor(start + (end - start) / 2);
+        var compare = f(arr[mid], val);
+        if(compare > 0){
+            end = mid;
+        }
+        else if(compare < 0){
+            start = mid;
+        }
+        else{
+            return mid;
+        }
+    }
+    return -1;
+}

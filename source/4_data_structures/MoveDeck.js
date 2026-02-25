@@ -293,6 +293,9 @@ class MoveDeck{
         new_deck.#decklist = this.#decklist;
         return new_deck;
     }
+    get_names(){
+        return this.#decklist.map((c) => {return c.name});
+    }
     #check_three_kind_achievement(name){
         var repeats = this.#decklist.filter((e) => {return e.name === name});
         if(GS !== undefined && repeats.length === 3){

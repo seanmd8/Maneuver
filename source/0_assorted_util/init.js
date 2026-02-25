@@ -7,6 +7,7 @@ function init_settings(){
         cards: undefined,
         area: undefined,
         area_size: undefined,
+        achieve: undefined,
         unlock_journal: undefined,
         save: undefined,
         load: undefined,
@@ -22,6 +23,8 @@ function init_settings(){
     // Determines the size of each area.
     // Set to a minimum of 2 since bosses cannot generate on the first floor.
     init.area_size = init.area_size !== undefined ? init.area_size : AREA_SIZE;
+    // Automatically achieves the listed achievements.
+    init.achieve = init.achieve !== undefined ? init.achieve : [];
     // Function to unlock parts of the journal automatically.
     init.unlock_journal = init.unlock_journal !== undefined ? init.unlock_journal : () => {};
     // Determines the way of saving and loading the game.

@@ -39,3 +39,10 @@ function get_achievement_names(){
         return a.name;
     });
 }
+
+function remake_achievements(names){
+    var a_list = get_achievements();
+    return a_list.filter((a) => {
+        return names.find((n) => {return n === a.name}) !== undefined;
+    });
+}
