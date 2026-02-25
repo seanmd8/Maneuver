@@ -5132,16 +5132,16 @@ function update_journal(){
     update_achievements();
 }
 
+const journal_navbar_ids = [
+    UIIDS.journal_cards,
+    UIIDS.journal_boons,
+    UIIDS.journal_areas,
+    UIIDS.achievements,
+    UIIDS.journal_history
+]
+
 function setup_journal_navbar(){
     var id = UIIDS.journal_navbar;
-
-    var section_id_list = [
-        UIIDS.journal_cards,
-        UIIDS.journal_boons,
-        UIIDS.journal_areas,
-        UIIDS.achievements,
-        UIIDS.journal_history
-    ];
 
     var swap_visibility = function(id_list, id){
         return function(){
@@ -5149,13 +5149,13 @@ function setup_journal_navbar(){
         }
     }
 
-    display.create_visibility_toggle(id, journal_navbar_labels.cards, swap_visibility(section_id_list, UIIDS.journal_cards));
-    display.create_visibility_toggle(id, journal_navbar_labels.boons, swap_visibility(section_id_list, UIIDS.journal_boons));
-    display.create_visibility_toggle(id, journal_navbar_labels.areas, swap_visibility(section_id_list, UIIDS.journal_areas));
-    display.create_visibility_toggle(id, journal_navbar_labels.achievements, swap_visibility(section_id_list, UIIDS.achievements));
-    display.create_visibility_toggle(id, journal_navbar_labels.history, swap_visibility(section_id_list, UIIDS.journal_history));
+    display.create_visibility_toggle(id, journal_navbar_labels.cards, swap_visibility(journal_navbar_ids, UIIDS.journal_cards));
+    display.create_visibility_toggle(id, journal_navbar_labels.boons, swap_visibility(journal_navbar_ids, UIIDS.journal_boons));
+    display.create_visibility_toggle(id, journal_navbar_labels.areas, swap_visibility(journal_navbar_ids, UIIDS.journal_areas));
+    display.create_visibility_toggle(id, journal_navbar_labels.achievements, swap_visibility(journal_navbar_ids, UIIDS.achievements));
+    display.create_visibility_toggle(id, journal_navbar_labels.history, swap_visibility(journal_navbar_ids, UIIDS.journal_history));
 
-    display.swap_screen(section_id_list, UIIDS.journal_cards);
+    display.swap_screen(journal_navbar_ids, UIIDS.journal_cards);
 }
 function controls_chest_section(){
     var controls = GS.data.controls.get();
@@ -5239,12 +5239,14 @@ function reset_achievements(){
 function reset_history(){
     GS.data.clear_runs();
     update_history();
+    display.swap_screen(journal_navbar_ids, UIIDS.journal_cards);
 }
 function reset_journal(){
     reset_achievements();
     reset_areas();
     reset_boons();
     reset_cards();
+    reset_history();
 }
 function setup_settings_page(){
     reset_visual_settings_page();
@@ -14579,7 +14581,7 @@ class SaveData{
         this.boons = new SearchTree(data.boons, BoonTreeNode);
         this.tiles = new SearchTree(data.tiles, TileTreeNode);
         this.areas = new SearchTree(data.areas, AreaTreeNode);
-        this.history = new RunHistory(data.runs);
+        this.history = new RunHistory(data.history);
     }
     save(){
         var data = {
@@ -14590,6 +14592,7 @@ class SaveData{
             boons: this.boons.to_list(),
             tiles: this.tiles.to_list(),
             areas: this.areas.to_list(),
+            history: this.history.get_runs(),
         }
         this.#save_function(data);
     }
@@ -14704,7 +14707,6 @@ class SaveData{
     }
     get_runs(){
         return this.history.get_runs();
-        
     }
     clear_runs(){
         this.history = new RunHistory();

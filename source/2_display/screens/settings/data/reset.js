@@ -17,10 +17,12 @@ function reset_achievements(){
 function reset_history(){
     GS.data.clear_runs();
     update_history();
+    display.swap_screen(journal_navbar_ids, UIIDS.journal_cards);
 }
 function reset_journal(){
     reset_achievements();
     reset_areas();
     reset_boons();
     reset_cards();
+    reset_history();
 }

@@ -36,7 +36,7 @@ class SaveData{
         this.boons = new SearchTree(data.boons, BoonTreeNode);
         this.tiles = new SearchTree(data.tiles, TileTreeNode);
         this.areas = new SearchTree(data.areas, AreaTreeNode);
-        this.history = new RunHistory(data.runs);
+        this.history = new RunHistory(data.history);
     }
     save(){
         var data = {
@@ -47,6 +47,7 @@ class SaveData{
             boons: this.boons.to_list(),
             tiles: this.tiles.to_list(),
             areas: this.areas.to_list(),
+            history: this.history.get_runs(),
         }
         this.#save_function(data);
     }
@@ -161,7 +162,6 @@ class SaveData{
     }
     get_runs(){
         return this.history.get_runs();
-        
     }
     clear_runs(){
         this.history = new RunHistory();
