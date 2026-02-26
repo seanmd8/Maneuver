@@ -36,6 +36,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: 540px;
+    width: 100%;
+    overflow-y: scroll;
+    background-color: gray;
+    border-bottom-width: 4px;
+    border-bottom-color: black;
+    border-bottom-style: solid;
 }
 
 .history-section .stat-pair {
