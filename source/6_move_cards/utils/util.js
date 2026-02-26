@@ -79,6 +79,17 @@ function pheal(x, y){
  * @returns {Card} The resulting card.
  */
 
+function get_all_cards(){
+    return [
+        ...BASIC_CARDS,
+        ...COMMON_CARDS,
+        ...get_all_achievement_cards(),
+        ...BOON_CARDS,
+        ...CONFUSION_CARDS,
+        ...get_boss_cards(),
+    ];
+}
+
 /**
  * Function to explain an individual player action.
  * @param {PlayerCommand} action The command to explain.
@@ -245,4 +256,35 @@ function filter_new_cards(cards){
     return cards.filter((c) => {
         return !GS.data.cards.has(c.name);
     });
+}
+
+function remake_deck(card_names){
+    var cards = get_all_cards();
+    cards = cards.sort((a, b) => {
+        if(a().name < b().name){
+            return -1;
+        }
+        return 1;
+    });
+    var f = (a, b) => {
+        var name = a().name;
+        if(name < b){
+            return -1;
+        }
+        if(name > b){
+            return 1;
+        }
+        return 0;
+    }
+    var list = [];
+    for(var name of card_names){
+        var index = binary_search(cards, name, f);
+        if(index > 0){
+            list.push(cards[index]());
+        }
+        else{
+            list.push(symbol_card_info_missing());
+        }
+    }
+    return list;
 }

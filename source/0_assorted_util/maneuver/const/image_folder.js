@@ -10,5 +10,6 @@ const IMG_FOLDER = {
     tiles: `tiles/`,
     boons: `boons/`,
     stats: `stats/`,
+    ui: `ui/`
 }
 Object.freeze(IMG_FOLDER);

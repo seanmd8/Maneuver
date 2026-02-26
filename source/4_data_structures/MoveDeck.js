@@ -163,10 +163,10 @@ class MoveDeck{
             let card = this.#hand[i];
             let background = [];
             if(card.temp){
-                background.push(`${IMG_FOLDER.other}temporary_background.png`);
+                background.push(`${IMG_FOLDER.ui}temporary_background.png`);
             }
             else{
-                background.push(`${IMG_FOLDER.other}default_card_background.png`);
+                background.push(`${IMG_FOLDER.ui}default_card_background.png`);
             }
             card_row.push({
                 pic: card.pic,
@@ -292,6 +292,9 @@ class MoveDeck{
         new_deck.#id_count = this.#id_count;
         new_deck.#decklist = this.#decklist;
         return new_deck;
+    }
+    get_names(){
+        return this.#decklist.map((c) => {return c.name});
     }
     #check_three_kind_achievement(name){
         var repeats = this.#decklist.filter((e) => {return e.name === name});

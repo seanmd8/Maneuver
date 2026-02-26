@@ -30,6 +30,7 @@ function lord_of_shadow_and_flame_tile(){
         death_achievement: achievement_names.lord_of_shadow_and_flame,
         behavior: lord_of_shadow_and_flame_ai,
         telegraph: lord_of_shadow_and_flame_telegraph,
+        on_hit: lord_of_shadow_and_flame_on_hit,
         on_death: lord_of_shadow_and_flame_on_death,
         pic_arr,
         cycle: 0,
@@ -40,6 +41,7 @@ function lord_of_shadow_and_flame_tile(){
 
 /** @type {AIFunction} AI used by the Lord of Shadow and Flame.*/
 function lord_of_shadow_and_flame_ai(self, target, map){
+    var damaged = self.tile.health < self.tile.max_health / 2;
     var lord_slow_pics = [
         `${IMG_FOLDER.tiles}lord_move.png`,
         `${IMG_FOLDER.tiles}lord_attack.png`,
@@ -51,7 +53,7 @@ function lord_of_shadow_and_flame_ai(self, target, map){
         `${IMG_FOLDER.tiles}lord_fast_summon.png`
     ];
 
-    self.tile.pic_arr = self.tile.health < self.tile.max_health / 2 ? lord_fast_pics : lord_slow_pics;
+    self.tile.pic_arr = damaged ? lord_fast_pics : lord_slow_pics;
     switch(self.tile.cycle){
         case 2: // Summon Mode
             // Do nothing since the actual summon should be an event that is already in motion.
@@ -68,10 +70,17 @@ function lord_of_shadow_and_flame_ai(self, target, map){
                     map.attack(attack);
                 }
             }
+            if(damaged){
+                var locations = point_rectangle(self.location.plus(2, 2), self.location.plus(-2, -2));
+                map.add_event({
+                    name: event_names.shockwave, 
+                    behavior: shockwave_event(locations),
+                });
+            }
             break;
         case 0: // Movement Mode
             if(!target.difference.within_radius(1)){
-                var speed = self.tile.health < self.tile.max_health / 2 ? 2 : 1;
+                var speed = damaged ? 2 : 1;
                 for(var i = 0; i < speed; ++i){
                     var nearest = get_nearest_altar(map, self.location);
                     if(nearest !== undefined){
@@ -148,6 +157,12 @@ function check_fireball_target(map, location){
         return point_equals(map.get_tile(p).direction.plus(p), location);
     });
     return fireballs.length > 0;
+}
+
+function lord_of_shadow_and_flame_on_hit(self, target, map){
+    if(self.tile.stun > 0){
+        --self.tile.stun;
+    }
 }
 
 function lord_of_shadow_and_flame_on_death(self, target, map){

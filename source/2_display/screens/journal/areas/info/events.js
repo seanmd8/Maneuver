@@ -11,6 +11,7 @@ function events_display_info(){
             darkling_rift_mark,
             falling_rubble_mark,
             nettle_roots_mark,
+            shockwave_mark,
             starcaller_rift_mark,
             sunlight_mark,
             thorn_roots_mark,

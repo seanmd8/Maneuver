@@ -2,7 +2,7 @@
 function symbol_remove_card(){
     return{
         name: card_names.symbol_remove_card,
-        pic: `${IMG_FOLDER.other}minus.png`,
+        pic: `${IMG_FOLDER.ui}minus.png`,
         options: new ButtonGrid(),
     }
 }

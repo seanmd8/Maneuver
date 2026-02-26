@@ -235,6 +235,73 @@ function same_structure(obj1, obj2){
     }
     return true;
 }
+
+function binary_search(arr, val, f = undefined){
+    if(f === undefined){
+        f = (a, b) => {
+            if(a < b){
+                return 1;
+            }
+            if(a > b){
+                return -1;
+            }
+            return 0;
+        }
+    }
+    var start = 0;
+    var end = arr.length;
+    while(start !== end){
+        var mid = Math.floor(start + (end - start) / 2);
+        var compare = f(arr[mid], val);
+        if(compare > 0){
+            end = mid;
+        }
+        else if(compare < 0){
+            start = mid;
+        }
+        else{
+            return mid;
+        }
+    }
+    return -1;
+}
+class PageSelector{
+    #on_update
+    #max
+    #current
+
+    constructor(on_update, max, initial = 0){
+        this.#on_update = on_update;
+        this.#max = max - 1;
+        this.#current = initial;
+        this.#on_update(this.#current);
+    }
+    current(){
+        return this.#current;
+    }
+    move(difference){
+        this.set(this.#current + difference);
+    }
+    set_max(){
+        this.set(this.#max);
+    }
+    set(num){
+        const initial = this.#current;
+        var current = num;
+        current = Math.min(current, this.#max);
+        current = Math.max(current, 0);
+        this.#current = current;
+        if(initial !== this.#current){
+            this.#on_update(this.#current);
+        }
+    }
+    at_min(){
+        return this.#current === 0;
+    }
+    at_max(){
+        return this.#current === this.#max;
+    }
+}
 // ----------------Point.js----------------
 // File contains Point class and associated functions.
 
@@ -437,6 +504,7 @@ function init_settings(){
         cards: undefined,
         area: undefined,
         area_size: undefined,
+        achieve: undefined,
         unlock_journal: undefined,
         save: undefined,
         load: undefined,
@@ -452,6 +520,8 @@ function init_settings(){
     // Determines the size of each area.
     // Set to a minimum of 2 since bosses cannot generate on the first floor.
     init.area_size = init.area_size !== undefined ? init.area_size : AREA_SIZE;
+    // Automatically achieves the listed achievements.
+    init.achieve = init.achieve !== undefined ? init.achieve : [];
     // Function to unlock parts of the journal automatically.
     init.unlock_journal = init.unlock_journal !== undefined ? init.unlock_journal : () => {};
     // Determines the way of saving and loading the game.
@@ -499,7 +569,8 @@ const FLOOR_HEIGHT = 8;
 const AREA_SIZE = 5;
 const CHEST_LOCATION = 3;
 const SECOND_CHEST_LOCATION = 2;
-const BOON_CHOICES = 3;
+const BOON_CHEST_CHOICES = 3;
+const CARD_CHEST_CHOICES = 1;
 const SAFE_SPAWN_ATTEMPTS = 5;
 
 // Visual and animation settings.
@@ -521,6 +592,35 @@ const JOURNAL_DISPLAY_WIDTH = 10;
 const TEXT_WRAP_WIDTH = 90;
 const MARKUP_LANGUAGE = `html`;
 
+function header_imgs(){
+    return [
+        {
+            source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_0.png`,
+            alt: `sword`,
+            count: 0,
+        },
+        {
+            source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_1.png`,
+            alt: `sword slightly bloody`,
+            count: 10,
+        },
+        {
+            source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_2.png`,
+            alt: `sword medium bloody`,
+            count: 25,
+        },
+        {
+            source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_3.png`,
+            alt: `sword very bloody`,
+            count: 50,
+        },
+        {
+            source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_4.png`,
+            alt: `sword fully bloody`,
+            count: 75,
+        },
+    ];
+}
 // Image folder file structure.
 const IMG_FOLDER = {
     src: `images/`,
@@ -533,6 +633,7 @@ const IMG_FOLDER = {
     tiles: `tiles/`,
     boons: `boons/`,
     stats: `stats/`,
+    ui: `ui/`
 }
 Object.freeze(IMG_FOLDER);
 // Tags that entities can have.
@@ -621,6 +722,7 @@ function initiate_game(){
     setup_journal_navbar();
     setup_settings_navbar();
     setup_data_page();
+    update_history();
 }
 
 /**
@@ -661,6 +763,152 @@ const area_names = {
     events: `Events`,
 }
 Object.freeze(area_names);
+const boon_cost_descriptions = {
+    blood_alchemy: `Cost: Take 2 damage.`,
+    brag_and_boast: `Cost: Add 2 non temporary confusion cards to your deck.`,
+    creative: `Cost: Increase your minimum deck size by 5.`,
+    expend_vitality: `Cost: Decrease your maximum health by 1.`,
+    gruntwork: `Cost: Decrease your hand size by 1.`,
+    hoarder: `Cost: Boon chests have 1 fewer choice`,
+    medical_investment: `Cost: Receive 1 fewer card choice for adding and removing cards in the shop.`,
+    roar_of_challenge: `Cost: Increase difficulty by 3 floors.`,
+    shattered_glass: `Cost: Decrease your maximum health by 2.`,
+    soul_voucher: `Cost: Decrease your maximum health by 1.`,
+    spiked_shoes: `Cost: Decrease your maximum health by 1.`,
+    spontaneous: `Cost: Increase your minimum deck size by 5.`,
+}
+Object.freeze(boon_cost_descriptions);
+const boon_descriptions = {
+    locked: `You have not unlocked this boon yet.`,
+    not_encountered:
+        `You have never taken this boon.`,
+
+    bitter_determination: 
+        `At the start of each floor, heal 1 if your health is exactly 1.`,
+    blood_alchemy:
+        `Gain 2 max hp.`,
+    boss_slayer: 
+        `Bosses start with 2 less hp.`,
+    brag_and_boast: 
+        `Add 2 random boss cards to your deck.`,
+    chilly_presence: 
+        `Enemies have a 1/6 chance to become stunned at the end of their `
+        +`turn. Bosses are not affected.`,
+    choose_your_path: 
+        `You get to decide which area to go to after each boss fight.`,
+    clean_mind: 
+        `Remove any 2 cards from your deck.`,
+    creative: 
+        `Increase your hand size by 1.`,
+    dazing_blows: 
+        `Your attacks stun enemies. Bosses are unaffected.`,
+    delayed_strike:
+        `If you would attack or stun an empty space, delay that action until the end of `
+        +`the next enemy turn. Actions delayed this way can't hit you.`,
+    duplicate: 
+        `Get a copy of any card in your deck.`,
+    empty_rooms: 
+        `Difficulty decreases by 3 floors`,
+    escape_artist: 
+        `Teleport away when attacked.`,
+    expend_vitality: 
+        `Heal 1 life at the start of each floor.`,
+    flame_strike: 
+        `Attacking an adjacent empty space has a 1/2 chance of shooting a fireball`,
+    flame_worship:
+        `Two Altars of Scouring spawn on each non boss floor`,
+    fleeting_thoughts: 
+        `Temporary cards added to your deck will happen instantly.`,
+    fortitude: 
+        `Gain an extra max health and heal for 1.`,
+    frenzy: 
+        `Deal double damage while you only have 1 health.`,
+    frugivore: 
+        `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
+        +`for 1, but might attract enemies.`,
+    future_sight: 
+        `You may look at the order of your deck.`,
+    gruntwork: 
+        `Gain 3 extra max health.`,
+    hoarder: 
+        `Encounter two boon chests in each area.`,
+    larger_chests: 
+        `All chests contain 2 additional choices and are invulnerable.`,
+    limitless: 
+        `Fully heal, then remove your max health. If you would be fully healed, heal for 1 instead.`,
+    manic_presence: 
+        `Some types of enemies have poor trigger discipline.`,
+    medical_investment: 
+        `Gain 2 extra max health.`,
+    pacifism: 
+        `If you would attack an enemy, stun them twice instead (some terrain elements can still `
+        +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,
+    pain_reflexes: 
+        `Take a turn whenever you are attacked.`,
+    pandoras_box:
+        `Gain a number of random boons equal to your current maximum hp. Reduce your maximum hp to 1.`,
+    perfect_the_basics: 
+        `Replace all your basic cards with better ones.`,
+    picky_shopper: 
+        `Recieve 1 extra card choice for adding and removing cards in the shop.`,
+    practice_makes_perfect: 
+        `Defeating a boss while at max health increases your max health by 1.`,
+    pressure_points: 
+        `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`,
+    quick_healing: 
+        `After being dealt damage, you have a 1/4 chance to instantly heal it.`,
+    rebirth: 
+        `When you die, you are revived at full health and this boon is removed.`,
+    repetition: 
+        `Every 3rd turn, your cards happen twice.`,
+    retaliate: 
+        `When you are dealt damage, attack a nearby enemy.`,
+    rift_touched: 
+        `Two Darklings spawn on each non boss floor.`,
+    roar_of_challenge: 
+        `Gain 2 max health.`,
+    safe_passage: 
+        `Fully heal and travel to the next boss floor.`,
+    shattered_glass: 
+        `Enemies and Terrain explode on death damaging everything nearby other than you.`,
+    skill_trading: 
+        `You may both add a card and remove a card at each shop.`,
+    slime_trail: 
+        `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`,
+    sniper: 
+        `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
+    soul_voucher:
+        `Ignore any cost to obtain new boons. Each boon chest is guaranteed to have at least 1 `
+        +`boon with a cost in it.`,
+    spiked_shoes: 
+        `Attempting to move onto enemies damages them.`,
+    spontaneous: 
+        `After using a non instant card, discard your whole hand.`,
+    stable_mind: 
+        `You gain a 50% chance to resist confusion.`,
+    stealthy: 
+        `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`,
+    stubborn: 
+        `You can skip shops.`,
+    thick_soles: 
+        `You are immune to damage on your turn.`,
+    vicious_cycle: 
+        `At the start of each floor fully heal, then add 2 temporary Lash Out cards to your deck.`,
+}
+Object.freeze(boon_descriptions);
+const boon_messages = {
+    section_header: `Boons`,
+    max: `Max`,
+    no_max: `Unlimited`,
+    number_picked: `Times Picked`,
+
+    clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
+    duplicate: `Choose a card to copy:`,
+    practice_makes_perfect: `Your maximum health has increased.`,
+    rebirth: `You died, but were brought back to life.`,
+    soul_voucher: `Your voucher will negate the cost.`
+}
+Object.freeze(boon_messages);
 const boon_names = {
     locked: `Locked`,
     not_encountered: `Not Encountered`,
@@ -721,140 +969,6 @@ const boon_names = {
     vicious_cycle: `Vicious Cycle`,
 }
 Object.freeze(boon_names);
-
-const boon_descriptions = {
-    locked: `You have not unlocked this boon yet.`,
-    not_encountered:
-        `You have never taken this boon.`,
-
-    bitter_determination: 
-        `At the start of each floor, heal 1 if your health is exactly 1.`,
-    blood_alchemy:
-        `Gain 2 max hp.`,
-    boss_slayer: 
-        `Bosses start with 2 less hp.`,
-    brag_and_boast: 
-        `Add 2 random boss cards to your deck.`,
-    chilly_presence: 
-        `Enemies have a 1/6 chance to become stunned at the end of their `
-        +`turn. Bosses are not affected.`,
-    choose_your_path: 
-        `You get to decide which area to go to after each boss fight.`,
-    clean_mind: 
-        `Remove any 2 cards from your deck.`,
-    creative: 
-        `Increase your hand size by 1.`,
-    dazing_blows: 
-        `Your attacks stun enemies. Bosses are unaffected.`,
-    delayed_strike:
-        `If you would attack or stun an empty space, delay that action until the end of `
-        +`the next enemy turn. Actions delayed this way can't hit you.`,
-    duplicate: 
-        `Get a copy of any card in your deck.`,
-    empty_rooms: 
-        `Difficulty decreases by 3 floors`,
-    escape_artist: 
-        `Teleport away when attacked.`,
-    expend_vitality: 
-        `Heal 1 life at the start of each floor.`,
-    flame_strike: 
-        `Attacking an adjacent empty space has a 1/2 chance of shooting a fireball`,
-    flame_worship:
-        `Two Altars of Scouring spawn on each non boss floor`,
-    fleeting_thoughts: 
-        `Temporary cards added to your deck will happen instantly.`,
-    fortitude: 
-        `Gain an extra max health and heal for 1.`,
-    frenzy: 
-        `Deal double damage while you only have 1 health.`,
-    frugivore: 
-        `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
-        +`for 1, but might attract enemies.`,
-    future_sight: 
-        `You may look at the order of your deck.`,
-    gruntwork: 
-        `Gain 3 extra max health.`,
-    hoarder: 
-        `Encounter two boon chests in each area. Boon chests have 1 fewer choice.`,
-    larger_chests: 
-        `All chests contain 2 additional choices and are invulnerable.`,
-    limitless: 
-        `Fully heal, then remove your max health. If you would be fully healed, heal for 1 instead.`,
-    manic_presence: 
-        `Some types of enemies have poor trigger discipline.`,
-    medical_investment: 
-        `Gain 2 extra max health. Heal for 2.`,
-    pacifism: 
-        `If you would attack an enemy, stun them twice instead (some terrain elements can still `
-        +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,
-    pain_reflexes: 
-        `Take a turn whenever you are attacked.`,
-    pandoras_box:
-        `Gain a number of random boons equal to your current maximum hp. Reduce your maximum hp to 1.`,
-    perfect_the_basics: 
-        `Replace all your basic cards with better ones.`,
-    picky_shopper: 
-        `Recieve 1 extra card choice for adding and removing cards in the shop.`,
-    practice_makes_perfect: 
-        `Defeating a boss while at max health increases your max health by 1.`,
-    pressure_points: 
-        `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`,
-    quick_healing: 
-        `After being dealt damage, you have a 1/4 chance to instantly heal it.`,
-    rebirth: 
-        `When you die, you are revived at full health and this boon is removed.`,
-    repetition: 
-        `Every 3rd turn, your cards happen twice.`,
-    retaliate: 
-        `When you are dealt damage, attack a nearby enemy.`,
-    rift_touched: 
-        `Two Darklings spawn on each non boss floor.`,
-    roar_of_challenge: 
-        `Gain 2 max health.`,
-    safe_passage: 
-        `Fully heal and travel to the next boss floor.`,
-    shattered_glass: 
-        `Enemies and Terrain explode on death damaging everything nearby other than you.`,
-    skill_trading: 
-        `You may both add a card and remove a card at each shop.`,
-    slime_trail: 
-        `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`,
-    sniper: 
-        `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
-    soul_voucher:
-        `Ignore any cost to obtain new boons. Each boon chest is guaranteed to have at least 1 `
-        +`boon with a cost in it.`,
-    spiked_shoes: 
-        `Attempting to move onto enemies damages them.`,
-    spontaneous: 
-        `After using a non instant card, discard your whole hand.`,
-    stable_mind: 
-        `You gain a 50% chance to resist confusion.`,
-    stealthy: 
-        `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`,
-    stubborn: 
-        `You can skip shops.`,
-    thick_soles: 
-        `You are immune to damage on your turn.`,
-    vicious_cycle: 
-        `At the start of each floor fully heal, then add 2 temporary Lash Out cards to your deck.`,
-}
-Object.freeze(boon_descriptions);
-
-const boon_cost_descriptions = {
-    blood_alchemy: `Cost: Take 2 damage.`,
-    brag_and_boast: `Cost: Add 2 non temporary confusion cards to your deck.`,
-    creative: `Cost: Increase your minimum deck size by 5.`,
-    expend_vitality: `Cost: Decrease your maximum health by 1.`,
-    gruntwork: `Cost: Decrease your hand size by 1.`,
-    medical_investment: `Cost: Receive 1 fewer card choice for adding and removing cards in the shop.`,
-    roar_of_challenge: `Cost: Increase difficulty by 3 floors.`,
-    shattered_glass: `Cost: Decrease your maximum health by 2.`,
-    soul_voucher: `Cost: Decrease your maximum health by 1.`,
-    spiked_shoes: `Cost: Decrease your maximum health by 1.`,
-    spontaneous: `Cost: Increase your minimum deck size by 5.`,
-}
-
 const boon_prereq_descriptions = {
     none: 
         `Prerequisites: None.`,
@@ -895,20 +1009,6 @@ const boon_prereq_descriptions = {
         `Prerequisites: You must have at least 10 cards in your deck.`,
 }
 Object.freeze(boon_prereq_descriptions);
-
-const boon_messages = {
-    section_header: `Boons`,
-    max: `Max`,
-    no_max: `Unlimited`,
-    number_picked: `Times Picked`,
-
-    clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
-    duplicate: `Choose a card to copy:`,
-    practice_makes_perfect: `Your maximum health has increased.`,
-    rebirth: `You died, but were brought back to life.`,
-    soul_voucher: `Your voucher will negate the cost.`
-}
-Object.freeze(boon_messages);
 const action_types = {
     move: `Move`,
     attack: `Attack`,
@@ -966,6 +1066,7 @@ const COLOR_MAP = new Map([
 const card_names = {
     symbol_add_card: `Add`,
     symbol_deck_at_minimum: `Minimum`,
+    symbol_card_info_missing: `Card Info Missing`,
     symbol_locked: `Locked`,
     symbol_not_encountered: `Not Encountered`,
     symbol_remove_card: `Remove`,
@@ -1220,7 +1321,8 @@ const boss_descriptions = {
     lord_of_shadow_and_flame:
         `Lord of Shadow and Flame (Final Boss): Ruler from beyond the veil of reality. Summons `
         +`altars from which to cast it's spells. When next to the player it will prepare to attack `
-        +`all nearby spaces on it's next turn. Moves at double speed while under half health.`,
+        +`all nearby spaces on it's next turn. While under half health, it moves at double speed `
+        +`and it's attacks cause shockwaves. Taking damage reduces stun by that much.`,
     spider_queen: 
         `Spider Queen (Boss): Her back crawls with her young. Behaves like a normal spider. Taking `
         +`damage will stun her, but will also spawn a spider.`,
@@ -1625,8 +1727,7 @@ const enemy_flavor = {
         +`than lying in wait in a web. Thankfully their large size hasn't made them very tough so they `
         +`are easily dispatched.`,
     starcaller:
-        `Starcaller: Every 3 turns it will summon an object from another realm targeting `
-        +`the player's location creating a small explosion.`,
+        ``,
     strider: 
         `These long legged creatures navigate the trecherous terrain of the magmatic caves with ease.`
         +`The strength of their barbed feet seems to mostly be used for defense as they can be seen `
@@ -1763,6 +1864,9 @@ const event_descriptions = {
         `Watch out, something is about to fall here damaging anything standing here.`,
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
+    shockwave:
+        `Watch out, a shockwave is about to hit this space damaging anything standing here `
+        +`other than altars or the lord.`,
     starfall:
         `Watch out, something is about to be pulled into existence damaging anything standing here.`,
     sunlight:
@@ -1786,6 +1890,8 @@ const event_flavor = {
         ``,
     nettle_roots:
         ``,
+    shockwave:
+        ``,
     starfall:
         ``,
     sunlight:
@@ -1805,6 +1911,7 @@ const event_names = {
     falling_magma: `Falling Magma`,
     falling_rubble: `Falling Rubble`,
     nettle_roots: `Nettle Roots`,
+    shockwave: `Shockwave`,
     spell_announcement: `Spell Announcement`,
     starfall: `Starfall`,
     sunlight: `Sunlight`,
@@ -2356,11 +2463,41 @@ const journal_card_headers = {
     boss: `Boss Cards`,
 }
 Object.freeze(journal_card_headers);
+const journal_history_messages = {
+    run_num: `Run #`,
+    killed_by: `Killed by `,
+    victory: `Victory!`
+}
+
+const history_stat_labels = {
+    floors: `Floor Reached`,
+    turns: `Turns Taken`,
+    kills: `Enemies Killed`,
+
+    dealt: `Damage Dealt`,
+    taken: `Damage Taken`,
+    max_health: `Max Health`,
+
+    added: `Cards Added`,
+    removed: `Cards Removed`,
+    chests: `Chests Opened`,
+
+    boons: `Number of Boons`,
+    deck: `Cards in Deck`,
+    achievements: `Number of Achievements`,
+}
+
+const history_section_labels = {
+    boons: `Boons`,
+    deck: `Final Deck`,
+    achievements: `Achievements`,
+}
 const journal_navbar_labels = {
     cards: `Cards`,
     boons: `Boons`,
     areas: `Areas`,
     achievements: `Achievements`,
+    history: `History`,
 }
 Object.freeze(journal_navbar_labels);
 const screen_names = {
@@ -2415,6 +2552,7 @@ const reset_text = {
     areas: `Reset area and tile data: `,
     boons: `Reset boon data: `,
     cards: `Reset card data: `,
+    history: `Reset run history: `,
     journal: `Reset all journal data: `,
 }
 Object.freeze(reset_text);
@@ -2518,6 +2656,7 @@ const HTML_UIIDS = {
     header_bar: `headerBar`,
         header_box: `headerBox`,
             title: `title`,
+            header_img: `headerImg`,
     game_screen: `gameScreen`,
         stage: `stage`,
             stage_stats: `stageStats`,
@@ -2585,6 +2724,9 @@ const HTML_UIIDS = {
         journal_areas: `journalAreas`,
         achievements: `achievements`,
             achievement_list: `achievement-list`,
+        journal_history: `journalHistory`,
+            history_section: `historySection`,
+            history_page_selector: `historyPageSelector`,
     settings: `settings`,
         settings_navbar: `settingsNavbar`,
         settings_visual: `settingsVisual`,
@@ -3043,6 +3185,7 @@ const DisplayHTML = {
 
         element.value = header;
         element.onclick = on_click;
+        element.id = `${location} ${header}`
         section.append(element);
     },
     create_dropdown: function(location, options_arr){
@@ -3346,7 +3489,7 @@ const DisplayHTML = {
             img_box.classList.add(`achievement-img-box`);
             div.append(img_box);
 
-            var img_name = a.has ? a.image : `${IMG_FOLDER.other}locked.png`;
+            var img_name = a.has ? a.pic: `${IMG_FOLDER.ui}locked.png`;
             var img = document.createElement(`img`);
             img.src = `${IMG_FOLDER.src}${img_name}`;
             img.alt = a.has? `unlocked` : `locked`;
@@ -3713,7 +3856,7 @@ const DisplayHTML = {
         var reset_button = DisplayHTML.create_button(visual_settings_titles.reset, undefined, reset);
         header.append(reset_button);
         var set_animation_speed = (value) => {settings.set({animation_speed: value})}
-        var set_text_size = (value) => {settings.set({text_size: value})}
+        //var set_text_size = (value) => {settings.set({text_size: value})}
         var set_grid_visibility = (value) => {
             settings.set({checkered_overlay: value});
             refresh_map_grid(GS.map);
@@ -3766,6 +3909,207 @@ const DisplayHTML = {
             div.append(button);
         }
         return div;
+    },
+    set_header_img(header_img_object){
+        var img = DisplayHTML.get_element(UIIDS.header_img);
+        img.src = header_img_object.source;
+        img.alt = header_img_object.alt;
+    },
+    make_page_selector(selector, component = undefined){
+        if(!component){
+            component = document.createElement(`div`);
+            component.classList.add(`page-selector-container`);
+        }
+        else{
+            while(component.firstChild){
+                component.removeChild(component.lastChild);
+            }
+        }
+        const button_details = [
+            {text: `<<`,                        f: () => {selector.set(0)},     place: -2},
+            {text: `${selector.current()}`,     f: () => {selector.move(-1)},   place: -1},
+            {text: `${selector.current() + 1}`, f: undefined,                   place: 0},
+            {text: `${selector.current() + 2}`, f: () => {selector.move(1)},    place: 1},
+            {text: `>>`,                        f: () => {selector.set_max()},  place: 2},
+        ]
+        for(let detail of button_details){
+            let button = document.createElement(`button`);
+            button.classList.add(`page-selector-button`);
+            button.innerText = detail.text;
+            if(detail.place === 0){
+                button.classList.add(`page-selector-middle`);
+            }
+            else if(detail.place < 0){
+                button.classList.add(`page-selector-left`);
+                if(selector.at_min()){
+                    button.classList.add(`invisible-space`);
+                    button.innerText = `${NBS}`;
+                }
+                else{
+                    button.onclick = () => {
+                        detail.f();
+                        DisplayHTML.make_page_selector(selector, component);
+                    };
+                    button.classList.add(`page-selector-clickable`);
+                }
+            }
+            else if(detail.place > 0){
+                button.classList.add(`page-selector-right`);
+                if(selector.at_max()){
+                    button.classList.add(`invisible-space`);
+                    button.innerText = `${NBS}`;
+                }
+                else{
+                    button.onclick = () => {
+                        detail.f();
+                        DisplayHTML.make_page_selector(selector, component);
+                    };
+                    button.classList.add(`page-selector-clickable`);
+                }
+            }
+            component.append(button);
+        }
+        return component;
+    },
+    create_card_section(destination, contents, header){
+        const parent = this.get_element(destination);
+        const fs = document.createElement(`fieldset`);
+        fs.classList.add(`shop-section-box`);
+        fs.classList.add(`history-box`);
+        const legend = document.createElement(`legend`);
+        const table = document.createElement(`table`);
+        parent.append(fs);
+        fs.append(legend);
+        fs.append(table);
+        legend.innerText = header;
+        const tb_id = `history ${header}`;
+        table.id = tb_id;
+        for(var i = 0; i < Math.ceil(contents.length / DECK_DISPLAY_WIDTH); ++i){
+            var row = contents.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
+            display.add_tb_row(tb_id, row, CARD_SCALE);
+        }
+        return fs;
+    },
+    update_history(history_list){
+        this.remove_children(UIIDS.history_page_selector);
+        const pageElement = this.get_element(UIIDS.history_section);
+        const selectorElement = this.get_element(UIIDS.history_page_selector);
+
+        const max = history_list.length;
+        const update = (page) => {
+            display.remove_children(UIIDS.history_section);
+            if(history_list.length === 0){
+                return;
+            }
+            const page_info = history_list[page];
+            const death = page_info.victory ? `` : journal_history_messages.killed_by;
+            const header_message = 
+                `${journal_history_messages.run_num}`
+                +`${page_info.run_number}: `
+                +`${death}`
+                +`${page_info.end_message}`;
+            const h2 = document.createElement(`h2`);
+            h2.innerText = header_message;
+            h2.classList.add(`history-header`);
+            pageElement.append(h2);
+            const stat_box = document.createElement(`div`);
+            const stat_box_id = `statBox`;
+            stat_box.id = stat_box_id;
+            stat_box.classList.add(`stat-grid`)
+            pageElement.append(stat_box);
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}stairs.png`,
+                page_info.floors,
+                history_stat_labels.floors
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}stopwatch.png`,
+                page_info.turns,
+                history_stat_labels.turns
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}kills.png`,
+                page_info.kills,
+                history_stat_labels.kills
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}damage_dealt.png`,
+                page_info.dealt,
+                history_stat_labels.dealt
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}half_heart.png`,
+                page_info.taken,
+                history_stat_labels.taken
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}mini_heart.png`,
+                page_info.max_health !== undefined ? page_info.max_health : `-`,
+                history_stat_labels.max_health
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}card_added.png`,
+                page_info.added,
+                history_stat_labels.added
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}card_removed.png`,
+                page_info.removed,
+                history_stat_labels.removed
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}mini_chest.png`,
+                page_info.chests,
+                history_stat_labels.chests
+            );
+            var decklist = remake_deck(page_info.deck);
+            for(var c of decklist){
+                c.background = [`${IMG_FOLDER.other}card_background.png`];
+            }
+            pageElement.append(
+                this.create_card_section(
+                    UIIDS.history_section, 
+                    decklist, 
+                    history_section_labels.deck
+                )
+            );
+            var boonlist = remake_boons(page_info.boons);
+            if(boonlist.length > 0){
+                pageElement.append(
+                    this.create_card_section(
+                        UIIDS.history_section, 
+                        boonlist, 
+                        history_section_labels.boons
+                    )
+                );
+            }
+            var achievement_list = remake_achievements(page_info.achievements);
+            for(var a of achievement_list){
+                a.foreground= [`${IMG_FOLDER.other}border.png`];
+                a.background = [`${IMG_FOLDER.other}achievement_background.png`];
+            }
+            if(achievement_list.length > 0){
+                pageElement.append(
+                    this.create_card_section(
+                        UIIDS.history_section, 
+                        achievement_list, 
+                        history_section_labels.achievements
+                    )
+                );
+            }
+        }
+        const selector = new PageSelector((p) => {update(p)}, max);
+        selector.set_max();
+        selectorElement.append(this.make_page_selector(selector));
     },
 
     // Non Required helper functions.
@@ -4145,8 +4489,8 @@ function display_health(player, scale){
         throw new Error(ERRORS.missing_property);
     }
     var health = [];
-    var hp = {pic: `${IMG_FOLDER.other}heart.png`, name: gameplay_labels.heart};
-    var lost = {pic: `${IMG_FOLDER.other}heart_broken.png`, name: gameplay_labels.broken_heart};
+    var hp = {pic: `${IMG_FOLDER.ui}heart.png`, name: gameplay_labels.heart};
+    var lost = {pic: `${IMG_FOLDER.ui}heart_broken.png`, name: gameplay_labels.broken_heart};
     for(var i = 0; i < player.health; ++i){
         health.push(hp);
     }
@@ -4480,6 +4824,7 @@ function events_display_info(){
             darkling_rift_mark,
             falling_rubble_mark,
             nettle_roots_mark,
+            shockwave_mark,
             starcaller_rift_mark,
             sunlight_mark,
             thorn_roots_mark,
@@ -4628,7 +4973,7 @@ function show_area(info, depth, force_visited = false){
         if(!visited){
             return {
                 name: boon_names.locked,
-                pic: `${IMG_FOLDER.other}locked.png`,
+                pic: `${IMG_FOLDER.ui}locked.png`,
                 background: [info.background],
                 description: journal_area_messages.locked,
             }
@@ -4644,7 +4989,7 @@ function show_area(info, depth, force_visited = false){
         }
         return {
             name: boon_names.not_encountered,
-            pic: `${IMG_FOLDER.other}not_encountered.png`,
+            pic: `${IMG_FOLDER.ui}not_encountered.png`,
             background: [info.background],
             description: journal_area_messages.not_encountered,
         }
@@ -4702,14 +5047,7 @@ function boons_has_amount(boons){
     return `${has}/${total}`;
 }
 function unlock_all_cards(){
-    const cards = [
-        ...BASIC_CARDS,
-        ...COMMON_CARDS,
-        ...get_all_achievement_cards(),
-        ...BOON_CARDS,
-        ...CONFUSION_CARDS,
-        ...get_boss_cards(),
-    ];
+    const cards = get_all_cards();
     for(var card of cards){
         GS.data.add_card(card().name);
     }
@@ -4759,7 +5097,7 @@ function display_boss_cards(){
 function cards_encountered(cards, encountered){
     return cards.map((c) => {
         var card = c();
-        card.background = [`${IMG_FOLDER.other}default_card_background.png`];
+        card.background = [`${IMG_FOLDER.ui}default_card_background.png`];
         if(card.name === card_names.symbol_locked){
             card.description = move_types.locked;
             return card;
@@ -4794,6 +5132,12 @@ function cards_has_amount(cards){
     }
     return `${has}/${total}`;
 }
+function update_history(){
+    const history = GS.data.get_runs();
+    const button_id = `${UIIDS.journal_navbar} ${journal_navbar_labels.history}`;
+    display.toggle_visibility(button_id, history.length > 0)
+    display.update_history(history);
+}
 function unlock_full_journal(){
     unlock_all_cards();
     unlock_all_boons();
@@ -4808,15 +5152,16 @@ function update_journal(){
     update_achievements();
 }
 
+const journal_navbar_ids = [
+    UIIDS.journal_cards,
+    UIIDS.journal_boons,
+    UIIDS.journal_areas,
+    UIIDS.achievements,
+    UIIDS.journal_history
+]
+
 function setup_journal_navbar(){
     var id = UIIDS.journal_navbar;
-
-    var section_id_list = [
-        UIIDS.journal_cards,
-        UIIDS.journal_boons,
-        UIIDS.journal_areas,
-        UIIDS.achievements,
-    ];
 
     var swap_visibility = function(id_list, id){
         return function(){
@@ -4824,12 +5169,13 @@ function setup_journal_navbar(){
         }
     }
 
-    display.create_visibility_toggle(id, journal_navbar_labels.cards, swap_visibility(section_id_list, UIIDS.journal_cards));
-    display.create_visibility_toggle(id, journal_navbar_labels.boons, swap_visibility(section_id_list, UIIDS.journal_boons));
-    display.create_visibility_toggle(id, journal_navbar_labels.areas, swap_visibility(section_id_list, UIIDS.journal_areas));
-    display.create_visibility_toggle(id, journal_navbar_labels.achievements, swap_visibility(section_id_list, UIIDS.achievements));
+    display.create_visibility_toggle(id, journal_navbar_labels.cards, swap_visibility(journal_navbar_ids, UIIDS.journal_cards));
+    display.create_visibility_toggle(id, journal_navbar_labels.boons, swap_visibility(journal_navbar_ids, UIIDS.journal_boons));
+    display.create_visibility_toggle(id, journal_navbar_labels.areas, swap_visibility(journal_navbar_ids, UIIDS.journal_areas));
+    display.create_visibility_toggle(id, journal_navbar_labels.achievements, swap_visibility(journal_navbar_ids, UIIDS.achievements));
+    display.create_visibility_toggle(id, journal_navbar_labels.history, swap_visibility(journal_navbar_ids, UIIDS.journal_history));
 
-    display.swap_screen(section_id_list, UIIDS.journal_cards);
+    display.swap_screen(journal_navbar_ids, UIIDS.journal_cards);
 }
 function controls_chest_section(){
     var controls = GS.data.controls.get();
@@ -4891,29 +5237,36 @@ function setup_data_page(){
     display.reset_section(UIIDS.settings_data, reset_boons, reset_text.boons);
     display.reset_section(UIIDS.settings_data, reset_areas, reset_text.areas);
     display.reset_section(UIIDS.settings_data, reset_achievements, reset_text.achievements);
+    display.reset_section(UIIDS.settings_data, reset_history, reset_text.history);
     display.reset_section(UIIDS.settings_data, reset_journal, reset_text.journal);
 }
-function reset_achievements(){
-    GS.data.reset_achievements();
-    update_achievements();
-}
-function reset_areas(){
-    GS.data.reset_areas();
-    update_journal_areas();
+function reset_cards(){
+    GS.data.reset_cards();
+    update_journal_cards();
 }
 function reset_boons(){
     GS.data.reset_boons();
     update_journal_boons();
 }
-function reset_cards(){
-    GS.data.reset_cards();
-    update_journal_cards();
+function reset_areas(){
+    GS.data.reset_areas();
+    update_journal_areas();
+}
+function reset_achievements(){
+    GS.data.reset_achievements();
+    update_achievements();
+}
+function reset_history(){
+    GS.data.clear_runs();
+    update_history();
+    display.swap_screen(journal_navbar_ids, UIIDS.journal_cards);
 }
 function reset_journal(){
     reset_achievements();
     reset_areas();
     reset_boons();
     reset_cards();
+    reset_history();
 }
 function setup_settings_page(){
     reset_visual_settings_page();
@@ -5451,6 +5804,7 @@ function lord_of_shadow_and_flame_tile(){
         death_achievement: achievement_names.lord_of_shadow_and_flame,
         behavior: lord_of_shadow_and_flame_ai,
         telegraph: lord_of_shadow_and_flame_telegraph,
+        on_hit: lord_of_shadow_and_flame_on_hit,
         on_death: lord_of_shadow_and_flame_on_death,
         pic_arr,
         cycle: 0,
@@ -5461,6 +5815,7 @@ function lord_of_shadow_and_flame_tile(){
 
 /** @type {AIFunction} AI used by the Lord of Shadow and Flame.*/
 function lord_of_shadow_and_flame_ai(self, target, map){
+    var damaged = self.tile.health < self.tile.max_health / 2;
     var lord_slow_pics = [
         `${IMG_FOLDER.tiles}lord_move.png`,
         `${IMG_FOLDER.tiles}lord_attack.png`,
@@ -5472,7 +5827,7 @@ function lord_of_shadow_and_flame_ai(self, target, map){
         `${IMG_FOLDER.tiles}lord_fast_summon.png`
     ];
 
-    self.tile.pic_arr = self.tile.health < self.tile.max_health / 2 ? lord_fast_pics : lord_slow_pics;
+    self.tile.pic_arr = damaged ? lord_fast_pics : lord_slow_pics;
     switch(self.tile.cycle){
         case 2: // Summon Mode
             // Do nothing since the actual summon should be an event that is already in motion.
@@ -5489,10 +5844,17 @@ function lord_of_shadow_and_flame_ai(self, target, map){
                     map.attack(attack);
                 }
             }
+            if(damaged){
+                var locations = point_rectangle(self.location.plus(2, 2), self.location.plus(-2, -2));
+                map.add_event({
+                    name: event_names.shockwave, 
+                    behavior: shockwave_event(locations),
+                });
+            }
             break;
         case 0: // Movement Mode
             if(!target.difference.within_radius(1)){
-                var speed = self.tile.health < self.tile.max_health / 2 ? 2 : 1;
+                var speed = damaged ? 2 : 1;
                 for(var i = 0; i < speed; ++i){
                     var nearest = get_nearest_altar(map, self.location);
                     if(nearest !== undefined){
@@ -5569,6 +5931,12 @@ function check_fireball_target(map, location){
         return point_equals(map.get_tile(p).direction.plus(p), location);
     });
     return fireballs.length > 0;
+}
+
+function lord_of_shadow_and_flame_on_hit(self, target, map){
+    if(self.tile.stun > 0){
+        --self.tile.stun;
+    }
 }
 
 function lord_of_shadow_and_flame_on_death(self, target, map){
@@ -9288,7 +9656,7 @@ function coffin_tile_death(self, target, map){
     }
     var new_enemy = random_from(self.tile.summons)();
     if(new_enemy.type === entity_types.chest){
-        var amount = 1 + 2 * GS.boons.has(boon_names.larger_chests);
+        var amount = map.stats.get_stats().card_chest_choices;
         var cards = rand_no_repeats(self.tile.card_drops, amount);
         for(let card of cards){
             add_card_to_chest(new_enemy, card());
@@ -10082,7 +10450,7 @@ function boss_death(self, target, map){
         // Create a chest containing a random card from it's loot table.
         var chest = appropriate_chest_tile();
         var drops = self.tile.card_drops.map((c) => {return c()});
-        var amount = 1 + 2 * GS.boons.has(boon_names.larger_chests);
+        var amount = map.stats.get_stats().card_chest_choices;
         var contents = rand_no_repeats(drops, amount);
         if(chance(1, 2) && filter_new_cards(contents).length === 0){
             var replace_list = filter_new_cards(drops);
@@ -10327,6 +10695,16 @@ function nettle_roots_mark(){
         telegraph: hazard_telegraph
     }
 }
+
+function shockwave_mark(){
+    return {
+        name: event_names.shockwave,
+        pic: `${IMG_FOLDER.tiles}shockwave.png`,
+        description: event_descriptions.shockwave,
+        flavor: event_flavor.shockwave,
+        telegraph: hazard_telegraph
+    };
+}
 function starcaller_rift_mark(){
     return {
         name: event_names.starfall,
@@ -10358,6 +10736,35 @@ function thorn_roots_mark(){
  * @param {Point[]} locations A grid of locations to use.
  * @returns {MapEventFunction} The event.
  */
+function shockwave_event(locations){
+    var harm = function(locations){
+        return function(map_to_use){
+            for(var location of locations){
+                var tile = map_to_use.get_tile(location);
+                if(!tile.tags.has(TAGS.altar) && !tile.tags.has(TAGS.boss)){
+                    map_to_use.attack(location);
+                }
+            }
+        }
+    }
+    var wave = function(){
+        return function(map_to_use){
+            var targets = [];
+            for(var space of locations){
+                if(map_to_use.is_in_bounds(space)){
+                    map_to_use.mark_event(space, shockwave_mark());
+                    targets.push(space);
+                }
+            }
+            map_to_use.add_event({name: event_names.shockwave, behavior: harm(targets)});
+        }
+    }
+    return wave();
+}
+/**
+ * @param {Point[]} locations A grid of locations to use.
+ * @returns {MapEventFunction} The event.
+ */
 function targeted_earthquake_event(locations){
     var falling_rubble = function(locations){
         return function(map_to_use){
@@ -10370,8 +10777,10 @@ function targeted_earthquake_event(locations){
         return function(map_to_use){
             var rubble = [];
             for(var space of locations){
-                map_to_use.mark_event(space, falling_rubble_mark());
-                rubble.push(space);
+                if(map_to_use.is_in_bounds(space)){
+                    map_to_use.mark_event(space, falling_rubble_mark());
+                    rubble.push(space);
+                }
             }
             map_to_use.add_event({name: event_names.falling_rubble, behavior: falling_rubble(rubble)});
         }
@@ -11772,10 +12181,13 @@ class BoonTracker{
     get_lost(){
         return this.#lost_boons.map(b => {return {
             name: b.name,
-            foreground: [`${IMG_FOLDER.other}lost.png`],
+            foreground: [`${IMG_FOLDER.ui}lost.png`],
             pic: b.pic,
             on_click: function(){say(b.description)}
         }});
+    }
+    get_names(){
+        return [...this.#boons, ...this.#lost_boons].map((b) => {return b.name});
     }
 }
 // ----------------ButtonGrid.js----------------
@@ -12952,9 +13364,7 @@ class GameMap{
         }
         if(floor_has_chest(this.#floor_num % area_size)){
             var chest = appropriate_chest_tile();
-            var amount = BOON_CHOICES 
-                + 2 * GS.boons.has(boon_names.larger_chests) 
-                - 1 * GS.boons.has(boon_names.hoarder);
+            var amount = GS.map.stats.get_stats().boon_chest_choices;
             var choices = GS.boons.get_choices(amount);
             if(chance(1, 2) && filter_new_boons(choices).length === 0){
                 var replacement_list = filter_new_boons(GS.boons.get_choices());
@@ -13203,6 +13613,7 @@ class GameState{
     map;
     deck;
     boons;
+    run_achievements;
     data;
     #player_turn_lock;
     #text_log;
@@ -13223,12 +13634,14 @@ class GameState{
         var start = randomize_arr(init.area)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = init.make_deck();
+        this.run_achievements = new AchievementList();
 
         var starting_text = `${gameplay_text.new_area}${start.name}.\n${gameplay_text.welcome}`;
         this.data.add_area(start.name);
         say_record(starting_text);
         display.display_message(UIIDS.hand_label, `${gameplay_labels.hand}`);
         display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
+        display.set_header_img(header_imgs()[0]);
         create_sidebar();
         
         init.unlock_journal();
@@ -13248,6 +13661,9 @@ class GameState{
             var chest = chest_tile();
             add_boon_to_chest(chest, boon());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
+        }
+        for(var achievement of init.achieve){
+            this.achieve(achievement);
         }
         refresh_map(this.map);
         this.map.display_stats();
@@ -13511,6 +13927,8 @@ class GameState{
         display.add_gradient(UIIDS.move_box, [action_type_colors.empty]);
         display.remove_children(UIIDS.move_buttons);
         say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
+        this.data.record_run(cause, this.map, this.boons, this.deck, this.run_achievements);
+        update_history();
         var restart = function(game){
             return function(message, position){
                 display.remove_children(UIIDS.retry_button);
@@ -13536,6 +13954,8 @@ class GameState{
         refresh_map(this.map);
         display_victory();
         this.achieve(achievement_names.victory);
+        this.data.record_run(journal_history_messages.victory, this.map, this.boons, this.deck, this.run_achievements);
+        update_history();
         say_record(gameplay_text.victory);
         refresh_full_deck_display(this.deck);
         var swap_visibility = function(id_list, id){
@@ -13632,6 +14052,7 @@ class GameState{
         display_boons(this.boons);
     }
     achieve(name){
+        this.run_achievements.achieve(name);
         var gained = this.data.achieve(name);
         if(gained){
             say_record(`${achievement_text.unlocked} ${name}`, record_types.achievement);
@@ -13955,10 +14376,10 @@ class MoveDeck{
             let card = this.#hand[i];
             let background = [];
             if(card.temp){
-                background.push(`${IMG_FOLDER.other}temporary_background.png`);
+                background.push(`${IMG_FOLDER.ui}temporary_background.png`);
             }
             else{
-                background.push(`${IMG_FOLDER.other}default_card_background.png`);
+                background.push(`${IMG_FOLDER.ui}default_card_background.png`);
             }
             card_row.push({
                 pic: card.pic,
@@ -14085,6 +14506,9 @@ class MoveDeck{
         new_deck.#decklist = this.#decklist;
         return new_deck;
     }
+    get_names(){
+        return this.#decklist.map((c) => {return c.name});
+    }
     #check_three_kind_achievement(name){
         var repeats = this.#decklist.filter((e) => {return e.name === name});
         if(GS !== undefined && repeats.length === 3){
@@ -14105,6 +14529,41 @@ class MoveDeck{
         }
     }
 }
+class RunHistory{
+    #history
+    constructor(runs = []){
+        this.#history = runs;
+    }
+    add_run(stat_tracker, floors, end_message, max_health, boons, deck, achievements){
+        var stats = stat_tracker.get_stats();
+        const a_names = achievements.completed().map((a) => {return a.name});
+        var run = {
+            run_number: this.#history.length + 1,
+            end_message,
+            victory: a_names.includes(achievement_names.victory),
+
+            floors: floors,
+            turns: stats.turn_number,
+            kills: stats.kills,
+
+            dealt: stats.damage_dealt,
+            taken: stats.damage,
+            max_health: max_health,
+            
+            added: deck.total_added,
+            removed: deck.total_removed,
+            chests: stats.chests,
+
+            boons: boons.get_names(),
+            deck: deck.get_names(),
+            achievements: a_names,
+        }
+        this.#history.push(run);
+    }
+    get_runs(){
+        return this.#history;
+    }
+}
 /*
  * Class to save and load data to and from files and localstorage.
  * If you want to add new fields:
@@ -14121,6 +14580,7 @@ class SaveData{
     boons;
     tiles;
     areas;
+    history;
     
     #load_function;
     #save_function;
@@ -14142,6 +14602,7 @@ class SaveData{
         this.boons = new SearchTree(data.boons, BoonTreeNode);
         this.tiles = new SearchTree(data.tiles, TileTreeNode);
         this.areas = new SearchTree(data.areas, AreaTreeNode);
+        this.history = new RunHistory(data.history);
     }
     save(){
         var data = {
@@ -14152,6 +14613,7 @@ class SaveData{
             boons: this.boons.to_list(),
             tiles: this.tiles.to_list(),
             areas: this.areas.to_list(),
+            history: this.history.get_runs(),
         }
         this.#save_function(data);
     }
@@ -14249,6 +14711,26 @@ class SaveData{
     reset_areas(){
         this.tiles = new SearchTree([], TileTreeNode);
         this.areas = new SearchTree([], AreaTreeNode);
+        this.save();
+    }
+    record_run(end_message, map, boons, deck, achievements){
+        const player = map.get_player();
+        this.history.add_run(
+            map.stats, 
+            map.get_floor_num(), 
+            end_message, 
+            player.max_health,
+            boons, 
+            deck, 
+            achievements
+        );
+        this.save();
+    }
+    get_runs(){
+        return this.history.get_runs();
+    }
+    clear_runs(){
+        this.history = new RunHistory();
         this.save();
     }
 
@@ -14808,6 +15290,9 @@ class StatTracker{
     #total_kills_per_floor;
     #add_choices;
     #remove_choices;
+    #chest_choices;
+    #card_chest_choices;
+    #boon_chest_choices;
 
     constructor(){
         this.#turn_number = 0;
@@ -14825,6 +15310,8 @@ class StatTracker{
         this.#total_kills_per_floor = [0];
         this.#add_choices = ADD_CHOICE_COUNT;
         this.#remove_choices = REMOVE_CHOICE_COUNT;
+        this.#card_chest_choices = CARD_CHEST_CHOICES;
+        this.#boon_chest_choices = BOON_CHEST_CHOICES;
     }
     increment_turn(){
         ++this.#turn_number;
@@ -14883,6 +15370,10 @@ class StatTracker{
     }
     increment_kills(){
         ++this.#kills;
+        const img = header_imgs().find((i) => {return i.count === this.#kills});
+        if(img !== undefined){
+            display.set_header_img(img);
+        }
     }
     increment_destroyed(){
         ++this.#destroyed;
@@ -14898,6 +15389,12 @@ class StatTracker{
     }
     alter_remove_choices(n){
         this.#remove_choices += n;
+    }
+    alter_card_chest_choices(x){
+        this.#card_chest_choices = Math.max(this.#card_chest_choices + x, 0);
+    }
+    alter_boon_chest_choices(x){
+        this.#boon_chest_choices = Math.max(this.#boon_chest_choices + x, 0);
     }
     get_stats(){
         return {
@@ -14916,6 +15413,8 @@ class StatTracker{
             total_kills_per_floor: this.#total_kills_per_floor,
             add_choices: this.#add_choices,
             remove_choices: this.#remove_choices,
+            card_chest_choices: this.#card_chest_choices,
+            boon_chest_choices: this.#boon_chest_choices,
         }
     }
 }
@@ -17558,15 +18057,23 @@ function teleport(){
 function symbol_add_card(){
     return{
         name: card_names.symbol_add_card,
-        pic: `${IMG_FOLDER.other}plus.png`,
+        pic: `${IMG_FOLDER.ui}plus.png`,
         options: new ButtonGrid(),
     }
 }
-/** @type {CardGenerator} Shown in shop ind=stead of the remove symbol when your deck is at the minimum size.*/
+/** @type {CardGenerator} shown in run history when a card cannot be found.*/
+function symbol_card_info_missing(){
+    return{
+        name: card_names.symbol_card_info_missing,
+        pic: `${IMG_FOLDER.ui}card_info_missing.png`,
+        options: new ButtonGrid(),
+    }
+}
+/** @type {CardGenerator} Shown in shop instead of the remove symbol when your deck is at the minimum size.*/
 function symbol_deck_at_minimum(){
     return{
         name: card_names.symbol_deck_at_minimum,
-        pic: `${IMG_FOLDER.other}x.png`,
+        pic: `${IMG_FOLDER.ui}x.png`,
         options: new ButtonGrid(),
     }
 }
@@ -17574,7 +18081,7 @@ function symbol_deck_at_minimum(){
 function symbol_locked_card(){
     return{
         name: card_names.symbol_locked,
-        pic: `${IMG_FOLDER.other}locked.png`,
+        pic: `${IMG_FOLDER.ui}locked.png`,
         options: new ButtonGrid(),
     }
 }
@@ -17582,7 +18089,7 @@ function symbol_locked_card(){
 function symbol_not_encountered_card(){
     return{
         name: card_names.symbol_not_encountered,
-        pic: `${IMG_FOLDER.other}not_encountered.png`,
+        pic: `${IMG_FOLDER.ui}not_encountered.png`,
         options: new ButtonGrid(),
     }
 }
@@ -17590,7 +18097,7 @@ function symbol_not_encountered_card(){
 function symbol_remove_card(){
     return{
         name: card_names.symbol_remove_card,
-        pic: `${IMG_FOLDER.other}minus.png`,
+        pic: `${IMG_FOLDER.ui}minus.png`,
         options: new ButtonGrid(),
     }
 }
@@ -17842,6 +18349,17 @@ function pheal(x, y){
  * @returns {Card} The resulting card.
  */
 
+function get_all_cards(){
+    return [
+        ...BASIC_CARDS,
+        ...COMMON_CARDS,
+        ...get_all_achievement_cards(),
+        ...BOON_CARDS,
+        ...CONFUSION_CARDS,
+        ...get_boss_cards(),
+    ];
+}
+
 /**
  * Function to explain an individual player action.
  * @param {PlayerCommand} action The command to explain.
@@ -18009,6 +18527,37 @@ function filter_new_cards(cards){
         return !GS.data.cards.has(c.name);
     });
 }
+
+function remake_deck(card_names){
+    var cards = get_all_cards();
+    cards = cards.sort((a, b) => {
+        if(a().name < b().name){
+            return -1;
+        }
+        return 1;
+    });
+    var f = (a, b) => {
+        var name = a().name;
+        if(name < b){
+            return -1;
+        }
+        if(name > b){
+            return 1;
+        }
+        return 0;
+    }
+    var list = [];
+    for(var name of card_names){
+        var index = binary_search(cards, name, f);
+        if(index > 0){
+            list.push(cards[index]());
+        }
+        else{
+            list.push(symbol_card_info_missing());
+        }
+    }
+    return list;
+}
 const BOON_LIST = [
     ancient_card, 
     ancient_card_2, 
@@ -18101,17 +18650,48 @@ function filter_cost_boons(boons){
         return b.cost_description !== undefined;
     });
 }
+
+function remake_boons(boon_names){
+    var boons = [...BOON_LIST];
+    boons = boons.sort((a, b) => {
+        if(a().name < b().name){
+            return -1;
+        }
+        return 1;
+    });
+    var f = (a, b) => {
+        var name = a().name;
+        if(name < b){
+            return -1;
+        }
+        if(name > b){
+            return 1;
+        }
+        return 0;
+    }
+    var list = [];
+    for(var name of boon_names){
+        var index = binary_search(boons, name, f);
+        if(index > 0){
+            list.push(boons[index]());
+        }
+        else{
+            list.push(symbol_card_info_missing());
+        }
+    }
+    return list;
+}
 function symbol_locked_boon(){
     return {
         name: boon_names.locked,
-        pic: `${IMG_FOLDER.other}locked.png`,
+        pic: `${IMG_FOLDER.ui}locked.png`,
         description: boon_descriptions.locked,
     }
 }
 function symbol_not_encountered_boon(){
     return {
         name: boon_names.not_encountered,
-        pic: `${IMG_FOLDER.other}not_encountered.png`,
+        pic: `${IMG_FOLDER.ui}not_encountered.png`,
         description: boon_descriptions.not_encountered,
     }
 }
@@ -18500,8 +19080,10 @@ function hoarder(){
         name: boon_names.hoarder,
         pic: `${IMG_FOLDER.boons}hoarder.png`,
         description: boon_descriptions.hoarder,
+        cost_description: boon_cost_descriptions.hoarder,
         prereq_description: boon_prereq_descriptions.hoarder,
         prereq: prereq_hoarder,
+        on_pick: pick_hoarder,
         max: 1,
     }
 }
@@ -18509,19 +19091,28 @@ function hoarder(){
 function prereq_hoarder(){
     return GS.map.get_floor_num() < 15;
 }
+
+function pick_hoarder(){
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        GS.map.stats.alter_boon_chest_choices(-1);
+    }
+}
 function larger_chests(){
     return {
         name: boon_names.larger_chests,
         pic: `${IMG_FOLDER.boons}larger_chests.png`,
         description: boon_descriptions.larger_chests,
         prereq_description: boon_prereq_descriptions.none,
-        on_pick: on_pick_larger_chests,
+        on_pick: pick_larger_chests,
         max: 1,
     }
 }
 
-function on_pick_larger_chests(){
+function pick_larger_chests(){
     display.add_class(UIIDS.chest,`large-chest`);
+    GS.map.stats.alter_card_chest_choices(2);
+    GS.map.stats.alter_boon_chest_choices(2);
 }
 function limitless(){
     return {
@@ -18529,12 +19120,12 @@ function limitless(){
         pic: `${IMG_FOLDER.boons}limitless.png`,
         description: boon_descriptions.limitless,
         prereq_description: boon_prereq_descriptions.none,
-        on_pick: on_pick_limitless,
+        on_pick: pick_limitless,
         max: 1,
     }
 }
 
-function on_pick_limitless(){
+function pick_limitless(){
     GS.map.player_heal(new Point(0, 0));
     GS.map.get_player().max_health = undefined;
 }
@@ -18566,7 +19157,6 @@ function prereq_medical_investment(){
 
 function pick_medical_investment(){
     change_max_health(2);
-    GS.map.heal(GS.map.get_player_location(), 2);
     var has_voucher = GS.boons.has(boon_names.soul_voucher);
     if(!has_voucher){
         GS.map.stats.alter_add_choices(-1);
@@ -18833,7 +19423,7 @@ function shattered_glass(){
         cost_description: boon_cost_descriptions.shattered_glass,
         prereq_description: boon_prereq_descriptions.shattered_glass,
         prereq: prereq_shattered_glass,
-        on_pick: on_pick_shattered_glass,
+        on_pick: pick_shattered_glass,
         max: 1,
     }
 }
@@ -18842,7 +19432,7 @@ function prereq_shattered_glass(){
     return max_health_greater_than(2);
 }
 
-function on_pick_shattered_glass(){
+function pick_shattered_glass(){
     var has_voucher = GS.boons.has(boon_names.soul_voucher);
     if(!has_voucher){
         change_max_health(-2);
@@ -18883,7 +19473,7 @@ function soul_voucher(){
         cost_description: boon_cost_descriptions.soul_voucher,
         prereq_description: boon_prereq_descriptions.soul_voucher,
         prereq: prereq_soul_voucher,
-        on_pick: on_pick_soul_voucher,
+        on_pick: pick_soul_voucher,
         max: 1,
     }
 }
@@ -18892,7 +19482,7 @@ function prereq_soul_voucher(){
     return max_health_greater_than(1) && GS.map.get_floor_num() < 15;
 }
 
-function on_pick_soul_voucher(){
+function pick_soul_voucher(){
     change_max_health(-1);
 }
 function spiked_shoes(){
@@ -19033,11 +19623,18 @@ function get_achievement_names(){
         return a.name;
     });
 }
+
+function remake_achievements(names){
+    var a_list = get_achievements();
+    return a_list.filter((a) => {
+        return names.find((n) => {return n === a.name}) !== undefined;
+    });
+}
 function arcane_sentry_achievement(){
     return {
         name: achievement_names.arcane_sentry,
         description: achievement_description.arcane_sentry,
-        image: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
+        pic: `${IMG_FOLDER.tiles}arcane_sentry_core.png`,
         has: false,
         boons: [choose_your_path],
         cards: []
@@ -19047,7 +19644,7 @@ function forest_heart_achievement(){
     return {
         name: achievement_names.forest_heart,
         description: achievement_description.forest_heart,
-        image: `${IMG_FOLDER.tiles}forest_heart.png`,
+        pic: `${IMG_FOLDER.tiles}forest_heart.png`,
         has: false,
         boons: [frugivore],
         cards: []
@@ -19057,7 +19654,7 @@ function lich_achievement(){
     return {
         name: achievement_names.lich,
         description: achievement_description.lich,
-        image: `${IMG_FOLDER.tiles}lich_rest.png`,
+        pic: `${IMG_FOLDER.tiles}lich_rest.png`,
         has: false,
         boons: [rift_touched],
         cards: []
@@ -19067,7 +19664,7 @@ function lord_of_shadow_and_flame_achievement(){
     return {
         name: achievement_names.lord_of_shadow_and_flame,
         description: achievement_description.lord_of_shadow_and_flame,
-        image: `${IMG_FOLDER.tiles}lord_move.png`,
+        pic: `${IMG_FOLDER.tiles}lord_move.png`,
         has: false,
         boons: [flame_worship],
         cards: []
@@ -19077,7 +19674,7 @@ function spider_queen_achievement(){
     return {
         name: achievement_names.spider_queen,
         description: achievement_description.spider_queen,
-        image: `${IMG_FOLDER.tiles}spider_queen.png`,
+        pic: `${IMG_FOLDER.tiles}spider_queen.png`,
         has: false,
         boons: [retaliate],
         cards: ACHIEVEMENT_CARDS.spider_queen,
@@ -19087,7 +19684,7 @@ function two_headed_serpent_achievement(){
     return {
         name: achievement_names.two_headed_serpent,
         description: achievement_description.two_headed_serpent,
-        image: `${IMG_FOLDER.tiles}serpent_head.png`,
+        pic: `${IMG_FOLDER.tiles}serpent_head.png`,
         has: false,
         boons: [slime_trail],
         cards: ACHIEVEMENT_CARDS.two_headed_serpent,
@@ -19097,7 +19694,7 @@ function velociphile_achievement(){
     return {
         name: achievement_names.velociphile,
         description: achievement_description.velociphile,
-        image: `${IMG_FOLDER.tiles}velociphile.png`,
+        pic: `${IMG_FOLDER.tiles}velociphile.png`,
         has: false,
         boons: [roar_of_challenge],
         cards: ACHIEVEMENT_CARDS.velociphile,
@@ -19107,7 +19704,7 @@ function victory_achievement(){
     return {
         name: achievement_names.victory,
         description: achievement_description.victory,
-        image: `${IMG_FOLDER.achievements}victory.png`,
+        pic: `${IMG_FOLDER.achievements}victory.png`,
         has: false,
         boons: [vicious_cycle],
         cards: []
@@ -19117,7 +19714,7 @@ function young_dragon_achievement(){
     return {
         name: achievement_names.young_dragon,
         description: achievement_description.young_dragon,
-        image: `${IMG_FOLDER.tiles}young_dragon_flight.png`,
+        pic: `${IMG_FOLDER.tiles}young_dragon_flight.png`,
         has: false,
         boons: [flame_strike],
         cards: []
@@ -19127,7 +19724,7 @@ function ancient_knowledge_achievement(){
     return {
         name: achievement_names.ancient_knowledge,
         description: achievement_description.ancient_knowledge,
-        image: `${IMG_FOLDER.achievements}ancient_knowledge.png`,
+        pic: `${IMG_FOLDER.achievements}ancient_knowledge.png`,
         has: false,
         boons: [clean_mind],
     }
@@ -19136,7 +19733,7 @@ function beyond_the_basics_achievement(){
     return {
         name: achievement_names.beyond_the_basics,
         description: achievement_description.beyond_the_basics,
-        image: `${IMG_FOLDER.achievements}beyond_the_basics.png`,
+        pic: `${IMG_FOLDER.achievements}beyond_the_basics.png`,
         has: false,
         boons: [perfect_the_basics],
     }
@@ -19145,7 +19742,7 @@ function blessed_achievement(){
     return {
         name: achievement_names.blessed,
         description: achievement_description.blessed,
-        image: `${IMG_FOLDER.achievements}blessed.png`,
+        pic: `${IMG_FOLDER.achievements}blessed.png`,
         has: false,
         boons: [larger_chests],
     }
@@ -19154,7 +19751,7 @@ function clumsy_achievement(){
     return {
         name: achievement_names.clumsy,
         description: achievement_description.clumsy,
-        image: `${IMG_FOLDER.achievements}clumsy.png`,
+        pic: `${IMG_FOLDER.achievements}clumsy.png`,
         has: false,
         boons: [thick_soles],
     }
@@ -19163,7 +19760,7 @@ function collector_achievement(){
     return {
         name: achievement_names.collector,
         description: achievement_description.collector,
-        image: `${IMG_FOLDER.achievements}collector.png`,
+        pic: `${IMG_FOLDER.achievements}collector.png`,
         has: false,
         boons: [hoarder],
     }
@@ -19172,7 +19769,7 @@ function common_sense_achievement(){
     return {
         name: achievement_names.common_sense,
         description: achievement_description.common_sense,
-        image: `${IMG_FOLDER.achievements}common_sense.png`,
+        pic: `${IMG_FOLDER.achievements}common_sense.png`,
         has: false,
         boons: [picky_shopper],
     }
@@ -19181,7 +19778,7 @@ function jack_of_all_trades_achievement(){
     return {
         name: achievement_names.jack_of_all_trades,
         description: achievement_description.jack_of_all_trades,
-        image: `${IMG_FOLDER.achievements}jack_of_all_trades.png`,
+        pic: `${IMG_FOLDER.achievements}jack_of_all_trades.png`,
         has: false,
         boons: [spontaneous],
     }
@@ -19190,7 +19787,7 @@ function manic_vandal_achievement(){
     return {
         name: achievement_names.manic_vandal,
         description: achievement_description.manic_vandal,
-        image: `${IMG_FOLDER.achievements}manic_vandal.png`,
+        pic: `${IMG_FOLDER.achievements}manic_vandal.png`,
         has: false,
         boons: [manic_presence],
     }
@@ -19199,7 +19796,7 @@ function minimalist_achievement(){
     return {
         name: achievement_names.minimalist,
         description: achievement_description.minimalist,
-        image: `${IMG_FOLDER.achievements}minimalist.png`,
+        pic: `${IMG_FOLDER.achievements}minimalist.png`,
         has: false,
         boons: [stubborn],
     }
@@ -19208,7 +19805,7 @@ function monster_hunter_achievement(){
     return {
         name: achievement_names.monster_hunter,
         description: achievement_description.monster_hunter,
-        image: `${IMG_FOLDER.achievements}monster_hunter.png`,
+        pic: `${IMG_FOLDER.achievements}monster_hunter.png`,
         has: false,
         boons: [brag_and_boast],
     }
@@ -19217,7 +19814,7 @@ function non_violent_achievement(){
     return {
         name: achievement_names.non_violent,
         description: achievement_description.non_violent,
-        image: `${IMG_FOLDER.achievements}non_violent.png`,
+        pic: `${IMG_FOLDER.achievements}non_violent.png`,
         has: false,
         boons: [pacifism],
     }
@@ -19226,7 +19823,7 @@ function not_my_fault_achievement(){
     return {
         name: achievement_names.not_my_fault,
         description: achievement_description.not_my_fault,
-        image: `${IMG_FOLDER.achievements}not_my_fault.png`,
+        pic: `${IMG_FOLDER.achievements}not_my_fault.png`,
         has: false,
         boons: [pressure_points],
     }
@@ -19235,7 +19832,7 @@ function one_hit_wonder_achievement(){
     return {
         name: achievement_names.one_hit_wonder,
         description: achievement_description.one_hit_wonder,
-        image: `${IMG_FOLDER.achievements}one_hit_wonder.png`,
+        pic: `${IMG_FOLDER.achievements}one_hit_wonder.png`,
         has: false,
         boons: [boss_slayer],
     }
@@ -19244,7 +19841,7 @@ function one_life_achievement(){
     return {
         name: achievement_names.one_life,
         description: achievement_description.one_life,
-        image: `${IMG_FOLDER.achievements}one_life.png`,
+        pic: `${IMG_FOLDER.achievements}one_life.png`,
         has: false,
         boons: [frenzy],
     }
@@ -19253,7 +19850,7 @@ function peerless_sprinter_achievement(){
     return {
         name: achievement_names.peerless_sprinter,
         description: achievement_description.peerless_sprinter,
-        image: `${IMG_FOLDER.achievements}peerless_sprinter.png`,
+        pic: `${IMG_FOLDER.achievements}peerless_sprinter.png`,
         has: false,
         boons: [stealthy],
     }
@@ -19262,7 +19859,7 @@ function shrug_it_off_achievement(){
     return {
         name: achievement_names.shrug_it_off,
         description: achievement_description.shrug_it_off,
-        image: `${IMG_FOLDER.achievements}shrug_it_off.png`,
+        pic: `${IMG_FOLDER.achievements}shrug_it_off.png`,
         has: false,
         boons: [quick_healing],
     }
@@ -19271,7 +19868,7 @@ function speed_runner_achievement(){
     return {
         name: achievement_names.speed_runner,
         description: achievement_description.speed_runner,
-        image: `${IMG_FOLDER.achievements}speed_runner.png`,
+        pic: `${IMG_FOLDER.achievements}speed_runner.png`,
         has: false,
         boons: [repetition],
     }
@@ -19280,7 +19877,7 @@ function triple_achievement(){
     return {
         name: achievement_names.triple,
         description: achievement_description.triple,
-        image: `${IMG_FOLDER.achievements}triple.png`,
+        pic: `${IMG_FOLDER.achievements}triple.png`,
         has: false,
         boons: [duplicate],
     }
@@ -19289,7 +19886,7 @@ function without_a_scratch_achievement(){
     return {
         name: achievement_names.without_a_scratch,
         description: achievement_description.without_a_scratch,
-        image: `${IMG_FOLDER.achievements}without_a_scratch.png`,
+        pic: `${IMG_FOLDER.achievements}without_a_scratch.png`,
         has: false,
         boons: [practice_makes_perfect],
     }

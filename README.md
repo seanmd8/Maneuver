@@ -9,6 +9,13 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+2/26/26
+- Journal now has a run history page to show you stats from previous attempts.
+- Final Boss is now resistant to stun and is stronger while at low health.
+- Rebalanced Medical Investment: No longer heals.
+- Rebalanced Hoarder: The boon choice reduction is now a cost.
+- Sword Header image now changes based on kill count.
+
 11/25/25
 - Added 1 new Boon.
 - Rebalanced Roar of Challenge: Increases difficulty by 3 floors rather than 5.

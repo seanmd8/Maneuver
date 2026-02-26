@@ -17,7 +17,6 @@ function prereq_medical_investment(){
 
 function pick_medical_investment(){
     change_max_health(2);
-    GS.map.heal(GS.map.get_player_location(), 2);
     var has_voucher = GS.boons.has(boon_names.soul_voucher);
     if(!has_voucher){
         GS.map.stats.alter_add_choices(-1);

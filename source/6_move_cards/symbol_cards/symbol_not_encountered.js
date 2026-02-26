@@ -2,7 +2,7 @@
 function symbol_not_encountered_card(){
     return{
         name: card_names.symbol_not_encountered,
-        pic: `${IMG_FOLDER.other}not_encountered.png`,
+        pic: `${IMG_FOLDER.ui}not_encountered.png`,
         options: new ButtonGrid(),
     }
 }

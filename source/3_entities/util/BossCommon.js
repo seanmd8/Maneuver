@@ -10,7 +10,7 @@ function boss_death(self, target, map){
         // Create a chest containing a random card from it's loot table.
         var chest = appropriate_chest_tile();
         var drops = self.tile.card_drops.map((c) => {return c()});
-        var amount = 1 + 2 * GS.boons.has(boon_names.larger_chests);
+        var amount = map.stats.get_stats().card_chest_choices;
         var contents = rand_no_repeats(drops, amount);
         if(chance(1, 2) && filter_new_cards(contents).length === 0){
             var replace_list = filter_new_cards(drops);

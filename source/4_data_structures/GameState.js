@@ -4,6 +4,7 @@ class GameState{
     map;
     deck;
     boons;
+    run_achievements;
     data;
     #player_turn_lock;
     #text_log;
@@ -24,12 +25,14 @@ class GameState{
         var start = randomize_arr(init.area)[0]();
         this.map = new GameMap(FLOOR_WIDTH, FLOOR_HEIGHT, start);
         this.deck = init.make_deck();
+        this.run_achievements = new AchievementList();
 
         var starting_text = `${gameplay_text.new_area}${start.name}.\n${gameplay_text.welcome}`;
         this.data.add_area(start.name);
         say_record(starting_text);
         display.display_message(UIIDS.hand_label, `${gameplay_labels.hand}`);
         display.display_message(UIIDS.move_label, `${gameplay_labels.move}`);
+        display.set_header_img(header_imgs()[0]);
         create_sidebar();
         
         init.unlock_journal();
@@ -49,6 +52,9 @@ class GameState{
             var chest = chest_tile();
             add_boon_to_chest(chest, boon());
             this.map.spawn_safely(chest, SAFE_SPAWN_ATTEMPTS, true);
+        }
+        for(var achievement of init.achieve){
+            this.achieve(achievement);
         }
         refresh_map(this.map);
         this.map.display_stats();
@@ -312,6 +318,8 @@ class GameState{
         display.add_gradient(UIIDS.move_box, [action_type_colors.empty]);
         display.remove_children(UIIDS.move_buttons);
         say_record(`${gameplay_text.game_over}${cause.toLowerCase()}.`);
+        this.data.record_run(cause, this.map, this.boons, this.deck, this.run_achievements);
+        update_history();
         var restart = function(game){
             return function(message, position){
                 display.remove_children(UIIDS.retry_button);
@@ -337,6 +345,8 @@ class GameState{
         refresh_map(this.map);
         display_victory();
         this.achieve(achievement_names.victory);
+        this.data.record_run(journal_history_messages.victory, this.map, this.boons, this.deck, this.run_achievements);
+        update_history();
         say_record(gameplay_text.victory);
         refresh_full_deck_display(this.deck);
         var swap_visibility = function(id_list, id){
@@ -433,6 +443,7 @@ class GameState{
         display_boons(this.boons);
     }
     achieve(name){
+        this.run_achievements.achieve(name);
         var gained = this.data.achieve(name);
         if(gained){
             say_record(`${achievement_text.unlocked} ${name}`, record_types.achievement);

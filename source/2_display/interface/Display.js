@@ -343,6 +343,7 @@ const DisplayHTML = {
 
         element.value = header;
         element.onclick = on_click;
+        element.id = `${location} ${header}`
         section.append(element);
     },
     create_dropdown: function(location, options_arr){
@@ -646,7 +647,7 @@ const DisplayHTML = {
             img_box.classList.add(`achievement-img-box`);
             div.append(img_box);
 
-            var img_name = a.has ? a.image : `${IMG_FOLDER.other}locked.png`;
+            var img_name = a.has ? a.pic: `${IMG_FOLDER.ui}locked.png`;
             var img = document.createElement(`img`);
             img.src = `${IMG_FOLDER.src}${img_name}`;
             img.alt = a.has? `unlocked` : `locked`;
@@ -1013,7 +1014,7 @@ const DisplayHTML = {
         var reset_button = DisplayHTML.create_button(visual_settings_titles.reset, undefined, reset);
         header.append(reset_button);
         var set_animation_speed = (value) => {settings.set({animation_speed: value})}
-        var set_text_size = (value) => {settings.set({text_size: value})}
+        //var set_text_size = (value) => {settings.set({text_size: value})}
         var set_grid_visibility = (value) => {
             settings.set({checkered_overlay: value});
             refresh_map_grid(GS.map);
@@ -1066,6 +1067,207 @@ const DisplayHTML = {
             div.append(button);
         }
         return div;
+    },
+    set_header_img(header_img_object){
+        var img = DisplayHTML.get_element(UIIDS.header_img);
+        img.src = header_img_object.source;
+        img.alt = header_img_object.alt;
+    },
+    make_page_selector(selector, component = undefined){
+        if(!component){
+            component = document.createElement(`div`);
+            component.classList.add(`page-selector-container`);
+        }
+        else{
+            while(component.firstChild){
+                component.removeChild(component.lastChild);
+            }
+        }
+        const button_details = [
+            {text: `<<`,                        f: () => {selector.set(0)},     place: -2},
+            {text: `${selector.current()}`,     f: () => {selector.move(-1)},   place: -1},
+            {text: `${selector.current() + 1}`, f: undefined,                   place: 0},
+            {text: `${selector.current() + 2}`, f: () => {selector.move(1)},    place: 1},
+            {text: `>>`,                        f: () => {selector.set_max()},  place: 2},
+        ]
+        for(let detail of button_details){
+            let button = document.createElement(`button`);
+            button.classList.add(`page-selector-button`);
+            button.innerText = detail.text;
+            if(detail.place === 0){
+                button.classList.add(`page-selector-middle`);
+            }
+            else if(detail.place < 0){
+                button.classList.add(`page-selector-left`);
+                if(selector.at_min()){
+                    button.classList.add(`invisible-space`);
+                    button.innerText = `${NBS}`;
+                }
+                else{
+                    button.onclick = () => {
+                        detail.f();
+                        DisplayHTML.make_page_selector(selector, component);
+                    };
+                    button.classList.add(`page-selector-clickable`);
+                }
+            }
+            else if(detail.place > 0){
+                button.classList.add(`page-selector-right`);
+                if(selector.at_max()){
+                    button.classList.add(`invisible-space`);
+                    button.innerText = `${NBS}`;
+                }
+                else{
+                    button.onclick = () => {
+                        detail.f();
+                        DisplayHTML.make_page_selector(selector, component);
+                    };
+                    button.classList.add(`page-selector-clickable`);
+                }
+            }
+            component.append(button);
+        }
+        return component;
+    },
+    create_card_section(destination, contents, header){
+        const parent = this.get_element(destination);
+        const fs = document.createElement(`fieldset`);
+        fs.classList.add(`shop-section-box`);
+        fs.classList.add(`history-box`);
+        const legend = document.createElement(`legend`);
+        const table = document.createElement(`table`);
+        parent.append(fs);
+        fs.append(legend);
+        fs.append(table);
+        legend.innerText = header;
+        const tb_id = `history ${header}`;
+        table.id = tb_id;
+        for(var i = 0; i < Math.ceil(contents.length / DECK_DISPLAY_WIDTH); ++i){
+            var row = contents.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
+            display.add_tb_row(tb_id, row, CARD_SCALE);
+        }
+        return fs;
+    },
+    update_history(history_list){
+        this.remove_children(UIIDS.history_page_selector);
+        const pageElement = this.get_element(UIIDS.history_section);
+        const selectorElement = this.get_element(UIIDS.history_page_selector);
+
+        const max = history_list.length;
+        const update = (page) => {
+            display.remove_children(UIIDS.history_section);
+            if(history_list.length === 0){
+                return;
+            }
+            const page_info = history_list[page];
+            const death = page_info.victory ? `` : journal_history_messages.killed_by;
+            const header_message = 
+                `${journal_history_messages.run_num}`
+                +`${page_info.run_number}: `
+                +`${death}`
+                +`${page_info.end_message}`;
+            const h2 = document.createElement(`h2`);
+            h2.innerText = header_message;
+            h2.classList.add(`history-header`);
+            pageElement.append(h2);
+            const stat_box = document.createElement(`div`);
+            const stat_box_id = `statBox`;
+            stat_box.id = stat_box_id;
+            stat_box.classList.add(`stat-grid`)
+            pageElement.append(stat_box);
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}stairs.png`,
+                page_info.floors,
+                history_stat_labels.floors
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}stopwatch.png`,
+                page_info.turns,
+                history_stat_labels.turns
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}kills.png`,
+                page_info.kills,
+                history_stat_labels.kills
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}damage_dealt.png`,
+                page_info.dealt,
+                history_stat_labels.dealt
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}half_heart.png`,
+                page_info.taken,
+                history_stat_labels.taken
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}mini_heart.png`,
+                page_info.max_health !== undefined ? page_info.max_health : `-`,
+                history_stat_labels.max_health
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}card_added.png`,
+                page_info.added,
+                history_stat_labels.added
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}card_removed.png`,
+                page_info.removed,
+                history_stat_labels.removed
+            );
+            this.make_stat_pair(
+                stat_box_id,
+                `${IMG_FOLDER.src}${IMG_FOLDER.stats}mini_chest.png`,
+                page_info.chests,
+                history_stat_labels.chests
+            );
+            var decklist = remake_deck(page_info.deck);
+            for(var c of decklist){
+                c.background = [`${IMG_FOLDER.other}card_background.png`];
+            }
+            pageElement.append(
+                this.create_card_section(
+                    UIIDS.history_section, 
+                    decklist, 
+                    history_section_labels.deck
+                )
+            );
+            var boonlist = remake_boons(page_info.boons);
+            if(boonlist.length > 0){
+                pageElement.append(
+                    this.create_card_section(
+                        UIIDS.history_section, 
+                        boonlist, 
+                        history_section_labels.boons
+                    )
+                );
+            }
+            var achievement_list = remake_achievements(page_info.achievements);
+            for(var a of achievement_list){
+                a.foreground= [`${IMG_FOLDER.other}border.png`];
+                a.background = [`${IMG_FOLDER.other}achievement_background.png`];
+            }
+            if(achievement_list.length > 0){
+                pageElement.append(
+                    this.create_card_section(
+                        UIIDS.history_section, 
+                        achievement_list, 
+                        history_section_labels.achievements
+                    )
+                );
+            }
+        }
+        const selector = new PageSelector((p) => {update(p)}, max);
+        selector.set_max();
+        selectorElement.append(this.make_page_selector(selector));
     },
 
     // Non Required helper functions.
