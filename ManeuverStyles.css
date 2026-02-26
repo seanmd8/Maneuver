@@ -915,6 +915,8 @@ body>div {
     border-color: black;
     border-width: 2px;
     padding: 2px 5px;
+    line-height: 20px;
+    font-size: 20px;
 }
 .journal-style {
     background-color: var(--journal-background-color);
@@ -1197,18 +1199,47 @@ body>div {
     width: 100%;
     justify-content: space-between;
 }
+.page-selector-container {
+    border-width: 4px;
+    border-color: #232222;
+    border-style: solid;
+    background-color: #f4d6aa;
+    border-radius: 20px;
+    padding: 0px 6px;
+    margin: 6px;
+}
+
 .page-selector-button {
-    width: 28px;
+    cursor: pointer;
+    min-width: 40px;
+    width: fit-content;
     height: 28px;
-    margin: 1px;
+    margin: 8px 3px;
+    border-style: solid;
+    background-color: #efe7e7;
+    line-height: 18px;
+    font-size: 18px;
+    text-align: center;
 }
 
-.page-selector-clickable {
-
+.page-selector-left{
+    border-radius: 15px 0px 0px 15px;
 }
 
-.page-selector-unclickable {
-    
+.page-selector-right{
+    border-radius: 0px 15px 15px 0px;
+}
+
+.page-selector-middle {
+    cursor: default;
+    border-radius: 18px;
+    background-color: darkgray;
+    height: 36px;
+}
+
+.invisible-space {
+    cursor: default;
+    background-color: #454545;
 }
 .telegraph-repetition {
     border-color: blue;

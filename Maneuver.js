@@ -3918,6 +3918,7 @@ const DisplayHTML = {
     make_page_selector(selector, component = undefined){
         if(!component){
             component = document.createElement(`div`);
+            component.classList.add(`page-selector-container`);
         }
         else{
             while(component.firstChild){
@@ -3925,37 +3926,48 @@ const DisplayHTML = {
             }
         }
         const button_details = [
-            {text: `<<`,                        f: () => {selector.set(0)}},
-            {text: `${selector.current()}`,     f: () => {selector.move(-1)}},
-            {text: `${selector.current() + 1}`, f: undefined},
-            {text: `${selector.current() + 2}`, f: () => {selector.move(1)}},
-            {text: `>>`,                        f: () => {selector.set_max()}},
+            {text: `<<`,                        f: () => {selector.set(0)},     place: -2},
+            {text: `${selector.current()}`,     f: () => {selector.move(-1)},   place: -1},
+            {text: `${selector.current() + 1}`, f: undefined,                   place: 0},
+            {text: `${selector.current() + 2}`, f: () => {selector.move(1)},    place: 1},
+            {text: `>>`,                        f: () => {selector.set_max()},  place: 2},
         ]
-        const component_list = [];
         for(let detail of button_details){
             let button = document.createElement(`button`);
-            button.innerText = detail.text;
-            if(detail.f !== undefined){
-                button.onclick = () => {
-                    detail.f();
-                    DisplayHTML.make_page_selector(selector, component);
-                };
-                button.classList.add(`page-selector-clickable`);
-            }
-            else{
-                button.classList.add(`page-selector-unclickable`);
-            }
             button.classList.add(`page-selector-button`);
-            component_list.push(button);
-        }
-        if(!selector.at_min()){
-            component.append(component_list[0]);
-            component.append(component_list[1]);
-        }
-        component.append(component_list[2]);
-        if(!selector.at_max()){
-            component.append(component_list[3]);
-            component.append(component_list[4]);
+            button.innerText = detail.text;
+            if(detail.place === 0){
+                button.classList.add(`page-selector-middle`);
+            }
+            else if(detail.place < 0){
+                button.classList.add(`page-selector-left`);
+                if(selector.at_min()){
+                    button.classList.add(`invisible-space`);
+                    button.innerText = `${NBS}`;
+                }
+                else{
+                    button.onclick = () => {
+                        detail.f();
+                        DisplayHTML.make_page_selector(selector, component);
+                    };
+                    button.classList.add(`page-selector-clickable`);
+                }
+            }
+            else if(detail.place > 0){
+                button.classList.add(`page-selector-right`);
+                if(selector.at_max()){
+                    button.classList.add(`invisible-space`);
+                    button.innerText = `${NBS}`;
+                }
+                else{
+                    button.onclick = () => {
+                        detail.f();
+                        DisplayHTML.make_page_selector(selector, component);
+                    };
+                    button.classList.add(`page-selector-clickable`);
+                }
+            }
+            component.append(button);
         }
         return component;
     },

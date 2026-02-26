@@ -66,4 +66,6 @@
     border-color: black;
     border-width: 2px;
     padding: 2px 5px;
+    line-height: 20px;
+    font-size: 20px;
 }
