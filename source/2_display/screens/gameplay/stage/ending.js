@@ -5,7 +5,6 @@ function display_victory(){
     display.remove_children(UIIDS.map_display);
     display.add_tb_row(UIIDS.map_display, [{
         name: achievement_names.victory,
-        //foreground: [`${image_folder.other}border.png`],
         pic: `${IMG_FOLDER.achievements}victory.png`,
         on_click: () => {
             display.toggle_visibility(UIIDS.hand_box, true);
