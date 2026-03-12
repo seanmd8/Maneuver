@@ -584,8 +584,14 @@ const JOURNAL_AREA_WIDTH = 6;
 const VICTORY_IMG_SCALE = TILE_SCALE * FLOOR_HEIGHT + 12;
 const INITIATIVE_SCALE = 50;
 const CARD_SYMBOL_SCALE = 20;
+
 const ANIMATION_DELAY_OPTIONS = [60, 200, 400, 800];
 const GRID_OPACITY_OPTIONS = [0, 0.13, 0.26];
+
+const ANIMATION_SPEED_DEFAULT = 2;
+const OVERLAY_DEFAULT = 1;
+const MOVE_COLOR_DEFAULT = true;
+
 const CONFIRMATION_BUTTON_DELAY = 3000;
 const DECK_DISPLAY_WIDTH = 5;
 const JOURNAL_DISPLAY_WIDTH = 10;
@@ -14643,6 +14649,7 @@ class SaveData{
     reset_settings(){
         this.settings.reset();
         this.save();
+        refresh_map_grid(GS.map);
     }
     set_controls(new_controls){
         this.controls.set(new_controls);
@@ -15142,10 +15149,10 @@ class SettingsTracker{
         this.reset();
     }
     reset(){
-        this.#animation_speed = 1;
+        this.#animation_speed = ANIMATION_SPEED_DEFAULT;
         this.#text_size = undefined;
-        this.#move_color = true;
-        this.#checkered_overlay = 0;
+        this.#move_color = MOVE_COLOR_DEFAULT;
+        this.#checkered_overlay = OVERLAY_DEFAULT;
     }
     set(settings = {}){
         this.#animation_speed = settings.animation_speed !== undefined ? settings.animation_speed : this.#animation_speed;

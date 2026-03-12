@@ -58,6 +58,7 @@ class SaveData{
     reset_settings(){
         this.settings.reset();
         this.save();
+        refresh_map_grid(GS.map);
     }
     set_controls(new_controls){
         this.controls.set(new_controls);
