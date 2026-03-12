@@ -779,7 +779,7 @@ const DisplayHTML = {
                     for(let box of boxes){
                         DisplayHTML.toggle_visibility(box.id, false);
                     }
-                    DisplayHTML.toggle_visibility(text.id, true);
+                    DisplayHTML.toggle_visibility(text_id, true);
                     DisplayHTML.display_message(text_id, card.description);
                 }
             }
@@ -1129,7 +1129,7 @@ const DisplayHTML = {
         }
         return component;
     },
-    create_card_section(destination, contents, header){
+    create_history_table(destination, contents, header, on_click){
         const parent = this.get_element(destination);
         const fs = document.createElement(`fieldset`);
         fs.classList.add(`shop-section-box`);
@@ -1142,6 +1142,9 @@ const DisplayHTML = {
         legend.innerText = header;
         const tb_id = `history ${header}`;
         table.id = tb_id;
+        for(var c of contents){
+            c.on_click = on_click(c);
+        }
         for(var i = 0; i < Math.ceil(contents.length / DECK_DISPLAY_WIDTH); ++i){
             var row = contents.slice(i * DECK_DISPLAY_WIDTH, (i + 1) * DECK_DISPLAY_WIDTH);
             display.add_tb_row(tb_id, row, CARD_SCALE);
@@ -1159,6 +1162,20 @@ const DisplayHTML = {
             if(history_list.length === 0){
                 return;
             }
+        
+            var text_id = `historyPageText`;
+            var text = document.createElement(`p`);
+            text.classList.add(`journal-history-info`);
+            text.classList.add(`hidden-section`);
+            text.id = text_id;
+            pageElement.append(text);
+            var describe = (thing) => {
+                return () => {
+                    DisplayHTML.toggle_visibility(text_id, true);
+                    DisplayHTML.display_message(text_id, thing.description);
+                }
+            }
+        
             const page_info = history_list[page];
             const death = page_info.victory ? `` : journal_history_messages.killed_by;
             const header_message = 
@@ -1234,19 +1251,21 @@ const DisplayHTML = {
                 c.background = [`${IMG_FOLDER.other}card_background.png`];
             }
             pageElement.append(
-                this.create_card_section(
+                this.create_history_table(
                     UIIDS.history_section, 
                     decklist, 
-                    history_section_labels.deck
+                    history_section_labels.deck,
+                    describe
                 )
             );
             var boonlist = remake_boons(page_info.boons);
             if(boonlist.length > 0){
                 pageElement.append(
-                    this.create_card_section(
+                    this.create_history_table(
                         UIIDS.history_section, 
                         boonlist, 
-                        history_section_labels.boons
+                        history_section_labels.boons,
+                        describe
                     )
                 );
             }
@@ -1257,10 +1276,11 @@ const DisplayHTML = {
             }
             if(achievement_list.length > 0){
                 pageElement.append(
-                    this.create_card_section(
+                    this.create_history_table(
                         UIIDS.history_section, 
                         achievement_list, 
-                        history_section_labels.achievements
+                        history_section_labels.achievements,
+                        describe
                     )
                 );
             }

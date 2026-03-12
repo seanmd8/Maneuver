@@ -286,5 +286,8 @@ function remake_deck(card_names){
             list.push(symbol_card_info_missing());
         }
     }
+    for(var card of list){
+        card.description = explain_card_w_stats(card);
+    }
     return list;
 }

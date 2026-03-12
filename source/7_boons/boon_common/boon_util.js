@@ -119,5 +119,8 @@ function remake_boons(boon_names){
             list.push(symbol_card_info_missing());
         }
     }
+    for(var boon of list){
+        boon.description = explain_boon_with_stats(boon);
+    }
     return list;
 }
