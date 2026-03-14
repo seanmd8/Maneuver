@@ -19188,6 +19188,7 @@ function pick_limitless(){
     GS.map.player_heal(new Point(0, 0));
     GS.map.get_player().max_health = undefined;
 }
+
 function manic_presence(){
     return {
         name: boon_names.manic_presence,
@@ -19641,6 +19642,7 @@ function apply_vicious_cycle(deck){
         confuse_player([lash_out]);
     }
 }
+
 function get_achievements(){
     return [
         // Boss achievements
