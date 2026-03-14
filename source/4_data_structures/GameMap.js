@@ -1011,6 +1011,9 @@ class GameMap{
     add_to_floor(x){
         this.#floor_num += x;
     }
+    point_list(){
+        return solid_point_rectangle(new Point(0, 0), new Point(this.#x_max - 1, this.#y_max - 1));
+    }
 }
 
 function grid_space(area){

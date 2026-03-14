@@ -107,7 +107,7 @@ const boon_descriptions = {
     stable_mind: 
         `You gain a 50% chance to resist confusion.`,
     stealthy: 
-        `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`,
+        `Enemies are stunned for two turns at the start of each non boss floor.`,
     stubborn: 
         `You can skip shops.`,
     thick_soles: 

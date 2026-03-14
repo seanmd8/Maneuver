@@ -893,7 +893,7 @@ const boon_descriptions = {
     stable_mind: 
         `You gain a 50% chance to resist confusion.`,
     stealthy: 
-        `Enemies are stunned for two turns at the start of each floor. Bosses are immune.`,
+        `Enemies are stunned for two turns at the start of each non boss floor.`,
     stubborn: 
         `You can skip shops.`,
     thick_soles: 
@@ -11141,6 +11141,21 @@ function point_rectangle(p1, p2){
     return rectangle;
 }
 
+function solid_point_rectangle(p1, p2){
+    var x_min = Math.min(p1.x, p2.x);
+    var x_max = Math.max(p1.x, p2.x);
+    var y_min = Math.min(p1.y, p2.y);
+    var y_max = Math.max(p1.y, p2.y);
+    
+    var points = [];
+    for(var x = x_min; x <= x_max; ++x){
+        for(var y = y_min; y <= y_max; ++y){
+            points.push(new Point(x, y));
+        }
+    }
+    return points;
+}
+
 function get_nearest_where(map, location, f){
     for(var i = 1; i < Math.max(FLOOR_HEIGHT, FLOOR_WIDTH); ++i){
         var corner_1 = location.plus(new Point(1, 1).times(i));
@@ -13620,6 +13635,9 @@ class GameMap{
     }
     add_to_floor(x){
         this.#floor_num += x;
+    }
+    point_list(){
+        return solid_point_rectangle(new Point(0, 0), new Point(this.#x_max - 1, this.#y_max - 1));
     }
 }
 
@@ -16178,9 +16196,6 @@ function generate_normal_floor(floor_num, area, map){
             var spawned = map.spawn_safely(new_enemy, SAFE_SPAWN_ATTEMPTS, false);
             if(spawned !== undefined){
                 i -= new_enemy.difficulty;
-                for(var j = 0; j < 2 * GS.boons.has(boon_names.stealthy); ++j){
-                    map.stun_tile(spawned);
-                }
             }
             else{
                 --i;
@@ -16189,6 +16204,18 @@ function generate_normal_floor(floor_num, area, map){
     }
     if(chance(GS.boons.has(boon_names.frugivore), 2)){
         map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+    
+    // Stuns all enemies
+    var stealthy = GS.boons.has(boon_names.stealthy);
+    if(stealthy > 0){
+        map.point_list().forEach((p) => {
+            if(map.get_tile(p).type === entity_types.enemy){
+                for(var i = 0; i < stealthy * 2; ++i){
+                    map.stun_tile(p);
+                }
+            }
+        })
     }
 }
 

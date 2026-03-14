@@ -327,6 +327,21 @@ function point_rectangle(p1, p2){
     return rectangle;
 }
 
+function solid_point_rectangle(p1, p2){
+    var x_min = Math.min(p1.x, p2.x);
+    var x_max = Math.max(p1.x, p2.x);
+    var y_min = Math.min(p1.y, p2.y);
+    var y_max = Math.max(p1.y, p2.y);
+    
+    var points = [];
+    for(var x = x_min; x <= x_max; ++x){
+        for(var y = y_min; y <= y_max; ++y){
+            points.push(new Point(x, y));
+        }
+    }
+    return points;
+}
+
 function get_nearest_where(map, location, f){
     for(var i = 1; i < Math.max(FLOOR_HEIGHT, FLOOR_WIDTH); ++i){
         var corner_1 = location.plus(new Point(1, 1).times(i));

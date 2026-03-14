@@ -38,9 +38,6 @@ function generate_normal_floor(floor_num, area, map){
             var spawned = map.spawn_safely(new_enemy, SAFE_SPAWN_ATTEMPTS, false);
             if(spawned !== undefined){
                 i -= new_enemy.difficulty;
-                for(var j = 0; j < 2 * GS.boons.has(boon_names.stealthy); ++j){
-                    map.stun_tile(spawned);
-                }
             }
             else{
                 --i;
@@ -49,6 +46,18 @@ function generate_normal_floor(floor_num, area, map){
     }
     if(chance(GS.boons.has(boon_names.frugivore), 2)){
         map.spawn_safely(enticing_fruit_tree_tile(), SAFE_SPAWN_ATTEMPTS, false);
+    }
+    
+    // Stuns all enemies
+    var stealthy = GS.boons.has(boon_names.stealthy);
+    if(stealthy > 0){
+        map.point_list().forEach((p) => {
+            if(map.get_tile(p).type === entity_types.enemy){
+                for(var i = 0; i < stealthy * 2; ++i){
+                    map.stun_tile(p);
+                }
+            }
+        })
     }
 }
 
