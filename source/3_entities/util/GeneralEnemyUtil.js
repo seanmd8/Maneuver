@@ -209,11 +209,51 @@ function spawn_nearby(map, tile, location, nearby = random_nearby()){
     // Attempts to spawn a <tile> at a space next to to the given cords.
     // If it succeeds, returns the location, otherwise returns false.
     for(var near of nearby){
-        if(map.add_tile(tile, location.plus(near))){
+        if(spawn(map, tile, location.plus(near))){
             return near;
         }
     }
     return undefined;
+}
+
+function attack_spawn(map, tile, location, always_spawn = false){
+    // Attacks a location then spawns a tile there if it's empty.
+    // Checks Malicious Greeting.
+    // returns true if it spawns something, or is blocked.
+    if(!greeting_check(map, location)){
+        var hit = map.attack(location);
+        if(map.check_empty(location)){
+            if(always_spawn || !hit){
+                map.add_tile(tile, location);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+function no_telegraph_spawn(map, tile){
+    // Checks Malicious Greeting, then spawns a tile safely.
+    if(!greeting_check(map, map.random_empty())){
+        map.spawn_safely(tile, SAFE_SPAWN_ATTEMPTS, true);
+    }
+    return true;
+}
+function spawn(map, tile, location){
+    // Checks Malicious Greeting, then spawns a tile at the given location.
+    if(!map.check_empty(location)){
+        return false;
+    }
+    if(!greeting_check(map, location)){
+        return map.add_tile(tile, location);
+    }
+    return true;
+}
+function greeting_check(map, location){
+    if(chance(GS.boons.has(boon_names.malicious_greeting), 3)){
+        map.mark_telegraph([location], `${IMG_FOLDER.tiles}greeting_mark.png`);
+        return true;
+    }
+    return false;
 }
 /**
  * Function to attack all spaces around the current location.

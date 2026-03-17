@@ -31,11 +31,8 @@ function starcaller_tile(){
 function starcaller_ai(self, target, map){
     if(self.tile.cycle === 0){
         // Shoot
-        map.attack(self.tile.direction);
-        if(map.check_empty(self.tile.direction)){
-            var spawn = random_from(self.tile.summons)();
-            map.add_tile(spawn, self.tile.direction);
-        }
+        var spawn = random_from(self.tile.summons)();
+        attack_spawn(map, spawn, self.tile.direction);
         self.tile.cycle = STARCALLER_TIMER;
         self.tile.pic = self.tile.pic_arr[0];
     }
@@ -57,7 +54,7 @@ function starcaller_ai(self, target, map){
         map.add_event({name: event_names.starfall, behavior: starfall});
     }
     --self.tile.cycle;
-    if(self.tile.cycle !== 0 && self.tile.cycle !== STARCALLER_TIMER){
+    if(self.tile.cycle !== 0 && self.tile.cycle !== STARCALLER_TIMER - 1){
         throw new Error(ERRORS.skip_animation);
     }
 }

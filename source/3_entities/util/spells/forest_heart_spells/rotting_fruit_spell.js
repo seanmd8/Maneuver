@@ -8,7 +8,7 @@ function rotting_fruit_spell_generator(){
     }
 }
 
-/** @type {AIFunction} Spawns Thorn Brambles around the tree.*/
+/** @type {AIFunction} Spawns Rotting Fruit Trees around the tree.*/
 function rotting_fruit_spell(self, target, map){
     var points = point_rectangle(
         new Point(FLOOR_WIDTH / 2 - 2, FLOOR_HEIGHT / 2 - 2), 
@@ -19,7 +19,7 @@ function rotting_fruit_spell(self, target, map){
             map.attack(point);
         }
         if(map.check_empty(point)){
-            map.add_tile(rotting_fruit_tree_tile(), point);
+            spawn(map, rotting_fruit_tree_tile(), point);
         }
     }
 }

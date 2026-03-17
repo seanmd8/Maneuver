@@ -28,9 +28,10 @@ function coffin_tile_death(self, target, map){
         for(let card of cards){
             add_card_to_chest(new_enemy, card());
         }
+        map.add_tile(new_enemy, self.location);
     }
     else{
         stun(new_enemy);
+        spawn(map, new_enemy, self.location);
     }
-    map.add_tile(new_enemy, self.location);
 }

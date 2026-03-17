@@ -7,10 +7,7 @@ function growth_event(points, root, grown){
     var grow = function(locations){
         return function(map_to_use){
             for(var location of locations){
-                map_to_use.attack(location);
-                if(map_to_use.check_empty(location)){
-                    map_to_use.add_tile(grown(), location);
-                }
+                attack_spawn(map_to_use, grown(), location, true);
             }
         }
     }

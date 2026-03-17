@@ -24,7 +24,7 @@ function living_tree_spell(self, target, map){
         var spawned = false;
         for(var i = 0; i < diagonal.length && !spawned; ++i){
             if(map.check_empty(diagonal[i])){
-                map.add_tile(living_tree_tile(), diagonal[i]);
+                spawn(map, living_tree_tile(), diagonal[i]);
                 spawned = true;
             }
         }

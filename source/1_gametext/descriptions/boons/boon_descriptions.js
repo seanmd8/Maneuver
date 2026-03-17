@@ -56,6 +56,8 @@ const boon_descriptions = {
         `All chests contain 2 additional choices and are invulnerable.`,
     limitless: 
         `Fully heal, then remove your max health. If you would be fully healed, heal for 1 instead.`,
+    malicious_greeting:
+        `Prevents new enemies from spawning during a floor 1/3 of the time.`,
     manic_presence: 
         `Some types of enemies have poor trigger discipline.`,
     medical_investment: 

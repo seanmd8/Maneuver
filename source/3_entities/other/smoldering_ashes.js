@@ -34,6 +34,6 @@ function smoldering_ashes_ai(self, target, map){
     else{
         // Dies and spawns a pheonix.
         map.attack(self.location);
-        map.add_tile(pheonix_tile(), self.location);
+        spawn(map, pheonix_tile(), self.location);
     }
 }

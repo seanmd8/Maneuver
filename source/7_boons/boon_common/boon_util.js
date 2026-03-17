@@ -26,6 +26,7 @@ const BOON_LIST = [
     hoarder, 
     larger_chests, 
     limitless, 
+    malicious_greeting,
     manic_presence, 
     medical_investment,
     pacifism, 

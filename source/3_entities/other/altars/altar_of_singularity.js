@@ -15,10 +15,7 @@ function altar_of_singularity_tile(){
 function altar_of_singularity_on_enter(self, target, map){
     var fall = function(location){
         return function(map_to_use){
-            map_to_use.attack(location);
-            if(map_to_use.check_empty(location)){
-                map_to_use.add_tile(black_hole_tile(), location);
-            }
+            attack_spawn(map_to_use, black_hole_tile(), location, true);
         }
     }
     var delay = (map_to_use) => {

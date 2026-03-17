@@ -28,6 +28,7 @@ const boon_names = {
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
     limitless: `Limitless`,
+    malicious_greeting: `Malicious Greeting`,
     manic_presence: `Manic Presence`,
     medical_investment: `Medical Investment`,
     pacifism: `Pacifism`,

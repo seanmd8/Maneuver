@@ -16,10 +16,7 @@ function altar_of_sunlight_on_enter(self, target, map){
     var fire = function(locations){
         return function(map_to_use){
             for(var location of locations){
-                map_to_use.attack(location);
-                if(map_to_use.check_empty(location)){
-                    map_to_use.add_tile(raging_fire_tile(), location);
-                }
+                attack_spawn(map_to_use, raging_fire_tile(), location, true);
             }
         }
     }
