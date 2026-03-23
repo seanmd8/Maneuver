@@ -55,6 +55,7 @@ const BOON_LIST = [
     stubborn, 
     thick_soles, 
     vicious_cycle,
+    //world_shaper,
 ];
 
 function change_max_health(amount){

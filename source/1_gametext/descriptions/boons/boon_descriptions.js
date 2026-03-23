@@ -116,5 +116,7 @@ const boon_descriptions = {
         `You are immune to damage on your turn.`,
     vicious_cycle: 
         `At the start of each floor fully heal, then add 2 temporary Lash Out cards to your deck.`,
+    world_shaper:
+        `Break the unbreakable.`,
 }
 Object.freeze(boon_descriptions);

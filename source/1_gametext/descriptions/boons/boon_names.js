@@ -2,7 +2,8 @@ const boon_names = {
     locked: `Locked`,
     not_encountered: `Not Encountered`,
 
-    ancient_card: `Ancient Card`,
+    ancient_card: `Ancient Card I`,
+    ancient_card_2: `Ancient Card II`,
     bitter_determination: `Bitter Determination`,
     blood_alchemy: `Blood Alchemy`,
     boss_slayer: `Boss Slayer`,
@@ -57,5 +58,6 @@ const boon_names = {
     stubborn: `Stubborn`,
     thick_soles: `Thick Soles`,
     vicious_cycle: `Vicious Cycle`,
+    world_shaper: `World Shaper`,
 }
 Object.freeze(boon_names);

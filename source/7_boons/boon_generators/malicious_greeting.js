@@ -1,4 +1,3 @@
-
 function malicious_greeting(){
     return {
         name: boon_names.malicious_greeting,

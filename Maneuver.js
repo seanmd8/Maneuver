@@ -500,7 +500,7 @@ function init_settings(){
     const init = {
         enemies: undefined,
         spawnpoints: undefined,
-        chests: undefined,
+        chests: [ancient_card],
         cards: undefined,
         area: undefined,
         area_size: undefined,
@@ -902,6 +902,8 @@ const boon_descriptions = {
         `You are immune to damage on your turn.`,
     vicious_cycle: 
         `At the start of each floor fully heal, then add 2 temporary Lash Out cards to your deck.`,
+    world_shaper:
+        `Break the unbreakable.`,
 }
 Object.freeze(boon_descriptions);
 const boon_messages = {
@@ -921,7 +923,8 @@ const boon_names = {
     locked: `Locked`,
     not_encountered: `Not Encountered`,
 
-    ancient_card: `Ancient Card`,
+    ancient_card: `Ancient Card I`,
+    ancient_card_2: `Ancient Card II`,
     bitter_determination: `Bitter Determination`,
     blood_alchemy: `Blood Alchemy`,
     boss_slayer: `Boss Slayer`,
@@ -976,6 +979,7 @@ const boon_names = {
     stubborn: `Stubborn`,
     thick_soles: `Thick Soles`,
     vicious_cycle: `Vicious Cycle`,
+    world_shaper: `World Shaper`,
 }
 Object.freeze(boon_names);
 const boon_prereq_descriptions = {
@@ -18663,6 +18667,7 @@ const BOON_LIST = [
     stubborn, 
     thick_soles, 
     vicious_cycle,
+    //world_shaper,
 ];
 
 function change_max_health(amount){
@@ -18763,7 +18768,7 @@ function pick_ancient_card(){
 
 function ancient_card_2(){
     return {
-        name: boon_names.ancient_card,
+        name: boon_names.ancient_card_2,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         description: chest_text.add_card,
         prereq_description: boon_prereq_descriptions.none,
@@ -19181,7 +19186,6 @@ function pick_limitless(){
     GS.map.player_heal(new Point(0, 0));
     GS.map.get_player().max_health = undefined;
 }
-
 function malicious_greeting(){
     return {
         name: boon_names.malicious_greeting,
@@ -19644,7 +19648,15 @@ function apply_vicious_cycle(deck){
         confuse_player([lash_out]);
     }
 }
-
+function world_shaper(){
+    return {
+        name: boon_names.world_shaper,
+        pic: `${IMG_FOLDER.boons}world_shaper.png`,
+        description: boon_descriptions.world_shaper,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
+    }
+}
 function get_achievements(){
     return [
         // Boss achievements

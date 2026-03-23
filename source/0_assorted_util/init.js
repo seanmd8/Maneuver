@@ -3,7 +3,7 @@ function init_settings(){
     const init = {
         enemies: undefined,
         spawnpoints: undefined,
-        chests: undefined,
+        chests: [ancient_card],
         cards: undefined,
         area: undefined,
         area_size: undefined,
