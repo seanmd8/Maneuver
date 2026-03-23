@@ -500,7 +500,7 @@ function init_settings(){
     const init = {
         enemies: undefined,
         spawnpoints: undefined,
-        chests: [ancient_card],
+        chests: undefined,
         cards: undefined,
         area: undefined,
         area_size: undefined,
@@ -14384,7 +14384,6 @@ class MoveDeck{
             this.#library.push(new_card);
         }
         this.#library = randomize_arr(this.#library);
-        this.#check_three_kind_achievement(new_card.name);
         this.#check_jack_of_all_trades_achievement();
         GS.data.add_card(new_card.name);
     }
