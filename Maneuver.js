@@ -816,7 +816,7 @@ const boon_descriptions = {
     empty_rooms: 
         `Difficulty decreases by 3 floors`,
     escape_artist: 
-        `Teleport away when attacked.`,
+        `Teleport away when attacked, then stun all nearby enemies.`,
     expend_vitality: 
         `Heal 1 life at the start of each floor.`,
     flame_strike: 
@@ -18999,6 +18999,9 @@ function escape_artist(){
 function escape_artist_behavior(self, target, map){
     if(self.tile.health !== undefined && self.tile.health > 0){
         teleport_spell(self, target, map);
+        for(var dir of ALL_DIRECTIONS){
+            map.player_stun(dir);
+        }
     }
 }
 function expend_vitality(){

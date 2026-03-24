@@ -12,5 +12,8 @@ function escape_artist(){
 function escape_artist_behavior(self, target, map){
     if(self.tile.health !== undefined && self.tile.health > 0){
         teleport_spell(self, target, map);
+        for(var dir of ALL_DIRECTIONS){
+            map.player_stun(dir);
+        }
     }
 }

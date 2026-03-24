@@ -30,7 +30,7 @@ const boon_descriptions = {
     empty_rooms: 
         `Difficulty decreases by 3 floors`,
     escape_artist: 
-        `Teleport away when attacked.`,
+        `Teleport away when attacked, then stun all nearby enemies.`,
     expend_vitality: 
         `Heal 1 life at the start of each floor.`,
     flame_strike: 
