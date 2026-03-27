@@ -5687,7 +5687,6 @@ function lich_tile(){
         maw_tile,
         shadow_knight_tile,
         shadow_scout_tile,
-        specter_tile,
         vampire_tile,
     ];
     var tile = {
