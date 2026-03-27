@@ -6,9 +6,9 @@ const boon_descriptions = {
     bitter_determination: 
         `At the start of each floor, heal 1 if your health is exactly 1.`,
     blood_alchemy:
-        `Gain 2 max hp.`,
+        `Gain 2 empty max health.`,
     boss_slayer: 
-        `Bosses start with 2 less hp.`,
+        `Bosses start with 2 less health.`,
     brag_and_boast: 
         `Add 2 random boss cards to your deck.`,
     burn_bright:
@@ -18,7 +18,7 @@ const boon_descriptions = {
         `Enemies have a 1/6 chance to become stunned at the end of their `
         +`turn. Bosses are not affected.`,
     choose_your_path: 
-        `You get to decide which area to go to after each boss fight.`,
+        `Choose where to travel after each boss fight.`,
     clean_mind: 
         `Remove any 2 cards from your deck.`,
     creative: 
@@ -26,8 +26,8 @@ const boon_descriptions = {
     dazing_blows: 
         `Your attacks stun enemies. Bosses are unaffected.`,
     delayed_strike:
-        `If you would attack or stun an empty space, delay that action until the end of `
-        +`the next enemy turn. Actions delayed this way can't hit you.`,
+        `If you would attack or stun an empty space, delay that action until after enemies move. `
+        +`Actions delayed this way can't hit you.`,
     duplicate: 
         `Get a copy of any card in your deck.`,
     empty_rooms: 
@@ -35,15 +35,15 @@ const boon_descriptions = {
     escape_artist: 
         `Teleport away when attacked, then stun all nearby enemies.`,
     expend_vitality: 
-        `Heal 1 life at the start of each floor.`,
+        `Heal for 1 at the start of each floor.`,
     flame_strike: 
         `Attacking an adjacent empty space has a 1/2 chance of shooting a fireball`,
     flame_worship:
-        `Two Altars of Scouring spawn on each non boss floor`,
+        `2 Altars of Scouring spawn on each non boss floor`,
     fleeting_thoughts: 
         `Temporary cards added to your deck will happen instantly.`,
     fortitude: 
-        `Gain an extra max health and heal for 1.`,
+        `Gain 1 max health and heal for 1.`,
     frenzy: 
         `Deal double damage while you only have 1 health.`,
     frugivore: 
@@ -52,7 +52,7 @@ const boon_descriptions = {
     future_sight: 
         `You may look at the order of your deck.`,
     gruntwork: 
-        `Gain 3 extra max health.`,
+        `Gain 3 empty max health.`,
     hoarder: 
         `Encounter two boon chests in each area.`,
     larger_chests: 
@@ -60,18 +60,18 @@ const boon_descriptions = {
     limitless: 
         `Fully heal, then remove your max health. If you would be fully healed, heal for 1 instead.`,
     malicious_greeting:
-        `Prevents new enemies from spawning during a floor 1/3 of the time.`,
+        `Prevents new enemies from being summoned 1/3 of the time.`,
     manic_presence: 
-        `Some types of enemies have poor trigger discipline.`,
+        `Some types of enemies are trigger happy.`,
     medical_investment: 
-        `Gain 2 extra max health.`,
+        `Gain 2 empty max health.`,
     pacifism: 
-        `If you would attack an enemy, stun them twice instead (some terrain elements can still `
-        +`be damaged). Fully heal at the start of each floor. All boss floor exits unlock.`,
+        `If you would attack an enemy, stun them twice instead. Fully heal at the start of each floor. `
+        +`All boss floor exits unlock.`,
     pain_reflexes: 
         `Take a turn whenever you are attacked.`,
     pandoras_box:
-        `Gain a number of random boons equal to your current maximum hp. Reduce your maximum hp to 1.`,
+        `Reduce your max health to 1, then gain a number of random boons equal to your old max health.`,
     perfect_the_basics: 
         `Replace all your basic cards with better ones.`,
     picky_shopper: 
@@ -87,11 +87,11 @@ const boon_descriptions = {
     repetition: 
         `Every 3rd turn, your cards happen twice.`,
     retaliate: 
-        `When you are dealt damage, attack a nearby enemy.`,
+        `When you are dealt damage, attack a random nearby enemy.`,
     rift_touched: 
-        `Two Darklings spawn on each non boss floor.`,
+        `2 Darklings spawn on each non boss floor.`,
     roar_of_challenge: 
-        `Gain 2 max health.`,
+        `Gain 2 empty max health.`,
     safe_passage: 
         `Fully heal and travel to the next boss floor.`,
     shattered_glass: 
@@ -99,9 +99,10 @@ const boon_descriptions = {
     skill_trading: 
         `You may both add a card and remove a card at each shop.`,
     slime_trail: 
-        `Every time you move, there is a 1/2 chance of leaving a trail of corrosive slime.`,
+        `Every time you move, there is a 1/2 chance you leave a trail of corrosive slime.`,
     sniper: 
-        `Attacks deal extra damage to enemies at a distance based on how far away they are.`,
+        `Attacks deal extra damage to enemies at a distance. Damage is increased by 1 for every `
+        +`tile beyond the first.`,
     soul_voucher:
         `Ignore any cost to obtain new boons. Each boon chest is guaranteed to have at least 1 `
         +`boon with a cost in it.`,
@@ -110,9 +111,9 @@ const boon_descriptions = {
     spontaneous: 
         `After using a non instant card, discard your whole hand.`,
     stable_mind: 
-        `You gain a 50% chance to resist confusion.`,
+        `You gain a 1/2 chance to ignore confusion.`,
     stealthy: 
-        `Enemies are stunned for two turns at the start of each non boss floor.`,
+        `Enemies are stunned for 2 turns at the start of each non boss floor.`,
     stubborn: 
         `You can skip shops.`,
     thick_soles: 
