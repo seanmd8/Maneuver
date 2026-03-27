@@ -5,6 +5,7 @@ const BOON_LIST = [
     blood_alchemy, 
     boss_slayer, 
     brag_and_boast, 
+    burn_bright,
     chilly_presence, 
     choose_your_path, 
     clean_mind, 

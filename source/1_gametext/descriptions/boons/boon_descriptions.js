@@ -11,6 +11,9 @@ const boon_descriptions = {
         `Bosses start with 2 less hp.`,
     brag_and_boast: 
         `Add 2 random boss cards to your deck.`,
+    burn_bright:
+        `Gain 3 max health and heal for 3. Whenever a boss is defeated, you lose 1 max health if `
+        +`your max health is greater than 2.`,
     chilly_presence: 
         `Enemies have a 1/6 chance to become stunned at the end of their `
         +`turn. Bosses are not affected.`,

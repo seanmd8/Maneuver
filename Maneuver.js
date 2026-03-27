@@ -797,6 +797,9 @@ const boon_descriptions = {
         `Bosses start with 2 less hp.`,
     brag_and_boast: 
         `Add 2 random boss cards to your deck.`,
+    burn_bright:
+        `Gain 3 max health and heal for 3. Whenever a boss is defeated, you lose 1 max health if `
+        +`your max health is greater than 2.`,
     chilly_presence: 
         `Enemies have a 1/6 chance to become stunned at the end of their `
         +`turn. Bosses are not affected.`,
@@ -912,6 +915,7 @@ const boon_messages = {
     no_max: `Unlimited`,
     number_picked: `Times Picked`,
 
+    burn_bright: `Your maximum health has decreased.`,
     clean_mind: [`Choose a card to remove (`, `/2 remaining)`],
     duplicate: `Choose a card to copy:`,
     practice_makes_perfect: `Your maximum health has increased.`,
@@ -929,6 +933,7 @@ const boon_names = {
     blood_alchemy: `Blood Alchemy`,
     boss_slayer: `Boss Slayer`,
     brag_and_boast: `Brag & Boast`,
+    burn_bright: `Burn Bright`,
     chilly_presence: `Chilly Presence`,
     choose_your_path: `Choose Your Path`,
     clean_mind: `Clean Mind`,
@@ -987,6 +992,8 @@ const boon_prereq_descriptions = {
         `Prerequisites: None.`,
     blood_alchemy:
         `Prerequisites: You must have at least 3 health and not have Limitless.`,
+    burn_bright:
+        `Prerequisites: You must not have Limitless.`,
     clean_mind:
         `Prerequisites: You must be at least 2 cards above your minimum deck size.`,
     creative:
@@ -10485,13 +10492,22 @@ function boss_death(self, target, map){
     if(stats.boss_kill_start === stats.turn_number){
         GS.achieve(achievement_names.one_hit_wonder);
     }
+    if( // Burn Bright
+        GS.boons.has(boon_names.burn_bright) &&
+        player_tile.max_health !== undefined &&
+        player_tile.max_health > 2
+    ){
+        --player_tile.max_health;
+        player_tile.health = Math.min(player_tile.health, player_tile.max_health);
+        death_message = `${death_message}\n${boon_messages.burn_bright}`;
+    }
     if( // Practice makes perfect
         GS.boons.has(boon_names.practice_makes_perfect) && 
         player_tile.max_health !== undefined && 
         player_tile.max_health === player_tile.health
     ){
         ++player_tile.max_health;
-        death_message = `${death_message}\n${boon_messages.practice_makes_perfect}`
+        death_message = `${death_message}\n${boon_messages.practice_makes_perfect}`;
     }
     map.player_heal(new Point(0, 0));
     var new_boss_kill = GS.achieve(self.tile.death_achievement);
@@ -18659,6 +18675,7 @@ const BOON_LIST = [
     blood_alchemy, 
     boss_slayer, 
     brag_and_boast, 
+    burn_bright,
     chilly_presence, 
     choose_your_path, 
     clean_mind, 
@@ -18889,6 +18906,26 @@ function pick_brag_and_boast(){
             GS.deck.add(card);
         }
     }
+}
+
+function burn_bright(){
+    return {
+        name: boon_names.burn_bright,
+        pic: `${IMG_FOLDER.boons}burn_bright.png`,
+        description: boon_descriptions.burn_bright,
+        prereq_description: boon_prereq_descriptions.burn_bright,
+        prereq: prereq_burn_bright,
+        on_pick: pick_burn_bright,
+    }
+}
+
+function prereq_burn_bright(){
+    return GS.map.get_player().max_health !== undefined;
+}
+
+function pick_burn_bright(){
+    change_max_health(3);
+    GS.map.heal(GS.map.get_player_location(), 3);
 }
 function chilly_presence(){
     return {

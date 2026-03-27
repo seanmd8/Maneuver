@@ -3,6 +3,8 @@ const boon_prereq_descriptions = {
         `Prerequisites: None.`,
     blood_alchemy:
         `Prerequisites: You must have at least 3 health and not have Limitless.`,
+    burn_bright:
+        `Prerequisites: You must not have Limitless.`,
     clean_mind:
         `Prerequisites: You must be at least 2 cards above your minimum deck size.`,
     creative:
