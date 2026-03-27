@@ -423,7 +423,7 @@ class GameMap{
                     throw error;
                 }
             }
-            if(start.health !== undefined && start.health <= 0){
+            if(get_tile_health(start) !== undefined && get_tile_health(start) <= 0){
                 throw new Error(ERRORS.creature_died);
             }
         }
@@ -484,11 +484,13 @@ class GameMap{
         var space = this.get_grid(location);
         space.action = `${IMG_FOLDER.actions}hit.png`;
         var target = space.tile;
-        if(target.health === 0){
+        if(get_tile_health(target) === 0){
+            // Already dead somehow
             return false;
         }
-        if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
-            target.health -= 1;
+        if(get_tile_health(target) !== undefined && !target.tags.has(TAGS.invulnerable)){
+            // Normal Health
+            alter_tile_health(target, -1);
             if(source !== undefined && source.tile.type === entity_types.player){
                 this.stats.increment_damage_dealt();
             }
@@ -509,7 +511,7 @@ class GameMap{
                     this.player_heal(new Point(0, 0), 1);
                 }
             }
-            var current_health = target.health;
+            var current_health = get_tile_health(target);
             if(target.on_hit !== undefined){
                 // Trigger on_hit.
                 var player_pos = this.#entity_list.get_player_pos();
@@ -571,8 +573,8 @@ class GameMap{
             }
             return true;
         }
-        if((target.health === undefined || !target.tags.has(TAGS.invulnerable)) && target.on_hit !== undefined){
-            // Trigger on_hit
+        if((get_tile_health(target) === undefined || !target.tags.has(TAGS.invulnerable)) && target.on_hit !== undefined){
+            // Can't be killed, but can be hit.
             var player_pos = this.#entity_list.get_player_pos();
             var hit_entity = {
                 tile: target,
@@ -674,8 +676,12 @@ class GameMap{
      * Replaces the lock tile with an exit one.
      * @returns {void}
      */
-    unlock(){
-        for(var pos of this.#exit_pos){
+    unlock(location = undefined){
+        var exits = this.#exit_pos;
+        if(location !== undefined){
+            exits = [location];
+        }
+        for(var pos of exits){
             var exit = exit_tile();
             exit.next_area = this.get_tile(pos).next_area;
             this.#set_tile(pos, exit);

@@ -7,5 +7,14 @@ function lock_tile(){
         description: special_tile_descriptions.lock,
         flavor: special_flavor.lock,
         tags: new TagList([TAGS.unmovable]),
+        secret_health: 3,
+        on_death: lock_death,
     }
+}
+
+/** @type {AIFunction} */
+function lock_death(self, target, map){
+    self.tile.secret_health = 1;
+    map.add_tile(self.tile, self.location);
+    map.unlock(self.location);
 }

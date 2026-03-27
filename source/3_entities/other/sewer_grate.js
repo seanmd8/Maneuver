@@ -7,6 +7,7 @@ function sewer_grate_tile(){
         description: other_tile_descriptions.sewer_grate,
         flavor: other_flavor.sewer_grate,
         tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
+        secret_health: 1,
         behavior: sewer_grate_ai,
     }
 }

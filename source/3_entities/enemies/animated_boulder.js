@@ -7,6 +7,7 @@ function animated_boulder_tile(){
         description: enemy_descriptions.animated_boulder,
         flavor: enemy_flavor.animated_boulder,
         tags: new TagList([TAGS.unmovable, TAGS.hidden]),
+        secret_health: 2,
         behavior: animated_boulder_ai,
         telegraph: spider_telegraph,
         on_enter: animated_boulder_wake_up,

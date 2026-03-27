@@ -2830,11 +2830,11 @@ function hp_description(tile){
     return `${hp}${stunned}`;
 }
 function hp_ratio(tile){
-    if(tile.max_health !== undefined && tile.health !== undefined){
-        return `${tile.health}/${tile.max_health}`;
+    if(tile.max_health !== undefined){
+        return `${get_tile_health(tile)}/${tile.max_health}`;
     }
-    if(tile.health !== undefined){
-        return `${tile.health}`;
+    if(get_tile_health(tile) !== undefined){
+        return `${get_tile_health(tile)}`;
     }
     return ``;
 }
@@ -5562,19 +5562,19 @@ function forest_heart_tile(){
 
 /** @type {AIFunction} */
 function forest_heart_ai(self, target, map){
-    if( self.tile.cycle === undefined || // Make sure it checks for correct fields
-        self.tile.spells === undefined){
+    if( self.tile.spells === undefined){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.health === undefined){
         // Performs the action corresponding to the current health.
-        self.tile.spells[self.tile.cycle - 1].behavior(self, target, map);
-        if(self.tile.cycle === 0){
+        self.tile.spells[self.tile.secret_health - 1].behavior(self, target, map);
+        if(self.tile.secret_health === 0){
             return;
         }
         // Makes it vulnerable again
         var sections = get_forest_heart_sections(self, map);
-        var health = self.tile.cycle;
+        var health = self.tile.secret_health;
+        self.tile.secret_health = undefined;
         var next_spell = self.tile.spells[health - 2];
         if(health > 1){
             map.add_event({name: event_names.spell_announcement, behavior: () => {say_record(next_spell.description)}});
@@ -5598,13 +5598,14 @@ function forest_heart_ai(self, target, map){
 /** @type {AIFunction} */
 function forest_heart_on_hit(self, target, map){
     // Removes health so it can't be damaged again this turn.
-    if(self.tile.health !== undefined && self.tile.health > 0){
+    var health = get_tile_health(self.tile);
+    if(health !== undefined && health > 0){
         var sections = get_forest_heart_sections(self, map);
-        var health = self.tile.health;
         for(var section of sections){
             var tile = section.tile;
-            // cycle stores the health value so it can be restored.
-            tile.cycle = health;
+            // secret_health stores the health value so it can be restored.
+            // This also means that World Shaper can allow the player to deal it multiple damage a turn.
+            tile.secret_health = health;
             tile.health = undefined;
             tile.pic = tile.pic_arr[1];
         }
@@ -6543,6 +6544,7 @@ function animated_boulder_tile(){
         description: enemy_descriptions.animated_boulder,
         flavor: enemy_flavor.animated_boulder,
         tags: new TagList([TAGS.unmovable, TAGS.hidden]),
+        secret_health: 2,
         behavior: animated_boulder_ai,
         telegraph: spider_telegraph,
         on_enter: animated_boulder_wake_up,
@@ -6743,6 +6745,7 @@ function captive_void_tile(){
         description: enemy_descriptions.captive_void,
         flavor: enemy_flavor.captive_void,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
+        secret_health: 1,
         difficulty: 2,
         behavior: captive_void_ai,
         on_hit: captive_void_on_hit,
@@ -9689,6 +9692,7 @@ function fireball_tile(){
         description: other_tile_descriptions.fireball,
         flavor: other_flavor.fireball,
         tags: new TagList([TAGS.fireball, TAGS.unstunnable]),
+        secret_health: 1,
         behavior: fireball_ai,
         telegraph: fireball_telegraph,
         on_enter: fireball_on_enter,
@@ -9812,6 +9816,7 @@ function lava_pool_tile(){
         description: other_tile_descriptions.lava_pool,
         flavor: other_flavor.lava_pool,
         tags: new TagList([TAGS.unmovable]),
+        secret_health: 1,
         telegraph: hazard_telegraph,
         on_enter: hazard
     }
@@ -9825,6 +9830,7 @@ function magmatic_boulder_tile(){
         description: other_tile_descriptions.magmatic_boulder,
         flavor: other_flavor.magmatic_boulder,
         tags: new TagList([TAGS.unmovable]),
+        secret_health: 1,
     }
 }
 /** @type {TileGenerator} */
@@ -9883,6 +9889,7 @@ function repulsor_tile(){
         description: other_tile_descriptions.repulsor,
         flavor: other_flavor.repulsor,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
+        secret_health: 1,
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
         on_hit: repulsor_hit,
@@ -9976,6 +9983,7 @@ function sewer_grate_tile(){
         description: other_tile_descriptions.sewer_grate,
         flavor: other_flavor.sewer_grate,
         tags: new TagList([TAGS.unmovable, TAGS.unstunnable]),
+        secret_health: 1,
         behavior: sewer_grate_ai,
     }
 }
@@ -10148,6 +10156,7 @@ function wall_tile(){
         description: other_tile_descriptions.wall,
         flavor: other_flavor.wall,
         tags: new TagList([TAGS.unmovable]),
+        secret_health: 1,
     }
 }
 /** @type {TileGenerator} Like the normal chest, but it is invulnerable.*/
@@ -10159,6 +10168,7 @@ function armored_chest_tile(){
         description: special_tile_descriptions.chest_armored,
         flavor: special_flavor.chest_armored,
         tags: new TagList([TAGS.unmovable]),
+        secret_health: 1,
         on_enter: chest_on_enter,
         contents: [],
     }
@@ -10357,7 +10367,16 @@ function lock_tile(){
         description: special_tile_descriptions.lock,
         flavor: special_flavor.lock,
         tags: new TagList([TAGS.unmovable]),
+        secret_health: 3,
+        on_death: lock_death,
     }
+}
+
+/** @type {AIFunction} */
+function lock_death(self, target, map){
+    self.tile.secret_health = 1;
+    map.add_tile(self.tile, self.location);
+    map.unlock(self.location);
 }
 /** @type {TileGenerator} The starting player.*/
 function player_tile(){
@@ -11187,8 +11206,13 @@ function move_careful(self, target, map, directions){
 function move_reckless(self, target, map, directions){
     // Tries to move in each direction until it does so or takes damage.
     // Returns the direction it moved or undefined.
-    var start = self.tile.health;
-    for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health >= start); ++i){
+    var start = get_tile_health(self.tile);
+    for(
+        var i = 0; 
+        i < directions.length && 
+        (get_tile_health(self.tile) === undefined || get_tile_health(self.tile) >= start); 
+        ++i
+    ){
         if(map.move(self.location, self.location.plus(directions[i]))){
             self.location.plus_equals(directions[i]);
             target.difference.minus_equals(directions[i]);
@@ -11196,6 +11220,20 @@ function move_reckless(self, target, map, directions){
         }
     }
     return undefined;
+}
+
+function get_tile_health(tile){
+    if(GS.boons.has(boon_names.world_shaper) && tile.secret_health !== undefined){
+        return tile.secret_health;
+    }
+    return tile.health;
+}
+function alter_tile_health(tile, change){
+    if(GS.boons.has(boon_names.world_shaper) && tile.secret_health !== undefined){
+        return tile.secret_health += change;
+    }
+    return tile.health += change;
+    
 }
 
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */
@@ -12609,7 +12647,7 @@ class EntityList{
             return {
                 name: e.enemy.name,
                 pic: e.enemy.pic,
-                health: e.enemy.health,
+                health: get_tile_health(e.enemy),
                 max_health: e.enemy.max_health,
                 stun: e.enemy.stun,
                 location: e.location,
@@ -13044,7 +13082,7 @@ class GameMap{
                     throw error;
                 }
             }
-            if(start.health !== undefined && start.health <= 0){
+            if(get_tile_health(start) !== undefined && get_tile_health(start) <= 0){
                 throw new Error(ERRORS.creature_died);
             }
         }
@@ -13105,11 +13143,13 @@ class GameMap{
         var space = this.get_grid(location);
         space.action = `${IMG_FOLDER.actions}hit.png`;
         var target = space.tile;
-        if(target.health === 0){
+        if(get_tile_health(target) === 0){
+            // Already dead somehow
             return false;
         }
-        if(target.health !== undefined && !target.tags.has(TAGS.invulnerable)){
-            target.health -= 1;
+        if(get_tile_health(target) !== undefined && !target.tags.has(TAGS.invulnerable)){
+            // Normal Health
+            alter_tile_health(target, -1);
             if(source !== undefined && source.tile.type === entity_types.player){
                 this.stats.increment_damage_dealt();
             }
@@ -13130,7 +13170,7 @@ class GameMap{
                     this.player_heal(new Point(0, 0), 1);
                 }
             }
-            var current_health = target.health;
+            var current_health = get_tile_health(target);
             if(target.on_hit !== undefined){
                 // Trigger on_hit.
                 var player_pos = this.#entity_list.get_player_pos();
@@ -13192,8 +13232,8 @@ class GameMap{
             }
             return true;
         }
-        if((target.health === undefined || !target.tags.has(TAGS.invulnerable)) && target.on_hit !== undefined){
-            // Trigger on_hit
+        if((get_tile_health(target) === undefined || !target.tags.has(TAGS.invulnerable)) && target.on_hit !== undefined){
+            // Can't be killed, but can be hit.
             var player_pos = this.#entity_list.get_player_pos();
             var hit_entity = {
                 tile: target,
@@ -13295,8 +13335,12 @@ class GameMap{
      * Replaces the lock tile with an exit one.
      * @returns {void}
      */
-    unlock(){
-        for(var pos of this.#exit_pos){
+    unlock(location = undefined){
+        var exits = this.#exit_pos;
+        if(location !== undefined){
+            exits = [location];
+        }
+        for(var pos of exits){
             var exit = exit_tile();
             exit.next_area = this.get_tile(pos).next_area;
             this.#set_tile(pos, exit);
@@ -18666,7 +18710,7 @@ const BOON_LIST = [
     stubborn, 
     thick_soles, 
     vicious_cycle,
-    //world_shaper,
+    world_shaper,
 ];
 
 function change_max_health(amount){
@@ -19414,7 +19458,7 @@ function retaliate_behavior(self, target, map){
     for(var i = 0; i < spaces.length && !hit; ++i){
         if( map.is_in_bounds(spaces[i]) &&                   // Space is not edge.
             !map.check_empty(spaces[i]) &&                   // Space is not empty.
-            (map.get_tile(spaces[i]).health !== undefined || // Space has health or
+            (get_tile_health(map.get_tile(spaces[i])) !== undefined || // Space has health or
             map.get_tile(spaces[i]).on_hit !== undefined)    // Space has on_hit
         ){
             hit = map.attack(spaces[i]);

@@ -413,8 +413,13 @@ function move_careful(self, target, map, directions){
 function move_reckless(self, target, map, directions){
     // Tries to move in each direction until it does so or takes damage.
     // Returns the direction it moved or undefined.
-    var start = self.tile.health;
-    for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health >= start); ++i){
+    var start = get_tile_health(self.tile);
+    for(
+        var i = 0; 
+        i < directions.length && 
+        (get_tile_health(self.tile) === undefined || get_tile_health(self.tile) >= start); 
+        ++i
+    ){
         if(map.move(self.location, self.location.plus(directions[i]))){
             self.location.plus_equals(directions[i]);
             target.difference.minus_equals(directions[i]);
@@ -422,6 +427,20 @@ function move_reckless(self, target, map, directions){
         }
     }
     return undefined;
+}
+
+function get_tile_health(tile){
+    if(GS.boons.has(boon_names.world_shaper) && tile.secret_health !== undefined){
+        return tile.secret_health;
+    }
+    return tile.health;
+}
+function alter_tile_health(tile, change){
+    if(GS.boons.has(boon_names.world_shaper) && tile.secret_health !== undefined){
+        return tile.secret_health += change;
+    }
+    return tile.health += change;
+    
 }
 
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */

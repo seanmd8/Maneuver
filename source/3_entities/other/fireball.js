@@ -9,6 +9,7 @@ function fireball_tile(){
         description: other_tile_descriptions.fireball,
         flavor: other_flavor.fireball,
         tags: new TagList([TAGS.fireball, TAGS.unstunnable]),
+        secret_health: 1,
         behavior: fireball_ai,
         telegraph: fireball_telegraph,
         on_enter: fireball_on_enter,
