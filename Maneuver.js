@@ -1475,10 +1475,10 @@ const enemy_descriptions = {
         +`hits them or passes next to them. Moves every other turn.`,
     brightling: 
         `Brightling: Is not aggressive. Will occasionally teleport the player close to it before `
-        +`teleporting away the next turn.`,
+        +`teleporting away the next turn. When you are moved this way, take another turn.`,
     captive_void: 
-        `Captive Void: Creatures within two spaces will be drawn towards it. Damaging it turns it `
-        +`off for 2 turns.`,
+        `Captive Void: Creatures within two spaces will be drawn towards it. When you are moved `
+        +`this way, take another turn. Damaging it turns it off for 2 turns.`,
     carrion_flies: 
         `Carrion Flies: Will attack the player if they are nearby. Otherwise wanders aimlessly. `
         +`Over time they will multiply.`,
@@ -1596,8 +1596,9 @@ const enemy_descriptions = {
         `Vampire: Moves 1 space orthogonally then will attempt to attack diagonally. When it hits `
         +`the player, it will heal itself. Damaging it stuns it and causes it to teleport away.`,
     vinesnare_bush: 
-        `Vinesnare Bush: Does not move. Can drag the player towards it using it's vines from up to 3 `
-        +`spaces away. It can then prepare to lash out at the player if they are still nearby next turn.`,
+        `Vinesnare Bush: Does not move. Can drag the player towards it from up to 3 spaces away. `
+        +`When you are moved this way, take another turn. `
+        +`When the player approaches it, it prepares to attack them next turn if they remain nearby.`,
     walking_prism: [
         `Walking Prism: Has no normal attack, but when damaged it will fire beams in 4 directions `
         +`which hit the first thing in their path. Changes firing direction aftewards.\n`, 
@@ -1952,7 +1953,7 @@ const other_tile_descriptions = {
     altar_of_singularity:
         `Altar of Singularity: Activate by moving here. When activated, create a Black Hole in this space.`,
     altar_of_space:
-        `Altar of Space: Activate by moving here. When activated, rearrange everything on the floor.`,
+        `Altar of Space: Activate by moving here. When activated, rearranges everything on the floor.`,
     altar_of_stars:
         `Altar of Stars: Activate by moving here. When activated, for the next 3 turns it will `
         +`summon an object from another realm targeting the player's location.`,
@@ -1964,7 +1965,7 @@ const other_tile_descriptions = {
         +`on the player's location.`,
     black_hole: 
         `Black Hole: Draws everything on screen closer to it. The Lord of Shadow and Flame is immune. `
-        +`Decays every turn and cannot be stunned.`,
+        +`When you are moved this way, take another turn. Decays every turn and cannot be stunned.`,
     bookshelf: 
         `Bookshelf: When damaged, adds a random temporary card to your deck. Cannot give healing cards.`,
     coffin: 
@@ -1992,7 +1993,8 @@ const other_tile_descriptions = {
         +`turn and cannot be stunned`,
     repulsor: 
         `Repulsor: Creates jets of hot air that are capable of pushing away any creatures it senses `
-        +`nearby. After pushing them away or being attacked, it will need to spend 3 turns recharging.`,
+        +`nearby. When you are moved this way, take another turn. After pushing them away or being `
+        +`attacked, it will need to spend 3 turns recharging.`,
     sewer_grate: 
         `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
     shatter_sphere_d:
