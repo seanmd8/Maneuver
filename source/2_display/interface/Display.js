@@ -1084,11 +1084,13 @@ const DisplayHTML = {
             }
         }
         const button_details = [
-            {text: `<<`,                        f: () => {selector.set(0)},     place: -2},
-            {text: `${selector.current()}`,     f: () => {selector.move(-1)},   place: -1},
+            {text: `<<`,                        f: () => {selector.set(0)},     place: -3},
+            {text: `${selector.current() - 1}`, f: () => {selector.move(-2)},   place: -2},
+            {text: `${selector.current() + 0}`, f: () => {selector.move(-1)},   place: -1},
             {text: `${selector.current() + 1}`, f: undefined,                   place: 0},
             {text: `${selector.current() + 2}`, f: () => {selector.move(1)},    place: 1},
-            {text: `>>`,                        f: () => {selector.set_max()},  place: 2},
+            {text: `${selector.current() + 3}`, f: () => {selector.move(2)},    place: 2},
+            {text: `>>`,                        f: () => {selector.set_max()},  place: 3},
         ]
         for(let detail of button_details){
             let button = document.createElement(`button`);
@@ -1099,21 +1101,12 @@ const DisplayHTML = {
             }
             else if(detail.place < 0){
                 button.classList.add(`page-selector-left`);
-                if(selector.at_min()){
-                    button.classList.add(`invisible-space`);
-                    button.innerText = `${NBS}`;
-                }
-                else{
-                    button.onclick = () => {
-                        detail.f();
-                        DisplayHTML.make_page_selector(selector, component);
-                    };
-                    button.classList.add(`page-selector-clickable`);
-                }
             }
             else if(detail.place > 0){
                 button.classList.add(`page-selector-right`);
-                if(selector.at_max()){
+            }
+            if(detail.place !== 0){
+                if(!selector.valid_move(detail.place)){
                     button.classList.add(`invisible-space`);
                     button.innerText = `${NBS}`;
                 }
