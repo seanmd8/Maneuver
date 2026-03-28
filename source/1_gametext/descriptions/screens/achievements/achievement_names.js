@@ -21,6 +21,7 @@ const achievement_names = {
     manic_vandal: `Manic Vandal`,
     minimalist: `Minimalist`,
     monster_hunter: `Monster Hunter`,
+    multikill: `Multikill`,
     non_violent: `Non Violent`,
     not_my_fault: `Not My Fault`,
     one_hit_wonder: `One Hit Wonder`,

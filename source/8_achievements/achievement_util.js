@@ -22,6 +22,7 @@ function get_achievements(){
         manic_vandal_achievement(),
         minimalist_achievement(),
         monster_hunter_achievement(),
+        multikill_achievement(),
         non_violent_achievement(),
         not_my_fault_achievement(),
         one_hit_wonder_achievement(),

@@ -2172,6 +2172,7 @@ const achievement_description = {
     manic_vandal: `Destroy 7 or more treasure chests yourself in 1 run.`,
     minimalist: `Reach floor 15 with only 5 cards in your deck.`,
     monster_hunter: `Kill 5 total unique bosses.`,
+    multikill: `Kill 4 or more enemies in one turn.`,
     non_violent: `Reach the first boss without killing anything.`,
     not_my_fault: `Let a boss die without dealing any damage to it yourself.`,
     one_hit_wonder: `Defeat a boss in a single turn.`,
@@ -2206,6 +2207,7 @@ const achievement_names = {
     manic_vandal: `Manic Vandal`,
     minimalist: `Minimalist`,
     monster_hunter: `Monster Hunter`,
+    multikill: `Multikill`,
     non_violent: `Non Violent`,
     not_my_fault: `Not My Fault`,
     one_hit_wonder: `One Hit Wonder`,
@@ -15383,6 +15385,7 @@ class StatTracker{
     #total_damage_per_floor;
     #player_boss_damage;
     #kills;
+    #turn_kills;
     #destroyed;
     #chest_kills;
     #total_kills_per_floor;
@@ -15403,6 +15406,7 @@ class StatTracker{
         this.#total_damage_per_floor = [0];
         this.#player_boss_damage = 0;
         this.#kills = 0;
+        this.#turn_kills = 0;
         this.#destroyed = 0;
         this.#chest_kills = 0;
         this.#total_kills_per_floor = [0];
@@ -15413,6 +15417,7 @@ class StatTracker{
     }
     increment_turn(){
         ++this.#turn_number;
+        this.#turn_kills = 0;
     }
     finish_floor(){
         this.#turns_per_floor.push(this.#turn_number);
@@ -15468,9 +15473,16 @@ class StatTracker{
     }
     increment_kills(){
         ++this.#kills;
+        this.#increment_turn_kills();
         const img = header_imgs().find((i) => {return i.count === this.#kills});
         if(img !== undefined){
             display.set_header_img(img);
+        }
+    }
+    #increment_turn_kills(){
+        ++this.#turn_kills;
+        if(this.#turn_kills === 4){
+            GS.achieve(achievement_names.multikill);
         }
     }
     increment_destroyed(){
@@ -15506,6 +15518,7 @@ class StatTracker{
             total_damage_per_floor: this.#total_damage_per_floor,
             player_boss_damage: this.#player_boss_damage,
             kills: this.#kills,
+            turn_kills: this.#turn_kills,
             destroyed: this.#destroyed,
             chest_kills: this.#chest_kills,
             total_kills_per_floor: this.#total_kills_per_floor,
@@ -19763,6 +19776,7 @@ function get_achievements(){
         manic_vandal_achievement(),
         minimalist_achievement(),
         monster_hunter_achievement(),
+        multikill_achievement(),
         non_violent_achievement(),
         not_my_fault_achievement(),
         one_hit_wonder_achievement(),
@@ -19965,6 +19979,15 @@ function monster_hunter_achievement(){
         pic: `${IMG_FOLDER.achievements}monster_hunter.png`,
         has: false,
         boons: [brag_and_boast],
+    }
+}
+function multikill_achievement(){
+    return {
+        name: achievement_names.multikill,
+        description: achievement_description.multikill,
+        pic: `${IMG_FOLDER.achievements}multikill.png`,
+        has: false,
+        boons: [shattered_glass],
     }
 }
 function non_violent_achievement(){

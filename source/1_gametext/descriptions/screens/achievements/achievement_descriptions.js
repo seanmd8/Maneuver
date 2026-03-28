@@ -21,6 +21,7 @@ const achievement_description = {
     manic_vandal: `Destroy 7 or more treasure chests yourself in 1 run.`,
     minimalist: `Reach floor 15 with only 5 cards in your deck.`,
     monster_hunter: `Kill 5 total unique bosses.`,
+    multikill: `Kill 4 or more enemies in one turn.`,
     non_violent: `Reach the first boss without killing anything.`,
     not_my_fault: `Let a boss die without dealing any damage to it yourself.`,
     one_hit_wonder: `Defeat a boss in a single turn.`,
