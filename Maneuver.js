@@ -19867,7 +19867,7 @@ function velociphile_achievement(){
         description: achievement_description.velociphile,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
         has: false,
-        boons: [roar_of_challenge],
+        boons: [boss_slayer],
         cards: ACHIEVEMENT_CARDS.velociphile,
     }
 }
@@ -20014,7 +20014,7 @@ function one_hit_wonder_achievement(){
         description: achievement_description.one_hit_wonder,
         pic: `${IMG_FOLDER.achievements}one_hit_wonder.png`,
         has: false,
-        boons: [boss_slayer],
+        boons: [world_shaper],
     }
 }
 function one_life_achievement(){

@@ -4,7 +4,7 @@ function velociphile_achievement(){
         description: achievement_description.velociphile,
         pic: `${IMG_FOLDER.tiles}velociphile.png`,
         has: false,
-        boons: [roar_of_challenge],
+        boons: [boss_slayer],
         cards: ACHIEVEMENT_CARDS.velociphile,
     }
 }
