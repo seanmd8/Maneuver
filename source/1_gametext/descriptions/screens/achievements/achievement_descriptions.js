@@ -1,7 +1,7 @@
 const achievement_description = {
     // Boss
     velociphile: `Defeat the boss of the ${area_names.ruins}.`,
-    spider_queen: `Defeat the boss of the ${area_names.basement}.`,
+    spider_queen: `Defeat the boss of the ${area_names.city}.`,
     two_headed_serpent: `Defeat the boss of the ${area_names.sewers}.`,
     lich: `Defeat the boss of the ${area_names.crypt}.`,
     young_dragon: `Defeat the boss of the ${area_names.magma}.`,

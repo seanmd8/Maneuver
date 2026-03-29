@@ -757,9 +757,9 @@ function floor_has_chest(floor_of_area){
     return false;
 }
 const area_names = {
-    ruins: `City Ruins`,
+    ruins: `Ruins`,
     sewers: `Sewers`,
-    basement: `Basement`,
+    city: `City`,
     magma: `Magmatic Caves`,
     crypt: `Crypt`,
     forest: `Subterranean Forest`,
@@ -2156,7 +2156,7 @@ Object.freeze(special_tile_names);
 const achievement_description = {
     // Boss
     velociphile: `Defeat the boss of the ${area_names.ruins}.`,
-    spider_queen: `Defeat the boss of the ${area_names.basement}.`,
+    spider_queen: `Defeat the boss of the ${area_names.city}.`,
     two_headed_serpent: `Defeat the boss of the ${area_names.sewers}.`,
     lich: `Defeat the boss of the ${area_names.crypt}.`,
     young_dragon: `Defeat the boss of the ${area_names.magma}.`,
@@ -4791,8 +4791,8 @@ function assorted_tiles_display_info(){
         ],
     }
 }
-function basement_display_info(){
-    var area = generate_basement_area();
+function city_display_info(){
+    var area = generate_city_area();
     return {
         name: area.name,
         background: area.background,
@@ -4943,7 +4943,7 @@ function get_all_area_info(){
     return [
         basic_tiles_display_info(),
         ruins_display_info(),
-        basement_display_info(),
+        city_display_info(),
         sewers_display_info(),
         crypt_display_info(),
         magma_display_info(),
@@ -4984,7 +4984,7 @@ function update_journal_areas(){
     }
     show_area(basic_tiles_display_info(), 0, true);
     show_area(ruins_display_info(), 1);
-    show_area(basement_display_info(), 2);
+    show_area(city_display_info(), 2);
     show_area(sewers_display_info(), 2);
     show_area(crypt_display_info(), 3);
     show_area(magma_display_info(), 3);
@@ -15559,20 +15559,20 @@ class TagList{
     }
 }
 /** @type {AreaGenerator}*/
-function generate_basement_area(){
+function generate_city_area(){
     return {
-        background: `${IMG_FOLDER.backgrounds}basement.png`,
-        generate_floor: generate_basement_floor,
+        background: `${IMG_FOLDER.backgrounds}city.png`,
+        generate_floor: generate_city_floor,
         enemy_list: [spider_tile, turret_o_tile, turret_d_tile, turret_r_tile, scythe_tile, 
                     spider_web_tile, clay_golem_tile, rat_tile, shadow_knight_tile, brightling_tile],
         boss_floor_list: [spider_queen_floor],
         next_area_list: area3,
-        name: area_names.basement,
+        name: area_names.city,
     }
 }
 
 /** @type {FloorGenerator}*/
-function generate_basement_floor(floor_num, area, map){
+function generate_city_floor(floor_num, area, map){
     if(chance(1, 6)){
         many_walls_terrain(floor_num, area, map);
     }
@@ -15957,7 +15957,7 @@ function river_terrain(floor_num, area, map){
 // The structure of the dungeon. Each area can lead to a random one in the next numbered array.
 const area_end = [generate_default_area]; // Once they have finished the completed areas, they go here.
 const area1 = [generate_ruins_area];
-const area2 = [generate_sewers_area, generate_basement_area];
+const area2 = [generate_sewers_area, generate_city_area];
 const area3 = [generate_magma_area, generate_crypt_area];
 const area4 = [generate_forest_area, generate_library_area];
 const area5 = [generate_court_area];

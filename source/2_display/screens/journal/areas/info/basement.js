@@ -1,5 +1,5 @@
-function basement_display_info(){
-    var area = generate_basement_area();
+function city_display_info(){
+    var area = generate_city_area();
     return {
         name: area.name,
         background: area.background,
