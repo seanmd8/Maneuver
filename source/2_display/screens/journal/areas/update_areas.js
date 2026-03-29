@@ -7,7 +7,7 @@ function update_journal_areas(){
     }
     show_area(basic_tiles_display_info(), 0, true);
     show_area(ruins_display_info(), 1);
-    show_area(basement_display_info(), 2);
+    show_area(city_display_info(), 2);
     show_area(sewers_display_info(), 2);
     show_area(crypt_display_info(), 3);
     show_area(magma_display_info(), 3);

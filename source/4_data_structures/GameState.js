@@ -122,7 +122,7 @@ class GameState{
             this.handle_errors(error);
         }
     }
-    handle_errors(e){
+    async handle_errors(e){
         var m = e.message
         switch(m){
             case ERRORS.floor_complete:
@@ -134,10 +134,10 @@ class GameState{
                 break;
             case ERRORS.pass_turn:
                 try{
-                    this.prep_turn();
+                    await this.prep_turn();
                 }
                 catch(error){
-                    this.handle_errors(error);
+                    await his.handle_errors(error);
                 }
                 break;
             case ERRORS.victory:
@@ -371,7 +371,7 @@ class GameState{
      * @returns {Promise<void>}
      */
     async prep_turn(){
-        var did_events = this.map.resolve_events();
+        var did_events = await this.map.resolve_events();
         if(did_events){
             refresh_map(this.map);
             await delay(GS.data.settings.delay());

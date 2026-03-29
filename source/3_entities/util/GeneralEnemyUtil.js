@@ -209,11 +209,51 @@ function spawn_nearby(map, tile, location, nearby = random_nearby()){
     // Attempts to spawn a <tile> at a space next to to the given cords.
     // If it succeeds, returns the location, otherwise returns false.
     for(var near of nearby){
-        if(map.add_tile(tile, location.plus(near))){
+        if(spawn(map, tile, location.plus(near))){
             return near;
         }
     }
     return undefined;
+}
+
+function attack_spawn(map, tile, location, always_spawn = false){
+    // Attacks a location then spawns a tile there if it's empty.
+    // Checks Malicious Greeting.
+    // returns true if it spawns something, or is blocked.
+    if(!greeting_check(map, location)){
+        var hit = map.attack(location);
+        if(map.check_empty(location)){
+            if(always_spawn || !hit){
+                map.add_tile(tile, location);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+function no_telegraph_spawn(map, tile){
+    // Checks Malicious Greeting, then spawns a tile safely.
+    if(!greeting_check(map, map.random_empty())){
+        map.spawn_safely(tile, SAFE_SPAWN_ATTEMPTS, true);
+    }
+    return true;
+}
+function spawn(map, tile, location){
+    // Checks Malicious Greeting, then spawns a tile at the given location.
+    if(!map.check_empty(location)){
+        return false;
+    }
+    if(!greeting_check(map, location)){
+        return map.add_tile(tile, location);
+    }
+    return true;
+}
+function greeting_check(map, location){
+    if(chance(GS.boons.has(boon_names.malicious_greeting), 3)){
+        map.mark_telegraph([location], `${IMG_FOLDER.tiles}greeting_mark.png`);
+        return true;
+    }
+    return false;
 }
 /**
  * Function to attack all spaces around the current location.
@@ -327,6 +367,21 @@ function point_rectangle(p1, p2){
     return rectangle;
 }
 
+function solid_point_rectangle(p1, p2){
+    var x_min = Math.min(p1.x, p2.x);
+    var x_max = Math.max(p1.x, p2.x);
+    var y_min = Math.min(p1.y, p2.y);
+    var y_max = Math.max(p1.y, p2.y);
+    
+    var points = [];
+    for(var x = x_min; x <= x_max; ++x){
+        for(var y = y_min; y <= y_max; ++y){
+            points.push(new Point(x, y));
+        }
+    }
+    return points;
+}
+
 function get_nearest_where(map, location, f){
     for(var i = 1; i < Math.max(FLOOR_HEIGHT, FLOOR_WIDTH); ++i){
         var corner_1 = location.plus(new Point(1, 1).times(i));
@@ -358,8 +413,13 @@ function move_careful(self, target, map, directions){
 function move_reckless(self, target, map, directions){
     // Tries to move in each direction until it does so or takes damage.
     // Returns the direction it moved or undefined.
-    var start = self.tile.health;
-    for(var i = 0; i < directions.length && (self.tile.health === undefined || self.tile.health >= start); ++i){
+    var start = get_tile_health(self.tile);
+    for(
+        var i = 0; 
+        i < directions.length && 
+        (get_tile_health(self.tile) === undefined || get_tile_health(self.tile) >= start); 
+        ++i
+    ){
         if(map.move(self.location, self.location.plus(directions[i]))){
             self.location.plus_equals(directions[i]);
             target.difference.minus_equals(directions[i]);
@@ -367,6 +427,20 @@ function move_reckless(self, target, map, directions){
         }
     }
     return undefined;
+}
+
+function get_tile_health(tile){
+    if(GS.boons.has(boon_names.world_shaper) && tile.secret_health !== undefined){
+        return tile.secret_health;
+    }
+    return tile.health;
+}
+function alter_tile_health(tile, change){
+    if(GS.boons.has(boon_names.world_shaper) && tile.secret_health !== undefined){
+        return tile.secret_health += change;
+    }
+    return tile.health += change;
+    
 }
 
 /** @type {TileGenerator} Function to act as a starting point for making new enemies. */

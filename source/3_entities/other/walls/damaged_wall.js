@@ -36,6 +36,6 @@ function damaged_wall_death(self, target, map){
         var ran = random_num(self.tile.summons.length);
         var new_enemy = self.tile.summons[ran]();
         stun(new_enemy);
-        map.add_tile(new_enemy, self.location);
+        spawn(map, new_enemy, self.location);
     }
 }

@@ -30,7 +30,5 @@ function thorn_bush_ai(self, target, map){
             }
         }
     }
-    if(map.check_empty(current)){
-        map.add_tile(thorn_bramble_tile(), current);
-    }
+    spawn(map, thorn_bramble_tile(), current);
 }

@@ -1,7 +1,7 @@
 const area_names = {
-    ruins: `City Ruins`,
+    ruins: `Ruins`,
     sewers: `Sewers`,
-    basement: `Basement`,
+    city: `City`,
     magma: `Magmatic Caves`,
     crypt: `Crypt`,
     forest: `Subterranean Forest`,

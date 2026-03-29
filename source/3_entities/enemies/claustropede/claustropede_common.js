@@ -17,7 +17,7 @@ function claustropede_ai(self, target, map){
             var copy = copy_fun();
             stun(copy);
             stun(copy);
-            map.spawn_safely(copy, SAFE_SPAWN_ATTEMPTS, true);
+            no_telegraph_spawn(map, copy);
         }
     }
     else{

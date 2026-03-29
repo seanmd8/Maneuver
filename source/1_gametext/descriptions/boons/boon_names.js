@@ -2,11 +2,13 @@ const boon_names = {
     locked: `Locked`,
     not_encountered: `Not Encountered`,
 
-    ancient_card: `Ancient Card`,
+    ancient_card: `Ancient Card I`,
+    ancient_card_2: `Ancient Card II`,
     bitter_determination: `Bitter Determination`,
     blood_alchemy: `Blood Alchemy`,
     boss_slayer: `Boss Slayer`,
     brag_and_boast: `Brag & Boast`,
+    burn_bright: `Burn Bright`,
     chilly_presence: `Chilly Presence`,
     choose_your_path: `Choose Your Path`,
     clean_mind: `Clean Mind`,
@@ -28,6 +30,7 @@ const boon_names = {
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
     limitless: `Limitless`,
+    malicious_greeting: `Malicious Greeting`,
     manic_presence: `Manic Presence`,
     medical_investment: `Medical Investment`,
     pacifism: `Pacifism`,
@@ -56,5 +59,6 @@ const boon_names = {
     stubborn: `Stubborn`,
     thick_soles: `Thick Soles`,
     vicious_cycle: `Vicious Cycle`,
+    world_shaper: `World Shaper`,
 }
 Object.freeze(boon_names);

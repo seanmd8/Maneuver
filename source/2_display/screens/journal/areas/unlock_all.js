@@ -2,7 +2,7 @@ function get_all_area_info(){
     return [
         basic_tiles_display_info(),
         ruins_display_info(),
-        basement_display_info(),
+        city_display_info(),
         sewers_display_info(),
         crypt_display_info(),
         magma_display_info(),

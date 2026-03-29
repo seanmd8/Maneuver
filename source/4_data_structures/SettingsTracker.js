@@ -8,10 +8,10 @@ class SettingsTracker{
         this.reset();
     }
     reset(){
-        this.#animation_speed = 1;
+        this.#animation_speed = ANIMATION_SPEED_DEFAULT;
         this.#text_size = undefined;
-        this.#move_color = true;
-        this.#checkered_overlay = 0;
+        this.#move_color = MOVE_COLOR_DEFAULT;
+        this.#checkered_overlay = OVERLAY_DEFAULT;
     }
     set(settings = {}){
         this.#animation_speed = settings.animation_speed !== undefined ? settings.animation_speed : this.#animation_speed;

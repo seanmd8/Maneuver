@@ -192,7 +192,7 @@ class EntityList{
             return {
                 name: e.enemy.name,
                 pic: e.enemy.pic,
-                health: e.enemy.health,
+                health: get_tile_health(e.enemy),
                 max_health: e.enemy.max_health,
                 stun: e.enemy.stun,
                 location: e.location,

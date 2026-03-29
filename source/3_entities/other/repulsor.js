@@ -9,6 +9,7 @@ function repulsor_tile(){
         description: other_tile_descriptions.repulsor,
         flavor: other_flavor.repulsor,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
+        secret_health: 1,
         behavior: repulsor_ai,
         telegraph_other: repulsor_telegraph_other,
         on_hit: repulsor_hit,

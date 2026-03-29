@@ -8,7 +8,7 @@ const other_tile_descriptions = {
     altar_of_singularity:
         `Altar of Singularity: Activate by moving here. When activated, create a Black Hole in this space.`,
     altar_of_space:
-        `Altar of Space: Activate by moving here. When activated, rearrange everything on the floor.`,
+        `Altar of Space: Activate by moving here. When activated, rearranges everything on the floor.`,
     altar_of_stars:
         `Altar of Stars: Activate by moving here. When activated, for the next 3 turns it will `
         +`summon an object from another realm targeting the player's location.`,
@@ -20,7 +20,7 @@ const other_tile_descriptions = {
         +`on the player's location.`,
     black_hole: 
         `Black Hole: Draws everything on screen closer to it. The Lord of Shadow and Flame is immune. `
-        +`Decays every turn and cannot be stunned.`,
+        +`When you are moved this way, take another turn. Decays every turn and cannot be stunned.`,
     bookshelf: 
         `Bookshelf: When damaged, adds a random temporary card to your deck. Cannot give healing cards.`,
     coffin: 
@@ -48,7 +48,8 @@ const other_tile_descriptions = {
         +`turn and cannot be stunned`,
     repulsor: 
         `Repulsor: Creates jets of hot air that are capable of pushing away any creatures it senses `
-        +`nearby. After pushing them away or being attacked, it will need to spend 3 turns recharging.`,
+        +`nearby. When you are moved this way, take another turn. After pushing them away or being `
+        +`attacked, it will need to spend 3 turns recharging.`,
     sewer_grate: 
         `Sewer Grate: It's clogged. Corrosive slime is oozing out.`,
     shatter_sphere_d:

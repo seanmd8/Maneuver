@@ -118,11 +118,7 @@ function yound_dragon_ai(self, target, map){
         // Breath attack.
         for(let space of cone){
             var target_space = self.location.plus(space);
-            map.attack(target_space);
-            if(map.check_empty(target_space)){
-                var fire = raging_fire_tile();
-                map.add_tile(fire, target_space);
-            }
+            attack_spawn(map, raging_fire_tile(), target_space, true);
         }
     }
     // Prep Flight.

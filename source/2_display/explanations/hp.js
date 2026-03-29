@@ -10,11 +10,11 @@ function hp_description(tile){
     return `${hp}${stunned}`;
 }
 function hp_ratio(tile){
-    if(tile.max_health !== undefined && tile.health !== undefined){
-        return `${tile.health}/${tile.max_health}`;
+    if(tile.max_health !== undefined){
+        return `${get_tile_health(tile)}/${tile.max_health}`;
     }
-    if(tile.health !== undefined){
-        return `${tile.health}`;
+    if(get_tile_health(tile) !== undefined){
+        return `${get_tile_health(tile)}`;
     }
     return ``;
 }

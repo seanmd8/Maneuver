@@ -25,10 +25,7 @@ function scorpion_spell(self, target, map){
     for(var side of [top, bottom, left, right]){
         var spawned = false;
         for(var i = 0; i < side.length && !spawned; ++i){
-            if(map.check_empty(side[i])){
-                map.add_tile(scorpion_tile(), side[i]);
-                spawned = true;
-            }
+            spawned = spawn(map, scorpion_tile(), side[i]);
         }
     }
 }

@@ -24,32 +24,20 @@ function wheel_of_fire_ai(self, target, map){
     else if((target.difference.on_axis() || target.difference.on_diagonal())){
         // Aiming at player.
         var direction = sign(target.difference);
-        var hit = false;
-        for(var space = self.location.plus(direction); !hit; space.plus_equals(direction)){
-            hit = map.attack(space);
-            if(map.check_empty(space)){
-                var fire = raging_fire_tile();
-                map.add_tile(fire, space);
-            }
-            else{
-                hit = true;
-            }
-        }
+        for(
+            var space = self.location.plus(direction); 
+            attack_spawn(map, raging_fire_tile(), space); 
+            space.plus_equals(direction)
+        ){} // Beam goes until it hits something.
     }
     else if(GS.boons.has(boon_names.manic_presence) && chance(1, 2)){
         // Misfire.
         var direction = sign(random_from(ALL_DIRECTIONS));
-        var hit = false;
-        for(var space = self.location.plus(direction); !hit; space.plus_equals(direction)){
-            hit = map.attack(space);
-            if(map.check_empty(space)){
-                var fire = raging_fire_tile();
-                map.add_tile(fire, space);
-            }
-            else{
-                hit = true;
-            }
-        }
+        for(
+            var space = self.location.plus(direction); 
+            attack_spawn(map, raging_fire_tile(), space); 
+            space.plus_equals(direction)
+        ){} // Beam goes until it hits something.
     }
     else{
         move_careful(self, target, map, random_nearby());

@@ -34,4 +34,8 @@ class PageSelector{
     at_max(){
         return this.#current === this.#max;
     }
+    valid_move(n){
+        var updated = this.#current+ n;
+        return 0 <= updated && updated <= this.#max;
+    }
 }

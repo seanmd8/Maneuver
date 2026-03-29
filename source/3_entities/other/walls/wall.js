@@ -7,5 +7,6 @@ function wall_tile(){
         description: other_tile_descriptions.wall,
         flavor: other_flavor.wall,
         tags: new TagList([TAGS.unmovable]),
+        secret_health: 1,
     }
 }

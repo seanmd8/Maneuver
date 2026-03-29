@@ -5,6 +5,7 @@ const BOON_LIST = [
     blood_alchemy, 
     boss_slayer, 
     brag_and_boast, 
+    burn_bright,
     chilly_presence, 
     choose_your_path, 
     clean_mind, 
@@ -26,6 +27,7 @@ const BOON_LIST = [
     hoarder, 
     larger_chests, 
     limitless, 
+    malicious_greeting,
     manic_presence, 
     medical_investment,
     pacifism, 
@@ -54,6 +56,7 @@ const BOON_LIST = [
     stubborn, 
     thick_soles, 
     vicious_cycle,
+    world_shaper,
 ];
 
 function change_max_health(amount){
@@ -118,6 +121,9 @@ function remake_boons(boon_names){
         else{
             list.push(symbol_card_info_missing());
         }
+    }
+    for(var boon of list){
+        boon.description = explain_boon_with_stats(boon);
     }
     return list;
 }

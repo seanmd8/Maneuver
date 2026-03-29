@@ -1,11 +1,29 @@
 .stat-grid {
     display: flex;
     flex-wrap: wrap;
-    width: 355px;
+    width: 369px;
+    justify-content: center;
 }
 
 .stat-grid>div {
     margin: 5px;
+}
+
+.journal-history-info {
+    position: absolute;
+    left: 624px;
+    text-align: left;
+    padding: 5px;
+    border-style: solid;
+    border-color: saddlebrown;
+    background-color: #f4d6aa;
+    border-width: 6px 6px 6px 0px;
+    white-space: normal;
+    width: 450px;
+    height: fit-content;
+    min-height: 180px;
+    font-weight: 400;
+    overflow-wrap: break-word;
 }
 
 .history-header {
@@ -46,7 +64,8 @@
 }
 
 .history-section .stat-pair {
-    width: 90px;
+    min-width: 90px;
+    width: fit-content;
     height: 54px;
 }
 
@@ -75,4 +94,7 @@
     padding: 2px 5px;
     line-height: 20px;
     font-size: 20px;
+}
+.history-box img{
+    cursor: pointer;
 }

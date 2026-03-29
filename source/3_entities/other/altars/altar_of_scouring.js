@@ -21,38 +21,30 @@ function altar_of_scouring_on_enter(self, target, map){
     switch(max){
         case left:
             for(var i = 0; i < FLOOR_HEIGHT; ++i){
+                var fb = shoot_fireball(new Point(1, 0));
                 var spawnpoint = new Point(0, i);
-                map.attack(spawnpoint);
-                if(map.check_empty(spawnpoint)){
-                    map.add_tile(shoot_fireball(new Point(1, 0)), spawnpoint);
-                }
+                attack_spawn(map, fb, spawnpoint);
             }
             break;
         case right:
             for(var i = 0; i < FLOOR_HEIGHT; ++i){
+                var fb = shoot_fireball(new Point(-1, 0));
                 var spawnpoint = new Point(FLOOR_WIDTH - 1, i);
-                map.attack(spawnpoint);
-                if(map.check_empty(spawnpoint)){
-                    map.add_tile(shoot_fireball(new Point(-1, 0)), spawnpoint);
-                }
+                attack_spawn(map, fb, spawnpoint);
             }
             break;
         case bottom:
             for(var i = 0; i < FLOOR_WIDTH; ++i){
+                var fb = shoot_fireball(new Point(0, -1));
                 var spawnpoint = new Point(i, FLOOR_HEIGHT- 1);
-                map.attack(spawnpoint);
-                if(map.check_empty(spawnpoint)){
-                    map.add_tile(shoot_fireball(new Point(0, -1)), spawnpoint);
-                }
+                attack_spawn(map, fb, spawnpoint);
             }
             break;
         case top:
             for(var i = 0; i < FLOOR_WIDTH; ++i){
+                var fb = shoot_fireball(new Point(0, 1));
                 var spawnpoint = new Point(i, 0);
-                map.attack(spawnpoint);
-                if(map.check_empty(spawnpoint)){
-                    map.add_tile(shoot_fireball(new Point(0, 1)), spawnpoint);
-                }
+                attack_spawn(map, fb, spawnpoint);
             }
             break;
     }

@@ -7,6 +7,7 @@ function lava_pool_tile(){
         description: other_tile_descriptions.lava_pool,
         flavor: other_flavor.lava_pool,
         tags: new TagList([TAGS.unmovable]),
+        secret_health: 1,
         telegraph: hazard_telegraph,
         on_enter: hazard
     }

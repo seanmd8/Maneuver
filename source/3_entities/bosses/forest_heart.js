@@ -45,19 +45,19 @@ function forest_heart_tile(){
 
 /** @type {AIFunction} */
 function forest_heart_ai(self, target, map){
-    if( self.tile.cycle === undefined || // Make sure it checks for correct fields
-        self.tile.spells === undefined){
+    if( self.tile.spells === undefined){
         throw new Error(ERRORS.missing_property);
     }
     if(self.tile.health === undefined){
         // Performs the action corresponding to the current health.
-        self.tile.spells[self.tile.cycle - 1].behavior(self, target, map);
-        if(self.tile.cycle === 0){
+        self.tile.spells[self.tile.secret_health - 1].behavior(self, target, map);
+        if(self.tile.secret_health === 0){
             return;
         }
         // Makes it vulnerable again
         var sections = get_forest_heart_sections(self, map);
-        var health = self.tile.cycle;
+        var health = self.tile.secret_health;
+        self.tile.secret_health = undefined;
         var next_spell = self.tile.spells[health - 2];
         if(health > 1){
             map.add_event({name: event_names.spell_announcement, behavior: () => {say_record(next_spell.description)}});
@@ -81,13 +81,14 @@ function forest_heart_ai(self, target, map){
 /** @type {AIFunction} */
 function forest_heart_on_hit(self, target, map){
     // Removes health so it can't be damaged again this turn.
-    if(self.tile.health !== undefined && self.tile.health > 0){
+    var health = get_tile_health(self.tile);
+    if(health !== undefined && health > 0){
         var sections = get_forest_heart_sections(self, map);
-        var health = self.tile.health;
         for(var section of sections){
             var tile = section.tile;
-            // cycle stores the health value so it can be restored.
-            tile.cycle = health;
+            // secret_health stores the health value so it can be restored.
+            // This also means that World Shaper can allow the player to deal it multiple damage a turn.
+            tile.secret_health = health;
             tile.health = undefined;
             tile.pic = tile.pic_arr[1];
         }

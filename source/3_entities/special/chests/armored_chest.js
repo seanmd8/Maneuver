@@ -7,6 +7,7 @@ function armored_chest_tile(){
         description: special_tile_descriptions.chest_armored,
         flavor: special_flavor.chest_armored,
         tags: new TagList([TAGS.unmovable]),
+        secret_health: 1,
         on_enter: chest_on_enter,
         contents: [],
     }

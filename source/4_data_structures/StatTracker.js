@@ -9,6 +9,7 @@ class StatTracker{
     #total_damage_per_floor;
     #player_boss_damage;
     #kills;
+    #turn_kills;
     #destroyed;
     #chest_kills;
     #total_kills_per_floor;
@@ -29,6 +30,7 @@ class StatTracker{
         this.#total_damage_per_floor = [0];
         this.#player_boss_damage = 0;
         this.#kills = 0;
+        this.#turn_kills = 0;
         this.#destroyed = 0;
         this.#chest_kills = 0;
         this.#total_kills_per_floor = [0];
@@ -39,6 +41,7 @@ class StatTracker{
     }
     increment_turn(){
         ++this.#turn_number;
+        this.#turn_kills = 0;
     }
     finish_floor(){
         this.#turns_per_floor.push(this.#turn_number);
@@ -94,9 +97,16 @@ class StatTracker{
     }
     increment_kills(){
         ++this.#kills;
+        this.#increment_turn_kills();
         const img = header_imgs().find((i) => {return i.count === this.#kills});
         if(img !== undefined){
             display.set_header_img(img);
+        }
+    }
+    #increment_turn_kills(){
+        ++this.#turn_kills;
+        if(this.#turn_kills === 4){
+            GS.achieve(achievement_names.multikill);
         }
     }
     increment_destroyed(){
@@ -132,6 +142,7 @@ class StatTracker{
             total_damage_per_floor: this.#total_damage_per_floor,
             player_boss_damage: this.#player_boss_damage,
             kills: this.#kills,
+            turn_kills: this.#turn_kills,
             destroyed: this.#destroyed,
             chest_kills: this.#chest_kills,
             total_kills_per_floor: this.#total_kills_per_floor,

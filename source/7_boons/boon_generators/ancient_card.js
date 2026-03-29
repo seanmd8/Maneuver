@@ -14,7 +14,7 @@ function pick_ancient_card(){
 
 function ancient_card_2(){
     return {
-        name: boon_names.ancient_card,
+        name: boon_names.ancient_card_2,
         pic: `${IMG_FOLDER.cards}lost_maneuver.png`,
         description: chest_text.add_card,
         prereq_description: boon_prereq_descriptions.none,

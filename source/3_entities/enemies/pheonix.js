@@ -43,17 +43,14 @@ function pheonix_ai(self, target, map){
         map.move(self.location, self.location.plus(direction.times(distance)));
         for(var i = 0; i < distance; ++i){
             var space = self.location.plus(direction.times(i));
-            map.attack(space);
-            if(map.check_empty(space)){
-                map.add_tile(raging_fire_tile(), space);
-            }
+            attack_spawn(map, raging_fire_tile(), space, true);
         }
         self.location.plus_equals(direction.times(distance));
     }
 }
 /** @type {AIFunction} Spawns smoldering ashes on death.*/
 function pheonix_death(self, target, map){
-    map.add_tile(smoldering_ashes_tile(), self.location);
+    spawn(map, smoldering_ashes_tile(), self.location);
 }
 /** @type {TelegraphFunction} Function to telegraph pheonix attacks.*/
 function pheonix_telegraph(location, map, self){

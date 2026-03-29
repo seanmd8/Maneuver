@@ -4,6 +4,6 @@ function one_hit_wonder_achievement(){
         description: achievement_description.one_hit_wonder,
         pic: `${IMG_FOLDER.achievements}one_hit_wonder.png`,
         has: false,
-        boons: [boss_slayer],
+        boons: [world_shaper],
     }
 }

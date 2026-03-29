@@ -7,5 +7,6 @@ function magmatic_boulder_tile(){
         description: other_tile_descriptions.magmatic_boulder,
         flavor: other_flavor.magmatic_boulder,
         tags: new TagList([TAGS.unmovable]),
+        secret_health: 1,
     }
 }

@@ -22,10 +22,7 @@ function altar_of_stars_tile(){
 function altar_of_stars_on_enter(self, target, map){
     var fall = function(location){
         return function(map_to_use){
-            map_to_use.attack(location);
-            if(map_to_use.check_empty(location)){
-                map_to_use.add_tile(random_from(self.tile.summons)(), location);
-            }
+            attack_spawn(map_to_use, random_from(self.tile.summons)(), location);
         }
     }
     var delay = (map_to_use) => {

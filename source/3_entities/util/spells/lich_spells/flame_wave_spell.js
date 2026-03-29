@@ -33,8 +33,7 @@ function flame_wave_spell(self, target, map){
     spawnpoints = spawnpoints.map(s => self.location.plus(s));
     for(var spawnpoint of spawnpoints){
         var fireball = shoot_fireball(direction);
-        map.attack(spawnpoint);
-        map.add_tile(fireball, spawnpoint);
+        attack_spawn(map, fireball, spawnpoint);
     }
 }
 

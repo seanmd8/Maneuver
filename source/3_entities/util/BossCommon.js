@@ -36,13 +36,22 @@ function boss_death(self, target, map){
     if(stats.boss_kill_start === stats.turn_number){
         GS.achieve(achievement_names.one_hit_wonder);
     }
+    if( // Burn Bright
+        GS.boons.has(boon_names.burn_bright) &&
+        player_tile.max_health !== undefined &&
+        player_tile.max_health > 2
+    ){
+        --player_tile.max_health;
+        player_tile.health = Math.min(player_tile.health, player_tile.max_health);
+        death_message = `${death_message}\n${boon_messages.burn_bright}`;
+    }
     if( // Practice makes perfect
         GS.boons.has(boon_names.practice_makes_perfect) && 
         player_tile.max_health !== undefined && 
         player_tile.max_health === player_tile.health
     ){
         ++player_tile.max_health;
-        death_message = `${death_message}\n${boon_messages.practice_makes_perfect}`
+        death_message = `${death_message}\n${boon_messages.practice_makes_perfect}`;
     }
     map.player_heal(new Point(0, 0));
     var new_boss_kill = GS.achieve(self.tile.death_achievement);

@@ -10,6 +10,7 @@ function captive_void_tile(){
         description: enemy_descriptions.captive_void,
         flavor: enemy_flavor.captive_void,
         tags: new TagList([TAGS.unmovable, TAGS.obstruction]),
+        secret_health: 1,
         difficulty: 2,
         behavior: captive_void_ai,
         on_hit: captive_void_on_hit,

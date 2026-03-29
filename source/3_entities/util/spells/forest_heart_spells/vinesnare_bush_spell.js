@@ -29,7 +29,7 @@ function vinesnare_bush_spell(self, target, map){
     ];
     for(var space of points){
         if(map.check_empty(space)){
-            map.add_tile(vinesnare_bush_tile(), space);
+            spawn(map, vinesnare_bush_tile(), space);
         }
     }
 }
