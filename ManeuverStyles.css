@@ -491,7 +491,7 @@ body>div {
     text-decoration: underline;
 }
 .guidebook-section img {
-    background-color: white;
+    background-color: #FFD78A;
 }
 .guidebook-section p {
     font-size: 20px;
@@ -518,17 +518,16 @@ body>div {
     min-height: 100%;
     min-width: 100%;
 }
-.guide-box-style {
-    background-color: beige;
-}
 .guidebook-section {
     padding-left: 20px;
     padding-right: 20px;
     padding-top: 10px;
     padding-bottom: 10px;
     border-style: solid;
-    border-top: none;
-    border-color: burlywood;
+    border-color: #45230a;
+    border-width: 0px 6px 6px 6px;
+    background-color: aliceblue;
+    width: 956px;
 }
 .main-header {
     background-color: sandybrown;
@@ -598,7 +597,7 @@ body>div {
 .achievement-header {
     border: solid;
     border-radius: 20px;
-    background-color: lavender;
+    background-color: aliceblue;
     margin-top: 10px;
     margin-bottom: 10px;
     width: fit-content;
@@ -879,7 +878,7 @@ body>div {
     padding: 15px;
     border: solid;
     border-radius: 20px;
-    background-color: lavender;
+    background-color: aliceblue;
     margin-top: 10px;
     margin-bottom: 10px;
     width: fit-content;

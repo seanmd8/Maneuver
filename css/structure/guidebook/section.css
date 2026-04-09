@@ -4,6 +4,8 @@
     padding-top: 10px;
     padding-bottom: 10px;
     border-style: solid;
-    border-top: none;
-    border-color: burlywood;
+    border-color: #45230a;
+    border-width: 0px 6px 6px 6px;
+    background-color: aliceblue;
+    width: 956px;
 }
