@@ -876,7 +876,8 @@ const boon_descriptions = {
     rebirth: 
         `When you die, you are revived at full health and this boon is removed.`,
     reckless_speed:
-        `Card actions that don't move happen instantly, but confuse you if they weren't already instants`,
+        `Card actions that don't move happen instantly, but confuse you.`
+        +`Cards that were already instants won't be affected.`,
     repetition: 
         `Every 3rd turn, your cards happen twice.`,
     retaliate: 
