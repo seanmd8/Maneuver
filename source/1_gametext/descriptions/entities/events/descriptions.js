@@ -13,6 +13,8 @@ const event_descriptions = {
         `You will stun this square at end of turn if you are not standing here.`,
     falling_rubble: 
         `Watch out, something is about to fall here damaging anything standing here.`,
+    hidden_enemy:
+        `You can sense something hidden here`,
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
     shockwave:

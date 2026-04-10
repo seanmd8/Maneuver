@@ -11,6 +11,8 @@ const event_flavor = {
         ``,
     falling_rubble:
         ``,
+    hidden_enemy:
+        ``,
     nettle_roots:
         ``,
     shockwave:

@@ -653,6 +653,7 @@ const TAGS = {
     unmovable: `Unmovable`,
     unstunnable: `Unstunnable`,
     hidden: `Hidden`,
+    initiative_hidden: `Initiative Hidden`,
     invulnerable: `Invulnerable`,
     controlled: `Controlled`,
     thorn_bush_roots: `Thorn Bush Roots`,
@@ -809,6 +810,8 @@ const boon_descriptions = {
         +`turn. Bosses are not affected.`,
     choose_your_path: 
         `Choose where to travel after each boss fight.`,
+    clairvoyance: 
+        `You may look at the order of your deck and can sense hidden enemies.`,
     clean_mind: 
         `Remove any 2 cards from your deck.`,
     creative: 
@@ -839,8 +842,6 @@ const boon_descriptions = {
     frugivore: 
         `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
         +`for 1, but might attract enemies.`,
-    future_sight: 
-        `You may look at the order of your deck.`,
     gruntwork: 
         `Gain 3 empty max health.`,
     hoarder: 
@@ -941,6 +942,7 @@ const boon_names = {
     burn_bright: `Burn Bright`,
     chilly_presence: `Chilly Presence`,
     choose_your_path: `Choose Your Path`,
+    clairvoyance: `Clairvoyance`,
     clean_mind: `Clean Mind`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
@@ -955,7 +957,6 @@ const boon_names = {
     fortitude: `Fortitude`,
     frenzy: `Frenzy`,
     frugivore: `Frugivore`,
-    future_sight: `Future Sight`,
     gruntwork: `Gruntwork`,
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
@@ -1888,6 +1889,8 @@ const event_descriptions = {
         `You will stun this square at end of turn if you are not standing here.`,
     falling_rubble: 
         `Watch out, something is about to fall here damaging anything standing here.`,
+    hidden_enemy:
+        `You can sense something hidden here`,
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
     shockwave:
@@ -1914,6 +1917,8 @@ const event_flavor = {
         ``,
     falling_rubble:
         ``,
+    hidden_enemy:
+        ``,
     nettle_roots:
         ``,
     shockwave:
@@ -1936,6 +1941,7 @@ const event_names = {
     earthquake: `Earthquake`,
     falling_magma: `Falling Magma`,
     falling_rubble: `Falling Rubble`,
+    hidden_enemy:  `Hidden Enemy`,
     nettle_roots: `Nettle Roots`,
     shockwave: `Shockwave`,
     spell_announcement: `Spell Announcement`,
@@ -2849,10 +2855,12 @@ function explain_card_w_stats(card){
 function grid_space_description(space){
     var tile = space.tile.look === undefined ? space.tile : space.tile.look;
     tile = tile_description(tile);
+
     var foreground = space.foreground.filter((fg) => fg.description !== undefined);
     foreground = foreground.map((fg) => `${gameplay_text.divider}${fg.description}`);
     var background = space.background.filter((bg) => bg.description !== undefined);
     background = background.map((bg) => `${gameplay_text.divider}${bg.description}`);
+
     var descriptions = [tile, ...foreground, ...background];
     return descriptions.reduce((res, str) => `${res}${str}`);
 }
@@ -4346,9 +4354,9 @@ function refresh_deck_order_display(deck){
     for(var card of library){
             card.on_click = card_explanation(card);
     }
-    library = [future_sight(), ...library];
+    library = [clairvoyance(), ...library];
     library[0].on_click = () => {
-        say(future_sight().description);
+        say(clairvoyance().description);
     }
     display.remove_children(UIIDS.deck_order_table);
     display.add_tb_row(UIIDS.deck_order_table, library, SMALL_CARD_SCALE);
@@ -10729,6 +10737,14 @@ function falling_rubble_mark(){
         telegraph: hazard_telegraph
     }
 }
+function hidden_enemy_mark(){
+    return {
+        name: event_names.hidden_enemy,
+        pic: `${IMG_FOLDER.tiles}hidden_enemy.png`,
+        description: event_descriptions.hidden_enemy,
+        flavor: event_flavor.hidden_enemy,
+    }
+}
 function nettle_roots_mark(){
     return {
         name: event_names.nettle_roots,
@@ -12681,7 +12697,9 @@ class EntityList{
         }
     }
     get_initiative(){
-        var visible = this.#enemy_list.filter(e => !e.enemy.tags.has(TAGS.hidden));
+        var visible = this.#enemy_list.filter(
+            (e) => {return !e.enemy.tags.has(TAGS.hidden) && !e.enemy.tags.has(TAGS.initiative_hidden)}
+        );
         return visible.map(e => {
             return {
                 name: e.enemy.name,
@@ -13044,7 +13062,7 @@ class GameMap{
             var row = this.#grid[y];
             var table_row = [];
             for(var x = 0; x < this.#x_max; ++x){
-                let space = row[x];
+                let space = format_space(row[x]);
                 let stunned = [];
                 if(space.tile.stun !== undefined && space.tile.stun > 0){
                     stunned.push(`${IMG_FOLDER.actions}confuse.png`);
@@ -13700,7 +13718,7 @@ class GameMap{
             tile.name === entity_types.empty || 
             tile.type === entity_types.exit ||
             tile.on_enter !== undefined || 
-            tile.tags.has(TAGS.hidden)
+            (tile.tags.has(TAGS.hidden) && !GS.boons.has(boon_names.clairvoyance))
         );
     }
     get_initiative(){
@@ -13727,6 +13745,21 @@ function grid_space(area){
         background: [],
         floor: area.background,
         action: `${IMG_FOLDER.tiles}empty.png`
+    }
+}
+
+function format_space(space){
+    // Copies the space and potentially adds marks to hidden enemies.
+    var clairvoyant = []
+    if(space.tile.tags.has(TAGS.hidden) && GS.boons.has(boon_names.clairvoyance)){
+        clairvoyant.push(hidden_enemy_mark());
+    }
+    return {
+        foreground: [...clairvoyant, ...space.foreground],
+        tile: space.tile,
+        background: [...space.background],
+        floor: space.floor,
+        action: space.action
     }
 }
 // ----------------GameState.js----------------
@@ -16084,7 +16117,7 @@ function forest_heart_floor(floor_num,  area, map){
         }
         if(i !== 0){
             section.behavior = undefined;
-            section.tags.add(TAGS.hidden);
+            section.tags.add(TAGS.initiative_hidden);
         }
         section.rotate = 90 * i;
         section.segment_list = sections[i];
@@ -18713,6 +18746,7 @@ const BOON_LIST = [
     burn_bright,
     chilly_presence, 
     choose_your_path, 
+    clairvoyance, 
     clean_mind, 
     creative, 
     dazing_blows, 
@@ -18727,7 +18761,6 @@ const BOON_LIST = [
     fortitude, 
     frenzy, 
     frugivore, 
-    future_sight, 
     gruntwork, 
     hoarder, 
     larger_chests, 
@@ -18989,6 +19022,23 @@ function choose_your_path(){
         max: 1,
     }
 }
+function clairvoyance(){
+    return {
+        name: boon_names.clairvoyance,
+        pic: `${IMG_FOLDER.boons}clairvoyance.png`,
+        description: boon_descriptions.clairvoyance,
+        prereq_description: boon_prereq_descriptions.none,
+        on_pick: pick_clairvoyance,
+        max: 1,
+    }
+}
+
+function pick_clairvoyance(){
+    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.deck_order, function(){
+        SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
+    });
+    SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
+}
 function clean_mind(){
     return {
         name: boon_names.clean_mind,
@@ -19205,23 +19255,6 @@ function frugivore(){
         prereq_description: boon_prereq_descriptions.none,
         max: 2,
     }
-}
-function future_sight(){
-    return {
-        name: boon_names.future_sight,
-        pic: `${IMG_FOLDER.boons}future_sight.png`,
-        description: boon_descriptions.future_sight,
-        prereq_description: boon_prereq_descriptions.none,
-        on_pick: pick_future_sight,
-        max: 1,
-    }
-}
-
-function pick_future_sight(){
-    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.deck_order, function(){
-        SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
-    });
-    SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
 }
 function gruntwork(){
     return {

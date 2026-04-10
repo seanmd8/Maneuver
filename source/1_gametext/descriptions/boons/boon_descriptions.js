@@ -19,6 +19,8 @@ const boon_descriptions = {
         +`turn. Bosses are not affected.`,
     choose_your_path: 
         `Choose where to travel after each boss fight.`,
+    clairvoyance: 
+        `You may look at the order of your deck and can sense hidden enemies.`,
     clean_mind: 
         `Remove any 2 cards from your deck.`,
     creative: 
@@ -49,8 +51,6 @@ const boon_descriptions = {
     frugivore: 
         `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
         +`for 1, but might attract enemies.`,
-    future_sight: 
-        `You may look at the order of your deck.`,
     gruntwork: 
         `Gain 3 empty max health.`,
     hoarder: 

@@ -11,9 +11,9 @@ function refresh_deck_order_display(deck){
     for(var card of library){
             card.on_click = card_explanation(card);
     }
-    library = [future_sight(), ...library];
+    library = [clairvoyance(), ...library];
     library[0].on_click = () => {
-        say(future_sight().description);
+        say(clairvoyance().description);
     }
     display.remove_children(UIIDS.deck_order_table);
     display.add_tb_row(UIIDS.deck_order_table, library, SMALL_CARD_SCALE);

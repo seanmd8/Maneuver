@@ -346,7 +346,7 @@ class GameMap{
             var row = this.#grid[y];
             var table_row = [];
             for(var x = 0; x < this.#x_max; ++x){
-                let space = row[x];
+                let space = format_space(row[x]);
                 let stunned = [];
                 if(space.tile.stun !== undefined && space.tile.stun > 0){
                     stunned.push(`${IMG_FOLDER.actions}confuse.png`);
@@ -1002,7 +1002,7 @@ class GameMap{
             tile.name === entity_types.empty || 
             tile.type === entity_types.exit ||
             tile.on_enter !== undefined || 
-            tile.tags.has(TAGS.hidden)
+            (tile.tags.has(TAGS.hidden) && !GS.boons.has(boon_names.clairvoyance))
         );
     }
     get_initiative(){
@@ -1029,5 +1029,20 @@ function grid_space(area){
         background: [],
         floor: area.background,
         action: `${IMG_FOLDER.tiles}empty.png`
+    }
+}
+
+function format_space(space){
+    // Copies the space and potentially adds marks to hidden enemies.
+    var clairvoyant = []
+    if(space.tile.tags.has(TAGS.hidden) && GS.boons.has(boon_names.clairvoyance)){
+        clairvoyant.push(hidden_enemy_mark());
+    }
+    return {
+        foreground: [...clairvoyant, ...space.foreground],
+        tile: space.tile,
+        background: [...space.background],
+        floor: space.floor,
+        action: space.action
     }
 }
