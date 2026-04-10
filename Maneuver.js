@@ -19543,6 +19543,7 @@ function reckless_speed(){
         pic: `${IMG_FOLDER.boons}reckless_speed.png`,
         description: boon_descriptions.reckless_speed,
         prereq_description: boon_prereq_descriptions.none,
+        max: 1,
     }
 }
 
