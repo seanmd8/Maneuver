@@ -84,6 +84,8 @@ const boon_descriptions = {
         `After being dealt damage, you have a 1/4 chance to instantly heal it.`,
     rebirth: 
         `When you die, you are revived at full health and this boon is removed.`,
+    reckless_speed:
+        `Card actions that don't move happen instantly, but confuse you if they weren't already instants`,
     repetition: 
         `Every 3rd turn, your cards happen twice.`,
     retaliate: 

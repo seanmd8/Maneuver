@@ -875,6 +875,8 @@ const boon_descriptions = {
         `After being dealt damage, you have a 1/4 chance to instantly heal it.`,
     rebirth: 
         `When you die, you are revived at full health and this boon is removed.`,
+    reckless_speed:
+        `Card actions that don't move happen instantly, but confuse you if they weren't already instants`,
     repetition: 
         `Every 3rd turn, your cards happen twice.`,
     retaliate: 
@@ -973,6 +975,7 @@ const boon_names = {
     pressure_points: `Preassure Points`,
     quick_healing: `Quick Healing`,
     rebirth: `Rebirth`,
+    reckless_speed: `Reckless Speed`,
     repetition: `Repetition`,
     retaliate: `Retaliate`,
     rift_touched: `Rift Touched`,
@@ -13859,6 +13862,10 @@ class GameState{
                 }
             }
             var is_instant = this.deck.is_instant(hand_pos);
+            if(!is_instant && this.boons.has(boon_names.reckless_speed) && !check_for_moves(behavior)){
+                is_instant = true;
+                confuse_player();
+            }
             if(this.boons.has(boon_names.spontaneous) > 0 && !is_instant){
                 this.deck.discard_all();
             }
@@ -18777,6 +18784,7 @@ const BOON_LIST = [
     pressure_points, 
     quick_healing, 
     rebirth, 
+    reckless_speed,
     repetition, 
     retaliate, 
     rift_touched, 
@@ -19527,6 +19535,28 @@ function rebirth(){
         description: boon_descriptions.rebirth,
         prereq_description: boon_prereq_descriptions.none,
     }
+}
+function reckless_speed(){
+    return {
+        name: boon_names.reckless_speed,
+        pic: `${IMG_FOLDER.boons}reckless_speed.png`,
+        description: boon_descriptions.reckless_speed,
+        prereq_description: boon_prereq_descriptions.none,
+    }
+}
+
+function check_for_moves(behavior){
+    for(var action of behavior){
+        switch(action.type){
+            case action_types.move:
+            case action_types.move_until:
+            case action_types.teleport:
+                return true;
+            default:
+                break;
+        }
+    }
+    return false;
 }
 function repetition(){
     return {

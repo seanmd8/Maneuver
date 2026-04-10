@@ -39,6 +39,7 @@ const BOON_LIST = [
     pressure_points, 
     quick_healing, 
     rebirth, 
+    reckless_speed,
     repetition, 
     retaliate, 
     rift_touched, 

@@ -42,6 +42,7 @@ const boon_names = {
     pressure_points: `Preassure Points`,
     quick_healing: `Quick Healing`,
     rebirth: `Rebirth`,
+    reckless_speed: `Reckless Speed`,
     repetition: `Repetition`,
     retaliate: `Retaliate`,
     rift_touched: `Rift Touched`,

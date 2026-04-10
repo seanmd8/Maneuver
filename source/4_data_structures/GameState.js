@@ -95,6 +95,10 @@ class GameState{
                 }
             }
             var is_instant = this.deck.is_instant(hand_pos);
+            if(!is_instant && this.boons.has(boon_names.reckless_speed) && !check_for_moves(behavior)){
+                is_instant = true;
+                confuse_player();
+            }
             if(this.boons.has(boon_names.spontaneous) > 0 && !is_instant){
                 this.deck.discard_all();
             }
