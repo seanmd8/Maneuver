@@ -20,7 +20,7 @@ const boon_prereq_descriptions = {
     medical_investment: 
         `Prerequisites: You must not have Limitless.`,
     pandoras_box:
-        `Prerequisited: You must have at least 3 max health and not have Limitless.`,
+        `Prerequisites: You must have at least 3 max health and not have Limitless.`,
     perfect_the_basics:
         `Prerequisites: You must have at least 2 basic cards in your deck.`,
     practice_makes_perfect:

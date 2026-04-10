@@ -779,6 +779,7 @@ const boon_cost_descriptions = {
     brag_and_boast: `Cost: Add 2 non temporary confusion cards to your deck.`,
     creative: `Cost: Increase your minimum deck size by 5.`,
     expend_vitality: `Cost: Decrease your max health by 1.`,
+    grab_bag: `Cost: Add 2 non temporary confusion cards to your deck.`,
     gruntwork: `Cost: Decrease your hand size by 1.`,
     hoarder: `Cost: Boon chests have 1 fewer choice`,
     medical_investment: `Cost: Receive 1 fewer card choice for adding and removing cards in the shop.`,
@@ -842,6 +843,8 @@ const boon_descriptions = {
     frugivore: 
         `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
         +`for 1, but might attract enemies.`,
+    grab_bag:
+        `Gain 2 random boons.`,
     gruntwork: 
         `Gain 3 empty max health.`,
     hoarder: 
@@ -960,6 +963,7 @@ const boon_names = {
     fortitude: `Fortitude`,
     frenzy: `Frenzy`,
     frugivore: `Frugivore`,
+    grab_bag: `Grab Bag`,
     gruntwork: `Gruntwork`,
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
@@ -1019,7 +1023,7 @@ const boon_prereq_descriptions = {
     medical_investment: 
         `Prerequisites: You must not have Limitless.`,
     pandoras_box:
-        `Prerequisited: You must have at least 3 max health and not have Limitless.`,
+        `Prerequisites: You must have at least 3 max health and not have Limitless.`,
     perfect_the_basics:
         `Prerequisites: You must have at least 2 basic cards in your deck.`,
     practice_makes_perfect:
@@ -18769,6 +18773,7 @@ const BOON_LIST = [
     fortitude, 
     frenzy, 
     frugivore, 
+    grab_bag,
     gruntwork, 
     hoarder, 
     larger_chests, 
@@ -19263,6 +19268,38 @@ function frugivore(){
         description: boon_descriptions.frugivore,
         prereq_description: boon_prereq_descriptions.none,
         max: 2,
+    }
+}
+function grab_bag(){
+    return {
+        name: boon_names.grab_bag,
+        pic: `${IMG_FOLDER.boons}grab_bag.png`,
+        description: boon_descriptions.grab_bag,
+        prereq_description: boon_prereq_descriptions.none,
+        cost_description: boon_cost_descriptions.grab_bag,
+        on_pick: pick_grab_bag,
+        chest_only: true,
+    }
+}
+
+
+function pick_grab_bag(){
+    // Add 2 boons
+    for(var i = 0; i < 2; ++i){
+        var boon = random_from(GS.boons.get_choices().filter((b) => {
+            return !b.chest_only;
+        }));
+        GS.boons.pick(boon.name);
+    }
+    GS.refresh_boon_display();
+
+    // Add 2 confusion cards
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        for(var i = 0; i < 2; ++i){
+            card = random_from(CONFUSION_CARDS)();
+            GS.deck.add(card);
+        }
     }
 }
 function gruntwork(){

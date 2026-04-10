@@ -26,6 +26,7 @@ const boon_names = {
     fortitude: `Fortitude`,
     frenzy: `Frenzy`,
     frugivore: `Frugivore`,
+    grab_bag: `Grab Bag`,
     gruntwork: `Gruntwork`,
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,

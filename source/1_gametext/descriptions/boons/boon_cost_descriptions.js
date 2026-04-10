@@ -3,6 +3,7 @@ const boon_cost_descriptions = {
     brag_and_boast: `Cost: Add 2 non temporary confusion cards to your deck.`,
     creative: `Cost: Increase your minimum deck size by 5.`,
     expend_vitality: `Cost: Decrease your max health by 1.`,
+    grab_bag: `Cost: Add 2 non temporary confusion cards to your deck.`,
     gruntwork: `Cost: Decrease your hand size by 1.`,
     hoarder: `Cost: Boon chests have 1 fewer choice`,
     medical_investment: `Cost: Receive 1 fewer card choice for adding and removing cards in the shop.`,

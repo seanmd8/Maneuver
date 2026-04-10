@@ -23,6 +23,7 @@ const BOON_LIST = [
     fortitude, 
     frenzy, 
     frugivore, 
+    grab_bag,
     gruntwork, 
     hoarder, 
     larger_chests, 

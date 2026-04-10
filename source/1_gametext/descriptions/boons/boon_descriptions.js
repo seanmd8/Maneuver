@@ -51,6 +51,8 @@ const boon_descriptions = {
     frugivore: 
         `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
         +`for 1, but might attract enemies.`,
+    grab_bag:
+        `Gain 2 random boons.`,
     gruntwork: 
         `Gain 3 empty max health.`,
     hoarder: 
