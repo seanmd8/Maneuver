@@ -3,7 +3,7 @@ function grab_bag(){
         name: boon_names.grab_bag,
         pic: `${IMG_FOLDER.boons}grab_bag.png`,
         description: boon_descriptions.grab_bag,
-        prereq_description: boon_prereq_descriptions.none,
+        prereq_description: boon_prereq_descriptions.grab_bag,
         cost_description: boon_cost_descriptions.grab_bag,
         on_pick: pick_grab_bag,
         chest_only: true,

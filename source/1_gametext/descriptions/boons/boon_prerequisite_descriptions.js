@@ -6,13 +6,18 @@ const boon_prereq_descriptions = {
     burn_bright:
         `Prerequisites: You must not have Limitless.`,
     clean_mind:
-        `Prerequisites: You must be at least 2 cards above your minimum deck size.`,
+        `Prerequisites: You must be at least 2 cards above your minimum deck size. `
+        +`Cannot be given by other boons.`,
     creative:
         `Prerequisites: You must have at least 10 cards in your deck.`,
+    duplicate:
+        `Prerequisites: Cannot be given by other boons.`,
     expend_vitality:
         `Prerequisites: You must have at least 2 max health and not have Limitless.`,
     fortitude: 
         `Prerequisites: You must not have Limitless.`,
+    grab_bag:
+        `Prerequisites: Cannot be given by other boons.`,
     gruntwork:
         `Prerequisites: You must not have Limitless.`,
     hoarder:
@@ -20,7 +25,8 @@ const boon_prereq_descriptions = {
     medical_investment: 
         `Prerequisites: You must not have Limitless.`,
     pandoras_box:
-        `Prerequisites: You must have at least 3 max health and not have Limitless.`,
+        `Prerequisites: You must have at least 3 max health and not have Limitless. `
+        +`Cannot be given by other boons.`,
     perfect_the_basics:
         `Prerequisites: You must have at least 2 basic cards in your deck.`,
     practice_makes_perfect:
@@ -28,7 +34,8 @@ const boon_prereq_descriptions = {
     roar_of_challenge:
         `Prerequisites: You must not have Limitless.`,
     safe_passage:
-        `Prerequisites: You must have health less than your max health or have Limitless.`,
+        `Prerequisites: You must have health less than your max health or have Limitless. `
+        +`Cannot be given by other boons`,
     shattered_glass:
         `Prerequisites: You must have at least 3 max health and not have Limitless.`,
     soul_voucher:
