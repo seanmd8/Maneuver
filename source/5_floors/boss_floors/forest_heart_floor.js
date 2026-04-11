@@ -26,7 +26,7 @@ function forest_heart_floor(floor_num,  area, map){
         }
         if(i !== 0){
             section.behavior = undefined;
-            section.tags.add(TAGS.hidden);
+            section.tags.add(TAGS.initiative_hidden);
         }
         section.rotate = 90 * i;
         section.segment_list = sections[i];

@@ -9,6 +9,18 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+4/11/26
+- Added 2 new boons.
+- Rebalanced Future Sight: Renamed to Clairvoyance. Now shows you the location of hidden enemies.
+- Added a maximum of 1 to Burn Bright and Pandora's Box.
+- Increased Malicious Greeting maximum to 3 from 2.
+- Bug Fix: Brag and Boast confusion cards can now be avoided using Stable Mind.
+- Bug Fix: Missing Unicode Arrows now work on mobile.
+- Reworded several boon descriptions to be more clear and consistent.
+- Reworded several parts of the guidebook.
+- Added link to Itch.io page in preparation for it's launch.
+
+
 3/28/26
 - Added 3 new boons.
 - Added 1 new achievement.

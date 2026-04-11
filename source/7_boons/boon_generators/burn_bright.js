@@ -6,6 +6,7 @@ function burn_bright(){
         description: boon_descriptions.burn_bright,
         prereq_description: boon_prereq_descriptions.burn_bright,
         prereq: prereq_burn_bright,
+        max: 1,
         on_pick: pick_burn_bright,
     }
 }

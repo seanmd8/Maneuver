@@ -1,7 +1,16 @@
-/*https://www.1001fonts.com/quivira-font.html*/
-/*Font used only for unicode arrows to ensure they display in all browsers*/
+/* https://www.1001fonts.com/quivira-font.html */
+/* Font used only for unicode arrows and Fisheye symbol to ensure they display in all browsers. */
 @font-face {
     font-family: "ArrowFont";
     src: url(./fonts/quivira.regular.otf);
-    unicode-range: U+2B9C-2B9F, U+1F878-1F87F, U+25C9;
+    unicode-range: U+2B9C-2B9F, U+25C9;
+}
+
+/* Font I made using: */
+/* https://fontstruct.com */
+/* Font only used for other unicode arrow symbols.*/
+@font-face {
+    font-family: "ArrowFont2";
+    src: url(./fonts/arrows.ttf);
+    unicode-range: U+1F878-1F87F;
 }

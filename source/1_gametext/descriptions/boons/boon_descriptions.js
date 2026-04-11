@@ -19,6 +19,8 @@ const boon_descriptions = {
         +`turn. Bosses are not affected.`,
     choose_your_path: 
         `Choose where to travel after each boss fight.`,
+    clairvoyance: 
+        `You may look at the order of your deck and can sense hidden enemies.`,
     clean_mind: 
         `Remove any 2 cards from your deck.`,
     creative: 
@@ -33,7 +35,7 @@ const boon_descriptions = {
     empty_rooms: 
         `Difficulty decreases by 3 floors`,
     escape_artist: 
-        `Teleport away when attacked, then stun all nearby enemies.`,
+        `Teleport away whenever you take damage, then stun all nearby enemies.`,
     expend_vitality: 
         `Heal for 1 at the start of each floor.`,
     flame_strike: 
@@ -49,8 +51,8 @@ const boon_descriptions = {
     frugivore: 
         `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
         +`for 1, but might attract enemies.`,
-    future_sight: 
-        `You may look at the order of your deck.`,
+    grab_bag:
+        `Gain 2 random boons.`,
     gruntwork: 
         `Gain 3 empty max health.`,
     hoarder: 
@@ -69,7 +71,7 @@ const boon_descriptions = {
         `If you would attack an enemy, stun them twice instead. Fully heal at the start of each floor. `
         +`All boss floor exits unlock.`,
     pain_reflexes: 
-        `Take a turn whenever you are attacked.`,
+        `Take another turn whenever you take damage.`,
     pandoras_box:
         `Reduce your max health to 1, then gain a number of random boons equal to your old max health.`,
     perfect_the_basics: 
@@ -80,14 +82,15 @@ const boon_descriptions = {
         `Defeating a boss while at max health increases your max health by 1.`,
     pressure_points: 
         `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`,
-    quick_healing: 
-        `After being dealt damage, you have a 1/4 chance to instantly heal it.`,
     rebirth: 
         `When you die, you are revived at full health and this boon is removed.`,
+    reckless_speed:
+        `Card actions that don't move happen instantly, but confuse you.`
+        +`Cards that were already instants won't be affected.`,
     repetition: 
         `Every 3rd turn, your cards happen twice.`,
     retaliate: 
-        `When you are dealt damage, attack a random nearby enemy.`,
+        `Whenever you take damage, attack a random nearby enemy.`,
     rift_touched: 
         `2 Darklings spawn on each non boss floor.`,
     roar_of_challenge: 

@@ -653,6 +653,7 @@ const TAGS = {
     unmovable: `Unmovable`,
     unstunnable: `Unstunnable`,
     hidden: `Hidden`,
+    initiative_hidden: `Initiative Hidden`,
     invulnerable: `Invulnerable`,
     controlled: `Controlled`,
     thorn_bush_roots: `Thorn Bush Roots`,
@@ -778,10 +779,11 @@ const boon_cost_descriptions = {
     brag_and_boast: `Cost: Add 2 non temporary confusion cards to your deck.`,
     creative: `Cost: Increase your minimum deck size by 5.`,
     expend_vitality: `Cost: Decrease your max health by 1.`,
+    grab_bag: `Cost: Add 2 non temporary confusion cards to your deck.`,
     gruntwork: `Cost: Decrease your hand size by 1.`,
     hoarder: `Cost: Boon chests have 1 fewer choice`,
     medical_investment: `Cost: Receive 1 fewer card choice for adding and removing cards in the shop.`,
-    roar_of_challenge: `Cost: Increase difficulty by 3 floors.`,
+    roar_of_challenge: `Cost: Difficulty increases by 3 floors.`,
     shattered_glass: `Cost: Decrease your max health by 2.`,
     soul_voucher: `Cost: Decrease your max health by 1.`,
     spiked_shoes: `Cost: Decrease your max health by 1.`,
@@ -809,6 +811,8 @@ const boon_descriptions = {
         +`turn. Bosses are not affected.`,
     choose_your_path: 
         `Choose where to travel after each boss fight.`,
+    clairvoyance: 
+        `You may look at the order of your deck and can sense hidden enemies.`,
     clean_mind: 
         `Remove any 2 cards from your deck.`,
     creative: 
@@ -823,7 +827,7 @@ const boon_descriptions = {
     empty_rooms: 
         `Difficulty decreases by 3 floors`,
     escape_artist: 
-        `Teleport away when attacked, then stun all nearby enemies.`,
+        `Teleport away whenever you take damage, then stun all nearby enemies.`,
     expend_vitality: 
         `Heal for 1 at the start of each floor.`,
     flame_strike: 
@@ -839,8 +843,8 @@ const boon_descriptions = {
     frugivore: 
         `50% chance to encounter a fruit tree on each floor. Eating the fruit will heal you `
         +`for 1, but might attract enemies.`,
-    future_sight: 
-        `You may look at the order of your deck.`,
+    grab_bag:
+        `Gain 2 random boons.`,
     gruntwork: 
         `Gain 3 empty max health.`,
     hoarder: 
@@ -859,7 +863,7 @@ const boon_descriptions = {
         `If you would attack an enemy, stun them twice instead. Fully heal at the start of each floor. `
         +`All boss floor exits unlock.`,
     pain_reflexes: 
-        `Take a turn whenever you are attacked.`,
+        `Take another turn whenever you take damage.`,
     pandoras_box:
         `Reduce your max health to 1, then gain a number of random boons equal to your old max health.`,
     perfect_the_basics: 
@@ -870,14 +874,15 @@ const boon_descriptions = {
         `Defeating a boss while at max health increases your max health by 1.`,
     pressure_points: 
         `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`,
-    quick_healing: 
-        `After being dealt damage, you have a 1/4 chance to instantly heal it.`,
     rebirth: 
         `When you die, you are revived at full health and this boon is removed.`,
+    reckless_speed:
+        `Card actions that don't move happen instantly, but confuse you.`
+        +`Cards that were already instants won't be affected.`,
     repetition: 
         `Every 3rd turn, your cards happen twice.`,
     retaliate: 
-        `When you are dealt damage, attack a random nearby enemy.`,
+        `Whenever you take damage, attack a random nearby enemy.`,
     rift_touched: 
         `2 Darklings spawn on each non boss floor.`,
     roar_of_challenge: 
@@ -941,6 +946,7 @@ const boon_names = {
     burn_bright: `Burn Bright`,
     chilly_presence: `Chilly Presence`,
     choose_your_path: `Choose Your Path`,
+    clairvoyance: `Clairvoyance`,
     clean_mind: `Clean Mind`,
     creative: `Creative`,
     dazing_blows: `Dazing Blows`,
@@ -955,7 +961,7 @@ const boon_names = {
     fortitude: `Fortitude`,
     frenzy: `Frenzy`,
     frugivore: `Frugivore`,
-    future_sight: `Future Sight`,
+    grab_bag: `Grab Bag`,
     gruntwork: `Gruntwork`,
     hoarder: `Hoarder`,
     larger_chests: `Larger Chests`,
@@ -970,8 +976,8 @@ const boon_names = {
     picky_shopper: `Picky Shopper`,
     practice_makes_perfect: `Practice Makes Perfect`,
     pressure_points: `Preassure Points`,
-    quick_healing: `Quick Healing`,
     rebirth: `Rebirth`,
+    reckless_speed: `Reckless Speed`,
     repetition: `Repetition`,
     retaliate: `Retaliate`,
     rift_touched: `Rift Touched`,
@@ -1000,13 +1006,18 @@ const boon_prereq_descriptions = {
     burn_bright:
         `Prerequisites: You must not have Limitless.`,
     clean_mind:
-        `Prerequisites: You must be at least 2 cards above your minimum deck size.`,
+        `Prerequisites: You must be at least 2 cards above your minimum deck size. `
+        +`Cannot be given by other boons.`,
     creative:
         `Prerequisites: You must have at least 10 cards in your deck.`,
+    duplicate:
+        `Prerequisites: Cannot be given by other boons.`,
     expend_vitality:
         `Prerequisites: You must have at least 2 max health and not have Limitless.`,
     fortitude: 
         `Prerequisites: You must not have Limitless.`,
+    grab_bag:
+        `Prerequisites: Cannot be given by other boons.`,
     gruntwork:
         `Prerequisites: You must not have Limitless.`,
     hoarder:
@@ -1014,7 +1025,8 @@ const boon_prereq_descriptions = {
     medical_investment: 
         `Prerequisites: You must not have Limitless.`,
     pandoras_box:
-        `Prerequisited: You must have at least 3 max health and not have Limitless.`,
+        `Prerequisites: You must have at least 3 max health and not have Limitless. `
+        +`Cannot be given by other boons.`,
     perfect_the_basics:
         `Prerequisites: You must have at least 2 basic cards in your deck.`,
     practice_makes_perfect:
@@ -1022,7 +1034,8 @@ const boon_prereq_descriptions = {
     roar_of_challenge:
         `Prerequisites: You must not have Limitless.`,
     safe_passage:
-        `Prerequisites: You must have health less than your max health or have Limitless.`,
+        `Prerequisites: You must have health less than your max health or have Limitless. `
+        +`Cannot be given by other boons`,
     shattered_glass:
         `Prerequisites: You must have at least 3 max health and not have Limitless.`,
     soul_voucher:
@@ -1888,6 +1901,8 @@ const event_descriptions = {
         `You will stun this square at end of turn if you are not standing here.`,
     falling_rubble: 
         `Watch out, something is about to fall here damaging anything standing here.`,
+    hidden_enemy:
+        `You can sense something hidden here`,
     nettle_root: 
         `Watch out, swaying nettles are about to sprout damaging anything standing here.`,
     shockwave:
@@ -1914,6 +1929,8 @@ const event_flavor = {
         ``,
     falling_rubble:
         ``,
+    hidden_enemy:
+        ``,
     nettle_roots:
         ``,
     shockwave:
@@ -1936,6 +1953,7 @@ const event_names = {
     earthquake: `Earthquake`,
     falling_magma: `Falling Magma`,
     falling_rubble: `Falling Rubble`,
+    hidden_enemy:  `Hidden Enemy`,
     nettle_roots: `Nettle Roots`,
     shockwave: `Shockwave`,
     spell_announcement: `Spell Announcement`,
@@ -2336,69 +2354,87 @@ Object.freeze(GUIDE_HEADERS);
 const GUIDE_TEXT = {
     basics: [
         `Welcome to Maneuver!\n\n`
-        +`The goal of the game is to progress as deep into the dungeon as possible by completing each floor. `
-        +`To finish a floor, you need to reach the stairs that lead down to the next one. Enemies will spawn `
-        +`on each floor which will try to stop you from continuing. You do not need to defeat everything on `
-        +`the current floor to continue, but may need to fight most of them to survive.\n\n`
-        +`Exit the dungeon by defeating the final boss on floor 25 to win.\n\n`
-        +`Read more about controlling your character in the next section.\n`
+
+        +`The goal of the game is to progress as deep into the dungeon as possible by completing each `
+        +`floor. To finish a floor, you need to reach the stairs that lead to the next one. You will `
+        +`also need to fight off or avoid various enemies which will try to stop you. You do not need `
+        +`to defeat everything on the current floor to continue.\n\n`
+
+        +`Defeat the final boss on floor 25 then exit the dungeon to win.\n\n`
+
         +`Good luck!\n\n`
     ],
 
     cards: [
-        `To control your character's actions, you have a deck of cards. Each card gives you several `
-        +`options for a set of actions to take. The actions on the card will be performed relative to `
-        +`your current location (the black dot). Clicking on a card will bring up a grid of buttons which `
-        +`will let you decide which of the card's options to use.\n\n`
-        +`When you finish using a card, it will be discarded and replaced with another from your deck, then `
-        +`everything else on the floor will get a chance to act before you get another turn.\n\n`
-        +`When your deck runs out, your discard pile will be shuffled back into it. The amount of cards `
-        +`remaining in your deck is shown next to your health bar.\n`
-        +`\n`
+        `Playing cards allows your character to perform actions like moving and attacking. Once `
+        +`selected, each card contains several sets of actions to choose from. The actions a card can `
+        +`perform are shown as colored squares on it's grid. The color of the square determines the `
+        +`type of action, and the position determines where it will be performed relative to the `
+        +`current position of your character, symbolized by the black dot in the center. If multiple `
+        +`squares are connected by a grey line, they will all be performed.\n\n`
+        
+        +`More information about a card can be seen by clicking the question mark icon above the move `
+        +`button box. You can also shift click a button to see a preview of what it would do.\n\n`
+        
+        +`When you use a card, it will be discarded and you will draw another from your deck. If your `
+        +`deck is empty, your discard pile will be shuffled back in.\n\n`
+        
         +`Colors and symbols that make up a card:\n\n`,
-            ` Your relative starting location.\n`,
+            ` Your current location.\n`,
             ` You will attack this space.\n`,
             ` You will move to this space.\n`,
-            ` If applied to an enemy, it will stun them. If applied to the player, it will instead add a `
-            +`temporary debuff card to your deck (see these in Confusion).\n`,
-            ` You will heal the creature on this space if it's health is less than it's max health.\n`,
+            ` Stuns an enemy, or confuses the player.\n`,
+            ` You will heal the tile on this space.\n`,
             ` Each action the line goes through will be performed.\n`,
             ` Multiple actions will be performed in a specific order.\n`,
             ` Multiple moves will be performed until you hit something.\n`,
             ` Multiple attacks will be performed until you hit the edge of the floor.\n`,
-            ` You will be teleported to a random unoccupied location.\n`,
+            ` teleport to a random unoccupied location.\n`,
             `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
-            ` A card with a purple grid will be performed instantly.\n`,
-            ` A card with a tan background is temporary. It will be removed from your deck when you use it or when the floor ends.\n`,
+            ` A card with a purple grid will let you play another card immediately.\n`,
+            ` A card with a tan background is temporary. It will be removed from your deck when played, or at the end of the floor.\n`,
             ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
         +`\n`
-        +`You can use the (?) button next to your move options to learn exactly what a selected card does, `
-        +`or shift click to display what the card does on the map.\n\n`
     ],
 
     enemies: [
-        `As you travel through the dungeon, you will encounter various other creatures, many of whom want `
-        +`to kill you. Each creature has different patterns of attack and movement. Many of them also have `
-        +`other unique abilities.\n\n`
+        `As you travel through the dungeon, you will encounter various other creatures, many of whom `
+        +`want to kill you. Each one has it's own patterns of attack and movement, and may have `
+        +`other abilities as well.\n\n`
+
         +`Click on a tile to learn more about creatures and terrain there. Clicking will show you a `
-        +`description of everything on the tile, and which squares they might be able to attack next `
-        +`turn. Also pay attention to how much health they have since some enemies might take several `
-        +`hits to kill.\n\n`
-        +`Remember that you do not need to kill everything to go to the next stage. Sometimes it's better `
-        +`to run past an enemy than to fight it and risk getting surrounded or cornered. There may also be `
-        +`some creatures you encounter that are more helpful than harmful.\n\n`
+        +`description of everything on the tile, as well as which squares they will be able to attack `
+        +`next turn, and their current health.\n\n`
+
+        +`Remember that you do not need to kill everything to go to the next stage. Some enemies are `
+        +`easier to run past than to fight, and others can even be used to your advantage.\n\n`
+        
+        +`Some effects can stun enemies, causing them to skip their next turn. While stunned they will `
+        +`be highlighted in yellow and you will be able to see how long they are stunned for by clicking `
+        +`on them.\n\n`
+
         +`Some enemies also have the ability to forcibly move you. When that happens, you will `
-        +`immediately get another turn.\n\n`
-        +`Some effects will cause an enemy to become stunned. They will be hightlighted in yellow. Stunned `
-        +`enemies will skip their next turn. Multiple instances of stun will cause multiple turns to get `
-        +`skipped.\n\n`
+        +`immediately get another turn afterwards.\n\n`
     ],
 
     shop: [
-        `When you complete a floor, you will enter a shop where you must either add or remove a card from `
-        +`your deck. You will get ${ADD_CHOICE_COUNT} options of random cards to add, and `
-        +`${REMOVE_CHOICE_COUNT} options of random cards from your deck to remove. The current contents of `
-        +`your deck will be shown to help you choose. You cannot go below your minimum deck size.\n\n`
+        `After completing a floor, you will enter a shop where you must either add or remove a card from `
+        +`your deck. You will see ${ADD_CHOICE_COUNT} options of random cards to add, and `
+        +`${REMOVE_CHOICE_COUNT} options of random cards from your deck to remove. You will also be able `
+        +`to view the current contents of your deck.\n\n`
+        
+        +`As you defeat certain bosses you will permanently unlock new, more complex cards which can `
+        +`show up in future shops.\n\n`
+        
+        +`Try to keep a variety of different movement cards in your deck. Doing so means you will `
+        +`generally have more options of where to move to on each turn. Having a balance of moves and `
+        +`attacks is also important so that you can both fight off melee enemies and move out of the `
+        +`way of ranged enemies.\n\n`
+
+        +`Removing cards from your deck allows you to see your best cards more often while also raising `
+        +`your deck's average power level since the cards you can get from the shop are usually better `
+        +`than your basic cards. You won't be able to reduce your deck to less than 5 cards though.\n\n`
+        
         +`In addition to the shop, there are several other ways to get cards. You can find them from `
         +`defeating certain bosses or aquiring certain boons. Some enemies or effects may also add `
         +`temporary cards to your deck. They will go away after you play them or go to the next floor.\n\n`
@@ -2406,45 +2442,55 @@ const GUIDE_TEXT = {
 
     bosses: [
         `Every ${AREA_SIZE} floors, you will encounter a boss floor. The stairs out of this floor will be `
-        +`locked until you defeat it's occupant. When you defeat the boss, the stairs will be `
-        +`unlocked, you will be fully healed, and it will drop a chest containing a powerful new card as a `
-        +`reward.\n\n`
+        +`locked, forcing you to fight it's occupant.\n\n`
+        
+        +`Once you defeat the boss, the stairs will be unlocked, you will be fully healed, and it `
+        +`will drop a chest containing a powerful card as a reward.\n\n`
+
         +`When leaving the floor, you will enter a new area of the dungeon with a different set of `
         +`inhabitants and a new boss at the end.\n\n`
     ],
 
     chests: [
-        `On floor ${CHEST_LOCATION} of every area, you will find a treasure chest. Moving onto this chest `
-        +`will allow you to pick a boon. Boons are powerful abilities that can give your character a unique `
-        +`edge when it comes to surviving.\n\n`
+        `On floor ${CHEST_LOCATION} of every area, you will find a treasure chest. Moving onto this `
+        +`chest will allow you to pick a boon. Boons are powerful upgrades that can give your character `
+        +`a unique edge when it comes to surviving.\n\n`
+
         +`Chests will also be dropped after a boss is defeated. Rather than boons, these ones will contain `
         +`a card that lets you imitate one of the boss's abilities.\n\n`
+
         +`Be careful. Breaking a chest will destroy it's contents.\n\n`
     ],
 
     sidebar: [
-        `The sidebar contains several tabs which keep track of useful information so you don't need to `
-        +`remember it.\n\n`
-        +`${usymbol.bullet} The Messages tab keeps track of messages the game tells you. Ones you bring up yourself like `
-        +`the descriptions given by clicking on a tile will not be tracked.\n\n`
-        +`${usymbol.bullet} The Discard tab will keep track of which cards in your deck have been used so far to help you `
-        +`figure out what might be left to draw. It resets after shuffling.\n\n`
-        +`${usymbol.bullet} The Initiative tab will keep track of the health and turn order of enemies. Pay attention to it `
-        +`when trying to use one enemy to block the attack of another. It will not track hidden enemies.\n\n`
-        +`More tabs might become available as you play.\n\n`
+        `The sidebar contains several tabs which keep track of useful information.\n\n`
+
+        +`${usymbol.bullet} The Messages tab keeps track of game messages.\n\n`
+
+        +`${usymbol.bullet} The Discard tab keeps track of which cards in your deck have been used so `
+        +`far to help you figure out what might be left to draw. It resets after shuffling.\n\n`
+
+        +`${usymbol.bullet} The Initiative tab keeps track of the turn order of enemies. You can use `
+        +`this to better predict enemy movements and how to get them to block each other's attacks. `
+        +`It will not track hidden enemies.\n\n`
+
+        +`More tabs will become available as you play.\n\n`
     ],
 
     confusion: [
-        `Certain enemies and cards will confuse you. Confusion adds a temporary bad card to your deck which `
-        +`will go away after it goes to your discard pile, or when you go to the next floor. Cards will do `
-        +`this if they highlight your current square in yellow.\n\n`
+        `Certain enemies and cards will confuse you. Confusion adds a temporary bad card to your deck `
+        +`which will go away once it goes to your discard pile, or when you travel to the next floor.\n\n`
+
         +`Here is a list of the possible confusion cards:\n\n`
     ],
 
     about: [
-        `Maneuver is a game created by Sean Dunbar. It began in 2023. If you would like to view the `
+        `Maneuver is a game created by Sean Dunbar. It began development in 2023. If you would like to view the `
         +`changelog or look at the source code, you can go to the `, 
-        `.\n\n`
+        `. If you would like to donate or leave a comment, you can do so via the `,
+        `. \n\n`
+        
+        +`Thank you for playing!\n\n`
     ],
 }
 Object.freeze(GUIDE_TEXT);
@@ -2470,6 +2516,8 @@ const CARD_SYMBOLS = [
 const about_page_text = {
     git_link: `https://github.com/seanmd8/Maneuver`,
     git_text: `Github Page`,
+    itch_link: `https://seanmd8.itch.io/maneuver`,
+    itch_text: `Itch.io Page`,
 };
 Object.freeze(about_page_text);
 const journal_area_messages = {
@@ -2824,10 +2872,12 @@ function explain_card_w_stats(card){
 function grid_space_description(space){
     var tile = space.tile.look === undefined ? space.tile : space.tile.look;
     tile = tile_description(tile);
+
     var foreground = space.foreground.filter((fg) => fg.description !== undefined);
     foreground = foreground.map((fg) => `${gameplay_text.divider}${fg.description}`);
     var background = space.background.filter((bg) => bg.description !== undefined);
     background = background.map((bg) => `${gameplay_text.divider}${bg.description}`);
+
     var descriptions = [tile, ...foreground, ...background];
     return descriptions.reduce((res, str) => `${res}${str}`);
 }
@@ -4321,9 +4371,9 @@ function refresh_deck_order_display(deck){
     for(var card of library){
             card.on_click = card_explanation(card);
     }
-    library = [future_sight(), ...library];
+    library = [clairvoyance(), ...library];
     library[0].on_click = () => {
-        say(future_sight().description);
+        say(clairvoyance().description);
     }
     display.remove_children(UIIDS.deck_order_table);
     display.add_tb_row(UIIDS.deck_order_table, library, SMALL_CARD_SCALE);
@@ -4708,7 +4758,8 @@ function display_guide(){
     })];
     
     var about_links = [
-        display.make_anchor(about_page_text.git_link, about_page_text.git_text)
+        display.make_anchor(about_page_text.git_link, about_page_text.git_text),
+        display.make_anchor(about_page_text.itch_link, about_page_text.itch_text)
     ];
 
     // Create guidebook text sections.
@@ -4861,6 +4912,7 @@ function events_display_info(){
             delayed_stun_mark,
             darkling_rift_mark,
             falling_rubble_mark,
+            hidden_enemy_mark,
             nettle_roots_mark,
             shockwave_mark,
             starcaller_rift_mark,
@@ -10704,6 +10756,14 @@ function falling_rubble_mark(){
         telegraph: hazard_telegraph
     }
 }
+function hidden_enemy_mark(){
+    return {
+        name: event_names.hidden_enemy,
+        pic: `${IMG_FOLDER.tiles}hidden_enemy.png`,
+        description: event_descriptions.hidden_enemy,
+        flavor: event_flavor.hidden_enemy,
+    }
+}
 function nettle_roots_mark(){
     return {
         name: event_names.nettle_roots,
@@ -12374,7 +12434,7 @@ class ButtonGrid{
                         commands = [`[${move_types.nothing}]`];
                     }
                     var command_str = commands.join(`, ${NBS}`); // Non breaking spaces used so they won't be collapsed.
-                    explanation = explanation.concat(`${NBS}${NBS}${NBS}${NBS}${usymbol.bullet} ${button.description}: ${command_str}\n`);
+                    explanation = explanation.concat(`${NBS}${NBS}${NBS}${NBS}${usymbol.bullet} ${button.description} : ${command_str}\n`);
                 }
             }
         }
@@ -12656,7 +12716,9 @@ class EntityList{
         }
     }
     get_initiative(){
-        var visible = this.#enemy_list.filter(e => !e.enemy.tags.has(TAGS.hidden));
+        var visible = this.#enemy_list.filter(
+            (e) => {return !e.enemy.tags.has(TAGS.hidden) && !e.enemy.tags.has(TAGS.initiative_hidden)}
+        );
         return visible.map(e => {
             return {
                 name: e.enemy.name,
@@ -13019,7 +13081,7 @@ class GameMap{
             var row = this.#grid[y];
             var table_row = [];
             for(var x = 0; x < this.#x_max; ++x){
-                let space = row[x];
+                let space = format_space(row[x]);
                 let stunned = [];
                 if(space.tile.stun !== undefined && space.tile.stun > 0){
                     stunned.push(`${IMG_FOLDER.actions}confuse.png`);
@@ -13179,9 +13241,6 @@ class GameMap{
                 }
                 else{
                     this.stats.increment_damage();
-                }
-                if(chance(GS.boons.has(boon_names.quick_healing), 4)){
-                    this.player_heal(new Point(0, 0), 1);
                 }
             }
             var current_health = get_tile_health(target);
@@ -13675,7 +13734,7 @@ class GameMap{
             tile.name === entity_types.empty || 
             tile.type === entity_types.exit ||
             tile.on_enter !== undefined || 
-            tile.tags.has(TAGS.hidden)
+            (tile.tags.has(TAGS.hidden) && !GS.boons.has(boon_names.clairvoyance))
         );
     }
     get_initiative(){
@@ -13702,6 +13761,21 @@ function grid_space(area){
         background: [],
         floor: area.background,
         action: `${IMG_FOLDER.tiles}empty.png`
+    }
+}
+
+function format_space(space){
+    // Copies the space and potentially adds marks to hidden enemies.
+    var clairvoyant = []
+    if(space.tile.tags.has(TAGS.hidden) && GS.boons.has(boon_names.clairvoyance)){
+        clairvoyant.push(hidden_enemy_mark());
+    }
+    return {
+        foreground: [...clairvoyant, ...space.foreground],
+        tile: space.tile,
+        background: [...space.background],
+        floor: space.floor,
+        action: space.action
     }
 }
 // ----------------GameState.js----------------
@@ -13801,6 +13875,10 @@ class GameState{
                 }
             }
             var is_instant = this.deck.is_instant(hand_pos);
+            if(!is_instant && this.boons.has(boon_names.reckless_speed) && !check_for_moves(behavior)){
+                is_instant = true;
+                confuse_player();
+            }
             if(this.boons.has(boon_names.spontaneous) > 0 && !is_instant){
                 this.deck.discard_all();
             }
@@ -16059,7 +16137,7 @@ function forest_heart_floor(floor_num,  area, map){
         }
         if(i !== 0){
             section.behavior = undefined;
-            section.tags.add(TAGS.hidden);
+            section.tags.add(TAGS.initiative_hidden);
         }
         section.rotate = 90 * i;
         section.segment_list = sections[i];
@@ -18688,6 +18766,7 @@ const BOON_LIST = [
     burn_bright,
     chilly_presence, 
     choose_your_path, 
+    clairvoyance, 
     clean_mind, 
     creative, 
     dazing_blows, 
@@ -18702,7 +18781,7 @@ const BOON_LIST = [
     fortitude, 
     frenzy, 
     frugivore, 
-    future_sight, 
+    grab_bag,
     gruntwork, 
     hoarder, 
     larger_chests, 
@@ -18717,8 +18796,8 @@ const BOON_LIST = [
     picky_shopper, 
     practice_makes_perfect, 
     pressure_points, 
-    quick_healing, 
     rebirth, 
+    reckless_speed,
     repetition, 
     retaliate, 
     rift_touched, 
@@ -18912,8 +18991,10 @@ function pick_brag_and_boast(){
     var has_voucher = GS.boons.has(boon_names.soul_voucher);
     if(!has_voucher){
         for(var i = 0; i < 2; ++i){
-            card = random_from(CONFUSION_CARDS)();
-            GS.deck.add(card);
+            if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
+                card = random_from(CONFUSION_CARDS)();
+                GS.deck.add(card);
+            }
         }
     }
 }
@@ -18925,6 +19006,7 @@ function burn_bright(){
         description: boon_descriptions.burn_bright,
         prereq_description: boon_prereq_descriptions.burn_bright,
         prereq: prereq_burn_bright,
+        max: 1,
         on_pick: pick_burn_bright,
     }
 }
@@ -18963,6 +19045,23 @@ function choose_your_path(){
         prereq_description: boon_prereq_descriptions.none,
         max: 1,
     }
+}
+function clairvoyance(){
+    return {
+        name: boon_names.clairvoyance,
+        pic: `${IMG_FOLDER.boons}clairvoyance.png`,
+        description: boon_descriptions.clairvoyance,
+        prereq_description: boon_prereq_descriptions.none,
+        on_pick: pick_clairvoyance,
+        max: 1,
+    }
+}
+
+function pick_clairvoyance(){
+    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.deck_order, function(){
+        SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
+    });
+    SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
 }
 function clean_mind(){
     return {
@@ -19053,7 +19152,7 @@ function duplicate(){
         name: boon_names.duplicate,
         pic: `${IMG_FOLDER.boons}duplicate.png`,
         description: boon_descriptions.duplicate,
-        prereq_description: boon_prereq_descriptions.none,
+        prereq_description: boon_prereq_descriptions.duplicate,
         after_pick: pick_duplicate,
         chest_only: true,
     }
@@ -19181,22 +19280,39 @@ function frugivore(){
         max: 2,
     }
 }
-function future_sight(){
+function grab_bag(){
     return {
-        name: boon_names.future_sight,
-        pic: `${IMG_FOLDER.boons}future_sight.png`,
-        description: boon_descriptions.future_sight,
-        prereq_description: boon_prereq_descriptions.none,
-        on_pick: pick_future_sight,
-        max: 1,
+        name: boon_names.grab_bag,
+        pic: `${IMG_FOLDER.boons}grab_bag.png`,
+        description: boon_descriptions.grab_bag,
+        prereq_description: boon_prereq_descriptions.grab_bag,
+        cost_description: boon_cost_descriptions.grab_bag,
+        on_pick: pick_grab_bag,
+        chest_only: true,
     }
 }
 
-function pick_future_sight(){
-    display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.deck_order, function(){
-        SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
-    });
-    SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
+
+function pick_grab_bag(){
+    // Add 2 boons
+    for(var i = 0; i < 2; ++i){
+        var boon = random_from(GS.boons.get_choices().filter((b) => {
+            return !b.chest_only;
+        }));
+        GS.boons.pick(boon.name);
+    }
+    GS.refresh_boon_display();
+
+    // Add 2 confusion cards
+    var has_voucher = GS.boons.has(boon_names.soul_voucher);
+    if(!has_voucher){
+        for(var i = 0; i < 2; ++i){
+            if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
+                card = random_from(CONFUSION_CARDS)();
+                GS.deck.add(card);
+            }
+        }
+    }
 }
 function gruntwork(){
     return {
@@ -19284,7 +19400,7 @@ function malicious_greeting(){
         pic: `${IMG_FOLDER.boons}malicious_greeting.png`,
         description: boon_descriptions.malicious_greeting,
         prereq_description: boon_prereq_descriptions.none,
-        max: 2,
+        max: 3,
     }
 }
 function manic_presence(){
@@ -19346,6 +19462,7 @@ function pandoras_box(){
         description: boon_descriptions.pandoras_box,
         prereq_description: boon_prereq_descriptions.pandoras_box,
         prereq: prereq_pandoras_box,
+        max: 1,
         on_pick: pick_pandoras_box,
         chest_only: true,
     }
@@ -19453,15 +19570,6 @@ function pressure_points(){
         max: 3,
     }
 }
-function quick_healing(){
-    return {
-        name: boon_names.quick_healing,
-        pic: `${IMG_FOLDER.boons}quick_healing.png`,
-        description: boon_descriptions.quick_healing,
-        prereq_description: boon_prereq_descriptions.none,
-        max: 3,
-    }
-}
 function rebirth(){
     return {
         name: boon_names.rebirth,
@@ -19469,6 +19577,29 @@ function rebirth(){
         description: boon_descriptions.rebirth,
         prereq_description: boon_prereq_descriptions.none,
     }
+}
+function reckless_speed(){
+    return {
+        name: boon_names.reckless_speed,
+        pic: `${IMG_FOLDER.boons}reckless_speed.png`,
+        description: boon_descriptions.reckless_speed,
+        prereq_description: boon_prereq_descriptions.none,
+        max: 1,
+    }
+}
+
+function check_for_moves(behavior){
+    for(var action of behavior){
+        switch(action.type){
+            case action_types.move:
+            case action_types.move_until:
+            case action_types.teleport:
+                return true;
+            default:
+                break;
+        }
+    }
+    return false;
 }
 function repetition(){
     return {
@@ -20038,7 +20169,7 @@ function shrug_it_off_achievement(){
         description: achievement_description.shrug_it_off,
         pic: `${IMG_FOLDER.achievements}shrug_it_off.png`,
         has: false,
-        boons: [quick_healing],
+        boons: [reckless_speed],
     }
 }
 function speed_runner_achievement(){

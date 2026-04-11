@@ -5,6 +5,7 @@ const TAGS = {
     unmovable: `Unmovable`,
     unstunnable: `Unstunnable`,
     hidden: `Hidden`,
+    initiative_hidden: `Initiative Hidden`,
     invulnerable: `Invulnerable`,
     controlled: `Controlled`,
     thorn_bush_roots: `Thorn Bush Roots`,

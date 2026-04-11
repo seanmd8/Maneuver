@@ -187,7 +187,9 @@ class EntityList{
         }
     }
     get_initiative(){
-        var visible = this.#enemy_list.filter(e => !e.enemy.tags.has(TAGS.hidden));
+        var visible = this.#enemy_list.filter(
+            (e) => {return !e.enemy.tags.has(TAGS.hidden) && !e.enemy.tags.has(TAGS.initiative_hidden)}
+        );
         return visible.map(e => {
             return {
                 name: e.enemy.name,

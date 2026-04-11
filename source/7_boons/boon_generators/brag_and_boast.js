@@ -18,8 +18,10 @@ function pick_brag_and_boast(){
     var has_voucher = GS.boons.has(boon_names.soul_voucher);
     if(!has_voucher){
         for(var i = 0; i < 2; ++i){
-            card = random_from(CONFUSION_CARDS)();
-            GS.deck.add(card);
+            if(!chance(GS.boons.has(boon_names.stable_mind), 2)){
+                card = random_from(CONFUSION_CARDS)();
+                GS.deck.add(card);
+            }
         }
     }
 }

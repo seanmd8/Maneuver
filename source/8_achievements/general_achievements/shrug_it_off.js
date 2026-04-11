@@ -4,6 +4,6 @@ function shrug_it_off_achievement(){
         description: achievement_description.shrug_it_off,
         pic: `${IMG_FOLDER.achievements}shrug_it_off.png`,
         has: false,
-        boons: [quick_healing],
+        boons: [reckless_speed],
     }
 }
