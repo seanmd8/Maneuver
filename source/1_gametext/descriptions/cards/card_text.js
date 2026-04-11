@@ -61,6 +61,7 @@ const move_types = {
     
     locked: `This card has not been unlocked yet.`,
     not_found: `This card has never been added to your deck.`,
+    missing: `This card has been renamed or removed`,
     number_picked: `Times Added`,
     number_removed: `Times Removed`,
 }

@@ -1,4 +1,7 @@
 function explain_card(card){
+    if(card.description !== undefined){
+        return card.description;
+    }
     var text = ``;
     text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
     text += `${card.options.explain_buttons()}`;

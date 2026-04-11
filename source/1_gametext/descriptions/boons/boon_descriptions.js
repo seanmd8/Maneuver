@@ -1,7 +1,10 @@
 const boon_descriptions = {
-    locked: `You have not unlocked this boon yet.`,
+    locked: 
+        `You have not unlocked this boon yet.`,
     not_encountered:
         `You have never taken this boon.`,
+    missing:
+        `This boon has been renamed or removed`,
 
     bitter_determination: 
         `At the start of each floor, heal 1 if your health is exactly 1.`,
