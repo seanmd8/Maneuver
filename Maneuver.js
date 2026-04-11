@@ -827,7 +827,7 @@ const boon_descriptions = {
     empty_rooms: 
         `Difficulty decreases by 3 floors`,
     escape_artist: 
-        `Teleport away when attacked, then stun all nearby enemies.`,
+        `Teleport away whenever you take damage, then stun all nearby enemies.`,
     expend_vitality: 
         `Heal for 1 at the start of each floor.`,
     flame_strike: 
@@ -863,7 +863,7 @@ const boon_descriptions = {
         `If you would attack an enemy, stun them twice instead. Fully heal at the start of each floor. `
         +`All boss floor exits unlock.`,
     pain_reflexes: 
-        `Take a turn whenever you are attacked.`,
+        `Take another turn whenever you take damage.`,
     pandoras_box:
         `Reduce your max health to 1, then gain a number of random boons equal to your old max health.`,
     perfect_the_basics: 
@@ -875,7 +875,7 @@ const boon_descriptions = {
     pressure_points: 
         `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`,
     quick_healing: 
-        `After being dealt damage, you have a 1/4 chance to instantly heal it.`,
+        `Whenever you take damage, you have a 1/4 chance to instantly heal it.`,
     rebirth: 
         `When you die, you are revived at full health and this boon is removed.`,
     reckless_speed:
@@ -884,7 +884,7 @@ const boon_descriptions = {
     repetition: 
         `Every 3rd turn, your cards happen twice.`,
     retaliate: 
-        `When you are dealt damage, attack a random nearby enemy.`,
+        `Whenever you take damage, attack a random nearby enemy.`,
     rift_touched: 
         `2 Darklings spawn on each non boss floor.`,
     roar_of_challenge: 
