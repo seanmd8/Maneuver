@@ -38,7 +38,6 @@ const BOON_LIST = [
     picky_shopper, 
     practice_makes_perfect, 
     pressure_points, 
-    quick_healing, 
     rebirth, 
     reckless_speed,
     repetition, 

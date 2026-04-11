@@ -5,6 +5,7 @@ function pandoras_box(){
         description: boon_descriptions.pandoras_box,
         prereq_description: boon_prereq_descriptions.pandoras_box,
         prereq: prereq_pandoras_box,
+        max: 1,
         on_pick: pick_pandoras_box,
         chest_only: true,
     }

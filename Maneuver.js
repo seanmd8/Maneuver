@@ -874,8 +874,6 @@ const boon_descriptions = {
         `Defeating a boss while at max health increases your max health by 1.`,
     pressure_points: 
         `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`,
-    quick_healing: 
-        `Whenever you take damage, you have a 1/4 chance to instantly heal it.`,
     rebirth: 
         `When you die, you are revived at full health and this boon is removed.`,
     reckless_speed:
@@ -978,7 +976,6 @@ const boon_names = {
     picky_shopper: `Picky Shopper`,
     practice_makes_perfect: `Practice Makes Perfect`,
     pressure_points: `Preassure Points`,
-    quick_healing: `Quick Healing`,
     rebirth: `Rebirth`,
     reckless_speed: `Reckless Speed`,
     repetition: `Repetition`,
@@ -13238,9 +13235,6 @@ class GameMap{
                 else{
                     this.stats.increment_damage();
                 }
-                if(chance(GS.boons.has(boon_names.quick_healing), 4)){
-                    this.player_heal(new Point(0, 0), 1);
-                }
             }
             var current_health = get_tile_health(target);
             if(target.on_hit !== undefined){
@@ -18795,7 +18789,6 @@ const BOON_LIST = [
     picky_shopper, 
     practice_makes_perfect, 
     pressure_points, 
-    quick_healing, 
     rebirth, 
     reckless_speed,
     repetition, 
@@ -19006,6 +18999,7 @@ function burn_bright(){
         description: boon_descriptions.burn_bright,
         prereq_description: boon_prereq_descriptions.burn_bright,
         prereq: prereq_burn_bright,
+        max: 1,
         on_pick: pick_burn_bright,
     }
 }
@@ -19399,7 +19393,7 @@ function malicious_greeting(){
         pic: `${IMG_FOLDER.boons}malicious_greeting.png`,
         description: boon_descriptions.malicious_greeting,
         prereq_description: boon_prereq_descriptions.none,
-        max: 2,
+        max: 3,
     }
 }
 function manic_presence(){
@@ -19461,6 +19455,7 @@ function pandoras_box(){
         description: boon_descriptions.pandoras_box,
         prereq_description: boon_prereq_descriptions.pandoras_box,
         prereq: prereq_pandoras_box,
+        max: 1,
         on_pick: pick_pandoras_box,
         chest_only: true,
     }
@@ -19564,15 +19559,6 @@ function pressure_points(){
         name: boon_names.pressure_points,
         pic: `${IMG_FOLDER.boons}pressure_points.png`,
         description: boon_descriptions.pressure_points,
-        prereq_description: boon_prereq_descriptions.none,
-        max: 3,
-    }
-}
-function quick_healing(){
-    return {
-        name: boon_names.quick_healing,
-        pic: `${IMG_FOLDER.boons}quick_healing.png`,
-        description: boon_descriptions.quick_healing,
         prereq_description: boon_prereq_descriptions.none,
         max: 3,
     }
@@ -20176,7 +20162,7 @@ function shrug_it_off_achievement(){
         description: achievement_description.shrug_it_off,
         pic: `${IMG_FOLDER.achievements}shrug_it_off.png`,
         has: false,
-        boons: [quick_healing],
+        boons: [reckless_speed],
     }
 }
 function speed_runner_achievement(){

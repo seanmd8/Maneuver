@@ -82,8 +82,6 @@ const boon_descriptions = {
         `Defeating a boss while at max health increases your max health by 1.`,
     pressure_points: 
         `When you stun an enemy, there is a 1/3 chance you also deal it 1 damage.`,
-    quick_healing: 
-        `Whenever you take damage, you have a 1/4 chance to instantly heal it.`,
     rebirth: 
         `When you die, you are revived at full health and this boon is removed.`,
     reckless_speed:
