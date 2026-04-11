@@ -7,7 +7,7 @@ const boon_cost_descriptions = {
     gruntwork: `Cost: Decrease your hand size by 1.`,
     hoarder: `Cost: Boon chests have 1 fewer choice`,
     medical_investment: `Cost: Receive 1 fewer card choice for adding and removing cards in the shop.`,
-    roar_of_challenge: `Cost: Increase difficulty by 3 floors.`,
+    roar_of_challenge: `Cost: Difficulty increases by 3 floors.`,
     shattered_glass: `Cost: Decrease your max health by 2.`,
     soul_voucher: `Cost: Decrease your max health by 1.`,
     spiked_shoes: `Cost: Decrease your max health by 1.`,
