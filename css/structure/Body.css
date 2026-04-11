@@ -7,7 +7,7 @@ body {
     height: 100%;
     min-width: 100%;
     width: fit-content;
-    font-family: ArrowFont;
+    font-family: ArrowFont, ArrowFont2;
 }
 body>div {
     padding: 8px;

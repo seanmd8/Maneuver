@@ -7,7 +7,7 @@ body {
     height: 100%;
     min-width: 100%;
     width: fit-content;
-    font-family: ArrowFont;
+    font-family: ArrowFont, ArrowFont2;
 }
 body>div {
     padding: 8px;
@@ -292,6 +292,7 @@ body>div {
     vertical-align: middle;
     cursor: pointer;
     font-size: 18px;
+    font-family: ArrowFont, ArrowFont2;
 }
 .center-retry-box {
     width: 140px;
@@ -1197,12 +1198,21 @@ body>div {
     --area5: rgb(112, 86, 56);
     --area6: rgb(78, 76, 72);
 }
-/*https://www.1001fonts.com/quivira-font.html*/
-/*Font used only for unicode arrows to ensure they display in all browsers*/
+/* https://www.1001fonts.com/quivira-font.html */
+/* Font used only for unicode arrows and Fisheye symbol to ensure they display in all browsers. */
 @font-face {
     font-family: "ArrowFont";
     src: url(./fonts/quivira.regular.otf);
-    unicode-range: U+2B9C-2B9F, U+1F878-1F87F, U+25C9;
+    unicode-range: U+2B9C-2B9F, U+25C9;
+}
+
+/* Font I made using: */
+/* https://fontstruct.com */
+/* Font only used for other unicode arrow symbols.*/
+@font-face {
+    font-family: "ArrowFont2";
+    src: url(./fonts/arrows.ttf);
+    unicode-range: U+1F878-1F87F;
 }
 .greyed-out {
     opacity: 0.7;
