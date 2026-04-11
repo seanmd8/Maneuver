@@ -249,6 +249,7 @@ function binary_search(arr, val, f = undefined){
     }
     var start = 0;
     var end = arr.length;
+    var previous_mid = -1;
     while(start !== end){
         var mid = Math.floor(start + (end - start) / 2);
         var compare = f(arr[mid], val);
@@ -261,6 +262,10 @@ function binary_search(arr, val, f = undefined){
         else{
             return mid;
         }
+        if(previous_mid === mid){
+            return -1;
+        }
+        previous_mid = mid;
     }
     return -1;
 }
