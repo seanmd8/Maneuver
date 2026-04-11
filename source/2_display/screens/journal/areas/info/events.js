@@ -10,6 +10,7 @@ function events_display_info(){
             delayed_stun_mark,
             darkling_rift_mark,
             falling_rubble_mark,
+            hidden_enemy_mark,
             nettle_roots_mark,
             shockwave_mark,
             starcaller_rift_mark,
