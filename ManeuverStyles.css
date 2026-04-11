@@ -496,6 +496,9 @@ body>div {
 .guidebook-section p {
     font-size: 20px;
 }
+.guidebook-section a {
+    font-size: 20px;
+}
 .navbar {
     background-color: blue;
     padding: 8px;

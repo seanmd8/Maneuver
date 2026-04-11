@@ -148,9 +148,12 @@ const GUIDE_TEXT = {
     ],
 
     about: [
-        `Maneuver is a game created by Sean Dunbar. It began in 2023. If you would like to view the `
+        `Maneuver is a game created by Sean Dunbar. It began development in 2023. If you would like to view the `
         +`changelog or look at the source code, you can go to the `, 
-        `.\n\n`
+        `. If you would like to donate or leave a comment, you can do so via the `,
+        `. \n\n`
+        
+        +`Thank you for playing!\n\n`
     ],
 }
 Object.freeze(GUIDE_TEXT);
@@ -176,5 +179,7 @@ const CARD_SYMBOLS = [
 const about_page_text = {
     git_link: `https://github.com/seanmd8/Maneuver`,
     git_text: `Github Page`,
+    itch_link: `https://seanmd8.itch.io/maneuver`,
+    itch_text: `Itch.io Page`,
 };
 Object.freeze(about_page_text);

@@ -26,7 +26,8 @@ function display_guide(){
     })];
     
     var about_links = [
-        display.make_anchor(about_page_text.git_link, about_page_text.git_text)
+        display.make_anchor(about_page_text.git_link, about_page_text.git_text),
+        display.make_anchor(about_page_text.itch_link, about_page_text.itch_text)
     ];
 
     // Create guidebook text sections.
