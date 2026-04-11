@@ -796,9 +796,12 @@ const boon_cost_descriptions = {
 }
 Object.freeze(boon_cost_descriptions);
 const boon_descriptions = {
-    locked: `You have not unlocked this boon yet.`,
+    locked: 
+        `You have not unlocked this boon yet.`,
     not_encountered:
         `You have never taken this boon.`,
+    missing:
+        `This boon has been renamed or removed`,
 
     bitter_determination: 
         `At the start of each floor, heal 1 if your health is exactly 1.`,
@@ -1322,6 +1325,7 @@ const move_types = {
     
     locked: `This card has not been unlocked yet.`,
     not_found: `This card has never been added to your deck.`,
+    missing: `This card has been renamed or removed`,
     number_picked: `Times Added`,
     number_removed: `Times Removed`,
 }
@@ -2844,6 +2848,9 @@ function explain_boon_with_stats(boon){
     return `${description}\n\n${max}\n\n${prereq}\n\n${picked}`;
 }
 function explain_card(card){
+    if(card.description !== undefined){
+        return card.description;
+    }
     var text = ``;
     text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
     text += `${card.options.explain_buttons()}`;
@@ -18262,11 +18269,12 @@ function symbol_add_card(){
     }
 }
 /** @type {CardGenerator} shown in run history when a card cannot be found.*/
-function symbol_card_info_missing(){
+function symbol_card_info_missing(name){
     return{
-        name: card_names.symbol_card_info_missing,
+        name: name,
         pic: `${IMG_FOLDER.ui}card_info_missing.png`,
         options: new ButtonGrid(),
+        description: move_types.missing,
     }
 }
 /** @type {CardGenerator} Shown in shop instead of the remove symbol when your deck is at the minimum size.*/
@@ -18753,7 +18761,7 @@ function remake_deck(card_names){
             list.push(cards[index]());
         }
         else{
-            list.push(symbol_card_info_missing());
+            list.push(symbol_card_info_missing(name));
         }
     }
     for(var card of list){
@@ -18883,13 +18891,21 @@ function remake_boons(boon_names){
             list.push(boons[index]());
         }
         else{
-            list.push(symbol_card_info_missing());
+            list.push(symbol_boon_info_missing(name));
         }
     }
     for(var boon of list){
         boon.description = explain_boon_with_stats(boon);
     }
     return list;
+}
+/** @type {CardGenerator} shown in run history when a boon cannot be found.*/
+function symbol_boon_info_missing(name){
+    return{
+        name: name,
+        pic: `${IMG_FOLDER.ui}card_info_missing.png`,
+        description: boon_descriptions.missing,
+    }
 }
 function symbol_locked_boon(){
     return {

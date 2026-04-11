@@ -120,7 +120,7 @@ function remake_boons(boon_names){
             list.push(boons[index]());
         }
         else{
-            list.push(symbol_card_info_missing());
+            list.push(symbol_boon_info_missing(name));
         }
     }
     for(var boon of list){

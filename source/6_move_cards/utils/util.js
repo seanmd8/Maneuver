@@ -283,7 +283,7 @@ function remake_deck(card_names){
             list.push(cards[index]());
         }
         else{
-            list.push(symbol_card_info_missing());
+            list.push(symbol_card_info_missing(name));
         }
     }
     for(var card of list){
