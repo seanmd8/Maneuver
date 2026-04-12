@@ -1338,6 +1338,8 @@ const move_types = {
     per_floor: `Once Per Floor: Only usable one time each floor.`,
     temp: `Temporary: Removed from your deck when put into your discard, or at the end of the floor.`,
     instant: `Instant: Play another card this turn.`,
+    cycling: `Cycling: Using this card causes you to discard your hand.`,
+    repeating: `Repeating: This card is only discarded when you play a different card.`,
     
     locked: `This card has not been unlocked yet.`,
     not_found: `This card has never been added to your deck.`,
@@ -2878,6 +2880,12 @@ function explain_card(card){
     }
     if(card.options.is_instant()){
         text += `${move_types.instant}\n`;
+    }
+    if(card.options.is_cycling()){
+        text += `${move_types.cycling}\n`;
+    }
+    if(card.options.is_repeating()){
+        text += `${move_types.repeating}\n`;
     }
     return text.trimEnd();
 }

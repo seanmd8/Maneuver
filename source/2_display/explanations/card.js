@@ -14,6 +14,12 @@ function explain_card(card){
     if(card.options.is_instant()){
         text += `${move_types.instant}\n`;
     }
+    if(card.options.is_cycling()){
+        text += `${move_types.cycling}\n`;
+    }
+    if(card.options.is_repeating()){
+        text += `${move_types.repeating}\n`;
+    }
     return text.trimEnd();
 }
 function explain_card_w_stats(card){
