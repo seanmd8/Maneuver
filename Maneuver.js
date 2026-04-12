@@ -1144,6 +1144,14 @@ const card_names = {
     clear_in_front: `Clear in Front`,
     combat_diagonal: `Combat Diagonal`,
     combat_orthogonal: `Combat Orthogonal`,
+    cycling_blast: `Cycling Blast`,
+    cycling_breather: `Cycling Breather`,
+    cycling_dash_horizontal: `Cycling Dash Horizontal`,
+    cycling_dash_vertical: `Cycling Dash Vertical`,
+    cycling_slide_ne: `Cycling Slide NE`,
+    cycling_slide_nw: `Cycling Slide NW`,
+    cycling_y: `Cycling Y`,
+    hodgepodge: `Hodgepodge`,
     dash_ne: `Dash NE`,
     dash_nw: `Dash NW`,
     debilitating_confusion: `Debilitating Confusion`,
@@ -12365,9 +12373,11 @@ class ButtonGrid{
     #buttons; // A 3x3 2d array used to store the options.
     #instant;
     #repeating;
+    #cycling;
     constructor(){
         this.#instant = false;
         this.#repeating = false;
+        this.#cycling = false;
         var initial = {
             description: null_move_button
         }
@@ -12492,6 +12502,12 @@ class ButtonGrid{
     }
     is_repeating(){
         return this.#repeating;
+    }
+    make_cycling(){
+        this.#cycling = true;
+    }
+    is_cycling(){
+        return this.#cycling;
     }
     has_action_type(type){
         for(var row of this.#buttons){
@@ -13903,11 +13919,12 @@ class GameState{
                 }
             }
             var is_instant = this.deck.is_instant(hand_pos);
+            var is_cycling = this.deck.is_cycling(hand_pos);
             if(!is_instant && this.boons.has(boon_names.reckless_speed) && !check_for_moves(behavior)){
                 is_instant = true;
                 confuse_player();
             }
-            if(this.boons.has(boon_names.spontaneous) > 0 && !is_instant){
+            if(is_cycling || (this.boons.has(boon_names.spontaneous) > 0 && !is_instant)){
                 this.deck.discard_all();
             }
             else{
@@ -14723,6 +14740,17 @@ class MoveDeck{
             throw new Error(ERRORS.invalid_value);
         }
         return this.#hand[hand_position].options.is_instant();
+    }
+    /**
+     * Function to check if a card in the hand cycles.
+     * @param {number} hand_position The position of the card to check.
+     * @returns {boolean} If it cycles. 
+     */
+    is_cycling(hand_position){
+        if(this.#hand.length <= hand_position || hand_position < 0){
+            throw new Error(ERRORS.invalid_value);
+        }
+        return this.#hand[hand_position].options.is_cycling();
     }
     copy(){
         var new_deck = this.constructor(this.#hand_size, this.#min_deck_size);
@@ -17997,6 +18025,121 @@ function stumble_w(){
         options
     }
 }
+/** @type {CardGenerator} */
+function cycling_blast(){
+    var options = new ButtonGrid();
+    options.add_button(N, [
+        pattack(0, -1), pattack(1, -1), pattack(-1, -1), 
+        pattack(0, -2), pattack(1, -2), pattack(-1, -2), 
+        pattack(0, -3), pattack(1, -3), pattack(-1, -3), 
+    ]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_blast,
+        pic: `${IMG_FOLDER.cards}cycling_blast.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_breather(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pstun(0, 0)], 5);
+    options.make_cycling();
+    options.make_instant();
+    return{
+        name: card_names.cycling_breather,
+        pic: `${IMG_FOLDER.cards}cycling_breather.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_dash_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1)]);
+    options.add_button(E, [pmove(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(W, [pmove(-1, 0), pmove(-1, 0)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_dash_horizontal,
+        pic: `${IMG_FOLDER.cards}cycling_dash_horizontal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_dash_vertical(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pmove(1, 0)]);
+    options.add_button(S, [pmove(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pmove(-1, 0)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_dash_vertical,
+        pic: `${IMG_FOLDER.cards}cycling_dash_vertical.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_slide_ne(){
+    var options = new ButtonGrid();
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(W, [pmove(-1, 0)]);
+    options.add_button(NE, [pmove(1, -1), pmove(1, -1)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_slide_ne,
+        pic: `${IMG_FOLDER.cards}cycling_slide_ne.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_slide_nw(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0)]);
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(NW, [pmove(-1, -1), pmove(-1, -1)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_slide_nw,
+        pic: `${IMG_FOLDER.cards}cycling_slide_nw.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_y(){
+    var options = new ButtonGrid();
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(NE, [pmove(2, -1)]);
+    options.add_button(NW, [pmove(-2, -1)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_y,
+        pic: `${IMG_FOLDER.cards}cycling_y.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function hodgepodge(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pstun(0, 0), pstun(0, 0), pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);
+    options.make_cycling();
+    options.make_instant()
+    return{
+        name: card_names.hodgepodge,
+        pic: `${IMG_FOLDER.cards}hodgepodge.png`,
+        options
+    }
+}
 /** @type {CardGenerator}*/
 function punch_diagonal(){
     var options = new ButtonGrid();
@@ -18490,7 +18633,7 @@ const ACHIEVEMENT_CARDS = {
         reckless_sprint, 
         reckless_teleport, 
     ],
-    young_dragon: [
+    lich: [
         repeating_hop_horizontal,
         repeating_hop_vertical,
         repeating_leap_ne,
@@ -18500,6 +18643,16 @@ const ACHIEVEMENT_CARDS = {
         repeating_slice_vertical,
         repeating_spin,
     ],
+    young_dragon: [
+        cycling_blast,
+        cycling_breather,
+        cycling_dash_horizontal,
+        cycling_dash_vertical,
+        cycling_slide_ne,
+        cycling_slide_nw,
+        cycling_y,
+        hodgepodge,
+    ]
 }
 Object.freeze(ACHIEVEMENT_CARDS);
 
@@ -20132,7 +20285,7 @@ function lich_achievement(){
         pic: `${IMG_FOLDER.tiles}lich_rest.png`,
         has: false,
         boons: [rift_touched],
-        cards: []
+        cards: ACHIEVEMENT_CARDS.lich,
     }
 }
 function lord_of_shadow_and_flame_achievement(){

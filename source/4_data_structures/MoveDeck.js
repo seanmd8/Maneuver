@@ -308,6 +308,17 @@ class MoveDeck{
         }
         return this.#hand[hand_position].options.is_instant();
     }
+    /**
+     * Function to check if a card in the hand cycles.
+     * @param {number} hand_position The position of the card to check.
+     * @returns {boolean} If it cycles. 
+     */
+    is_cycling(hand_position){
+        if(this.#hand.length <= hand_position || hand_position < 0){
+            throw new Error(ERRORS.invalid_value);
+        }
+        return this.#hand[hand_position].options.is_cycling();
+    }
     copy(){
         var new_deck = this.constructor(this.#hand_size, this.#min_deck_size);
         new_deck.#id_count = this.#id_count;
