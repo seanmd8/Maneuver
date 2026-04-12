@@ -103,7 +103,7 @@ class GameState{
                 this.deck.discard_all();
             }
             else{
-                this.deck.discard(hand_pos);
+                this.deck.play(hand_pos);
             }
             if(GS.boons.has(boon_names.thick_soles)){
                 GS.map.get_player().tags.remove(TAGS.invulnerable);

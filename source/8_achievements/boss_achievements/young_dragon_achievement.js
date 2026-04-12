@@ -5,6 +5,6 @@ function young_dragon_achievement(){
         pic: `${IMG_FOLDER.tiles}young_dragon_flight.png`,
         has: false,
         boons: [flame_strike],
-        cards: []
+        cards: ACHIEVEMENT_CARDS.young_dragon,
     }
 }

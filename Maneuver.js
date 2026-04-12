@@ -1200,6 +1200,14 @@ const card_names = {
     reckless_sprint: `Reckless Sprint`,
     reckless_teleport: `Reckless Teleport`,
     regenerate: `Regenerate`,
+    repeating_hop_horizontal: `Repeating Hop Horizontal`,
+    repeating_hop_vertical: `Repeating Hop Vertical`,
+    repeating_leap_ne: `Repeating Leap NE`,
+    repeating_leap_nw: `Repeating Leap NW`,
+    repeating_retreat: `Repeating Retreat`,
+    repeating_slice_horizontal: `Repeating Slice Horizontal`,
+    repeating_slice_vertical: `Repeating Slice Vertical`,
+    repeating_spin: `Repeating Spin`,
     roll_horizontal: `Roll Horizontal`,
     roll_ne: `Roll NE`,
     roll_nw: `Roll NW`,
@@ -12356,8 +12364,10 @@ class BoonTracker{
 class ButtonGrid{
     #buttons; // A 3x3 2d array used to store the options.
     #instant;
+    #repeating;
     constructor(){
         this.#instant = false;
+        this.#repeating = false;
         var initial = {
             description: null_move_button
         }
@@ -12476,6 +12486,12 @@ class ButtonGrid{
      */
     is_instant(){
         return this.#instant;
+    }
+    make_repeating(){
+        this.#repeating = true;
+    }
+    is_repeating(){
+        return this.#repeating;
     }
     has_action_type(type){
         for(var row of this.#buttons){
@@ -13895,7 +13911,7 @@ class GameState{
                 this.deck.discard_all();
             }
             else{
-                this.deck.discard(hand_pos);
+                this.deck.play(hand_pos);
             }
             if(GS.boons.has(boon_names.thick_soles)){
                 GS.map.get_player().tags.remove(TAGS.invulnerable);
@@ -14454,6 +14470,28 @@ class MoveDeck{
             if(top_card !== undefined){
                 this.#hand.push(top_card);
             }
+        }
+    }
+    /**
+     * Dicards the appropriate cards after the given hand position card was played.
+     * Takes Repeating cards into account.
+     * @param {number} hand_pos The position of the card that should be played
+     */
+    play(hand_pos){
+        if(hand_pos >= this.#hand.length || hand_pos < 0){
+            throw new Error(ERRORS.invalid_value);
+        }
+        var to_discard = [];
+        if(!this.#hand[hand_pos].options.is_repeating()){
+            to_discard.push(hand_pos);
+        }
+        for(var i = 0; i < this.#hand_size; ++i){
+            if(i !== hand_pos && this.#hand[i].options.is_repeating()){
+                to_discard.push(i);
+            }
+        }
+        for(var index of to_discard){
+            this.discard(index);
         }
     }
     /**
@@ -18108,6 +18146,113 @@ function reckless_teleport(){
         options
     }
 }
+
+/** @type {CardGenerator} */
+function repeating_hop_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(2, 0)]);
+    options.add_button(W, [pmove(-2, 0)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_hop_horizontal,
+        pic: `${IMG_FOLDER.cards}repeating_hop_horizontal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_hop_vertical(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -2)]);
+    options.add_button(S, [pmove(0, 2)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_hop_vertical,
+        pic: `${IMG_FOLDER.cards}repeating_hop_vertical.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_leap_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(0, 0), pmove(2, -1)]);
+    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(SW, [pstun(0, 0), pmove(-2, 1)]);
+    options.add_button(NW, [pmove(-1, -1)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_leap_ne,
+        pic: `${IMG_FOLDER.cards}repeating_leap_ne.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_leap_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(1, -1)]);
+    options.add_button(SE, [pstun(0, 0), pmove(2, 1)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    options.add_button(NW, [pstun(0, 0), pmove(-2, -1)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_leap_nw,
+        pic: `${IMG_FOLDER.cards}repeating_leap_nw.png`,
+        options
+    }
+}
+/** @type {CardGenerator} */
+function repeating_retreat(){
+    var options = new ButtonGrid();
+    options.add_button(S, [pmove(0, 1)]);
+    options.make_repeating();
+    options.make_instant();
+    return{
+        name: card_names.repeating_retreat,
+        pic: `${IMG_FOLDER.cards}repeating_retreat.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_slice_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(1, -1)]);
+    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-1, -1)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_slice_horizontal,
+        pic: `${IMG_FOLDER.cards}repeating_slice_horizontal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_slice_vertical(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1)]);
+    options.add_button(S,[pattack(1, 1), pattack(0, 1), pattack(-1, 1)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_slice_vertical,
+        pic: `${IMG_FOLDER.cards}repeating_slice_vertical.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_spin(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(C, [pstun(0, 0), ...spin, ...spin]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_spin,
+        pic: `${IMG_FOLDER.cards}repeating_spin.png`,
+        options
+    }
+}
 /** @type {CardGenerator}*/
 function sidestep_e(){
     var options = new ButtonGrid();
@@ -18344,6 +18489,16 @@ const ACHIEVEMENT_CARDS = {
         reckless_spin,
         reckless_sprint, 
         reckless_teleport, 
+    ],
+    young_dragon: [
+        repeating_hop_horizontal,
+        repeating_hop_vertical,
+        repeating_leap_ne,
+        repeating_leap_nw,
+        repeating_retreat,
+        repeating_slice_horizontal,
+        repeating_slice_vertical,
+        repeating_spin,
     ],
 }
 Object.freeze(ACHIEVEMENT_CARDS);
@@ -20037,7 +20192,7 @@ function young_dragon_achievement(){
         pic: `${IMG_FOLDER.tiles}young_dragon_flight.png`,
         has: false,
         boons: [flame_strike],
-        cards: []
+        cards: ACHIEVEMENT_CARDS.young_dragon,
     }
 }
 function ancient_knowledge_achievement(){

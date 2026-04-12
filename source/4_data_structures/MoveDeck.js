@@ -57,6 +57,28 @@ class MoveDeck{
         }
     }
     /**
+     * Dicards the appropriate cards after the given hand position card was played.
+     * Takes Repeating cards into account.
+     * @param {number} hand_pos The position of the card that should be played
+     */
+    play(hand_pos){
+        if(hand_pos >= this.#hand.length || hand_pos < 0){
+            throw new Error(ERRORS.invalid_value);
+        }
+        var to_discard = [];
+        if(!this.#hand[hand_pos].options.is_repeating()){
+            to_discard.push(hand_pos);
+        }
+        for(var i = 0; i < this.#hand_size; ++i){
+            if(i !== hand_pos && this.#hand[i].options.is_repeating()){
+                to_discard.push(i);
+            }
+        }
+        for(var index of to_discard){
+            this.discard(index);
+        }
+    }
+    /**
      * Discards the card at the given position in the hand, then draws a new one.
      * @param {number} hand_pos The position of the card which should be discarded.
      */

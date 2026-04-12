@@ -34,6 +34,16 @@ const ACHIEVEMENT_CARDS = {
         reckless_sprint, 
         reckless_teleport, 
     ],
+    young_dragon: [
+        repeating_hop_horizontal,
+        repeating_hop_vertical,
+        repeating_leap_ne,
+        repeating_leap_nw,
+        repeating_retreat,
+        repeating_slice_horizontal,
+        repeating_slice_vertical,
+        repeating_spin,
+    ],
 }
 Object.freeze(ACHIEVEMENT_CARDS);
 
