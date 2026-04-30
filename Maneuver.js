@@ -885,7 +885,7 @@ const boon_descriptions = {
     rebirth: 
         `When you die, you are revived at full health and this boon is removed.`,
     reckless_speed:
-        `Card actions that don't move happen instantly, but confuse you.`
+        `Card actions that don't move happen instantly, but confuse you. `
         +`Cards that were already instants won't be affected.`,
     repetition: 
         `Every 3rd turn, your cards happen twice.`,
@@ -1208,8 +1208,8 @@ const card_names = {
     reckless_sprint: `Reckless Sprint`,
     reckless_teleport: `Reckless Teleport`,
     regenerate: `Regenerate`,
-    repeating_hop_horizontal: `Repeating Hop Horizontal`,
-    repeating_hop_vertical: `Repeating Hop Vertical`,
+    repeating_fan: `Repeating Fan`,
+    repeating_leap_n: `Repeating Leap N`,
     repeating_leap_ne: `Repeating Leap NE`,
     repeating_leap_nw: `Repeating Leap NW`,
     repeating_retreat: `Repeating Retreat`,
@@ -18301,29 +18301,26 @@ function reckless_teleport(){
         options
     }
 }
-
 /** @type {CardGenerator} */
-function repeating_hop_horizontal(){
+function repeating_fan(){
     var options = new ButtonGrid();
-    options.add_button(E, [pmove(2, 0)]);
-    options.add_button(W, [pmove(-2, 0)]);
+    options.add_button(N, [pstun(1, 0), pstun(-1, 0), pstun(1, -1), pstun(-1, -1), pstun(0, -1), ]);
     options.make_repeating();
     return{
-        name: card_names.repeating_hop_horizontal,
-        pic: `${IMG_FOLDER.cards}repeating_hop_horizontal.png`,
+        name: card_names.repeating_fan,
+        pic: `${IMG_FOLDER.cards}repeating_fan.png`,
         options
     }
 }
-
 /** @type {CardGenerator} */
-function repeating_hop_vertical(){
+function repeating_leap_n(){
     var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -2)]);
+    options.add_button(N, [pstun(0, 0), pmove(0, -2)]);
     options.add_button(S, [pmove(0, 2)]);
     options.make_repeating();
     return{
-        name: card_names.repeating_hop_vertical,
-        pic: `${IMG_FOLDER.cards}repeating_hop_vertical.png`,
+        name: card_names.repeating_leap_n,
+        pic: `${IMG_FOLDER.cards}repeating_leap_n.png`,
         options
     }
 }
@@ -18331,10 +18328,8 @@ function repeating_hop_vertical(){
 /** @type {CardGenerator} */
 function repeating_leap_ne(){
     var options = new ButtonGrid();
-    options.add_button(NE, [pstun(0, 0), pmove(2, -1)]);
-    options.add_button(SE, [pmove(1, 1)]);
-    options.add_button(SW, [pstun(0, 0), pmove(-2, 1)]);
-    options.add_button(NW, [pmove(-1, -1)]);
+    options.add_button(NE, [pmove(2, -1)]);
+    options.add_button(SW, [pmove(-2, 1)]);
     options.make_repeating();
     return{
         name: card_names.repeating_leap_ne,
@@ -18346,10 +18341,8 @@ function repeating_leap_ne(){
 /** @type {CardGenerator} */
 function repeating_leap_nw(){
     var options = new ButtonGrid();
-    options.add_button(NE, [pmove(1, -1)]);
-    options.add_button(SE, [pstun(0, 0), pmove(2, 1)]);
-    options.add_button(SW, [pmove(-1, 1)]);
-    options.add_button(NW, [pstun(0, 0), pmove(-2, -1)]);
+    options.add_button(SE, [pmove(2, 1)]);
+    options.add_button(NW, [pmove(-2, -1)]);
     options.make_repeating();
     return{
         name: card_names.repeating_leap_nw,
@@ -18395,12 +18388,11 @@ function repeating_slice_vertical(){
         options
     }
 }
-
 /** @type {CardGenerator} */
 function repeating_spin(){
     var options = new ButtonGrid();
     var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(C, [pstun(0, 0), ...spin, ...spin]);
+    options.add_button(C, [pstun(0, 0), pstun(0, 0), ...spin, ...spin]);
     options.make_repeating();
     return{
         name: card_names.repeating_spin,
@@ -18646,8 +18638,8 @@ const ACHIEVEMENT_CARDS = {
         reckless_teleport, 
     ],
     lich: [
-        repeating_hop_horizontal,
-        repeating_hop_vertical,
+        repeating_fan,
+        repeating_leap_n,
         repeating_leap_ne,
         repeating_leap_nw,
         repeating_retreat,

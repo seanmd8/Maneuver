@@ -35,8 +35,8 @@ const ACHIEVEMENT_CARDS = {
         reckless_teleport, 
     ],
     lich: [
-        repeating_hop_horizontal,
-        repeating_hop_vertical,
+        repeating_fan,
+        repeating_leap_n,
         repeating_leap_ne,
         repeating_leap_nw,
         repeating_retreat,
