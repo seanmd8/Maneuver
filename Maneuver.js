@@ -15435,22 +15435,13 @@ class Shop{
     }
     #generate_add_row(){
         var amount = GS.map.stats.get_stats().add_choices;
-        var add_list_generators = rand_no_repeats(COMMON_CARDS, amount);
-        var index_of_rare = random_num(4);
-        var rares = get_achievement_cards();
-        if(index_of_rare < add_list_generators.length && rares.length > 0){
-            var rare = rand_no_repeats(rares, 1);
-            add_list_generators[index_of_rare] = rare[0];
-        }
+        var add_choices = [...COMMON_CARDS, ...get_achievement_cards()];
+        var add_list_generators = rand_no_repeats(add_choices, amount);
         this.#add_row = add_list_generators.map((g) => {return g()});
         if(chance(1, 2) && filter_new_cards(this.#add_row).length === 0){
             // Chance to force the appearance of a card in the shop that has never been picked.
             var to_replace = 0;
-            var replace_list = filter_new_cards(COMMON_CARDS.map((c) => {return c()}));
-            if(chance(1, 2) && index_of_rare < this.#add_row.length && rares.length > 0){
-                to_replace = index_of_rare;
-                replace_list = filter_new_cards(rares.map((c) => {return c()}));
-            }
+            var replace_list = filter_new_cards(add_choices.map((c) => {return c()}));
             if(replace_list.length > 0){
                 this.#add_row[to_replace] = random_from(replace_list);
             }
@@ -16461,6 +16452,571 @@ function boss_floor_common(floor_num,  area, map){
     }
 }
 
+/** @type {CardGenerator} */
+function cycling_blast(){
+    var options = new ButtonGrid();
+    options.add_button(N, [
+        pattack(0, -1), pattack(1, -1), pattack(-1, -1), 
+        pattack(0, -2), pattack(1, -2), pattack(-1, -2), 
+        pattack(0, -3), pattack(1, -3), pattack(-1, -3), 
+    ]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_blast,
+        pic: `${IMG_FOLDER.cards}cycling_blast.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_breather(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pstun(0, 0)], 5);
+    options.make_cycling();
+    options.make_instant();
+    return{
+        name: card_names.cycling_breather,
+        pic: `${IMG_FOLDER.cards}cycling_breather.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_dash_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1)]);
+    options.add_button(E, [pmove(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(W, [pmove(-1, 0), pmove(-1, 0)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_dash_horizontal,
+        pic: `${IMG_FOLDER.cards}cycling_dash_horizontal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_dash_vertical(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pmove(1, 0)]);
+    options.add_button(S, [pmove(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pmove(-1, 0)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_dash_vertical,
+        pic: `${IMG_FOLDER.cards}cycling_dash_vertical.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_slide_ne(){
+    var options = new ButtonGrid();
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(W, [pmove(-1, 0)]);
+    options.add_button(NE, [pmove(1, -1), pmove(1, -1)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_slide_ne,
+        pic: `${IMG_FOLDER.cards}cycling_slide_ne.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_slide_nw(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0)]);
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(NW, [pmove(-1, -1), pmove(-1, -1)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_slide_nw,
+        pic: `${IMG_FOLDER.cards}cycling_slide_nw.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_y(){
+    var options = new ButtonGrid();
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(NE, [pmove(2, -1)]);
+    options.add_button(NW, [pmove(-2, -1)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_y,
+        pic: `${IMG_FOLDER.cards}cycling_y.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function hodgepodge(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pstun(0, 0), pstun(0, 0), pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);
+    options.make_cycling();
+    options.make_instant()
+    return{
+        name: card_names.hodgepodge,
+        pic: `${IMG_FOLDER.cards}hodgepodge.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function punch_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack(1, -1)]);
+    options.add_button(SE, [pattack(1, 1)]);
+    options.add_button(SW, [pattack(-1, 1)]);
+    options.add_button(NW, [pattack(-1, -1)]);
+    options.make_instant();
+    return{
+        name: card_names.punch_diagonal,
+        pic: `${IMG_FOLDER.cards}punch_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function punch_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(0, -1)]);
+    options.add_button(E, [pattack(1, 0)]);
+    options.add_button(S, [pattack(0, 1)]);
+    options.add_button(W, [pattack(-1, 0)]);
+    options.make_instant();
+    return{
+        name: card_names.punch_orthogonal,
+        pic: `${IMG_FOLDER.cards}punch_orthogonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_e(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_e,
+        pic: `${IMG_FOLDER.cards}sidestep_e.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_n(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_n,
+        pic: `${IMG_FOLDER.cards}sidestep_n.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(1, -1)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_ne,
+        pic: `${IMG_FOLDER.cards}sidestep_ne.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NW, [pmove(-1, -1)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_nw,
+        pic: `${IMG_FOLDER.cards}sidestep_nw.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_s(){
+    var options = new ButtonGrid();
+    options.add_button(S, [pmove(0, 1)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_s,
+        pic: `${IMG_FOLDER.cards}sidestep_s.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_se(){
+    var options = new ButtonGrid();
+    options.add_button(SE, [pmove(1, 1)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_se,
+        pic: `${IMG_FOLDER.cards}sidestep_se.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_sw(){
+    var options = new ButtonGrid();
+    options.add_button(SW, [pmove(-1, 1)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_sw,
+        pic: `${IMG_FOLDER.cards}sidestep_sw.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_w(){
+    var options = new ButtonGrid();
+    options.add_button(W, [pmove(-1, 0)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_w,
+        pic: `${IMG_FOLDER.cards}sidestep_w.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function teleport(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pteleport(0, 0)]);
+    return{
+        name: card_names.teleport,
+        pic: `${IMG_FOLDER.cards}teleport.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_attack_left(){
+    var options = new ButtonGrid();
+    options.add_button(W, [pstun(0, 0), pattack(0, 1), pattack(0, 1), pattack(0, -1), pattack(0, -1),
+        pattack(-1, 0), pattack(-1, 0), pattack(-1, 1), pattack(-1, 1), pattack(-1, -1), pattack(-1, -1)]);
+    return{
+        name: card_names.reckless_attack_left,
+        pic: `${IMG_FOLDER.cards}reckless_attack_left.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_attack_right(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pstun(0, 0), pattack(0, 1), pattack(0, 1), pattack(0, -1), pattack(0, -1),
+        pattack(1, 0), pattack(1, 0), pattack(1, 1), pattack(1, 1), pattack(1, -1), pattack(1, -1)]);
+    return{
+        name: card_names.reckless_attack_right,
+        pic: `${IMG_FOLDER.cards}reckless_attack_right.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_leap_forwards (){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(N, [pstun(0, 0), pmove(0, -2), ...spin]);
+    options.add_button(S, [pmove(0, 1)]);
+    return{
+        name: card_names.reckless_leap_forwards,
+        pic: `${IMG_FOLDER.cards}reckless_leap_forwards.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_leap_left(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(W, [pstun(0, 0), pmove(-2, 0), ...spin]);
+    options.add_button(E, [pmove(1, 0)]);
+    return{
+        name: card_names.reckless_leap_left,
+        pic: `${IMG_FOLDER.cards}reckless_leap_left.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_leap_right(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(E, [pstun(0, 0), pmove(2, 0), ...spin]);
+    options.add_button(W, [pmove(-1, 0)]);
+    return{
+        name: card_names.reckless_leap_right,
+        pic: `${IMG_FOLDER.cards}reckless_leap_right.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_sidestep_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(0, 0), pmove(1, -1)]);
+    options.add_button(SE, [pstun(0, 0), pmove(1, 1)]);
+    options.add_button(SW, [pstun(0, 0), pmove(-1, 1)]);
+    options.add_button(NW, [pstun(0, 0), pmove(-1, -1)]);
+    options.make_instant();
+    return{
+        name: card_names.reckless_sidestep_diagonal,
+        pic: `${IMG_FOLDER.cards}reckless_sidestep_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_sidestep_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pmove(0, -1)]);
+    options.add_button(E, [pstun(0, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 0), pmove(0, 1)]);
+    options.add_button(W, [pstun(0, 0), pmove(-1, 0)]);
+    options.make_instant();
+    return{
+        name: card_names.reckless_sidestep_orthogonal,
+        pic: `${IMG_FOLDER.cards}reckless_sidestep_orthogonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_spin(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(C, [pstun(0, 0), pstun(0, 0), ...spin, ...spin]);
+    return{
+        name: card_names.reckless_spin,
+        pic: `${IMG_FOLDER.cards}reckless_spin.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_sprint(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pstun(0, 0), pmove(0, -1), pmove(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pstun(0, 0), pstun(0, 0), pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 0), pstun(0, 0), pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pstun(0, 0), pstun(0, 0), pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
+    return{
+        name: card_names.reckless_sprint,
+        pic: `${IMG_FOLDER.cards}reckless_sprint.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_teleport(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pstun(0, 0), pstun(0, 0), pteleport(0, 0)]);
+    options.make_instant();
+    return{
+        name: card_names.reckless_teleport,
+        pic: `${IMG_FOLDER.cards}reckless_teleport.png`,
+        options
+    }
+}
+/** @type {CardGenerator} */
+function repeating_fan(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(1, 0), pstun(-1, 0), pstun(1, -1), pstun(-1, -1), pstun(0, -1), ]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_fan,
+        pic: `${IMG_FOLDER.cards}repeating_fan.png`,
+        options
+    }
+}
+/** @type {CardGenerator} */
+function repeating_leap_n(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pmove(0, -2)]);
+    options.add_button(S, [pmove(0, 2)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_leap_n,
+        pic: `${IMG_FOLDER.cards}repeating_leap_n.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_leap_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -1)]);
+    options.add_button(SW, [pmove(-2, 1)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_leap_ne,
+        pic: `${IMG_FOLDER.cards}repeating_leap_ne.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_leap_nw(){
+    var options = new ButtonGrid();
+    options.add_button(SE, [pmove(2, 1)]);
+    options.add_button(NW, [pmove(-2, -1)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_leap_nw,
+        pic: `${IMG_FOLDER.cards}repeating_leap_nw.png`,
+        options
+    }
+}
+/** @type {CardGenerator} */
+function repeating_retreat(){
+    var options = new ButtonGrid();
+    options.add_button(S, [pmove(0, 1)]);
+    options.make_repeating();
+    options.make_instant();
+    return{
+        name: card_names.repeating_retreat,
+        pic: `${IMG_FOLDER.cards}repeating_retreat.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_slice_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(1, -1)]);
+    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-1, -1)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_slice_horizontal,
+        pic: `${IMG_FOLDER.cards}repeating_slice_horizontal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_slice_vertical(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1)]);
+    options.add_button(S,[pattack(1, 1), pattack(0, 1), pattack(-1, 1)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_slice_vertical,
+        pic: `${IMG_FOLDER.cards}repeating_slice_vertical.png`,
+        options
+    }
+}
+/** @type {CardGenerator} */
+function repeating_spin(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(C, [pstun(0, 0), pstun(0, 0), ...spin]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_spin,
+        pic: `${IMG_FOLDER.cards}repeating_spin.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_leap_horizontal(){
+    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(2, 0), ...spin]);
+    options.add_button(W, [pmove(-2, 0), ...spin]);
+    return{
+        name: card_names.stunning_leap_horizontal,
+        pic: `${IMG_FOLDER.cards}stunning_leap_horizontal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_leap_vertical(){
+    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -2), ...spin]);
+    options.add_button(S, [pmove(0, 2), ...spin]);
+    return{
+        name: card_names.stunning_leap_vertical,
+        pic: `${IMG_FOLDER.cards}stunning_leap_vertical.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_punch_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(1, -1), pstun(1, -1)]);
+    options.add_button(SE, [pstun(1, 1), pstun(1, 1)]);
+    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1)]);
+    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1)]);
+    options.make_instant();
+    return{
+        name: card_names.stunning_punch_diagonal,
+        pic: `${IMG_FOLDER.cards}stunning_punch_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_punch_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, -1), pstun(0, -1)]);
+    options.add_button(E, [pstun(1, 0), pstun(1, 0)]);
+    options.add_button(S, [pstun(0, 1), pstun(0, 1)]);
+    options.add_button(W, [pstun(-1, 0), pstun(-1, 0)]);
+    options.make_instant();
+    return{
+        name: card_names.stunning_punch_orthogonal,
+        pic: `${IMG_FOLDER.cards}stunning_punch_orthogonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_retreat(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, -1), pstun(1, -1), pstun(-1, -1), pstun(1, 0), pstun(-1, 0),]);
+    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(S, [pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    return{
+        name: card_names.stunning_retreat,
+        pic: `${IMG_FOLDER.cards}stunning_retreat.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_slice(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(1, -1), pattack(1, -1), pstun(0, -1), pattack(0, -1), pstun(-1, -1), pattack(-1, -1)]);
+    options.add_button(E, [pstun(1, 1), pattack(1, 1), pstun(1, 0), pattack(1, 0), pstun(1, -1), pattack(1, -1)]);
+    options.add_button(S, [pstun(1, 1), pattack(1, 1), pstun(0, 1), pattack(0, 1), pstun(-1, 1), pattack(-1, 1)]);
+    options.add_button(W, [pstun(-1, 1), pattack(-1, 1), pstun(-1, 0), pattack(-1, 0), pstun(-1, -1), pattack(-1, -1)]);
+    return{
+        name: card_names.stunning_slice,
+        pic: `${IMG_FOLDER.cards}stunning_slice.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_tread_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(1, -1), pstun(1, -1), pstun(1, -1), pmove(1, -1)]);
+    options.add_button(SE, [pstun(1, 1), pstun(1, 1), pstun(1, 1), pmove(1, 1)]);
+    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1), pstun(-1, 1), pmove(-1, 1)]);
+    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1), pstun(-1, -1), pmove(-1, -1)]);
+    return{
+        name: card_names.stunning_tread_diagonal,
+        pic: `${IMG_FOLDER.cards}stunning_tread_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_tread_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, -1), pstun(0, -1), pstun(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pstun(1, 0), pstun(1, 0), pstun(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 1), pstun(0, 1), pstun(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pstun(-1, 0), pstun(-1, 0), pstun(-1, 0), pmove(-1, 0)]);
+    return{
+        name: card_names.stunning_tread_orthogonal,
+        pic: `${IMG_FOLDER.cards}stunning_tread_orthogonal.png`,
+        options
+    }
+}
 /** @type {CardGenerator}*/
 function basic_diagonal(){
     var options = new ButtonGrid();
@@ -17766,56 +18322,6 @@ function step_right(){
     }
 }
 /** @type {CardGenerator}*/
-function stunning_leap_horizontal(){
-    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
-    var options = new ButtonGrid();
-    options.add_button(E, [pmove(2, 0), ...spin]);
-    options.add_button(W, [pmove(-2, 0), ...spin]);
-    return{
-        name: card_names.stunning_leap_horizontal,
-        pic: `${IMG_FOLDER.cards}stunning_leap_horizontal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_leap_vertical(){
-    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
-    var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -2), ...spin]);
-    options.add_button(S, [pmove(0, 2), ...spin]);
-    return{
-        name: card_names.stunning_leap_vertical,
-        pic: `${IMG_FOLDER.cards}stunning_leap_vertical.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_retreat(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, -1), pstun(1, -1), pstun(-1, -1), pstun(1, 0), pstun(-1, 0),]);
-    options.add_button(SE, [pmove(1, 1)]);
-    options.add_button(S, [pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
-    options.add_button(SW, [pmove(-1, 1)]);
-    return{
-        name: card_names.stunning_retreat,
-        pic: `${IMG_FOLDER.cards}stunning_retreat.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_slice(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(1, -1), pattack(1, -1), pstun(0, -1), pattack(0, -1), pstun(-1, -1), pattack(-1, -1)]);
-    options.add_button(E, [pstun(1, 1), pattack(1, 1), pstun(1, 0), pattack(1, 0), pstun(1, -1), pattack(1, -1)]);
-    options.add_button(S, [pstun(1, 1), pattack(1, 1), pstun(0, 1), pattack(0, 1), pstun(-1, 1), pattack(-1, 1)]);
-    options.add_button(W, [pstun(-1, 1), pattack(-1, 1), pstun(-1, 0), pattack(-1, 0), pstun(-1, -1), pattack(-1, -1)]);
-    return{
-        name: card_names.stunning_slice,
-        pic: `${IMG_FOLDER.cards}stunning_slice.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
 function thwack(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(0, -1), pattack(0, -1), pattack(0, -1)]);
@@ -18037,521 +18543,6 @@ function stumble_w(){
         options
     }
 }
-/** @type {CardGenerator} */
-function cycling_blast(){
-    var options = new ButtonGrid();
-    options.add_button(N, [
-        pattack(0, -1), pattack(1, -1), pattack(-1, -1), 
-        pattack(0, -2), pattack(1, -2), pattack(-1, -2), 
-        pattack(0, -3), pattack(1, -3), pattack(-1, -3), 
-    ]);
-    options.make_cycling();
-    return{
-        name: card_names.cycling_blast,
-        pic: `${IMG_FOLDER.cards}cycling_blast.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator} */
-function cycling_breather(){
-    var options = new ButtonGrid();
-    options.add_button(C, [pstun(0, 0)], 5);
-    options.make_cycling();
-    options.make_instant();
-    return{
-        name: card_names.cycling_breather,
-        pic: `${IMG_FOLDER.cards}cycling_breather.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator} */
-function cycling_dash_horizontal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1)]);
-    options.add_button(E, [pmove(1, 0), pmove(1, 0)]);
-    options.add_button(S, [pmove(0, 1)]);
-    options.add_button(W, [pmove(-1, 0), pmove(-1, 0)]);
-    options.make_cycling();
-    return{
-        name: card_names.cycling_dash_horizontal,
-        pic: `${IMG_FOLDER.cards}cycling_dash_horizontal.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator} */
-function cycling_dash_vertical(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1), pmove(0, -1)]);
-    options.add_button(E, [pmove(1, 0)]);
-    options.add_button(S, [pmove(0, 1), pmove(0, 1)]);
-    options.add_button(W, [pmove(-1, 0)]);
-    options.make_cycling();
-    return{
-        name: card_names.cycling_dash_vertical,
-        pic: `${IMG_FOLDER.cards}cycling_dash_vertical.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator} */
-function cycling_slide_ne(){
-    var options = new ButtonGrid();
-    options.add_button(S, [pmove(0, 1)]);
-    options.add_button(W, [pmove(-1, 0)]);
-    options.add_button(NE, [pmove(1, -1), pmove(1, -1)]);
-    options.add_button(SW, [pmove(-1, 1)]);
-    options.make_cycling();
-    return{
-        name: card_names.cycling_slide_ne,
-        pic: `${IMG_FOLDER.cards}cycling_slide_ne.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator} */
-function cycling_slide_nw(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pmove(1, 0)]);
-    options.add_button(S, [pmove(0, 1)]);
-    options.add_button(SE, [pmove(1, 1)]);
-    options.add_button(NW, [pmove(-1, -1), pmove(-1, -1)]);
-    options.make_cycling();
-    return{
-        name: card_names.cycling_slide_nw,
-        pic: `${IMG_FOLDER.cards}cycling_slide_nw.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator} */
-function cycling_y(){
-    var options = new ButtonGrid();
-    options.add_button(S, [pmove(0, 1)]);
-    options.add_button(NE, [pmove(2, -1)]);
-    options.add_button(NW, [pmove(-2, -1)]);
-    options.make_cycling();
-    return{
-        name: card_names.cycling_y,
-        pic: `${IMG_FOLDER.cards}cycling_y.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator} */
-function hodgepodge(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, 0), pstun(0, 0), pstun(0, 0), pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);
-    options.make_cycling();
-    options.make_instant()
-    return{
-        name: card_names.hodgepodge,
-        pic: `${IMG_FOLDER.cards}hodgepodge.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function punch_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pattack(1, -1)]);
-    options.add_button(SE, [pattack(1, 1)]);
-    options.add_button(SW, [pattack(-1, 1)]);
-    options.add_button(NW, [pattack(-1, -1)]);
-    options.make_instant();
-    return{
-        name: card_names.punch_diagonal,
-        pic: `${IMG_FOLDER.cards}punch_diagonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function punch_orthogonal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1)]);
-    options.add_button(E, [pattack(1, 0)]);
-    options.add_button(S, [pattack(0, 1)]);
-    options.add_button(W, [pattack(-1, 0)]);
-    options.make_instant();
-    return{
-        name: card_names.punch_orthogonal,
-        pic: `${IMG_FOLDER.cards}punch_orthogonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_attack_left(){
-    var options = new ButtonGrid();
-    options.add_button(W, [pstun(0, 0), pattack(0, 1), pattack(0, 1), pattack(0, -1), pattack(0, -1),
-        pattack(-1, 0), pattack(-1, 0), pattack(-1, 1), pattack(-1, 1), pattack(-1, -1), pattack(-1, -1)]);
-    return{
-        name: card_names.reckless_attack_left,
-        pic: `${IMG_FOLDER.cards}reckless_attack_left.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_attack_right(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pstun(0, 0), pattack(0, 1), pattack(0, 1), pattack(0, -1), pattack(0, -1),
-        pattack(1, 0), pattack(1, 0), pattack(1, 1), pattack(1, 1), pattack(1, -1), pattack(1, -1)]);
-    return{
-        name: card_names.reckless_attack_right,
-        pic: `${IMG_FOLDER.cards}reckless_attack_right.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_leap_forwards (){
-    var options = new ButtonGrid();
-    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(N, [pstun(0, 0), pmove(0, -2), ...spin]);
-    options.add_button(S, [pmove(0, 1)]);
-    return{
-        name: card_names.reckless_leap_forwards,
-        pic: `${IMG_FOLDER.cards}reckless_leap_forwards.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_leap_left(){
-    var options = new ButtonGrid();
-    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(W, [pstun(0, 0), pmove(-2, 0), ...spin]);
-    options.add_button(E, [pmove(1, 0)]);
-    return{
-        name: card_names.reckless_leap_left,
-        pic: `${IMG_FOLDER.cards}reckless_leap_left.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_leap_right(){
-    var options = new ButtonGrid();
-    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(E, [pstun(0, 0), pmove(2, 0), ...spin]);
-    options.add_button(W, [pmove(-1, 0)]);
-    return{
-        name: card_names.reckless_leap_right,
-        pic: `${IMG_FOLDER.cards}reckless_leap_right.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_sidestep_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pstun(0, 0), pmove(1, -1)]);
-    options.add_button(SE, [pstun(0, 0), pmove(1, 1)]);
-    options.add_button(SW, [pstun(0, 0), pmove(-1, 1)]);
-    options.add_button(NW, [pstun(0, 0), pmove(-1, -1)]);
-    options.make_instant();
-    return{
-        name: card_names.reckless_sidestep_diagonal,
-        pic: `${IMG_FOLDER.cards}reckless_sidestep_diagonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_sidestep_orthogonal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, 0), pmove(0, -1)]);
-    options.add_button(E, [pstun(0, 0), pmove(1, 0)]);
-    options.add_button(S, [pstun(0, 0), pmove(0, 1)]);
-    options.add_button(W, [pstun(0, 0), pmove(-1, 0)]);
-    options.make_instant();
-    return{
-        name: card_names.reckless_sidestep_orthogonal,
-        pic: `${IMG_FOLDER.cards}reckless_sidestep_orthogonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_spin(){
-    var options = new ButtonGrid();
-    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(C, [pstun(0, 0), pstun(0, 0), ...spin, ...spin]);
-    return{
-        name: card_names.reckless_spin,
-        pic: `${IMG_FOLDER.cards}reckless_spin.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_sprint(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, 0), pstun(0, 0), pmove(0, -1), pmove(0, -1), pmove(0, -1)]);
-    options.add_button(E, [pstun(0, 0), pstun(0, 0), pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
-    options.add_button(S, [pstun(0, 0), pstun(0, 0), pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
-    options.add_button(W, [pstun(0, 0), pstun(0, 0), pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
-    return{
-        name: card_names.reckless_sprint,
-        pic: `${IMG_FOLDER.cards}reckless_sprint.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_teleport(){
-    var options = new ButtonGrid();
-    options.add_button(C, [pstun(0, 0), pstun(0, 0), pteleport(0, 0)]);
-    options.make_instant();
-    return{
-        name: card_names.reckless_teleport,
-        pic: `${IMG_FOLDER.cards}reckless_teleport.png`,
-        options
-    }
-}
-/** @type {CardGenerator} */
-function repeating_fan(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(1, 0), pstun(-1, 0), pstun(1, -1), pstun(-1, -1), pstun(0, -1), ]);
-    options.make_repeating();
-    return{
-        name: card_names.repeating_fan,
-        pic: `${IMG_FOLDER.cards}repeating_fan.png`,
-        options
-    }
-}
-/** @type {CardGenerator} */
-function repeating_leap_n(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, 0), pmove(0, -2)]);
-    options.add_button(S, [pmove(0, 2)]);
-    options.make_repeating();
-    return{
-        name: card_names.repeating_leap_n,
-        pic: `${IMG_FOLDER.cards}repeating_leap_n.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator} */
-function repeating_leap_ne(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pmove(2, -1)]);
-    options.add_button(SW, [pmove(-2, 1)]);
-    options.make_repeating();
-    return{
-        name: card_names.repeating_leap_ne,
-        pic: `${IMG_FOLDER.cards}repeating_leap_ne.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator} */
-function repeating_leap_nw(){
-    var options = new ButtonGrid();
-    options.add_button(SE, [pmove(2, 1)]);
-    options.add_button(NW, [pmove(-2, -1)]);
-    options.make_repeating();
-    return{
-        name: card_names.repeating_leap_nw,
-        pic: `${IMG_FOLDER.cards}repeating_leap_nw.png`,
-        options
-    }
-}
-/** @type {CardGenerator} */
-function repeating_retreat(){
-    var options = new ButtonGrid();
-    options.add_button(S, [pmove(0, 1)]);
-    options.make_repeating();
-    options.make_instant();
-    return{
-        name: card_names.repeating_retreat,
-        pic: `${IMG_FOLDER.cards}repeating_retreat.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator} */
-function repeating_slice_horizontal(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(1, -1)]);
-    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-1, -1)]);
-    options.make_repeating();
-    return{
-        name: card_names.repeating_slice_horizontal,
-        pic: `${IMG_FOLDER.cards}repeating_slice_horizontal.png`,
-        options
-    }
-}
-
-/** @type {CardGenerator} */
-function repeating_slice_vertical(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1)]);
-    options.add_button(S,[pattack(1, 1), pattack(0, 1), pattack(-1, 1)]);
-    options.make_repeating();
-    return{
-        name: card_names.repeating_slice_vertical,
-        pic: `${IMG_FOLDER.cards}repeating_slice_vertical.png`,
-        options
-    }
-}
-/** @type {CardGenerator} */
-function repeating_spin(){
-    var options = new ButtonGrid();
-    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(C, [pstun(0, 0), pstun(0, 0), ...spin]);
-    options.make_repeating();
-    return{
-        name: card_names.repeating_spin,
-        pic: `${IMG_FOLDER.cards}repeating_spin.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_e(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pmove(1, 0)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_e,
-        pic: `${IMG_FOLDER.cards}sidestep_e.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_n(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_n,
-        pic: `${IMG_FOLDER.cards}sidestep_n.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_ne(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pmove(1, -1)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_ne,
-        pic: `${IMG_FOLDER.cards}sidestep_ne.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_nw(){
-    var options = new ButtonGrid();
-    options.add_button(NW, [pmove(-1, -1)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_nw,
-        pic: `${IMG_FOLDER.cards}sidestep_nw.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_s(){
-    var options = new ButtonGrid();
-    options.add_button(S, [pmove(0, 1)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_s,
-        pic: `${IMG_FOLDER.cards}sidestep_s.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_se(){
-    var options = new ButtonGrid();
-    options.add_button(SE, [pmove(1, 1)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_se,
-        pic: `${IMG_FOLDER.cards}sidestep_se.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_sw(){
-    var options = new ButtonGrid();
-    options.add_button(SW, [pmove(-1, 1)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_sw,
-        pic: `${IMG_FOLDER.cards}sidestep_sw.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_w(){
-    var options = new ButtonGrid();
-    options.add_button(W, [pmove(-1, 0)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_w,
-        pic: `${IMG_FOLDER.cards}sidestep_w.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_punch_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pstun(1, -1), pstun(1, -1)]);
-    options.add_button(SE, [pstun(1, 1), pstun(1, 1)]);
-    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1)]);
-    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1)]);
-    options.make_instant();
-    return{
-        name: card_names.stunning_punch_diagonal,
-        pic: `${IMG_FOLDER.cards}stunning_punch_diagonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_punch_orthogonal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, -1), pstun(0, -1)]);
-    options.add_button(E, [pstun(1, 0), pstun(1, 0)]);
-    options.add_button(S, [pstun(0, 1), pstun(0, 1)]);
-    options.add_button(W, [pstun(-1, 0), pstun(-1, 0)]);
-    options.make_instant();
-    return{
-        name: card_names.stunning_punch_orthogonal,
-        pic: `${IMG_FOLDER.cards}stunning_punch_orthogonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_tread_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pstun(1, -1), pstun(1, -1), pstun(1, -1), pmove(1, -1)]);
-    options.add_button(SE, [pstun(1, 1), pstun(1, 1), pstun(1, 1), pmove(1, 1)]);
-    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1), pstun(-1, 1), pmove(-1, 1)]);
-    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1), pstun(-1, -1), pmove(-1, -1)]);
-    return{
-        name: card_names.stunning_tread_diagonal,
-        pic: `${IMG_FOLDER.cards}stunning_tread_diagonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_tread_orthogonal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, -1), pstun(0, -1), pstun(0, -1), pmove(0, -1)]);
-    options.add_button(E, [pstun(1, 0), pstun(1, 0), pstun(1, 0), pmove(1, 0)]);
-    options.add_button(S, [pstun(0, 1), pstun(0, 1), pstun(0, 1), pmove(0, 1)]);
-    options.add_button(W, [pstun(-1, 0), pstun(-1, 0), pstun(-1, 0), pmove(-1, 0)]);
-    return{
-        name: card_names.stunning_tread_orthogonal,
-        pic: `${IMG_FOLDER.cards}stunning_tread_orthogonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function teleport(){
-    var options = new ButtonGrid();
-    options.add_button(C, [pteleport(0, 0)]);
-    return{
-        name: card_names.teleport,
-        pic: `${IMG_FOLDER.cards}teleport.png`,
-        options
-    }
-}
 /** @type {CardGenerator} Shown in shop to denote adding a card to your deck.*/
 function symbol_add_card(){
     return{
@@ -18763,17 +18754,63 @@ function get_boss_cards(){
     ];
 }
 const COMMON_CARDS = [
-    advance, bounding_retreat, breakthrough_horizontal, breakthrough_vertical, butterfly, 
-    charge_horizontal, charge_vertical, clear_behind, clear_in_front, combat_diagonal, 
-    combat_orthogonal, dash_ne, dash_nw, diamond_attack, diamond_slice, 
-    explosion, force_horizontal, force_vertical, fork, flanking_diagonal, flanking_horizontal, 
-    flanking_vertical, hit_and_run, horsemanship, jab_diagonal, jab_orthogonal, 
-    jump, leap_left, leap_right, lunge_left, lunge_right, 
-    overcome_horizontal, overcome_vertical, pike, push_back, short_charge_orthogonal, 
-    short_charge_diagonal, slash_step_forwards, slash_step_left, slash_step_right, slice_twice, 
-    slip_through_ne, slip_through_nw, spearhead, spin_attack, sprint_horizontal, 
-    sprint_vertical, step_left, step_right, t_strike_horizontal, t_strike_vertical, 
-    thwack, trample, trident, y_leap, y_strike_ne, y_strike_nw,
+    advance, 
+    bounding_retreat, 
+    breakthrough_horizontal, 
+    breakthrough_vertical, 
+    butterfly, 
+    charge_horizontal, 
+    charge_vertical, 
+    clear_behind, 
+    clear_in_front, 
+    combat_diagonal, 
+    combat_orthogonal, 
+    dash_ne, 
+    dash_nw, 
+    diamond_attack, 
+    diamond_slice, 
+    explosion, 
+    force_horizontal, 
+    force_vertical, 
+    fork, 
+    flanking_diagonal, 
+    flanking_horizontal, 
+    flanking_vertical, 
+    hit_and_run, 
+    horsemanship, 
+    jab_diagonal, 
+    jab_orthogonal, 
+    jump, 
+    leap_left, 
+    leap_right, 
+    lunge_left, 
+    lunge_right, 
+    overcome_horizontal, 
+    overcome_vertical, 
+    pike, 
+    push_back, 
+    short_charge_orthogonal, 
+    short_charge_diagonal, 
+    slash_step_forwards, 
+    slash_step_left, 
+    slash_step_right, 
+    slice_twice, 
+    slip_through_ne, 
+    slip_through_nw, 
+    spearhead, 
+    spin_attack, 
+    sprint_horizontal, 
+    sprint_vertical, 
+    step_left, 
+    step_right, 
+    t_strike_horizontal, 
+    t_strike_vertical, 
+    thwack, 
+    trample, 
+    trident, 
+    y_leap, 
+    y_strike_ne, 
+    y_strike_nw,
 ];
 const CONFUSION_CARDS = [
     freeze_up, 

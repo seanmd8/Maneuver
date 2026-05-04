@@ -16,22 +16,13 @@ class Shop{
     }
     #generate_add_row(){
         var amount = GS.map.stats.get_stats().add_choices;
-        var add_list_generators = rand_no_repeats(COMMON_CARDS, amount);
-        var index_of_rare = random_num(4);
-        var rares = get_achievement_cards();
-        if(index_of_rare < add_list_generators.length && rares.length > 0){
-            var rare = rand_no_repeats(rares, 1);
-            add_list_generators[index_of_rare] = rare[0];
-        }
+        var add_choices = [...COMMON_CARDS, ...get_achievement_cards()];
+        var add_list_generators = rand_no_repeats(add_choices, amount);
         this.#add_row = add_list_generators.map((g) => {return g()});
         if(chance(1, 2) && filter_new_cards(this.#add_row).length === 0){
             // Chance to force the appearance of a card in the shop that has never been picked.
             var to_replace = 0;
-            var replace_list = filter_new_cards(COMMON_CARDS.map((c) => {return c()}));
-            if(chance(1, 2) && index_of_rare < this.#add_row.length && rares.length > 0){
-                to_replace = index_of_rare;
-                replace_list = filter_new_cards(rares.map((c) => {return c()}));
-            }
+            var replace_list = filter_new_cards(add_choices.map((c) => {return c()}));
             if(replace_list.length > 0){
                 this.#add_row[to_replace] = random_from(replace_list);
             }
