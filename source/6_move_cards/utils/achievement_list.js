@@ -52,7 +52,7 @@ const ACHIEVEMENT_CARDS = {
         cycling_slide_ne,
         cycling_slide_nw,
         cycling_y,
-        hodgepodge,
+        prismatic_knife,
     ]
 }
 Object.freeze(ACHIEVEMENT_CARDS);

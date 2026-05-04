@@ -1151,7 +1151,6 @@ const card_names = {
     cycling_slide_ne: `Cycling Slide NE`,
     cycling_slide_nw: `Cycling Slide NW`,
     cycling_y: `Cycling Y`,
-    hodgepodge: `Hodgepodge`,
     dash_ne: `Dash NE`,
     dash_nw: `Dash NW`,
     debilitating_confusion: `Debilitating Confusion`,
@@ -1194,6 +1193,7 @@ const card_names = {
     overcome_horizontal: `Overcome Horizontal`,
     overcome_vertical: `Overcome Vertical`,
     pike: `Pike`,
+    prismatic_knife: `Prismatic Knife`,
     punch_diagonal: `Punch Diagonal`,
     punch_orthogonal: `Punch Orthogonal`,
     push_back: `Push Back`,
@@ -14487,6 +14487,9 @@ class MoveDeck{
         for(var card of this.#decklist){
             if(card.per_floor !== undefined){
                 card = card.per_floor();
+                if(GS.boons.has(boon_names.fleeting_thoughts)){
+                    card.options.make_instant();
+                }
                 this.add_temp(card);
             }
             else{
@@ -16556,14 +16559,14 @@ function cycling_y(){
 }
 
 /** @type {CardGenerator} */
-function hodgepodge(){
+function prismatic_knife(){
     var options = new ButtonGrid();
     options.add_button(N, [pstun(0, 0), pstun(0, 0), pstun(0, 0), pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);
     options.make_cycling();
     options.make_instant()
     return{
-        name: card_names.hodgepodge,
-        pic: `${IMG_FOLDER.cards}hodgepodge.png`,
+        name: card_names.prismatic_knife,
+        pic: `${IMG_FOLDER.cards}prismatic_knife.png`,
         options
     }
 }
@@ -18646,7 +18649,7 @@ const ACHIEVEMENT_CARDS = {
         cycling_slide_ne,
         cycling_slide_nw,
         cycling_y,
-        hodgepodge,
+        prismatic_knife,
     ]
 }
 Object.freeze(ACHIEVEMENT_CARDS);

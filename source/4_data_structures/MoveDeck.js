@@ -42,6 +42,9 @@ class MoveDeck{
         for(var card of this.#decklist){
             if(card.per_floor !== undefined){
                 card = card.per_floor();
+                if(GS.boons.has(boon_names.fleeting_thoughts)){
+                    card.options.make_instant();
+                }
                 this.add_temp(card);
             }
             else{
