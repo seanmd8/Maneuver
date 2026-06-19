@@ -1335,7 +1335,7 @@ const move_types = {
     you: `You`,
     nothing: `Do nothing`,
     
-    per_floor: `Once Per Floor: Only usable one time each floor.`,
+    fleeting: `Fleeting: Only usable one time each floor.`,
     temp: `Temporary: Removed from your deck when put into your discard, or at the end of the floor.`,
     instant: `Instant: Play another card this turn.`,
     cycling: `Cycling: Using this card causes you to discard your hand.`,
@@ -2459,7 +2459,7 @@ const CARD_SYMBOLS = [
     {src: `${IMG_FOLDER.symbols}cycling.png`,           name: `cycling`,            x: 2, y: 2},
     {src: `${IMG_FOLDER.symbols}repeating.png`,         name: `repeating`,          x: 2, y: 2},
     {src: `${IMG_FOLDER.symbols}temporary.png`,         name: `temporary`,          x: 2, y: 2},
-    {src: `${IMG_FOLDER.symbols}per_floor.png`,         name: `once per floor`,     x: 2, y: 2},
+    {src: `${IMG_FOLDER.symbols}fleeting.png`,          name: `fleeting`,           x: 2, y: 2},
 ];
 
 const about_page_text = {
@@ -2884,8 +2884,8 @@ function explain_card(card){
     var text = ``;
     text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
     text += `${card.options.explain_buttons()}`;
-    if(card.per_floor !== undefined){
-        text += `${move_types.per_floor}\n`;
+    if(card.fleeting !== undefined){
+        text += `${move_types.fleeting}\n`;
     }
     else if(card.temp){
         text += `${move_types.temp}\n`;
@@ -14493,8 +14493,8 @@ class MoveDeck{
         this.#hand = [];
         this.#discard_pile = [];
         for(var card of this.#decklist){
-            if(card.per_floor !== undefined){
-                card = card.per_floor();
+            if(card.fleeting !== undefined){
+                card = card.fleeting();
                 if(GS.boons.has(boon_names.fleeting_thoughts)){
                     card.options.make_instant();
                 }
@@ -14601,9 +14601,9 @@ class MoveDeck{
         new_card.id = this.#id_count;
         this.#id_count++;
         this.#decklist.push(new_card);
-        if(new_card.per_floor !== undefined){
+        if(new_card.fleeting !== undefined){
             // If the card can only be used once per floor, add a temp copy instead.
-            var temp_card = new_card.per_floor();
+            var temp_card = new_card.fleeting();
             this.add_temp(temp_card);
         }
         else{
@@ -17440,7 +17440,7 @@ function snack(){
         name: card_names.snack,
         pic: `${IMG_FOLDER.cards}snack.png`,
         options,
-        per_floor: snack
+        fleeting: snack
     }
 }
 /** @type {CardGenerator} Dropped by the forest heart*/
@@ -17584,7 +17584,7 @@ function regenerate(){
         name: card_names.regenerate,
         pic: `${IMG_FOLDER.cards}regenerate.png`,
         options,
-        per_floor: regenerate
+        fleeting: regenerate
     }
 }
 /** @type {CardGenerator} Dropped by the two headed serpent.*/
@@ -18910,7 +18910,7 @@ function pheal(x, y){
  * 
  * @property {number=} id A unique id that will be added to the card when it is added to the deck.
  * @property {boolean=} temp Given true when the card is temporary and will be removed on use or on end of floor.
- * @property {CardGenerator=} per_floor Provided to make temporary copies of a card if it can only be used once per floor.
+ * @property {CardGenerator=} fleeting Provided to make temporary copies of a card if it can only be used once per floor.
  */
 /**
  * @callback CardGenerator A function that creates a card.
@@ -19086,7 +19086,7 @@ function copy_card(source){
         pic: source.pic,
         options: source.options,
         evolutions: source.evolutions !== undefined ? [...source.evolutions] : undefined,
-        per_floor: source.per_floor,
+        fleeting: source.fleeting,
     }
 }
 

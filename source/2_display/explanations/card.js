@@ -5,8 +5,8 @@ function explain_card(card){
     var text = ``;
     text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
     text += `${card.options.explain_buttons()}`;
-    if(card.per_floor !== undefined){
-        text += `${move_types.per_floor}\n`;
+    if(card.fleeting !== undefined){
+        text += `${move_types.fleeting}\n`;
     }
     else if(card.temp){
         text += `${move_types.temp}\n`;

@@ -55,7 +55,7 @@ const move_types = {
     you: `You`,
     nothing: `Do nothing`,
     
-    per_floor: `Once Per Floor: Only usable one time each floor.`,
+    fleeting: `Fleeting: Only usable one time each floor.`,
     temp: `Temporary: Removed from your deck when put into your discard, or at the end of the floor.`,
     instant: `Instant: Play another card this turn.`,
     cycling: `Cycling: Using this card causes you to discard your hand.`,

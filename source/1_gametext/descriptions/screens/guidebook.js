@@ -177,7 +177,7 @@ const CARD_SYMBOLS = [
     {src: `${IMG_FOLDER.symbols}cycling.png`,           name: `cycling`,            x: 2, y: 2},
     {src: `${IMG_FOLDER.symbols}repeating.png`,         name: `repeating`,          x: 2, y: 2},
     {src: `${IMG_FOLDER.symbols}temporary.png`,         name: `temporary`,          x: 2, y: 2},
-    {src: `${IMG_FOLDER.symbols}per_floor.png`,         name: `once per floor`,     x: 2, y: 2},
+    {src: `${IMG_FOLDER.symbols}fleeting.png`,          name: `fleeting`,           x: 2, y: 2},
 ];
 
 const about_page_text = {

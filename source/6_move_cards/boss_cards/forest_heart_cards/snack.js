@@ -7,6 +7,6 @@ function snack(){
         name: card_names.snack,
         pic: `${IMG_FOLDER.cards}snack.png`,
         options,
-        per_floor: snack
+        fleeting: snack
     }
 }

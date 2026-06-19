@@ -40,8 +40,8 @@ class MoveDeck{
         this.#hand = [];
         this.#discard_pile = [];
         for(var card of this.#decklist){
-            if(card.per_floor !== undefined){
-                card = card.per_floor();
+            if(card.fleeting !== undefined){
+                card = card.fleeting();
                 if(GS.boons.has(boon_names.fleeting_thoughts)){
                     card.options.make_instant();
                 }
@@ -148,9 +148,9 @@ class MoveDeck{
         new_card.id = this.#id_count;
         this.#id_count++;
         this.#decklist.push(new_card);
-        if(new_card.per_floor !== undefined){
+        if(new_card.fleeting !== undefined){
             // If the card can only be used once per floor, add a temp copy instead.
-            var temp_card = new_card.per_floor();
+            var temp_card = new_card.fleeting();
             this.add_temp(temp_card);
         }
         else{
