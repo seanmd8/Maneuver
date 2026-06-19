@@ -12,3 +12,11 @@ const stat_image_labels = {
     removed: `Total Cards Removed`,
 }
 Object.freeze(stat_image_labels);
+
+const sword_alt_text = {
+    sword_0: `sword`,
+    sword_1: `sword slightly bloody`,
+    sword_2: `sword medium bloody`,
+    sword_3: `sword very bloody`,
+    sword_4: `sword fully bloody`,
+}

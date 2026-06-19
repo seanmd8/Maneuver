@@ -611,27 +611,27 @@ function header_imgs(){
     return [
         {
             source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_0.png`,
-            alt: `sword`,
+            alt: sword_alt_text.sword_0,
             count: 0,
         },
         {
             source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_1.png`,
-            alt: `sword slightly bloody`,
+            alt: sword_alt_text.sword_1,
             count: 10,
         },
         {
             source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_2.png`,
-            alt: `sword medium bloody`,
+            alt: sword_alt_text.sword_2,
             count: 25,
         },
         {
             source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_3.png`,
-            alt: `sword very bloody`,
+            alt: sword_alt_text.sword_3,
             count: 50,
         },
         {
             source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_4.png`,
-            alt: `sword fully bloody`,
+            alt: sword_alt_text.sword_4,
             count: 75,
         },
     ];
@@ -2212,6 +2212,14 @@ const stat_image_labels = {
     removed: `Total Cards Removed`,
 }
 Object.freeze(stat_image_labels);
+
+const sword_alt_text = {
+    sword_0: `sword`,
+    sword_1: `sword slightly bloody`,
+    sword_2: `sword medium bloody`,
+    sword_3: `sword very bloody`,
+    sword_4: `sword fully bloody`,
+}
 const shop_text = {
     header: `Choose one card to add or remove:`,
     add: `Add a card to your deck.`,
