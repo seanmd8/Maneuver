@@ -1,7 +1,9 @@
 const journal_history_messages = {
     run_num: `Run #`,
     killed_by: `Killed by `,
-    victory: `Victory!`
+    victory: `Victory!`,
+    show_wins: `Show Wins`,
+    show_all: `Show All`,
 }
 
 const history_stat_labels = {

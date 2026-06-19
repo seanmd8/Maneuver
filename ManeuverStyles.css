@@ -949,6 +949,29 @@ body>div {
 .history-box img{
     cursor: pointer;
 }
+
+.history-toggle-button{
+    margin-top: auto;
+    margin-bottom: auto;
+    font-weight: bold;
+    line-height: 20px;
+    font-size: 20px;
+    border-radius: 10px;
+    border-width: 3px;
+    border-style: solid;
+    padding: 5px;
+    width: 130px;
+    position: relative;
+    left: 25px;
+}
+
+.history-toggle-button:hover{
+    cursor: pointer;
+}
+
+.history-selector-div{
+    display: flex;
+}
 .journal-style {
     background-color: var(--journal-background-color);
     min-height: 100% - 50px;

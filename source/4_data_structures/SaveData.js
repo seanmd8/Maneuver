@@ -15,6 +15,7 @@ class SaveData{
     tiles;
     areas;
     history;
+    filter_history;
     
     #load_function;
     #save_function;
@@ -37,6 +38,7 @@ class SaveData{
         this.tiles = new SearchTree(data.tiles, TileTreeNode);
         this.areas = new SearchTree(data.areas, AreaTreeNode);
         this.history = new RunHistory(data.history);
+        this.filter_history = false;
     }
     save(){
         var data = {
@@ -162,10 +164,24 @@ class SaveData{
         this.save();
     }
     get_runs(){
+        if(this.filter_history){
+            return this.history.get_runs().filter((r) => {
+                return r.victory;
+            });
+        }
         return this.history.get_runs();
+    }
+    run_has_victory(){
+        return this.history.get_runs().some((r) => {
+            return r.victory;
+        });
+    }
+    toggle_history_filter(){
+        this.filter_history = !this.filter_history;
     }
     clear_runs(){
         this.history = new RunHistory();
+        this.filter_history = false;
         this.save();
     }
 

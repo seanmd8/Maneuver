@@ -2579,7 +2579,9 @@ Object.freeze(journal_card_headers);
 const journal_history_messages = {
     run_num: `Run #`,
     killed_by: `Killed by `,
-    victory: `Victory!`
+    victory: `Victory!`,
+    show_wins: `Show Wins`,
+    show_all: `Show All`,
 }
 
 const history_stat_labels = {
@@ -4112,6 +4114,22 @@ const DisplayHTML = {
         }
         return fs;
     },
+    create_history_toggle(){
+        const filter = GS.data.filter_history;
+        const button = document.createElement(`button`);
+        button.classList.add(`history-toggle-button`);
+        button.onclick = () => {
+            GS.data.toggle_history_filter()
+            update_history();
+        }
+        if(filter){
+            button.innerText = journal_history_messages.show_all;
+        }
+        else{
+            button.innerText = journal_history_messages.show_wins;
+        }
+        return button;
+    },
     update_history(history_list){
         this.remove_children(UIIDS.history_page_selector);
         const pageElement = this.get_element(UIIDS.history_section);
@@ -4249,6 +4267,9 @@ const DisplayHTML = {
         const selector = new PageSelector((p) => {update(p)}, max);
         selector.set_max();
         selectorElement.append(this.make_page_selector(selector));
+        if(GS.data.run_has_victory()){
+            selectorElement.append(this.create_history_toggle());
+        }
     },
 
     // Non Required helper functions.
@@ -14858,6 +14879,7 @@ class SaveData{
     tiles;
     areas;
     history;
+    filter_history;
     
     #load_function;
     #save_function;
@@ -14880,6 +14902,7 @@ class SaveData{
         this.tiles = new SearchTree(data.tiles, TileTreeNode);
         this.areas = new SearchTree(data.areas, AreaTreeNode);
         this.history = new RunHistory(data.history);
+        this.filter_history = false;
     }
     save(){
         var data = {
@@ -15005,10 +15028,24 @@ class SaveData{
         this.save();
     }
     get_runs(){
+        if(this.filter_history){
+            return this.history.get_runs().filter((r) => {
+                return r.victory;
+            });
+        }
         return this.history.get_runs();
+    }
+    run_has_victory(){
+        return this.history.get_runs().some((r) => {
+            return r.victory;
+        });
+    }
+    toggle_history_filter(){
+        this.filter_history = !this.filter_history;
     }
     clear_runs(){
         this.history = new RunHistory();
+        this.filter_history = false;
         this.save();
     }
 

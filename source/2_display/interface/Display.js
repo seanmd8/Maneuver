@@ -1146,6 +1146,22 @@ const DisplayHTML = {
         }
         return fs;
     },
+    create_history_toggle(){
+        const filter = GS.data.filter_history;
+        const button = document.createElement(`button`);
+        button.classList.add(`history-toggle-button`);
+        button.onclick = () => {
+            GS.data.toggle_history_filter()
+            update_history();
+        }
+        if(filter){
+            button.innerText = journal_history_messages.show_all;
+        }
+        else{
+            button.innerText = journal_history_messages.show_wins;
+        }
+        return button;
+    },
     update_history(history_list){
         this.remove_children(UIIDS.history_page_selector);
         const pageElement = this.get_element(UIIDS.history_section);
@@ -1283,6 +1299,9 @@ const DisplayHTML = {
         const selector = new PageSelector((p) => {update(p)}, max);
         selector.set_max();
         selectorElement.append(this.make_page_selector(selector));
+        if(GS.data.run_has_victory()){
+            selectorElement.append(this.create_history_toggle());
+        }
     },
 
     // Non Required helper functions.
