@@ -430,10 +430,12 @@ const DisplayHTML = {
             button.classList.add(`greyed-out`);
         }
     },
-    create_image: function(src, id, size){
+    create_image: function(src, id, size, alt){
         var image = document.createElement(`img`);
         image.src = `${IMG_FOLDER.src}${src}`;
         image.id = id;
+        image.title = alt;
+        image.alt = alt;
         if(typeof size === `number`){
             image.width = size;
             image.height = size;

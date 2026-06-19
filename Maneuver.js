@@ -3396,10 +3396,12 @@ const DisplayHTML = {
             button.classList.add(`greyed-out`);
         }
     },
-    create_image: function(src, id, size){
+    create_image: function(src, id, size, alt){
         var image = document.createElement(`img`);
         image.src = `${IMG_FOLDER.src}${src}`;
         image.id = id;
+        image.title = alt;
+        image.alt = alt;
         if(typeof size === `number`){
             image.width = size;
             image.height = size;
@@ -4859,7 +4861,7 @@ function display_guide(){
 function make_guidebook_images(arr){
     var images = [];
     for(var img of arr){
-        images.push(display.create_image(img.src, `${img.name} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE)));
+        images.push(display.create_image(img.src, `${img.name} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE), img.name));
     }
     return images;
 }
