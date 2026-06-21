@@ -4521,15 +4521,21 @@ function refresh_full_deck_display(deck){
  */
 function create_sidebar(){
     var location = UIIDS.sidebar_header;
-    var swap_visibility = function(id_list, id){
+    SIDEBAR_DIVISIONS.swap(UIIDS.text_log); // Hides all before some are removed from the list
+    SIDEBAR_DIVISIONS.set([
+        UIIDS.text_log, 
+        UIIDS.discard_pile, 
+        UIIDS.initiative
+    ]);
+    var swap = function(id){
         return function(){
-            id_list.swap(id);
+            SIDEBAR_DIVISIONS.swap(id);
         }
     }
     display.remove_children(location);
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap(UIIDS.text_log));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap(UIIDS.discard_pile));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap(UIIDS.initiative));
     SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
 }
 function update_initiative(map){
@@ -10493,6 +10499,7 @@ function add_boon_to_chest(chest, boon){
         name: boon.name,
         on_choose: function(){
             if(GS.boons.total === 0){
+                SIDEBAR_DIVISIONS.add(UIIDS.boon_list);
                 display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
                     SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
                 });
@@ -14259,12 +14266,8 @@ class GameState{
         }];
         display.add_button_row(UIIDS.retry_button, restart_message);
         refresh_full_deck_display(this.deck);
-        var swap_visibility = function(id_list, id){
-            return function(){
-                id_list.swap(id);
-            }
-        }
-        display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.full_deck));
+        SIDEBAR_DIVISIONS.add(UIIDS.full_deck);
+        display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, () => {SIDEBAR_DIVISIONS.swap(UIIDS.full_deck)});
     }
     victory(){
         refresh_map(this.map);
@@ -14419,6 +14422,12 @@ class KeyBind{
         if(key_num >= 0){
             display.click(`${UIIDS.retry_button} 0 0`);
             return true;
+        }
+        if(this.#controls.screen.tab_left.includes(key)){
+            SIDEBAR_DIVISIONS.move(-1);
+        }
+        else if(this.#controls.screen.tab_right.includes(key)){
+            SIDEBAR_DIVISIONS.move(1);
         }
         return false;
     }
@@ -19586,6 +19595,7 @@ function clairvoyance(){
 }
 
 function pick_clairvoyance(){
+    SIDEBAR_DIVISIONS.add(UIIDS.deck_order);
     display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.deck_order, function(){
         SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
     });

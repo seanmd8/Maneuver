@@ -39,6 +39,12 @@ class KeyBind{
             display.click(`${UIIDS.retry_button} 0 0`);
             return true;
         }
+        if(this.#controls.screen.tab_left.includes(key)){
+            SIDEBAR_DIVISIONS.move(-1);
+        }
+        else if(this.#controls.screen.tab_right.includes(key)){
+            SIDEBAR_DIVISIONS.move(1);
+        }
         return false;
     }
     shop(key){

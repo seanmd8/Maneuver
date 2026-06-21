@@ -339,12 +339,8 @@ class GameState{
         }];
         display.add_button_row(UIIDS.retry_button, restart_message);
         refresh_full_deck_display(this.deck);
-        var swap_visibility = function(id_list, id){
-            return function(){
-                id_list.swap(id);
-            }
-        }
-        display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.full_deck));
+        SIDEBAR_DIVISIONS.add(UIIDS.full_deck);
+        display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, () => {SIDEBAR_DIVISIONS.swap(UIIDS.full_deck)});
     }
     victory(){
         refresh_map(this.map);
