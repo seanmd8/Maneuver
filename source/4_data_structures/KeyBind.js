@@ -8,6 +8,15 @@ class KeyBind{
         this.#controls = DEFAULT_CONTROLS;
         this.alternate_is_pressed = false;
     }
+    dropdown(key){
+        if(this.#controls.screen.change_screen.includes(key)){
+            scroll_dropdown(1);
+        }
+        else{
+            return false;
+        }
+        return true;
+    }
     stage(key){
         var stage = this.#controls.stage;
         var key_num = stage.direction.indexOf(key);
@@ -70,6 +79,30 @@ class KeyBind{
         }
         return false;
     }
+    guidebook(key){
+        if(this.#controls.screen.tab_left.includes(key)){
+            GUIDEBOOK_DIVISIONS.move(-1);
+        }
+        else if(this.#controls.screen.tab_right.includes(key)){
+            GUIDEBOOK_DIVISIONS.move(1);
+        }
+    }
+    journal(key){
+        if(this.#controls.screen.tab_left.includes(key)){
+            JOURNAL_DIVISIONS.move(-1);
+        }
+        else if(this.#controls.screen.tab_right.includes(key)){
+            JOURNAL_DIVISIONS.move(1);
+        }
+    }
+    settings(key){
+        if(this.#controls.screen.tab_left.includes(key)){
+            SETTINGS_DIVISIONS.move(-1);
+        }
+        else if(this.#controls.screen.tab_right.includes(key)){
+            SETTINGS_DIVISIONS.move(1);
+        }
+    }
     toggle_press(key){
         if(this.#controls.toggle.alt.indexOf(key) >= 0){
             this.alternate_is_pressed = true;
@@ -130,6 +163,11 @@ class KeyBind{
                 choose: [...this.#controls.chest.choose],
                 confirm: [...this.#controls.chest.confirm],
                 reject: [...this.#controls.chest.reject],
+            },
+            screen: {
+                change_screen: [...this.#controls.screen.change_screen],
+                tab_left: [...this.#controls.screen.tab_left],
+                tab_right: [...this.#controls.screen.tab_right],
             },
             toggle: {
                 alt: [...this.#controls.toggle.alt],

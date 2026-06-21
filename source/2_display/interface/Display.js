@@ -304,7 +304,8 @@ const DisplayHTML = {
     press: function(key_press){
         var key = key_press.key.toLowerCase();
         GS.data.controls.toggle_press(key);
-        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
+        if(display.set_control === undefined && GS.data.controls.dropdown(key)){}
+        else if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
             if(GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
                 GS.data.controls.stage(key);
             }
@@ -315,8 +316,19 @@ const DisplayHTML = {
                 GS.data.controls.chest(key);
             }
         }
-        else if(DISPLAY_DIVISIONS.is(UIIDS.settings) && display.set_control !== undefined){
-            display.set_control(key);
+        else if (DISPLAY_DIVISIONS.is(UIIDS.guide)){
+            GS.data.controls.guidebook(key);
+        }
+        else if (DISPLAY_DIVISIONS.is(UIIDS.journal)){
+            GS.data.controls.journal(key);
+        }
+        else if(DISPLAY_DIVISIONS.is(UIIDS.settings)){
+            if(display.set_control === undefined){
+                GS.data.controls.settings(key);
+            }
+            else{
+                display.set_control(key);
+            }
         }
     },
     unpress: function(key_press){
@@ -378,6 +390,12 @@ const DisplayHTML = {
             select_button.append(option);
         }
         doc_location.append(select_button);
+    },
+    traverse_dropdown: function(id, size, change){
+        const dropdown = this.get_element(id);
+        const next_index = (dropdown.selectedIndex + change) % size;
+        dropdown.selectedIndex = next_index;
+        dropdown.onchange();
     },
     create_alternating_text_section: function(location, header, par_arr, inline_arr){
         if(par_arr.length !== inline_arr.length && par_arr.length !== inline_arr.length + 1){

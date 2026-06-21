@@ -5,4 +5,6 @@ function setup_controls_page(){
     controls_shop_section();
     display.remove_children(UIIDS.chest_controls);
     controls_chest_section();
+    display.remove_children(UIIDS.screen_controls);
+    controls_screen_section();
 }

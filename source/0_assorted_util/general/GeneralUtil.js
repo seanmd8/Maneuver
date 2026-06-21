@@ -269,3 +269,8 @@ function binary_search(arr, val, f = undefined){
     }
     return -1;
 }
+
+function mod(a, b){
+    const remainder = a % b;
+    return (remainder + b) % b;
+}

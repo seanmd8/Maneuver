@@ -27,7 +27,13 @@ const CONTROLS_TEXT = {
         choose: `Choose item`,
         confirm: `Confirm choice`,
         reject: `Abandon chest`
-    }
+    },
+    screen: {
+        header: `Screen Controls`,
+        change: `Change Screens`,
+        left: `Switch Tabs Left`,
+        right: `Switch Tabs Right`,
+    },
 }
 Object.freeze(CONTROLS_TEXT);
 

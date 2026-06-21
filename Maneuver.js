@@ -270,6 +270,11 @@ function binary_search(arr, val, f = undefined){
     }
     return -1;
 }
+
+function mod(a, b){
+    const remainder = a % b;
+    return (remainder + b) % b;
+}
 class PageSelector{
     #on_update
     #max
@@ -555,6 +560,11 @@ const DEFAULT_CONTROLS = {
         choose: [`h`, `j`, `k`, `l`, `;`],
         confirm: [` `],
         reject: [`escape`],
+    },
+    screen: {
+        change_screen: [`m`],
+        tab_left: [`,`],
+        tab_right: [`.`],
     },
     toggle: {
         alt: [`shift`],
@@ -2651,7 +2661,13 @@ const CONTROLS_TEXT = {
         choose: `Choose item`,
         confirm: `Confirm choice`,
         reject: `Abandon chest`
-    }
+    },
+    screen: {
+        header: `Screen Controls`,
+        change: `Change Screens`,
+        left: `Switch Tabs Left`,
+        right: `Switch Tabs Right`,
+    },
 }
 Object.freeze(CONTROLS_TEXT);
 
@@ -2851,6 +2867,7 @@ const HTML_UIIDS = {
             stage_controls: `stageControls`,
             shop_controls: `shopControls`,
             chest_controls: `chestControls`,
+            screen_controls: `screenControls`,
 }
 Object.freeze(HTML_UIIDS);
 
@@ -3272,7 +3289,8 @@ const DisplayHTML = {
     press: function(key_press){
         var key = key_press.key.toLowerCase();
         GS.data.controls.toggle_press(key);
-        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
+        if(display.set_control === undefined && GS.data.controls.dropdown(key)){}
+        else if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
             if(GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
                 GS.data.controls.stage(key);
             }
@@ -3283,8 +3301,19 @@ const DisplayHTML = {
                 GS.data.controls.chest(key);
             }
         }
-        else if(DISPLAY_DIVISIONS.is(UIIDS.settings) && display.set_control !== undefined){
-            display.set_control(key);
+        else if (DISPLAY_DIVISIONS.is(UIIDS.guide)){
+            GS.data.controls.guidebook(key);
+        }
+        else if (DISPLAY_DIVISIONS.is(UIIDS.journal)){
+            GS.data.controls.journal(key);
+        }
+        else if(DISPLAY_DIVISIONS.is(UIIDS.settings)){
+            if(display.set_control === undefined){
+                GS.data.controls.settings(key);
+            }
+            else{
+                display.set_control(key);
+            }
         }
     },
     unpress: function(key_press){
@@ -3346,6 +3375,12 @@ const DisplayHTML = {
             select_button.append(option);
         }
         doc_location.append(select_button);
+    },
+    traverse_dropdown: function(id, size, change){
+        const dropdown = this.get_element(id);
+        const next_index = (dropdown.selectedIndex + change) % size;
+        dropdown.selectedIndex = next_index;
+        dropdown.onchange();
     },
     create_alternating_text_section: function(location, header, par_arr, inline_arr){
         if(par_arr.length !== inline_arr.length && par_arr.length !== inline_arr.length + 1){
@@ -4756,37 +4791,42 @@ function refresh_other_stats(stats, location){
         stat_image_labels.removed
     );
 }
+const MAIN_DROPDOWN_OPTIONS = [
+    {
+        label: screen_names.gameplay,
+        on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
+    }, 
+    {
+        label: screen_names.guide,
+        on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
+    },
+    {
+        label: screen_names.journal,
+        on_change: () => {
+            update_journal();
+            DISPLAY_DIVISIONS.swap(UIIDS.journal);
+        }
+    },
+    {
+        label: screen_names.settings,
+        on_change: () => {
+            setup_settings_page();
+            DISPLAY_DIVISIONS.swap(UIIDS.settings);
+        }
+    },
+
+];
+
 /**
  * Function to create a dropdown menu capable of switching between the game and guide screens.
  * @param {string} location Where to create it.
  */
 function create_main_dropdown(location){
-    var options = [
-        {
-            label: screen_names.gameplay,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
-        }, 
-        {
-            label: screen_names.guide,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
-        },
-        {
-            label: screen_names.journal,
-            on_change: () => {
-                update_journal();
-                DISPLAY_DIVISIONS.swap(UIIDS.journal);
-            }
-        },
-        {
-            label: screen_names.settings,
-            on_change: () => {
-                setup_settings_page();
-                DISPLAY_DIVISIONS.swap(UIIDS.settings);
-            }
-        },
+    display.create_dropdown(location, MAIN_DROPDOWN_OPTIONS);
+}
 
-    ];
-    display.create_dropdown(location, options);
+function scroll_dropdown(change){
+    display.traverse_dropdown(`${UIIDS.header_box} select`, MAIN_DROPDOWN_OPTIONS.length, change);
 }
 /**
  * Function to get an array of buttons with the keys used for controls as the value to use when displaying the guide.
@@ -4844,7 +4884,7 @@ function display_guide(){
     var confusion_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.confusion, confusion_text, confusion_inline_arr);
     var about_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.about, GUIDE_TEXT.about, about_links);
 
-    var section_id_list = [
+    GUIDEBOOK_DIVISIONS.set([
         basics_section, 
         cards_section, 
         enemies_section, 
@@ -4854,26 +4894,26 @@ function display_guide(){
         sidebar_section,
         confusion_section,
         about_section
-    ];
+    ]);
 
-    var swap_visibility = function(id_list, id){
+    var swap = function(id){
         return function(){
-            display.swap_screen(id_list, id);
+            GUIDEBOOK_DIVISIONS.swap(id);
         }
     }
 
     // Create guidebook navbar.
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap_visibility(section_id_list, basics_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap_visibility(section_id_list, cards_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap_visibility(section_id_list, enemies_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap_visibility(section_id_list, shop_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap_visibility(section_id_list, sidebar_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap_visibility(section_id_list, confusion_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.about, swap_visibility(section_id_list, about_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap(basics_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap(cards_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap(enemies_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap(shop_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap(bosses_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap(chests_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap(sidebar_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap(confusion_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.about, swap(about_section));
 
-    display.swap_screen(section_id_list, basics_section);
+    GUIDEBOOK_DIVISIONS.swap(basics_section);
 }
 /**
  * Function to get an array of images for the card symbols to use when displaying the guide..
@@ -5313,30 +5353,29 @@ function update_journal(){
     update_achievements();
 }
 
-const journal_navbar_ids = [
-    UIIDS.journal_cards,
-    UIIDS.journal_boons,
-    UIIDS.journal_areas,
-    UIIDS.achievements,
-    UIIDS.journal_history
-]
 
 function setup_journal_navbar(){
     var id = UIIDS.journal_navbar;
-
-    var swap_visibility = function(id_list, id){
+    JOURNAL_DIVISIONS.set([
+        UIIDS.journal_cards,
+        UIIDS.journal_boons,
+        UIIDS.journal_areas,
+        UIIDS.achievements,
+        UIIDS.journal_history
+    ]);
+    var swap = function(id){
         return function(){
-            display.swap_screen(id_list, id);
+            JOURNAL_DIVISIONS.swap(id)
         }
     }
 
-    display.create_visibility_toggle(id, journal_navbar_labels.cards, swap_visibility(journal_navbar_ids, UIIDS.journal_cards));
-    display.create_visibility_toggle(id, journal_navbar_labels.boons, swap_visibility(journal_navbar_ids, UIIDS.journal_boons));
-    display.create_visibility_toggle(id, journal_navbar_labels.areas, swap_visibility(journal_navbar_ids, UIIDS.journal_areas));
-    display.create_visibility_toggle(id, journal_navbar_labels.achievements, swap_visibility(journal_navbar_ids, UIIDS.achievements));
-    display.create_visibility_toggle(id, journal_navbar_labels.history, swap_visibility(journal_navbar_ids, UIIDS.journal_history));
+    display.create_visibility_toggle(id, journal_navbar_labels.cards, swap(UIIDS.journal_cards));
+    display.create_visibility_toggle(id, journal_navbar_labels.boons, swap(UIIDS.journal_boons));
+    display.create_visibility_toggle(id, journal_navbar_labels.areas, swap(UIIDS.journal_areas));
+    display.create_visibility_toggle(id, journal_navbar_labels.achievements, swap(UIIDS.achievements));
+    display.create_visibility_toggle(id, journal_navbar_labels.history, swap(UIIDS.journal_history));
 
-    display.swap_screen(journal_navbar_ids, UIIDS.journal_cards);
+    JOURNAL_DIVISIONS.swap(UIIDS.journal_cards);
 }
 function controls_chest_section(){
     var controls = GS.data.controls.get();
@@ -5359,6 +5398,22 @@ function setup_controls_page(){
     controls_shop_section();
     display.remove_children(UIIDS.chest_controls);
     controls_chest_section();
+    display.remove_children(UIIDS.screen_controls);
+    controls_screen_section();
+}
+function controls_screen_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.screen_controls, CONTROLS_TEXT.screen.header, edit_screen_controls);
+    display.control_box(UIIDS.screen_controls, controls.screen.change_screen, CONTROLS_TEXT.screen.change);
+    display.control_box(UIIDS.screen_controls, controls.screen.tab_left, CONTROLS_TEXT.screen.left);
+    display.control_box(UIIDS.screen_controls, controls.screen.tab_right, CONTROLS_TEXT.screen.right);
+}
+
+function edit_screen_controls(controls){
+    display.add_edit_controls_header(UIIDS.screen_controls, CONTROLS_TEXT.screen.header, controls_screen_section, controls);
+    display.control_edit_box(UIIDS.screen_controls, controls.screen.change_screen, CONTROLS_TEXT.screen.change);
+    display.control_edit_box(UIIDS.screen_controls, controls.screen.tab_left, CONTROLS_TEXT.screen.left);
+    display.control_edit_box(UIIDS.screen_controls, controls.screen.tab_right, CONTROLS_TEXT.screen.right);
 }
 function controls_shop_section(){
     var controls = GS.data.controls.get();
@@ -5420,7 +5475,7 @@ function reset_achievements(){
 function reset_history(){
     GS.data.clear_runs();
     update_history();
-    display.swap_screen(journal_navbar_ids, UIIDS.journal_cards);
+    JOURNAL_DIVISIONS.swap(UIIDS.journal_cards);
 }
 function reset_journal(){
     reset_achievements();
@@ -5436,24 +5491,22 @@ function setup_settings_page(){
 
 function setup_settings_navbar(){
     var id = UIIDS.settings_navbar;
-
-    var section_id_list = [
+    SETTINGS_DIVISIONS.set([
         UIIDS.settings_visual,
         UIIDS.controls,
         UIIDS.settings_data,
-    ];
-
-    var swap_visibility = function(id_list, id){
+    ]);
+    var swap = function(id){
         return function(){
-            display.swap_screen(id_list, id);
+            SETTINGS_DIVISIONS.swap(id)
         }
     }
 
-    display.create_visibility_toggle(id, settings_navbar_labels.visual, swap_visibility(section_id_list, UIIDS.settings_visual));
-    display.create_visibility_toggle(id, settings_navbar_labels.controls, swap_visibility(section_id_list, UIIDS.controls));
-    display.create_visibility_toggle(id, settings_navbar_labels.data, swap_visibility(section_id_list, UIIDS.settings_data));
+    display.create_visibility_toggle(id, settings_navbar_labels.visual, swap(UIIDS.settings_visual));
+    display.create_visibility_toggle(id, settings_navbar_labels.controls, swap(UIIDS.controls));
+    display.create_visibility_toggle(id, settings_navbar_labels.data, swap(UIIDS.settings_data));
 
-    display.swap_screen(section_id_list, UIIDS.settings_visual);
+    SETTINGS_DIVISIONS.swap(UIIDS.settings_visual)
 }
 function reset_visual_settings_page(){
     display.remove_children(UIIDS.settings_visual);
@@ -14336,6 +14389,15 @@ class KeyBind{
         this.#controls = DEFAULT_CONTROLS;
         this.alternate_is_pressed = false;
     }
+    dropdown(key){
+        if(this.#controls.screen.change_screen.includes(key)){
+            scroll_dropdown(1);
+        }
+        else{
+            return false;
+        }
+        return true;
+    }
     stage(key){
         var stage = this.#controls.stage;
         var key_num = stage.direction.indexOf(key);
@@ -14398,6 +14460,30 @@ class KeyBind{
         }
         return false;
     }
+    guidebook(key){
+        if(this.#controls.screen.tab_left.includes(key)){
+            GUIDEBOOK_DIVISIONS.move(-1);
+        }
+        else if(this.#controls.screen.tab_right.includes(key)){
+            GUIDEBOOK_DIVISIONS.move(1);
+        }
+    }
+    journal(key){
+        if(this.#controls.screen.tab_left.includes(key)){
+            JOURNAL_DIVISIONS.move(-1);
+        }
+        else if(this.#controls.screen.tab_right.includes(key)){
+            JOURNAL_DIVISIONS.move(1);
+        }
+    }
+    settings(key){
+        if(this.#controls.screen.tab_left.includes(key)){
+            SETTINGS_DIVISIONS.move(-1);
+        }
+        else if(this.#controls.screen.tab_right.includes(key)){
+            SETTINGS_DIVISIONS.move(1);
+        }
+    }
     toggle_press(key){
         if(this.#controls.toggle.alt.indexOf(key) >= 0){
             this.alternate_is_pressed = true;
@@ -14458,6 +14544,11 @@ class KeyBind{
                 choose: [...this.#controls.chest.choose],
                 confirm: [...this.#controls.chest.confirm],
                 reject: [...this.#controls.chest.reject],
+            },
+            screen: {
+                change_screen: [...this.#controls.screen.change_screen],
+                tab_left: [...this.#controls.screen.tab_left],
+                tab_right: [...this.#controls.screen.tab_right],
             },
             toggle: {
                 alt: [...this.#controls.toggle.alt],
@@ -15136,14 +15227,31 @@ class ScreenTracker{
         display.swap_screen(this.div, division);
         this.current = division;
     }
+    move(change){
+        var index = this.div.indexOf(this.current);
+        index = mod(index + change, this.div.length);
+        this.swap(this.div[index]);
+    }
     is(division){
         return division === this.current;
+    }
+    set(divisions){
+        this.div = divisions;
+        this.current = undefined;
+    }
+    add(division){
+        this.div.push(division);
     }
 }
 
 const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.journal, UIIDS.settings]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.full_deck, UIIDS.initiative, UIIDS.deck_order]);
+
+// Set by it's display function.
+const GUIDEBOOK_DIVISIONS = new ScreenTracker([]); 
+const JOURNAL_DIVISIONS = new ScreenTracker([]);
+const SETTINGS_DIVISIONS = new ScreenTracker([]);
 class AreaTreeNode{
     data;
     left;
