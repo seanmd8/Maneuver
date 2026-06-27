@@ -275,6 +275,22 @@ function mod(a, b){
     const remainder = a % b;
     return (remainder + b) % b;
 }
+
+function roll_counter(rolls, odds){
+    var results = Array(odds.length).fill(0);
+    var bag = []
+    for(var i = 0; i < odds.length; ++i){
+        for(var j = 0; j < odds[i]; ++j){
+            bag.push(i);
+        }
+    }
+    for(var i = 0; i < rolls; ++i){
+        var roll = random_num(bag.length);
+        var index = bag[roll];
+        ++results[index];
+    }
+    return results;
+}
 class PageSelector{
     #on_update
     #max
@@ -15602,17 +15618,39 @@ class Shop{
     }
     #generate_add_row(){
         var amount = GS.map.stats.get_stats().add_choices;
-        var add_choices = [...COMMON_CARDS, ...get_achievement_cards()];
-        var add_list_generators = rand_no_repeats(add_choices, amount);
-        this.#add_row = add_list_generators.map((g) => {return g()});
-        if(chance(1, 2) && filter_new_cards(this.#add_row).length === 0){
-            // Chance to force the appearance of a card in the shop that has never been picked.
-            var to_replace = 0;
-            var replace_list = filter_new_cards(add_choices.map((c) => {return c()}));
-            if(replace_list.length > 0){
-                this.#add_row[to_replace] = random_from(replace_list);
+
+        var common_choices = [...COMMON_CARDS];
+        var uncommon_choices = get_some_achievement_cards([
+            velociphile_achievement(),
+            spider_queen_achievement(),
+            two_headed_serpent_achievement(),
+        ]);
+        var rare_choices = get_some_achievement_cards([
+            lich_achievement(),
+            young_dragon_achievement(),
+        ]);
+        
+        var odds = [8];
+        odds.push(uncommon_choices.length > 0 ? 3 : 0);
+        odds.push(rare_choices.length > 0 ? 1 : 0);
+        var rolls = roll_counter(amount, odds);
+        
+        var draws = [
+            {arr: common_choices, count: rolls[0]},
+            {arr: uncommon_choices, count: rolls[1]},
+            {arr: rare_choices, count: rolls[2]},
+        ].map((d) => {
+            var add_choices = d.arr.map((c) => {return c();});
+            var adds = rand_no_repeats(add_choices, d.count);
+            if(adds.length > 0 && filter_new_cards(adds).length === 0 && chance(1/2)){
+                var replace_choices = filter_new_cards(add_choices);
+                if(replace_list.length > 0){
+                    adds[0] = random_from(replace_choices);
+                }
             }
-        }
+            return adds;
+        });
+        this.#add_row = [].concat(...draws);
     }
     #generate_remove_row(){
         var amount = GS.map.stats.get_stats().remove_choices;
@@ -18839,6 +18877,18 @@ function get_locked_achievement_cards(){
 function get_all_achievement_cards(){
     var list = [];
     get_achievements().map((a) => {
+        if(a.cards !== undefined){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
+
+function get_some_achievement_cards(achievements){
+    var list = [];
+    GS.data.achievements.completed().filter((a) => {
+        return achievements.some((a2) => {return a2.name === a.name})
+    }).map((a) => {
         if(a.cards !== undefined){
             list.push(...a.cards);
         }

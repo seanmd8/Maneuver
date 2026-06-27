@@ -274,3 +274,19 @@ function mod(a, b){
     const remainder = a % b;
     return (remainder + b) % b;
 }
+
+function roll_counter(rolls, odds){
+    var results = Array(odds.length).fill(0);
+    var bag = []
+    for(var i = 0; i < odds.length; ++i){
+        for(var j = 0; j < odds[i]; ++j){
+            bag.push(i);
+        }
+    }
+    for(var i = 0; i < rolls; ++i){
+        var roll = random_num(bag.length);
+        var index = bag[roll];
+        ++results[index];
+    }
+    return results;
+}

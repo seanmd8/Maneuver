@@ -84,3 +84,15 @@ function get_all_achievement_cards(){
     });
     return list;
 }
+
+function get_some_achievement_cards(achievements){
+    var list = [];
+    GS.data.achievements.completed().filter((a) => {
+        return achievements.some((a2) => {return a2.name === a.name})
+    }).map((a) => {
+        if(a.cards !== undefined){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
