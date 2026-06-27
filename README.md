@@ -9,6 +9,11 @@ Alternatively, to download it so you can play offline, download it as a zip file
 
 Gameplay Changelog:
 
+6/26/26
+- Added 16 new cards with 2 new mechanics. Defeat the 3rd area bosses to unlock them.
+- You can now filter your run history to show wins only, assuming you have any.
+- You can now swap screens and tabs using the keyboard controls.
+
 4/11/26
 - Added 2 new boons.
 - Rebalanced Future Sight: Renamed to Clairvoyance. Now shows you the location of hidden enemies.
