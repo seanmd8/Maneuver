@@ -15642,9 +15642,9 @@ class Shop{
         ].map((d) => {
             var add_choices = d.arr.map((c) => {return c();});
             var adds = rand_no_repeats(add_choices, d.count);
-            if(adds.length > 0 && filter_new_cards(adds).length === 0 && chance(1/2)){
+            if(adds.length > 0 && filter_new_cards(adds).length === 0 && chance(1, 2)){
                 var replace_choices = filter_new_cards(add_choices);
-                if(replace_list.length > 0){
+                if(replace_choices.length > 0){
                     adds[0] = random_from(replace_choices);
                 }
             }
