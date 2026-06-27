@@ -16,6 +16,11 @@ const DEFAULT_CONTROLS = {
         confirm: [` `],
         reject: [`escape`],
     },
+    screen: {
+        change_screen: [`m`],
+        tab_left: [`,`],
+        tab_right: [`.`],
+    },
     toggle: {
         alt: [`shift`],
     }

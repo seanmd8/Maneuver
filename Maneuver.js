@@ -270,6 +270,27 @@ function binary_search(arr, val, f = undefined){
     }
     return -1;
 }
+
+function mod(a, b){
+    const remainder = a % b;
+    return (remainder + b) % b;
+}
+
+function roll_counter(rolls, odds){
+    var results = Array(odds.length).fill(0);
+    var bag = []
+    for(var i = 0; i < odds.length; ++i){
+        for(var j = 0; j < odds[i]; ++j){
+            bag.push(i);
+        }
+    }
+    for(var i = 0; i < rolls; ++i){
+        var roll = random_num(bag.length);
+        var index = bag[roll];
+        ++results[index];
+    }
+    return results;
+}
 class PageSelector{
     #on_update
     #max
@@ -556,6 +577,11 @@ const DEFAULT_CONTROLS = {
         confirm: [` `],
         reject: [`escape`],
     },
+    screen: {
+        change_screen: [`m`],
+        tab_left: [`,`],
+        tab_right: [`.`],
+    },
     toggle: {
         alt: [`shift`],
     }
@@ -611,27 +637,27 @@ function header_imgs(){
     return [
         {
             source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_0.png`,
-            alt: `sword`,
+            alt: sword_alt_text.sword_0,
             count: 0,
         },
         {
             source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_1.png`,
-            alt: `sword slightly bloody`,
+            alt: sword_alt_text.sword_1,
             count: 10,
         },
         {
             source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_2.png`,
-            alt: `sword medium bloody`,
+            alt: sword_alt_text.sword_2,
             count: 25,
         },
         {
             source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_3.png`,
-            alt: `sword very bloody`,
+            alt: sword_alt_text.sword_3,
             count: 50,
         },
         {
             source: `${IMG_FOLDER.src}${IMG_FOLDER.ui}sword_4.png`,
-            alt: `sword fully bloody`,
+            alt: sword_alt_text.sword_4,
             count: 75,
         },
     ];
@@ -885,7 +911,7 @@ const boon_descriptions = {
     rebirth: 
         `When you die, you are revived at full health and this boon is removed.`,
     reckless_speed:
-        `Card actions that don't move happen instantly, but confuse you.`
+        `Card actions that don't move happen instantly, but confuse you. `
         +`Cards that were already instants won't be affected.`,
     repetition: 
         `Every 3rd turn, your cards happen twice.`,
@@ -1144,6 +1170,13 @@ const card_names = {
     clear_in_front: `Clear in Front`,
     combat_diagonal: `Combat Diagonal`,
     combat_orthogonal: `Combat Orthogonal`,
+    cycling_blast: `Cycling Blast`,
+    cycling_breather: `Cycling Breather`,
+    cycling_dash_horizontal: `Cycling Dash Horizontal`,
+    cycling_dash_vertical: `Cycling Dash Vertical`,
+    cycling_slide_ne: `Cycling Slide NE`,
+    cycling_slide_nw: `Cycling Slide NW`,
+    cycling_y: `Cycling Y`,
     dash_ne: `Dash NE`,
     dash_nw: `Dash NW`,
     debilitating_confusion: `Debilitating Confusion`,
@@ -1186,6 +1219,7 @@ const card_names = {
     overcome_horizontal: `Overcome Horizontal`,
     overcome_vertical: `Overcome Vertical`,
     pike: `Pike`,
+    prismatic_knife: `Prismatic Knife`,
     punch_diagonal: `Punch Diagonal`,
     punch_orthogonal: `Punch Orthogonal`,
     push_back: `Push Back`,
@@ -1200,6 +1234,14 @@ const card_names = {
     reckless_sprint: `Reckless Sprint`,
     reckless_teleport: `Reckless Teleport`,
     regenerate: `Regenerate`,
+    repeating_fan: `Repeating Fan`,
+    repeating_leap_n: `Repeating Leap N`,
+    repeating_leap_ne: `Repeating Leap NE`,
+    repeating_leap_nw: `Repeating Leap NW`,
+    repeating_retreat: `Repeating Retreat`,
+    repeating_slice_horizontal: `Repeating Slice Horizontal`,
+    repeating_slice_vertical: `Repeating Slice Vertical`,
+    repeating_spin: `Repeating Spin`,
     roll_horizontal: `Roll Horizontal`,
     roll_ne: `Roll NE`,
     roll_nw: `Roll NW`,
@@ -1319,9 +1361,11 @@ const move_types = {
     you: `You`,
     nothing: `Do nothing`,
     
-    per_floor: `Once Per Floor: Only usable one time each floor.`,
+    fleeting: `Fleeting: Only usable one time each floor.`,
     temp: `Temporary: Removed from your deck when put into your discard, or at the end of the floor.`,
     instant: `Instant: Play another card this turn.`,
+    cycling: `Cycling: Using this card causes you to discard your hand.`,
+    repeating: `Repeating: This card is only discarded when you play a different card.`,
     
     locked: `This card has not been unlocked yet.`,
     not_found: `This card has never been added to your deck.`,
@@ -2180,96 +2224,6 @@ const special_tile_names = {
     player: `Player`,
 }
 Object.freeze(special_tile_names);
-const achievement_description = {
-    // Boss
-    velociphile: `Defeat the boss of the ${area_names.ruins}.`,
-    spider_queen: `Defeat the boss of the ${area_names.city}.`,
-    two_headed_serpent: `Defeat the boss of the ${area_names.sewers}.`,
-    lich: `Defeat the boss of the ${area_names.crypt}.`,
-    young_dragon: `Defeat the boss of the ${area_names.magma}.`,
-    forest_heart: `Defeat the boss of the ${area_names.forest}.`,
-    arcane_sentry: `Defeat the boss of the ${area_names.library}.`,
-    lord_of_shadow_and_flame: `Defeat the final boss of the ${area_names.court}.`,
-    victory: `Escape victorious.`,
-
-    // Normal
-    ancient_knowledge: `Restore an ancient card to full power.`,
-    beyond_the_basics: `Remove all basic cards from your deck.`,
-    blessed: `Obtain 35 unique boons at least once.`,
-    clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
-    collector: `Open 6 or more treasure chests in 1 run.`,
-    common_sense: `Obtain every common card at least once.`,
-    jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
-    manic_vandal: `Destroy 7 or more treasure chests yourself in 1 run.`,
-    minimalist: `Reach floor 15 with only 5 cards in your deck.`,
-    monster_hunter: `Kill 5 total unique bosses.`,
-    multikill: `Kill 4 or more enemies in one turn.`,
-    non_violent: `Reach the first boss without killing anything.`,
-    not_my_fault: `Let a boss die without dealing any damage to it yourself.`,
-    one_hit_wonder: `Defeat a boss in a single turn.`,
-    one_life: `Defeat any boss while having exactly 1 max health.`,
-    peerless_sprinter: `Speed through a floor in 3 turns or less.`,
-    shrug_it_off: `Take 10 or more damage without dying in 1 run.`,
-    speed_runner: `Leave floor 10 in 100 turns or less.`,
-    triple: `Have 3 or more of the same non temporary card in your deck.`,
-    without_a_scratch: `Leave floor 10 without ever taking damage.`,
-}
-Object.freeze(achievement_description);
-const achievement_names = {
-    // Boss
-    velociphile: `Only A Speedbump`,
-    spider_queen: `Arachno-Regicide`,
-    two_headed_serpent: `One Head Is Better Than Two`,
-    lich: `End To Unlife`,
-    young_dragon: `Novice Dragonslayer`,
-    forest_heart: `Expert Lumberjack`,
-    arcane_sentry: `Security Bypass`,
-    lord_of_shadow_and_flame: `Deeper and Deeper`,
-    victory: `Victory`,
-
-    // Normal
-    ancient_knowledge: `Ancient Knowledge`,
-    beyond_the_basics: `Beyond The Basics`,
-    blessed: `Blessed`,
-    clumsy: `Clumsy`,
-    collector: `Collector`,
-    common_sense: `Common Sense`,
-    jack_of_all_trades: `Jack Of All Trades`,
-    manic_vandal: `Manic Vandal`,
-    minimalist: `Minimalist`,
-    monster_hunter: `Monster Hunter`,
-    multikill: `Multikill`,
-    non_violent: `Non Violent`,
-    not_my_fault: `Not My Fault`,
-    one_hit_wonder: `One Hit Wonder`,
-    one_life: `One Is All You Need`,
-    peerless_sprinter: `Peerless Sprinter`,
-    shrug_it_off: `Shrug It Off`,
-    speed_runner: `Speed Runner`,
-    triple: `Three Of A Kind`,
-    without_a_scratch: `Without A Scratch`,
-}
-Object.freeze(achievement_names);
-const achievement_text = { title: `Achievements`,
-    reset: `Reset`,
-    confirm_reset: `Confirm?`,
-    unlocked: `Achievement Unlocked:`,
-    repeated: `Achievement Repeated:`,
-    unlocks_boon: `New Boon`,
-    unlocks_cards: `New Cards`,
-}
-Object.freeze(achievement_text);
-
-const boss_achievements = [
-    achievement_names.velociphile,
-    achievement_names.spider_queen,
-    achievement_names.two_headed_serpent,
-    achievement_names.lich,
-    achievement_names.young_dragon,
-    achievement_names.forest_heart,
-    achievement_names.arcane_sentry,
-    achievement_names.lord_of_shadow_and_flame,
-];
 const stat_image_labels = {
     deck: `Cards in deck`,
     floor: `Floor number`,
@@ -2284,6 +2238,14 @@ const stat_image_labels = {
     removed: `Total Cards Removed`,
 }
 Object.freeze(stat_image_labels);
+
+const sword_alt_text = {
+    sword_0: `sword`,
+    sword_1: `sword slightly bloody`,
+    sword_2: `sword medium bloody`,
+    sword_3: `sword very bloody`,
+    sword_4: `sword fully bloody`,
+}
 const shop_text = {
     header: `Choose one card to add or remove:`,
     add: `Add a card to your deck.`,
@@ -2401,6 +2363,8 @@ const GUIDE_TEXT = {
             ` teleport to a random unoccupied location.\n`,
             `  `,    ` Multiple actions will be performed on the same space. Moves will be performed last.\n`,
             ` A card with a purple grid will let you play another card immediately.\n`,
+            ` A card with a dark red grid will cause you to discard your whole hand when played.\n`,
+            ` A card with a orange grid won't be discarded when you play it. Instead it will be discarded when you play a different card.\n`,
             ` A card with a tan background is temporary. It will be removed from your deck when played, or at the end of the floor.\n`,
             ` A card with a brown grid can only be used once per floor. When drawn it will show up as temporary.\n`
         +`\n`
@@ -2516,10 +2480,12 @@ const CARD_SYMBOLS = [
     {src: `${IMG_FOLDER.symbols}attack_until.png`,      name: `attack until`,       x: 4, y: 1},
     {src: `${IMG_FOLDER.symbols}teleport.png`,          name: `teleport`,           x: 3, y: 1},
     {src: `${IMG_FOLDER.symbols}attack_move.png`,       name: `attack then move`,   x: 1, y: 1},
-    {src: `${IMG_FOLDER.symbols}triple_attack.png`,     name: `triple attack`,     x: 1, y: 1},
+    {src: `${IMG_FOLDER.symbols}triple_attack.png`,     name: `triple attack`,      x: 1, y: 1},
     {src: `${IMG_FOLDER.symbols}instant.png`,           name: `instant`,            x: 2, y: 2},
+    {src: `${IMG_FOLDER.symbols}cycling.png`,           name: `cycling`,            x: 2, y: 2},
+    {src: `${IMG_FOLDER.symbols}repeating.png`,         name: `repeating`,          x: 2, y: 2},
     {src: `${IMG_FOLDER.symbols}temporary.png`,         name: `temporary`,          x: 2, y: 2},
-    {src: `${IMG_FOLDER.symbols}per_floor.png`,         name: `once per floor`,     x: 2, y: 2},
+    {src: `${IMG_FOLDER.symbols}fleeting.png`,          name: `fleeting`,           x: 2, y: 2},
 ];
 
 const about_page_text = {
@@ -2529,6 +2495,96 @@ const about_page_text = {
     itch_text: `Itch.io Page`,
 };
 Object.freeze(about_page_text);
+const achievement_description = {
+    // Boss
+    velociphile: `Defeat the boss of the ${area_names.ruins}.`,
+    spider_queen: `Defeat the boss of the ${area_names.city}.`,
+    two_headed_serpent: `Defeat the boss of the ${area_names.sewers}.`,
+    lich: `Defeat the boss of the ${area_names.crypt}.`,
+    young_dragon: `Defeat the boss of the ${area_names.magma}.`,
+    forest_heart: `Defeat the boss of the ${area_names.forest}.`,
+    arcane_sentry: `Defeat the boss of the ${area_names.library}.`,
+    lord_of_shadow_and_flame: `Defeat the final boss of the ${area_names.court}.`,
+    victory: `Escape victorious.`,
+
+    // Normal
+    ancient_knowledge: `Restore an ancient card to full power.`,
+    beyond_the_basics: `Remove all basic cards from your deck.`,
+    blessed: `Obtain 35 unique boons at least once.`,
+    clumsy: `Take 5 or more damage during your turn without dying in 1 run.`,
+    collector: `Open 6 or more treasure chests in 1 run.`,
+    common_sense: `Obtain every common card at least once.`,
+    jack_of_all_trades: `Have 25 or more non temporary cards in your deck.`,
+    manic_vandal: `Destroy 7 or more treasure chests yourself in 1 run.`,
+    minimalist: `Reach floor 15 with only 5 cards in your deck.`,
+    monster_hunter: `Kill 5 total unique bosses.`,
+    multikill: `Kill 4 or more enemies in one turn.`,
+    non_violent: `Reach the first boss without killing anything.`,
+    not_my_fault: `Let a boss die without dealing any damage to it yourself.`,
+    one_hit_wonder: `Defeat a boss in a single turn.`,
+    one_life: `Defeat any boss while having exactly 1 max health.`,
+    peerless_sprinter: `Speed through a floor in 3 turns or less.`,
+    shrug_it_off: `Take 10 or more damage without dying in 1 run.`,
+    speed_runner: `Leave floor 10 in 100 turns or less.`,
+    triple: `Have 3 or more of the same non temporary card in your deck.`,
+    without_a_scratch: `Leave floor 10 without ever taking damage.`,
+}
+Object.freeze(achievement_description);
+const achievement_names = {
+    // Boss
+    velociphile: `Only A Speedbump`,
+    spider_queen: `Arachno-Regicide`,
+    two_headed_serpent: `One Head Is Better Than Two`,
+    lich: `End To Unlife`,
+    young_dragon: `Novice Dragonslayer`,
+    forest_heart: `Expert Lumberjack`,
+    arcane_sentry: `Security Bypass`,
+    lord_of_shadow_and_flame: `Deeper and Deeper`,
+    victory: `Victory`,
+
+    // Normal
+    ancient_knowledge: `Ancient Knowledge`,
+    beyond_the_basics: `Beyond The Basics`,
+    blessed: `Blessed`,
+    clumsy: `Clumsy`,
+    collector: `Collector`,
+    common_sense: `Common Sense`,
+    jack_of_all_trades: `Jack Of All Trades`,
+    manic_vandal: `Manic Vandal`,
+    minimalist: `Minimalist`,
+    monster_hunter: `Monster Hunter`,
+    multikill: `Multikill`,
+    non_violent: `Non Violent`,
+    not_my_fault: `Not My Fault`,
+    one_hit_wonder: `One Hit Wonder`,
+    one_life: `One Is All You Need`,
+    peerless_sprinter: `Peerless Sprinter`,
+    shrug_it_off: `Shrug It Off`,
+    speed_runner: `Speed Runner`,
+    triple: `Three Of A Kind`,
+    without_a_scratch: `Without A Scratch`,
+}
+Object.freeze(achievement_names);
+const achievement_text = { title: `Achievements`,
+    reset: `Reset`,
+    confirm_reset: `Confirm?`,
+    unlocked: `Achievement Unlocked:`,
+    repeated: `Achievement Repeated:`,
+    unlocks_boon: `New Boon`,
+    unlocks_cards: `New Cards`,
+}
+Object.freeze(achievement_text);
+
+const boss_achievements = [
+    achievement_names.velociphile,
+    achievement_names.spider_queen,
+    achievement_names.two_headed_serpent,
+    achievement_names.lich,
+    achievement_names.young_dragon,
+    achievement_names.forest_heart,
+    achievement_names.arcane_sentry,
+    achievement_names.lord_of_shadow_and_flame,
+];
 const journal_area_messages = {
     visited: `Times Visited`,
     cleared: `Times Cleared`,
@@ -2549,7 +2605,9 @@ Object.freeze(journal_card_headers);
 const journal_history_messages = {
     run_num: `Run #`,
     killed_by: `Killed by `,
-    victory: `Victory!`
+    victory: `Victory!`,
+    show_wins: `Show Wins`,
+    show_all: `Show All`,
 }
 
 const history_stat_labels = {
@@ -2619,7 +2677,13 @@ const CONTROLS_TEXT = {
         choose: `Choose item`,
         confirm: `Confirm choice`,
         reject: `Abandon chest`
-    }
+    },
+    screen: {
+        header: `Screen Controls`,
+        change: `Change Screens`,
+        left: `Switch Tabs Left`,
+        right: `Switch Tabs Right`,
+    },
 }
 Object.freeze(CONTROLS_TEXT);
 
@@ -2819,6 +2883,7 @@ const HTML_UIIDS = {
             stage_controls: `stageControls`,
             shop_controls: `shopControls`,
             chest_controls: `chestControls`,
+            screen_controls: `screenControls`,
 }
 Object.freeze(HTML_UIIDS);
 
@@ -2854,14 +2919,20 @@ function explain_card(card){
     var text = ``;
     text += card.evolutions !== undefined ? `${move_types.evolutions}\n\n` : ``;
     text += `${card.options.explain_buttons()}`;
-    if(card.per_floor !== undefined){
-        text += `${move_types.per_floor}\n`;
+    if(card.fleeting !== undefined){
+        text += `${move_types.fleeting}\n`;
     }
     else if(card.temp){
         text += `${move_types.temp}\n`;
     }
     if(card.options.is_instant()){
         text += `${move_types.instant}\n`;
+    }
+    if(card.options.is_cycling()){
+        text += `${move_types.cycling}\n`;
+    }
+    if(card.options.is_repeating()){
+        text += `${move_types.repeating}\n`;
     }
     return text.trimEnd();
 }
@@ -3234,7 +3305,8 @@ const DisplayHTML = {
     press: function(key_press){
         var key = key_press.key.toLowerCase();
         GS.data.controls.toggle_press(key);
-        if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
+        if(display.set_control === undefined && GS.data.controls.dropdown(key)){}
+        else if(DISPLAY_DIVISIONS.is(UIIDS.game_screen)){
             if(GAME_SCREEN_DIVISIONS.is(UIIDS.stage)){
                 GS.data.controls.stage(key);
             }
@@ -3245,8 +3317,19 @@ const DisplayHTML = {
                 GS.data.controls.chest(key);
             }
         }
-        else if(DISPLAY_DIVISIONS.is(UIIDS.settings) && display.set_control !== undefined){
-            display.set_control(key);
+        else if (DISPLAY_DIVISIONS.is(UIIDS.guide)){
+            GS.data.controls.guidebook(key);
+        }
+        else if (DISPLAY_DIVISIONS.is(UIIDS.journal)){
+            GS.data.controls.journal(key);
+        }
+        else if(DISPLAY_DIVISIONS.is(UIIDS.settings)){
+            if(display.set_control === undefined){
+                GS.data.controls.settings(key);
+            }
+            else{
+                display.set_control(key);
+            }
         }
     },
     unpress: function(key_press){
@@ -3309,6 +3392,12 @@ const DisplayHTML = {
         }
         doc_location.append(select_button);
     },
+    traverse_dropdown: function(id, size, change){
+        const dropdown = this.get_element(id);
+        const next_index = (dropdown.selectedIndex + change) % size;
+        dropdown.selectedIndex = next_index;
+        dropdown.onchange();
+    },
     create_alternating_text_section: function(location, header, par_arr, inline_arr){
         if(par_arr.length !== inline_arr.length && par_arr.length !== inline_arr.length + 1){
             throw new Error(ERRORS.array_size);
@@ -3360,10 +3449,12 @@ const DisplayHTML = {
             button.classList.add(`greyed-out`);
         }
     },
-    create_image: function(src, id, size){
+    create_image: function(src, id, size, alt){
         var image = document.createElement(`img`);
         image.src = `${IMG_FOLDER.src}${src}`;
         image.id = id;
+        image.title = alt;
+        image.alt = alt;
         if(typeof size === `number`){
             image.width = size;
             image.height = size;
@@ -4074,6 +4165,22 @@ const DisplayHTML = {
         }
         return fs;
     },
+    create_history_toggle(){
+        const filter = GS.data.filter_history;
+        const button = document.createElement(`button`);
+        button.classList.add(`history-toggle-button`);
+        button.onclick = () => {
+            GS.data.toggle_history_filter()
+            update_history();
+        }
+        if(filter){
+            button.innerText = journal_history_messages.show_all;
+        }
+        else{
+            button.innerText = journal_history_messages.show_wins;
+        }
+        return button;
+    },
     update_history(history_list){
         this.remove_children(UIIDS.history_page_selector);
         const pageElement = this.get_element(UIIDS.history_section);
@@ -4211,6 +4318,9 @@ const DisplayHTML = {
         const selector = new PageSelector((p) => {update(p)}, max);
         selector.set_max();
         selectorElement.append(this.make_page_selector(selector));
+        if(GS.data.run_has_victory()){
+            selectorElement.append(this.create_history_toggle());
+        }
     },
 
     // Non Required helper functions.
@@ -4427,15 +4537,21 @@ function refresh_full_deck_display(deck){
  */
 function create_sidebar(){
     var location = UIIDS.sidebar_header;
-    var swap_visibility = function(id_list, id){
+    SIDEBAR_DIVISIONS.swap(UIIDS.text_log); // Hides all before some are removed from the list
+    SIDEBAR_DIVISIONS.set([
+        UIIDS.text_log, 
+        UIIDS.discard_pile, 
+        UIIDS.initiative
+    ]);
+    var swap = function(id){
         return function(){
-            id_list.swap(id);
+            SIDEBAR_DIVISIONS.swap(id);
         }
     }
     display.remove_children(location);
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.text_log));
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.discard_pile));
-    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.initiative));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.text_log, swap(UIIDS.text_log));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.discard_pile, swap(UIIDS.discard_pile));
+    display.create_visibility_toggle(location, SIDEBAR_BUTTONS.initiative, swap(UIIDS.initiative));
     SIDEBAR_DIVISIONS.swap(UIIDS.text_log);
 }
 function update_initiative(map){
@@ -4697,37 +4813,42 @@ function refresh_other_stats(stats, location){
         stat_image_labels.removed
     );
 }
+const MAIN_DROPDOWN_OPTIONS = [
+    {
+        label: screen_names.gameplay,
+        on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
+    }, 
+    {
+        label: screen_names.guide,
+        on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
+    },
+    {
+        label: screen_names.journal,
+        on_change: () => {
+            update_journal();
+            DISPLAY_DIVISIONS.swap(UIIDS.journal);
+        }
+    },
+    {
+        label: screen_names.settings,
+        on_change: () => {
+            setup_settings_page();
+            DISPLAY_DIVISIONS.swap(UIIDS.settings);
+        }
+    },
+
+];
+
 /**
  * Function to create a dropdown menu capable of switching between the game and guide screens.
  * @param {string} location Where to create it.
  */
 function create_main_dropdown(location){
-    var options = [
-        {
-            label: screen_names.gameplay,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.game_screen)}
-        }, 
-        {
-            label: screen_names.guide,
-            on_change: () => {DISPLAY_DIVISIONS.swap(UIIDS.guide)}
-        },
-        {
-            label: screen_names.journal,
-            on_change: () => {
-                update_journal();
-                DISPLAY_DIVISIONS.swap(UIIDS.journal);
-            }
-        },
-        {
-            label: screen_names.settings,
-            on_change: () => {
-                setup_settings_page();
-                DISPLAY_DIVISIONS.swap(UIIDS.settings);
-            }
-        },
+    display.create_dropdown(location, MAIN_DROPDOWN_OPTIONS);
+}
 
-    ];
-    display.create_dropdown(location, options);
+function scroll_dropdown(change){
+    display.traverse_dropdown(`${UIIDS.header_box} select`, MAIN_DROPDOWN_OPTIONS.length, change);
 }
 /**
  * Function to get an array of buttons with the keys used for controls as the value to use when displaying the guide.
@@ -4785,7 +4906,7 @@ function display_guide(){
     var confusion_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.confusion, confusion_text, confusion_inline_arr);
     var about_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.about, GUIDE_TEXT.about, about_links);
 
-    var section_id_list = [
+    GUIDEBOOK_DIVISIONS.set([
         basics_section, 
         cards_section, 
         enemies_section, 
@@ -4795,26 +4916,26 @@ function display_guide(){
         sidebar_section,
         confusion_section,
         about_section
-    ];
+    ]);
 
-    var swap_visibility = function(id_list, id){
+    var swap = function(id){
         return function(){
-            display.swap_screen(id_list, id);
+            GUIDEBOOK_DIVISIONS.swap(id);
         }
     }
 
     // Create guidebook navbar.
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap_visibility(section_id_list, basics_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap_visibility(section_id_list, cards_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap_visibility(section_id_list, enemies_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap_visibility(section_id_list, shop_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap_visibility(section_id_list, sidebar_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap_visibility(section_id_list, confusion_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.about, swap_visibility(section_id_list, about_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap(basics_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap(cards_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap(enemies_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap(shop_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap(bosses_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap(chests_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap(sidebar_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap(confusion_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.about, swap(about_section));
 
-    display.swap_screen(section_id_list, basics_section);
+    GUIDEBOOK_DIVISIONS.swap(basics_section);
 }
 /**
  * Function to get an array of images for the card symbols to use when displaying the guide..
@@ -4823,7 +4944,7 @@ function display_guide(){
 function make_guidebook_images(arr){
     var images = [];
     for(var img of arr){
-        images.push(display.create_image(img.src, `${img.name} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE)));
+        images.push(display.create_image(img.src, `${img.name} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE), img.name));
     }
     return images;
 }
@@ -5254,30 +5375,29 @@ function update_journal(){
     update_achievements();
 }
 
-const journal_navbar_ids = [
-    UIIDS.journal_cards,
-    UIIDS.journal_boons,
-    UIIDS.journal_areas,
-    UIIDS.achievements,
-    UIIDS.journal_history
-]
 
 function setup_journal_navbar(){
     var id = UIIDS.journal_navbar;
-
-    var swap_visibility = function(id_list, id){
+    JOURNAL_DIVISIONS.set([
+        UIIDS.journal_cards,
+        UIIDS.journal_boons,
+        UIIDS.journal_areas,
+        UIIDS.achievements,
+        UIIDS.journal_history
+    ]);
+    var swap = function(id){
         return function(){
-            display.swap_screen(id_list, id);
+            JOURNAL_DIVISIONS.swap(id)
         }
     }
 
-    display.create_visibility_toggle(id, journal_navbar_labels.cards, swap_visibility(journal_navbar_ids, UIIDS.journal_cards));
-    display.create_visibility_toggle(id, journal_navbar_labels.boons, swap_visibility(journal_navbar_ids, UIIDS.journal_boons));
-    display.create_visibility_toggle(id, journal_navbar_labels.areas, swap_visibility(journal_navbar_ids, UIIDS.journal_areas));
-    display.create_visibility_toggle(id, journal_navbar_labels.achievements, swap_visibility(journal_navbar_ids, UIIDS.achievements));
-    display.create_visibility_toggle(id, journal_navbar_labels.history, swap_visibility(journal_navbar_ids, UIIDS.journal_history));
+    display.create_visibility_toggle(id, journal_navbar_labels.cards, swap(UIIDS.journal_cards));
+    display.create_visibility_toggle(id, journal_navbar_labels.boons, swap(UIIDS.journal_boons));
+    display.create_visibility_toggle(id, journal_navbar_labels.areas, swap(UIIDS.journal_areas));
+    display.create_visibility_toggle(id, journal_navbar_labels.achievements, swap(UIIDS.achievements));
+    display.create_visibility_toggle(id, journal_navbar_labels.history, swap(UIIDS.journal_history));
 
-    display.swap_screen(journal_navbar_ids, UIIDS.journal_cards);
+    JOURNAL_DIVISIONS.swap(UIIDS.journal_cards);
 }
 function controls_chest_section(){
     var controls = GS.data.controls.get();
@@ -5300,6 +5420,22 @@ function setup_controls_page(){
     controls_shop_section();
     display.remove_children(UIIDS.chest_controls);
     controls_chest_section();
+    display.remove_children(UIIDS.screen_controls);
+    controls_screen_section();
+}
+function controls_screen_section(){
+    var controls = GS.data.controls.get();
+    display.add_controls_header(UIIDS.screen_controls, CONTROLS_TEXT.screen.header, edit_screen_controls);
+    display.control_box(UIIDS.screen_controls, controls.screen.change_screen, CONTROLS_TEXT.screen.change);
+    display.control_box(UIIDS.screen_controls, controls.screen.tab_left, CONTROLS_TEXT.screen.left);
+    display.control_box(UIIDS.screen_controls, controls.screen.tab_right, CONTROLS_TEXT.screen.right);
+}
+
+function edit_screen_controls(controls){
+    display.add_edit_controls_header(UIIDS.screen_controls, CONTROLS_TEXT.screen.header, controls_screen_section, controls);
+    display.control_edit_box(UIIDS.screen_controls, controls.screen.change_screen, CONTROLS_TEXT.screen.change);
+    display.control_edit_box(UIIDS.screen_controls, controls.screen.tab_left, CONTROLS_TEXT.screen.left);
+    display.control_edit_box(UIIDS.screen_controls, controls.screen.tab_right, CONTROLS_TEXT.screen.right);
 }
 function controls_shop_section(){
     var controls = GS.data.controls.get();
@@ -5361,7 +5497,7 @@ function reset_achievements(){
 function reset_history(){
     GS.data.clear_runs();
     update_history();
-    display.swap_screen(journal_navbar_ids, UIIDS.journal_cards);
+    JOURNAL_DIVISIONS.swap(UIIDS.journal_cards);
 }
 function reset_journal(){
     reset_achievements();
@@ -5377,24 +5513,22 @@ function setup_settings_page(){
 
 function setup_settings_navbar(){
     var id = UIIDS.settings_navbar;
-
-    var section_id_list = [
+    SETTINGS_DIVISIONS.set([
         UIIDS.settings_visual,
         UIIDS.controls,
         UIIDS.settings_data,
-    ];
-
-    var swap_visibility = function(id_list, id){
+    ]);
+    var swap = function(id){
         return function(){
-            display.swap_screen(id_list, id);
+            SETTINGS_DIVISIONS.swap(id)
         }
     }
 
-    display.create_visibility_toggle(id, settings_navbar_labels.visual, swap_visibility(section_id_list, UIIDS.settings_visual));
-    display.create_visibility_toggle(id, settings_navbar_labels.controls, swap_visibility(section_id_list, UIIDS.controls));
-    display.create_visibility_toggle(id, settings_navbar_labels.data, swap_visibility(section_id_list, UIIDS.settings_data));
+    display.create_visibility_toggle(id, settings_navbar_labels.visual, swap(UIIDS.settings_visual));
+    display.create_visibility_toggle(id, settings_navbar_labels.controls, swap(UIIDS.controls));
+    display.create_visibility_toggle(id, settings_navbar_labels.data, swap(UIIDS.settings_data));
 
-    display.swap_screen(section_id_list, UIIDS.settings_visual);
+    SETTINGS_DIVISIONS.swap(UIIDS.settings_visual)
 }
 function reset_visual_settings_page(){
     display.remove_children(UIIDS.settings_visual);
@@ -10381,6 +10515,7 @@ function add_boon_to_chest(chest, boon){
         name: boon.name,
         on_choose: function(){
             if(GS.boons.total === 0){
+                SIDEBAR_DIVISIONS.add(UIIDS.boon_list);
                 display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
                     SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
                 });
@@ -12356,8 +12491,12 @@ class BoonTracker{
 class ButtonGrid{
     #buttons; // A 3x3 2d array used to store the options.
     #instant;
+    #repeating;
+    #cycling;
     constructor(){
         this.#instant = false;
+        this.#repeating = false;
+        this.#cycling = false;
         var initial = {
             description: null_move_button
         }
@@ -12476,6 +12615,18 @@ class ButtonGrid{
      */
     is_instant(){
         return this.#instant;
+    }
+    make_repeating(){
+        this.#repeating = true;
+    }
+    is_repeating(){
+        return this.#repeating;
+    }
+    make_cycling(){
+        this.#cycling = true;
+    }
+    is_cycling(){
+        return this.#cycling;
     }
     has_action_type(type){
         for(var row of this.#buttons){
@@ -13887,15 +14038,16 @@ class GameState{
                 }
             }
             var is_instant = this.deck.is_instant(hand_pos);
+            var is_cycling = this.deck.is_cycling(hand_pos);
             if(!is_instant && this.boons.has(boon_names.reckless_speed) && !check_for_moves(behavior)){
                 is_instant = true;
                 confuse_player();
             }
-            if(this.boons.has(boon_names.spontaneous) > 0 && !is_instant){
+            if(is_cycling || (this.boons.has(boon_names.spontaneous) > 0 && !is_instant)){
                 this.deck.discard_all();
             }
             else{
-                this.deck.discard(hand_pos);
+                this.deck.play(hand_pos);
             }
             if(GS.boons.has(boon_names.thick_soles)){
                 GS.map.get_player().tags.remove(TAGS.invulnerable);
@@ -14130,12 +14282,8 @@ class GameState{
         }];
         display.add_button_row(UIIDS.retry_button, restart_message);
         refresh_full_deck_display(this.deck);
-        var swap_visibility = function(id_list, id){
-            return function(){
-                id_list.swap(id);
-            }
-        }
-        display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, swap_visibility(SIDEBAR_DIVISIONS, UIIDS.full_deck));
+        SIDEBAR_DIVISIONS.add(UIIDS.full_deck);
+        display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.full_deck, () => {SIDEBAR_DIVISIONS.swap(UIIDS.full_deck)});
     }
     victory(){
         refresh_map(this.map);
@@ -14260,6 +14408,15 @@ class KeyBind{
         this.#controls = DEFAULT_CONTROLS;
         this.alternate_is_pressed = false;
     }
+    dropdown(key){
+        if(this.#controls.screen.change_screen.includes(key)){
+            scroll_dropdown(1);
+        }
+        else{
+            return false;
+        }
+        return true;
+    }
     stage(key){
         var stage = this.#controls.stage;
         var key_num = stage.direction.indexOf(key);
@@ -14281,6 +14438,12 @@ class KeyBind{
         if(key_num >= 0){
             display.click(`${UIIDS.retry_button} 0 0`);
             return true;
+        }
+        if(this.#controls.screen.tab_left.includes(key)){
+            SIDEBAR_DIVISIONS.move(-1);
+        }
+        else if(this.#controls.screen.tab_right.includes(key)){
+            SIDEBAR_DIVISIONS.move(1);
         }
         return false;
     }
@@ -14321,6 +14484,30 @@ class KeyBind{
             return true;
         }
         return false;
+    }
+    guidebook(key){
+        if(this.#controls.screen.tab_left.includes(key)){
+            GUIDEBOOK_DIVISIONS.move(-1);
+        }
+        else if(this.#controls.screen.tab_right.includes(key)){
+            GUIDEBOOK_DIVISIONS.move(1);
+        }
+    }
+    journal(key){
+        if(this.#controls.screen.tab_left.includes(key)){
+            JOURNAL_DIVISIONS.move(-1);
+        }
+        else if(this.#controls.screen.tab_right.includes(key)){
+            JOURNAL_DIVISIONS.move(1);
+        }
+    }
+    settings(key){
+        if(this.#controls.screen.tab_left.includes(key)){
+            SETTINGS_DIVISIONS.move(-1);
+        }
+        else if(this.#controls.screen.tab_right.includes(key)){
+            SETTINGS_DIVISIONS.move(1);
+        }
     }
     toggle_press(key){
         if(this.#controls.toggle.alt.indexOf(key) >= 0){
@@ -14383,6 +14570,11 @@ class KeyBind{
                 confirm: [...this.#controls.chest.confirm],
                 reject: [...this.#controls.chest.reject],
             },
+            screen: {
+                change_screen: [...this.#controls.screen.change_screen],
+                tab_left: [...this.#controls.screen.tab_left],
+                tab_right: [...this.#controls.screen.tab_right],
+            },
             toggle: {
                 alt: [...this.#controls.toggle.alt],
             }
@@ -14440,8 +14632,11 @@ class MoveDeck{
         this.#hand = [];
         this.#discard_pile = [];
         for(var card of this.#decklist){
-            if(card.per_floor !== undefined){
-                card = card.per_floor();
+            if(card.fleeting !== undefined){
+                card = card.fleeting();
+                if(GS.boons.has(boon_names.fleeting_thoughts)){
+                    card.options.make_instant();
+                }
                 this.add_temp(card);
             }
             else{
@@ -14454,6 +14649,28 @@ class MoveDeck{
             if(top_card !== undefined){
                 this.#hand.push(top_card);
             }
+        }
+    }
+    /**
+     * Dicards the appropriate cards after the given hand position card was played.
+     * Takes Repeating cards into account.
+     * @param {number} hand_pos The position of the card that should be played
+     */
+    play(hand_pos){
+        if(hand_pos >= this.#hand.length || hand_pos < 0){
+            throw new Error(ERRORS.invalid_value);
+        }
+        var to_discard = [];
+        if(!this.#hand[hand_pos].options.is_repeating()){
+            to_discard.push(hand_pos);
+        }
+        for(var i = 0; i < this.#hand_size; ++i){
+            if(i !== hand_pos && this.#hand[i].options.is_repeating()){
+                to_discard.push(i);
+            }
+        }
+        for(var index of to_discard){
+            this.discard(index);
         }
     }
     /**
@@ -14523,9 +14740,9 @@ class MoveDeck{
         new_card.id = this.#id_count;
         this.#id_count++;
         this.#decklist.push(new_card);
-        if(new_card.per_floor !== undefined){
+        if(new_card.fleeting !== undefined){
             // If the card can only be used once per floor, add a temp copy instead.
-            var temp_card = new_card.per_floor();
+            var temp_card = new_card.fleeting();
             this.add_temp(temp_card);
         }
         else{
@@ -14686,6 +14903,17 @@ class MoveDeck{
         }
         return this.#hand[hand_position].options.is_instant();
     }
+    /**
+     * Function to check if a card in the hand cycles.
+     * @param {number} hand_position The position of the card to check.
+     * @returns {boolean} If it cycles. 
+     */
+    is_cycling(hand_position){
+        if(this.#hand.length <= hand_position || hand_position < 0){
+            throw new Error(ERRORS.invalid_value);
+        }
+        return this.#hand[hand_position].options.is_cycling();
+    }
     copy(){
         var new_deck = this.constructor(this.#hand_size, this.#min_deck_size);
         new_deck.#id_count = this.#id_count;
@@ -14767,6 +14995,7 @@ class SaveData{
     tiles;
     areas;
     history;
+    filter_history;
     
     #load_function;
     #save_function;
@@ -14789,6 +15018,7 @@ class SaveData{
         this.tiles = new SearchTree(data.tiles, TileTreeNode);
         this.areas = new SearchTree(data.areas, AreaTreeNode);
         this.history = new RunHistory(data.history);
+        this.filter_history = false;
     }
     save(){
         var data = {
@@ -14914,10 +15144,24 @@ class SaveData{
         this.save();
     }
     get_runs(){
+        if(this.filter_history){
+            return this.history.get_runs().filter((r) => {
+                return r.victory;
+            });
+        }
         return this.history.get_runs();
+    }
+    run_has_victory(){
+        return this.history.get_runs().some((r) => {
+            return r.victory;
+        });
+    }
+    toggle_history_filter(){
+        this.filter_history = !this.filter_history;
     }
     clear_runs(){
         this.history = new RunHistory();
+        this.filter_history = false;
         this.save();
     }
 
@@ -15008,14 +15252,31 @@ class ScreenTracker{
         display.swap_screen(this.div, division);
         this.current = division;
     }
+    move(change){
+        var index = this.div.indexOf(this.current);
+        index = mod(index + change, this.div.length);
+        this.swap(this.div[index]);
+    }
     is(division){
         return division === this.current;
+    }
+    set(divisions){
+        this.div = divisions;
+        this.current = undefined;
+    }
+    add(division){
+        this.div.push(division);
     }
 }
 
 const DISPLAY_DIVISIONS = new ScreenTracker([UIIDS.game_screen, UIIDS.guide, UIIDS.journal, UIIDS.settings]);
 const GAME_SCREEN_DIVISIONS = new ScreenTracker([UIIDS.stage, UIIDS.shop, UIIDS.chest, UIIDS.deck_select]);
 const SIDEBAR_DIVISIONS = new ScreenTracker([UIIDS.text_log, UIIDS.boon_list, UIIDS.discard_pile, UIIDS.full_deck, UIIDS.initiative, UIIDS.deck_order]);
+
+// Set by it's display function.
+const GUIDEBOOK_DIVISIONS = new ScreenTracker([]); 
+const JOURNAL_DIVISIONS = new ScreenTracker([]);
+const SETTINGS_DIVISIONS = new ScreenTracker([]);
 class AreaTreeNode{
     data;
     left;
@@ -15357,26 +15618,39 @@ class Shop{
     }
     #generate_add_row(){
         var amount = GS.map.stats.get_stats().add_choices;
-        var add_list_generators = rand_no_repeats(COMMON_CARDS, amount);
-        var index_of_rare = random_num(4);
-        var rares = get_achievement_cards();
-        if(index_of_rare < add_list_generators.length && rares.length > 0){
-            var rare = rand_no_repeats(rares, 1);
-            add_list_generators[index_of_rare] = rare[0];
-        }
-        this.#add_row = add_list_generators.map((g) => {return g()});
-        if(chance(1, 2) && filter_new_cards(this.#add_row).length === 0){
-            // Chance to force the appearance of a card in the shop that has never been picked.
-            var to_replace = 0;
-            var replace_list = filter_new_cards(COMMON_CARDS.map((c) => {return c()}));
-            if(chance(1, 2) && index_of_rare < this.#add_row.length && rares.length > 0){
-                to_replace = index_of_rare;
-                replace_list = filter_new_cards(rares.map((c) => {return c()}));
+
+        var common_choices = [...COMMON_CARDS];
+        var uncommon_choices = get_some_achievement_cards([
+            velociphile_achievement(),
+            spider_queen_achievement(),
+            two_headed_serpent_achievement(),
+        ]);
+        var rare_choices = get_some_achievement_cards([
+            lich_achievement(),
+            young_dragon_achievement(),
+        ]);
+        
+        var odds = [8];
+        odds.push(uncommon_choices.length > 0 ? 3 : 0);
+        odds.push(rare_choices.length > 0 ? 1 : 0);
+        var rolls = roll_counter(amount, odds);
+        
+        var draws = [
+            {arr: common_choices, count: rolls[0]},
+            {arr: uncommon_choices, count: rolls[1]},
+            {arr: rare_choices, count: rolls[2]},
+        ].map((d) => {
+            var add_choices = d.arr.map((c) => {return c();});
+            var adds = rand_no_repeats(add_choices, d.count);
+            if(adds.length > 0 && filter_new_cards(adds).length === 0 && chance(1, 2)){
+                var replace_choices = filter_new_cards(add_choices);
+                if(replace_choices.length > 0){
+                    adds[0] = random_from(replace_choices);
+                }
             }
-            if(replace_list.length > 0){
-                this.#add_row[to_replace] = random_from(replace_list);
-            }
-        }
+            return adds;
+        });
+        this.#add_row = [].concat(...draws);
     }
     #generate_remove_row(){
         var amount = GS.map.stats.get_stats().remove_choices;
@@ -16383,6 +16657,571 @@ function boss_floor_common(floor_num,  area, map){
     }
 }
 
+/** @type {CardGenerator} */
+function cycling_blast(){
+    var options = new ButtonGrid();
+    options.add_button(N, [
+        pattack(0, -1), pattack(1, -1), pattack(-1, -1), 
+        pattack(0, -2), pattack(1, -2), pattack(-1, -2), 
+        pattack(0, -3), pattack(1, -3), pattack(-1, -3), 
+    ]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_blast,
+        pic: `${IMG_FOLDER.cards}cycling_blast.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_breather(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pstun(0, 0)], 5);
+    options.make_cycling();
+    options.make_instant();
+    return{
+        name: card_names.cycling_breather,
+        pic: `${IMG_FOLDER.cards}cycling_breather.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_dash_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1)]);
+    options.add_button(E, [pmove(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(W, [pmove(-1, 0), pmove(-1, 0)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_dash_horizontal,
+        pic: `${IMG_FOLDER.cards}cycling_dash_horizontal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_dash_vertical(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pmove(1, 0)]);
+    options.add_button(S, [pmove(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pmove(-1, 0)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_dash_vertical,
+        pic: `${IMG_FOLDER.cards}cycling_dash_vertical.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_slide_ne(){
+    var options = new ButtonGrid();
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(W, [pmove(-1, 0)]);
+    options.add_button(NE, [pmove(1, -1), pmove(1, -1)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_slide_ne,
+        pic: `${IMG_FOLDER.cards}cycling_slide_ne.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_slide_nw(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0)]);
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(NW, [pmove(-1, -1), pmove(-1, -1)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_slide_nw,
+        pic: `${IMG_FOLDER.cards}cycling_slide_nw.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function cycling_y(){
+    var options = new ButtonGrid();
+    options.add_button(S, [pmove(0, 1)]);
+    options.add_button(NE, [pmove(2, -1)]);
+    options.add_button(NW, [pmove(-2, -1)]);
+    options.make_cycling();
+    return{
+        name: card_names.cycling_y,
+        pic: `${IMG_FOLDER.cards}cycling_y.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function prismatic_knife(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pstun(0, 0), pstun(0, 0), pmove(0, -1), pattack(1, 0), pattack(-1, 0), pattack(0, -1)]);
+    options.make_cycling();
+    options.make_instant()
+    return{
+        name: card_names.prismatic_knife,
+        pic: `${IMG_FOLDER.cards}prismatic_knife.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function punch_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pattack(1, -1)]);
+    options.add_button(SE, [pattack(1, 1)]);
+    options.add_button(SW, [pattack(-1, 1)]);
+    options.add_button(NW, [pattack(-1, -1)]);
+    options.make_instant();
+    return{
+        name: card_names.punch_diagonal,
+        pic: `${IMG_FOLDER.cards}punch_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function punch_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(0, -1)]);
+    options.add_button(E, [pattack(1, 0)]);
+    options.add_button(S, [pattack(0, 1)]);
+    options.add_button(W, [pattack(-1, 0)]);
+    options.make_instant();
+    return{
+        name: card_names.punch_orthogonal,
+        pic: `${IMG_FOLDER.cards}punch_orthogonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_e(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(1, 0)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_e,
+        pic: `${IMG_FOLDER.cards}sidestep_e.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_n(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -1)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_n,
+        pic: `${IMG_FOLDER.cards}sidestep_n.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(1, -1)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_ne,
+        pic: `${IMG_FOLDER.cards}sidestep_ne.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_nw(){
+    var options = new ButtonGrid();
+    options.add_button(NW, [pmove(-1, -1)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_nw,
+        pic: `${IMG_FOLDER.cards}sidestep_nw.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_s(){
+    var options = new ButtonGrid();
+    options.add_button(S, [pmove(0, 1)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_s,
+        pic: `${IMG_FOLDER.cards}sidestep_s.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_se(){
+    var options = new ButtonGrid();
+    options.add_button(SE, [pmove(1, 1)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_se,
+        pic: `${IMG_FOLDER.cards}sidestep_se.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_sw(){
+    var options = new ButtonGrid();
+    options.add_button(SW, [pmove(-1, 1)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_sw,
+        pic: `${IMG_FOLDER.cards}sidestep_sw.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function sidestep_w(){
+    var options = new ButtonGrid();
+    options.add_button(W, [pmove(-1, 0)]);
+    options.make_instant();
+    return{
+        name: card_names.sidestep_w,
+        pic: `${IMG_FOLDER.cards}sidestep_w.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function teleport(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pteleport(0, 0)]);
+    return{
+        name: card_names.teleport,
+        pic: `${IMG_FOLDER.cards}teleport.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_attack_left(){
+    var options = new ButtonGrid();
+    options.add_button(W, [pstun(0, 0), pattack(0, 1), pattack(0, 1), pattack(0, -1), pattack(0, -1),
+        pattack(-1, 0), pattack(-1, 0), pattack(-1, 1), pattack(-1, 1), pattack(-1, -1), pattack(-1, -1)]);
+    return{
+        name: card_names.reckless_attack_left,
+        pic: `${IMG_FOLDER.cards}reckless_attack_left.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_attack_right(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pstun(0, 0), pattack(0, 1), pattack(0, 1), pattack(0, -1), pattack(0, -1),
+        pattack(1, 0), pattack(1, 0), pattack(1, 1), pattack(1, 1), pattack(1, -1), pattack(1, -1)]);
+    return{
+        name: card_names.reckless_attack_right,
+        pic: `${IMG_FOLDER.cards}reckless_attack_right.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_leap_forwards (){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(N, [pstun(0, 0), pmove(0, -2), ...spin]);
+    options.add_button(S, [pmove(0, 1)]);
+    return{
+        name: card_names.reckless_leap_forwards,
+        pic: `${IMG_FOLDER.cards}reckless_leap_forwards.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_leap_left(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(W, [pstun(0, 0), pmove(-2, 0), ...spin]);
+    options.add_button(E, [pmove(1, 0)]);
+    return{
+        name: card_names.reckless_leap_left,
+        pic: `${IMG_FOLDER.cards}reckless_leap_left.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_leap_right(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(E, [pstun(0, 0), pmove(2, 0), ...spin]);
+    options.add_button(W, [pmove(-1, 0)]);
+    return{
+        name: card_names.reckless_leap_right,
+        pic: `${IMG_FOLDER.cards}reckless_leap_right.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_sidestep_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(0, 0), pmove(1, -1)]);
+    options.add_button(SE, [pstun(0, 0), pmove(1, 1)]);
+    options.add_button(SW, [pstun(0, 0), pmove(-1, 1)]);
+    options.add_button(NW, [pstun(0, 0), pmove(-1, -1)]);
+    options.make_instant();
+    return{
+        name: card_names.reckless_sidestep_diagonal,
+        pic: `${IMG_FOLDER.cards}reckless_sidestep_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_sidestep_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pmove(0, -1)]);
+    options.add_button(E, [pstun(0, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 0), pmove(0, 1)]);
+    options.add_button(W, [pstun(0, 0), pmove(-1, 0)]);
+    options.make_instant();
+    return{
+        name: card_names.reckless_sidestep_orthogonal,
+        pic: `${IMG_FOLDER.cards}reckless_sidestep_orthogonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_spin(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(C, [pstun(0, 0), pstun(0, 0), ...spin, ...spin]);
+    return{
+        name: card_names.reckless_spin,
+        pic: `${IMG_FOLDER.cards}reckless_spin.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_sprint(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pstun(0, 0), pmove(0, -1), pmove(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pstun(0, 0), pstun(0, 0), pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 0), pstun(0, 0), pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pstun(0, 0), pstun(0, 0), pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
+    return{
+        name: card_names.reckless_sprint,
+        pic: `${IMG_FOLDER.cards}reckless_sprint.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function reckless_teleport(){
+    var options = new ButtonGrid();
+    options.add_button(C, [pstun(0, 0), pstun(0, 0), pteleport(0, 0)]);
+    options.make_instant();
+    return{
+        name: card_names.reckless_teleport,
+        pic: `${IMG_FOLDER.cards}reckless_teleport.png`,
+        options
+    }
+}
+/** @type {CardGenerator} */
+function repeating_fan(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(1, 0), pstun(-1, 0), pstun(1, -1), pstun(-1, -1), pstun(0, -1), ]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_fan,
+        pic: `${IMG_FOLDER.cards}repeating_fan.png`,
+        options
+    }
+}
+/** @type {CardGenerator} */
+function repeating_leap_n(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, 0), pmove(0, -2)]);
+    options.add_button(S, [pmove(0, 2)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_leap_n,
+        pic: `${IMG_FOLDER.cards}repeating_leap_n.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_leap_ne(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pmove(2, -1)]);
+    options.add_button(SW, [pmove(-2, 1)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_leap_ne,
+        pic: `${IMG_FOLDER.cards}repeating_leap_ne.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_leap_nw(){
+    var options = new ButtonGrid();
+    options.add_button(SE, [pmove(2, 1)]);
+    options.add_button(NW, [pmove(-2, -1)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_leap_nw,
+        pic: `${IMG_FOLDER.cards}repeating_leap_nw.png`,
+        options
+    }
+}
+/** @type {CardGenerator} */
+function repeating_retreat(){
+    var options = new ButtonGrid();
+    options.add_button(S, [pmove(0, 1)]);
+    options.make_repeating();
+    options.make_instant();
+    return{
+        name: card_names.repeating_retreat,
+        pic: `${IMG_FOLDER.cards}repeating_retreat.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_slice_horizontal(){
+    var options = new ButtonGrid();
+    options.add_button(E, [pattack(1, 1), pattack(1, 0), pattack(1, -1)]);
+    options.add_button(W, [pattack(-1, 1), pattack(-1, 0), pattack(-1, -1)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_slice_horizontal,
+        pic: `${IMG_FOLDER.cards}repeating_slice_horizontal.png`,
+        options
+    }
+}
+
+/** @type {CardGenerator} */
+function repeating_slice_vertical(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pattack(1, -1), pattack(0, -1), pattack(-1, -1)]);
+    options.add_button(S,[pattack(1, 1), pattack(0, 1), pattack(-1, 1)]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_slice_vertical,
+        pic: `${IMG_FOLDER.cards}repeating_slice_vertical.png`,
+        options
+    }
+}
+/** @type {CardGenerator} */
+function repeating_spin(){
+    var options = new ButtonGrid();
+    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
+    options.add_button(C, [pstun(0, 0), pstun(0, 0), ...spin]);
+    options.make_repeating();
+    return{
+        name: card_names.repeating_spin,
+        pic: `${IMG_FOLDER.cards}repeating_spin.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_leap_horizontal(){
+    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
+    var options = new ButtonGrid();
+    options.add_button(E, [pmove(2, 0), ...spin]);
+    options.add_button(W, [pmove(-2, 0), ...spin]);
+    return{
+        name: card_names.stunning_leap_horizontal,
+        pic: `${IMG_FOLDER.cards}stunning_leap_horizontal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_leap_vertical(){
+    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
+    var options = new ButtonGrid();
+    options.add_button(N, [pmove(0, -2), ...spin]);
+    options.add_button(S, [pmove(0, 2), ...spin]);
+    return{
+        name: card_names.stunning_leap_vertical,
+        pic: `${IMG_FOLDER.cards}stunning_leap_vertical.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_punch_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(1, -1), pstun(1, -1)]);
+    options.add_button(SE, [pstun(1, 1), pstun(1, 1)]);
+    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1)]);
+    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1)]);
+    options.make_instant();
+    return{
+        name: card_names.stunning_punch_diagonal,
+        pic: `${IMG_FOLDER.cards}stunning_punch_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_punch_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, -1), pstun(0, -1)]);
+    options.add_button(E, [pstun(1, 0), pstun(1, 0)]);
+    options.add_button(S, [pstun(0, 1), pstun(0, 1)]);
+    options.add_button(W, [pstun(-1, 0), pstun(-1, 0)]);
+    options.make_instant();
+    return{
+        name: card_names.stunning_punch_orthogonal,
+        pic: `${IMG_FOLDER.cards}stunning_punch_orthogonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_retreat(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, -1), pstun(1, -1), pstun(-1, -1), pstun(1, 0), pstun(-1, 0),]);
+    options.add_button(SE, [pmove(1, 1)]);
+    options.add_button(S, [pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
+    options.add_button(SW, [pmove(-1, 1)]);
+    return{
+        name: card_names.stunning_retreat,
+        pic: `${IMG_FOLDER.cards}stunning_retreat.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_slice(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(1, -1), pattack(1, -1), pstun(0, -1), pattack(0, -1), pstun(-1, -1), pattack(-1, -1)]);
+    options.add_button(E, [pstun(1, 1), pattack(1, 1), pstun(1, 0), pattack(1, 0), pstun(1, -1), pattack(1, -1)]);
+    options.add_button(S, [pstun(1, 1), pattack(1, 1), pstun(0, 1), pattack(0, 1), pstun(-1, 1), pattack(-1, 1)]);
+    options.add_button(W, [pstun(-1, 1), pattack(-1, 1), pstun(-1, 0), pattack(-1, 0), pstun(-1, -1), pattack(-1, -1)]);
+    return{
+        name: card_names.stunning_slice,
+        pic: `${IMG_FOLDER.cards}stunning_slice.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_tread_diagonal(){
+    var options = new ButtonGrid();
+    options.add_button(NE, [pstun(1, -1), pstun(1, -1), pstun(1, -1), pmove(1, -1)]);
+    options.add_button(SE, [pstun(1, 1), pstun(1, 1), pstun(1, 1), pmove(1, 1)]);
+    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1), pstun(-1, 1), pmove(-1, 1)]);
+    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1), pstun(-1, -1), pmove(-1, -1)]);
+    return{
+        name: card_names.stunning_tread_diagonal,
+        pic: `${IMG_FOLDER.cards}stunning_tread_diagonal.png`,
+        options
+    }
+}
+/** @type {CardGenerator}*/
+function stunning_tread_orthogonal(){
+    var options = new ButtonGrid();
+    options.add_button(N, [pstun(0, -1), pstun(0, -1), pstun(0, -1), pmove(0, -1)]);
+    options.add_button(E, [pstun(1, 0), pstun(1, 0), pstun(1, 0), pmove(1, 0)]);
+    options.add_button(S, [pstun(0, 1), pstun(0, 1), pstun(0, 1), pmove(0, 1)]);
+    options.add_button(W, [pstun(-1, 0), pstun(-1, 0), pstun(-1, 0), pmove(-1, 0)]);
+    return{
+        name: card_names.stunning_tread_orthogonal,
+        pic: `${IMG_FOLDER.cards}stunning_tread_orthogonal.png`,
+        options
+    }
+}
 /** @type {CardGenerator}*/
 function basic_diagonal(){
     var options = new ButtonGrid();
@@ -16795,7 +17634,7 @@ function snack(){
         name: card_names.snack,
         pic: `${IMG_FOLDER.cards}snack.png`,
         options,
-        per_floor: snack
+        fleeting: snack
     }
 }
 /** @type {CardGenerator} Dropped by the forest heart*/
@@ -16939,7 +17778,7 @@ function regenerate(){
         name: card_names.regenerate,
         pic: `${IMG_FOLDER.cards}regenerate.png`,
         options,
-        per_floor: regenerate
+        fleeting: regenerate
     }
 }
 /** @type {CardGenerator} Dropped by the two headed serpent.*/
@@ -17688,56 +18527,6 @@ function step_right(){
     }
 }
 /** @type {CardGenerator}*/
-function stunning_leap_horizontal(){
-    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
-    var options = new ButtonGrid();
-    options.add_button(E, [pmove(2, 0), ...spin]);
-    options.add_button(W, [pmove(-2, 0), ...spin]);
-    return{
-        name: card_names.stunning_leap_horizontal,
-        pic: `${IMG_FOLDER.cards}stunning_leap_horizontal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_leap_vertical(){
-    var spin = ALL_DIRECTIONS.map(p => pstun(p.x, p.y));
-    var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -2), ...spin]);
-    options.add_button(S, [pmove(0, 2), ...spin]);
-    return{
-        name: card_names.stunning_leap_vertical,
-        pic: `${IMG_FOLDER.cards}stunning_leap_vertical.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_retreat(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, -1), pstun(1, -1), pstun(-1, -1), pstun(1, 0), pstun(-1, 0),]);
-    options.add_button(SE, [pmove(1, 1)]);
-    options.add_button(S, [pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
-    options.add_button(SW, [pmove(-1, 1)]);
-    return{
-        name: card_names.stunning_retreat,
-        pic: `${IMG_FOLDER.cards}stunning_retreat.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_slice(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(1, -1), pattack(1, -1), pstun(0, -1), pattack(0, -1), pstun(-1, -1), pattack(-1, -1)]);
-    options.add_button(E, [pstun(1, 1), pattack(1, 1), pstun(1, 0), pattack(1, 0), pstun(1, -1), pattack(1, -1)]);
-    options.add_button(S, [pstun(1, 1), pattack(1, 1), pstun(0, 1), pattack(0, 1), pstun(-1, 1), pattack(-1, 1)]);
-    options.add_button(W, [pstun(-1, 1), pattack(-1, 1), pstun(-1, 0), pattack(-1, 0), pstun(-1, -1), pattack(-1, -1)]);
-    return{
-        name: card_names.stunning_slice,
-        pic: `${IMG_FOLDER.cards}stunning_slice.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
 function thwack(){
     var options = new ButtonGrid();
     options.add_button(N, [pattack(0, -1), pattack(0, -1), pattack(0, -1)]);
@@ -17959,307 +18748,6 @@ function stumble_w(){
         options
     }
 }
-/** @type {CardGenerator}*/
-function punch_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pattack(1, -1)]);
-    options.add_button(SE, [pattack(1, 1)]);
-    options.add_button(SW, [pattack(-1, 1)]);
-    options.add_button(NW, [pattack(-1, -1)]);
-    options.make_instant();
-    return{
-        name: card_names.punch_diagonal,
-        pic: `${IMG_FOLDER.cards}punch_diagonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function punch_orthogonal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pattack(0, -1)]);
-    options.add_button(E, [pattack(1, 0)]);
-    options.add_button(S, [pattack(0, 1)]);
-    options.add_button(W, [pattack(-1, 0)]);
-    options.make_instant();
-    return{
-        name: card_names.punch_orthogonal,
-        pic: `${IMG_FOLDER.cards}punch_orthogonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_attack_left(){
-    var options = new ButtonGrid();
-    options.add_button(W, [pstun(0, 0), pattack(0, 1), pattack(0, 1), pattack(0, -1), pattack(0, -1),
-        pattack(-1, 0), pattack(-1, 0), pattack(-1, 1), pattack(-1, 1), pattack(-1, -1), pattack(-1, -1)]);
-    return{
-        name: card_names.reckless_attack_left,
-        pic: `${IMG_FOLDER.cards}reckless_attack_left.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_attack_right(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pstun(0, 0), pattack(0, 1), pattack(0, 1), pattack(0, -1), pattack(0, -1),
-        pattack(1, 0), pattack(1, 0), pattack(1, 1), pattack(1, 1), pattack(1, -1), pattack(1, -1)]);
-    return{
-        name: card_names.reckless_attack_right,
-        pic: `${IMG_FOLDER.cards}reckless_attack_right.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_leap_forwards (){
-    var options = new ButtonGrid();
-    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(N, [pstun(0, 0), pmove(0, -2), ...spin]);
-    options.add_button(S, [pmove(0, 1)]);
-    return{
-        name: card_names.reckless_leap_forwards,
-        pic: `${IMG_FOLDER.cards}reckless_leap_forwards.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_leap_left(){
-    var options = new ButtonGrid();
-    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(W, [pstun(0, 0), pmove(-2, 0), ...spin]);
-    options.add_button(E, [pmove(1, 0)]);
-    return{
-        name: card_names.reckless_leap_left,
-        pic: `${IMG_FOLDER.cards}reckless_leap_left.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_leap_right(){
-    var options = new ButtonGrid();
-    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(E, [pstun(0, 0), pmove(2, 0), ...spin]);
-    options.add_button(W, [pmove(-1, 0)]);
-    return{
-        name: card_names.reckless_leap_right,
-        pic: `${IMG_FOLDER.cards}reckless_leap_right.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_sidestep_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pstun(0, 0), pmove(1, -1)]);
-    options.add_button(SE, [pstun(0, 0), pmove(1, 1)]);
-    options.add_button(SW, [pstun(0, 0), pmove(-1, 1)]);
-    options.add_button(NW, [pstun(0, 0), pmove(-1, -1)]);
-    options.make_instant();
-    return{
-        name: card_names.reckless_sidestep_diagonal,
-        pic: `${IMG_FOLDER.cards}reckless_sidestep_diagonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_sidestep_orthogonal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, 0), pmove(0, -1)]);
-    options.add_button(E, [pstun(0, 0), pmove(1, 0)]);
-    options.add_button(S, [pstun(0, 0), pmove(0, 1)]);
-    options.add_button(W, [pstun(0, 0), pmove(-1, 0)]);
-    options.make_instant();
-    return{
-        name: card_names.reckless_sidestep_orthogonal,
-        pic: `${IMG_FOLDER.cards}reckless_sidestep_orthogonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_spin(){
-    var options = new ButtonGrid();
-    var spin = ALL_DIRECTIONS.map(p => pattack(p.x, p.y));
-    options.add_button(C, [pstun(0, 0), pstun(0, 0), ...spin, ...spin]);
-    return{
-        name: card_names.reckless_spin,
-        pic: `${IMG_FOLDER.cards}reckless_spin.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_sprint(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, 0), pstun(0, 0), pmove(0, -1), pmove(0, -1), pmove(0, -1)]);
-    options.add_button(E, [pstun(0, 0), pstun(0, 0), pmove(1, 0), pmove(1, 0), pmove(1, 0)]);
-    options.add_button(S, [pstun(0, 0), pstun(0, 0), pmove(0, 1), pmove(0, 1), pmove(0, 1)]);
-    options.add_button(W, [pstun(0, 0), pstun(0, 0), pmove(-1, 0), pmove(-1, 0), pmove(-1, 0)]);
-    return{
-        name: card_names.reckless_sprint,
-        pic: `${IMG_FOLDER.cards}reckless_sprint.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function reckless_teleport(){
-    var options = new ButtonGrid();
-    options.add_button(C, [pstun(0, 0), pstun(0, 0), pteleport(0, 0)]);
-    options.make_instant();
-    return{
-        name: card_names.reckless_teleport,
-        pic: `${IMG_FOLDER.cards}reckless_teleport.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_e(){
-    var options = new ButtonGrid();
-    options.add_button(E, [pmove(1, 0)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_e,
-        pic: `${IMG_FOLDER.cards}sidestep_e.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_n(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pmove(0, -1)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_n,
-        pic: `${IMG_FOLDER.cards}sidestep_n.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_ne(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pmove(1, -1)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_ne,
-        pic: `${IMG_FOLDER.cards}sidestep_ne.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_nw(){
-    var options = new ButtonGrid();
-    options.add_button(NW, [pmove(-1, -1)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_nw,
-        pic: `${IMG_FOLDER.cards}sidestep_nw.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_s(){
-    var options = new ButtonGrid();
-    options.add_button(S, [pmove(0, 1)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_s,
-        pic: `${IMG_FOLDER.cards}sidestep_s.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_se(){
-    var options = new ButtonGrid();
-    options.add_button(SE, [pmove(1, 1)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_se,
-        pic: `${IMG_FOLDER.cards}sidestep_se.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_sw(){
-    var options = new ButtonGrid();
-    options.add_button(SW, [pmove(-1, 1)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_sw,
-        pic: `${IMG_FOLDER.cards}sidestep_sw.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function sidestep_w(){
-    var options = new ButtonGrid();
-    options.add_button(W, [pmove(-1, 0)]);
-    options.make_instant();
-    return{
-        name: card_names.sidestep_w,
-        pic: `${IMG_FOLDER.cards}sidestep_w.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_punch_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pstun(1, -1), pstun(1, -1)]);
-    options.add_button(SE, [pstun(1, 1), pstun(1, 1)]);
-    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1)]);
-    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1)]);
-    options.make_instant();
-    return{
-        name: card_names.stunning_punch_diagonal,
-        pic: `${IMG_FOLDER.cards}stunning_punch_diagonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_punch_orthogonal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, -1), pstun(0, -1)]);
-    options.add_button(E, [pstun(1, 0), pstun(1, 0)]);
-    options.add_button(S, [pstun(0, 1), pstun(0, 1)]);
-    options.add_button(W, [pstun(-1, 0), pstun(-1, 0)]);
-    options.make_instant();
-    return{
-        name: card_names.stunning_punch_orthogonal,
-        pic: `${IMG_FOLDER.cards}stunning_punch_orthogonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_tread_diagonal(){
-    var options = new ButtonGrid();
-    options.add_button(NE, [pstun(1, -1), pstun(1, -1), pstun(1, -1), pmove(1, -1)]);
-    options.add_button(SE, [pstun(1, 1), pstun(1, 1), pstun(1, 1), pmove(1, 1)]);
-    options.add_button(SW, [pstun(-1, 1), pstun(-1, 1), pstun(-1, 1), pmove(-1, 1)]);
-    options.add_button(NW, [pstun(-1, -1), pstun(-1, -1), pstun(-1, -1), pmove(-1, -1)]);
-    return{
-        name: card_names.stunning_tread_diagonal,
-        pic: `${IMG_FOLDER.cards}stunning_tread_diagonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function stunning_tread_orthogonal(){
-    var options = new ButtonGrid();
-    options.add_button(N, [pstun(0, -1), pstun(0, -1), pstun(0, -1), pmove(0, -1)]);
-    options.add_button(E, [pstun(1, 0), pstun(1, 0), pstun(1, 0), pmove(1, 0)]);
-    options.add_button(S, [pstun(0, 1), pstun(0, 1), pstun(0, 1), pmove(0, 1)]);
-    options.add_button(W, [pstun(-1, 0), pstun(-1, 0), pstun(-1, 0), pmove(-1, 0)]);
-    return{
-        name: card_names.stunning_tread_orthogonal,
-        pic: `${IMG_FOLDER.cards}stunning_tread_orthogonal.png`,
-        options
-    }
-}
-/** @type {CardGenerator}*/
-function teleport(){
-    var options = new ButtonGrid();
-    options.add_button(C, [pteleport(0, 0)]);
-    return{
-        name: card_names.teleport,
-        pic: `${IMG_FOLDER.cards}teleport.png`,
-        options
-    }
-}
 /** @type {CardGenerator} Shown in shop to denote adding a card to your deck.*/
 function symbol_add_card(){
     return{
@@ -18345,6 +18833,26 @@ const ACHIEVEMENT_CARDS = {
         reckless_sprint, 
         reckless_teleport, 
     ],
+    lich: [
+        repeating_fan,
+        repeating_leap_n,
+        repeating_leap_ne,
+        repeating_leap_nw,
+        repeating_retreat,
+        repeating_slice_horizontal,
+        repeating_slice_vertical,
+        repeating_spin,
+    ],
+    young_dragon: [
+        cycling_blast,
+        cycling_breather,
+        cycling_dash_horizontal,
+        cycling_dash_vertical,
+        cycling_slide_ne,
+        cycling_slide_nw,
+        cycling_y,
+        prismatic_knife,
+    ]
 }
 Object.freeze(ACHIEVEMENT_CARDS);
 
@@ -18369,6 +18877,18 @@ function get_locked_achievement_cards(){
 function get_all_achievement_cards(){
     var list = [];
     get_achievements().map((a) => {
+        if(a.cards !== undefined){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
+
+function get_some_achievement_cards(achievements){
+    var list = [];
+    GS.data.achievements.completed().filter((a) => {
+        return achievements.some((a2) => {return a2.name === a.name})
+    }).map((a) => {
         if(a.cards !== undefined){
             list.push(...a.cards);
         }
@@ -18451,17 +18971,63 @@ function get_boss_cards(){
     ];
 }
 const COMMON_CARDS = [
-    advance, bounding_retreat, breakthrough_horizontal, breakthrough_vertical, butterfly, 
-    charge_horizontal, charge_vertical, clear_behind, clear_in_front, combat_diagonal, 
-    combat_orthogonal, dash_ne, dash_nw, diamond_attack, diamond_slice, 
-    explosion, force_horizontal, force_vertical, fork, flanking_diagonal, flanking_horizontal, 
-    flanking_vertical, hit_and_run, horsemanship, jab_diagonal, jab_orthogonal, 
-    jump, leap_left, leap_right, lunge_left, lunge_right, 
-    overcome_horizontal, overcome_vertical, pike, push_back, short_charge_orthogonal, 
-    short_charge_diagonal, slash_step_forwards, slash_step_left, slash_step_right, slice_twice, 
-    slip_through_ne, slip_through_nw, spearhead, spin_attack, sprint_horizontal, 
-    sprint_vertical, step_left, step_right, t_strike_horizontal, t_strike_vertical, 
-    thwack, trample, trident, y_leap, y_strike_ne, y_strike_nw,
+    advance, 
+    bounding_retreat, 
+    breakthrough_horizontal, 
+    breakthrough_vertical, 
+    butterfly, 
+    charge_horizontal, 
+    charge_vertical, 
+    clear_behind, 
+    clear_in_front, 
+    combat_diagonal, 
+    combat_orthogonal, 
+    dash_ne, 
+    dash_nw, 
+    diamond_attack, 
+    diamond_slice, 
+    explosion, 
+    force_horizontal, 
+    force_vertical, 
+    fork, 
+    flanking_diagonal, 
+    flanking_horizontal, 
+    flanking_vertical, 
+    hit_and_run, 
+    horsemanship, 
+    jab_diagonal, 
+    jab_orthogonal, 
+    jump, 
+    leap_left, 
+    leap_right, 
+    lunge_left, 
+    lunge_right, 
+    overcome_horizontal, 
+    overcome_vertical, 
+    pike, 
+    push_back, 
+    short_charge_orthogonal, 
+    short_charge_diagonal, 
+    slash_step_forwards, 
+    slash_step_left, 
+    slash_step_right, 
+    slice_twice, 
+    slip_through_ne, 
+    slip_through_nw, 
+    spearhead, 
+    spin_attack, 
+    sprint_horizontal, 
+    sprint_vertical, 
+    step_left, 
+    step_right, 
+    t_strike_horizontal, 
+    t_strike_vertical, 
+    thwack, 
+    trample, 
+    trident, 
+    y_leap, 
+    y_strike_ne, 
+    y_strike_nw,
 ];
 const CONFUSION_CARDS = [
     freeze_up, 
@@ -18550,7 +19116,7 @@ function pheal(x, y){
  * 
  * @property {number=} id A unique id that will be added to the card when it is added to the deck.
  * @property {boolean=} temp Given true when the card is temporary and will be removed on use or on end of floor.
- * @property {CardGenerator=} per_floor Provided to make temporary copies of a card if it can only be used once per floor.
+ * @property {CardGenerator=} fleeting Provided to make temporary copies of a card if it can only be used once per floor.
  */
 /**
  * @callback CardGenerator A function that creates a card.
@@ -18726,7 +19292,7 @@ function copy_card(source){
         pic: source.pic,
         options: source.options,
         evolutions: source.evolutions !== undefined ? [...source.evolutions] : undefined,
-        per_floor: source.per_floor,
+        fleeting: source.fleeting,
     }
 }
 
@@ -19079,6 +19645,7 @@ function clairvoyance(){
 }
 
 function pick_clairvoyance(){
+    SIDEBAR_DIVISIONS.add(UIIDS.deck_order);
     display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.deck_order, function(){
         SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
     });
@@ -19977,7 +20544,7 @@ function lich_achievement(){
         pic: `${IMG_FOLDER.tiles}lich_rest.png`,
         has: false,
         boons: [rift_touched],
-        cards: []
+        cards: ACHIEVEMENT_CARDS.lich,
     }
 }
 function lord_of_shadow_and_flame_achievement(){
@@ -20037,7 +20604,7 @@ function young_dragon_achievement(){
         pic: `${IMG_FOLDER.tiles}young_dragon_flight.png`,
         has: false,
         boons: [flame_strike],
-        cards: []
+        cards: ACHIEVEMENT_CARDS.young_dragon,
     }
 }
 function ancient_knowledge_achievement(){

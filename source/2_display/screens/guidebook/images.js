@@ -5,7 +5,7 @@
 function make_guidebook_images(arr){
     var images = [];
     for(var img of arr){
-        images.push(display.create_image(img.src, `${img.name} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE)));
+        images.push(display.create_image(img.src, `${img.name} symbol`, new Point(img.x, img.y).times(CARD_SYMBOL_SCALE), img.name));
     }
     return images;
 }

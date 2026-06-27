@@ -6,6 +6,6 @@ function regenerate(){
         name: card_names.regenerate,
         pic: `${IMG_FOLDER.cards}regenerate.png`,
         options,
-        per_floor: regenerate
+        fleeting: regenerate
     }
 }

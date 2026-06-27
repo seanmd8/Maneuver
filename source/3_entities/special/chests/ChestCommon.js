@@ -123,6 +123,7 @@ function add_boon_to_chest(chest, boon){
         name: boon.name,
         on_choose: function(){
             if(GS.boons.total === 0){
+                SIDEBAR_DIVISIONS.add(UIIDS.boon_list);
                 display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.boon_list, function(){
                     SIDEBAR_DIVISIONS.swap(UIIDS.boon_list);
                 });

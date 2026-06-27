@@ -34,6 +34,26 @@ const ACHIEVEMENT_CARDS = {
         reckless_sprint, 
         reckless_teleport, 
     ],
+    lich: [
+        repeating_fan,
+        repeating_leap_n,
+        repeating_leap_ne,
+        repeating_leap_nw,
+        repeating_retreat,
+        repeating_slice_horizontal,
+        repeating_slice_vertical,
+        repeating_spin,
+    ],
+    young_dragon: [
+        cycling_blast,
+        cycling_breather,
+        cycling_dash_horizontal,
+        cycling_dash_vertical,
+        cycling_slide_ne,
+        cycling_slide_nw,
+        cycling_y,
+        prismatic_knife,
+    ]
 }
 Object.freeze(ACHIEVEMENT_CARDS);
 
@@ -58,6 +78,18 @@ function get_locked_achievement_cards(){
 function get_all_achievement_cards(){
     var list = [];
     get_achievements().map((a) => {
+        if(a.cards !== undefined){
+            list.push(...a.cards);
+        }
+    });
+    return list;
+}
+
+function get_some_achievement_cards(achievements){
+    var list = [];
+    GS.data.achievements.completed().filter((a) => {
+        return achievements.some((a2) => {return a2.name === a.name})
+    }).map((a) => {
         if(a.cards !== undefined){
             list.push(...a.cards);
         }

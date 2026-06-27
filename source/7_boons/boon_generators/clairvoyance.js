@@ -10,6 +10,7 @@ function clairvoyance(){
 }
 
 function pick_clairvoyance(){
+    SIDEBAR_DIVISIONS.add(UIIDS.deck_order);
     display.create_visibility_toggle(UIIDS.sidebar_header, SIDEBAR_BUTTONS.deck_order, function(){
         SIDEBAR_DIVISIONS.swap(UIIDS.deck_order);
     });

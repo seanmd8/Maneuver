@@ -4,8 +4,12 @@
 class ButtonGrid{
     #buttons; // A 3x3 2d array used to store the options.
     #instant;
+    #repeating;
+    #cycling;
     constructor(){
         this.#instant = false;
+        this.#repeating = false;
+        this.#cycling = false;
         var initial = {
             description: null_move_button
         }
@@ -124,6 +128,18 @@ class ButtonGrid{
      */
     is_instant(){
         return this.#instant;
+    }
+    make_repeating(){
+        this.#repeating = true;
+    }
+    is_repeating(){
+        return this.#repeating;
+    }
+    make_cycling(){
+        this.#cycling = true;
+    }
+    is_cycling(){
+        return this.#cycling;
     }
     has_action_type(type){
         for(var row of this.#buttons){

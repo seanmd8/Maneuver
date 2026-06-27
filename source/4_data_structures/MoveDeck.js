@@ -40,8 +40,11 @@ class MoveDeck{
         this.#hand = [];
         this.#discard_pile = [];
         for(var card of this.#decklist){
-            if(card.per_floor !== undefined){
-                card = card.per_floor();
+            if(card.fleeting !== undefined){
+                card = card.fleeting();
+                if(GS.boons.has(boon_names.fleeting_thoughts)){
+                    card.options.make_instant();
+                }
                 this.add_temp(card);
             }
             else{
@@ -54,6 +57,28 @@ class MoveDeck{
             if(top_card !== undefined){
                 this.#hand.push(top_card);
             }
+        }
+    }
+    /**
+     * Dicards the appropriate cards after the given hand position card was played.
+     * Takes Repeating cards into account.
+     * @param {number} hand_pos The position of the card that should be played
+     */
+    play(hand_pos){
+        if(hand_pos >= this.#hand.length || hand_pos < 0){
+            throw new Error(ERRORS.invalid_value);
+        }
+        var to_discard = [];
+        if(!this.#hand[hand_pos].options.is_repeating()){
+            to_discard.push(hand_pos);
+        }
+        for(var i = 0; i < this.#hand_size; ++i){
+            if(i !== hand_pos && this.#hand[i].options.is_repeating()){
+                to_discard.push(i);
+            }
+        }
+        for(var index of to_discard){
+            this.discard(index);
         }
     }
     /**
@@ -123,9 +148,9 @@ class MoveDeck{
         new_card.id = this.#id_count;
         this.#id_count++;
         this.#decklist.push(new_card);
-        if(new_card.per_floor !== undefined){
+        if(new_card.fleeting !== undefined){
             // If the card can only be used once per floor, add a temp copy instead.
-            var temp_card = new_card.per_floor();
+            var temp_card = new_card.fleeting();
             this.add_temp(temp_card);
         }
         else{
@@ -285,6 +310,17 @@ class MoveDeck{
             throw new Error(ERRORS.invalid_value);
         }
         return this.#hand[hand_position].options.is_instant();
+    }
+    /**
+     * Function to check if a card in the hand cycles.
+     * @param {number} hand_position The position of the card to check.
+     * @returns {boolean} If it cycles. 
+     */
+    is_cycling(hand_position){
+        if(this.#hand.length <= hand_position || hand_position < 0){
+            throw new Error(ERRORS.invalid_value);
+        }
+        return this.#hand[hand_position].options.is_cycling();
     }
     copy(){
         var new_deck = this.constructor(this.#hand_size, this.#min_deck_size);

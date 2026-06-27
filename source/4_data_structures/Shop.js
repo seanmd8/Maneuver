@@ -16,26 +16,39 @@ class Shop{
     }
     #generate_add_row(){
         var amount = GS.map.stats.get_stats().add_choices;
-        var add_list_generators = rand_no_repeats(COMMON_CARDS, amount);
-        var index_of_rare = random_num(4);
-        var rares = get_achievement_cards();
-        if(index_of_rare < add_list_generators.length && rares.length > 0){
-            var rare = rand_no_repeats(rares, 1);
-            add_list_generators[index_of_rare] = rare[0];
-        }
-        this.#add_row = add_list_generators.map((g) => {return g()});
-        if(chance(1, 2) && filter_new_cards(this.#add_row).length === 0){
-            // Chance to force the appearance of a card in the shop that has never been picked.
-            var to_replace = 0;
-            var replace_list = filter_new_cards(COMMON_CARDS.map((c) => {return c()}));
-            if(chance(1, 2) && index_of_rare < this.#add_row.length && rares.length > 0){
-                to_replace = index_of_rare;
-                replace_list = filter_new_cards(rares.map((c) => {return c()}));
+
+        var common_choices = [...COMMON_CARDS];
+        var uncommon_choices = get_some_achievement_cards([
+            velociphile_achievement(),
+            spider_queen_achievement(),
+            two_headed_serpent_achievement(),
+        ]);
+        var rare_choices = get_some_achievement_cards([
+            lich_achievement(),
+            young_dragon_achievement(),
+        ]);
+        
+        var odds = [8];
+        odds.push(uncommon_choices.length > 0 ? 3 : 0);
+        odds.push(rare_choices.length > 0 ? 1 : 0);
+        var rolls = roll_counter(amount, odds);
+        
+        var draws = [
+            {arr: common_choices, count: rolls[0]},
+            {arr: uncommon_choices, count: rolls[1]},
+            {arr: rare_choices, count: rolls[2]},
+        ].map((d) => {
+            var add_choices = d.arr.map((c) => {return c();});
+            var adds = rand_no_repeats(add_choices, d.count);
+            if(adds.length > 0 && filter_new_cards(adds).length === 0 && chance(1, 2)){
+                var replace_choices = filter_new_cards(add_choices);
+                if(replace_choices.length > 0){
+                    adds[0] = random_from(replace_choices);
+                }
             }
-            if(replace_list.length > 0){
-                this.#add_row[to_replace] = random_from(replace_list);
-            }
-        }
+            return adds;
+        });
+        this.#add_row = [].concat(...draws);
     }
     #generate_remove_row(){
         var amount = GS.map.stats.get_stats().remove_choices;

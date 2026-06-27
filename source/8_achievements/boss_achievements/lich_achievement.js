@@ -5,6 +5,6 @@ function lich_achievement(){
         pic: `${IMG_FOLDER.tiles}lich_rest.png`,
         has: false,
         boons: [rift_touched],
-        cards: []
+        cards: ACHIEVEMENT_CARDS.lich,
     }
 }

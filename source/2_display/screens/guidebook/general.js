@@ -41,7 +41,7 @@ function display_guide(){
     var confusion_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.confusion, confusion_text, confusion_inline_arr);
     var about_section = display.create_alternating_text_section(section_location, GUIDE_HEADERS.about, GUIDE_TEXT.about, about_links);
 
-    var section_id_list = [
+    GUIDEBOOK_DIVISIONS.set([
         basics_section, 
         cards_section, 
         enemies_section, 
@@ -51,24 +51,24 @@ function display_guide(){
         sidebar_section,
         confusion_section,
         about_section
-    ];
+    ]);
 
-    var swap_visibility = function(id_list, id){
+    var swap = function(id){
         return function(){
-            display.swap_screen(id_list, id);
+            GUIDEBOOK_DIVISIONS.swap(id);
         }
     }
 
     // Create guidebook navbar.
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap_visibility(section_id_list, basics_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap_visibility(section_id_list, cards_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap_visibility(section_id_list, enemies_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap_visibility(section_id_list, shop_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap_visibility(section_id_list, bosses_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap_visibility(section_id_list, chests_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap_visibility(section_id_list, sidebar_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap_visibility(section_id_list, confusion_section));
-    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.about, swap_visibility(section_id_list, about_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.basics, swap(basics_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.cards, swap(cards_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.enemies, swap(enemies_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.shop, swap(shop_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.bosses, swap(bosses_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.chests, swap(chests_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.sidebar, swap(sidebar_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.confusion, swap(confusion_section));
+    display.create_visibility_toggle(navbar_location, GUIDE_HEADERS.about, swap(about_section));
 
-    display.swap_screen(section_id_list, basics_section);
+    GUIDEBOOK_DIVISIONS.swap(basics_section);
 }
